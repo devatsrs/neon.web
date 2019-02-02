@@ -369,6 +369,7 @@ class Job extends \Eloquent {
                 }
 
                 break;
+            case 'PRTU':
             case 'DRTU':
             case 'RTU':
                 /*

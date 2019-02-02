@@ -12,6 +12,7 @@ class RateTableDIDRate extends \Eloquent {
         'RateTableId'   =>      'required',
         'EffectiveDate' =>      'required',
         'TimezonesID'   =>      'required',
+        'MonthlyCost'   =>      'required',
     ];
 
 }

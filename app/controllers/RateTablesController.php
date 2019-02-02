@@ -40,11 +40,11 @@ class RateTablesController extends \BaseController {
 
         $data = Input::all();
         $data['iDisplayStart'] +=1;
-        $data['Country']                = $data['Country'] != '' && $data['Country'] != 'All' ? $data['Country'] : 'null';
+        $data['Country']                = !empty($data['Country']) && $data['Country'] != 'All' ? $data['Country'] : 'null';
         $data['Code']                   = $data['Code'] != '' ? "'".$data['Code']."'" : 'null';
-        $data['Description']            = $data['Description'] != '' ? "'".$data['Description']."'" : 'null';
-        $data['OriginationCode']        = $data['OriginationCode'] != '' ? "'".$data['OriginationCode']."'" : 'null';
-        $data['OriginationDescription'] = $data['OriginationDescription'] != '' ? "'".$data['OriginationDescription']."'" : 'null';
+        $data['Description']            = !empty($data['Description']) ? "'".$data['Description']."'" : 'null';
+        $data['OriginationCode']        = !empty($data['OriginationCode']) ? "'".$data['OriginationCode']."'" : 'null';
+        $data['OriginationDescription'] = !empty($data['OriginationDescription']) ? "'".$data['OriginationDescription']."'" : 'null';
         $data['RoutingCategoryID']      = !empty($data['RoutingCategoryID']) ? "'".$data['RoutingCategoryID']."'" : 'null';
         $data['Preference']             = !empty($data['Preference']) ? "'".$data['Preference']."'" : 'null';
         $data['Blocked']                = isset($data['Blocked']) && $data['Blocked'] != '' ? "'".$data['Blocked']."'" : 'null';
@@ -52,10 +52,11 @@ class RateTablesController extends \BaseController {
         $data['CityTariff']             = !empty($data['CityTariff']) ? "'".$data['CityTariff']."'" : 'null';
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
-        $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $TypeVoiceCall  = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
 
         $rateTable = RateTable::find($id);
-        if($rateTable->Type == $TypeVoiceCall) {
+        if($rateTable->Type == $TypeVoiceCall) { // voice call
             $columns = array('RateTableRateID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate');
             $sort_column = $columns[$data['iSortCol_0']];
 
@@ -64,13 +65,21 @@ class RateTablesController extends \BaseController {
             } else {
                 $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$data['ApprovedStatus'].",".$view.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
             }
-        } else {
-            $columns = array('RateTableRateID','OriginationCode','OriginationDescription','Code','Description','CityTariff','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate');
+        } else if($rateTable->Type == $TypeDID) { // did
+            $columns = array('RateTableRateID','Country','OriginationCode','OriginationDescription','Code','Description','CityTariff','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate');
             $sort_column = $columns[$data['iSortCol_0']];
             if(!empty($data['DiscontinuedRates'])) {
                 $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode'].",".$data['OriginationDescription']."," . $data['Code'] . "," . $data['Description'] . "," . $data['CityTariff'] . ",".$data['ApprovedStatus']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
             } else {
                 $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['CityTariff'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+            }
+        } else { // package
+            $columns = array('RateTableRateID','Code','Description','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTablePKGRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate');
+            $sort_column = $columns[$data['iSortCol_0']];
+            if(!empty($data['DiscontinuedRates'])) {
+                $query = "call prc_getDiscontinuedRateTablePKGRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Code'] . ",".$data['ApprovedStatus']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
+            } else {
+                $query = "call prc_GetRateTablePKGRate (".$companyID.",".$id.",".$data['Timezones'].",".$data['Code'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
             }
         }
         Log::info($query);
@@ -201,7 +210,7 @@ class RateTablesController extends \BaseController {
         } else if($rateTable->Type == $TypeDID) {
             return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown'));
         } else {
-            return View::make('ratetables.edit_pkg', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE'));
+            return View::make('ratetables.edit_pkg', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown'));
         }
     }
 
@@ -536,17 +545,64 @@ class RateTablesController extends \BaseController {
                 $criteria['ApprovedStatus']         = isset($criteria['ApprovedStatus']) && $criteria['ApprovedStatus'] != '' ? "'".$criteria['ApprovedStatus']."'" : 'null';
 
                 $RateTableID                = $id;
-                $RateTableDIDRateID         = $data['RateTableRateID'];
+                $RateTableDIDRateID         = $data['RateTableDIDRateID'];
 
                 if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
-                if (empty($data['RateTableRateID']) && !empty($data['criteria'])) {
+                if (empty($data['RateTableDIDRateID']) && !empty($data['criteria'])) {
                     $p_criteria = 1;
                 }
 
                 $query = "call prc_RateTableDIDRateApprove (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                Log::info($query);
+                $results = DB::statement($query);
+
+                if ($results) {
+                    DB::commit();
+                    return Response::json(array("status" => "success", "message" => "Rates Successfully Updated"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table Rate."));
+                }
+            } catch (Exception $ex) {
+                DB::rollback();
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
+
+        } else {
+            return Response::json(array("status" => "failed", "message" => "No RateTable Found."));
+        }
+    }
+
+    public function approve_rate_table_pkg_rate($id) {
+        if ($id > 0) {
+            $data = Input::all();
+            $username = User::get_user_full_name();
+
+            try {
+                DB::beginTransaction();
+                $p_criteria = 0;
+                $action     = 1; //update action
+                $criteria   = json_decode($data['criteria'], true);
+
+                $criteria['Code']                   = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'NULL';
+                $criteria['Effective']              = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
+                $criteria['TimezonesID']            = !empty($criteria['Timezones']) && $criteria['Timezones'] != '' ? "'" . $criteria['Timezones'] . "'" : 'NULL';
+                $criteria['ApprovedStatus']         = isset($criteria['ApprovedStatus']) && $criteria['ApprovedStatus'] != '' ? "'".$criteria['ApprovedStatus']."'" : 'null';
+
+                $RateTableID                = $id;
+                $RateTablePKGRateID         = $data['RateTablePKGRateID'];
+
+                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                    $criteria['TimezonesID'] = $data['TimezonesID'];
+                }
+
+                if (empty($data['RateTablePKGRateID']) && !empty($data['criteria'])) {
+                    $p_criteria = 1;
+                }
+
+                $query = "call prc_RateTablePKGRateApprove (" . $RateTableID . ",'" . $RateTablePKGRateID . "'," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -621,35 +677,45 @@ class RateTablesController extends \BaseController {
         $RateTableName = RateTable::find($id)->RateTableName;
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
-        $data['Country']                = $data['Country'] != '' && $data['Country'] != 'All'?$data['Country']:'null';
-        $data['Code']                   = $data['Code'] != ''?"'".$data['Code']."'":'null';
-        $data['Description']            = $data['Description'] != ''?"'".$data['Description']."'":'null';
-        $data['OriginationCode']        = $data['OriginationCode'] != ''?"'".$data['OriginationCode']."'":'null';
-        $data['OriginationDescription'] = $data['OriginationDescription'] != ''?"'".$data['OriginationDescription']."'":'null';
+        $data['Country']                = !empty($data['Country']) && $data['Country'] != 'All' ? $data['Country'] : 'null';
+        $data['Code']                   = $data['Code'] != '' ? "'".$data['Code']."'" : 'null';
+        $data['Description']            = !empty($data['Description']) ? "'".$data['Description']."'" : 'null';
+        $data['OriginationCode']        = !empty($data['OriginationCode']) ? "'".$data['OriginationCode']."'" : 'null';
+        $data['OriginationDescription'] = !empty($data['OriginationDescription']) ? "'".$data['OriginationDescription']."'" : 'null';
         $data['RoutingCategoryID']      = !empty($data['RoutingCategoryID']) ? "'".$data['RoutingCategoryID']."'" : 'null';
         $data['Preference']             = !empty($data['Preference']) ? "'".$data['Preference']."'" : 'null';
         $data['Blocked']                = isset($data['Blocked']) && $data['Blocked'] != '' ? "'".$data['Blocked']."'" : 'null';
         $data['ApprovedStatus']         = isset($data['ApprovedStatus']) && $data['ApprovedStatus'] != '' ? "'".$data['ApprovedStatus']."'" : 'null';
+        $data['CityTariff']             = !empty($data['CityTariff']) ? "'".$data['CityTariff']."'" : 'null';
         $data['ratetablepageview']      = !empty($data['ratetablepageview']) && $data['ratetablepageview']=='AdvanceView' ? 1 : 0;
         $data['isExport']               = '1'.$data['ratetablepageview'];
 
         $rateTable = RateTable::find($id);
-        $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $TypeVoiceCall  = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
 
-        if($rateTable->Type == $TypeVoiceCall) {
+        if($rateTable->Type == $TypeVoiceCall) { // voice call
             if(!empty($data['DiscontinuedRates'])) {
                 $query = " call prc_getDiscontinuedRateTableRateGrid (".$companyID.",".$id.",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$data['ApprovedStatus'].",".$view.",null,null,null,null,".$data['isExport'].")";
             } else {
                 $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$data['ApprovedStatus'].",".$view.",null,null,null,null,".$data['isExport'].")";
             }
-        } else {
+        } else if($rateTable->Type == $TypeDID) { // did
             if(!empty($data['DiscontinuedRates'])) {
-                $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode'].",".$data['OriginationDescription']."," . $data['Code'] . "," . $data['Description'] . "," . $data['ApprovedStatus'] . ",null,null,null,null,1)";
+                $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode'].",".$data['OriginationDescription']."," . $data['Code'] . "," . $data['Description'] . "," . $data['CityTariff'] . "," . $data['ApprovedStatus'] . ",null,null,null,null,".$data['isExport'].")";
             } else {
-                $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$data['ApprovedStatus']."',null,null,null,null,1)";
+                $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description']."," . $data['CityTariff'] . ",'".$data['Effective']."',".$data['ApprovedStatus'].",null,null,null,null,".$data['isExport'].")";
+            }
+        } else { // package
+            $columns = array('RateTableRateID','Code','Description','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTablePKGRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate');
+            $sort_column = $columns[$data['iSortCol_0']];
+            if(!empty($data['DiscontinuedRates'])) {
+                $query = "call prc_getDiscontinuedRateTablePKGRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Code'] . ",".$data['ApprovedStatus'].",null,null,null,null,1)";
+            } else {
+                $query = "call prc_GetRateTablePKGRate (".$companyID.",".$id.",".$data['Timezones'].",".$data['Code'].",'".$data['Effective']."',".$data['ApprovedStatus'].",null,null,null,null,1)";
             }
         }
-
+        Log::info($query);
         DB::setFetchMode( PDO::FETCH_ASSOC );
         $rate_table_rates  = DB::select($query);
         DB::setFetchMode( Config::get('database.fetch'));
@@ -684,18 +750,30 @@ class RateTablesController extends \BaseController {
         $RateTableRate['EffectiveDate']     = $data['EffectiveDate'];
         $RateTableRate['EndDate']           = !empty($data['EndDate']) ? $data['EndDate'] : null;
         $RateTableRate['TimezonesID']       = $data['TimezonesID'];
-        $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $RateApprovalProcess = CompanySetting::getKeyVal('RateApprovalProcess');
+        $TypeVoiceCall  = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
+
+        if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR) {
+            $RateTableRate['ApprovedStatus']    = 0;
+        } else {
+            $RateTableRate['ApprovedStatus']    = 1;
+        }
 
         if($rateTable->Type == $TypeVoiceCall) {
             $rules                          = RateTableRate::$rules;
             $rules['RateID']                = 'required|unique:tblRateTableRate,RateID,NULL,RateTableRateId,RateTableId,'.$id.',TimezonesID,'.$RateTableRate['TimezonesID'].',EffectiveDate,'.$RateTableRate['EffectiveDate'].',OriginationRateID,'.$RateTableRate['OriginationRateID'];
             //$rules['OriginationRateID']   = 'unique:'.$table.',OriginationRateID,NULL,'.$col_id.',RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'].',RateID,'.$data['RateID'];
             $message['RateID.unique']       = 'This combination of Origination Rate and Destination Rate on given Effective Date is already exist!';
-        } else {
+        } else if($rateTable->Type == $TypeDID) {
             $rules                          = RateTableDIDRate::$rules;
             $RateTableRate['CityTariff']    = !empty($data['CityTariff']) ? $data['CityTariff'] : '';
             $rules['RateID']                = 'required|unique:tblRateTableDIDRate,RateID,NULL,RateTableDIDRateID,RateTableId,'.$id.',TimezonesID,'.$RateTableRate['TimezonesID'].',EffectiveDate,'.$RateTableRate['EffectiveDate'].',OriginationRateID,'.$RateTableRate['OriginationRateID'].',CityTariff,'.$RateTableRate['CityTariff'];
             $message['RateID.unique']       = 'This combination of Origination Rate and Destination Rate on given Effective Date is already exist!';
+        } else {
+            $rules                          = RateTablePKGRate::$rules;
+            $rules['RateID']                = 'required|unique:tblRateTablePKGRate,RateID,NULL,RateTablePKGRateID,RateTableId,'.$id.',TimezonesID,'.$RateTableRate['TimezonesID'].',EffectiveDate,'.$RateTableRate['EffectiveDate'];
+            $message['RateID.unique']       = 'This Package Name on given Effective Date is already exist!';
         }
         $validator                  = Validator::make($data, $rules, $message);
 
@@ -704,23 +782,23 @@ class RateTablesController extends \BaseController {
         }
 
         if($rateTable->Type == $TypeVoiceCall) {
-            $RateTableRate['Rate']              = $data['Rate'];
-            $RateTableRate['RateN']             = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
-            $RateTableRate['Interval1']         = $data['Interval1'];
-            $RateTableRate['IntervalN']         = $data['IntervalN'];
-            $RateTableRate['ConnectionFee']     = $data['ConnectionFee'];
+            $RateTableRate['Rate'] = $data['Rate'];
+            $RateTableRate['RateN'] = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
+            $RateTableRate['Interval1'] = $data['Interval1'];
+            $RateTableRate['IntervalN'] = $data['IntervalN'];
+            $RateTableRate['ConnectionFee'] = $data['ConnectionFee'];
 
-            if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR) {
+            if ($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR) {
                 $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
-                if($ROUTING_PROFILE == 1) {
+                if ($ROUTING_PROFILE == 1) {
                     $RateTableRate['RoutingCategoryID'] = $data['RoutingCategoryID'];
                 }
-                $RateTableRate['Preference']            = $data['Preference'] != '' ? $data['Preference'] : NULL;
-                $RateTableRate['Blocked']               = !empty($data['Blocked']) ? $data['Blocked'] : 0;
+                $RateTableRate['Preference'] = $data['Preference'] != '' ? $data['Preference'] : NULL;
+                $RateTableRate['Blocked'] = !empty($data['Blocked']) ? $data['Blocked'] : 0;
             }
 
             $Rate = RateTableRate::insert($RateTableRate);
-        } else {
+        } else if($rateTable->Type == $TypeDID) {
             $RateTableRate['OneOffCost']                = $data['OneOffCost'] == '' ? NULL : $data['OneOffCost'];
             $RateTableRate['MonthlyCost']               = $data['MonthlyCost' ] == '' ? NULL : $data['MonthlyCost'];
             $RateTableRate['CostPerCall']               = $data['CostPerCall' ] == '' ? NULL : $data['CostPerCall'];
@@ -749,6 +827,19 @@ class RateTablesController extends \BaseController {
             $RateTableRate['RegistrationCostPerNumberCurrency'] = $data['RegistrationCostPerNumberCurrency' ] == '' ? NULL : $data['RegistrationCostPerNumberCurrency'];
 
             $Rate = RateTableDIDRate::insert($RateTableRate);
+        } else {
+            unset($RateTableRate['OriginationRateID']);
+            $RateTableRate['OneOffCost']                        = $data['OneOffCost'] == '' ? NULL : $data['OneOffCost'];
+            $RateTableRate['MonthlyCost']                       = $data['MonthlyCost' ] == '' ? NULL : $data['MonthlyCost'];
+            $RateTableRate['PackageCostPerMinute']              = $data['PackageCostPerMinute' ] == '' ? NULL : $data['PackageCostPerMinute'];
+            $RateTableRate['RecordingCostPerMinute']            = $data['RecordingCostPerMinute' ] == '' ? NULL : $data['RecordingCostPerMinute'];
+
+            $RateTableRate['OneOffCostCurrency']                = $data['OneOffCostCurrency'] == '' ? NULL : $data['OneOffCostCurrency'];
+            $RateTableRate['MonthlyCostCurrency']               = $data['MonthlyCostCurrency' ] == '' ? NULL : $data['MonthlyCostCurrency'];
+            $RateTableRate['PackageCostPerMinuteCurrency']      = $data['PackageCostPerMinuteCurrency' ] == '' ? NULL : $data['PackageCostPerMinuteCurrency'];
+            $RateTableRate['RecordingCostPerMinuteCurrency']    = $data['RecordingCostPerMinuteCurrency' ] == '' ? NULL : $data['RecordingCostPerMinuteCurrency'];
+
+            $Rate = RateTablePKGRate::insert($RateTableRate);
         }
 
         if ($Rate) {
@@ -986,14 +1077,17 @@ class RateTablesController extends \BaseController {
             $RateID             = $data['RateID'];
             $OriginationRateID  = !empty($data['OriginationRateID']) ? $data['OriginationRateID'] : 0;
             $TimezonesID        = $data['TimezonesID'];
-            $CityTariff         = !empty($data['CityTariff']) ? '"'.$data['CityTariff'].'"' : '';
+            $CityTariff         = !empty($data['CityTariff']) ? '"'.$data['CityTariff'].'"' : '""';
 
             $rateTable = RateTable::find($RateTableID);
-            $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+            $TypeVoiceCall  = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+            $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
             if($rateTable->Type == $TypeVoiceCall) {
                 $query = 'call prc_GetRateTableRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",' . $view . ')';
-            } else {
+            } else if($rateTable->Type == $TypeDID) {
                 $query = 'call prc_GetRateTableDIDRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",'.$CityTariff.',' . $view . ')';
+            } else {
+                $query = 'call prc_GetRateTablePKGRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '",' . $view . ')';
             }
             //Log::info($query);
             $response['status']     = "success";
@@ -1195,7 +1289,7 @@ class RateTablesController extends \BaseController {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
-                if (empty($data['RateTableRateID']) && !empty($data['criteria'])) {
+                if (empty($data['RateTableDIDRateID']) && !empty($data['criteria'])) {
                     $p_criteria = 1;
                 }
 
@@ -1249,11 +1343,167 @@ class RateTablesController extends \BaseController {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
-                if (empty($data['RateTableRateID']) && !empty($data['criteria'])) {
+                if (empty($data['RateTableDIDRateID']) && !empty($data['criteria'])) {
                     $p_criteria = 1;
                 }
 
                 $query = "call prc_RateTableDIDRateUpdateDelete (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $CityTariff . "," . $OneOffCost . "," . $MonthlyCost . "," . $CostPerCall . "," . $CostPerMinute . "," . $SurchargePerCall . "," . $SurchargePerMinute . "," . $OutpaymentPerCall . "," . $OutpaymentPerMinute . "," . $Surcharges . "," . $Chargeback . "," . $CollectionCostAmount . "," . $CollectionCostPercentage . "," . $RegistrationCostPerNumber . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $CostPerCallCurrency . "," . $CostPerMinuteCurrency . "," . $SurchargePerCallCurrency . "," . $SurchargePerMinuteCurrency . "," . $OutpaymentPerCallCurrency . "," . $OutpaymentPerMinuteCurrency . "," . $SurchargesCurrency . "," . $ChargebackCurrency . "," . $CollectionCostAmountCurrency . "," . $RegistrationCostPerNumberCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['CityTariff'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                Log::info($query);
+                $results = DB::statement($query);
+
+                if ($results) {
+                    DB::commit();
+                    return Response::json(array("status" => "success", "message" => "Rates Successfully Deleted"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Rates."));
+                }
+            } catch (Exception $ex) {
+                DB::rollback();
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
+
+        }
+    }
+
+    // update rate table package rate
+    public function update_rate_table_pkg_rate($id) {
+        if ($id > 0) {
+            $data = Input::all();
+            $error = 0;
+
+            $EffectiveDate = $EndDate = $OneOffCost = $MonthlyCost = $PackageCostPerMinute = $RecordingCostPerMinute = $OneOffCostCurrency = $MonthlyCostCurrency = $PackageCostPerMinuteCurrency = $RecordingCostPerMinuteCurrency = 'null';
+
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateOneOffCost']) || !empty($data['updateMonthlyCost']) || !empty($data['updatePackageCostPerMinute']) || !empty($data['updateRecordingCostPerMinute']) || !empty($data['updateOneOffCostCurrency']) || !empty($data['updateMonthlyCostCurrency']) || !empty($data['updatePackageCostPerMinuteCurrency']) || !empty($data['updateRecordingCostPerMinuteCurrency'])) {// || !empty($data['EndDate'])
+                if(!empty($data['updateEffectiveDate'])) {
+                    if(!empty($data['EffectiveDate'])) {
+                        $EffectiveDate = "'".$data['EffectiveDate']."'";
+                    } else {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateOneOffCost'])) {
+                    if(!empty($data['OneOffCost'])) {
+                        $OneOffCost = "'".floatval($data['OneOffCost'])."'";
+                    }
+                }
+                if(!empty($data['updateMonthlyCost'])) {
+                    if(!empty($data['MonthlyCost'])) {
+                        $MonthlyCost = "'".floatval($data['MonthlyCost'])."'";
+                    }
+                }
+                if(!empty($data['updatePackageCostPerMinute'])) {
+                    if(!empty($data['PackageCostPerMinute'])) {
+                        $PackageCostPerMinute = "'".floatval($data['PackageCostPerMinute'])."'";
+                    }
+                }
+                if(!empty($data['updateRecordingCostPerMinute'])) {
+                    if(!empty($data['RecordingCostPerMinute'])) {
+                        $RecordingCostPerMinute = "'".floatval($data['RecordingCostPerMinute'])."'";
+                    }
+                }
+                if(!empty($data['updateOneOffCostCurrency'])) {
+                    if(!empty($data['OneOffCostCurrency'])) {
+                        $OneOffCostCurrency = "'".$data['OneOffCostCurrency']."'";
+                    }
+                }
+                if(!empty($data['updateMonthlyCostCurrency'])) {
+                    if(!empty($data['MonthlyCostCurrency'])) {
+                        $MonthlyCostCurrency = "'".$data['MonthlyCostCurrency']."'";
+                    }
+                }
+                if(!empty($data['updatePackageCostPerMinuteCurrency'])) {
+                    if(!empty($data['PackageCostPerMinuteCurrency'])) {
+                        $PackageCostPerMinuteCurrency = "'".$data['PackageCostPerMinuteCurrency']."'";
+                    }
+                }
+                if(!empty($data['updateRecordingCostPerMinuteCurrency'])) {
+                    if(!empty($data['RecordingCostPerMinuteCurrency'])) {
+                        $RecordingCostPerMinuteCurrency = "'".$data['RecordingCostPerMinuteCurrency']."'";
+                    }
+                }
+                if(isset($error) && $error==1) {
+                    return Response::json(array("status" => "failed", "message" => "Please Select Checked Field Data"));
+                }
+
+            } else {
+                return Response::json(array("status" => "failed", "message" => "No Rate selected to Update."));
+            }
+
+            $username = User::get_user_full_name();
+
+            try {
+                DB::beginTransaction();
+                $p_criteria = 0;
+                $action     = 1; //update action
+                $criteria   = json_decode($data['criteria'], true);
+
+                $criteria['Code']           = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'NULL';
+                $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'NULL';
+                $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
+                $criteria['TimezonesID']    = !empty($criteria['Timezones']) && $criteria['Timezones'] != '' ? "'" . $criteria['Timezones'] . "'" : 'NULL';
+                $criteria['ApprovedStatus'] = isset($criteria['ApprovedStatus']) && $criteria['ApprovedStatus'] != '' ? "'".$criteria['ApprovedStatus']."'" : 'null';
+
+                $RateTableID                = $id;
+                $RateTablePKGRateID         = $data['RateTablePKGRateID'];
+
+                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                    $criteria['TimezonesID'] = $data['TimezonesID'];
+                }
+
+                if (empty($data['RateTablePKGRateID']) && !empty($data['criteria'])) {
+                    $p_criteria = 1;
+                }
+
+                $query = "call prc_RateTablePKGRateUpdateDelete (" . $RateTableID . ",'" . $RateTablePKGRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $OneOffCost . "," . $MonthlyCost . "," . $PackageCostPerMinute . "," . $RecordingCostPerMinute . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $PackageCostPerMinuteCurrency . "," . $RecordingCostPerMinuteCurrency . "," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                Log::info($query);
+                $results = DB::statement($query);
+
+                if ($results) {
+                    DB::commit();
+                    return Response::json(array("status" => "success", "message" => "Rates Successfully Updated"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table Rate."));
+                }
+            } catch (Exception $ex) {
+                DB::rollback();
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
+
+        } else {
+            return Response::json(array("status" => "failed", "message" => "No RateTable Found."));
+        }
+    }
+
+    //delete rate table rates
+    public function clear_pkg_rate($id) {
+        if ($id > 0) {
+            $data           = Input::all();
+            $username       = User::get_user_full_name();
+            $EffectiveDate = $EndDate = $OneOffCost = $MonthlyCost = $PackageCostPerMinute = $RecordingCostPerMinute = $OneOffCostCurrency = $MonthlyCostCurrency = $PackageCostPerMinuteCurrency = $RecordingCostPerMinuteCurrency = 'null';
+
+            try {
+                DB::beginTransaction();
+                $p_criteria = 0;
+                $action     = 2; //delete action
+                $criteria   = json_decode($data['criteria'], true);
+
+                $criteria['Code']           = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'null';
+                $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'null';
+                $criteria['TimezonesID']    = !empty($criteria['Timezones']) && $criteria['Timezones'] != '' ? "'" . $criteria['Timezones'] . "'" : 'NULL';
+                $criteria['ApprovedStatus'] = isset($criteria['ApprovedStatus']) && $criteria['ApprovedStatus'] != '' ? "'".$criteria['ApprovedStatus']."'" : 'null';
+
+                $RateTableID                = $id;
+                $RateTablePKGRateID         = $data['RateTablePKGRateID'];
+
+                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                    $criteria['TimezonesID'] = $data['TimezonesID'];
+                }
+
+                if (empty($data['RateTablePKGRateID']) && !empty($data['criteria'])) {
+                    $p_criteria = 1;
+                }
+
+                $query = "call prc_RateTablePKGRateUpdateDelete (" . $RateTableID . ",'" . $RateTablePKGRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $OneOffCost . "," . $MonthlyCost . "," . $PackageCostPerMinute . "," . $RecordingCostPerMinute . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $PackageCostPerMinuteCurrency . "," . $RecordingCostPerMinuteCurrency . "," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 

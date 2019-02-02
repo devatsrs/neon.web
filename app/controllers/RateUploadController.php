@@ -40,10 +40,12 @@ class RateUploadController extends \BaseController {
         $component_currencies = Currency::getCurrencyDropdownIDList();
         $component_currencies = array('Currency'=>$component_currencies);
 
-        if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
-            return View::make('rateupload.index_did', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall', 'component_currencies'));
-        } else {
+        if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) { // voice call
             return View::make('rateupload.index', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall', 'component_currencies'));
+        } else if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) { // did
+            return View::make('rateupload.index_did', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'TypeVoiceCall', 'component_currencies'));
+        } else { // package
+            return View::make('rateupload.index_pkg', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'TypeVoiceCall', 'component_currencies'));
         }
     }
 
@@ -59,6 +61,8 @@ class RateUploadController extends \BaseController {
             $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_RATE);
         } else if($RateUploadType == RateUpload::ratetable && $data['RateType'] == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
             $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_DIDRATE);
+        } else if($RateUploadType == RateUpload::ratetable && $data['RateType'] == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
+            $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_PKGRATE);
         }
 
         $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'FileUploadTemplateTypeID'=>$TemplateType])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
@@ -224,6 +228,8 @@ class RateUploadController extends \BaseController {
                     $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_RATE);
                 } else if($data['RateUploadType'] == RateUpload::ratetable && $data['RateType'] == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
                     $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_DIDRATE);
+                } else if($data['RateUploadType'] == RateUpload::ratetable && $data['RateType'] == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
+                    $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_PKGRATE);
                 }
 
                 $grid['RateUploadType'] = $data['RateUploadType'];
@@ -293,7 +299,7 @@ class RateUploadController extends \BaseController {
     }
 
     public function storeTemplate() {
-        $data = Input::all();//echo "<pre>";print_r($data);exit();
+        $data = Input::all();
         $CompanyID = User::get_companyID();
 
         $id = '';
@@ -424,7 +430,11 @@ class RateUploadController extends \BaseController {
                 $rules_for_type['selection.Description'] = 'required';
                 $rules_for_type['selection.OriginationCode'] = 'required_with:selection.OriginationDescription';
                 $rules_for_type['selection.OriginationDescription'] = 'required_with:selection.OriginationCode';
-                $message_for_type['selection.Code.required'] = "Code Field is required";
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
+                    $message_for_type['selection.Code.required'] = "Package Name Field is required";
+                } else {
+                    $message_for_type['selection.Code.required'] = "Code Field is required";
+                }
                 $message_for_type['selection.Description.required'] = "Description Field is required";
                 $message_for_type['selection.OriginationCpde.required_with'] = 'Origination Code is required if Origination Description is selected';
                 $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
@@ -433,7 +443,7 @@ class RateUploadController extends \BaseController {
             $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
             if(count($Timezones) > 0) { // if there are any timezones available
                 $TimezonesIDsArray = array();
-                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
                     foreach ($Timezones as $ID => $Title) {
                         $TimezonesIDsArray[] = 'selection.MonthlyCost'.$ID;
                     }
@@ -451,7 +461,7 @@ class RateUploadController extends \BaseController {
                     $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
                 }
             } else { // if there is only 1 timezone, default timezone
-                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
                     $rules_for_type['selection.MonthlyCost'] = 'required';
                     $message_for_type['selection.MonthlyCost.required'] = "Monthly Cost Field is required";
                 } else {
@@ -503,9 +513,11 @@ class RateUploadController extends \BaseController {
             $save["RateTableID"]    = $id;
             $save['Trunk']          = $RateTable->TrunkID;
             $save['ratetablename']  = $RateTable->RateTableName;
-            if($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
+            if($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) { // did rate upload
                 $jobtype = 'DRTU';
-            } else {
+            } else if($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) { // package rate upload
+                $jobtype = 'PRTU';
+            } else { // voicecall rate upload
                 $jobtype = 'RTU';
             }
         }
@@ -547,7 +559,7 @@ class RateUploadController extends \BaseController {
         $data               = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);
         $CompanyID          = User::get_companyID();
         $ProcessID          = (string) GUID::generate();
-        $bacth_insert_limit = 250;
+        $batch_insert_limit = 250;
         $counter            = 0;
         $p_Blocked          = 0;
         $p_preference       = 0;
@@ -682,7 +694,11 @@ class RateUploadController extends \BaseController {
                 $rules_for_type['selection.Description'] = 'required';
                 $rules_for_type['selection.OriginationCode'] = 'required_with:selection.OriginationDescription';
                 $rules_for_type['selection.OriginationDescription'] = 'required_with:selection.OriginationCode';
-                $message_for_type['selection.Code.required'] = "Code Field is required";
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
+                    $message_for_type['selection.Code.required'] = "Package Name Field is required";
+                } else {
+                    $message_for_type['selection.Code.required'] = "Code Field is required";
+                }
                 $message_for_type['selection.Description.required'] = "Description Field is required";
                 $message_for_type['selection.OriginationCpde.required_with'] = 'Origination Code is required if Origination Description is selected';
                 $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
@@ -691,7 +707,7 @@ class RateUploadController extends \BaseController {
             $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
             if(count($Timezones) > 0) { // if there are any timezones available
                 $TimezonesIDsArray = array();
-                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
                     foreach ($Timezones as $ID => $Title) {
                         $TimezonesIDsArray[] = 'selection.MonthlyCost' . $ID;
                     }
@@ -709,7 +725,7 @@ class RateUploadController extends \BaseController {
                     $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
                 }
             } else { // if there is only 1 timezone, default timezone
-                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
                     $rules_for_type['selection.MonthlyCost'] = 'required';
                     $message_for_type['selection.MonthlyCost.required'] = "Monthly Cost Field is required";
                 } else {
@@ -768,6 +784,8 @@ class RateUploadController extends \BaseController {
             $save['ratetablename']  = $RateTable->RateTableName;
             if($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
                 $jobtype = 'DRTU';
+            } else if($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
+                $jobtype = 'PRTU';
             } else {
                 $jobtype = 'RTU';
             }
@@ -796,6 +814,8 @@ class RateUploadController extends \BaseController {
                 $MODEL = "TempRateTableRate";
             } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
                 $MODEL = "TempRateTableDIDRate";
+            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
+                $MODEL = "TempRateTablePKGRate";
             }
 
             if(isset($joboptions->uploadtemplate) && !empty($joboptions->uploadtemplate)){
@@ -1027,6 +1047,7 @@ class RateUploadController extends \BaseController {
             $RoutingCategories  = RoutingCategory::getCategoryDropdownIDList($CompanyID,1);
             $type_voicecall     = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
             $type_did           = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
+            $type_pkg           = RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
 
             //get how many rates mapped against timezones
             //$RatesKeys = array_key_exists_wildcard((array)$attrselection,'Rate*');
@@ -1070,9 +1091,20 @@ class RateUploadController extends \BaseController {
                 $CollectionCostAmountCurrencyColumn       = 'CollectionCostAmountCurrency'.$id;
                 $RegistrationCostPerNumberCurrencyColumn  = 'RegistrationCostPerNumberCurrency'.$id;
 
+                $PackageCostPerMinuteColumn               = 'PackageCostPerMinute'.$id;
+                $RecordingCostPerMinuteColumn             = 'RecordingCostPerMinute'.$id;
+                $PackageCostPerMinuteCurrencyColumn       = 'PackageCostPerMinuteCurrency'.$id;
+                $RecordingCostPerMinuteCurrencyColumn     = 'RecordingCostPerMinuteCurrency'.$id;
+
                 $component_currencies = Currency::getCurrencyDropdownIDList();
 
-                if(($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) && !empty($attrselection->$MonthlyCostColumn)) || !empty($attrselection->$Rate1Column)) {
+                if((!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
+                    $CodeText = 'Package';
+                } else {
+                    $CodeText = 'Code';
+                }
+
+                if(($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) && !empty($attrselection->$MonthlyCostColumn)) || !empty($attrselection->$Rate1Column)) {
                     $lineno = $lineno1;
                     foreach ($results as $index => $temp_row) {
 
@@ -1148,7 +1180,7 @@ class RateUploadController extends \BaseController {
                                 } else if (!empty($tempdata['CountryCode'])) {
                                     $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with countr code later ie 91 - 1 -> 911
                                 } else {
-                                    $error[] = 'Code is blank at line no:' . $lineno;
+                                    $error[] = $CodeText.' is blank at line no:' . $lineno;
                                 }
                             }
 
@@ -1296,10 +1328,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$OneOffCostCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$OneOffCostCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$OneOffCostCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['OneOffCostCurrency'] = $attrselection->$OneOffCostCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$OneOffCostCurrencyColumn]) && array_search($temp_row[$attrselection->$OneOffCostCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['OneOffCostCurrency'] = array_search($temp_row[$attrselection->$OneOffCostCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$OneOffCostCurrencyColumn]) && array_search($temp_row[$attrselection->$OneOffCostCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['OneOffCostCurrency'] = array_search($temp_row[$attrselection->$OneOffCostCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['OneOffCostCurrency'] = NULL;
                                         $error[] = 'One-Off Cost Currency is not match at line no:' . $lineno;
@@ -1309,10 +1341,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$MonthlyCostCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$MonthlyCostCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$MonthlyCostCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['MonthlyCostCurrency'] = $attrselection->$MonthlyCostCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$MonthlyCostCurrencyColumn]) && array_search($temp_row[$attrselection->$MonthlyCostCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['MonthlyCostCurrency'] = array_search($temp_row[$attrselection->$MonthlyCostCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$MonthlyCostCurrencyColumn]) && array_search($temp_row[$attrselection->$MonthlyCostCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['MonthlyCostCurrency'] = array_search($temp_row[$attrselection->$MonthlyCostCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['MonthlyCostCurrency'] = NULL;
                                         $error[] = 'Monthly Cost Currency is not match at line no:' . $lineno;
@@ -1322,10 +1354,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$CostPerCallCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$CostPerCallCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$CostPerCallCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['CostPerCallCurrency'] = $attrselection->$CostPerCallCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$CostPerCallCurrencyColumn]) && array_search($temp_row[$attrselection->$CostPerCallCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['CostPerCallCurrency'] = array_search($temp_row[$attrselection->$CostPerCallCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$CostPerCallCurrencyColumn]) && array_search($temp_row[$attrselection->$CostPerCallCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['CostPerCallCurrency'] = array_search($temp_row[$attrselection->$CostPerCallCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['CostPerCallCurrency'] = NULL;
                                         $error[] = 'Cost Per Call Currency is not match at line no:' . $lineno;
@@ -1335,10 +1367,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$CostPerMinuteCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$CostPerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$CostPerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['CostPerMinuteCurrency'] = $attrselection->$CostPerMinuteCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$CostPerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$CostPerMinuteCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['CostPerMinuteCurrency'] = array_search($temp_row[$attrselection->$CostPerMinuteCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$CostPerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$CostPerMinuteCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['CostPerMinuteCurrency'] = array_search($temp_row[$attrselection->$CostPerMinuteCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['CostPerMinuteCurrency'] = NULL;
                                         $error[] = 'Cost Per Minute Currency is not match at line no:' . $lineno;
@@ -1348,10 +1380,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$SurchargePerCallCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$SurchargePerCallCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$SurchargePerCallCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['SurchargePerCallCurrency'] = $attrselection->$SurchargePerCallCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$SurchargePerCallCurrencyColumn]) && array_search($temp_row[$attrselection->$SurchargePerCallCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['SurchargePerCallCurrency'] = array_search($temp_row[$attrselection->$SurchargePerCallCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$SurchargePerCallCurrencyColumn]) && array_search($temp_row[$attrselection->$SurchargePerCallCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['SurchargePerCallCurrency'] = array_search($temp_row[$attrselection->$SurchargePerCallCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['SurchargePerCallCurrency'] = NULL;
                                         $error[] = 'Surcharge Per Call Currency is not match at line no:' . $lineno;
@@ -1361,10 +1393,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$SurchargePerMinuteCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$SurchargePerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$SurchargePerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['SurchargePerMinuteCurrency'] = $attrselection->$SurchargePerMinuteCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['SurchargePerMinuteCurrency'] = array_search($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['SurchargePerMinuteCurrency'] = array_search($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['SurchargePerMinuteCurrency'] = NULL;
                                         $error[] = 'Surcharge Per Minute Currency is not match at line no:' . $lineno;
@@ -1374,10 +1406,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$OutpaymentPerCallCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$OutpaymentPerCallCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$OutpaymentPerCallCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['OutpaymentPerCallCurrency'] = $attrselection->$OutpaymentPerCallCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn]) && array_search($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['OutpaymentPerCallCurrency'] = array_search($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn]) && array_search($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['OutpaymentPerCallCurrency'] = array_search($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['OutpaymentPerCallCurrency'] = NULL;
                                         $error[] = 'Outpayment Per Call Currency is not match at line no:' . $lineno;
@@ -1387,10 +1419,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$OutpaymentPerMinuteCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$OutpaymentPerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$OutpaymentPerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['OutpaymentPerMinuteCurrency'] = $attrselection->$OutpaymentPerMinuteCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['OutpaymentPerMinuteCurrency'] = array_search($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['OutpaymentPerMinuteCurrency'] = array_search($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['OutpaymentPerMinuteCurrency'] = NULL;
                                         $error[] = 'Outpayment Per Minute Currency is not match at line no:' . $lineno;
@@ -1400,10 +1432,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$SurchargesCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$SurchargesCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$SurchargesCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['SurchargesCurrency'] = $attrselection->$SurchargesCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$SurchargesCurrencyColumn]) && array_search($temp_row[$attrselection->$SurchargesCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['SurchargesCurrency'] = array_search($temp_row[$attrselection->$SurchargesCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$SurchargesCurrencyColumn]) && array_search($temp_row[$attrselection->$SurchargesCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['SurchargesCurrency'] = array_search($temp_row[$attrselection->$SurchargesCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['SurchargesCurrency'] = NULL;
                                         $error[] = 'Surcharges Currency is not match at line no:' . $lineno;
@@ -1413,10 +1445,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$ChargebackCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$ChargebackCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$ChargebackCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['ChargebackCurrency'] = $attrselection->$ChargebackCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$ChargebackCurrencyColumn]) && array_search($temp_row[$attrselection->$ChargebackCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['ChargebackCurrency'] = array_search($temp_row[$attrselection->$ChargebackCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$ChargebackCurrencyColumn]) && array_search($temp_row[$attrselection->$ChargebackCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['ChargebackCurrency'] = array_search($temp_row[$attrselection->$ChargebackCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['ChargebackCurrency'] = NULL;
                                         $error[] = 'Chargeback Currency is not match at line no:' . $lineno;
@@ -1426,10 +1458,10 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$CollectionCostAmountCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$CollectionCostAmountCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$CollectionCostAmountCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['CollectionCostAmountCurrency'] = $attrselection->$CollectionCostAmountCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn]) && array_search($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['CollectionCostAmountCurrency'] = array_search($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn]) && array_search($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['CollectionCostAmountCurrency'] = array_search($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['CollectionCostAmountCurrency'] = NULL;
                                         $error[] = 'Collection Cost Amount Currency is not match at line no:' . $lineno;
@@ -1439,16 +1471,101 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$RegistrationCostPerNumberCurrencyColumn)) {
-                                    if(array_key_exists($attrselection->$RegistrationCostPerNumberCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                    if (array_key_exists($attrselection->$RegistrationCostPerNumberCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['RegistrationCostPerNumberCurrency'] = $attrselection->$RegistrationCostPerNumberCurrencyColumn;
-                                    } else if(isset($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn]) && array_search($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn],$component_currencies)) {// if currency selected from file
-                                        $tempdata['RegistrationCostPerNumberCurrency'] = array_search($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn],$component_currencies);
+                                    } else if (isset($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn]) && array_search($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['RegistrationCostPerNumberCurrency'] = array_search($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn], $component_currencies);
                                     } else {
                                         $tempdata['RegistrationCostPerNumberCurrency'] = NULL;
                                         $error[] = 'Registration Cost Per Number Currency is not match at line no:' . $lineno;
                                     }
                                 } else {
                                     $tempdata['RegistrationCostPerNumberCurrency'] = NULL;
+                                }
+
+                            } if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_pkg)) {
+
+                                if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn])) {
+                                    $tempdata['OneOffCost'] = trim($temp_row[$attrselection->$OneOffCostColumn]);
+                                } else {
+                                    $tempdata['OneOffCost'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$MonthlyCostColumn) && isset($temp_row[$attrselection->$MonthlyCostColumn])) {
+                                    $temp_row[$attrselection->$MonthlyCostColumn] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->$MonthlyCostColumn]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
+                                    if (is_numeric(trim($temp_row[$attrselection->$MonthlyCostColumn]))) {
+                                        $tempdata['MonthlyCost'] = trim($temp_row[$attrselection->$MonthlyCostColumn]);
+                                    } else {
+                                        $error[] = 'Monthly Cost is not numeric at line no:' . $lineno;
+                                    }
+                                } elseif ($tempdata['Change'] == 'D') {
+                                    $tempdata['MonthlyCost'] = 0;
+                                } elseif ($tempdata['Change'] != 'D') {
+                                    $error[] = 'Monthly Cost is blank at line no:' . $lineno;
+                                }
+
+                                if (!empty($attrselection->$PackageCostPerMinuteColumn) && isset($temp_row[$attrselection->$PackageCostPerMinuteColumn])) {
+                                    $tempdata['PackageCostPerMinute'] = trim($temp_row[$attrselection->$PackageCostPerMinuteColumn]);
+                                } else {
+                                    $tempdata['PackageCostPerMinute'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$RecordingCostPerMinuteColumn) && isset($temp_row[$attrselection->$RecordingCostPerMinuteColumn])) {
+                                    $tempdata['RecordingCostPerMinute'] = trim($temp_row[$attrselection->$RecordingCostPerMinuteColumn]);
+                                } else {
+                                    $tempdata['RecordingCostPerMinute'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$OneOffCostCurrencyColumn)) {
+                                    if (array_key_exists($attrselection->$OneOffCostCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                        $tempdata['OneOffCostCurrency'] = $attrselection->$OneOffCostCurrencyColumn;
+                                    } else if (isset($temp_row[$attrselection->$OneOffCostCurrencyColumn]) && array_search($temp_row[$attrselection->$OneOffCostCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['OneOffCostCurrency'] = array_search($temp_row[$attrselection->$OneOffCostCurrencyColumn], $component_currencies);
+                                    } else {
+                                        $tempdata['OneOffCostCurrency'] = NULL;
+                                        $error[] = 'One-Off Cost Currency is not match at line no:' . $lineno;
+                                    }
+                                } else {
+                                    $tempdata['OneOffCostCurrency'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$MonthlyCostCurrencyColumn)) {
+                                    if (array_key_exists($attrselection->$MonthlyCostCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                        $tempdata['MonthlyCostCurrency'] = $attrselection->$MonthlyCostCurrencyColumn;
+                                    } else if (isset($temp_row[$attrselection->$MonthlyCostCurrencyColumn]) && array_search($temp_row[$attrselection->$MonthlyCostCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['MonthlyCostCurrency'] = array_search($temp_row[$attrselection->$MonthlyCostCurrencyColumn], $component_currencies);
+                                    } else {
+                                        $tempdata['MonthlyCostCurrency'] = NULL;
+                                        $error[] = 'Monthly Cost Currency is not match at line no:' . $lineno;
+                                    }
+                                } else {
+                                    $tempdata['MonthlyCostCurrency'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$PackageCostPerMinuteCurrencyColumn)) {
+                                    if (array_key_exists($attrselection->$PackageCostPerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                        $tempdata['PackageCostPerMinuteCurrency'] = $attrselection->$PackageCostPerMinuteCurrencyColumn;
+                                    } else if (isset($temp_row[$attrselection->$PackageCostPerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$PackageCostPerMinuteCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['PackageCostPerMinuteCurrency'] = array_search($temp_row[$attrselection->$PackageCostPerMinuteCurrencyColumn], $component_currencies);
+                                    } else {
+                                        $tempdata['PackageCostPerMinuteCurrency'] = NULL;
+                                        $error[] = 'Package Cost Per Minute Currency is not match at line no:' . $lineno;
+                                    }
+                                } else {
+                                    $tempdata['PackageCostPerMinuteCurrency'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$RecordingCostPerMinuteCurrencyColumn)) {
+                                    if (array_key_exists($attrselection->$RecordingCostPerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                        $tempdata['RecordingCostPerMinuteCurrency'] = $attrselection->$RecordingCostPerMinuteCurrencyColumn;
+                                    } else if (isset($temp_row[$attrselection->$RecordingCostPerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$RecordingCostPerMinuteCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['RecordingCostPerMinuteCurrency'] = array_search($temp_row[$attrselection->$RecordingCostPerMinuteCurrencyColumn], $component_currencies);
+                                    } else {
+                                        $tempdata['RecordingCostPerMinuteCurrency'] = NULL;
+                                        $error[] = 'Recording Cost Per Minute Currency is not match at line no:' . $lineno;
+                                    }
+                                } else {
+                                    $tempdata['RecordingCostPerMinuteCurrency'] = NULL;
                                 }
 
                             } else {
@@ -1559,7 +1676,7 @@ class RateUploadController extends \BaseController {
                             }
                         }
 
-                        if ($counter == $bacth_insert_limit) {
+                        if ($counter == $batch_insert_limit) {
                             Log::info('Batch insert start');
                             Log::info('global counter' . $lineno);
                             Log::info('insertion start');
@@ -1659,6 +1776,8 @@ class RateUploadController extends \BaseController {
                 $query = "CALL  prc_WSReviewRateTableRate ('" . $save['RateTableID'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_Blocked."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$seperatecolumn.",".$CurrencyID.",".$save['radio_list_option'].")";
             } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
                 $query = "CALL  prc_WSReviewRateTableDIDRate ('" . $save['RateTableID'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$DialStringId."','".$dialcode_separator."',".$seperatecolumn.",".$CurrencyID.",".$save['radio_list_option'].")";
+            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
+                $query = "CALL  prc_WSReviewRateTablePKGRate ('" . $save['RateTableID'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "',".$CurrencyID.",".$save['radio_list_option'].")";
             }
 
             Log::info('Start '.$query);
@@ -1721,8 +1840,10 @@ class RateUploadController extends \BaseController {
 
         $columns                        = array('TempVendorRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','Rate','RateN','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN','Preference','Blocked','RoutingCategory');
         $columns_did                    = array('TempRateTableDIDRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate');
+        $columns_pkg                    = array('TempRateTablePKGRateID','Code','Timezones','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate');
         $sort_column                    = $columns[$data['iSortCol_0']];
         $sort_column_did                = $columns_did[$data['iSortCol_0']];
+        $sort_column_pkg                = $columns_pkg[$data['iSortCol_0']];
         $data['OriginationCode']        = !empty($data['OriginationCode']) ? "'".$data['OriginationCode']."'" : 'NULL';
         $data['OriginationDescription'] = !empty($data['OriginationDescription']) ? "'".$data['OriginationDescription']."'" : 'NULL';
         $data['Code']                   = !empty($data['Code']) ? "'".$data['Code']."'" : 'NULL';
@@ -1742,6 +1863,8 @@ class RateUploadController extends \BaseController {
             $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
             $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['CityTariff'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
+        } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
+            $query = "call prc_getReviewRateTablePKGRates ('".$data['ProcessID']."','".$data['Action']."',".$data['Code'].",".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
         }
 
         Log::info($query);
@@ -1766,6 +1889,8 @@ class RateUploadController extends \BaseController {
             $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",0 ,0,'','',1)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
             $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",0 ,0,'','',1)";
+        } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
+            $query = "call prc_getReviewRateTablePKGRates ('".$data['ProcessID']."','".$data['Action']."',".$data['Code'].",".$data['Timezone'].",0 ,0,'','',1)";
         }
 
         Log::info($query);
@@ -1788,23 +1913,23 @@ class RateUploadController extends \BaseController {
     public function updateTempReviewRates() {
         $data = Input::all();
 
-        $ProcessID      = $data['ProcessID'];
-        $Code           = $data['Code'];
-        $Description    = $data['Description'];
-        $OriginationCode        = $data['OriginationCode'];
-        $OriginationDescription = $data['OriginationDescription'];
-        $VendorID       = $data['VendorID'];
-        $CustomerID     = $data['CustomerID'];
-        $RateTableID    = $data['RateTableID'];
-        $RateUploadType = $data['RateUploadType'];
-        $Timezone       = $data['Timezone'];
-        $TrunkID        = 0;
+        $ProcessID              = $data['ProcessID'];
+        $Code                   = $data['Code'];
+        $Description            = !empty($data['Description']) ? $data['Description'] : '';
+        $OriginationCode        = !empty($data['OriginationCode']) ? $data['OriginationCode'] : '';
+        $OriginationDescription = !empty($data['OriginationDescription']) ? $data['OriginationDescription'] : '';
+        $VendorID               = !empty($data['VendorID']) ? $data['VendorID'] : 0;
+        $CustomerID             = !empty($data['CustomerID']) ? $data['CustomerID'] : 0;
+        $RateTableID            = $data['RateTableID'];
+        $RateUploadType         = $data['RateUploadType'];
+        $Timezone               = $data['Timezone'];
+        $TrunkID                = 0;
 
         if($data['Action'] == 'New') {
             $TempRateIDs = array_filter(explode(',',$data['TempRateIDs']),'intval');
         } else if($data['Action'] == 'Deleted') {
-            $TempRateIDs = array_filter(explode(',',$data['VendorRateIDs']),'intval');
-            $TrunkID     = $data['TrunkID'];
+            $TempRateIDs = array_filter(explode(',',$data['TempRateIDs']),'intval');
+            $TrunkID     = !empty($data['TrunkID']) ? $data['TrunkID'] : 0;
         }
 
         if (is_array($TempRateIDs) && count($TempRateIDs) || !empty($data['criteria'])) {
@@ -1853,6 +1978,8 @@ class RateUploadController extends \BaseController {
                     $query = "call prc_WSReviewRateTableRateUpdate ('".$RateTableID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."','".$OriginationCode."','".$OriginationDescription."')";
                 } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
                     $query = "call prc_WSReviewRateTableDIDRateUpdate ('".$RateTableID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$EndDate."','".$Code."','".$Description."','".$OriginationCode."','".$OriginationDescription."')";
+                } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
+                    $query = "call prc_WSReviewRateTablePKGRateUpdate ('".$RateTableID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$EndDate."','".$Code."')";
                 }
 
                 Log::info($query);
