@@ -152,12 +152,12 @@
                             $.get(clear_url, function (response) {
                                 if (response.status == 'success') {
                                     $(this).button('reset');
+                                    data_table.fnFilter('', 0);
                                     checkBoxArray = [];
                                     toastr.success(response.message, "Success", toastr_opts);
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
                                 }
-                                data_table.fnFilter('', 0);
                             });
                         }
                         return false;
@@ -184,12 +184,12 @@
                             cache: false,
                             success: function (response) {
                                 if (response.status == 'success') {
+                                    data_table.fnFilter('', 0);
                                     toastr.success(response.message, "Success", toastr_opts);
                                     checkBoxArray = [];
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
                                 }
-                                data_table.fnFilter('', 0);
                             }
                         });
                     }

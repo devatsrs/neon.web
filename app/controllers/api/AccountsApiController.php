@@ -280,8 +280,6 @@ class AccountsApiController extends ApiController {
 						$servicedata['AccountID'] = $Account->AccountID;
 						$servicedata['CompanyID'] = $CompanyID;
 						$servicedata["ServiceTitle"] = $ServiceTitle;
-						$servicedata["Status"] = 1;
-
 						$AccountService = AccountService::create($servicedata);
 					//}
 					Log::info('AccountServiceID ' . $AccountService->AccountServiceID);
