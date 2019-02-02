@@ -37,7 +37,7 @@ class ServicesTemplateController extends BaseController {
         leftJoin('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
             ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
             ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId','tblServiceTemplate.ContractDuration','tblServiceTemplate.AutomaticRenewal','tblServiceTemplate.CancellationCharges','tblServiceTemplate.CancellationFee'])
-            ->orderBy($iSortCol_0, $sSortDir_0);
+            ->where(["tblServiceTemplate.CompanyID" => $companyID])->orderBy($iSortCol_0, $sSortDir_0);
 
         Log::info('$servicesTemplate AJAX.$data[\'ServiceId\']' . $data['ServiceId']);
         Log::info('$servicesTemplate AJAX.$data[\'ServiceName\']' . $data['ServiceName']);
@@ -181,6 +181,10 @@ class ServicesTemplateController extends BaseController {
         Log::info('Service Template Controller.');
         $data = Input::all();
 
+        $CompanyID = User::get_companyID();
+        //dd($CompanyID);
+        $data['CompanyID'] = $CompanyID;
+
        // Log::info('Subscription List.' . $_REQUEST['selectedSubscription']);
        // Log::info('Subscription List.' . $data['selectedSubscription']);
         $subsriptionList = isset($data['selectedSubscription'])?$data['selectedSubscription']:'';
@@ -301,6 +305,7 @@ class ServicesTemplateController extends BaseController {
                         $ServiceTemplateData['ServiceId'] = $data['ServiceId'];
                     }
                     $ServiceTemplateData['Name'] = $data['Name'];
+                    $ServiceTemplateData['CompanyID'] = $CompanyID;
                     if ($OutboundDiscountPlanId != '') {
                         $ServiceTemplateData['OutboundDiscountPlanId'] = $OutboundDiscountPlanId;
                     }
@@ -511,6 +516,7 @@ class ServicesTemplateController extends BaseController {
                 $ServiceTemplateData['ServiceId'] = $data['ServiceId'];
             }
             $ServiceTemplateData['Name'] = $data['Name'];
+            $ServiceTemplateData['CompanyID'] = User::get_companyID();
             if ($OutboundDiscountPlanId != '') {
                 $ServiceTemplateData['OutboundDiscountPlanId'] = $OutboundDiscountPlanId;
             }
