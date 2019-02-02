@@ -154,15 +154,16 @@ class PackageController extends BaseController {
 
 
     public function getRateTableFromCurrencyId($id){
-            $rateTables = RateTable::where('CurrencyID', $id)
-                ->where('Type', 3)
-                ->where('AppliedTo', "!=", 2)
-                ->lists("RateTableName", "RateTableId");
-            if ($rateTables != false) {
-                $rateTables = array('' => "Select") + $rateTables;
-                return Response::json($rateTables);
-            } else {
-                return Response::json([''=>'Select']);
-            }
+        $rateTypeID = RateType::getRateTypeIDBySlug("package");
+        $rateTables = RateTable::where('CurrencyID', $id)
+            ->where('Type', $rateTypeID)
+            ->where('AppliedTo', "!=", RateTable::APPLIED_TO_VENDOR)
+            ->lists("RateTableName", "RateTableId");
+        if ($rateTables != false) {
+            $rateTables = array('' => "Select") + $rateTables;
+            return Response::json($rateTables);
+        } else {
+            return Response::json([''=>'Select']);
+        }
     }
 }
