@@ -562,7 +562,7 @@ class AccountsApiController extends ApiController {
 
 
 
-			return Response::json(array("data" => $message),Codes::$Code200[0]);
+			return Response::json(array("Message" => $message),Codes::$Code200[0]);
 
 
 		} catch (Exception $ex) {
@@ -1240,7 +1240,7 @@ class AccountsApiController extends ApiController {
 				$AccountSuccessMessage['redirect'] = URL::to('/accounts/' . $account->AccountID . '/edit');
 
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
-				return Response::json(array('data' => $AccountSuccessMessage),Codes::$Code200[0]);
+				return Response::json(array('Message' => $AccountSuccessMessage),Codes::$Code200[0]);
 			} else {
 				return Response::json(array("ErrorMessage" => Codes::$Code500[1]),Codes::$Code500[0]);
 			}
