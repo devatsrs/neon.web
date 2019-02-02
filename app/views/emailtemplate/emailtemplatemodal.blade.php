@@ -83,6 +83,11 @@
 
 				show_summernote(modal.find('.message'),{"opportunities":true});
 
+            }
+            else if(popup_type == {{EmailTemplate::OUT_PAYMENT_TEMPLATE}}){
+
+                show_summernote(modal.find('.message'),{"outpaymentoptions":true});
+
 			}
 			else{
 
