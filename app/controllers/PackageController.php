@@ -87,11 +87,16 @@ class PackageController extends BaseController {
 
     public function delete($id){
         try{
-            $result = Package::where(array('PackageId'=>$id))->delete();
-            if ($result) {
-                return Response::json(array("status" => "success", "message" => "Package Successfully Deleted"));
+            $packageExist = AccountServicePackage::where("PackageId", $id)->get();
+            if($packageExist->count() < 1) {
+                $result = Package::where(array('PackageId' => $id))->delete();
+                if ($result) {
+                    return Response::json(array("status" => "success", "message" => "Package Successfully Deleted"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Package."));
+                }
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Deleting Package."));
+                return Response::json(array("status" => "failed", "message" => "Package is assigned to an account."));
             }
         }catch (Exception $ex){
             return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
@@ -108,11 +113,19 @@ class PackageController extends BaseController {
             return json_validator_response($validator);
 
         $bulkIds = explode(",",$data['PackageIds']);
-        $result = Package::whereIn('PackageId', $bulkIds)->delete();
-        if ($result) {
-            return Response::json(array("status" => "success", "message" => "Packages Successfully Deleted"));
+
+        $packageExist = AccountServicePackage::whereIn('PackageId', $bulkIds)->lists('PackageId');
+
+        $bulkIds = array_diff($bulkIds, $packageExist);
+        if(!empty($bulkIds)) {
+            $result = Package::whereIn('PackageId', $bulkIds)->delete();
+            if ($result) {
+                return Response::json(array("status" => "success", "message" => "Packages Successfully Deleted"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting Packages."));
+            }
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Packages."));
+            return Response::json(array("status" => "failed", "message" => "Selected Packages are Assigned to Account."));
         }
     }
 
