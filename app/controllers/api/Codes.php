@@ -56,6 +56,7 @@ class Codes
     public static $Code1029 =["410","The account name has already been taken"];
     public static $Code1030 =["410","The number has already been taken"];
     public static $Code1031 =["402","Invalid Package ID"];
+    public static $Code1032 =["402","Please provide the valid Service"];
 
 
 

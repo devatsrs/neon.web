@@ -22,6 +22,7 @@ class FileUploadTemplate extends \Eloquent {
     const TEMPLATE_PAYMENT          = 'Payment';
     const TEMPLATE_RATETABLE_RATE   = 'RatetableRate';
     const TEMPLATE_RATETABLE_DIDRATE= 'RatetableDIDRate';
+    const TEMPLATE_RATETABLE_PKGRATE= 'RatetablePKGRate';
     const TEMPLATE_CUSTOMER_RATE    = 'CustomerRate';
     const TEMPLATE_FTPCDR           = 'FTPCDR';
 
@@ -263,7 +264,7 @@ class FileUploadTemplate extends \Eloquent {
             $rules_for_type['selection.Code']                               = 'required';
             $rules_for_type['selection.Description']                        = 'required';
             $rules_for_type['selection.Amount']                             = 'required';
-        }else if($data['TemplateType'] == 8 || $data['TemplateType'] == 10 || $data['TemplateType'] == 11 || $data['TemplateType'] == 13) { //vendor rate / RateTable Rate / Customer Rate / RateTable DID Rate Respectively
+        }else if($data['TemplateType'] == 8 || $data['TemplateType'] == 10 || $data['TemplateType'] == 11 || $data['TemplateType'] == 13 || $data['TemplateType'] == 14) { //vendor rate / RateTable Rate / Customer Rate / RateTable DID Rate Respectively
 
             if(!empty($data['importdialcodessheet'])) {
                 $rules_for_type['selection.Join1'] = 'required';
@@ -294,7 +295,11 @@ class FileUploadTemplate extends \Eloquent {
                 $rules_for_type['selection.Description'] = 'required';
                 $rules_for_type['selection.OriginationCode'] = 'required_with:selection.OriginationDescription';
                 $rules_for_type['selection.OriginationDescription'] = 'required_with:selection.OriginationCode';
-                $message_for_type['selection.Code.required'] = "Code Field is required";
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
+                    $message_for_type['selection.Code.required'] = "Package Name Field is required";
+                } else {
+                    $message_for_type['selection.Code.required'] = "Code Field is required";
+                }
                 $message_for_type['selection.Description.required'] = "Description Field is required";
                 $message_for_type['selection.OriginationCpde.required_with'] = 'Origination Code is required if Origination Description is selected';
                 $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
@@ -308,7 +313,7 @@ class FileUploadTemplate extends \Eloquent {
             if(count($Timezones) > 0) { // if there are any timezones available
                 $TimezonesIDsArray = array();
 
-                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
                     foreach ($Timezones as $ID => $Title) {
                         $TimezonesIDsArray[] = 'selection.MonthlyCost'.$ID;
                     }
@@ -326,7 +331,7 @@ class FileUploadTemplate extends \Eloquent {
                     $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
                 }
             } else { // if there is only 1 timezone, default timezone
-                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
                     $rules_for_type['selection.MonthlyCost'] = 'required';
                     $message_for_type['selection.MonthlyCost.required'] = "Monthly Cost Field is required";
                 } else {

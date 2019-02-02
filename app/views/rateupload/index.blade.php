@@ -980,7 +980,7 @@
 
                     $.ajax({
                         url: '{{URL::to('rate_upload/updateTempReviewRates')}}',
-                        data: 'Action=Deleted&TrunkID='+TrunkID+'&VendorRateIDs='+VendorRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
+                        data: 'Action=Deleted&TrunkID='+TrunkID+'&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
                         },

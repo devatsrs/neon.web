@@ -73,6 +73,7 @@ class AccountsApiController extends ApiController {
 		$post_vars = '';
 		$accountData = '';
 		$DefaultSubscriptionID = '';
+		$DefaultSubscriptionPackageID = '';
 		$ServiceTitle = '';
 		try {
 			$post_vars = json_decode(file_get_contents("php://input"));
@@ -95,6 +96,9 @@ class AccountsApiController extends ApiController {
 
 		$CompanyID = User::get_companyID();
 		$DefaultSubscriptionID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_ID'])->pluck('Value');
+		$DefaultSubscriptionPackageID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_PACKAGE_ID'])->pluck('Value');
+		Log::info('createAccountService:Add Product Service.' . '$DefaultSubscriptionID:' . $DefaultSubscriptionID .
+			' ' . '$DefaultSubscriptionPackageID' . ' ' . $DefaultSubscriptionPackageID);
 		$CreatedBy = User::get_user_full_name();
 		$date = date('Y-m-d H:i:s');
 		$InboundRateTableReference = '';
@@ -124,13 +128,15 @@ class AccountsApiController extends ApiController {
 			$AccountServiceContract['ContractTerm'] = isset($accountData['ContractType']) ? $accountData['ContractType'] : '';
 			//$AccountSubscription["PackageSubscription"] = isset($accountData['PackageSubscriptionID']) ? $accountData['PackageSubscriptionID'] : '';
 			$ServiceTitle = isset($accountData['ServiceTitle']) ? $accountData['ServiceTitle'] : '';
-			$Packagedata['PackageID'] = isset($accountData['PackageID']) ? $accountData['PackageID'] :'';
+			$Packagedata['PackageSubcriptionDynamicField'] = isset($accountData['PackageSubcriptionDynamicField']) ? $accountData['PackageSubcriptionDynamicField'] :'';
 			$Packagedata['InvoicePackageDescription'] = isset($accountData['InvoicePackageDescription']) ? $accountData['InvoicePackageDescription'] :'';
-			if (!empty($Packagedata['PackageID'])) {
-				$PackagedataRecord =  Package::find($Packagedata['PackageID']);
-				if (!isset($PackagedataRecord)) {
+			if (!empty($Packagedata['PackageSubcriptionDynamicField'])) {
+				$PackagedataRecord =  Package::findPackageByDynamicField($Packagedata['PackageSubcriptionDynamicField']);
+				if (empty($PackagedataRecord)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1031[1]], Codes::$Code1031[0]);
 				}
+
+				$PackagedataRecord = Package::find($PackagedataRecord);
 			}
 			if (!empty($AccountServiceContract['ContractStartDate']) && empty($AccountServiceContract['ContractEndDate'])) {
 				return Response::json(["ErrorMessage"=>Codes::$Code1001[1]],Codes::$Code1001[0]);
@@ -259,7 +265,7 @@ class AccountsApiController extends ApiController {
 
 			if (!empty($ServiceTemaplateReference->ServiceId)) {
 
-					$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
+					/*$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
 					if (isset($AccountService) && $AccountService != '') {
 						Log::info('AccountServiceID Update');
 						AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))
@@ -268,17 +274,17 @@ class AccountsApiController extends ApiController {
 								'ServiceTitle'=> $ServiceTitle,
 								'updated_at' => $date));
 						$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
-					} else {
+					} else {*/
 						Log::info('AccountServiceID Create');
 						$servicedata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 						$servicedata['AccountID'] = $Account->AccountID;
 						$servicedata['CompanyID'] = $CompanyID;
 						$servicedata["ServiceTitle"] = $ServiceTitle;
 						$AccountService = AccountService::create($servicedata);
-					}
+					//}
 					Log::info('AccountServiceID ' . $AccountService->AccountServiceID);
 
-					$AccountServiceContractExisting = AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))->first();
+					/*$AccountServiceContractExisting = AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))->first();
 					if (isset($AccountServiceContractExisting) && $AccountServiceContractExisting != '') {
 
 
@@ -291,7 +297,7 @@ class AccountsApiController extends ApiController {
 						//Log::info('AccountServiceID update records ' . $AccountServiceContract["FixedFee"] . ' ' . $AccountServiceContract["FixedFee"]);
 						AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))
 							->update($AccountServiceContract);
-					} else {
+					} else {*/
 						Log::info('AccountServiceID new' . $AccountService->AccountServiceID);
 						$AccountServiceContract["AccountServiceID"] = $AccountService->AccountServiceID;
 						$AccountServiceContract["Duration"] = empty($AccountServiceContract['ContractDuration']) ? $ServiceTemaplateReference->ContractDuration : $AccountServiceContract['ContractDuration'];
@@ -301,7 +307,7 @@ class AccountsApiController extends ApiController {
 						Log::info('AccountServiceContract Done' . print_r($AccountServiceContract, true));
 						AccountServiceContract::create($AccountServiceContract);
 						Log::info('AccountServiceContract Done');
-					}
+				//	}
 
 			}
 
@@ -322,13 +328,13 @@ class AccountsApiController extends ApiController {
 				$AccountDiscountPlan['AccountCLI'] = $AccountCLI;
 				$AccountDiscountPlan['SubscriptionDiscountPlanID'] = $SubscriptionDiscountPlanID;
 				$AccountDiscountPlan['AccountServiceID'] = $AccountService->AccountServiceID;
-				$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))->count();
-				if ($AccountDiscountPlanExists == 0) {
+				//$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))->count();
+				//if ($AccountDiscountPlanExists == 0) {
 					AccountDiscountPlan::create($AccountDiscountPlan);
-				} else {
-					AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))
-						->update($AccountDiscountPlan);
-				}
+				//} else {
+				//	AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))
+				//		->update($AccountDiscountPlan);
+				//}
 			}
 
 			if (!empty($InboundDiscountPlan)) {
@@ -342,13 +348,13 @@ class AccountsApiController extends ApiController {
 				$AccountDiscountPlan['Type'] = AccountDiscountPlan::INBOUND;
 				$AccountDiscountPlan['DiscountPlanID'] =$InboundDiscountPlan;
 				$AccountDiscountPlan['AccountServiceID'] = $AccountService->AccountServiceID;
-				$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::INBOUND))->count();
-				if ($AccountDiscountPlanExists == 0) {
+				//$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::INBOUND))->count();
+				//if ($AccountDiscountPlanExists == 0) {
 					AccountDiscountPlan::create($AccountDiscountPlan);
-				}else {
-					AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))
-						->update($AccountDiscountPlan);
-				}
+				//}else {
+				//	AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))
+				//		->update($AccountDiscountPlan);
+				//}
 
 			}
 
@@ -375,25 +381,25 @@ class AccountsApiController extends ApiController {
 			}
 
 			if(!empty($InboundRateTableReference)){
-				$count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $inbounddata['ServiceID'], 'Type' => AccountTariff::INBOUND))->count();
-				if(!empty($count) && $count>0){
-					AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $inbounddata['ServiceID'], 'Type' => AccountTariff::INBOUND))
-						->update(array('RateTableID' => $InboundRateTableReference, 'updated_at' => $date));
-				}else{
+				//$count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $inbounddata['ServiceID'], 'Type' => AccountTariff::INBOUND))->count();
+				//if(!empty($count) && $count>0){
+				//	AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $inbounddata['ServiceID'], 'Type' => AccountTariff::INBOUND))
+				//		->update(array('RateTableID' => $InboundRateTableReference, 'updated_at' => $date));
+				//}else{
 					$inbounddata['created_at'] = $date;
 					AccountTariff::create($inbounddata);
-				}
+				//}
 			}
 
 			if(!empty($ServiceTemaplateReference->OutboundRateTableId)){
-				$count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $outbounddata['ServiceID'], 'Type' => AccountTariff::OUTBOUND))->count();
-				if(!empty($count) && $count>0){
-					AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $outbounddata['ServiceID'], 'Type' => AccountTariff::OUTBOUND))
-						->update(array('RateTableID' => $ServiceTemaplateReference->OutboundRateTableId, 'updated_at' => $date));
-				}else{
+				//$count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $outbounddata['ServiceID'], 'Type' => AccountTariff::OUTBOUND))->count();
+				//if(!empty($count) && $count>0){
+				//	AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $outbounddata['ServiceID'], 'Type' => AccountTariff::OUTBOUND))
+				//		->update(array('RateTableID' => $ServiceTemaplateReference->OutboundRateTableId, 'updated_at' => $date));
+				//}else{
 					$outbounddata['created_at'] = $date;
 					AccountTariff::create($outbounddata);
-				}
+				//}
 			}
 
 
@@ -404,23 +410,23 @@ class AccountsApiController extends ApiController {
 
 			if(!empty($data['ServiceID'])){
 
-				if(AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>$ServiceTemaplateReference->ServiceId))->count()){
-					AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>$ServiceTemaplateReference->ServiceId))->update($AccountAuthenticate);
-				}else{
+				//if(AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>$ServiceTemaplateReference->ServiceId))->count()){
+				//	AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>$ServiceTemaplateReference->ServiceId))->update($AccountAuthenticate);
+				//}else{
 					$AccountAuthenticate['AccountID'] = $Account->AccountID;
 					$AccountAuthenticate['CompanyID'] = $CompanyID;
 					$AccountAuthenticate['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 					AccountAuthenticate::insert($AccountAuthenticate);
-				}
+			//	}
 
 			}else{
-				if(AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>0))->count()){
-					AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>0))->update($AccountAuthenticate);
-				}else{
+			//	if(AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>0))->count()){
+			//		AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>0))->update($AccountAuthenticate);
+			//	}else{
 					$AccountAuthenticate['AccountID'] = $Account->AccountID;
 					$AccountAuthenticate['CompanyID'] = $CompanyID;
 					AccountAuthenticate::insert($AccountAuthenticate);
-				}
+			//	}
 			}
 
 			$cliRateTableID = 0;
@@ -474,7 +480,7 @@ class AccountsApiController extends ApiController {
 					$NumberPurchased = $NumberPurchasedRef[$i];
 					Log::info('CreateAccountService:$NumberPurchasedRef .' . $NumberPurchased["Number"]);
 					$rate_tables['CLI'] = $NumberPurchased["Number"];
-					$rate_tables['RateTableID'] = $cliRateTableID;
+					//$rate_tables['RateTableID'] = $cliRateTableID;
 					$rate_tables['AccountID'] = $Account->AccountID;
 					$rate_tables['CompanyID'] = $CompanyID;
 					$rate_tables['CityTariff'] = $ServiceTemaplateReference->city_tariff;
@@ -494,7 +500,8 @@ class AccountsApiController extends ApiController {
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.CityTariff" => $ServiceTemaplateReference->city_tariff]);
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.RateTableId" => $InboundRateTableReference]);
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.ApprovedStatus" => 1]);
-						Log::info('$RateTableDIDRates.' . $RateTableDIDRates->toSql());
+						$RateTableDIDRates = $RateTableDIDRates->whereRaw("tblRateTableDIDRate.EffectiveDate <= NOW()");
+						Log::info('$RateTableDIDRates CLI.' . $RateTableDIDRates->toSql());
 						$RateTableDIDRates = $RateTableDIDRates->get();
 						//$RateTableDIDRates = RateTableDIDRate::where(array('CityTariff' => $ServiceTemaplateReference->city_tariff))->get();
 						foreach ($RateTableDIDRates as $RateTableDIDRate) {
@@ -507,15 +514,15 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if (!empty($DefaultSubscriptionID) && !empty($PackagedataRecord)) {
+			if (!empty($DefaultSubscriptionPackageID) && !empty($PackagedataRecord)) {
 
 				if(!empty($PackagedataRecord["PackageId"]) && !empty($PackagedataRecord["RateTableId"])) {
-					$AccountServicePackage = AccountServicePackage::where(['AccountID' => $Account->AccountID, 'AccountServiceID' => $AccountService->AccountServiceID]);
-					if ($AccountServicePackage->count() > 0) {
+				//	$AccountServicePackage = AccountServicePackage::where(['AccountID' => $Account->AccountID, 'AccountServiceID' => $AccountService->AccountServiceID]);
+				//	if ($AccountServicePackage->count() > 0) {
 						//Update
-						$AccountServicePackage->update(['PackageId' => $PackagedataRecord["PackageId"], 'RateTableID' => $PackagedataRecord["RateTableId"]]);
+				//		$AccountServicePackage->update(['PackageId' => $PackagedataRecord["PackageId"], 'RateTableID' => $PackagedataRecord["RateTableId"]]);
 
-					} else {
+				//	} else {
 						//Create
 						$packagedata = array();
 						$packagedata['AccountID'] = $Account->AccountID;
@@ -527,7 +534,7 @@ class AccountsApiController extends ApiController {
 
 						AccountServicePackage::create($packagedata);
 
-					}
+				//	}
 				}
 
 				$RateTableDIDRates = RateTableDIDRate::
@@ -537,13 +544,14 @@ class AccountsApiController extends ApiController {
 				$RateTableDIDRates = $RateTableDIDRates->where(["tblRate.Code" => $PackagedataRecord["Name"]]);
 				$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.RateTableId" => $PackagedataRecord["RateTableId"]]);
 				$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.ApprovedStatus" => 1]);
+				$RateTableDIDRates = $RateTableDIDRates->whereRaw("tblRateTableDIDRate.EffectiveDate <= NOW()");
 				Log::info('Package $RateTableDIDRates.' . $RateTableDIDRates->toSql());
 				$RateTableDIDRates = $RateTableDIDRates->get();
 				//$RateTableDIDRates = RateTableDIDRate::where(array('CityTariff' => $ServiceTemaplateReference->city_tariff))->get();
 				foreach ($RateTableDIDRates as $RateTableDIDRate) {
 					$this->createAccountSubscriptionFromRateTable($Account, $AccountSubscriptionDB,
 						$date, $ServiceTemaplateReference, $AccountService,
-						$DefaultSubscriptionID, $DynamicFieldIDs,
+						$DefaultSubscriptionPackageID, $DynamicFieldIDs,
 						$RateTableDIDRate, $Packagedata["InvoicePackageDescription"],++$SubscriptionSequence);
 				}
 			}
@@ -554,7 +562,7 @@ class AccountsApiController extends ApiController {
 
 
 
-			return Response::json(array("data" => $message),Codes::$Code200[0]);
+			return Response::json(array("Message" => $message),Codes::$Code200[0]);
 
 
 		} catch (Exception $ex) {
@@ -574,10 +582,10 @@ class AccountsApiController extends ApiController {
 		$InvoiceLineDescription = empty($InvoiceLineDescriptionAPI) ? $AccountSubscriptionDB["InvoiceLineDescription"] : $InvoiceLineDescriptionAPI;
 		//Log::info('$InvoiceLineDescriptionAPI .' . $InvoiceLineDescription);
 		$AccountSubscription["AccountID"] = $Account->AccountID;
-		$AccountSubscription["SubscriptionID"] = $AccountSubscriptionDB["SubscriptionID"];
+		$AccountSubscription["SubscriptionID"] = $SubscriptionId;
 		$AccountSubscription["InvoiceDescription"] = $InvoiceLineDescription;
 		$AccountSubscription["Qty"] = 1;
-	//	$AccountSubscription["StartDate"] = $date;
+		$AccountSubscription["StartDate"] = $date;
 	//	$AccountSubscription["EndDate"] = $date;
 		//$AccountSubscription["ExemptTax"] =  $AccountSubscriptionDB[];
 		$AccountSubscription["ActivationFee"] = $RateTableDIDRate["OneOffCost"];
@@ -628,7 +636,7 @@ class AccountsApiController extends ApiController {
 		$AccountSubscription["SubscriptionID"] = $AccountSubscriptionDB["SubscriptionID"];
 		$AccountSubscription["InvoiceDescription"] = $AccountSubscriptionDB["InvoiceLineDescription"];
 		$AccountSubscription["Qty"] = 1;
-		//$AccountSubscription["StartDate"] = $date;
+		$AccountSubscription["StartDate"] = $date;
 		//$AccountSubscription["EndDate"] = $date;
 		//$AccountSubscription["ExemptTax"] =  $AccountSubscriptionDB[];
 		$AccountSubscription["ActivationFee"] = $AccountSubscriptionDB["ActivationFee"];
@@ -1232,7 +1240,7 @@ class AccountsApiController extends ApiController {
 				$AccountSuccessMessage['redirect'] = URL::to('/accounts/' . $account->AccountID . '/edit');
 
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
-				return Response::json(array('data' => $AccountSuccessMessage),Codes::$Code200[0]);
+				return Response::json(array('Message' => $AccountSuccessMessage),Codes::$Code200[0]);
 			} else {
 				return Response::json(array("ErrorMessage" => Codes::$Code500[1]),Codes::$Code500[0]);
 			}

@@ -566,9 +566,8 @@
         }
     }
 </script>
-@include('servicetemplate.bulkservicetemplatemodal')
 
 @include('servicetemplate.servicetemplatemodal')
-
+@include('servicetemplate.bulkservicetemplatemodal')
 
 @stop

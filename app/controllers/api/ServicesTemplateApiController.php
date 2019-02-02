@@ -1,6 +1,6 @@
 <?php
 
-
+use app\controllers\api\Codes;
 class ServicesTemplateApiController extends ApiController
 {
 
@@ -28,21 +28,21 @@ class ServicesTemplateApiController extends ApiController
             Log::info('storeServiceTempalteData $CurrenctCodeSql.' . $CurrenctCodeSql->toSql());
             $CurrenctCodeResult = $CurrenctCodeSql->first();
             if (!isset($CurrenctCodeResult)) {
-                return Response::json(["status"=>"401", "message"=>"Please provide the valid currency"]);
+                return Response::json(["ErrorMessage"=>Codes::$Code1012[1]],Codes::$Code1012[0]);
             }
 
             $ServiceCodeSql = Service::where('ServiceID',$data['ServiceId']);
             Log::info('storeServiceTempalteData $ServiceCodeSql.' . $ServiceCodeSql->toSql());
             $ServiceCodeSqlResult = $ServiceCodeSql->first();
             if (!isset($ServiceCodeSqlResult)) {
-                return Response::json(["status"=>"401", "message"=>"Please provide the valid Service"]);
+                return Response::json(["ErrorMessage"=>Codes::$Code1032[1]],Codes::$Code1032[0]);
             }
 
             if (!empty($post_vars->ContractType) && ($post_vars->ContractType < 1 || $post_vars->ContractType > 4)) {
-                return Response::json(["status" => "401", "message" => "The value of ContractType must be between 1 and 4"]);
+                return Response::json(["ErrorMessage"=>Codes::$Code1003[1]],Codes::$Code1003[0]);
             }
             if (!empty($post_vars->AutoRenewal) && ($post_vars->AutoRenewal != 0 && $post_vars->AutoRenewal != 1)) {
-                return Response::json(["status" => "401", "message" => "The value of AutoRenewal must be between 0 or 1"]);
+                return Response::json(["ErrorMessage"=>Codes::$Code1004[1]],Codes::$Code1004[0]);
             }
 
 
@@ -74,7 +74,7 @@ class ServicesTemplateApiController extends ApiController
                 $CreatedBy = '';
             }
             if (!isset($CreatedBy)) {
-                    return Response::json(["status" => "401", "message" => "Not authorized. Please Login"]);
+                    return Response::json(["ErrorMessage"=>Codes::$Code401[1]],Codes::$Code401[0]);
             }
             try {
 
@@ -88,7 +88,7 @@ class ServicesTemplateApiController extends ApiController
                         Log::info('storeServiceTempalteData $DynamicFieldsSql.' . $DynamicFieldsSql->toSql());
                         $DynamicFieldsResult = $DynamicFieldsSql->first();
                         if (!isset($DynamicFieldsResult)) {
-                            return Response::json(["status" => "401", "message" => "Please provide the valid and active dynamic field"]);
+                            return Response::json(["ErrorMessage"=>Codes::$Code1006[1]],Codes::$Code1006[0]);
                         }
                         $DynamicFields[$j]['DynamicFieldsID'] = $DynamicFieldsResult->DynamicFieldsID;
                         Log::info('storeServiceTempalteData $DynamicFieldsSql.' . $DynamicFieldsResult->DynamicFieldsID);
@@ -102,7 +102,7 @@ class ServicesTemplateApiController extends ApiController
 
                     if (isset($DynamicFields)) {
                         if ($error = DynamicFieldsValue::validate($DynamicFields)) {
-                            return Response::json(["status" => "401", "message" => $error]);
+                            return Response::json(["ErrorMessage" => $error],Codes::$Code402[0]);
                         }
                     }
                 }
@@ -198,7 +198,7 @@ class ServicesTemplateApiController extends ApiController
                             $DIDRateTableList = '';
                             $ServiceTemapleInboundTariff = '';
                         } catch (Exception $ex) {
-                            Response::json(["status" => "failed", "message" => $ex->getMessage(), 'newcreated' => $ServiceTemplate]);
+                            return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
                         }
                     }
 
@@ -211,11 +211,11 @@ class ServicesTemplateApiController extends ApiController
                             }
                         }
                     }
+                    return Response::json(array("Message" => $ServiceTemplate),Codes::$Code200[0]);
 
-                    return Response::json(["status" => "200", 'data' => $ServiceTemplate]);
                     // return  Response::json(array("status" => "success", "message" => "Service Template Successfully Created",'LastID'=>$ServiceTemplate->ServiceTemplateId,'newcreated'=>$ServiceTemplate));
                 } else {
-                    return Response::json(["status" => "401", "message" => "Problem Creating Service Template."]);
+                    return Response::json(["ErrorMessage" => Codes::$Code400[1]],Codes::$Code400[0]);
                     //return  Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
                 }
 
@@ -223,7 +223,7 @@ class ServicesTemplateApiController extends ApiController
             //return Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
         } catch (Exception $ex) {
             Log::info('storeServiceTempalteData:Exception.' . $ex->getTraceAsString());
-            return Response::json(["status" => "500", "message" => "Exception while creating the service template"]);
+            return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
             //return  Response::json(array("status" => "failed", "message" => $ex->getMessage(),'LastID'=>'','newcreated'=>''));
         }
     }
