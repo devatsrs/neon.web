@@ -306,9 +306,18 @@ class PaymentApiController extends ApiController {
 						$InsertPayment['PaymentMethod']=$PaymentResponse['PaymentMethod'];
 						$InsertPayment['transaction_notes']=$PaymentResponse['transaction_notes'];
 
-						self::PaymentLog($Account,$InsertPayment,$data);
+						$PaymentID=self::PaymentLog($Account,$InsertPayment,$data);
 
 						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
+
+						if(!empty($PaymentID) && !empty($InvoiceGenerate['LastInvoiceID'])){
+							$FullInvoiceNumber = Invoice::where(['InvoiceID'=>$InvoiceGenerate['LastInvoiceID']])->pluck('FullInvoiceNumber');
+							$UpdateData=array();
+							$UpdateData['InvoiceID'] = $InvoiceGenerate['LastInvoiceID'];
+							$UpdateData['InvoiceNo'] = $FullInvoiceNumber;
+							Payment::where(['PaymentID'=>$PaymentID])->update($UpdateData);
+						}
+
 
 						return Response::json(["PaymentResponse"=>$ReturnData,"InvoiceResponse"=>$InvoiceGenerate],Codes::$Code200[0]);
 
@@ -351,7 +360,8 @@ class PaymentApiController extends ApiController {
 			$PaymentInsertData['updated_at'] = date('Y-m-d H:i:s');
 			$PaymentInsertData['CreatedBy'] = 'API';
 			$PaymentInsertData['ModifyBy'] = 'API';
-			Payment::insert($PaymentInsertData);
+			$Payment=Payment::create($PaymentInsertData);
+			return $Payment->PaymentID;
 		}
 	}
 
