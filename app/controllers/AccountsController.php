@@ -1655,10 +1655,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $postdata= $data;
         
         //Update Account Thread HOld
-        //AccountBalanceThreshold::
-        AccountBalanceThreshold::where('AccountID', $postdata['AccountID'])->delete();
-        AccountBalanceThreshold::saveAccountBalanceThreshold($postdata['AccountID'],$postdata);
-            
+        try{
+            AccountBalanceThreshold::where('AccountID', $postdata['AccountID'])->delete();
+            AccountBalanceThreshold::saveAccountBalanceThreshold($postdata['AccountID'],$postdata);
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
         $response =  NeonAPI::request('account/update_creditinfo',$postdata,true,false,false);
         return json_response_api($response);
     }
