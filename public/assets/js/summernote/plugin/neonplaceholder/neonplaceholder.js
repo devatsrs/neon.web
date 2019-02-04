@@ -14,6 +14,7 @@ if( typeof neon_summernote_options == 'undefined') {
         "TicketsSingle": false,
         "invoiceoptions": false,
         "autopaymentoptions": false,
+        contractoptions:false,
         "Cronjobs": false,
         "estimateoptions": false,
         "ratesheetoptions": false,
@@ -300,6 +301,12 @@ var dropdown_text =  {
         CompanyName:"CompanyName",
         AccountName:"AccountName",
     },
+    contractoptions: {
+        AccountName: "AccountName",
+        ServiceTitle:"ServiceTitle",
+        Email: "Email",
+
+    }
 };
 
 
@@ -456,6 +463,13 @@ var neon_summernote_dropdown_tpl = {
             "<li class='unclick'><a ><b>Others</b></a></li>" +
             "<li><a data-value='{{Signature}}'>" + dropdown_text.autopaymentoptions.Signature + "</a></li>" ;
     },
+    "contractoptions": function () {
+
+    return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractoptions.AccountName + "</a></li>" +
+        "<li><a data-value='{{ServiceTitle}}'>" + dropdown_text.contractoptions.ServiceTitle + "</a></li>" +
+        "<li><a data-value='{{Email}}'>" + dropdown_text.contractoptions.Email + "</a></li>"
+},
     "outpaymentoptions": function () {
 
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
@@ -732,6 +746,7 @@ var neon_summernote_dropdown_tpl = {
                 "ratesheetoptions":false,
                 "opportunities":false,
                 "outpaymentoptions":false,
+                "contractoptions" : false,
                 "tasks":false,
                 "Crm":false,
                 "Tickets":false,

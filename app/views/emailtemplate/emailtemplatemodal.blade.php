@@ -84,6 +84,11 @@
 				show_summernote(modal.find('.message'),{"opportunities":true});
 
             }
+            else if(popup_type == {{EmailTemplate::CONTRACT_MANAGE}}){
+
+                show_summernote(modal.find('.message'),{"contractoptions":true});
+
+            }
             else if(popup_type == {{EmailTemplate::OUT_PAYMENT_TEMPLATE}}){
 
                 show_summernote(modal.find('.message'),{"outpaymentoptions":true});
