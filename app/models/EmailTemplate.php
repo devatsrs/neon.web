@@ -17,7 +17,7 @@ class EmailTemplate extends \Eloquent {
 	const OPPORTUNITY_TEMPLATE	=	9;
     const AUTO_PAYMENT_TEMPLATE =	10;
     const OUT_PAYMENT_TEMPLATE  =   11;
-    const CONTRACT_MANAGE       =   12; 
+    const CONTRACT_MANAGE       =   12;
 
     const InvoicePaidNotificationTemplate = 'InvoicePaidNotification';
     const DisputeEmailCustomerTemplate      = 'DisputeEmailCustomer';
