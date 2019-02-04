@@ -238,8 +238,22 @@ class RateTablesController extends \BaseController {
             //Is RateTable is not being used anywhere then and then only delete
             if ($is_id_assigned_customer_trunk == 0 && $is_id_assigned_customer_service == 0 && $is_id_assigned_customer_cli == 0 && $is_id_assigned_vendor == 0 && $is_id_assigned_service_template == 0) {
                 if(RateTable::checkRateTableInCronjob($id)){
-                    if(RateTableRate::where(["RateTableId" => $id])->count()>0){
-                        if (RateTableRate::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
+
+                    $RateTable      = RateTable::find($id);
+                    $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
+                    $TypePKG        = RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
+
+                    $RATE_MODEL = 'RateTableRate';
+                    if($RateTable->Type == $TypePKG) {
+                        $RATE_MODEL = 'RateTablePKGRate';
+                    } else if($RateTable->Type == $TypeDID) {
+                        $RATE_MODEL = 'RateTableDIDRate';
+                    } else {
+                        $RATE_MODEL = 'RateTableRate';
+                    }
+
+                    if($RATE_MODEL::where(["RateTableId" => $id])->count()>0){
+                        if ($RATE_MODEL::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
                             return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
                         } else {
                             return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
@@ -504,7 +518,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableRateApprove (" . $RateTableID . ",'" . $RateTableRateID . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableRateApprove (" . $RateTableID . ",'" . $RateTableRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -555,7 +569,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableDIDRateApprove (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableDIDRateApprove (" . $RateTableID . ",'" . $RateTableDIDRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -602,7 +616,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTablePKGRateApprove (" . $RateTableID . ",'" . $RateTablePKGRateID . "'," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTablePKGRateApprove (" . $RateTableID . ",'" . $RateTablePKGRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
