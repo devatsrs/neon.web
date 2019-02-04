@@ -98,12 +98,13 @@
                             <input type="text" class="form-control"  name="PermanentCredit" value="{{$PermanentCredit}}" >
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display: none;">
                         <label for="field-1" class="col-sm-2 control-label">Balance Threshold
                             <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-original-title="Example" class="label label-info popover-primary">?</span>
                         </label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control"  name="BalanceThreshold" value="{{$BalanceThreshold}}" id="Threshold Limit">
+                            <?php /* <input type="text" class="form-control"  name="BalanceThreshold" value="{{$BalanceThreshold}}" id="Threshold Limit"> */?>
+                            <input type="text" class="form-control"  name="BalanceThreshold" value="0" id="Threshold Limit">
                         </div>
                     </div>
                     
@@ -126,9 +127,9 @@
                     <table id="servicetableSubBox" class="table table-bordered datatable">
                         <thead>
                         <tr>
-                            <th width="30%">Balance Threshold</th>
+                            <th width="30%">Balance Threshold<span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-original-title="Example" class="label label-info popover-primary">?</span></th>
                             <th width="20%">Email</th>
-                            <th width="10%">Add</th>
+                            <th width="10%"></th>
                         </tr>
                         </thead>
                         <tbody id="tbody">
@@ -136,7 +137,7 @@
             @foreach($AccountBalanceThreshold as $key=>$AccountBalanceThresholdRow)
                         <tr id="selectedRow-{{$key}}">
                             <td id="testValues">
-                                <input type="text" class="form-control"  name="BalanceThreshold[]" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
+                                <input type="text" class="form-control"  name="BalanceThresholdnew[]" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
                             </td>
                             <td>
                                 <input type="text" class="form-control"  name="email[]" value="{{$AccountBalanceThresholdRow->BalanceThresholdEmail}}" id="email">
@@ -158,7 +159,7 @@
         @else
             <tr id="selectedRow-0">
                             <td id="testValues">
-                                <input type="text" class="form-control"  name="BalanceThreshold[]" value="" id="Threshold Limit">
+                                <input type="text" class="form-control"  name="BalanceThresholdnew[]" value="" id="Threshold Limit">
                             </td>
                             <td>
                                 <input type="text" class="form-control"  name="email[]" value="" id="email">
