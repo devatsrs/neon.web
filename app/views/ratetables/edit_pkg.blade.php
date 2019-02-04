@@ -40,6 +40,7 @@
                         <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
                             <option value="" selected="selected">All</option>
                             <option value="1">Approved</option>
+                            <option value="2">Rejected</option>
                             <option value="0">Awaiting Approval</option>
                         </select>
                     </div>
@@ -507,7 +508,7 @@
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                                 if (full[12] == 2) {
-                                    html += '<i class="entypo-cancel" title="Disapproved" style="color: red; "></i>';
+                                    html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
                                 } else if (full[12] == 1) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
                                 } else if (full[12] == 0) {
@@ -779,7 +780,7 @@
                     var header = "<thead><tr><th>Package Name</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Package Cost Per Minute</th><th>Recording Cost Per Minute</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified By/Date</th>";
 
                     @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                        header += "<th>Status Changed By/Date</th><th>Approve Status</th>";
+                        header += "<th>Status Changed By/Date</th><th>Status</th>";
                     @endif
 
                         header+= "</tr></thead>";
@@ -803,7 +804,7 @@
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                             html += "<td>" + (data['ApprovedBy'] != null?data['ApprovedBy'] + '<br/>':'') + (data['ApprovedDate'] != null?data['ApprovedDate']:'') + "</td>";
                             if (data['ApprovedStatus'] == 2)
-                                html += '<td><i class="entypo-cancel" title="Disapproved" style="color: red; "></i></td>';
+                                html += '<td><i class="entypo-cancel" title="Rejected" style="color: red; "></i></td>';
                             else if(data['ApprovedStatus'] == 1)
                                 html += '<td><i class="entypo-check" title="Approved" style="color: green; "></i></td>';
                             else if(data['ApprovedStatus'] == 0)

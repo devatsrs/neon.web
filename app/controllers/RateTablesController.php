@@ -221,6 +221,8 @@ class RateTablesController extends \BaseController {
             $cronjob            = 'Cronjob';
             $customer_trunk     = 'Customer Trunk';
             $customer_service   = 'Customer Service';
+            $package            = 'Package';
+            $service_package    = 'Customer Service Package';
             $customer_cli       = 'Customer CLI';
             $vendor_connection  = 'Vendor Connection';
             $service_template   = 'Service Template';
@@ -234,9 +236,13 @@ class RateTablesController extends \BaseController {
                             ->where("tblRateTable.RateTableId", $id)->count();
             $is_id_assigned_service_template = RateTable::join('tblServiceTemplate', 'tblServiceTemplate.OutboundRateTableId', '=', 'tblRateTable.RateTableId')
                             ->where("tblRateTable.RateTableId", $id)->count();
+            $is_id_assigned_package = RateTable::join('tblPackage', 'tblPackage.RateTableId', '=', 'tblRateTable.RateTableId')
+                            ->where("tblRateTable.RateTableId", $id)->count();
+            $is_id_assigned_service_package = RateTable::join('tblAccountServicePackage', 'tblAccountServicePackage.RateTableID', '=', 'tblRateTable.RateTableId')
+                            ->where("tblRateTable.RateTableId", $id)->count();
 
             //Is RateTable is not being used anywhere then and then only delete
-            if ($is_id_assigned_customer_trunk == 0 && $is_id_assigned_customer_service == 0 && $is_id_assigned_customer_cli == 0 && $is_id_assigned_vendor == 0 && $is_id_assigned_service_template == 0) {
+            if ($is_id_assigned_customer_trunk == 0 && $is_id_assigned_customer_service == 0 && $is_id_assigned_customer_cli == 0 && $is_id_assigned_vendor == 0 && $is_id_assigned_service_template == 0 && $is_id_assigned_package == 0 && $is_id_assigned_service_package == 0) {
                 if(RateTable::checkRateTableInCronjob($id)){
 
                     $RateTable      = RateTable::find($id);
@@ -275,6 +281,8 @@ class RateTablesController extends \BaseController {
                 $error .= RateTable::checkRateTableInCronjob($id) == false ? $cronjob.',' : '';
                 $error .= $is_id_assigned_customer_trunk > 0 ? $customer_trunk.',' : '';
                 $error .= $is_id_assigned_customer_service > 0 ? $customer_service.',' : '';
+                $error .= $is_id_assigned_package > 0 ? $package.',' : '';
+                $error .= $is_id_assigned_service_package > 0 ? $service_package.',' : '';
                 $error .= $is_id_assigned_customer_cli > 0 ? $customer_cli.',' : '';
                 $error .= $is_id_assigned_vendor > 0 ? $vendor_connection.',' : '';
                 $error .= $is_id_assigned_service_template > 0 ? $service_template.',' : '';

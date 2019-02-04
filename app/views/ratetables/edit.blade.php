@@ -78,6 +78,7 @@
                     <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
                         <option value="" selected="selected">All</option>
                         <option value="1">Approved</option>
+                        <option value="2">Rejected</option>
                         <option value="0">Awaiting Approval</option>
                     </select>
                 </div>
@@ -411,6 +412,7 @@
             var $this = $(this);
             if(!$this.hasClass('processing')) {
                 var button_id = $(this).attr('id');
+                var button_text = $(this).html();
                 var RateTableRateIDs = [];
                 var TimezonesID = $searchFilter.Timezones;
                 var i = 0;
@@ -444,7 +446,7 @@
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
-                            $this.html('<i class="entypo-check"></i><span>Approve Selected</span>').removeClass('processing');
+                            $this.html(button_text).removeClass('processing');
                             if (response.status == 'success') {
                                 toastr.success(response.message, "Success", toastr_opts);
                                 rateDataTable();
@@ -663,7 +665,7 @@
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                                 if (full[22] == 2) {
-                                    html += '<i class="entypo-cancel" title="Disapproved" style="color: red; "></i>';
+                                    html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
                                 } else if (full[22] == 1) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
                                 } else if (full[22] == 0) {
@@ -1034,7 +1036,7 @@
                     header += "<th>Dest. Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified By/Date</th>";
 
                     @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                        header += "<th>Status Changed By/Date</th><th>Approve Status</th>";
+                        header += "<th>Status Changed By/Date</th><th>Status</th>";
                     @endif
 
                     @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
@@ -1072,7 +1074,7 @@
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                             html += "<td>" + (data['ApprovedBy'] != null?data['ApprovedBy'] + '<br/>':'') + (data['ApprovedDate'] != null?data['ApprovedDate']:'') + "</td>";
                             if (data['ApprovedStatus'] == 2)
-                                html += '<td><i class="entypo-cancel" title="Disapproved" style="color: red; "></i></td>';
+                                html += '<td><i class="entypo-cancel" title="Rejected" style="color: red; "></i></td>';
                             else if(data['ApprovedStatus'] == 1)
                                 html += '<td><i class="entypo-check" title="Approved" style="color: green; "></i></td>';
                             else if(data['ApprovedStatus'] == 0)
