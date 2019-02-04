@@ -111,7 +111,7 @@
                 @if(User::checkCategoryPermission('RateTables','ApprovalProcess') )
                     @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         <li><a href="javascript:void(0)" id="approve-bulk-rate"><i class="entypo-check"></i><span>Approve Selected</span></a></li>
-                        <li><a href="javascript:void(0)" id="disapprove-bulk-rate"><i class="entypo-cancel"></i><span>Disapprove Selected</span></a></li>
+                        <li><a href="javascript:void(0)" id="disapprove-bulk-rate"><i class="entypo-cancel"></i><span>Reject Selected</span></a></li>
                     @endif
                 @endif
             </ul>
