@@ -79,7 +79,7 @@
 				show_summernote(modal.find('.message'),{"tasks":true});
 
 			}
-			else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){
+			else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){ 
 
 				show_summernote(modal.find('.message'),{"opportunities":true});
 
