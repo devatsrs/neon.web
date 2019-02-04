@@ -9,9 +9,10 @@ class RateTablePKGRate extends \Eloquent {
 
     public static $rules = [
         'RateID'        =>      'required',
-        'RateTableID'   =>      'required',
+        'RateTableId'   =>      'required',
         'EffectiveDate' =>      'required',
         'TimezonesID'   =>      'required',
+        'MonthlyCost'   =>      'required',
     ];
 
 }

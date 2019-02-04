@@ -755,10 +755,13 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
 	Route::any('/rate_tables/{id}/clear_rate', 'RateTablesController@clear_rate');
 	Route::any('/rate_tables/{id}/clear_did_rate', 'RateTablesController@clear_did_rate');
+	Route::any('/rate_tables/{id}/clear_pkg_rate', 'RateTablesController@clear_pkg_rate');
 	Route::any('/rate_tables/{id}/update_rate_table_rate', 'RateTablesController@update_rate_table_rate');
 	Route::any('/rate_tables/{id}/approve_rate_table_rate', 'RateTablesController@approve_rate_table_rate');
 	Route::any('/rate_tables/{id}/update_rate_table_did_rate', 'RateTablesController@update_rate_table_did_rate');
 	Route::any('/rate_tables/{id}/approve_rate_table_did_rate', 'RateTablesController@approve_rate_table_did_rate');
+	Route::any('/rate_tables/{id}/update_rate_table_pkg_rate', 'RateTablesController@update_rate_table_pkg_rate');
+	Route::any('/rate_tables/{id}/approve_rate_table_pkg_rate', 'RateTablesController@approve_rate_table_pkg_rate');
 	//Route::any('/rate_tables/{id}/bulk_update_rate_table_rate', 'RateTablesController@bulk_update_rate_table_rate');
 	Route::any('/rate_tables/{id}/bulk_clear_rate_table_rate', 'RateTablesController@bulk_clear_rate_table_rate');
 	Route::any('/rate_tables/{id}/change_status/{status}', 'RateTablesController@change_status')->where('status', '(.[09]*)+');
@@ -1544,8 +1547,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/cancel_contract', 'AccountServiceController@cancelContract');
 	Route::any('accountservices/contract_status/{serviceid}', 'AccountServiceController@contract_status');
 	Route::any('accountservices/history/{serviceid}', 'AccountServiceController@contract_history');
-
-
+	
 
 	// packages
 	Route::any('package', 'PackageController@index');
@@ -1553,6 +1555,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('package/store', 'PackageController@store');
 	Route::any('package/update/{id}', 'PackageController@update');
 	Route::any('package/delete/{id}', 'PackageController@delete');
+	Route::post('package/bulk-delete', 'PackageController@bulkDelete');
 	Route::any('package/exports/{type}', 'PackageController@exports');
 	Route::any('package/{id}/get_currency_rate_table', 'PackageController@getRateTableFromCurrencyId');
 

@@ -9,6 +9,7 @@ class RateType extends \Eloquent {
     public  $primaryKey = "RateTypeID"; //Used in BasedController
     CONST SLUG_DID = 'did';
     CONST SLUG_VOICECALL = 'voicecall';
+    CONST SLUG_PACKAGE = 'package';
 
 
     public static function getRateTypeDropDownList(){

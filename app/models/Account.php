@@ -967,4 +967,20 @@ class Account extends \Eloquent {
 
         return '';
     }
+
+    public static function getAccountTypeByAccountID($AccountID){
+        $account = Account::find($AccountID);
+        $Type="";
+        if(!empty($account)){
+            if($account->IsReseller == 1){
+                $Type=RateTable::APPLIED_TO_RESELLER;
+            }else if($account->IsCustomer == 1){
+                $Type=RateTable::APPLIED_TO_CUSTOMER;
+            }else if($account->IsVendor == 1){
+                $Type=RateTable::APPLIED_TO_VENDOR;
+            }
+        }
+        return $Type;
+    }
+
 }

@@ -512,6 +512,13 @@ class PaymentsController extends \BaseController {
                     return json_validator_response($validator);
                 }
                 $Payment = Payment::findOrFail($id);
+
+                // If Request is Payment Out and Get Approved request
+                if($Payment->PaymentType == Payment::$action['Payment Out']){
+                    $resp = $this->payoutRequest($Payment);
+                    return Response::json(array("status" => $resp['status'], "message" => $resp['message']));
+                }
+
                 $save = array();
                 if ($action == 'approve') {
                     $save['Status'] = 'Approved';
@@ -540,10 +547,60 @@ class PaymentsController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" =>  Lang::get("routes.CUST_PANEL_PAGE_PAYMENTS_MSG_PROBLEM_CREATING_PAYMENT")));
                 }
             }
-        }else{
+        } else {
             return Response::json(array("status" => "failed", "message" => Lang::get("routes.CUST_PANEL_PAGE_PAYMENTS_MSG_YOU_HAVE_NOT_PERMISSION_TO_APPROVE_OR_REJECT")));
         }
     }
+
+
+    // Payout Functions Start
+    /**
+     * @param $Payment
+     * @return array
+     */
+    function payoutRequest($Payment){
+
+        if($Payment->AccountID == false && $Payment->AccountID == ""){
+            return [
+                'status' => 'failed',
+                'message' => 'Account Id is Required.'
+            ];
+        }
+
+        $data = array(
+            'AccountID' => $Payment->AccountID,
+            'CompanyID' => $Payment->CompanyID,
+            'Amount'    => (float)$Payment->Amount,
+            'PaymentID' => $Payment->PaymentID
+        );
+
+        $resp = AccountPayout::payout($data);
+        if($resp['status'] == "success") {
+            AccountPayout::successPayoutCustomerEmail($data);
+            $transactionID = @$resp['response']['balance_transaction'];
+            $payoutID = @$resp['response']['balance_transaction'];
+            $note = "Stripe payout_id: {$transactionID}, transaction_id: {$payoutID}";
+
+            $update['Status'] 	   = 'Approved';
+            $update['PaymentDate'] = date('Y-m-d 00:00:00');
+            $update['CreatedBy']   = 'API';
+            $update['Notes'] 	   = $note;
+
+            $Payment = Payment::where('PaymentID', $Payment->PaymentID)->update($update);
+
+            if ($Payment != false) {
+                return [
+                    'status'  => 'success',
+                    'message' => Lang::get('routes.CUST_PANEL_PAGE_PAYMENTS_MSG_PAYMENT_SUCCESSFULLY_UPDATED')
+                ];
+            } else {
+                return ['status' => 'failed', 'message' => 'Payment Out Request could not be approved.'];
+            }
+        } else {
+            return ['status' => 'failed', 'message' => addslashes(@$resp['message'])];
+        }
+    }
+    // Payout Functions End
 
     /* Refill Datagrid against File options changed once Check button clicked
      * */

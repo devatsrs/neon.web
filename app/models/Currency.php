@@ -83,4 +83,30 @@ class Currency extends \Eloquent {
         }
     }
 
+    public static function convertCurrency($CompanyCurrency=0, $AccountCurrency=0, $FileCurrency=0, $Rate=0) {
+
+        if($FileCurrency == $AccountCurrency) {
+            $NewRate = $Rate;
+        } else if($FileCurrency == $CompanyCurrency) {
+            $ConversionRate = CurrencyConversion::where('CurrencyID',$AccountCurrency)->pluck('Value');
+            if($ConversionRate){
+                $NewRate = ($Rate / $ConversionRate);
+            }else{
+                $NewRate = 0;
+            }
+        } else {
+            $ACConversionRate = CurrencyConversion::where('CurrencyID',$AccountCurrency)->pluck('Value');
+            $FCConversionRate = CurrencyConversion::where('CurrencyID',$FileCurrency)->pluck('Value');
+
+            if($ACConversionRate && $FCConversionRate) {
+                $NewRate = ($FCConversionRate) * ($Rate / $ACConversionRate);
+            }else{
+                $NewRate = 0;
+            }
+        }
+
+        return $NewRate;
+
+    }
+
 }

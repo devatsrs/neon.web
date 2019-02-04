@@ -1689,3 +1689,33 @@ END//
 DELIMITER ;
 
 
+
+/*Above Done*/
+
+
+/* Account Service > Changes */
+
+ALTER TABLE `tblCLIRateTable`
+	ADD COLUMN `CityTariff` VARCHAR(50) NULL DEFAULT NULL AFTER `AccountServiceID`;
+	
+INSERT INTO `tblRateType` (`Slug`, `Title`, `Description`, `Active`, `created_at`, `updated_at`, `created_by`, `updated_by`) VALUES ('package', 'Package', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL);
+
+
+CREATE TABLE IF NOT EXISTS `tblAccountServicePackage` (
+  `AccountServicePackageID` int(11) NOT NULL AUTO_INCREMENT,
+  `AccountID` int(11) NOT NULL,
+  `AccountServiceID` int(11) NOT NULL,
+  `CompanyID` int(11) NOT NULL,
+  `PackageId` int(11) NOT NULL,
+  `RateTableID` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`AccountServicePackageID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+/* Account Service > Changes - END Remain In client Server */
+

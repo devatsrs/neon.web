@@ -73,6 +73,7 @@ class LCRDIDController extends \BaseController {
         $CurrencyID = Company::where("CompanyID",User::get_companyID())->pluck("CurrencyId");
         $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
         $Timezones = Timezones::getTimezonesIDList();
+        $products = ServiceTemplate::lists("Name", "ServiceTemplateId");
         $RateTypes = RateType::getRateTypeDropDownList();
         $data=array();
         $data['IsVendor']=1;
@@ -85,7 +86,7 @@ class LCRDIDController extends \BaseController {
         $GroupBy =    NeonCookie::getCookie('LCRGroupBy');
         $Categories = DidCategory::getCategoryDropdownIDList();
 
-        return View::make('lcr.did.index', compact('trunks', 'currencies','CurrencyID','codedecklist','DefaultCodedeck','trunk_keys','LCRPosition','all_accounts','GroupBy','Timezones','RateTypes','Categories'));
+        return View::make('lcr.did.index', get_defined_vars());
     }
     //not using
     public function exports(){

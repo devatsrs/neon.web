@@ -57,7 +57,7 @@ class PaymentApiController extends ApiController {
 				//echo $query;die;
 				$Result = DB::connection('sqlsrv2')->select($query);
 				$Response = json_decode(json_encode($Result), true);
-				return Response::json(["data" => $Response],Codes::$Code200[0]);
+				return Response::json($Response,Codes::$Code200[0]);
 			}catch(Exception $e){
 				Log::info($e);
 				$reseponse = array("ErrorMessage" => "Something Went Wrong.",Codes::$Code500[0]);
@@ -134,17 +134,14 @@ class PaymentApiController extends ApiController {
 
 			//if Auto payout is allowed
 			$approved = !empty($data['Approved']) && $data['Approved'] == 1 ? 1 : 0;
-
+			$paymentID = isset($data['PaymentID']) ? $data['PaymentID'] : false;
 			$resp = ['status' => 'success'];
 			if ($approved == 1) {
-				$resp = $this->payout($data);
+				$resp = AccountPayout::payout($data);
 			}
-
 			if($approved == 1){
-
 				if($resp['status'] == "success") {
-
-					$this->successPayoutCustomerEmail($data);
+					AccountPayout::successPayoutCustomerEmail($data);
 					$transactionID = @$resp['response']['balance_transaction'];
 					$payoutID = @$resp['response']['balance_transaction'];
 					$note = "Stripe payout_id: {$transactionID}, transaction_id: {$payoutID}";
@@ -158,10 +155,18 @@ class PaymentApiController extends ApiController {
 					$data['IsOutPayment']= 1;
 					unset($data['AccountNo']);
 					unset($data['Approved']);
+					unset($data['PaymentID']);
 					unset($data['AccountDynamicField']);
 
-					if ($Payment = Payment::create($data)) {
-						return Response::json(array("data" => ["RequestFundID" => $Payment->PaymentID]),Codes::$Code200[0]);
+					$Payment = $paymentID != false ? Payment::find($paymentID) : false;
+					if($paymentID != false && $Payment != false){
+						$Payment = $Payment->save($data);
+					} else {
+						$Payment = Payment::create($data);
+					}
+
+					if ($Payment != false) {
+						return Response::json(array("RequestFundID" => $Payment->PaymentID),Codes::$Code200[0]);
 					} else {
 						return Response::json(array("ErrorMessage" => "Problem Creating Payment."),Codes::$Code500[0]);
 					}
@@ -180,9 +185,10 @@ class PaymentApiController extends ApiController {
 				unset($data['AccountNo']);
 				unset($data['Approved']);
 				unset($data['AccountDynamicField']);
+				unset($data['PaymentID']);
 
 				if ($Payment = Payment::create($data)) {
-					return Response::json(array("data" => ["RequestFundID" => $Payment->PaymentID]),Codes::$Code200[0]);
+					return Response::json(array("RequestFundID" => $Payment->PaymentID),Codes::$Code200[0]);
 				} else {
 					return Response::json(array("ErrorMessage" => "Problem Creating Payment."),Codes::$Code500[0]);
 				}
@@ -192,76 +198,6 @@ class PaymentApiController extends ApiController {
 			return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code402[0]);
 		}
 
-	}
-
-	/**
-	 * @param $data
-	 * @return array
-	 */
-	public function payout($data){
-
-		$Account = Account::where([
-			'AccountID' => $data['AccountID'],
-			'CompanyID' => $data['CompanyID']
-		])->first();
-		$response = ['status' => 'failed', 'message' => "Payout Request Failed."];
-		if($Account != false) {
-			$PayoutMethod = $Account->PayoutMethod != "" ? $Account->PayoutMethod : "Stripe";
-			if (!empty($PayoutMethod) && $PayoutMethod=='Stripe') {
-				$PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PayoutMethod);
-				$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
-				$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $data['CompanyID']);
-				$data['account'] = $Account;
-
-				$response = $PaymentIntegration->payoutWithStripeAccount($data);
-			}
-		}
-
-		return $response;
-	}
-
-
-
-	public function successPayoutCustomerEmail($email){
-
-		$status = EmailsTemplates::CheckEmailTemplateStatus(Account::OutPaymentEmailTemplate);
-		if($status != false) {
-			$Account = Account::find($email['AccountID']);
-			$CompanyID = $email['CompanyID'];
-			$CompanyName = Company::getName();
-			$Currency = Currency::find($Account->CurrencyId);
-			$CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-			$emaildata = array(
-				'CompanyName' => $CompanyName,
-				'Currency' => $CurrencyCode,
-				'CompanyID' => $CompanyID,
-				'OutPaymentAmount' => $email['Amount'],
-			);
-
-			$emaildata['EmailToName'] = $Account->AccountName;
-			$body = EmailsTemplates::setOutPaymentPlaceholder($Account, 'body', $CompanyID, $emaildata);
-			$emaildata['Subject'] = EmailsTemplates::setOutPaymentPlaceholder($Account, "subject", $CompanyID, $emaildata);
-			if (!isset($emaildata['EmailFrom'])) {
-				$emaildata['EmailFrom'] = EmailsTemplates::GetEmailTemplateFrom(Account::OutPaymentEmailTemplate);
-			}
-
-			$CustomerEmail = $Account->BillingEmail;
-			if($CustomerEmail != '') {
-				$CustomerEmail = explode(",", $CustomerEmail);
-				$customeremail_status['status'] = 0;
-				$customeremail_status['message'] = '';
-				$customeremail_status['body'] = '';
-				foreach ($CustomerEmail as $singleemail) {
-					$singleemail = trim($singleemail);
-					if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
-						$emaildata['EmailTo'][] = $singleemail;
-					}
-				}
-				Log::info("============ EmailData ===========");
-				Log::info($emaildata);
-				$customeremail_status = Helper::sendMaiL($body, $emaildata, 0);
-			}
-		}
 	}
 
 	/**
@@ -370,11 +306,20 @@ class PaymentApiController extends ApiController {
 						$InsertPayment['PaymentMethod']=$PaymentResponse['PaymentMethod'];
 						$InsertPayment['transaction_notes']=$PaymentResponse['transaction_notes'];
 
-						self::PaymentLog($Account,$InsertPayment,$data);
+						$PaymentID=self::PaymentLog($Account,$InsertPayment,$data);
 
 						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
 
-						return Response::json(["data"=>["PaymentResponse"=>$ReturnData,"InvoiceResponse"=>$InvoiceGenerate]],Codes::$Code200[0]);
+						if(!empty($PaymentID) && !empty($InvoiceGenerate['LastInvoiceID'])){
+							$FullInvoiceNumber = Invoice::where(['InvoiceID'=>$InvoiceGenerate['LastInvoiceID']])->pluck('FullInvoiceNumber');
+							$UpdateData=array();
+							$UpdateData['InvoiceID'] = $InvoiceGenerate['LastInvoiceID'];
+							$UpdateData['InvoiceNo'] = $FullInvoiceNumber;
+							Payment::where(['PaymentID'=>$PaymentID])->update($UpdateData);
+						}
+
+
+						return Response::json(["PaymentResponse"=>$ReturnData,"InvoiceResponse"=>$InvoiceGenerate],Codes::$Code200[0]);
 
 					}else{
 						//Failed Payment
@@ -397,8 +342,6 @@ class PaymentApiController extends ApiController {
 		if(!empty($errors)){
 			return Response::json(["ErrorMessage"=>$errors],Codes::$Code402[0]);
 		}
-
-
 	}
 
 	public static function PaymentLog($Account,$PaymentResponse,$data){
@@ -417,7 +360,8 @@ class PaymentApiController extends ApiController {
 			$PaymentInsertData['updated_at'] = date('Y-m-d H:i:s');
 			$PaymentInsertData['CreatedBy'] = 'API';
 			$PaymentInsertData['ModifyBy'] = 'API';
-			Payment::insert($PaymentInsertData);
+			$Payment=Payment::create($PaymentInsertData);
+			return $Payment->PaymentID;
 		}
 	}
 

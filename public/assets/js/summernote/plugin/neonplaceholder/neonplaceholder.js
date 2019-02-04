@@ -14,10 +14,12 @@ if( typeof neon_summernote_options == 'undefined') {
         "TicketsSingle": false,
         "invoiceoptions": false,
         "autopaymentoptions": false,
+        contractoptions:false,
         "Cronjobs": false,
         "estimateoptions": false,
         "ratesheetoptions": false,
         "opportunities": false,
+        "outpaymentoptions": false,
         "tasks": false,
         "Tickets": false,
         "ratetemplateoptions":false
@@ -64,6 +66,23 @@ var dropdown_text =  {
         User:"User",
         Comment:"Comment",
         Logo:"Logo"
+    },
+    outpaymentoptions:{
+        FirstName:"FirstName",
+        LastName:"LastName",
+        Email:"Email",
+        Address1:"Address1",
+        Address2:"Address2",
+        Address3:"Address3",
+        City:"City",
+        State:"State",
+        PostCode:"PostCode",
+        Country:"Country",
+        CurrencySign:"CurrencySign",
+        Currency:"Currency",
+        CompanyName:"CompanyName",
+        OutPaymentAmount:"OutPaymentAmount",
+        AccountName:"AccountName"
     },
     tasks:{
         Subject:"Subject",
@@ -282,6 +301,12 @@ var dropdown_text =  {
         CompanyName:"CompanyName",
         AccountName:"AccountName",
     },
+    contractoptions: {
+        AccountName: "AccountName",
+        ServiceTitle:"ServiceTitle",
+        Email: "Email",
+
+    }
 };
 
 
@@ -437,6 +462,42 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
             "<li><a data-value='{{Signature}}'>" + dropdown_text.autopaymentoptions.Signature + "</a></li>" ;
+    },
+    "contractoptions": function () {
+
+    return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractoptions.AccountName + "</a></li>" +
+        "<li><a data-value='{{ServiceTitle}}'>" + dropdown_text.contractoptions.ServiceTitle + "</a></li>" +
+        "<li><a data-value='{{Email}}'>" + dropdown_text.contractoptions.Email + "</a></li>"
+},
+    "outpaymentoptions": function () {
+
+        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+            "<li><a data-value='{{AccountName}}'>" + dropdown_text.outpaymentoptions.AccountName + "</a></li>" +
+            "<li><a data-value='{{FirstName}}'>" + dropdown_text.outpaymentoptions.FirstName + "</a></li>" +
+            "<li><a data-value='{{LastName}}'>" + dropdown_text.outpaymentoptions.LastName + "</a></li>" +
+            "<li><a data-value='{{Email}}'>" + dropdown_text.outpaymentoptions.Email + "</a></li>" +
+            "<li><a data-value='{{Address1}}'>" + dropdown_text.outpaymentoptions.Address1 + "</a></li>" +
+            "<li><a data-value='{{Address2}}'>" + dropdown_text.outpaymentoptions.Address2 + "</a></li>" +
+            "<li><a data-value='{{Address3}}'>" + dropdown_text.outpaymentoptions.Address3 + "</a></li>" +
+            "<li><a data-value='{{City}}'>" + dropdown_text.outpaymentoptions.City + "</a></li>" +
+            "<li><a data-value='{{State}}'>" + dropdown_text.outpaymentoptions.State + "</a></li>" +
+            "<li><a data-value='{{PostCode}}'>" + dropdown_text.outpaymentoptions.PostCode + "</a></li>" +
+            "<li><a data-value='{{Country}}'>" + dropdown_text.outpaymentoptions.Country + "</a></li>" +
+            "<li><a data-value='{{Currency}}'>" + dropdown_text.outpaymentoptions.Currency + "</a></li>" +
+            "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.outpaymentoptions.CurrencySign + "</a></li>" +
+            "<li class='unclick'><a ><b>Out Payment Fields</b></a></li>" +
+            "<li><a data-value='{{OutPaymentAmount}}'>" + dropdown_text.outpaymentoptions.OutPaymentAmount + "</a></li>" +
+            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
+            "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress2}}'>" + dropdown_text.Company.Address2 + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress3}}'>" + dropdown_text.Company.Address3 + "</a></li>" +
+            "<li><a data-value='{{CompanyCity}}'>" + dropdown_text.Company.City + "</a></li>" +
+            "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
+            "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
+            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>"
     },
     "tasks": function () {
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
@@ -684,6 +745,8 @@ var neon_summernote_dropdown_tpl = {
                 "estimateoptions":false,
                 "ratesheetoptions":false,
                 "opportunities":false,
+                "outpaymentoptions":false,
+                "contractoptions" : false,
                 "tasks":false,
                 "Crm":false,
                 "Tickets":false,

@@ -19,11 +19,13 @@ class ConnectionController extends \BaseController {
 
         $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
         $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $PackageCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
 
         $TariffDID=RateTable::getDIDTariffDropDownList($companyID,$DIDType,$CurrencyID,RateTable::APPLIED_TO_VENDOR);
         $TariffVoiceCall=RateTable::getDIDTariffDropDownList($companyID,$VoiceCallType,$CurrencyID,RateTable::APPLIED_TO_VENDOR);
+        $TariffPackage=RateTable::getDIDTariffDropDownList($companyID,$PackageCallType,$CurrencyID,RateTable::APPLIED_TO_VENDOR);
 
-        return View::make('vendorrates.connection', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall','companyID','DIDType','VoiceCallType'));
+        return View::make('vendorrates.connection', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall','companyID','DIDType','VoiceCallType','PackageCallType','TariffPackage'));
 
     }
 
@@ -87,13 +89,16 @@ class ConnectionController extends \BaseController {
     {
         if($id > 0) {
             $data=array();
+
             $Input = Input::all();
+
             $companyID = User::get_companyID();
 
             unset($data['VendorConnectionID']);
 
             $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
             $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+            $PackageCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
 
             $rules = array(
                 'RateTypeID' => 'required',
@@ -103,6 +108,12 @@ class ConnectionController extends \BaseController {
 
             if($Input['RateTypeID']==$DIDType){
                 $data=$Input['did'];
+
+                $rules['RateTableID']='required';
+
+            }else if($Input['RateTypeID']==$PackageCallType){
+                $data=$Input['package'];
+
                 $rules['RateTableID']='required';
 
             }else if($Input['RateTypeID']==$VoiceCallType){
@@ -122,7 +133,7 @@ class ConnectionController extends \BaseController {
                 $data['Password'] = Crypt::encrypt($data['Password']);
             }
 
-            $validator = Validator::make($data, $rules,['RateTableID.required'=>"Tariff is required.","RateTypeID.required"=>"Type is required."]);
+            $validator = Validator::make($data, $rules,['RateTableID.required'=>"RateTable is required.","RateTypeID.required"=>"Type is required."]);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -180,12 +191,14 @@ class ConnectionController extends \BaseController {
         if( $id && $conID > 0 ) {
             $data=array();
             $Input = Input::all();
+
             $companyID = User::get_companyID();
             $VendorConnection=VendorConnection::findOrFail($conID);
             unset($data['VendorConnectionID']);
 
             $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
             $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+            $PackageCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
 
             $rules = array(
                 'Name' => 'required',
@@ -194,6 +207,9 @@ class ConnectionController extends \BaseController {
             );
             if($VendorConnection->RateTypeID==$DIDType){
                 $data=$Input['did'];
+                $rules['RateTableID']='required';
+            }else if($VendorConnection->RateTypeID ==$PackageCallType){
+                $data=$Input['package'];
                 $rules['RateTableID']='required';
             }else if($VendorConnection->RateTypeID==$VoiceCallType){
                 $data=$Input['voice'];
@@ -213,7 +229,7 @@ class ConnectionController extends \BaseController {
                 unset($data['Password']);
             }
             
-            $validator = Validator::make($data, $rules,['RateTableID.required'=>"Tariff is required.","RateTypeID.required"=>"Type is required."]);
+            $validator = Validator::make($data, $rules,['RateTableID.required'=>"RateTable is required.","RateTypeID.required"=>"Type is required."]);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);

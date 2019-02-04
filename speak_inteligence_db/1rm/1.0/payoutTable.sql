@@ -23,3 +23,8 @@ CREATE TABLE `speakintelligentRM`.`tblAccountPayout` (
 
  ALTER TABLE `tblAccountBalance`
 	ADD COLUMN `OutPayment` DECIMAL (18,6) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `VendorUnbilledAmount`;
+
+
+
+ALTER TABLE `tblAccountPayout`
+	ADD COLUMN `Type` ENUM('bank','card') NULL DEFAULT 'card' AFTER `Options`;

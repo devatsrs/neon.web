@@ -7,7 +7,7 @@ class AccountBillingApiController extends ApiController {
 	{
 		$fields=["AccountBillingID", "AccountID", "BillingType", "BillingCycleType", "BillingCycleValue", "BillingClassID"];
 		$AccountBilling =  AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>0))->select($fields)->first();
-		return Response::json(["status"=>"success", "data"=>$AccountBilling]);
+		return Response::json(["status"=>"success", $AccountBilling]);
 	}
 
 	/**
@@ -43,7 +43,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoTopup','MinThreshold','TopupAmount']);
 
-		return Response::json(["data"=>$Result],Codes::$Code402[0]);
+		return Response::json($Result,Codes::$Code402[0]);
 	}
 
 	/**
@@ -193,7 +193,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoOutpayment','OutPaymentThreshold','OutPaymentAmount']);
 
-		return Response::json(["data"=>$Result],Codes::$Code200[0]);
+		return Response::json($Result,Codes::$Code200[0]);
 	}
 
 	/**

@@ -1870,7 +1870,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable','tblRateTable.RateTableId','=','tblCLIRateTable.RateTableID')
         ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
-            ->select(['CLIRateTableID','CLI','tblRateTable.RateTableName','CLIRateTableID','tblService.ServiceName'])
+            ->select(['CLIRateTableID','CLI','tblRateTable.RateTableName','CLIRateTableID','tblService.ServiceName','CityTariff'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
@@ -1914,6 +1914,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $rate_tables['RateTableID'] = $data['RateTableID'];
                 $rate_tables['AccountID'] = $data['AccountID'];
                 $rate_tables['CompanyID'] = $CompanyID;
+                $rate_tables['CityTariff'] = !empty($data['CityTariff'])?$data['CityTariff']:'';
                 if(!empty($data['ServiceID'])) {
                     $rate_tables['ServiceID'] = $data['ServiceID'];
                 }
@@ -2008,17 +2009,20 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $AccountServiceID = 0;
         }
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
+        $UpdateData=array();
+        $UpdateData['CityTariff']=!empty($data['CityTariff'])?$data['CityTariff']:'';
+        $UpdateData['RateTableID']=$data['RateTableID'];
         if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
             $query = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"');
                 //$query->where(array('ServiceID' => $ServiceID));
                 $query->where(array('AccountID' => $data['AccountID']));
-                $query->update(array('RateTableID' => $data['RateTableID']));
+                $query->update($UpdateData);
         } else if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
             $query = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs);
            // $query->where(array('ServiceID' => $ServiceID));
-            $query->update(array('RateTableID' => $data['RateTableID']));
+            $query->update($UpdateData);
         }
         return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
     }

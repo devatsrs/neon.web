@@ -11,19 +11,19 @@ class PackageController extends BaseController {
 
 
     public function ajax_datagrid(){
-
         $data = Input::all();
 
+        $CompanyID = User::get_companyID();
         $packages = Package::leftJoin('tblRateTable','tblPackage.RateTableId','=','tblRateTable.RateTableId')
             ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
             ->select([
+                "tblPackage.PackageId",
                 "tblPackage.Name",
                 "tblRateTable.RateTableName",
                 "tblCurrency.Code",
-                "tblPackage.PackageId",
                 "tblPackage.RateTableId",
                 "tblPackage.CurrencyId"
-            ]);
+            ])->where("tblPackage.CompanyID", $CompanyID);
 
 
         if(!empty($data['PackageName'])){
@@ -40,7 +40,10 @@ class PackageController extends BaseController {
     public function index() {
         $rateTables = RateTable::lists("RateTableName", "RateTableId");
         $rateTables = array('' => "Select") + $rateTables;
-        return View::make('package.index', compact('rateTables'));
+        $CompanyID  = User::get_companyID();
+        $defaultCurrencyId = Company::getCompanyField($CompanyID, "CurrencyId");
+
+        return View::make('package.index', compact('rateTables', 'defaultCurrencyId','currencyDropdown'));
     }
 
     public function store() {
@@ -48,6 +51,8 @@ class PackageController extends BaseController {
         $data = Input::all();
         if(!empty($data)){
 
+            $CompanyID = User::get_companyID();
+            $data['CompanyID'] = $CompanyID;
             Package::$rules['Name'] = 'required|unique:tblPackage,Name';
 
             $validator = Validator::make($data, Package::$rules);
@@ -58,7 +63,7 @@ class PackageController extends BaseController {
             if($Package = Package::create($data)){
                 return  Response::json(array("status" => "success", "message" => "Package Successfully Created",'LastID'=>$Package->PackageId,'newcreated'=>$Package));
             } else {
-                return  Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
+                return  Response::json(array("status" => "failed", "message" => "Problem Creating Package."));
             }
 
         }
@@ -67,7 +72,8 @@ class PackageController extends BaseController {
     public function update($id) {
 
         $data = Input::all();
-        $Package = Package::find($id);
+        $CompanyID = User::get_companyID();
+        $Package = Package::where("CompanyID", $CompanyID)->find($id);
         Package::$rules["Name"] = 'required|unique:tblPackage,Name,'.$id.',PackageId';
 
 
@@ -78,17 +84,24 @@ class PackageController extends BaseController {
         if($Package->update($data)){
             return  Response::json(array("status" => "success", "message" => "Package Successfully Updated"));
         } else {
-            return  Response::json(array("status" => "failed", "message" => "Problem Updating Service."));
+            return  Response::json(array("status" => "failed", "message" => "Problem Updating Package."));
         }
     }
 
     public function delete($id){
         try{
-            $result = Package::where(array('PackageId'=>$id))->delete();
-            if ($result) {
-                return Response::json(array("status" => "success", "message" => "Package Successfully Deleted"));
+            $CompanyID = User::get_companyID();
+            $packageExist = AccountServicePackage::where("PackageId", $id)->get();
+            if($packageExist->count() < 1) {
+                $result = Package::where("CompanyID", $CompanyID)
+                    ->where(array('PackageId' => $id))->delete();
+                if ($result) {
+                    return Response::json(array("status" => "success", "message" => "Package Successfully Deleted"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Package."));
+                }
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
+                return Response::json(array("status" => "failed", "message" => "Package is assigned to an account."));
             }
         }catch (Exception $ex){
             return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
@@ -96,21 +109,45 @@ class PackageController extends BaseController {
 
     }
 
+
+    public function bulkDelete(){
+        $data = Input::all();
+        $validator = Validator::make($data, ['PackageIds' => 'required']);
+        $CompanyID = User::get_companyID();
+
+        if ($validator->fails())
+            return json_validator_response($validator);
+
+        $bulkIds = explode(",",$data['PackageIds']);
+
+        $packageExist = AccountServicePackage::whereIn('PackageId', $bulkIds)->lists('PackageId');
+
+        $bulkIds = array_diff($bulkIds, $packageExist);
+        if(!empty($bulkIds)) {
+            $result = Package::where("CompanyID", $CompanyID)
+                ->whereIn('PackageId', $bulkIds)->delete();
+            if ($result) {
+                return Response::json(array("status" => "success", "message" => "Packages Successfully Deleted"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting Packages."));
+            }
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Selected Packages are Assigned to Account."));
+        }
+    }
+
     public function exports($type){
 
         $data = Input::all();
 
+        $CompanyID = User::get_companyID();
         $query = Package::leftJoin('tblRateTable','tblPackage.RateTableId','=','tblRateTable.RateTableId')
             ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
             ->select([
                 "tblPackage.Name",
                 "tblRateTable.RateTableName",
-                "tblCurrency.Code",
-                "tblPackage.PackageId",
-                "tblPackage.RateTableId",
-                "tblPackage.CurrencyId"
-            ]);
-
+                "tblCurrency.Code as Currency"
+            ])->where("tblPackage.CompanyID", $CompanyID);
 
         if(!empty($data['PackageName'])){
             $query->where('tblPackage.Name','like','%'.$data['PackageName'].'%');
@@ -137,14 +174,16 @@ class PackageController extends BaseController {
 
 
     public function getRateTableFromCurrencyId($id){
-            $rateTables = RateTable::where('CurrencyID', $id)
-                ->where('type', 3)
-                ->lists("RateTableName", "RateTableId");
-            if ($rateTables != false) {
-                $rateTables = array('' => "Select") + $rateTables;
-                return Response::json($rateTables);
-            } else {
-                return Response::json([''=>'Select']);
-            }
+        $rateTypeID = RateType::getRateTypeIDBySlug("package");
+        $rateTables = RateTable::where('CurrencyID', $id)
+            ->where('Type', $rateTypeID)
+            ->where('AppliedTo', "!=", RateTable::APPLIED_TO_VENDOR)
+            ->lists("RateTableName", "RateTableId");
+        if ($rateTables != false) {
+            $rateTables = array('' => "Select") + $rateTables;
+            return Response::json($rateTables);
+        } else {
+            return Response::json([''=>'Select']);
+        }
     }
 }
