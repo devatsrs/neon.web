@@ -539,8 +539,8 @@ class ActiveCall extends \Eloquent {
             $vendordetaildata['duration']=$ActiveCall->Duration;
             $vendordetaildata['billed_duration']=$ActiveCall->billed_duration;
             $vendordetaildata['billed_second']=$ActiveCall->Duration;
-            $vendordetaildata['area_prefix']=$ActiveCall->CLDPrefix; //cldprefix
-            $vendordetaildata['CLIPrefix']=$ActiveCall->CLIPrefix; //cldprefix
+            $vendordetaildata['area_prefix']=$ActiveCall->VendorCLDPrefix; //cldprefix
+            $vendordetaildata['CLIPrefix']=$ActiveCall->VendorCLIPrefix; //cldprefix
             $vendordetaildata['cli']=$ActiveCall->CLI;
             $vendordetaildata['cld']=$ActiveCall->CLD;
             $vendordetaildata['selling_cost']=$ActiveCall->Cost;
@@ -549,8 +549,7 @@ class ActiveCall extends \Eloquent {
             $vendordetaildata['ID']=$UsageDetailID;
             $vendordetaildata['UUID']=$ActiveCall->UUID;
             $vendordetaildata['trunk']=$trunk;
-
-            VendorCDR::create($detaildata);
+            VendorCDR::create($vendordetaildata);
         }
     }
 
