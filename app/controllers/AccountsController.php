@@ -1644,12 +1644,23 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
             $SOA_Amount = AccountBalanceLog::getPrepaidAccountBalance($id);
         }
-        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType'));
+        if(!empty($id)){
+                $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $id))->get();
+            }
+        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType','AccountBalanceThreshold'));
     }
 
     public function update_credit(){
         $data = Input::all();
         $postdata= $data;
+        
+        //Update Account Thread HOld
+        try{
+            AccountBalanceThreshold::where('AccountID', $postdata['AccountID'])->delete();
+            AccountBalanceThreshold::saveAccountBalanceThreshold($postdata['AccountID'],$postdata);
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
         $response =  NeonAPI::request('account/update_creditinfo',$postdata,true,false,false);
         return json_response_api($response);
     }

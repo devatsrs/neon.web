@@ -557,7 +557,7 @@ class ActiveCall extends \Eloquent {
     public static function getRateTablePKGRateID($CompanyID,$RateTableID,$TimezonesID,$PackageId){
         $RateTablePKGRateID = 0;
         $Code = Package::where('PackageId',$PackageId)->pluck('Name');
-        $CodeDeckID = RateTable::where(['CompanyId'=>$CompanyID])->pluck('RateTableId');
+        $CodeDeckID = RateTable::where(['CompanyId'=>$CompanyID,'RateTableId'=>$RateTableID])->pluck('CodeDeckId');
         $RateID = CodeDeck::where(['CompanyID'=>$CompanyID,'CodeDeckId'=>$CodeDeckID,'Code'=>$Code])->pluck('RateID');
         if(!empty($RateID)){
             $RateTableRateCount = DB::table('tblRateTablePKGRate')->where(['RateTableId'=>$RateTableID,'TimezonesID'=>$TimezonesID])->count();
