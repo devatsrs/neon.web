@@ -133,8 +133,8 @@
                         </thead>
                         <tbody id="tbody">
                             @if(count($AccountBalanceThreshold))
-            @foreach($AccountBalanceThreshold as $AccountBalanceThresholdRow)
-                        <tr id="selectedRow-1">
+            @foreach($AccountBalanceThreshold as $key=>$AccountBalanceThresholdRow)
+                        <tr id="selectedRow-{{$key}}">
                             <td id="testValues">
                                 <input type="text" class="form-control"  name="BalanceThreshold[]" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
                             </td>
@@ -156,7 +156,7 @@
                         </tr>
 @endforeach
         @else
-            <tr id="selectedRow-1">
+            <tr id="selectedRow-0">
                             <td id="testValues">
                                 <input type="text" class="form-control"  name="BalanceThreshold[]" value="" id="Threshold Limit">
                             </td>
@@ -216,8 +216,7 @@
     }
     function createCloneRow()
     {
-
-
+        
         var $item = $('#servicetableSubBox tr:last').attr('id');
         var numb = getNumber($item);
         numb++;
@@ -230,9 +229,8 @@
 
         $('#servicetableSubBox tr:last').attr('id', 'selectedRow-'+numb);
 
-        $('#servicetableSubBox tr:last').children('td:eq(0)').children('select').attr('name', 'Component-'+numb+'[]').attr('id', 'Component-'+numb).select2().select2('val', '');
-        $('#servicetableSubBox tr:last').children('td:eq(1)').children('select').attr('name', 'Action-'+numb).attr('id', 'Action-'+numb).select2().select2('val', '');
-        $('#servicetableSubBox tr:last').children('td:eq(2)').children('select').attr('name', 'MergeTo-'+numb).attr('id', 'MergeTo-'+numb).select2().select2('val', '');
+        $('#servicetableSubBox tr:last').children('td:eq(0)').children('input').val('');
+        $('#servicetableSubBox tr:last').children('td:eq(1)').children('input').val('');
 
         if($('#getIDs').val() == '' ){
             $('#getIDs').val(numb+',');
