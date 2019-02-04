@@ -110,6 +110,7 @@
                 @if(User::checkCategoryPermission('RateTables','ApprovalProcess') )
                     @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         <li><a href="javascript:void(0)" id="approve-bulk-rate"><i class="entypo-check"></i><span>Approve Selected</span></a></li>
+                        <li><a href="javascript:void(0)" id="disapprove-bulk-rate"><i class="entypo-cancel"></i><span>Disapprove Selected</span></a></li>
                     @endif
                 @endif
             </ul>
@@ -174,7 +175,7 @@
             <th width="9%" style="display: none;">End Date</th>
             <th width="8%">Modified By/Date</th>
             @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-            <th width="8%">Approved By/Date</th>
+            <th width="8%">Status Changed By/Date</th>
             @endif
             <th width="20%" > Action</th>
         </tr>
@@ -373,32 +374,38 @@
         });
 
         //Bulk Approve Button
-        $(document).off('click.approve-bulk-rate','#approve-bulk-rate');
-        $(document).on('click.approve-bulk-rate','#approve-bulk-rate',function(ev) {
+        $(document).off('click.approve-bulk-rate','#approve-bulk-rate,#disapprove-bulk-rate');
+        $(document).on('click.approve-bulk-rate','#approve-bulk-rate,#disapprove-bulk-rate',function(ev) {
             var $this = $(this);
             if(!$this.hasClass('processing')) {
-                var RateTableRateIDs = [];
+                var button_id = $(this).attr('id');
+                var RateTableDIDRateIDs = [];
                 var TimezonesID = $searchFilter.Timezones;
                 var i = 0;
                 $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
-                    RateTableRateID = $(this).val();
-                    RateTableRateIDs[i] = RateTableRateID;
+                    RateTableDIDRateID = $(this).val();
+                    RateTableDIDRateIDs[i] = RateTableDIDRateID;
                     i++;
                 });
 
                 var formdata = new FormData();
                 formdata.append('TimezonesID', TimezonesID);
+                if(button_id == 'approve-bulk-rate') {
+                    formdata.append('ApprovedStatus', 1);
+                } else {
+                    formdata.append('ApprovedStatus', 2);
+                }
                 var criteria = '';
                 if ($('#selectallbutton').is(':checked')) {
                     criteria = JSON.stringify($searchFilter);
-                    formdata.append('RateTableRateID', '');
+                    formdata.append('RateTableDIDRateID', '');
                     formdata.append('criteria', criteria);
                 } else {
-                    formdata.append('RateTableRateID', RateTableRateIDs.join(","));
+                    formdata.append('RateTableDIDRateID', RateTableDIDRateIDs.join(","));
                     formdata.append('criteria', '');
                 }
 
-                if (RateTableRateIDs.length) {
+                if (RateTableDIDRateIDs.length) {
                     $this.text('Processing...').addClass('processing');
                     $.ajax({
                         url: baseurl + '/rate_tables/{{$id}}/approve_rate_table_did_rate', //Server script to process data
@@ -606,10 +613,12 @@
                                 var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[27] == 1) {
+                                if (full[27] == 2) {
+                                    html += '<i class="entypo-cancel" title="Disapprove" style="color: red; "></i>';
+                                } else if (full[27] == 1) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
                                 } else if (full[27] == 0) {
-                                    html += '<i class="entypo-cancel" title="Awaiting Approval" style="color: red; "></i>';
+                                    html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
                                 }
                                 @endif
 
@@ -718,11 +727,11 @@
                                 full[28] = full[28] != null ? full[28] : '';
                                 full[29] = full[29] != null ? full[29] : '';
                                 if(full[28] != '' && full[29] != '')
-                                    return full[28] + '<br/>' + full[29]; // Approved By/Approved Date
+                                    return full[28] + '<br/>' + full[29]; // Approved Status Changed By/Approved Date
                                 else
                                     return '';
                             }
-                        }, //24/25 Approved By/Approved Date
+                        }, //24/25 Approved Status Changed By/Approved Date
                         @endif
                         {
                             mRender: function(id, type, full) {
@@ -970,7 +979,7 @@
                         header += "<th>Modified By/Date</th>";
                     }
                     @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                    header += "<th>Approved By/Date</th><th>Approved Status</th>";
+                    header += "<th>Status Changed By/Date</th><th>Approved Status</th>";
                     @endif
                     header += "</tr></thead>";
 
@@ -1015,10 +1024,12 @@
 
                             @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                                 html += "<td>" + (data['ApprovedBy'] != null?data['ApprovedBy'] + '<br/>':'') + (data['ApprovedDate'] != null?data['ApprovedDate']:'') + "</td>";
-                                if(data['ApprovedStatus'] == 1)
+                                if (data['ApprovedStatus'] == 2)
+                                    html += '<td><i class="entypo-cancel" title="Disapprove" style="color: red; "></i></td>';
+                                else if(data['ApprovedStatus'] == 1)
                                     html += '<td><i class="entypo-check" title="Approved" style="color: green; "></i></td>';
                                 else if(data['ApprovedStatus'] == 0)
-                                    html += '<td><i class="entypo-cancel" title="Awaiting Approved" style="color: red; "></i></td>';
+                                    html += '<td><i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i></td>';
                             @endif
 
                             html += "</tr>";
