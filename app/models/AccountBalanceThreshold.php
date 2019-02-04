@@ -11,7 +11,7 @@ class AccountBalanceThreshold extends \Eloquent {
     public static function saveAccountBalanceThreshold($accountid, $post)
     {
         
-        foreach ($post['BalanceThreshold'] as $key => $value) {
+        foreach ($post['BalanceThresholdnew'] as $key => $value) {
             $data = [
             'AccountID' => $accountid,
             'BalanceThreshold' => $value,
