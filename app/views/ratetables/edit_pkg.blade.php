@@ -507,7 +507,7 @@
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                                 if (full[12] == 2) {
-                                    html += '<i class="entypo-cancel" title="Disapprove" style="color: red; "></i>';
+                                    html += '<i class="entypo-cancel" title="Disapproved" style="color: red; "></i>';
                                 } else if (full[12] == 1) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
                                 } else if (full[12] == 0) {
@@ -803,7 +803,7 @@
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                             html += "<td>" + (data['ApprovedBy'] != null?data['ApprovedBy'] + '<br/>':'') + (data['ApprovedDate'] != null?data['ApprovedDate']:'') + "</td>";
                             if (data['ApprovedStatus'] == 2)
-                                html += '<td><i class="entypo-cancel" title="Disapprove" style="color: red; "></i></td>';
+                                html += '<td><i class="entypo-cancel" title="Disapproved" style="color: red; "></i></td>';
                             else if(data['ApprovedStatus'] == 1)
                                 html += '<td><i class="entypo-check" title="Approved" style="color: green; "></i></td>';
                             else if(data['ApprovedStatus'] == 0)
