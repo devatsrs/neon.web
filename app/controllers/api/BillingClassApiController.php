@@ -37,7 +37,34 @@ class BillingClassApiController extends ApiController {
 		}
 		return Response::json(["status"=>"success", "data"=>$AccountTaxRate]);
 	}
-
+        /**
+	 * delLowBalanceNotification():
+	 * @Param mixed
+	 *
+	 * @Response
+	 * Update Success
+	 */
+        public function delLowBalanceNotification(){
+            $post_vars = json_decode(file_get_contents("php://input"));
+            $data=json_decode(json_encode($post_vars),true);
+            try{
+                if(!empty($data['AccountID'])) {
+                    $AccountID = $data['AccountID'];
+                }else{
+                    return Response::json(["ErrorMessage"=>"AccountID Required"],Codes::$Code402[0]);
+                }
+                if(!empty($data['BalanceThreshold'])) {
+                    $Threshold=$data['BalanceThreshold'];
+                }else{
+                   return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code402[0]);
+                }
+                AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'BalanceThreshold'=>$Threshold))->delete();
+                return Response::json(["status"=>"success"],Codes::$Code200[0]);
+            }catch (\Exception $e) {
+                    Log::info($e);
+                    return Response::json(["ErrorMessage"=>"Something Went Wrong. Exception Generated."],Codes::$Code500[0]);
+            }
+        }
 	/**
 	 * setLowBalanceNotification():
 	 * @Param mixed
@@ -48,7 +75,44 @@ class BillingClassApiController extends ApiController {
 	public function setLowBalanceNotification(){
 		$post_vars = json_decode(file_get_contents("php://input"));
 		$data=json_decode(json_encode($post_vars),true);
-
+                
+                foreach($data as $key=>$val){
+                    
+                     $AccountID = $val['AccountID'];
+                    
+                    foreach($val['BalanceThreshold'] as $keys=>$value){ 
+                        if(!empty($val['AccountID'])) {
+                            $Account = Account::where(["AccountID" => $AccountID])->select('AccountID','CompanyId')->first();
+                            if(!empty($Account)){
+                                $AccountID=$Account->AccountID;
+                                $CompanyID=$Account->CompanyId;
+                            }else{
+                                return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
+                            }
+                        }else{
+                            return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
+                        }
+                        if(!empty($value['Threshold'])) {
+                            $Threshold=$value['Threshold'];
+                        }else{
+                           return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code402[0]);
+                        }
+                        try{
+                            $PostData=array();
+                            $PostData['BalanceThreshold'] = $Threshold;
+                            $PostData['AccountID'] = $AccountID;
+                            $PostData['BalanceThresholdEmail'] = $value['Email'];
+                            AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'BalanceThresholdEmail'=>$value['Email'],'BalanceThreshold'=>$Threshold))->delete();
+                            AccountBalanceThreshold::insert($PostData);
+                        }catch (\Exception $e) {
+                                Log::info($e);
+                                return Response::json(["ErrorMessage"=>"Something Went Wrong. Exception Generated."],Codes::$Code500[0]);
+                        }
+                    }
+                }
+                return Response::json(["status"=>"success"],Codes::$Code200[0]);
+                exit();
+                //Below are the old code and logic----------------
 		$PostData=array();
 		$AccountID=0;
 		$CompanyID=0;
@@ -172,20 +236,23 @@ class BillingClassApiController extends ApiController {
 			return Response::json(["ErrorMessage"=>"AccountID or AccountNo is Required"],Codes::$Code402[0]);
 		}
 
-		$BillingClassID=AccountBilling::getBillingClassID($AccountID);
-		if($BillingClassID > 0){
-			$BillingClass=BillingClass::find($BillingClassID);
+		$Account = Account::where(["AccountID" => $AccountID])->select('AccountID','CompanyId')->first();
+                if(!empty($Account)){
+			//$BillingClass=BillingClass::find($BillingClassID);
 
-			$result['BalanceThreshold']=AccountBalance::where('AccountID', $AccountID)->pluck('BalanceThreshold');
-			$result['Status']=$BillingClass->LowBalanceReminderStatus;
+			//$result['BalanceThreshold']=AccountBalance::where('AccountID', $AccountID)->pluck('BalanceThreshold');
+			//$result['Status']=$BillingClass->LowBalanceReminderStatus;
 			//$BillingClass=AccountBilling::join('tblBillingClass','tblAccountBilling.BillingClassID','=','tblBillingClass.BillingClassID')->where(['tblAccountBilling.AccountID'=>$AccountID])->select('tblBillingClass.*')->first();
-
-			$result['BillingClass']=json_decode($BillingClass->LowBalanceReminderSettings);
+                        $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $AccountID))->select('BalanceThreshold AS Threshold','BalanceThresholdEmail AS Email')->get(['BalanceThreshold','BalanceThresholdEmail']);
+                        unset($AccountBalanceThreshold['created_at']);unset($AccountBalanceThreshold['updated_at']);
+                        $result['BalanceThreshold']=json_decode($AccountBalanceThreshold);
+                        
+			//$result['BillingClass']=json_decode($BillingClass->LowBalanceReminderSettings);
 
 			return Response::json($result,Codes::$Code200[0]);
 
 		}else{
-			return Response::json(["ErrorMessage"=>"BillingClass Not Found"],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"AccountID Not Found"],Codes::$Code402[0]);
 		}
 
 

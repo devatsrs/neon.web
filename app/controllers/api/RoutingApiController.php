@@ -634,7 +634,7 @@ class RoutingApiController extends ApiController {
 
             Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
             $lcrDetails = json_decode(json_encode($lcrDetails), true);
-            return Response::json(["Message" => $lcrDetails],Codes::$Code200[0]);
+            return Response::json($lcrDetails,Codes::$Code200[0]);
         }catch(Exception $ex) {
             Log::info('Exception in Routing API.' . $ex->getTraceAsString());
             return Response::json(["ErrorMessage"=>Codes::$Code500[1]],Codes::$Code500[0]);

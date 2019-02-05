@@ -7,59 +7,54 @@ class LCRDIDController extends \BaseController {
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
-        $AccountIDs = empty($data['Accounts'])?'':$data['Accounts'];
         $data['ComponentAction']=empty($data['ComponentAction'])?'':$data['ComponentAction'];
-        if($AccountIDs=='null'){
-            $AccountIDs='';
-        }
-        if(empty($data['Components'])){
-            return Response::json(array("status" => "failed", "message" => "Component is required."));
-        }
         $data['DIDCategoryID']=empty($data['DIDCategoryID'])?0:$data['DIDCategoryID'];
+        $data['ProductID']=empty($data['ProductID'])?0:$data['ProductID'];
 
-        $data['show_all_vendor_codes'] = $data['show_all_vendor_codes'] == 'true' ? 1:0;
-        $data['iDisplayStart'] +=1;
+        $data['Calls']=empty($data['Calls'])?0:$data['Calls'];
+        $data['Minutes']=empty($data['Minutes'])?0:$data['Minutes'];
+        $data['Timezone']=empty($data['Timezone'])?0:$data['Timezone'];
+        $data['TimezonePercentage']=empty($data['TimezonePercentage'])?0:$data['TimezonePercentage'];
+        $data['Origination']=empty($data['Origination'])?0:$data['Origination'];
+        $data['OriginationPercentage']=empty($data['OriginationPercentage'])?0:$data['OriginationPercentage'];
 
         $LCRPosition = Invoice::getCookie('LCRPosition');
         if($data['LCRPosition'] != $LCRPosition){
             NeonCookie::setCookie('LCRPosition',$data['LCRPosition'],60);
         }
 
-        $data['merge_timezones'] = $data['merge_timezones'] == 'true' ? 1 : 0;
-        $data['Timezones'] = $data['merge_timezones'] == 1 ? $data['TimezonesMerged'] : $data['Timezones'];
+       // $data['ProductID'] = 1; // for testing only
 
-        //@TODO: check $data["Type"] when DID procedue is done
+        $query = "call prc_GetDIDLCR(".$companyID.", ".$data['ProductID']." ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."'";
 
-        $query = "call prc_GetDIDLCRwithPrefix (".$companyID.",".$data['DIDCategoryID'].",'".$data['Timezones']."',".$data['CodeDeck'].",'".$data['Currency']."','".$data['OriginationCode']."','".$data['OriginationDescription']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['LCRPosition'])."','".$data['SelectedEffectiveDate']."' ,'".intval($data['show_all_vendor_codes'])."' ,'".$data['merge_timezones']."' ,'".intval($data['TakePrice'])."','".$data['Components']."','".$data['ComponentAction']."','' ";
+                if(isset($data['Export']) && $data['Export'] == 1) {
+                    $excel_data  = DB::select($query.',1)');
+                    $excel_data = json_decode(json_encode($excel_data),true);
+                    foreach($excel_data as $rowno => $rows){
+                        foreach($rows as $colno => $colval){
+                            $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
+                        }
+                    }
 
-        if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::select($query.',1)');
-            $excel_data = json_decode(json_encode($excel_data),true);
-            foreach($excel_data as $rowno => $rows){
-                foreach($rows as $colno => $colval){
-                    $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
+                    if($type=='csv'){
+                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DID_LCR.csv';
+                        $NeonExcel = new NeonExcelIO($file_path);
+                        $NeonExcel->download_csv($excel_data);
+                    }elseif($type=='xlsx'){
+                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DID_LCR.xls';
+                        $NeonExcel = new NeonExcelIO($file_path);
+                        $NeonExcel->download_excel($excel_data);
+                    }
+
                 }
-            }
+                $query .=',0)';
 
-            if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/LCR.csv';
-                $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_csv($excel_data);
-            }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/LCR.xls';
-                $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_excel($excel_data);
-            }
-
-        }
-        $query .=',0)';
-        Log::info($query);
-
-        //$query= "call prc_GetDIDLCRwithPrefix (1,4,'1',22,'3','*','','*','','',1,10,'asc','5','2019-01-03','0','0','0','OneOffCost','','',0)";
-
-        \Illuminate\Support\Facades\Log::info($query);
+        //echo $query;
+        //  Log::info($query);
 
         return DataTableSql::of($query)->make();
+
+
 
     }
 

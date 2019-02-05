@@ -111,10 +111,12 @@ class AccountsApiController extends ApiController {
 		$DynamicSubscrioptionFields = '';
 		$PackagedataRecord = '';
 		try {
+
+
 			Log::info('createAccountService:Data.' . json_encode($accountData));
 			$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
 			$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
-			$data['ServiceTemaplateDynamicField'] = isset($accountData['ServiceTemaplateDynamicField']) ? $accountData['ServiceTemaplateDynamicField'] : '';
+			$data['ServiceTemaplateDynamicField'] = isset($accountData['ProductDynamicField']) ? $accountData['ProductDynamicField'] : '';
 			$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
 			$data['AccountDynamicField'] = isset($accountData['AccountDynamicField']) ? $accountData['AccountDynamicField'] : '';
 			$data['InboundTariffCategoryID'] = isset($accountData['InboundTariffCategoryID']) ? $accountData['InboundTariffCategoryID'] :'';
@@ -562,7 +564,7 @@ class AccountsApiController extends ApiController {
 
 
 
-			return Response::json(array("Message" => $message),Codes::$Code200[0]);
+			return Response::json(json_decode('{}'),Codes::$Code200[0]);
 
 
 		} catch (Exception $ex) {
@@ -1240,7 +1242,7 @@ class AccountsApiController extends ApiController {
 				$AccountSuccessMessage['redirect'] = URL::to('/accounts/' . $account->AccountID . '/edit');
 
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
-				return Response::json(array('Message' => $AccountSuccessMessage),Codes::$Code200[0]);
+				return Response::json($AccountSuccessMessage,Codes::$Code200[0]);
 			} else {
 				return Response::json(array("ErrorMessage" => Codes::$Code500[1]),Codes::$Code500[0]);
 			}

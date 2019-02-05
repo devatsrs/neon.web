@@ -54,13 +54,13 @@
                     {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Merge Timezones</label>
+                    <label class="control-label">Merge Time Of Day</label>
                     <p class="make-switch switch-small">
                         <input id="merge_timezones" name="merge_timezones" type="checkbox" value="1">
                     </p>
                 </div>
                 <div class="form-group TimezonesMergedBox" style="display: none;">
-                    <label class="control-label">Timezones</label>
+                    <label class="control-label">Time Of Day</label>
                     {{ Form::select('TimezonesMerged[]', $Timezones, '', array("class"=>"select2","multiple"=>"multiple")) }}
                 </div>
                 <div class="form-group TimezonesMergedBox" style="display: none;">
@@ -68,7 +68,7 @@
                     {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), 0 , array("class"=>"select2")) }}
                 </div>
                 <div class="form-group" id="TimezonesBox">
-                    <label class="control-label">Timezone</label>
+                    <label class="control-label">Time Of Day</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
