@@ -56,7 +56,7 @@
                     {{ Form::select('Timezone', $Timezones, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group" id="TimezonePercentage">
-                    <label class="control-label">Time of day %</label>
+                    <label class="control-label">Time Of Day %</label>
                     <input type="number" min="0" name="TimezonePercentage" class="form-control" id="field-15" placeholder="" />
                 </div>
                 <div class="form-group" id="Origination">
