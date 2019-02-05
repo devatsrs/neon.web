@@ -440,33 +440,46 @@ class RateUploadController extends \BaseController {
                 $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
             }
 
-            $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
+            $Timezones = Timezones::getTimezonesIDList();
             if(count($Timezones) > 0) { // if there are any timezones available
                 $TimezonesIDsArray = array();
                 if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
                     foreach ($Timezones as $ID => $Title) {
+                        $ID = $ID == 1 ? '' : $ID;
+                        $TimezonesIDsArray[] = 'selection.OneOffCost'.$ID;
                         $TimezonesIDsArray[] = 'selection.MonthlyCost'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CostPerCall'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CostPerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.SurchargePerCall'.$ID;
+                        $TimezonesIDsArray[] = 'selection.SurchargePerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.OutpaymentPerCall'.$ID;
+                        $TimezonesIDsArray[] = 'selection.OutpaymentPerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.Surcharges'.$ID;
+                        $TimezonesIDsArray[] = 'selection.Chargeback'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CollectionCostAmount'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CollectionCostPercentage'.$ID;
+                        $TimezonesIDsArray[] = 'selection.RegistrationCostPerNumber'.$ID;
                     }
+                    unset($TimezonesIDsArray['selection.MonthlyCost']);
                     $TimezonesIDsString = implode(',',$TimezonesIDsArray);
 
                     $rules_for_type['selection.MonthlyCost'] = 'required_without_all:' . $TimezonesIDsString;
-                    $message_for_type['selection.MonthlyCost.required_without_all'] = "Please select Monthly Cost against at least any one timezone.";
+                    $message_for_type['selection.MonthlyCost.required_without_all'] = "Any one cost component is required.";
                 } else {
                     foreach ($Timezones as $ID => $Title) {
+                        $ID = $ID == 1 ? '' : $ID;
                         $TimezonesIDsArray[] = 'selection.Rate'.$ID;
                     }
-                    $TimezonesIDsString = implode(',',$TimezonesIDsArray);
+                    unset($TimezonesIDsArray['selection.Rate']);
+                    if(count($TimezonesIDsArray) > 0) {
+                        $TimezonesIDsString = implode(',', $TimezonesIDsArray);
 
-                    $rules_for_type['selection.Rate'] = 'required_without_all:' . $TimezonesIDsString;
-                    $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
-                }
-            } else { // if there is only 1 timezone, default timezone
-                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
-                    $rules_for_type['selection.MonthlyCost'] = 'required';
-                    $message_for_type['selection.MonthlyCost.required'] = "Monthly Cost Field is required";
-                } else {
-                    $rules_for_type['selection.Rate'] = 'required';
-                    $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                        $rules_for_type['selection.Rate'] = 'required_without_all:' . $TimezonesIDsString;
+                        $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
+                    } else {
+                        $rules_for_type['selection.Rate'] = 'required';
+                        $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                    }
                 }
             }
 
@@ -704,33 +717,46 @@ class RateUploadController extends \BaseController {
                 $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
             }
 
-            $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
+            $Timezones = Timezones::getTimezonesIDList();
             if(count($Timezones) > 0) { // if there are any timezones available
                 $TimezonesIDsArray = array();
                 if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
                     foreach ($Timezones as $ID => $Title) {
-                        $TimezonesIDsArray[] = 'selection.MonthlyCost' . $ID;
+                        $ID = $ID == 1 ? '' : $ID;
+                        $TimezonesIDsArray[] = 'selection.OneOffCost'.$ID;
+                        $TimezonesIDsArray[] = 'selection.MonthlyCost'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CostPerCall'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CostPerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.SurchargePerCall'.$ID;
+                        $TimezonesIDsArray[] = 'selection.SurchargePerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.OutpaymentPerCall'.$ID;
+                        $TimezonesIDsArray[] = 'selection.OutpaymentPerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.Surcharges'.$ID;
+                        $TimezonesIDsArray[] = 'selection.Chargeback'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CollectionCostAmount'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CollectionCostPercentage'.$ID;
+                        $TimezonesIDsArray[] = 'selection.RegistrationCostPerNumber'.$ID;
                     }
+                    unset($TimezonesIDsArray['selection.MonthlyCost']);
                     $TimezonesIDsString = implode(',', $TimezonesIDsArray);
 
                     $rules_for_type['selection.MonthlyCost'] = 'required_without_all:' . $TimezonesIDsString;
-                    $message_for_type['selection.MonthlyCost.required_without_all'] = "Please select Monthly Cost against at least any one timezone.";
+                    $message_for_type['selection.MonthlyCost.required_without_all'] = "Any one cost component is required.";
                 } else {
                     foreach ($Timezones as $ID => $Title) {
+                        $ID = $ID == 1 ? '' : $ID;
                         $TimezonesIDsArray[] = 'selection.Rate'.$ID;
                     }
-                    $TimezonesIDsString = implode(',',$TimezonesIDsArray);
+                    unset($TimezonesIDsArray['selection.Rate']);
+                    if(count($TimezonesIDsArray) > 0) {
+                        $TimezonesIDsString = implode(',',$TimezonesIDsArray);
 
-                    $rules_for_type['selection.Rate'] = 'required_without_all:' . $TimezonesIDsString;
-                    $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
-                }
-            } else { // if there is only 1 timezone, default timezone
-                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
-                    $rules_for_type['selection.MonthlyCost'] = 'required';
-                    $message_for_type['selection.MonthlyCost.required'] = "Monthly Cost Field is required";
-                } else {
-                    $rules_for_type['selection.Rate'] = 'required';
-                    $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                        $rules_for_type['selection.Rate'] = 'required_without_all:' . $TimezonesIDsString;
+                        $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
+                    } else {
+                        $rules_for_type['selection.Rate'] = 'required';
+                        $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                    }
                 }
             }
 
@@ -1232,6 +1258,21 @@ class RateUploadController extends \BaseController {
 
                             if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_did)) {
 
+                                $CostComponents = [];
+                                $CostComponents[] = 'OneOffCost';
+                                $CostComponents[] = 'MonthlyCost';
+                                $CostComponents[] = 'CostPerCall';
+                                $CostComponents[] = 'CostPerMinute';
+                                $CostComponents[] = 'SurchargePerCall';
+                                $CostComponents[] = 'SurchargePerMinute';
+                                $CostComponents[] = 'OutpaymentPerCall';
+                                $CostComponents[] = 'OutpaymentPerMinute';
+                                $CostComponents[] = 'Surcharges';
+                                $CostComponents[] = 'Chargeback';
+                                $CostComponents[] = 'CollectionCostAmount';
+                                $CostComponents[] = 'CollectionCostPercentage';
+                                $CostComponents[] = 'RegistrationCostPerNumber';
+
                                 if (!empty($attrselection->CityTariff)) {
                                     if (!empty($temp_row[$attrselection->CityTariff])) {
                                         $tempdata['CityTariff'] = $temp_row[$attrselection->CityTariff];
@@ -1249,16 +1290,9 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$MonthlyCostColumn) && isset($temp_row[$attrselection->$MonthlyCostColumn])) {
-                                    $temp_row[$attrselection->$MonthlyCostColumn] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->$MonthlyCostColumn]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
-                                    if (is_numeric(trim($temp_row[$attrselection->$MonthlyCostColumn]))) {
-                                        $tempdata['MonthlyCost'] = trim($temp_row[$attrselection->$MonthlyCostColumn]);
-                                    } else {
-                                        $error[] = 'Monthly Cost is not numeric at line no:' . $lineno;
-                                    }
-                                } elseif ($tempdata['Change'] == 'D') {
-                                    $tempdata['MonthlyCost'] = 0;
-                                } elseif ($tempdata['Change'] != 'D') {
-                                    $error[] = 'Monthly Cost is blank at line no:' . $lineno;
+                                    $tempdata['MonthlyCost'] = trim($temp_row[$attrselection->$MonthlyCostColumn]);
+                                } else {
+                                    $tempdata['MonthlyCost'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$CostPerCallColumn) && isset($temp_row[$attrselection->$CostPerCallColumn])) {
@@ -1325,6 +1359,17 @@ class RateUploadController extends \BaseController {
                                     $tempdata['RegistrationCostPerNumber'] = trim($temp_row[$attrselection->$RegistrationCostPerNumberColumn]);
                                 } else {
                                     $tempdata['RegistrationCostPerNumber'] = NULL;
+                                }
+
+                                $CostComponentsError=1;
+                                foreach ($CostComponents as $key => $component) {
+                                    if($tempdata[$component] != NULL) {
+                                        $CostComponentsError = 0;
+                                        break;
+                                    }
+                                }
+                                if($CostComponentsError==1) {
+                                    $error[] = 'All Cost Component is blank at line no:' . $lineno;
                                 }
 
                                 if (!empty($attrselection->$OneOffCostCurrencyColumn)) {
@@ -1484,6 +1529,11 @@ class RateUploadController extends \BaseController {
                                 }
 
                             } if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_pkg)) {
+                                $CostComponents = [];
+                                $CostComponents[] = 'OneOffCost';
+                                $CostComponents[] = 'MonthlyCost';
+                                $CostComponents[] = 'PackageCostPerMinute';
+                                $CostComponents[] = 'RecordingCostPerMinute';
 
                                 if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn])) {
                                     $tempdata['OneOffCost'] = trim($temp_row[$attrselection->$OneOffCostColumn]);
@@ -1493,15 +1543,9 @@ class RateUploadController extends \BaseController {
 
                                 if (!empty($attrselection->$MonthlyCostColumn) && isset($temp_row[$attrselection->$MonthlyCostColumn])) {
                                     $temp_row[$attrselection->$MonthlyCostColumn] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->$MonthlyCostColumn]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
-                                    if (is_numeric(trim($temp_row[$attrselection->$MonthlyCostColumn]))) {
-                                        $tempdata['MonthlyCost'] = trim($temp_row[$attrselection->$MonthlyCostColumn]);
-                                    } else {
-                                        $error[] = 'Monthly Cost is not numeric at line no:' . $lineno;
-                                    }
-                                } elseif ($tempdata['Change'] == 'D') {
-                                    $tempdata['MonthlyCost'] = 0;
-                                } elseif ($tempdata['Change'] != 'D') {
-                                    $error[] = 'Monthly Cost is blank at line no:' . $lineno;
+                                    $tempdata['MonthlyCost'] = trim($temp_row[$attrselection->$MonthlyCostColumn]);
+                                } else {
+                                    $tempdata['MonthlyCost'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$PackageCostPerMinuteColumn) && isset($temp_row[$attrselection->$PackageCostPerMinuteColumn])) {
@@ -1514,6 +1558,17 @@ class RateUploadController extends \BaseController {
                                     $tempdata['RecordingCostPerMinute'] = trim($temp_row[$attrselection->$RecordingCostPerMinuteColumn]);
                                 } else {
                                     $tempdata['RecordingCostPerMinute'] = NULL;
+                                }
+
+                                $CostComponentsError=1;
+                                foreach ($CostComponents as $key => $component) {
+                                    if($tempdata[$component] != NULL) {
+                                        $CostComponentsError = 0;
+                                        break;
+                                    }
+                                }
+                                if($CostComponentsError==1) {
+                                    $error[] = 'All Cost Component is blank at line no:' . $lineno;
                                 }
 
                                 if (!empty($attrselection->$OneOffCostCurrencyColumn)) {
@@ -1666,7 +1721,7 @@ class RateUploadController extends \BaseController {
 
                             $tempdata['TimezonesID'] = $TimezoneID;
 
-                            if (isset($tempdata['Code']) && isset($tempdata['Description']) && ((isset($tempdata['Rate'])|| isset($tempdata['MonthlyCost'])) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
+                            if (isset($tempdata['Code']) && isset($tempdata['Description']) && ((isset($tempdata['Rate']) || $CostComponentsError==0) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
                                 if (isset($tempdata['EndDate'])) {
                                     $batch_insert_array[] = $tempdata;
                                 } else {
