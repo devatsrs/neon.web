@@ -1186,7 +1186,7 @@ and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = c
 
 
 			insert into tmp_component_output_ (	TimezoneTitle,			Component,			ComponentValue,			VendorName , 	Total, vPosition)
-			select TimezoneTitle,	'Cost' as Component,			ROUND(Total,4),			VendorName, Total, vPosition
+			select TimezoneTitle,	'zCost' as Component,			ROUND(Total,4),			VendorName, Total, vPosition
 			from tmp_table1_
 			inner join tmp_vendor_position on tmp_table1_.VendorID  = tmp_vendor_position.VendorID ;
 
