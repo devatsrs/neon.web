@@ -37,7 +37,34 @@ class BillingClassApiController extends ApiController {
 		}
 		return Response::json(["status"=>"success", "data"=>$AccountTaxRate]);
 	}
-
+        /**
+	 * delLowBalanceNotification():
+	 * @Param mixed
+	 *
+	 * @Response
+	 * Update Success
+	 */
+        public function delLowBalanceNotification(){
+            $post_vars = json_decode(file_get_contents("php://input"));
+            $data=json_decode(json_encode($post_vars),true);
+            try{
+                if(!empty($data['AccountID'])) {
+                    $AccountID = $data['AccountID'];
+                }else{
+                    return Response::json(["ErrorMessage"=>"AccountID Required"],Codes::$Code402[0]);
+                }
+                if(!empty($data['BalanceThreshold'])) {
+                    $Threshold=$data['BalanceThreshold'];
+                }else{
+                   return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code402[0]);
+                }
+                AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'BalanceThreshold'=>$Threshold))->delete();
+                return Response::json(["status"=>"success"],Codes::$Code200[0]);
+            }catch (\Exception $e) {
+                    Log::info($e);
+                    return Response::json(["ErrorMessage"=>"Something Went Wrong. Exception Generated."],Codes::$Code500[0]);
+            }
+        }
 	/**
 	 * setLowBalanceNotification():
 	 * @Param mixed
@@ -48,134 +75,137 @@ class BillingClassApiController extends ApiController {
 	public function setLowBalanceNotification(){
 		$post_vars = json_decode(file_get_contents("php://input"));
 		$data=json_decode(json_encode($post_vars),true);
-
-                //print_r($data);
+                
                 foreach($data as $key=>$val){
-                    $AccountID = $val['AccountID'];
-                    if(!empty($AccountID)) {
-			$Account = Account::where(["AccountID" => $AccountID])->select('AccountID','CompanyId')->first();
-			if(!empty($Account)){
-                            $AccountID=$Account->AccountID;
-                            $CompanyID=$Account->CompanyId;
-			}else{
-                            return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
+                    
+                     $AccountID = $val['AccountID'];
+                    
+                    foreach($val['BalanceThreshold'] as $keys=>$value){ 
+                        if(!empty($val['AccountID'])) {
+                            $Account = Account::where(["AccountID" => $AccountID])->select('AccountID','CompanyId')->first();
+                            if(!empty($Account)){
+                                $AccountID=$Account->AccountID;
+                                $CompanyID=$Account->CompanyId;
+                            }else{
+                                return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
+                            }
+                        }else{
+                            return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
                         }
-                    }else{
-                        return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
-                    }
-                    if(!empty($val['Threshold'])) {
-                        $Threshold=$val['Threshold'];
-                    }else{
-                       return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code402[0]);
-                    }
-                    try{
-                        $PostData=array();
-                        $PostData['BalanceThreshold'] = $Threshold;
-                        $PostData['AccountID'] = $AccountID;
-                        $PostData['BalanceThresholdEmail'] = $val['Email'];
-                        AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'BalanceThresholdEmail'=>$val['Email'],'BalanceThreshold'=>$Threshold))->delete();
-			AccountBalanceThreshold::insert($PostData);
-                    }catch (\Exception $e) {
-                            Log::info($e);
-                            return Response::json(["ErrorMessage"=>"Something Went Wrong. Exception Generated."],Codes::$Code500[0]);
+                        if(!empty($value['Threshold'])) {
+                            $Threshold=$value['Threshold'];
+                        }else{
+                           return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code402[0]);
+                        }
+                        try{
+                            $PostData=array();
+                            $PostData['BalanceThreshold'] = $Threshold;
+                            $PostData['AccountID'] = $AccountID;
+                            $PostData['BalanceThresholdEmail'] = $value['Email'];
+                            AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'BalanceThresholdEmail'=>$value['Email'],'BalanceThreshold'=>$Threshold))->delete();
+                            AccountBalanceThreshold::insert($PostData);
+                        }catch (\Exception $e) {
+                                Log::info($e);
+                                return Response::json(["ErrorMessage"=>"Something Went Wrong. Exception Generated."],Codes::$Code500[0]);
+                        }
                     }
                 }
                 return Response::json(["status"=>"success"],Codes::$Code200[0]);
                 exit();
                 //Below are the old code and logic----------------
-//		$PostData=array();
-//		$AccountID=0;
-//		$CompanyID=0;
-//
-//		if(!empty($data['AccountID'])) {
-//			$AccountID = $data['AccountID'];
-//			$Account = Account::where(["AccountID" => $data['AccountID']])->select('AccountID','CompanyId')->first();
-//
-//			if(!empty($Account)){
-//				$AccountID=$Account->AccountID;
-//				$CompanyID=$Account->CompanyId;
-//			}
-//		}else if(!empty($data['AccountNo'])){
-//			$Account = Account::where(["Number" => $data['AccountNo']])->select('AccountID','CompanyId')->first();
-//			if(!empty($Account)){
-//				$AccountID=$Account->AccountID;
-//				$CompanyID=$Account->CompanyId;
-//			}
-//		}else if(!empty($data['AccountDynamicField'])){
-//			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-//			if(empty($AccountID)){
-//				return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
-//			}
-//			$Account = Account::where(["AccountID" => $AccountID])->first();
-//			if(!empty($Account)){
-//				$AccountID=$Account->AccountID;
-//				$CompanyID=$Account->CompanyId;
-//			}
-//
-//		}else{
-//			return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
-//		}
-//
-//		if(!empty($AccountID) && !empty($CompanyID)){
-//			//Validation
-//			$rules = array(
-//				'Status' => 'required',
-//				'Period' => 'required',
-//				'Email' => 'required'
-//			);
-//			$validator = Validator::make($data, $rules);
-//			if ($validator->fails()) {
-//				return json_validator_response($validator);
-//			}
-//
-//			try {
-//				$PostData['LowBalanceReminderStatus'] = isset($data['Status']) ? $data['Status'] : 0;
-//				$PostData['LowBalanceReminderSettings']['ReminderEmail'] = isset($data['Email']) ? $data['Email'] : '';
-//				$PostData['LowBalanceReminderSettings']['Time'] = isset($data['Period']) ? $data['Period'] : '';
-//				$PostData['LowBalanceReminderSettings']['Interval'] = isset($data['Interval']) ? $data['Interval'] : '';
-//				$PostData['LowBalanceReminderSettings']['StartTime'] = isset($data['StartTime']) ? $data['StartTime'] : '';
-//				$PostData['LowBalanceReminderSettings']['TemplateID'] = isset($data['EmailTemplateID']) ? $data['EmailTemplateID'] : '';
-//
-//				if(!empty($data['Period']) && $data['Period']=='MONTHLY'){
-//					$PostData['LowBalanceReminderSettings']['StartDay']=!empty($data['StartDay'])?$data['StartDay']:'1';
-//				}
-//
-//				if (!empty($data['SendCopyToAccountOwner'])) {
-//					$PostData['LowBalanceReminderSettings']['AccountManager'] = $data['SendCopyToAccountOwner'];
-//				}
-//				$PostData['LowBalanceReminderSettings']['Day'] = isset($data['Day']) ? $data['Day'] : ["Mon"];
-//
-//				$BillingClassID=AccountBilling::getBillingClassID($AccountID);
-//				$BillingClass = BillingClass::find($BillingClassID);
-//				if (!empty($BillingClass)) {
-//					$LowBalanceReminderSettings = json_decode($BillingClass->LowBalanceReminderSettings);
-//					if (isset($LowBalanceReminderSettings->LastRunTime)) {
-//						$PostData['LowBalanceReminderSettings']['LastRunTime'] = $LowBalanceReminderSettings->LastRunTime;
-//					}
-//					if (isset($LowBalanceReminderSettings->NextRunTime)) {
-//						$PostData['LowBalanceReminderSettings']['NextRunTime'] = $LowBalanceReminderSettings->NextRunTime;
-//					}
-//
-//					$PostData['LowBalanceReminderSettings'] = json_encode($PostData['LowBalanceReminderSettings']);
-//					$PostData['UpdatedBy'] = 'API';
-//
-//					$BillingClass->update($PostData);
-//					if(!empty($data['BalanceThreshold'])){
-//						$AccountBalance = AccountBalance::where('AccountID', $AccountID)->update(['BalanceThreshold'=>$data['BalanceThreshold']]);
-//					}
-//					return Response::json([],Codes::$Code200[0]);
-//				}else{
-//					return Response::json(["ErrorMessage"=>"Billing Class Not Set For This Account."],Codes::$Code402[0]);
-//				}
-//
-//			}catch (\Exception $e) {
-//				Log::info($e);
-//				return Response::json(["ErrorMessage"=>"Something Went Wrong. Exception Generated."],Codes::$Code500[0]);
-//			}
-//
-//		}else{
-//			return Response::json(["ErrorMessage"=>"Account or Company Not Found."],Codes::$Code402[0]);
-//		}
+		$PostData=array();
+		$AccountID=0;
+		$CompanyID=0;
+
+		if(!empty($data['AccountID'])) {
+			$AccountID = $data['AccountID'];
+			$Account = Account::where(["AccountID" => $data['AccountID']])->select('AccountID','CompanyId')->first();
+
+			if(!empty($Account)){
+				$AccountID=$Account->AccountID;
+				$CompanyID=$Account->CompanyId;
+			}
+		}else if(!empty($data['AccountNo'])){
+			$Account = Account::where(["Number" => $data['AccountNo']])->select('AccountID','CompanyId')->first();
+			if(!empty($Account)){
+				$AccountID=$Account->AccountID;
+				$CompanyID=$Account->CompanyId;
+			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
+			}
+			$Account = Account::where(["AccountID" => $AccountID])->first();
+			if(!empty($Account)){
+				$AccountID=$Account->AccountID;
+				$CompanyID=$Account->CompanyId;
+			}
+
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
+		}
+
+		if(!empty($AccountID) && !empty($CompanyID)){
+			//Validation
+			$rules = array(
+				'Status' => 'required',
+				'Period' => 'required',
+				'Email' => 'required'
+			);
+			$validator = Validator::make($data, $rules);
+			if ($validator->fails()) {
+				return json_validator_response($validator);
+			}
+
+			try {
+				$PostData['LowBalanceReminderStatus'] = isset($data['Status']) ? $data['Status'] : 0;
+				$PostData['LowBalanceReminderSettings']['ReminderEmail'] = isset($data['Email']) ? $data['Email'] : '';
+				$PostData['LowBalanceReminderSettings']['Time'] = isset($data['Period']) ? $data['Period'] : '';
+				$PostData['LowBalanceReminderSettings']['Interval'] = isset($data['Interval']) ? $data['Interval'] : '';
+				$PostData['LowBalanceReminderSettings']['StartTime'] = isset($data['StartTime']) ? $data['StartTime'] : '';
+				$PostData['LowBalanceReminderSettings']['TemplateID'] = isset($data['EmailTemplateID']) ? $data['EmailTemplateID'] : '';
+
+				if(!empty($data['Period']) && $data['Period']=='MONTHLY'){
+					$PostData['LowBalanceReminderSettings']['StartDay']=!empty($data['StartDay'])?$data['StartDay']:'1';
+				}
+
+				if (!empty($data['SendCopyToAccountOwner'])) {
+					$PostData['LowBalanceReminderSettings']['AccountManager'] = $data['SendCopyToAccountOwner'];
+				}
+				$PostData['LowBalanceReminderSettings']['Day'] = isset($data['Day']) ? $data['Day'] : ["Mon"];
+
+				$BillingClassID=AccountBilling::getBillingClassID($AccountID);
+				$BillingClass = BillingClass::find($BillingClassID);
+				if (!empty($BillingClass)) {
+					$LowBalanceReminderSettings = json_decode($BillingClass->LowBalanceReminderSettings);
+					if (isset($LowBalanceReminderSettings->LastRunTime)) {
+						$PostData['LowBalanceReminderSettings']['LastRunTime'] = $LowBalanceReminderSettings->LastRunTime;
+					}
+					if (isset($LowBalanceReminderSettings->NextRunTime)) {
+						$PostData['LowBalanceReminderSettings']['NextRunTime'] = $LowBalanceReminderSettings->NextRunTime;
+					}
+
+					$PostData['LowBalanceReminderSettings'] = json_encode($PostData['LowBalanceReminderSettings']);
+					$PostData['UpdatedBy'] = 'API';
+
+					$BillingClass->update($PostData);
+					if(!empty($data['BalanceThreshold'])){
+						$AccountBalance = AccountBalance::where('AccountID', $AccountID)->update(['BalanceThreshold'=>$data['BalanceThreshold']]);
+					}
+					return Response::json([],Codes::$Code200[0]);
+				}else{
+					return Response::json(["ErrorMessage"=>"Billing Class Not Set For This Account."],Codes::$Code402[0]);
+				}
+
+			}catch (\Exception $e) {
+				Log::info($e);
+				return Response::json(["ErrorMessage"=>"Something Went Wrong. Exception Generated."],Codes::$Code500[0]);
+			}
+
+		}else{
+			return Response::json(["ErrorMessage"=>"Account or Company Not Found."],Codes::$Code402[0]);
+		}
 
 	}
 
