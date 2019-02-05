@@ -960,7 +960,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_upload/storeVendorTemplate', 'CDRController@storeVendorTemplate');
 
 
-	//CDR Template - FTP Gateway cdr mapping
+	//CDR Template - FTP Gateway cdr mapping for customer
 	Route::any('/cdr_template/gateway/{id}', 'CDRTemplateController@index');
 	Route::any('/cdr_template/upload', 'CDRTemplateController@upload');
 	Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
@@ -968,6 +968,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_template/storeTemplate', 'CDRTemplateController@storeTemplate');
 	Route::any('/cdr_template/edittemplate/{id}', 'CDRTemplateController@editTemplate');
 	Route::any('/cdr_template/updateTemplate', 'CDRTemplateController@updateTemplate');
+
+	//CDR Template - FTP Gateway cdr mapping for vendor
+	Route::any('/vendor_cdr_template/gateway/{id}', 'VendorCDRTemplateController@index');
+	Route::any('/vendor_cdr_template/upload', 'VendorCDRTemplateController@upload');
+	Route::any('/vendor_cdr_template/check_upload', 'VendorCDRTemplateController@check_upload');
+	Route::any('/vendor_cdr_template/ajaxfilegrid', 'VendorCDRTemplateController@ajaxfilegrid');
+	Route::any('/vendor_cdr_template/storeTemplate', 'VendorCDRTemplateController@storeTemplate');
+	Route::any('/vendor_cdr_template/edittemplate/{id}', 'VendorCDRTemplateController@editTemplate');
+	Route::any('/vendor_cdr_template/updateTemplate', 'VendorCDRTemplateController@updateTemplate');
 
 	/////////////////
 	//Estimates
