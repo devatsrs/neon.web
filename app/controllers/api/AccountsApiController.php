@@ -111,6 +111,8 @@ class AccountsApiController extends ApiController {
 		$DynamicSubscrioptionFields = '';
 		$PackagedataRecord = '';
 		try {
+
+
 			Log::info('createAccountService:Data.' . json_encode($accountData));
 			$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
 			$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
@@ -562,7 +564,7 @@ class AccountsApiController extends ApiController {
 
 
 
-			return Response::json(array("Message" => $message),Codes::$Code200[0]);
+			return Response::json(json_decode('{}'),Codes::$Code200[0]);
 
 
 		} catch (Exception $ex) {
