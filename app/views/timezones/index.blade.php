@@ -38,11 +38,11 @@
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <a href="javascript:void(0)">Timezones</a>
+            <a href="javascript:void(0)">Time Of Day</a>
         </li>
     </ol>
 
-    <h3>Timezones</h3>
+    <h3>Time Of Day</h3>
     <div class="tab-content">
         <div class="tab-pane active">
             <div class="clear"></div>
