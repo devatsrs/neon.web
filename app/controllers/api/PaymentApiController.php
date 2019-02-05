@@ -292,12 +292,13 @@ class PaymentApiController extends ApiController {
 					$PaymentData['PaymentGateway']=$PaymentMethod;
 
 					$PaymentResponse = $PaymentIntegration->paymentWithApiProfile($PaymentData);
-					$ReturnData=array();
-					$ReturnData['PaymentMethod']=$PaymentResponse['PaymentMethod'];
-					$ReturnData['transaction_notes']=$PaymentResponse['transaction_notes'];
-					$ReturnData['transaction_id']=$PaymentResponse['transaction_id'];
+
 
 					if(!empty($PaymentResponse['response_code']) && $PaymentResponse['response_code']==1){
+						$ReturnData=array();
+						$ReturnData['PaymentMethod']=$PaymentResponse['PaymentMethod'];
+						$ReturnData['transaction_notes']=$PaymentResponse['transaction_notes'];
+						$ReturnData['transaction_id']=$PaymentResponse['transaction_id'];
 						//Payment Success
 						Log::info("==== Payment success Log ====");
 						Log::info(print_r($PaymentResponse,true));
@@ -323,7 +324,7 @@ class PaymentApiController extends ApiController {
 
 					}else{
 						//Failed Payment
-						return Response::json(["ErrorMessage"=>"Payment Failed.","PaymentResponse"=>$ReturnData],Codes::$Code402[0]);
+						return Response::json(["ErrorMessage"=>"Payment Failed.","PaymentResponse"=>$PaymentResponse],Codes::$Code402[0]);
 					}
 
 				}else{
