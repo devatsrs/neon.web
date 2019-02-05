@@ -566,6 +566,7 @@ class StripeBilling {
 				$result['status'] = 'Success';
 			} else {
 				$result['status'] = 'Failed';
+				$result['message'] = 'Stripe Request Failed.';
 			}
 		} catch (Exception $e) {
 			Log::error($e);
@@ -580,7 +581,7 @@ class StripeBilling {
 				return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_DELETING_PAYOUT_ACCOUNT")));
 			}
 		}else{
-			return Response::json(array("status" => "failed", "message" => $result['error']));
+			return Response::json(array("status" => "failed", "message" => $result['message']));
 		}
 	}
 

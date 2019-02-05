@@ -1,4 +1,8 @@
 use speakintelligentRM;
+
+ALTER TABLE `tblRateTableRate`
+CHANGE COLUMN `OriginationRateID` `OriginationRateID` BIGINT(20) NULL AFTER `RateTableRateID`;
+
 -- --------------------------------------------------------
 -- Host:                         192.168.1.25
 -- Server version:               5.7.23-log - MySQL Community Server (GPL)
