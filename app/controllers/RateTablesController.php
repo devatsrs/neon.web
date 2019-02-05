@@ -371,15 +371,15 @@ class RateTablesController extends \BaseController {
                     }
                 }*/
                 if(!empty($data['updateRate'])) {
-                    if(!empty($data['Rate'])) {
+                    if(isset($data['Rate'])) {
                         $Rate = "'".floatval($data['Rate'])."'";
                     } else {
                         $error=1;
                     }
                 }
                 if(!empty($data['updateRateN'])) {
-                    if(!empty($data['RateN'])) {
-                        $RateN = "'".floatval($data['RateN'])."'";
+                    if(isset($data['RateN'])) {
+                        $RateN = $data['RateN'] != '' ? "'".floatval($data['RateN'])."'" : "'NULL'";
                     } else {
                         $error=1;
                     }
@@ -399,8 +399,8 @@ class RateTablesController extends \BaseController {
                     }
                 }
                 if(!empty($data['updateConnectionFee'])) {
-                    if(!empty($data['ConnectionFee'])) {
-                        $ConnectionFee = "'".$data['ConnectionFee']."'";
+                    if(isset($data['ConnectionFee'])) {
+                        $ConnectionFee = $data['ConnectionFee'] != '' ? "'".floatval($data['ConnectionFee'])."'" : "'NULL'";
                     } else if (empty($data['updateType'])) {
                         $error=1;
                     }
@@ -1148,68 +1148,68 @@ class RateTablesController extends \BaseController {
                     }
                 }
                 if(!empty($data['updateOneOffCost'])) {
-                    if(!empty($data['OneOffCost'])) {
-                        $OneOffCost = "'".floatval($data['OneOffCost'])."'";
+                    if(isset($data['OneOffCost'])) {
+                        $OneOffCost = $data['OneOffCost'] != '' ? "'".floatval($data['OneOffCost'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateMonthlyCost'])) {
-                    if(!empty($data['MonthlyCost'])) {
-                        $MonthlyCost = "'".floatval($data['MonthlyCost'])."'";
+                    if(isset($data['MonthlyCost'])) {
+                        $MonthlyCost = $data['MonthlyCost'] != '' ? "'".floatval($data['MonthlyCost'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateCostPerCall'])) {
-                    if(!empty($data['CostPerCall'])) {
-                        $CostPerCall = "'".floatval($data['CostPerCall'])."'";
+                    if(isset($data['CostPerCall'])) {
+                        $CostPerCall = $data['CostPerCall'] != '' ? "'".floatval($data['CostPerCall'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateCostPerMinute'])) {
-                    if(!empty($data['CostPerMinute'])) {
-                        $CostPerMinute = "'".floatval($data['CostPerMinute'])."'";
+                    if(isset($data['CostPerMinute'])) {
+                        $CostPerMinute = $data['CostPerMinute'] != '' ? "'".floatval($data['CostPerMinute'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateSurchargePerCall'])) {
-                    if(!empty($data['SurchargePerCall'])) {
-                        $SurchargePerCall = "'".floatval($data['SurchargePerCall'])."'";
+                    if(isset($data['SurchargePerCall'])) {
+                        $SurchargePerCall = $data['SurchargePerCall'] != '' ? "'".floatval($data['SurchargePerCall'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateSurchargePerMinute'])) {
-                    if(!empty($data['SurchargePerMinute'])) {
-                        $SurchargePerMinute = "'".floatval($data['SurchargePerMinute'])."'";
+                    if(isset($data['SurchargePerMinute'])) {
+                        $SurchargePerMinute = $data['SurchargePerMinute'] != '' ? "'".floatval($data['SurchargePerMinute'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateOutpaymentPerCall'])) {
-                    if(!empty($data['OutpaymentPerCall'])) {
-                        $OutpaymentPerCall = "'".floatval($data['OutpaymentPerCall'])."'";
+                    if(isset($data['OutpaymentPerCall'])) {
+                        $OutpaymentPerCall = $data['OutpaymentPerCall'] != '' ? "'".floatval($data['OutpaymentPerCall'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateOutpaymentPerMinute'])) {
-                    if(!empty($data['OutpaymentPerMinute'])) {
-                        $OutpaymentPerMinute = "'".floatval($data['OutpaymentPerMinute'])."'";
+                    if(isset($data['OutpaymentPerMinute'])) {
+                        $OutpaymentPerMinute = $data['OutpaymentPerMinute'] != '' ? "'".floatval($data['OutpaymentPerMinute'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateSurcharges'])) {
-                    if(!empty($data['Surcharges'])) {
-                        $Surcharges = "'".floatval($data['Surcharges'])."'";
+                    if(isset($data['Surcharges'])) {
+                        $Surcharges = $data['Surcharges'] != '' ? "'".floatval($data['Surcharges'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateChargeback'])) {
-                    if(!empty($data['Chargeback'])) {
-                        $Chargeback = "'".floatval($data['Chargeback'])."'";
+                    if(isset($data['Chargeback'])) {
+                        $Chargeback = $data['Chargeback'] != '' ? "'".floatval($data['Chargeback'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateCollectionCostAmount'])) {
-                    if(!empty($data['CollectionCostAmount'])) {
-                        $CollectionCostAmount = "'".floatval($data['CollectionCostAmount'])."'";
+                    if(isset($data['CollectionCostAmount'])) {
+                        $CollectionCostAmount = $data['CollectionCostAmount'] != '' ? "'".floatval($data['CollectionCostAmount'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateCollectionCostPercentage'])) {
-                    if(!empty($data['CollectionCostPercentage'])) {
-                        $CollectionCostPercentage = "'".floatval($data['CollectionCostPercentage'])."'";
+                    if(isset($data['CollectionCostPercentage'])) {
+                        $CollectionCostPercentage = $data['CollectionCostPercentage'] != '' ? "'".floatval($data['CollectionCostPercentage'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateRegistrationCostPerNumber'])) {
-                    if(!empty($data['RegistrationCostPerNumber'])) {
-                        $RegistrationCostPerNumber = "'".floatval($data['RegistrationCostPerNumber'])."'";
+                    if(isset($data['RegistrationCostPerNumber'])) {
+                        $RegistrationCostPerNumber = $data['RegistrationCostPerNumber'] != '' ? "'".floatval($data['RegistrationCostPerNumber'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateOneOffCostCurrency'])) {
@@ -1404,23 +1404,23 @@ class RateTablesController extends \BaseController {
                     }
                 }
                 if(!empty($data['updateOneOffCost'])) {
-                    if(!empty($data['OneOffCost'])) {
-                        $OneOffCost = "'".floatval($data['OneOffCost'])."'";
+                    if(isset($data['OneOffCost'])) {
+                        $OneOffCost = $data['OneOffCost'] != '' ? "'".floatval($data['OneOffCost'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateMonthlyCost'])) {
-                    if(!empty($data['MonthlyCost'])) {
-                        $MonthlyCost = "'".floatval($data['MonthlyCost'])."'";
+                    if(isset($data['MonthlyCost'])) {
+                        $MonthlyCost = $data['MonthlyCost'] != '' ? "'".floatval($data['MonthlyCost'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updatePackageCostPerMinute'])) {
-                    if(!empty($data['PackageCostPerMinute'])) {
-                        $PackageCostPerMinute = "'".floatval($data['PackageCostPerMinute'])."'";
+                    if(isset($data['PackageCostPerMinute'])) {
+                        $PackageCostPerMinute = $data['PackageCostPerMinute'] != '' ? "'".floatval($data['PackageCostPerMinute'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateRecordingCostPerMinute'])) {
-                    if(!empty($data['RecordingCostPerMinute'])) {
-                        $RecordingCostPerMinute = "'".floatval($data['RecordingCostPerMinute'])."'";
+                    if(isset($data['RecordingCostPerMinute'])) {
+                        $RecordingCostPerMinute = $data['RecordingCostPerMinute'] != '' ? "'".floatval($data['RecordingCostPerMinute'])."'" : "'NULL'";
                     }
                 }
                 if(!empty($data['updateOneOffCostCurrency'])) {
