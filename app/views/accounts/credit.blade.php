@@ -98,15 +98,97 @@
                             <input type="text" class="form-control"  name="PermanentCredit" value="{{$PermanentCredit}}" >
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display: none;">
                         <label for="field-1" class="col-sm-2 control-label">Balance Threshold
                             <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-original-title="Example" class="label label-info popover-primary">?</span>
                         </label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control"  name="BalanceThreshold" value="{{$BalanceThreshold}}" id="Threshold Limit">
+                            <?php /* <input type="text" class="form-control"  name="BalanceThreshold" value="{{$BalanceThreshold}}" id="Threshold Limit"> */?>
+                            <input type="text" class="form-control"  name="BalanceThreshold" value="0" id="Threshold Limit">
                         </div>
                     </div>
+                    
+                    <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    Balance Threshold
+                </div>
 
+                <div class="panel-options">
+                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                </div>
+            </div>
+
+            <div class="panel-body">
+
+                <div class="col-md-12">
+                    <br/>
+                    <input type="hidden" id="getIDs" name="getIDs" value=""/>
+                    <table id="servicetableSubBox" class="table table-bordered datatable">
+                        <thead>
+                        <tr>
+                            <th width="30%">Balance Threshold<span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-original-title="Example" class="label label-info popover-primary">?</span></th>
+                            <th width="20%">Email</th>
+                            <th width="10%"></th>
+                        </tr>
+                        </thead>
+                        <tbody id="tbody">
+                            @if(count($AccountBalanceThreshold))
+            @foreach($AccountBalanceThreshold as $key=>$AccountBalanceThresholdRow)
+                        <tr id="selectedRow-{{$key}}">
+                            <td id="testValues">
+                                <input type="text" class="form-control"  name="BalanceThresholdnew[]" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control"  name="email[]" value="{{$AccountBalanceThresholdRow->BalanceThresholdEmail}}" id="email">
+                            </td>
+                            
+                            <td>
+                                <button type="button" onclick="createCloneRow()" id="Service-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
+                                    <i></i>
+                                    +
+                                </button>
+                                <a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm " data-loading-text="Loading...">
+                                    <i></i>
+                                    -
+
+                                </a>
+                            </td>
+                        </tr>
+@endforeach
+        @else
+            <tr id="selectedRow-0">
+                            <td id="testValues">
+                                <input type="text" class="form-control"  name="BalanceThresholdnew[]" value="" id="Threshold Limit">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control"  name="email[]" value="" id="email">
+                            </td>
+                            
+                            <td>
+                                <button type="button" onclick="createCloneRow()" id="Service-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
+                                    <i></i>
+                                    +
+                                </button>
+                                <a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm " data-loading-text="Loading...">
+                                    <i></i>
+                                    -
+
+                                </a>
+                            </td>
+                        </tr>
+        @endif
+                        </tbody>
+                    </table>
+
+                </div>
+
+
+            </div>
+            
+            </div>
+                    
+                    
                 </div>
             </div>
         </form>
@@ -126,6 +208,96 @@
 </table>
 
 <script type="text/javascript">
+    
+    function getNumber($item){
+        var txt = $item;
+        var numb = txt.match(/\d/g);
+        numb = numb.join("");
+        return numb;
+    }
+    function createCloneRow()
+    {
+        
+        var $item = $('#servicetableSubBox tr:last').attr('id');
+        var numb = getNumber($item);
+        numb++;
+        var Component      =  $(this).closest('tr').children('td:eq(0)').children('select').attr('name');
+        var action         =  $(this).closest('tr').children('td:eq(1)').children('select').attr('name');
+        var merge          =  $(this).closest('tr').children('td:eq(2)').children('select').attr('name');
+        var ServiceUpdate  =  $(this).closest('tr').children('td:eq(3)').children('button').attr('id');
+
+        $("#"+$item).clone().appendTo("#tbody");
+
+        $('#servicetableSubBox tr:last').attr('id', 'selectedRow-'+numb);
+
+        $('#servicetableSubBox tr:last').children('td:eq(0)').children('input').val('');
+        $('#servicetableSubBox tr:last').children('td:eq(1)').children('input').val('');
+
+        if($('#getIDs').val() == '' ){
+            $('#getIDs').val(numb+',');
+        }else{
+            var getIDString =  $('#getIDs').val();
+            getIDString = getIDString + numb + ',';
+            $('#getIDs').val(getIDString);
+        }
+        $('#Component-'+numb+' option').each(function() {
+            $(this).remove();
+        });
+
+
+        var selectAllComponents = $("#AllComponent").val();
+        selectAllComponents = String(selectAllComponents);
+        var ComponentsArray = selectAllComponents.split(',');
+
+        var i;
+        for (i = 0; i < ComponentsArray.length; ++i) {
+            var data = {
+                id: ComponentsArray[i],
+                text: ComponentsArray[i]
+            };
+
+            if( typeof data.id != 'undefined' && data.id  != 'null'){
+
+                var newOption = new Option(data.text, data.id, false, false);
+
+                $('#Component-'+numb).append(newOption).trigger('change');
+            }
+        }
+
+        $('#servicetableSubBox tr:last').closest('tr').children('td:eq(3)').children('a').attr('id',numb);
+        $('#servicetableSubBox tr:last').children('td:eq(0)').find('div:first').remove();
+        $('#servicetableSubBox tr:last').children('td:eq(1)').find('div:first').remove();
+        $('#servicetableSubBox tr:last').children('td:eq(2)').find('div:first').remove();
+        $('#servicetableSubBox tr:last').closest('tr').children('td:eq(3)').find('a').removeClass('hidden');
+
+    }
+
+    function deleteRow(id)
+    {
+        if(confirm("Are You Sure?")) {
+            var selectedSubscription = $('#getIDs').val();
+            var removeValue = id + ",";
+            var removalueIndex = selectedSubscription.indexOf(removeValue);
+            var firstValue = selectedSubscription.substr(0, removalueIndex);//1,2,3,
+            var lastValue = selectedSubscription.substr(removalueIndex + removeValue.length, selectedSubscription.length);
+
+            var selectedSubscription = firstValue + lastValue;
+            if (selectedSubscription.charAt(0) == ',') {
+                selectedSubscription = selectedSubscription.substr(1, selectedSubscription.length)
+            }
+            $('#getIDs').val(selectedSubscription);
+
+            var rowCount = $("#servicetableSubBox > tbody").children().length;
+            if (rowCount > 1) {
+                $("#" + id).closest("tr").remove();
+
+            } else {
+                $('#getIDs').val('1,');
+
+                toastr.error("You cannot delete. At least one component is required.", "Error", toastr_opts);
+            }
+        }
+    }
     jQuery(document).ready(function($) {
         var acountiptable;
         $('#save_account').click(function(){

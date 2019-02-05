@@ -539,8 +539,8 @@ class ActiveCall extends \Eloquent {
             $vendordetaildata['duration']=$ActiveCall->Duration;
             $vendordetaildata['billed_duration']=$ActiveCall->billed_duration;
             $vendordetaildata['billed_second']=$ActiveCall->Duration;
-            $vendordetaildata['area_prefix']=$ActiveCall->CLDPrefix; //cldprefix
-            $vendordetaildata['CLIPrefix']=$ActiveCall->CLIPrefix; //cldprefix
+            $vendordetaildata['area_prefix']=$ActiveCall->VendorCLDPrefix; //cldprefix
+            $vendordetaildata['CLIPrefix']=$ActiveCall->VendorCLIPrefix; //cldprefix
             $vendordetaildata['cli']=$ActiveCall->CLI;
             $vendordetaildata['cld']=$ActiveCall->CLD;
             $vendordetaildata['selling_cost']=$ActiveCall->Cost;
@@ -549,15 +549,14 @@ class ActiveCall extends \Eloquent {
             $vendordetaildata['ID']=$UsageDetailID;
             $vendordetaildata['UUID']=$ActiveCall->UUID;
             $vendordetaildata['trunk']=$trunk;
-
-            VendorCDR::create($detaildata);
+            VendorCDR::create($vendordetaildata);
         }
     }
 
     public static function getRateTablePKGRateID($CompanyID,$RateTableID,$TimezonesID,$PackageId){
         $RateTablePKGRateID = 0;
         $Code = Package::where('PackageId',$PackageId)->pluck('Name');
-        $CodeDeckID = RateTable::where(['CompanyId'=>$CompanyID])->pluck('RateTableId');
+        $CodeDeckID = RateTable::where(['CompanyId'=>$CompanyID,'RateTableId'=>$RateTableID])->pluck('CodeDeckId');
         $RateID = CodeDeck::where(['CompanyID'=>$CompanyID,'CodeDeckId'=>$CodeDeckID,'Code'=>$Code])->pluck('RateID');
         if(!empty($RateID)){
             $RateTableRateCount = DB::table('tblRateTablePKGRate')->where(['RateTableId'=>$RateTableID,'TimezonesID'=>$TimezonesID])->count();

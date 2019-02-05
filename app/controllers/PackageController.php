@@ -12,7 +12,6 @@ class PackageController extends BaseController {
 
     public function ajax_datagrid(){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
 
         $CompanyID = User::get_companyID();
         $packages = Package::leftJoin('tblRateTable','tblPackage.RateTableId','=','tblRateTable.RateTableId')
@@ -24,11 +23,7 @@ class PackageController extends BaseController {
                 "tblCurrency.Code",
                 "tblPackage.RateTableId",
                 "tblPackage.CurrencyId"
-<<<<<<< HEAD
-            ])->where('tblPackage.CompanyID',$CompanyID);
-=======
             ])->where("tblPackage.CompanyID", $CompanyID);
->>>>>>> a0774d64c1e2cd70947297c05da454d11cbfdd20
 
 
         if(!empty($data['PackageName'])){
@@ -54,7 +49,6 @@ class PackageController extends BaseController {
     public function store() {
 
         $data = Input::all();
-        $data['CompanyID'] = User::get_companyID();
         if(!empty($data)){
 
             $CompanyID = User::get_companyID();
@@ -78,13 +72,8 @@ class PackageController extends BaseController {
     public function update($id) {
 
         $data = Input::all();
-<<<<<<< HEAD
-        $data['CompanyID'] = User::get_companyID();
-        $Package = Package::find($id);
-=======
         $CompanyID = User::get_companyID();
         $Package = Package::where("CompanyID", $CompanyID)->find($id);
->>>>>>> a0774d64c1e2cd70947297c05da454d11cbfdd20
         Package::$rules["Name"] = 'required|unique:tblPackage,Name,'.$id.',PackageId';
 
 

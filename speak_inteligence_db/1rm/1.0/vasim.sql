@@ -522,7 +522,13 @@ CREATE PROCEDURE `prc_RateTableRateUpdateDelete`(
 )
 ThisSP:BEGIN
 
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_RateTableAppliedTo_ INT;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = (SELECT CompanyId FROM tblRateTable WHERE RateTableID = p_RateTableId) AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_RateTableAppliedTo_ FROM tblRateTable WHERE RateTableID = p_RateTableId;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableRate_;
 	CREATE TEMPORARY TABLE tmp_TempRateTableRate_ (
@@ -580,7 +586,7 @@ ThisSP:BEGIN
 		tblRate r ON r.RateID = rtr.RateId
 	LEFT JOIN
 		tblRate r2 ON r2.RateID = rtr.OriginationRateID
-   LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
+	LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
     	ON RC.RoutingCategoryID = rtr.RoutingCategoryID
 	WHERE
 		(
@@ -623,7 +629,6 @@ ThisSP:BEGIN
 		rtr.RateTableId = p_RateTableId AND
 		rtr.TimezonesID = p_TimezonesID;
 
-
 	IF p_action = 1
 	THEN
 		IF p_EffectiveDate IS NOT NULL
@@ -653,6 +658,17 @@ ThisSP:BEGIN
 			((rtr.RoutingCategoryID IS NULL && temp.RoutingCategoryID IS NULL) || rtr.RoutingCategoryID = temp.RoutingCategoryID) AND
 			((rtr.Preference IS NULL && temp.Preference IS NULL) || rtr.Preference = temp.Preference) AND
 			((rtr.Blocked IS NULL && temp.Blocked IS NULL) || rtr.Blocked = temp.Blocked);
+
+		-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+		IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+		THEN
+			UPDATE
+				tmp_TempRateTableRate_
+			SET
+				ApprovedStatus = 0,
+				ApprovedBy = NULL,
+				ApprovedDate = NULL;
+		END IF;
 
 	END IF;
 
@@ -780,7 +796,13 @@ CREATE PROCEDURE `prc_RateTableDIDRateUpdateDelete`(
 )
 ThisSP:BEGIN
 
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_RateTableAppliedTo_ INT;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = (SELECT CompanyId FROM tblRateTable WHERE RateTableID = p_RateTableId) AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_RateTableAppliedTo_ FROM tblRateTable WHERE RateTableID = p_RateTableId;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableDIDRate_;
 	CREATE TEMPORARY TABLE tmp_TempRateTableDIDRate_ (
@@ -913,7 +935,6 @@ ThisSP:BEGIN
 		rtr.RateTableId = p_RateTableId AND
 		rtr.TimezonesID = p_TimezonesID;
 
-
 	IF p_action = 1
 	THEN
 
@@ -965,6 +986,17 @@ ThisSP:BEGIN
 			((rtr.ChargebackCurrency IS NULL && temp.ChargebackCurrency IS NULL) || rtr.ChargebackCurrency = temp.ChargebackCurrency) AND
 			((rtr.CollectionCostAmountCurrency IS NULL && temp.CollectionCostAmountCurrency IS NULL) || rtr.CollectionCostAmountCurrency = temp.CollectionCostAmountCurrency) AND
 			((rtr.RegistrationCostPerNumberCurrency IS NULL && temp.RegistrationCostPerNumberCurrency IS NULL) || rtr.RegistrationCostPerNumberCurrency = temp.RegistrationCostPerNumberCurrency);
+
+		-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+		IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+		THEN
+			UPDATE
+				tmp_TempRateTableDIDRate_
+			SET
+				ApprovedStatus = 0,
+				ApprovedBy = NULL,
+				ApprovedDate = NULL;
+		END IF;
 
 	END IF;
 
@@ -3164,14 +3196,14 @@ BEGIN
 	CALL prc_SplitAndInsertRateIDs(p_RateID,p_OriginationRateID);
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
-   CREATE TEMPORARY TABLE tmp_RateTableRate_ (
+	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
         OriginationCode VARCHAR(50),
         OriginationDescription VARCHAR(200),
         Code VARCHAR(50),
         Description VARCHAR(200),
         Interval1 INT,
         IntervalN INT,
-		  ConnectionFee VARCHAR(50),
+		ConnectionFee VARCHAR(50),
         PreviousRate DECIMAL(18, 6),
         Rate DECIMAL(18, 6),
         RateN DECIMAL(18, 6),
@@ -3179,10 +3211,13 @@ BEGIN
         EndDate DATE,
         updated_at DATETIME,
         ModifiedBy VARCHAR(50),
+		ApprovedStatus tinyint(4),
+		ApprovedDate DATETIME,
+		ApprovedBy VARCHAR(50),
         RoutingCategoryName VARCHAR(50),
         Preference INT,
         Blocked TINYINT
-   );
+	);
 
 	IF p_View = 1
 	THEN
@@ -3200,6 +3235,9 @@ BEGIN
 		  	EndDate,
 		  	updated_at,
 		  	ModifiedBy,
+			ApprovedStatus,
+			ApprovedDate,
+			ApprovedBy,
 		  	RoutingCategoryName,
         	Preference,
         	Blocked
@@ -3218,6 +3256,9 @@ BEGIN
 			IFNULL(vra.EndDate,'') AS EndDate,
 			IFNULL(vra.created_at,'') AS ModifiedDate,
 			IFNULL(vra.created_by,'') AS ModifiedBy,
+			vra.ApprovedStatus,
+			vra.ApprovedDate,
+			vra.ApprovedBy,
         	RC.Name AS RoutingCategoryName,
         	vra.Preference,
         	vra.Blocked
@@ -3255,7 +3296,10 @@ BEGIN
 		  	EndDate,
 		  	updated_at,
 		  	ModifiedBy,
-         RoutingCategoryName,
+			ApprovedStatus,
+			ApprovedDate,
+			ApprovedBy,
+			RoutingCategoryName,
         	Preference,
         	Blocked
 		)
@@ -3273,6 +3317,9 @@ BEGIN
 			IFNULL(vra.EndDate,'') AS EndDate,
 			IFNULL(MAX(vra.created_at),'') AS ModifiedDate,
 			IFNULL(MAX(vra.created_by),'') AS ModifiedBy,
+			vra.ApprovedStatus,
+			MAX(vra.ApprovedDate) AS ApprovedDate,
+			MAX(vra.ApprovedBy) AS ApprovedBy,
         	MAX(RC.Name) AS RoutingCategoryName,
         	MAX(vra.Preference) AS Preference,
         	MAX(vra.Blocked) AS Blocked
@@ -3294,7 +3341,7 @@ BEGIN
 				)
 			)
 		GROUP BY
-			Description, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate
+			Description, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus
 		ORDER BY
 			vra.EffectiveDate DESC, MAX(vra.created_at) DESC;
 	END IF;
@@ -3313,9 +3360,12 @@ BEGIN
 		EndDate,
 		IFNULL(updated_at,'') AS ModifiedDate,
 		IFNULL(ModifiedBy,'') AS ModifiedBy,
+		ApprovedStatus,
+		ApprovedDate,
+		ApprovedBy,
 		RoutingCategoryName,
-      Preference,
-      Blocked
+		Preference,
+		Blocked
 	FROM tmp_RateTableRate_;
 END//
 DELIMITER ;
@@ -5519,6 +5569,7 @@ DELIMITER //
 CREATE PROCEDURE `prc_RateTableRateApprove`(
 	IN `p_RateTableId` INT,
 	IN `p_RateTableRateId` LONGTEXT,
+	IN `p_ApprovedStatus` TINYINT,
 	IN `p_Critearea_CountryId` INT,
 	IN `p_Critearea_Code` VARCHAR(50),
 	IN `p_Critearea_Description` VARCHAR(200),
@@ -5547,7 +5598,7 @@ ThisSP:BEGIN
 	LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
     	ON RC.RoutingCategoryID = rtr.RoutingCategoryID
 	SET
-		rtr.ApprovedStatus = 1, rtr.ApprovedBy = p_ApprovedBy, rtr.ApprovedDate = NOW()
+		rtr.ApprovedStatus = p_ApprovedStatus, rtr.ApprovedBy = p_ApprovedBy, rtr.ApprovedDate = NOW()
 	WHERE
 		(
 			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTableRateID,p_RateTableRateID) != 0 )) OR
@@ -5589,6 +5640,7 @@ DELIMITER //
 CREATE PROCEDURE `prc_RateTableDIDRateApprove`(
 	IN `p_RateTableId` INT,
 	IN `p_RateTableDIDRateID` LONGTEXT,
+	IN `p_ApprovedStatus` TINYINT,
 	IN `p_Critearea_CountryId` INT,
 	IN `p_Critearea_Code` VARCHAR(50),
 	IN `p_Critearea_Description` VARCHAR(200),
@@ -5612,7 +5664,7 @@ ThisSP:BEGIN
 	LEFT JOIN
 		tblRate r2 ON r2.RateID = rtr.OriginationRateID
 	SET
-		rtr.ApprovedStatus = 1, rtr.ApprovedBy = p_ApprovedBy, rtr.ApprovedDate = NOW()
+		rtr.ApprovedStatus = p_ApprovedStatus, rtr.ApprovedBy = p_ApprovedBy, rtr.ApprovedDate = NOW()
 	WHERE
 		(
 			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTableDIDRateID,p_RateTableDIDRateID) != 0 )) OR
@@ -10998,6 +11050,7 @@ DELIMITER //
 CREATE PROCEDURE `prc_RateTablePKGRateApprove`(
 	IN `p_RateTableId` INT,
 	IN `p_RateTablePKGRateID` LONGTEXT,
+	IN `p_ApprovedStatus` TINYINT,
 	IN `p_Critearea_Code` VARCHAR(50),
 	IN `p_Critearea_Effective` VARCHAR(50),
 	IN `p_TimezonesID` INT,
@@ -11015,7 +11068,7 @@ ThisSP:BEGIN
 	INNER JOIN
 		tblRate r ON r.RateID = rtr.RateId
 	SET
-		rtr.ApprovedStatus = 1, rtr.ApprovedBy = p_ApprovedBy, rtr.ApprovedDate = NOW()
+		rtr.ApprovedStatus = p_ApprovedStatus, rtr.ApprovedBy = p_ApprovedBy, rtr.ApprovedDate = NOW()
 	WHERE
 		(
 			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTablePKGRateID,p_RateTablePKGRateID) != 0 )) OR
@@ -11181,7 +11234,13 @@ CREATE PROCEDURE `prc_RateTablePKGRateUpdateDelete`(
 )
 ThisSP:BEGIN
 
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_RateTableAppliedTo_ INT;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = (SELECT CompanyId FROM tblRateTable WHERE RateTableID = p_RateTableId) AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_RateTableAppliedTo_ FROM tblRateTable WHERE RateTableID = p_RateTableId;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTablePKGRate_;
 	CREATE TEMPORARY TABLE tmp_TempRateTablePKGRate_ (
@@ -11269,7 +11328,6 @@ ThisSP:BEGIN
 		rtr.RateTableId = p_RateTableId AND
 		rtr.TimezonesID = p_TimezonesID;
 
-
 	IF p_action = 1
 	THEN
 
@@ -11302,6 +11360,17 @@ ThisSP:BEGIN
 			((rtr.MonthlyCostCurrency IS NULL && temp.MonthlyCostCurrency IS NULL) || rtr.MonthlyCostCurrency = temp.MonthlyCostCurrency) AND
 			((rtr.PackageCostPerMinuteCurrency IS NULL && temp.PackageCostPerMinuteCurrency IS NULL) || rtr.PackageCostPerMinuteCurrency = temp.PackageCostPerMinuteCurrency) AND
 			((rtr.RecordingCostPerMinuteCurrency IS NULL && temp.RecordingCostPerMinuteCurrency IS NULL) || rtr.RecordingCostPerMinuteCurrency = temp.RecordingCostPerMinuteCurrency);
+
+		-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+		IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+		THEN
+			UPDATE
+				tmp_TempRateTablePKGRate_
+			SET
+				ApprovedStatus = 0,
+				ApprovedBy = NULL,
+				ApprovedDate = NULL;
+		END IF;
 
 	END IF;
 
@@ -12417,5 +12486,56 @@ ThisSP:BEGIN
 	END CASE;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_SplitAndInsertRateIDs`;
+DELIMITER //
+CREATE PROCEDURE `prc_SplitAndInsertRateIDs`(
+	IN `p_RateID` VARCHAR(500),
+	IN `p_OriginationRateID` VARCHAR(50)
+)
+BEGIN
+
+	DECLARE v_TotalIDs_ INT;
+	DECLARE v_Row_ INT;
+	DECLARE v_RateID INT;
+	DECLARE v_OriginationRateID INT;
+
+	DROP TEMPORARY TABLE IF EXISTS temp_rateids_;
+   CREATE TEMPORARY TABLE temp_rateids_ (
+   	RateID INT,
+     	OriginationRateID INT
+   );
+
+	SET v_TotalIDs_ = LENGTH(p_RateID) - LENGTH(REPLACE(p_RateID, ',', '')) + 1;
+
+	SET v_Row_ = 1;
+	WHILE v_Row_ <= v_TotalIDs_
+	DO
+		SELECT TRIM(
+							BOTH ',' FROM
+							REPLACE(SUBSTRING(SUBSTRING_INDEX(p_RateID, ',', v_Row_)
+							, LENGTH(SUBSTRING_INDEX(p_RateID, ',', (v_Row_-1))) + 1)
+							, '-'
+							, '')
+						) INTO v_RateID;
+
+		SELECT TRIM(
+							BOTH ',' FROM
+							REPLACE(SUBSTRING(SUBSTRING_INDEX(p_OriginationRateID, ',', v_Row_)
+							, LENGTH(SUBSTRING_INDEX(p_OriginationRateID, ',', (v_Row_-1))) + 1)
+							, '-'
+							, '')
+						) INTO v_OriginationRateID;
+
+		INSERT temp_rateids_ (RateID,OriginationRateID) VALUES (v_RateID,v_OriginationRateID);
+		SET v_Row_ = v_Row_ + 1;
+
+	END WHILE;
+
 END//
 DELIMITER ;

@@ -64,6 +64,12 @@ class AccountBalance extends \Eloquent {
                     $AccountBalance=($AccountBalance) * -1;
                 }*/
                 $AccountBalance = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
+                $ActiveBalance = ActiveCall::where(['AccountID'=>$AccountID])->sum('Cost');
+
+                $AccountBalance = empty($AccountBalance)?0:$AccountBalance;
+                $ActiveBalance = empty($ActiveBalance)?0:$ActiveBalance;
+
+                $AccountBalance = $AccountBalance - $ActiveBalance;
             }else{
                 if($AccountBalance<0){
                     $AccountBalance=0;

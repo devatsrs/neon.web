@@ -176,11 +176,14 @@ class BillingClassApiController extends ApiController {
 		if($BillingClassID > 0){
 			$BillingClass=BillingClass::find($BillingClassID);
 
-			$result['BalanceThreshold']=AccountBalance::where('AccountID', $AccountID)->pluck('BalanceThreshold');
-			$result['Status']=$BillingClass->LowBalanceReminderStatus;
+			//$result['BalanceThreshold']=AccountBalance::where('AccountID', $AccountID)->pluck('BalanceThreshold');
+			//$result['Status']=$BillingClass->LowBalanceReminderStatus;
 			//$BillingClass=AccountBilling::join('tblBillingClass','tblAccountBilling.BillingClassID','=','tblBillingClass.BillingClassID')->where(['tblAccountBilling.AccountID'=>$AccountID])->select('tblBillingClass.*')->first();
-
-			$result['BillingClass']=json_decode($BillingClass->LowBalanceReminderSettings);
+                        $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $AccountID))->select('BalanceThreshold AS Threshold','BalanceThresholdEmail AS Email')->get(['BalanceThreshold','BalanceThresholdEmail']);
+                        unset($AccountBalanceThreshold['created_at']);unset($AccountBalanceThreshold['updated_at']);
+                        $result['BalanceThreshold']=json_decode($AccountBalanceThreshold);
+                        
+			//$result['BillingClass']=json_decode($BillingClass->LowBalanceReminderSettings);
 
 			return Response::json($result,Codes::$Code200[0]);
 
