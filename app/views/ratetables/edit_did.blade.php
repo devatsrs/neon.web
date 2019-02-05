@@ -31,7 +31,7 @@
                     <input type="text" name="CityTariff" class="form-control" placeholder="" />
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Timezone</label>
+                    <label class="control-label">Time Of Day</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
