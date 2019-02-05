@@ -174,6 +174,92 @@
                 $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
 
+                var aoColumnDefs, aoColumnDefs;
+                if($searchFilter.LCRPosition=='5'){
+
+                    setTimeout(function(){
+                        $('#dt_company6').addClass("hidden");
+                        $('#dt_company7').addClass("hidden");
+                        $('#dt_company8').addClass("hidden");
+                        $('#dt_company9').addClass("hidden");
+                        $('#dt_company10').addClass("hidden");
+                    },10);
+                    aoColumns = [
+                        {
+                            mRender: function (id, type, full) {
+                                if(full[0] == 'Total'){
+                                    return "<strong>Total</strong>"
+                                }
+                                return full[0]
+                            }
+
+                        }, //1 Components
+                        { "bSortable": false}, //2 Company 1
+                        { "bSortable": false}, //3 Company 2
+                        { "bSortable": false}, //4 Company 3
+                        { "bSortable": false}, //5 Company 4
+                        { "bSortable": false}, //6 Company 5
+                        { "bVisible": false}, //7 Company 6
+                        { "bVisible": false}, //8 Company 7
+                        { "bVisible": false}, //9 Company 8
+                        { "bVisible": false}, //10 Company 9
+                        { "bVisible": false} //11 Company 10
+
+                    ];
+
+                    aoColumnDefs = [
+                        {    "sClass": "destination", "aTargets": [ 0 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 1 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 2 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 3 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 4 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 5 ] }
+                    ];
+                }else{
+                    setTimeout(function(){
+                        $('#dt_company6').removeClass("hidden");
+                        $('#dt_company7').removeClass("hidden");
+                        $('#dt_company8').removeClass("hidden");
+                        $('#dt_company9').removeClass("hidden");
+                        $('#dt_company10').removeClass("hidden");
+                    },10);
+                    aoColumns = [
+                        {
+                            mRender: function (id, type, full) {
+                                if(full[0] == 'Total'){
+                                    return "<strong>Total</strong>"
+                                }
+                                return full[0]
+                            }
+
+                        }, //1 Components
+                        { "bSortable": false}, //2 Company 1
+                        { "bSortable": false}, //3 Company 2
+                        { "bSortable": false}, //4 Company 3
+                        { "bSortable": false}, //5 Company 4
+                        { "bSortable": false}, //6 Company 5
+                        { "bSortable": false}, //7 Company 6
+                        { "bSortable": false}, //8 Company 7
+                        { "bSortable": false}, //9 Company 8
+                        { "bSortable": false}, //10 Company 9
+                        { "bSortable": false} //11 Company 10
+
+                    ];
+
+                    aoColumnDefs = [
+                        {    "sClass": "destination", "aTargets": [ 0 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 1 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 2 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 3 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 4 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 5 ] },
+                        {    "sClass": "rate6_class", "aTargets": [ 6 ] },
+                        {    "sClass": "rate7_class", "aTargets": [ 7 ] },
+                        {    "sClass": "rate8_class", "aTargets": [ 8 ] },
+                        {    "sClass": "rate9_class", "aTargets": [ 9 ] },
+                        {    "sClass": "rate10_class", "aTargets": [ 10 ] }
+                    ];
+                }
                 data_table = $("#table").dataTable({
                     "bDestroy":    true,
                     "bProcessing": true,
@@ -218,39 +304,8 @@
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left '<'.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[5, 'desc']],
-                    "aoColumns": [
-                        {
-                            //"sTitle" :"devtest",
-                            "bSortable": true,
-                            mRender: function (id, type, full) {
-
-                               // data_table.dataTableSettings[0].nTHead.children[0].children[1].innerHTML="Test";
-                              //this.aoColumns[0].sTitle  = "DevTest";
-                                if(full[0] == 'Total'){
-                                    return "<strong>Total</strong>"
-                                }
-                                return full[0]
-                            }
-                        },
-                        {
-                            "bSortable": true,
-                            mRender: function (id, type, full) {
-                                return full[1]
-                            }
-                        },
-                        {
-                            "bSortable": true,
-                            mRender: function (id, type, full) {
-                                return full[2]
-                            }
-                        },
-                        {
-                            "bSortable": true,
-                            mRender: function (id, type, full) {
-                                return full[3]
-                            }
-                        }
-                    ],
+                    "aoColumnDefs": aoColumnDefs,
+                    "aoColumns":aoColumns,
                     "oTableTools": {
                         "aButtons": [
                             {
