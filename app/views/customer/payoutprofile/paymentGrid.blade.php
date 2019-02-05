@@ -2,7 +2,7 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            Stripe @lang('routes.CUST_PANEL_PAGE_PAYOUT_TITLE')
+            Stripe {{ cus_lang('CUST_PANEL_PAGE_PAYOUT_TITLE') }}
         </div>
         <div class="panel-options">
             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -10,18 +10,18 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a id="add-new-payout" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>@lang('routes.CUST_PANEL_PAGE_PAYOUT_BUTTON_ADD_NEW')</a>
+            <a id="add-new-payout" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_BUTTON_ADD_NEW') }}</a>
             <div class="clear clearfix"><br></div>
         </div>
         <table class="table table-bordered datatable" id="table-5">
             <thead>
             <tr>
-                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_TITLE')</th>
-                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_STATUS')</th>
-                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_DEFAULT')</th>
-                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_PAYMENT_METHOD')</th>
-                <th width="20%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_CREATED_DATE')</th>
-                <th width="40%">@lang('routes.TABLE_COLUMN_ACTION')</th>
+                <th width="10%">{{ cus_lang('CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_TITLE') }}</th>
+                <th width="10%">{{ cus_lang('CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_STATUS') }}</th>
+                <th width="10%">{{ cus_lang('CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_DEFAULT') }}</th>
+                <th width="10%">{{ cus_lang('CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_PAYMENT_METHOD') }}</th>
+                <th width="20%">{{ cus_lang('CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_CREATED_DATE') }}</th>
+                <th width="40%">{{ cus_lang('TABLE_COLUMN_ACTION') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -96,13 +96,13 @@
                                 action += ' <a data-id="'+ id +'" class="delete-payout btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
 
                                 if (full[1]=="1") {
-                                    action += ' <button href="' + DeActive_Cardx + '"  class="btn change_status btn-danger btn-sm disablepayout" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_DEACTIVATE_CAPTION')</button>';
+                                    action += ' <button href="' + DeActive_Cardx + '"  class="btn change_status btn-danger btn-sm disablepayout" data-loading-text="{{ cus_lang('BUTTON_LOADING_CAPTION') }}">{{ cus_lang('BUTTON_DEACTIVATE_CAPTION') }}</button>';
                                 } else {
-                                    action += ' <button href="' + Active_Cardx+ '"    class="btn change_status btn-success btn-sm activepayout" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_ACTIVATE_CAPTION')</button>';
+                                    action += ' <button href="' + Active_Cardx+ '"    class="btn change_status btn-success btn-sm activepayout" data-loading-text="{{ cus_lang('BUTTON_LOADING_CAPTION') }}">{{ cus_lang('BUTTON_ACTIVATE_CAPTION') }}</button>';
                                 }
 
                                 if(full[2]!=1){
-                                    action += ' <a href="' + set_defaultx + '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') </a> ';
+                                    action += ' <a href="' + set_defaultx + '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>{{ cus_lang('CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') }}</a> ';
                                 }
                                 return action;
                             }
@@ -128,10 +128,10 @@
                                 ShowToastr("error",response.message);
                             }
                             $('#table-5_processing').css('visibility','hidden');
-                        }
+                        };
                         //onDelete Click
                         FnDeletePayout = function(e){
-                            result = confirm("@lang('routes.MESSAGE_ARE_YOU_SURE')");
+                            result = confirm("{{ cus_lang('MESSAGE_ARE_YOU_SURE') }}");
                             if(result){
                                 var id  = $(this).attr("data-id");
                                 $('#table-5_processing').css('visibility','visible');
@@ -140,7 +140,7 @@
                                 showAjaxScript( url ,"",FnDeletePayoutSuccess );
                             }
                             return false;
-                        }
+                        };
                         $(".delete-payout").click(FnDeletePayout); // Delete Card
                         $(".dataTables_wrapper select").select2({
                             minimumResultsForSearch: -1
@@ -158,9 +158,9 @@
                     e.preventDefault();
                     var self = $(this);
                     if(self.hasClass("activepayout")){
-                        var msg = "@lang('routes.CUST_PANEL_PAGE_PAYOUT_TBL_ACTIVE_MSG')";
+                        var msg = "{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_TBL_ACTIVE_MSG') }}";
                     }else{
-                        var msg = "@lang('routes.CUST_PANEL_PAGE_PAYOUT_TBL_DISABLE_MSG')";
+                        var msg = "{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_TBL_DISABLE_MSG') }}";
                     }
 
                     if (!confirm(msg)) {
@@ -174,7 +174,7 @@
                 $('table tbody').on('click', '.set-default', function (e) {
                     e.preventDefault();
                     var self = $(this);
-                    if (!confirm("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT_CARD_MSG')")) {
+                    if (!confirm("{{ cus_lang('CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT_CARD_MSG') }}")) {
                         return;
                     }
                     $('#table-5_processing').css('visibility','visible');
@@ -263,15 +263,15 @@
                 <form id="add-payout-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_TITLE')</h4>
+                        <h4 class="modal-title">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_TITLE') }}</h4>
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="field-35" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_PAYOUT_FIELD_TITLE')</label>
+                            <label for="field-35" class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_PAYOUT_FIELD_TITLE')}}</label>
                             <input type="text" name="Title" class="form-control" id="field-35" placeholder="">
                         </div>
                         <div class="form-group">
-                            <label for="field-5555" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_DOB')</label>
+                            <label for="field-5555" class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_DOB') }}</label>
                             <input autocomplete="off" id="5555" type="text" name="DOB" class="form-control datepicker" data-date-format="yyyy-mm-dd" value="" placeholder="YYYY-MM-DD"/>
                         </div>
                         <input type="hidden" name="payoutAccountID" />
@@ -282,35 +282,35 @@
                             <p class="control-label">Select Payout Method</p>
                             <label for="field-36" class="control-label">
                                 <input type="radio" checked name="PayoutType" id="field-36" value="card">
-                                @lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_PAYOUT_FIELD_DEBIT_CARD')
+                                {{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_PAYOUT_FIELD_DEBIT_CARD') }}
                             </label>
                             &nbsp; &nbsp;
                             <label for="field-37" class="control-label">
                                 <input type="radio" name="PayoutType" id="field-37" value="bank">
-                                @lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_PAYOUT_FIELD_BANK_ACCOUNT')
+                                {{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_PAYOUT_FIELD_BANK_ACCOUNT') }}
                             </label>
                         </div>
                         <div class="payout-card-form">
                             <div class="form-group">
-                                <label for="field-55" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_NAME_ON_CARD')</label>
+                                <label for="field-55" class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_NAME_ON_CARD') }}</label>
                                 <input type="text" name="NameOnCard" autocomplete="off" class="form-control" id="field-55" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="field-335" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_DEBIT_CARD_NUMBER')</label>
+                                <label for="field-335" class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_DEBIT_CARD_NUMBER') }}</label>
                                 <input type="text" name="CardNumber" autocomplete="off" class="form-control" id="field-335" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_CARD_TYPE')</label>
+                                <label for="field-5" class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_CARD_TYPE') }}</label>
                                 {{ Form::select('CardType',Payment::$debit_card_type,'', array("class"=>"select2 small")) }}
                             </div>
                             <div class="form-group">
-                                <label for="field-125" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_CVV_NUMBER')</label>
+                                <label for="field-125" class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_CVV_NUMBER') }}</label>
                                 <input type="text" data-mask="decimal" name="CVVNumber" autocomplete="off" class="form-control" id="field-125" placeholder="">
                             </div>
                             <div class="form-group">
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_EXPIRY_DATE')</label>
+                                        <label class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_EXPIRY_DATE') }}</label>
                                     </div>
                                     <div class="col-md-4">
                                         {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }}
@@ -323,57 +323,57 @@
                         </div>
                         <div class="payout-bank-form">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_NAME')</label>
+                                <label for="field-5" class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_NAME') }}</label>
                                 <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" id="field-5" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_AC_NUMBER')</label>
+                                <label for="field-5" class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_AC_NUMBER') }}</label>
                                 <input type="text" name="AccountNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_ROUTING_NUMBER')</label>
+                                <label for="field-5" class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_ROUTING_NUMBER') }}</label>
                                 <input type="text" name="RoutingNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                             </div>
                             <div class="form-group">
-                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_TYPE')</label>
+                                <label for="field-5" class="control-label">{{ cus_lang('CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_TYPE') }}</label>
                                 {{ Form::select('AccountHolderType',Payment::$account_holder_type,'', array("class"=>"select2 small")) }}
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" id="payout-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
+                        <button type="submit" id="payout-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="{{ cus_lang('BUTTON_LOADING_CAPTION') }}">
                             <i class="entypo-floppy"></i>
-                            @lang('routes.BUTTON_SAVE_CAPTION')
+                            {{ cus_lang('BUTTON_SAVE_CAPTION') }}
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>
-                            @lang('routes.BUTTON_CLOSE_CAPTION')
+                            {{ cus_lang('BUTTON_CLOSE_CAPTION') }}
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-<script>
-    function add_payout_type(){
-        var payoutMethod = $("input[name='PayoutType']:checked").val();
-        if(payoutMethod == "bank"){
-            $(".payout-card-form").hide();
-            $(".payout-bank-form").show();
-        } else {
-            $(".payout-card-form").show();
-            $(".payout-bank-form").hide();
+    <script>
+        function add_payout_type(){
+            var payoutMethod = $("input[name='PayoutType']:checked").val();
+            if(payoutMethod == "bank"){
+                $(".payout-card-form").hide();
+                $(".payout-bank-form").show();
+            } else {
+                $(".payout-card-form").show();
+                $(".payout-bank-form").hide();
+            }
         }
-    }
-    $(function () {
-        $('.datepicker').datepicker({
-            endDate: '-5y'
-        });
-        $("input[name='PayoutType']").on("change", function (e) {
+        $(function () {
+            $('.datepicker').datepicker({
+                endDate: '-5y'
+            });
+            $("input[name='PayoutType']").on("change", function (e) {
+                add_payout_type();
+            });
             add_payout_type();
         });
-        add_payout_type();
-    });
-</script>
+    </script>
 @stop
 

@@ -17,6 +17,7 @@ if( typeof neon_summernote_options == 'undefined') {
     "invoiceoptions": false,
     "autopaymentoptions": false,
     "Cronjobs": false,
+    "contractoptions":false,
     "estimateoptions": false,
     "ratesheetoptions": false,
     "opportunities": false,
@@ -259,6 +260,12 @@ var dropdown_text =  {
         TrunkName:"TrunkName"
 
     },
+    contractoptions: {
+        AccountName: "AccountName",
+       ServiceTitle:"ServiceTitle",
+        Email: "Email",
+
+    }
 };
 
 
@@ -406,7 +413,14 @@ var neon_summernote_dropdown_tpl = {
             "<li class='unclick'><a ><b>Others</b></a></li>" +
             "<li><a data-value='{{Signature}}'>" + dropdown_text.autopaymentoptions.Signature + "</a></li>" ;
     },
-    "tasks": function () {
+    "contractoptions": function () {
+
+        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+            "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractoptions.AccountName + "</a></li>" +
+            "<li><a data-value='{{ServiceTitle}}'>" + dropdown_text.contractoptions.ServiceTitle + "</a></li>" +
+            "<li><a data-value='{{Email}}'>" + dropdown_text.contractoptions.Email + "</a></li>"
+           },
+            "tasks": function () {
       return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
           "<li><a data-value='{{FirstName}}'>" + dropdown_text.leadoptions.FirstName + "</a></li>" +
           "<li><a data-value='{{LastName}}'>" + dropdown_text.leadoptions.LastName + "</a></li>" +

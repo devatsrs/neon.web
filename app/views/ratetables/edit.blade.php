@@ -27,7 +27,7 @@
                     <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Timezone</label>
+                    <label class="control-label">Time Of Day</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
@@ -78,6 +78,7 @@
                     <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
                         <option value="" selected="selected">All</option>
                         <option value="1">Approved</option>
+                        <option value="2">Rejected</option>
                         <option value="0">Awaiting Approval</option>
                     </select>
                 </div>
@@ -135,6 +136,7 @@
                 @if(User::checkCategoryPermission('RateTables','ApprovalProcess') )
                     @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         <li><a href="javascript:void(0)" id="approve-bulk-rate"><i class="entypo-check"></i><span>Approve Selected</span></a></li>
+                        <li><a href="javascript:void(0)" id="disapprove-bulk-rate"><i class="entypo-cancel"></i><span>Reject Selected</span></a></li>
                     @endif
                 @endif
             </ul>
@@ -189,7 +191,7 @@
             <th width="8%">Effective Date</th>
             <th width="8%">Modified By/Date</th>
             @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-            <th width="8%">Approved By/Date</th>
+            <th width="8%">Status Changed By/Date</th>
             @endif
             @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                 @if($ROUTING_PROFILE == 1)
@@ -405,10 +407,12 @@
         });
 
         //Bulk Approve Button
-        $(document).off('click.approve-bulk-rate','#approve-bulk-rate');
-        $(document).on('click.approve-bulk-rate','#approve-bulk-rate',function(ev) {
+        $(document).off('click.approve-bulk-rate','#approve-bulk-rate,#disapprove-bulk-rate');
+        $(document).on('click.approve-bulk-rate','#approve-bulk-rate,#disapprove-bulk-rate',function(ev) {
             var $this = $(this);
             if(!$this.hasClass('processing')) {
+                var button_id = $(this).attr('id');
+                var button_text = $(this).html();
                 var RateTableRateIDs = [];
                 var TimezonesID = $searchFilter.Timezones;
                 var i = 0;
@@ -420,6 +424,11 @@
 
                 var formdata = new FormData();
                 formdata.append('TimezonesID', TimezonesID);
+                if(button_id == 'approve-bulk-rate') {
+                    formdata.append('ApprovedStatus', 1);
+                } else {
+                    formdata.append('ApprovedStatus', 2);
+                }
                 var criteria = '';
                 if ($('#selectallbutton').is(':checked')) {
                     criteria = JSON.stringify($searchFilter);
@@ -437,7 +446,7 @@
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
-                            $this.html('<i class="entypo-check"></i><span>Approve Selected</span>').removeClass('processing');
+                            $this.html(button_text).removeClass('processing');
                             if (response.status == 'success') {
                                 toastr.success(response.message, "Success", toastr_opts);
                                 rateDataTable();
@@ -655,10 +664,12 @@
                                 var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[22] == 1) {
+                                if (full[22] == 2) {
+                                    html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
+                                } else if (full[22] == 1) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
                                 } else if (full[22] == 0) {
-                                    html += '<i class="entypo-cancel" title="Awaiting Approval" style="color: red; "></i>';
+                                    html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
                                 }
                                 @endif
 
@@ -735,11 +746,11 @@
                                 full[23] = full[23] != null ? full[23] : '';
                                 full[24] = full[24] != null ? full[24] : '';
                                 if(full[23] != '' && full[24] != '')
-                                    return full[23] + '<br/>' + full[24]; // modified by/modified date
+                                    return full[23] + '<br/>' + full[24]; // approved Status Changed by/date
                                 else
                                     return '';
                             }
-                        }, //23/24 Approved By/Approved Date
+                        }, //23/24 Approved Status Changed By/Approved Date
                         @endif
                         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                             @if($ROUTING_PROFILE == 1)
@@ -1022,7 +1033,12 @@
                     if(view == 1) {
                         header += "<th>Dest. Code</th>";
                     }
-                    header += "<th>Dest. Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th>";
+                    header += "<th>Dest. Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified By/Date</th>";
+
+                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                        header += "<th>Status Changed By/Date</th><th>Status</th>";
+                    @endif
+
                     @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                         @if($ROUTING_PROFILE == 1)
                             header += "<th>Routing Category</th>";
@@ -1053,8 +1069,17 @@
                             html += "<td>" + (data['RateN'] != null?data['RateN']:'') + "</td>";
                             html += "<td>" + data['EffectiveDate'] + "</td>";
                             html += "<td>" + data['EndDate'] + "</td>";
-                            html += "<td>" + data['ModifiedDate'] + "</td>";
-                            html += "<td>" + data['ModifiedBy'] + "</td>";
+                            html += "<td>" + data['ModifiedBy'] + '<br/>' + data['ModifiedDate'] + "</td>";
+
+                        @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                            html += "<td>" + (data['ApprovedBy'] != null?data['ApprovedBy'] + '<br/>':'') + (data['ApprovedDate'] != null?data['ApprovedDate']:'') + "</td>";
+                            if (data['ApprovedStatus'] == 2)
+                                html += '<td><i class="entypo-cancel" title="Rejected" style="color: red; "></i></td>';
+                            else if(data['ApprovedStatus'] == 1)
+                                html += '<td><i class="entypo-check" title="Approved" style="color: green; "></i></td>';
+                            else if(data['ApprovedStatus'] == 0)
+                                html += '<td><i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i></td>';
+                        @endif
 
                             @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                                 @if($ROUTING_PROFILE == 1)

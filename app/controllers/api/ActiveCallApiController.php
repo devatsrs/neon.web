@@ -6,7 +6,7 @@ class ActiveCallApiController extends ApiController {
     /**
      * @Param mixed
      * AccountID/AccountNo
-     * ConnectTime,CLI,CLD,CallType,UUID,VendorID,VendorConnectionName,Rate
+     * ConnectTime,CLI,CLD,CallType,UUID,VendorID,VendorConnectionName,VendorRate,VendorCLIPrefix,VendorCLDPrefix
      * OriginType : MOBILE, FIXED ,  OriginProvider: Sunrise, Swisscom
      * @Response
      * ActiveCallID
@@ -55,6 +55,13 @@ class ActiveCallApiController extends ApiController {
             return json_validator_response($validator);
         }
 
+        if(!empty($data['VendorID'])){
+            $VendorAccount=Account::where(["AccountID" => $data['VendorID']])->first();
+            if(empty($VendorAccount)){
+                return Response::json(["ErrorMessage"=>"Vendor Account Not Found"],Codes::$Code402[0]);
+            }
+        }
+
         if(!empty($AccountID) && !empty($CompanyID)){
             $IsCallexists=ActiveCall::where('UUID',$data['UUID'])->count();
             if($IsCallexists > 0){
@@ -84,15 +91,16 @@ class ActiveCallApiController extends ApiController {
                     $ActiveCallData['CallType']=$data['CallType'];
                     $ActiveCallData['UUID']=$data['UUID'];
                     $ActiveCallData['VendorID']=$data['VendorID'];
-                    if(!empty($data['VendorConnectionName'])){
-                        $ActiveCallData['VendorConnectionName']=$data['VendorConnectionName'];
-                    }
-                    if(!empty($data['OriginType'])){
-                        $ActiveCallData['OriginType']=$data['OriginType'];
-                    }
-                    if(!empty($data['OriginProvider'])){
-                        $ActiveCallData['OriginProvider']=$data['OriginProvider'];
-                    }
+
+                    $ActiveCallData['VendorConnectionName']=empty($data['VendorConnectionName']) ? '' : $data['VendorConnectionName'];
+                    $ActiveCallData['OriginType']=empty($data['OriginType']) ? '' : $data['OriginType'];
+                    $ActiveCallData['OriginProvider']=empty($data['OriginProvider']) ? '' : $data['OriginProvider'];
+                    $ActiveCallData['VendorRate'] = empty($data['VendorRate']) ? 0 : $data['VendorRate'];
+                    $ActiveCallData['VendorCLIPrefix'] = empty($data['VendorCLIPrefix']) ? 'Other' : $data['VendorCLIPrefix'];
+                    $ActiveCallData['VendorCLDPrefix'] = empty($data['VendorCLDPrefix']) ? 'Other' : $data['VendorCLDPrefix'];
+                    $ActiveCallData['CallRecording'] = 0;
+
+
 
                     DB::connection('sqlsrvroutingengine')->beginTransaction();
                     DB::connection('sqlsrv2')->beginTransaction();
