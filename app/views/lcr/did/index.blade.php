@@ -187,8 +187,8 @@
                     aoColumns = [
                         {
                             mRender: function (id, type, full) {
-                                if(full[0] == 'Total'){
-                                    return "<strong>Total</strong>"
+                                if(full[0] == 'Cost'){
+                                    return "<strong>Cost</strong>"
                                 }
                                 return full[0]
                             }

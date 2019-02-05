@@ -192,9 +192,9 @@ DELIMITER ;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 
 -- --------------------------------------------------------
--- Host:                         192.168.1.25
--- Server version:               5.7.23-log - MySQL Community Server (GPL)
--- Server OS:                    Win64
+-- Host:                         188.227.186.98
+-- Server version:               5.7.18 - MySQL Community Server (GPL)
+-- Server OS:                    Linux
 -- HeidiSQL Version:             9.5.0.5196
 -- --------------------------------------------------------
 
@@ -218,9 +218,10 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 	IN `p_Minutes` INT,
 	IN `p_Timezone` INT,
 	IN `p_TimezonePercentage` INT,
-	IN `p_Origination` INT,
+	IN `p_Origination` VARCHAR(100),
 	IN `p_OriginationPercentage` INT,
 	IN `p_isExport` INT
+
 
 
 
@@ -347,7 +348,7 @@ ThisSP:BEGIN
 			SET @v_MinutesFromMobileOrigination  =  ( (@p_Minutes/ 100) * @p_MobileOriginationPercentage ) 	; -- Minutes from mobile:
 
 			SET @v_CallerRate = 1; -- temp set as 1
-
+			SET @p_ServiceTemplateID  = p_ServiceTemplateID;
 
 		set @p_CurrencyID = p_CurrencyID;
 
@@ -406,137 +407,286 @@ ThisSP:BEGIN
 								a.AccountID,
 								a.AccountName,
 
-								@MonthlyCost := CASE WHEN  @p_CurrencyID = MonthlyCostCurrency
-								THEN
-									drtr.MonthlyCost
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = 1 ))
-								)
-								END as MonthlyCost,
 
-								@CostPerCall := CASE WHEN  @p_CurrencyID = CostPerCallCurrency
-								THEN
-									drtr.CostPerCall
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerCallCurrency and  CompanyID = 1 ))
-								)
-								END as CostPerCall,
+@MonthlyCost := CASE WHEN ( MonthlyCostCurrency is not null)
+THEN
 
-								@CostPerMinute := CASE WHEN  @p_CurrencyID = CostPerMinuteCurrency
-								THEN
-									drtr.CostPerMinute
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerMinuteCurrency and  CompanyID = 1 ))
-								)
-								END as CostPerMinute,
+CASE WHEN  @p_CurrencyID = MonthlyCostCurrency THEN
+	drtr.MonthlyCost
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = 1 ))
+)
+END
 
-								@SurchargePerCall := CASE WHEN  @p_CurrencyID = SurchargePerCallCurrency
-								THEN
-									drtr.SurchargePerCall
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerCallCurrency and  CompanyID = 1 ))
-								)
-								END as SurchargePerCall,
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.MonthlyCost
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as MonthlyCost,
 
-								@SurchargePerMinute := CASE WHEN  @p_CurrencyID = SurchargePerMinuteCurrency
-								THEN
-									drtr.SurchargePerMinute
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerMinuteCurrency and  CompanyID = 1 ))
-								)
-								END as SurchargePerMinute,
+@CostPerCall := CASE WHEN ( CostPerCallCurrency is not null)
+THEN
 
-								@OutpaymentPerCall := CASE WHEN  @p_CurrencyID = OutpaymentPerCallCurrency
-								THEN
-									drtr.OutpaymentPerCall
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerCallCurrency and  CompanyID = 1 ))
-								)
-								END as OutpaymentPerCall,
+CASE WHEN  @p_CurrencyID = CostPerCallCurrency THEN
+	drtr.CostPerCall
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerCallCurrency and  CompanyID = 1 ))
+)
+END
 
-								@OutpaymentPerMinute := CASE WHEN  @p_CurrencyID = OutpaymentPerMinuteCurrency
-								THEN
-									drtr.OutpaymentPerMinute
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerMinuteCurrency and  CompanyID = 1 ))
-								)
-								END as OutpaymentPerMinute,
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.CostPerCall
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as CostPerCall,
 
-								@Surcharges := CASE WHEN  @p_CurrencyID = SurchargesCurrency
-								THEN
-									drtr.Surcharges
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargesCurrency and  CompanyID = 1 ))
-								)
-								END as Surcharges,
+@CostPerMinute := CASE WHEN ( CostPerMinuteCurrency is not null)
+THEN
 
-								@Chargeback := CASE WHEN  @p_CurrencyID = ChargebackCurrency
-								THEN
-									drtr.Chargeback
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = ChargebackCurrency and  CompanyID = 1 ))
-								)
-								END as Chargeback,
+CASE WHEN  @p_CurrencyID = CostPerMinuteCurrency THEN
+	drtr.CostPerMinute
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerMinuteCurrency and  CompanyID = 1 ))
+)
+END
 
-								@CollectionCostAmount := CASE WHEN  @p_CurrencyID = CollectionCostAmountCurrency
-								THEN
-									drtr.CollectionCostAmount
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = 1 ))
-								)
-								END as CollectionCostAmount,
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.CostPerMinute
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as CostPerMinute,
 
-								@CollectionCostPercentage := CASE WHEN  @p_CurrencyID = CollectionCostAmountCurrency
-								THEN
-									drtr.CollectionCostPercentage
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = 1 ))
-								)
-								END as CollectionCostPercentage,
 
-								@RegistrationCostPerNumber := CASE WHEN  @p_CurrencyID = RegistrationCostPerNumberCurrency
-								THEN
-									drtr.RegistrationCostPerNumber
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = RegistrationCostPerNumberCurrency and  CompanyID = 1 ))
-								)
-								END as RegistrationCostPerNumber ,
+@SurchargePerCall := CASE WHEN ( SurchargePerCallCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = SurchargePerCallCurrency THEN
+	drtr.SurchargePerCall
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerCallCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.SurchargePerCall
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as SurchargePerCall,
+
+
+@SurchargePerMinute := CASE WHEN ( SurchargePerMinuteCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = SurchargePerMinuteCurrency THEN
+	drtr.SurchargePerMinute
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerMinuteCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.SurchargePerMinute
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as SurchargePerMinute,
+
+@OutpaymentPerCall := CASE WHEN ( OutpaymentPerCallCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = OutpaymentPerCallCurrency THEN
+	drtr.OutpaymentPerCall
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerCallCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.OutpaymentPerCall
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as OutpaymentPerCall,
+
+@OutpaymentPerMinute := CASE WHEN ( OutpaymentPerMinuteCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = OutpaymentPerMinuteCurrency THEN
+	drtr.OutpaymentPerMinute
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerMinuteCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.OutpaymentPerMinute
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as OutpaymentPerMinute,
+
+@Surcharges := CASE WHEN ( SurchargesCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = SurchargesCurrency THEN
+	drtr.Surcharges
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargesCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.Surcharges
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as Surcharges,
+
+@Chargeback := CASE WHEN ( ChargebackCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = ChargebackCurrency THEN
+	drtr.Chargeback
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = ChargebackCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.Chargeback
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as Chargeback,
+
+@CollectionCostAmount := CASE WHEN ( CollectionCostAmountCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = CollectionCostAmountCurrency THEN
+	drtr.CollectionCostAmount
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.CollectionCostAmount
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as CollectionCostAmount,
+
+
+@CollectionCostPercentage := CASE WHEN ( CollectionCostAmountCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = CollectionCostAmountCurrency THEN
+	drtr.CollectionCostPercentage
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.CollectionCostPercentage
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as CollectionCostPercentage,
+
+@RegistrationCostPerNumber := CASE WHEN ( RegistrationCostPerNumberCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = RegistrationCostPerNumberCurrency THEN
+	drtr.RegistrationCostPerNumber
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = RegistrationCostPerNumberCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.RegistrationCostPerNumber
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as RegistrationCostPerNumber,
+
 
 									/*
 								Total =
@@ -575,10 +725,10 @@ ThisSP:BEGIN
 				inner join tblAccount a on vc.AccountId = a.AccountID and rt.CompanyId = a.CompanyId
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 		 		inner join tblCountry c on c.CountryID = r.CountryID
-				inner join tblServiceTemplate st on st.ServiceTemplateId = p_ServiceTemplateID
-				 and  c.Country = st.country  AND r.Code = st.prefixName  -- for testing only
---		for live only		and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )
-				inner join tblTimeZones t on t.TimezonesID =  drtr.TimezonesID
+				inner join tblServiceTemplate st on st.ServiceTemplateId = @p_ServiceTemplateID
+			--	 and  c.Country = st.country  AND r.Code = st.prefixName  -- for testing only
+		and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) --		for live only
+				inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
 				where
 
 				rt.CompanyId = 1
@@ -603,137 +753,286 @@ ThisSP:BEGIN
 								a.AccountID,
 								a.AccountName,
 
-								@MonthlyCost := CASE WHEN  @p_CurrencyID = MonthlyCostCurrency
-								THEN
-									drtr.MonthlyCost
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = 1 ))
-								)
-								END as MonthlyCost,
 
-								@CostPerCall := CASE WHEN  @p_CurrencyID = CostPerCallCurrency
-								THEN
-									drtr.CostPerCall
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerCallCurrency and  CompanyID = 1 ))
-								)
-								END as CostPerCall,
+@MonthlyCost := CASE WHEN ( MonthlyCostCurrency is not null)
+THEN
 
-								@CostPerMinute := CASE WHEN  @p_CurrencyID = CostPerMinuteCurrency
-								THEN
-									drtr.CostPerMinute
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerMinuteCurrency and  CompanyID = 1 ))
-								)
-								END as CostPerMinute,
+CASE WHEN  @p_CurrencyID = MonthlyCostCurrency THEN
+	drtr.MonthlyCost
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = 1 ))
+)
+END
 
-								@SurchargePerCall := CASE WHEN  @p_CurrencyID = SurchargePerCallCurrency
-								THEN
-									drtr.SurchargePerCall
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerCallCurrency and  CompanyID = 1 ))
-								)
-								END as SurchargePerCall,
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.MonthlyCost
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as MonthlyCost,
 
-								@SurchargePerMinute := CASE WHEN  @p_CurrencyID = SurchargePerMinuteCurrency
-								THEN
-									drtr.SurchargePerMinute
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerMinuteCurrency and  CompanyID = 1 ))
-								)
-								END as SurchargePerMinute,
+@CostPerCall := CASE WHEN ( CostPerCallCurrency is not null)
+THEN
 
-								@OutpaymentPerCall := CASE WHEN  @p_CurrencyID = OutpaymentPerCallCurrency
-								THEN
-									drtr.OutpaymentPerCall
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerCallCurrency and  CompanyID = 1 ))
-								)
-								END as OutpaymentPerCall,
+CASE WHEN  @p_CurrencyID = CostPerCallCurrency THEN
+	drtr.CostPerCall
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerCallCurrency and  CompanyID = 1 ))
+)
+END
 
-								@OutpaymentPerMinute := CASE WHEN  @p_CurrencyID = OutpaymentPerMinuteCurrency
-								THEN
-									drtr.OutpaymentPerMinute
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerMinuteCurrency and  CompanyID = 1 ))
-								)
-								END as OutpaymentPerMinute,
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.CostPerCall
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as CostPerCall,
 
-								@Surcharges := CASE WHEN  @p_CurrencyID = SurchargesCurrency
-								THEN
-									drtr.Surcharges
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargesCurrency and  CompanyID = 1 ))
-								)
-								END as Surcharges,
+@CostPerMinute := CASE WHEN ( CostPerMinuteCurrency is not null)
+THEN
 
-								@Chargeback := CASE WHEN  @p_CurrencyID = ChargebackCurrency
-								THEN
-									drtr.Chargeback
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = ChargebackCurrency and  CompanyID = 1 ))
-								)
-								END as Chargeback,
+CASE WHEN  @p_CurrencyID = CostPerMinuteCurrency THEN
+	drtr.CostPerMinute
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerMinuteCurrency and  CompanyID = 1 ))
+)
+END
 
-								@CollectionCostAmount := CASE WHEN  @p_CurrencyID = CollectionCostAmountCurrency
-								THEN
-									drtr.CollectionCostAmount
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = 1 ))
-								)
-								END as CollectionCostAmount,
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.CostPerMinute
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as CostPerMinute,
 
-								@CollectionCostPercentage := CASE WHEN  @p_CurrencyID = CollectionCostAmountCurrency
-								THEN
-									drtr.CollectionCostPercentage
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = 1 ))
-								)
-								END as CollectionCostPercentage,
 
-								@RegistrationCostPerNumber := CASE WHEN  @p_CurrencyID = RegistrationCostPerNumberCurrency
-								THEN
-									drtr.RegistrationCostPerNumber
-								ELSE
-								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
-									* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = RegistrationCostPerNumberCurrency and  CompanyID = 1 ))
-								)
-								END as RegistrationCostPerNumber ,
+@SurchargePerCall := CASE WHEN ( SurchargePerCallCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = SurchargePerCallCurrency THEN
+	drtr.SurchargePerCall
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerCallCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.SurchargePerCall
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as SurchargePerCall,
+
+
+@SurchargePerMinute := CASE WHEN ( SurchargePerMinuteCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = SurchargePerMinuteCurrency THEN
+	drtr.SurchargePerMinute
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerMinuteCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.SurchargePerMinute
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as SurchargePerMinute,
+
+@OutpaymentPerCall := CASE WHEN ( OutpaymentPerCallCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = OutpaymentPerCallCurrency THEN
+	drtr.OutpaymentPerCall
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerCallCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.OutpaymentPerCall
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as OutpaymentPerCall,
+
+@OutpaymentPerMinute := CASE WHEN ( OutpaymentPerMinuteCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = OutpaymentPerMinuteCurrency THEN
+	drtr.OutpaymentPerMinute
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerMinuteCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.OutpaymentPerMinute
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as OutpaymentPerMinute,
+
+@Surcharges := CASE WHEN ( SurchargesCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = SurchargesCurrency THEN
+	drtr.Surcharges
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargesCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.Surcharges
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as Surcharges,
+
+@Chargeback := CASE WHEN ( ChargebackCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = ChargebackCurrency THEN
+	drtr.Chargeback
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = ChargebackCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.Chargeback
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as Chargeback,
+
+@CollectionCostAmount := CASE WHEN ( CollectionCostAmountCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = CollectionCostAmountCurrency THEN
+	drtr.CollectionCostAmount
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.CollectionCostAmount
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as CollectionCostAmount,
+
+
+@CollectionCostPercentage := CASE WHEN ( CollectionCostAmountCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = CollectionCostAmountCurrency THEN
+	drtr.CollectionCostPercentage
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.CollectionCostPercentage
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as CollectionCostPercentage,
+
+@RegistrationCostPerNumber := CASE WHEN ( RegistrationCostPerNumberCurrency is not null)
+THEN
+
+CASE WHEN  @p_CurrencyID = RegistrationCostPerNumberCurrency THEN
+	drtr.RegistrationCostPerNumber
+ELSE
+(
+	-- Convert to base currrncy and x by RateGenerator Exhange
+	(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+	* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = RegistrationCostPerNumberCurrency and  CompanyID = 1 ))
+)
+END
+
+WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+	drtr.RegistrationCostPerNumber
+ELSE
+	(
+		-- Convert to base currrncy and x by RateGenerator Exhange
+		(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = 1 )
+		* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = 1 ))
+	)
+END as RegistrationCostPerNumber,
+
 
 									/*
 								Total =
@@ -774,10 +1073,10 @@ ThisSP:BEGIN
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				inner join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		 		inner join tblCountry c on c.CountryID = r.CountryID
-				inner join tblServiceTemplate st on st.ServiceTemplateId = p_ServiceTemplateID
-				 and  c.Country = st.country  AND r.Code = st.prefixName and  r2.Code = @p_MobileOrigination  -- for testing only
---		for live only		and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) and  r2.Code = p_MobileOrigination
-				inner join tblTimeZones t on t.TimezonesID =  drtr.TimezonesID
+				inner join tblServiceTemplate st on st.ServiceTemplateId = @p_ServiceTemplateID
+--				 and  c.Country = st.country  AND r.Code = st.prefixName and  r2.Code = @p_MobileOrigination  -- for testing only
+and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) and  r2.Code = @p_MobileOrigination --		for live only
+				inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
 				where
 
 				rt.CompanyId = 1
@@ -809,10 +1108,11 @@ ThisSP:BEGIN
 										 ELSE 1
 										 END
 					) AS vPosition,
-					@prev_VendorName := VendorName
+					@prev_VendorName := VendorName,
+					@prev_Total := Total
 
 				FROM tmp_table1_ v
-					, (SELECT  @prev_VendorName := NUll ,  @rank := 0 ) f
+					, (SELECT  @prev_VendorName := NUll ,  @rank := 0 ,  @prev_Total := 0 ) f
 				order by VendorName,Total asc
 			) tmp
 			where vPosition <= p_Position;
@@ -886,23 +1186,29 @@ ThisSP:BEGIN
 
 
 			insert into tmp_component_output_ (	TimezoneTitle,			Component,			ComponentValue,			VendorName , 	Total, vPosition)
-			select TimezoneTitle,	'Total' as Component,			ROUND(Total,4),			VendorName, Total, vPosition
+			select TimezoneTitle,	'Cost' as Component,			ROUND(Total,4),			VendorName, Total, vPosition
 			from tmp_table1_
 			inner join tmp_vendor_position on tmp_table1_.VendorID  = tmp_vendor_position.VendorID ;
 
 
 
+			DROP TEMPORARY TABLE IF EXISTS tmp_Compoents;
+				CREATE TEMPORARY TABLE tmp_Compoents(
+					Component varchar(200)
+			);
+			insert into tmp_Compoents
+			select distinct Component from tmp_component_output_  group by Component having sum(ifnull(ComponentValue,0)) = 0;
 
-
+ 			delete from tmp_component_output_ 		where Component in 		(select distinct Component from tmp_Compoents);
 
 
 		insert into tmp_vendors(VendorName)
-		select VendorName from tmp_component_output_ group by VendorName order by vPosition;
+		select distinct VendorName from tmp_component_output_;
 
 	 	SET @v_pointer_ = 1;
 		SET @v_rowCount_ = ( SELECT COUNT(*) FROM tmp_vendors );
 
-		IF @v_rowCount_ > 0 THEN
+		IF @v_rowCount_ > 0 and (select count(*) from tmp_component_output_) > 0 THEN
 
 			/*WHILE @v_pointer_ <= @v_rowCount_
 			DO
@@ -931,7 +1237,7 @@ ThisSP:BEGIN
 
 				if @v_VendorName is not null then
 
-					SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT( if(ANY_VALUE(vPosition) = ",@v_pointer_,", ComponentValue , NULL)) AS `",@v_VendorName,"`,");
+					SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT( if(ANY_VALUE(vPosition) = ",@v_pointer_,", ANY_VALUE(ComponentValue) , NULL)) AS `",@v_VendorName,"`,");
 
 				end if;
 
@@ -942,17 +1248,21 @@ ThisSP:BEGIN
 			SET @stm_columns = TRIM(TRAILING ',' FROM @stm_columns);
 
 
-			SET @stm_query = CONCAT("SELECT Component ,",@stm_columns," FROM tmp_component_output_    GROUP BY  Component,VendorName ORDER BY vPosition,VendorName ASC;");
+			SET @stm_query = CONCAT("SELECT Component ,",@stm_columns," FROM tmp_component_output_    GROUP BY  Component;");
 
 					PREPARE stm_query FROM @stm_query;
 					EXECUTE stm_query;
 					DEALLOCATE PREPARE stm_query;
 
-			SELECT count(Component) as totalcount from tmp_component_output_  ;
+			select count(*) as totalcount from ( SELECT Component as totalcount from tmp_component_output_ GROUP BY  Component) tmp;
 
 
 
 	 			-- select distinct VendorName,ROUND(Total,4) from tmp_component_output_ order by vPosition,VendorName;
+	ELSE
+
+		select "" as Component	,"" as ComponentValue ;
+
 
 	END IF;
 
