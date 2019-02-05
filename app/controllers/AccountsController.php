@@ -1626,6 +1626,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             }
             if (!empty($response->BalanceThreshold)) {
                 $BalanceThreshold = $response->BalanceThreshold;
+            }else{
+               $BalanceThreshold=0; 
             }
             //$SOA_Amount = AccountBalance::getAccountSOA($CompanyID, $id);
             $SOA_Amount = AccountBalance::getNewAccountBalance($CompanyID, $id);
