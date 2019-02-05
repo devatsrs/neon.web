@@ -26,7 +26,7 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label">Product</label>
-                    {{ Form::select('Product', $products, '', array("class"=>"select2")) }}
+                    {{ Form::select('ProductID', $products, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Currency</label>
@@ -40,8 +40,8 @@
                     <label for="field-1" class="control-label">Category</label>
                     {{Form::select('DIDCategoryID', $Categories, '',array("class"=>"select2"))}}
                 </div>
-                <div class="form-group usage-inp">
-                    <h4>Usage Input</h4>
+                <div class="form-group">
+                    <h4 style="color: #fff;margin-bottom: 0;">Usage Input</h4>
                 </div>
                 <div class="form-group" id="Calls">
                     <label class="control-label">Calls</label>
@@ -88,12 +88,6 @@
 @stop
 
 @section('content')
-    <style>
-        .usage-inp h4 {
-            color: #fff;
-            margin-bottom: 0;
-        }
-    </style>
     <ol class="breadcrumb bc-3">
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -119,45 +113,76 @@
         </tr>--}}
         <tr>
             <th>Cost Components</th>
-            <th id="dt_p1">Position 1</th>
-            <th id="dt_p2">Position 2</th>
-            <th id="dt_p3">Position 3</th>
+            <th id="dt_company1">Position 1</th>
+            <th id="dt_company2">Position 2</th>
+            <th id="dt_company3">Position 3</th>
+            <th id="dt_company4">Position 4</th>
+            <th id="dt_company5">Position 5</th>
+            <th id="dt_company6">Position 6</th>
+            <th id="dt_company7">Position 7</th>
+            <th id="dt_company8">Position 8</th>
+            <th id="dt_company9">Position 9</th>
+            <th id="dt_company10">Position 10</th>
         </tr>
         </thead>
         <tbody>
         </tbody>
     </table>
+
     <script type="text/javascript">
+
         var $searchFilter = {};
         var data_table;
         jQuery(document).ready(function($) {
+
             $('#filter-button-toggle').show();
+
+            //var data_table;
+            if('{{$LCRPosition}}'=='5'){
+                setTimeout(function(){
+                    $('#dt_company6').addClass("hidden");
+                    $('#dt_company7').addClass("hidden");
+                    $('#dt_company8').addClass("hidden");
+                    $('#dt_company9').addClass("hidden");
+                    $('#dt_company10').addClass("hidden");
+                },10);
+            }else{
+                setTimeout(function(){
+                    $('#dt_company6').removeClass("hidden");
+                    $('#dt_company7').removeClass("hidden");
+                    $('#dt_company8').removeClass("hidden");
+                    $('#dt_company9').removeClass("hidden");
+                    $('#dt_company10').removeClass("hidden");
+                },10);
+            }
+
+
             $("#did-search-form").submit(function(e) {
                 e.preventDefault();
-                $searchFilter.EffectiveDate = $("#did-search-form input[name='EffectiveDate']").val();
-                $searchFilter.Product       = $("#did-search-form input[name='Product']").val();
-                $searchFilter.Currency      = $("#did-search-form select[name='Currency']").val();
-                $searchFilter.LCRPosition   = $("#did-search-form select[name='LCRPosition']").val();
-                $searchFilter.DIDCategoryID = $("#lcr-search-form select[name='DIDCategoryID']").val();
-                $searchFilter.Calls         = $("#did-search-form input[name='Calls']").val();
-                $searchFilter.Minutes       = $("#did-search-form input[name='Minutes']").val();
-                $searchFilter.Origination   = $("#did-search-form input[name='Origination']").val();
-                $searchFilter.OriginationPercentage   = $("#did-search-form input[name='OriginationPercentage']").val();
-                $searchFilter.Timezone      = $("#lcr-search-form select[name='Timezone']").val();
-                $searchFilter.TimezonePercentage = $("#lcr-search-form select[name='TimezonePercentage']").val();
-                $searchFilter.Origination   = $("#lcr-search-form select[name='Origination']").val();
-                $searchFilter.DateTo        = $("#did-search-form input[name='DateTo']").val();
-                $searchFilter.DateFrom      = $("#did-search-form input[name='DateFrom']").val();
+                $searchFilter.EffectiveDate             = $("#did-search-form input[name='EffectiveDate']").val();
+                $searchFilter.ProductID                  = $("#did-search-form select[name='ProductID']").val();
+                $searchFilter.Currency                   = $("#did-search-form select[name='Currency']").val();
+                $searchFilter.LCRPosition                 = $("#did-search-form select[name='LCRPosition']").val();
+                $searchFilter.DIDCategoryID              = $("#did-search-form select[name='DIDCategoryID']").val();
+                $searchFilter.Calls                       = $("#did-search-form input[name='Calls']").val();
+                $searchFilter.Minutes                    = $("#did-search-form input[name='Minutes']").val();
+                $searchFilter.Origination                = $("#did-search-form input[name='Origination']").val();
+                $searchFilter.Timezone                  = $("#did-search-form select[name='Timezone']").val();
+                $searchFilter.TimezonePercentage        = $("#did-search-form input[name='TimezonePercentage']").val();
+                $searchFilter.Origination               = $("#did-search-form input[name='Origination']").val();
+                $searchFilter.OriginationPercentage       = $("#did-search-form input[name='OriginationPercentage']").val();
+                $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
+                $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
 
                 data_table = $("#table").dataTable({
                     "bDestroy":    true,
                     "bProcessing": true,
                     "bServerSide": true,
-                    "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
+                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type",
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
-                                {"name": "Product","value": $searchFilter.Product},
+                                {"name": "ProductID","value": $searchFilter.ProductID},
                                 {"name": "Currency","value": $searchFilter.Currency},
                                 {"name": "LCRPosition","value": $searchFilter.LCRPosition},
                                 {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},
@@ -173,7 +198,7 @@
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
-                                {"name": "Product","value": $searchFilter.Product},
+                                {"name": "ProductID","value": $searchFilter.ProductID},
                                 {"name": "Currency","value": $searchFilter.Currency},
                                 {"name": "LCRPosition","value": $searchFilter.LCRPosition},
                                 {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},
@@ -184,7 +209,8 @@
                                 {"name": "Timezone","value": $searchFilter.Timezone},
                                 {"name": "TimezonePercentage","value": $searchFilter.TimezonePercentage},
                                 {"name": "DateTo", "value": $searchFilter.DateTo},
-                                {"name": "DateFrom", "value": $searchFilter.DateFrom}
+                                {"name": "DateFrom", "value": $searchFilter.DateFrom},
+                                {"name":"Export","value":1}
                         );
 
                     },
@@ -194,8 +220,15 @@
                     "aaSorting": [[5, 'desc']],
                     "aoColumns": [
                         {
+                            //"sTitle" :"devtest",
                             "bSortable": true,
                             mRender: function (id, type, full) {
+
+                               // data_table.dataTableSettings[0].nTHead.children[0].children[1].innerHTML="Test";
+                              //this.aoColumns[0].sTitle  = "DevTest";
+                                if(full[0] == 'Total'){
+                                    return "<strong>Total</strong>"
+                                }
                                 return full[0]
                             }
                         },
@@ -223,18 +256,63 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/payments/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                                "sUrl": baseurl + "/did/lcr/search_ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                                 sButtonClass: "save-collection"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/payments/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                                "sUrl": baseurl + "/did/lcr/search_ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                                 sButtonClass: "save-collection"
                             }
                         ]
                     },
-                    "fnDrawCallback": function () {
+                    "fnDrawCallback": function (results) {
+
+                        $('.btn.btn').button('reset');
+
+                        //Clear All Fields on Refresh
+                        $('#dt_company1').html("");
+                        $('#dt_company2').html("");
+                        $('#dt_company3').html("");
+                        $('#dt_company4').html("");
+                        $('#dt_company5').html("");
+                        $('#dt_company6').html("");
+                        $('#dt_company7').html("");
+                        $('#dt_company8').html("");
+                        $('#dt_company9').html("");
+                        $('#dt_company10').html("");
+
+                        if (typeof results.jqXHR.responseJSON.sColumns[1] != 'undefined') {
+                            $('#dt_company1').html( results.jqXHR.responseJSON.sColumns[1] );
+                        }
+                        if (typeof results.jqXHR.responseJSON.sColumns[2] != 'undefined') {
+                            $('#dt_company2').html( results.jqXHR.responseJSON.sColumns[2] );
+                        }
+                        if (typeof results.jqXHR.responseJSON.sColumns[3] != 'undefined') {
+                            $('#dt_company3').html( results.jqXHR.responseJSON.sColumns[3] );
+                        }
+                        if (typeof results.jqXHR.responseJSON.sColumns[4] != 'undefined') {
+                            $('#dt_company4').html( results.jqXHR.responseJSON.sColumns[4] );
+                        }
+                        if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
+                            $('#dt_company5').html( results.jqXHR.responseJSON.sColumns[5] );
+                        }
+                        if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
+                            $('#dt_company6').html( results.jqXHR.responseJSON.sColumns[6] );
+                        }
+                        if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
+                            $('#dt_company7').html( results.jqXHR.responseJSON.sColumns[7] );
+                        }
+                        if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
+                            $('#dt_company8').html( results.jqXHR.responseJSON.sColumns[8] );
+                        }
+                        if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
+                            $('#dt_company9').html( results.jqXHR.responseJSON.sColumns[9] );
+                        }
+                        if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
+                            $('#dt_company10').html( results.jqXHR.responseJSON.sColumns[10] );
+                        }
                         $(".dataTables_wrapper select").select2({
                             minimumResultsForSearch: -1
                         });
@@ -260,9 +338,6 @@
         #margineDataTable_filter label {
             display: block !important;
             padding-right: 118px;
-        }
-        #table thead tr:first-child th {
-            border: none;
         }
     </style>
 @stop
