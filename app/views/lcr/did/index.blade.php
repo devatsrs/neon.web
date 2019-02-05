@@ -188,7 +188,7 @@
                         {
                             mRender: function (id, type, full) {
                                 if(full[0] == 'zCost'){
-                                    return "<strong>zCost</strong>"
+                                    return "<strong>Cost</strong>"
                                 }
                                 return full[0]
                             }
