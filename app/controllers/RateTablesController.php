@@ -789,11 +789,13 @@ class RateTablesController extends \BaseController {
             $message['RateID.unique']       = 'This combination of Origination Rate and Destination Rate on given Effective Date is already exist!';
         } else if($rateTable->Type == $TypeDID) {
             $rules                          = RateTableDIDRate::$rules;
+            $message                        = RateTableDIDRate::$message;
             $RateTableRate['CityTariff']    = !empty($data['CityTariff']) ? $data['CityTariff'] : '';
             $rules['RateID']                = 'required|unique:tblRateTableDIDRate,RateID,NULL,RateTableDIDRateID,RateTableId,'.$id.',TimezonesID,'.$RateTableRate['TimezonesID'].',EffectiveDate,'.$RateTableRate['EffectiveDate'].',OriginationRateID,'.$RateTableRate['OriginationRateID'].',CityTariff,'.$RateTableRate['CityTariff'];
             $message['RateID.unique']       = 'This combination of Origination Rate and Destination Rate on given Effective Date is already exist!';
         } else {
             $rules                          = RateTablePKGRate::$rules;
+            $message                        = RateTablePKGRate::$message;
             $rules['RateID']                = 'required|unique:tblRateTablePKGRate,RateID,NULL,RateTablePKGRateID,RateTableId,'.$id.',TimezonesID,'.$RateTableRate['TimezonesID'].',EffectiveDate,'.$RateTableRate['EffectiveDate'];
             $message['RateID.unique']       = 'This Package Name on given Effective Date is already exist!';
         }

@@ -1,0 +1,48 @@
+ALTER TABLE `tblRateRule`
+	ADD COLUMN `Component` TEXT NULL DEFAULT NULL AFTER `Order`,
+	ADD COLUMN `Origination` TEXT NULL DEFAULT NULL AFTER `Component`,
+	ADD COLUMN `TimeOfDay` INT NULL DEFAULT NULL AFTER `Origination`;
+
+
+ALTER TABLE `tblRateGeneratorCostComponent`
+	ADD COLUMN `Component` TEXT NULL DEFAULT NULL AFTER `RateGeneratorId`,
+	ADD COLUMN `Origination` TEXT NULL DEFAULT NULL AFTER `Component`,
+	ADD COLUMN `TimeOfDay` INT NULL DEFAULT NULL AFTER `Origination`;
+
+
+
+CREATE TABLE `tblRateGeneratorCalculatedRate` (
+	`CalculatedRateID` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`RatePositionID` INT(11) NULL DEFAULT NULL,
+	`TrunkID` INT(11) NULL DEFAULT NULL,
+	`CurrencyID` INT(11) NULL DEFAULT NULL,
+	`RateGeneratorId` INT(11) NULL DEFAULT NULL,
+	`Component` TEXT NULL COLLATE 'utf8_unicode_ci',
+	`Origination` TEXT NULL COLLATE 'utf8_unicode_ci',
+	`TimeOfDay` INT(11) NULL DEFAULT NULL,
+	`RateLessThen` INT(11) NULL DEFAULT NULL,
+	`ChangeRateTo` INT(11) NULL DEFAULT NULL,
+	`updated_at` DATETIME NULL DEFAULT NULL,
+	`created_at` DATETIME NULL DEFAULT NULL,
+	PRIMARY KEY (`CalculatedRateID`)
+)
+COMMENT='calculate Cost component Against tblRateGenerator'
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+AUTO_INCREMENT=128
+;
+
+
+ALTER TABLE `tblRateGenerator`
+	ADD COLUMN `ProductID` INT NULL DEFAULT NULL AFTER `ChargeRate`,
+	ADD COLUMN `DateFrom` DATE NULL DEFAULT NULL AFTER `ProductID`,
+	ADD COLUMN `DateTo` DATE NULL DEFAULT NULL AFTER `DateFrom`;
+	ADD COLUMN `Calls` INT NULL DEFAULT NULL AFTER `DateTo`;
+	ADD COLUMN `Minutes` INT NULL DEFAULT NULL AFTER `Calls`;
+	ADD COLUMN `TimeOfDay` INT NULL DEFAULT NULL AFTER `Minutes`;
+	ADD COLUMN `TimeOfDayPercentage` FLOAT NULL DEFAULT NULL AFTER `TimeOfDay`;
+	ADD COLUMN `Origination` TEXT NULL DEFAULT NULL AFTER `TimeOfDayPercentage`;
+	ADD COLUMN `OriginationPercentage` FLOAT NULL DEFAULT NULL AFTER `Origination`;
+
+

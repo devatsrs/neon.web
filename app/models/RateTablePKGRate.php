@@ -12,7 +12,11 @@ class RateTablePKGRate extends \Eloquent {
         'RateTableId'   =>      'required',
         'EffectiveDate' =>      'required',
         'TimezonesID'   =>      'required',
-        'MonthlyCost'   =>      'required',
+        'MonthlyCost'   =>      'required_without_all:OneOffCost,PackageCostPerMinute,RecordingCostPerMinute',
+    ];
+
+    public static $message = [
+        'MonthlyCost.required_without_all'  =>      'Any one cost component is required.'
     ];
 
 }
