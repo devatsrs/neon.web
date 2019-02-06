@@ -50,9 +50,32 @@ class BillingClassApiController extends ApiController {
             try{
                 if(!empty($data['AccountID'])) {
                     $AccountID = $data['AccountID'];
-                }else{
-                    return Response::json(["ErrorMessage"=>"AccountID Required"],Codes::$Code402[0]);
-                }
+                    $Account = Account::where(["AccountID" => $data['AccountID']])->select('AccountID','CompanyId')->first();
+                    if(!empty($Account)){
+                        $AccountID=$Account->AccountID;
+                        $CompanyID=$Account->CompanyId;
+                    }
+		}else if(!empty($data['AccountNo'])){
+                    $Account = Account::where(["Number" => $data['AccountNo']])->select('AccountID','CompanyId')->first();
+                    if(!empty($Account)){
+                        $AccountID=$Account->AccountID;
+                        $CompanyID=$Account->CompanyId;
+                    }
+		}else if(!empty($data['AccountDynamicField'])){
+                    $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+                    if(empty($AccountID)){
+                        return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
+                    }
+                    $Account = Account::where(["AccountID" => $AccountID])->first();
+                    if(!empty($Account)){
+                        $AccountID=$Account->AccountID;
+                        $CompanyID=$Account->CompanyId;
+                    }
+
+		}else{
+                    return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
+		}
+                
                 if(!empty($data['BalanceThreshold'])) {
                     $Threshold=$data['BalanceThreshold'];
                 }else{
@@ -77,21 +100,37 @@ class BillingClassApiController extends ApiController {
 		$data=json_decode(json_encode($post_vars),true);
                 
                 foreach($data as $key=>$val){
-                    
-                     $AccountID = $val['AccountID'];
-                    
-                    foreach($val['BalanceThreshold'] as $keys=>$value){ 
-                        if(!empty($val['AccountID'])) {
-                            $Account = Account::where(["AccountID" => $AccountID])->select('AccountID','CompanyId')->first();
-                            if(!empty($Account)){
+                    //$AccountID = $val['AccountID'];
+                     if(!empty($val['AccountID'])) {
+                        $AccountID = $val['AccountID'];
+                        $Account = Account::where(["AccountID" => $val['AccountID']])->select('AccountID','CompanyId')->first();
+
+                        if(!empty($Account)){
+                            $AccountID=$Account->AccountID;
+                            $CompanyID=$Account->CompanyId;
+                        }
+                    }else if(!empty($val['AccountNo'])){
+                        $Account = Account::where(["Number" => $val['AccountNo']])->select('AccountID','CompanyId')->first();
+                        if(!empty($Account)){
                                 $AccountID=$Account->AccountID;
                                 $CompanyID=$Account->CompanyId;
-                            }else{
-                                return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
-                            }
-                        }else{
-                            return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
                         }
+                    }else if(!empty($val['AccountDynamicField'])){
+                        $AccountID=Account::findAccountBySIAccountRef($val['AccountDynamicField']);
+                        if(empty($AccountID)){
+                            return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
+                        }
+                        $Account = Account::where(["AccountID" => $AccountID])->first();
+                        if(!empty($Account)){
+                                $AccountID=$Account->AccountID;
+                                $CompanyID=$Account->CompanyId;
+                        }
+                    }else{
+                            return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
+                    }
+                    
+                    foreach($val['BalanceThreshold'] as $keys=>$value){ 
+                        
                         if(!empty($value['Threshold'])) {
                             $Threshold=$value['Threshold'];
                         }else{

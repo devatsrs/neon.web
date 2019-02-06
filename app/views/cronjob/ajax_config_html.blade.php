@@ -80,8 +80,8 @@
         @if (isset($services) && count($services) > 0)
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="drp_rateGenerators" class="control-label ">Services</label>
-                    {{Form::select('Setting[services][]', $services, (isset($commandconfigval->services)?$commandconfigval->services:'') ,array("id"=>"services" ,"class"=>"select2",'multiple',"data-placeholder"=>"Select services"))}}
+                    <label for="drp_rateGenerators" class="control-label ">Service ID</label>
+                    {{Form::select('Setting[ServiceId][]', $services, (isset($commandconfigval->services)?$commandconfigval->services:'') ,array("id"=>"services" ,"class"=>"select2","data-placeholder"=>"Select services"))}}
                 </div>
             </div>
         @endif
