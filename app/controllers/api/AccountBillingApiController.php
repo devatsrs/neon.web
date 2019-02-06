@@ -43,7 +43,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoTopup','MinThreshold','TopupAmount']);
 
-		return Response::json($Result,Codes::$Code402[0]);
+		return Response::json($Result,Codes::$Code200[0]);
 	}
 
 	/**
@@ -307,7 +307,7 @@ class AccountBillingApiController extends ApiController {
 
 		$data['created_at']=date('Y-m-d H:i:s');
 		if (AccountPaymentAutomation::create($data)) {
-			return Response::json(array("ErrorMessage" => "Auto Out Deposit Settings created Successfully."),Codes::$Code402[0]);
+			return Response::json(array("ErrorMessage" => "Auto Out Deposit Settings created Successfully."),Codes::$Code200[0]);
 		} else {
 			return Response::json(array("ErrorMessage" => "Problem Creating Auto Out Deposit Settings."),Codes::$Code500[0]);
 		}

@@ -498,10 +498,10 @@ CREATE PROCEDURE `prc_RateTableRateUpdateDelete`(
 	IN `p_EffectiveDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_Rate` DECIMAL(18,6),
-	IN `p_RateN` DECIMAL(18,6),
+	IN `p_RateN` VARCHAR(255),
 	IN `p_Interval1` INT,
 	IN `p_IntervalN` INT,
-	IN `p_ConnectionFee` DECIMAL(18,6),
+	IN `p_ConnectionFee` VARCHAR(255),
 	IN `p_RoutingCategoryID` INT,
 	IN `p_Preference` TEXT,
 	IN `p_Blocked` TINYINT,
@@ -563,8 +563,8 @@ ThisSP:BEGIN
 		rtr.RateId,
 		rtr.RateTableId,
 		rtr.TimezonesID,
-		IFNULL(p_Rate,rtr.Rate) AS Rate,
-		IFNULL(p_RateN,rtr.RateN) AS RateN,
+		IF(p_Rate=0,0,IFNULL(p_Rate,rtr.Rate)) AS Rate,
+		IF(p_RateN IS NOT NULL,IF(p_RateN='NULL',NULL,p_RateN),rtr.RateN) AS RateN,
 		IFNULL(p_EffectiveDate,rtr.EffectiveDate) AS EffectiveDate,
 		IFNULL(p_EndDate,rtr.EndDate) AS EndDate,
 		rtr.created_at,
@@ -573,7 +573,7 @@ ThisSP:BEGIN
 		p_ModifiedBy AS ModifiedBy,
 		IFNULL(p_Interval1,rtr.Interval1) AS Interval1,
 		IFNULL(p_IntervalN,rtr.IntervalN) AS IntervalN,
-		IFNULL(p_ConnectionFee,rtr.ConnectionFee) AS ConnectionFee,
+		IF(p_ConnectionFee IS NOT NULL,IF(p_ConnectionFee='NULL',NULL,p_ConnectionFee),rtr.ConnectionFee) AS ConnectionFee,
 		IF(p_RoutingCategoryID='',NULL,IFNULL(p_RoutingCategoryID,rtr.RoutingCategoryID)) AS RoutingCategoryID,
 		IF(p_Preference='',NULL,IFNULL(p_Preference,rtr.Preference)) AS Preference,
 		IFNULL(p_Blocked,rtr.Blocked) AS Blocked,
@@ -756,19 +756,19 @@ CREATE PROCEDURE `prc_RateTableDIDRateUpdateDelete`(
 	IN `p_EffectiveDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_CityTariff` VARCHAR(50),
-	IN `p_OneOffCost` DECIMAL(18,6),
-	IN `p_MonthlyCost` DECIMAL(18,6),
-	IN `p_CostPerCall` DECIMAL(18,6),
-	IN `p_CostPerMinute` DECIMAL(18,6),
-	IN `p_SurchargePerCall` DECIMAL(18,6),
-	IN `p_SurchargePerMinute` DECIMAL(18,6),
-	IN `p_OutpaymentPerCall` DECIMAL(18,6),
-	IN `p_OutpaymentPerMinute` DECIMAL(18,6),
-	IN `p_Surcharges` DECIMAL(18,6),
-	IN `p_Chargeback` DECIMAL(18,6),
-	IN `p_CollectionCostAmount` DECIMAL(18,6),
-	IN `p_CollectionCostPercentage` DECIMAL(18,6),
-	IN `p_RegistrationCostPerNumber` DECIMAL(18,6),
+	IN `p_OneOffCost` VARCHAR(255),
+	IN `p_MonthlyCost` VARCHAR(255),
+	IN `p_CostPerCall` VARCHAR(255),
+	IN `p_CostPerMinute` VARCHAR(255),
+	IN `p_SurchargePerCall` VARCHAR(255),
+	IN `p_SurchargePerMinute` VARCHAR(255),
+	IN `p_OutpaymentPerCall` VARCHAR(255),
+	IN `p_OutpaymentPerMinute` VARCHAR(255),
+	IN `p_Surcharges` VARCHAR(255),
+	IN `p_Chargeback` VARCHAR(255),
+	IN `p_CollectionCostAmount` VARCHAR(255),
+	IN `p_CollectionCostPercentage` VARCHAR(255),
+	IN `p_RegistrationCostPerNumber` VARCHAR(255),
 	IN `p_OneOffCostCurrency` DECIMAL(18,6),
 	IN `p_MonthlyCostCurrency` DECIMAL(18,6),
 	IN `p_CostPerCallCurrency` DECIMAL(18,6),
@@ -856,19 +856,19 @@ ThisSP:BEGIN
 		rtr.RateTableId,
 		rtr.TimezonesID,
 		IFNULL(p_CityTariff,rtr.CityTariff) AS CityTariff,
-		IFNULL(p_OneOffCost,rtr.OneOffCost) AS OneOffCost,
-		IFNULL(p_MonthlyCost,rtr.MonthlyCost) AS MonthlyCost,
-		IFNULL(p_CostPerCall,rtr.CostPerCall) AS CostPerCall,
-		IFNULL(p_CostPerMinute,rtr.CostPerMinute) AS CostPerMinute,
-		IFNULL(p_SurchargePerCall,rtr.SurchargePerCall) AS SurchargePerCall,
-		IFNULL(p_SurchargePerMinute,rtr.SurchargePerMinute) AS SurchargePerMinute,
-		IFNULL(p_OutpaymentPerCall,rtr.OutpaymentPerCall) AS OutpaymentPerCall,
-		IFNULL(p_OutpaymentPerMinute,rtr.OutpaymentPerMinute) AS OutpaymentPerMinute,
-		IFNULL(p_Surcharges,rtr.Surcharges) AS Surcharges,
-		IFNULL(p_Chargeback,rtr.Chargeback) AS Chargeback,
-		IFNULL(p_CollectionCostAmount,rtr.CollectionCostAmount) AS CollectionCostAmount,
-		IFNULL(p_CollectionCostPercentage,rtr.CollectionCostPercentage) AS CollectionCostPercentage,
-		IFNULL(p_RegistrationCostPerNumber,rtr.RegistrationCostPerNumber) AS RegistrationCostPerNumber,
+		IF(p_OneOffCost IS NOT NULL,IF(p_OneOffCost='NULL',NULL,p_OneOffCost),rtr.OneOffCost) AS OneOffCost,
+		IF(p_MonthlyCost IS NOT NULL,IF(p_MonthlyCost='NULL',NULL,p_MonthlyCost),rtr.MonthlyCost) AS MonthlyCost,
+		IF(p_CostPerCall IS NOT NULL,IF(p_CostPerCall='NULL',NULL,p_CostPerCall),rtr.CostPerCall) AS CostPerCall,
+		IF(p_CostPerMinute IS NOT NULL,IF(p_CostPerMinute='NULL',NULL,p_CostPerMinute),rtr.CostPerMinute) AS CostPerMinute,
+		IF(p_SurchargePerCall IS NOT NULL,IF(p_SurchargePerCall='NULL',NULL,p_SurchargePerCall),rtr.SurchargePerCall) AS SurchargePerCall,
+		IF(p_SurchargePerMinute IS NOT NULL,IF(p_SurchargePerMinute='NULL',NULL,p_SurchargePerMinute),rtr.SurchargePerMinute) AS SurchargePerMinute,
+		IF(p_OutpaymentPerCall IS NOT NULL,IF(p_OutpaymentPerCall='NULL',NULL,p_OutpaymentPerCall),rtr.OutpaymentPerCall) AS OutpaymentPerCall,
+		IF(p_OutpaymentPerMinute IS NOT NULL,IF(p_OutpaymentPerMinute='NULL',NULL,p_OutpaymentPerMinute),rtr.OutpaymentPerMinute) AS OutpaymentPerMinute,
+		IF(p_Surcharges IS NOT NULL,IF(p_Surcharges='NULL',NULL,p_Surcharges),rtr.Surcharges) AS Surcharges,
+		IF(p_Chargeback IS NOT NULL,IF(p_Chargeback='NULL',NULL,p_Chargeback),rtr.Chargeback) AS Chargeback,
+		IF(p_CollectionCostAmount IS NOT NULL,IF(p_CollectionCostAmount='NULL',NULL,p_CollectionCostAmount),rtr.CollectionCostAmount) AS CollectionCostAmount,
+		IF(p_CollectionCostPercentage IS NOT NULL,IF(p_CollectionCostPercentage='NULL',NULL,p_CollectionCostPercentage),rtr.CollectionCostPercentage) AS CollectionCostPercentage,
+		IF(p_RegistrationCostPerNumber IS NOT NULL,IF(p_RegistrationCostPerNumber='NULL',NULL,p_RegistrationCostPerNumber),rtr.RegistrationCostPerNumber) AS RegistrationCostPerNumber,
 		IFNULL(p_OneOffCostCurrency,rtr.OneOffCostCurrency) AS OneOffCostCurrency,
 		IFNULL(p_MonthlyCostCurrency,rtr.MonthlyCostCurrency) AS MonthlyCostCurrency,
 		IFNULL(p_CostPerCallCurrency,rtr.CostPerCallCurrency) AS CostPerCallCurrency,
@@ -8691,6 +8691,49 @@ BEGIN
 	AND TBL2.JobLoggedUserID IS NULL;
 
 
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'PRTU'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'PRTU'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
     SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -11216,10 +11259,10 @@ CREATE PROCEDURE `prc_RateTablePKGRateUpdateDelete`(
 	IN `p_RateTablePKGRateId` LONGTEXT,
 	IN `p_EffectiveDate` DATETIME,
 	IN `p_EndDate` DATETIME,
-	IN `p_OneOffCost` DECIMAL(18,6),
-	IN `p_MonthlyCost` DECIMAL(18,6),
-	IN `p_PackageCostPerMinute` DECIMAL(18,6),
-	IN `p_RecordingCostPerMinute` DECIMAL(18,6),
+	IN `p_OneOffCost` VARCHAR(255),
+	IN `p_MonthlyCost` VARCHAR(255),
+	IN `p_PackageCostPerMinute` VARCHAR(255),
+	IN `p_RecordingCostPerMinute` VARCHAR(255),
 	IN `p_OneOffCostCurrency` DECIMAL(18,6),
 	IN `p_MonthlyCostCurrency` DECIMAL(18,6),
 	IN `p_PackageCostPerMinuteCurrency` DECIMAL(18,6),
@@ -11273,10 +11316,10 @@ ThisSP:BEGIN
 		rtr.RateId,
 		rtr.RateTableId,
 		rtr.TimezonesID,
-		IFNULL(p_OneOffCost,rtr.OneOffCost) AS OneOffCost,
-		IFNULL(p_MonthlyCost,rtr.MonthlyCost) AS MonthlyCost,
-		IFNULL(p_PackageCostPerMinute,rtr.PackageCostPerMinute) AS PackageCostPerMinute,
-		IFNULL(p_RecordingCostPerMinute,rtr.RecordingCostPerMinute) AS RecordingCostPerMinute,
+		IF(p_OneOffCost IS NOT NULL,IF(p_OneOffCost='NULL',NULL,p_OneOffCost),rtr.OneOffCost) AS OneOffCost,
+		IF(p_MonthlyCost IS NOT NULL,IF(p_MonthlyCost='NULL',NULL,p_MonthlyCost),rtr.MonthlyCost) AS MonthlyCost,
+		IF(p_PackageCostPerMinute IS NOT NULL,IF(p_PackageCostPerMinute='NULL',NULL,p_PackageCostPerMinute),rtr.PackageCostPerMinute) AS PackageCostPerMinute,
+		IF(p_RecordingCostPerMinute IS NOT NULL,IF(p_RecordingCostPerMinute='NULL',NULL,p_RecordingCostPerMinute),rtr.RecordingCostPerMinute) AS RecordingCostPerMinute,
 		IFNULL(p_OneOffCostCurrency,rtr.OneOffCostCurrency) AS OneOffCostCurrency,
 		IFNULL(p_MonthlyCostCurrency,rtr.MonthlyCostCurrency) AS MonthlyCostCurrency,
 		IFNULL(p_PackageCostPerMinuteCurrency,rtr.PackageCostPerMinuteCurrency) AS PackageCostPerMinuteCurrency,

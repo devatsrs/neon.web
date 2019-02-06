@@ -116,7 +116,7 @@ class ActiveCallApiController extends ApiController {
                             DB::connection('sqlsrvroutingengine')->commit();
                             DB::connection('sqlsrv2')->commit();
 
-                            return Response::json(array("data" => ["ActiveCallID"=>$ActiveCall->ActiveCallID]),Codes::$Code200[0]);
+                            return Response::json(array(["ActiveCallID"=>$ActiveCall->ActiveCallID]),Codes::$Code200[0]);
                         }else{
                             log::info('delete call');
                             ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
@@ -205,7 +205,7 @@ class ActiveCallApiController extends ApiController {
                     DB::connection('sqlsrvcdr')->commit();
                     DB::connection('sqlsrvroutingengine')->commit();
 
-                    return Response::json(["data" => ['duration' => $duration]],Codes::$Code200[0]);
+                    return Response::json(['duration' => $duration],Codes::$Code200[0]);
                 }
 
             } else {
@@ -284,7 +284,7 @@ class ActiveCallApiController extends ApiController {
                         DB::connection('sqlsrvcdr')->commit();
                         DB::connection('sqlsrvroutingengine')->commit();
 
-                        return Response::json(["data" => ['duration' => $duration]], Codes::$Code200[0]);
+                        return Response::json(['duration' => $duration], Codes::$Code200[0]);
                     }
 
                 } else {
@@ -383,7 +383,7 @@ class ActiveCallApiController extends ApiController {
             //echo $query;die;
             $Result = DB::connection('speakIntelligentRoutingEngine')->select($query);
             $Response = json_decode(json_encode($Result), true);
-            return Response::json(["data" => $Response],Codes::$Code200[0]);
+            return Response::json($Response,Codes::$Code200[0]);
         }catch(Exception $e){
             Log::info($e);
             $reseponse = array("ErrorMessage" => "Something Went Wrong.",Codes::$Code402[0]);
