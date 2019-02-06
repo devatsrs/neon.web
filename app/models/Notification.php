@@ -18,7 +18,6 @@ class Notification extends \Eloquent {
     const AutoAddIP=9;
     const LowStockReminder=10;
     const AutoTopAccount=11;
-    const ContractEnding=12;
     const AutoOutPayment=13;
     const ContractManage = 14;
 
@@ -28,12 +27,11 @@ class Notification extends \Eloquent {
         Notification::PendingApprovalPayment=>'Payment Verification',
         Notification::RetentionDiskSpaceEmail=>'Retention Disk Space Email',
         Notification::BlockAccount=>'Block Account',
-        Notification::ContractEnding=>'Contract Ending',
         Notification::InvoicePaidByCustomer=>'Invoice Paid',
         Notification::AutoAddIP=>'Auto Add IP',
         Notification::AutoTopAccount=>'Auto Top Account',
         Notification::AutoOutPayment=>'Auto Out Payment',
-        Notification::ContractManage=>'Contract Manage'
+        Notification::ContractManage=>'Contract'
         //Notification::LowStockReminder=>'Low Stock Reminder'
     ];
 
