@@ -1130,7 +1130,7 @@ class RateUploadController extends \BaseController {
                     $CodeText = 'Code';
                 }
 
-                if(($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) && !empty($attrselection->$MonthlyCostColumn)) || !empty($attrselection->$Rate1Column)) {
+                if(($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) || !empty($attrselection->$Rate1Column)) {
                     $lineno = $lineno1;
                     foreach ($results as $index => $temp_row) {
 
@@ -1273,6 +1273,8 @@ class RateUploadController extends \BaseController {
                                 $CostComponents[] = 'CollectionCostPercentage';
                                 $CostComponents[] = 'RegistrationCostPerNumber';
 
+                                $CostComponentsMapped = 0;
+
                                 if (!empty($attrselection->CityTariff)) {
                                     if (!empty($temp_row[$attrselection->CityTariff])) {
                                         $tempdata['CityTariff'] = $temp_row[$attrselection->CityTariff];
@@ -1285,88 +1287,105 @@ class RateUploadController extends \BaseController {
 
                                 if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn])) {
                                     $tempdata['OneOffCost'] = trim($temp_row[$attrselection->$OneOffCostColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['OneOffCost'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$MonthlyCostColumn) && isset($temp_row[$attrselection->$MonthlyCostColumn])) {
                                     $tempdata['MonthlyCost'] = trim($temp_row[$attrselection->$MonthlyCostColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['MonthlyCost'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$CostPerCallColumn) && isset($temp_row[$attrselection->$CostPerCallColumn])) {
                                     $tempdata['CostPerCall'] = trim($temp_row[$attrselection->$CostPerCallColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['CostPerCall'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$CostPerMinuteColumn) && isset($temp_row[$attrselection->$CostPerMinuteColumn])) {
                                     $tempdata['CostPerMinute'] = trim($temp_row[$attrselection->$CostPerMinuteColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['CostPerMinute'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$SurchargePerCallColumn) && isset($temp_row[$attrselection->$SurchargePerCallColumn])) {
                                     $tempdata['SurchargePerCall'] = trim($temp_row[$attrselection->$SurchargePerCallColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['SurchargePerCall'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$SurchargePerMinuteColumn) && isset($temp_row[$attrselection->$SurchargePerMinuteColumn])) {
                                     $tempdata['SurchargePerMinute'] = trim($temp_row[$attrselection->$SurchargePerMinuteColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['SurchargePerMinute'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$OutpaymentPerCallColumn) && isset($temp_row[$attrselection->$OutpaymentPerCallColumn])) {
                                     $tempdata['OutpaymentPerCall'] = trim($temp_row[$attrselection->$OutpaymentPerCallColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['OutpaymentPerCall'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$OutpaymentPerMinuteColumn) && isset($temp_row[$attrselection->$OutpaymentPerMinuteColumn])) {
                                     $tempdata['OutpaymentPerMinute'] = trim($temp_row[$attrselection->$OutpaymentPerMinuteColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['OutpaymentPerMinute'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$SurchargesColumn) && isset($temp_row[$attrselection->$SurchargesColumn])) {
                                     $tempdata['Surcharges'] = trim($temp_row[$attrselection->$SurchargesColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['Surcharges'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$ChargebackColumn) && isset($temp_row[$attrselection->$ChargebackColumn])) {
                                     $tempdata['Chargeback'] = trim($temp_row[$attrselection->$ChargebackColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['Chargeback'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$CollectionCostAmountColumn) && isset($temp_row[$attrselection->$CollectionCostAmountColumn])) {
                                     $tempdata['CollectionCostAmount'] = trim($temp_row[$attrselection->$CollectionCostAmountColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['CollectionCostAmount'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$CollectionCostPercentageColumn) && isset($temp_row[$attrselection->$CollectionCostPercentageColumn])) {
                                     $tempdata['CollectionCostPercentage'] = trim($temp_row[$attrselection->$CollectionCostPercentageColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['CollectionCostPercentage'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$RegistrationCostPerNumberColumn) && isset($temp_row[$attrselection->$RegistrationCostPerNumberColumn])) {
                                     $tempdata['RegistrationCostPerNumber'] = trim($temp_row[$attrselection->$RegistrationCostPerNumberColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['RegistrationCostPerNumber'] = NULL;
                                 }
 
-                                $CostComponentsError=1;
-                                foreach ($CostComponents as $key => $component) {
-                                    if($tempdata[$component] != NULL) {
-                                        $CostComponentsError = 0;
-                                        break;
+                                $CostComponentsError = 1;
+                                if($CostComponentsMapped > 0) {
+                                    foreach ($CostComponents as $key => $component) {
+                                        if ($tempdata[$component] != NULL) {
+                                            $CostComponentsError = 0;
+                                            break;
+                                        }
                                     }
+                                } else {
+                                    $CostComponentsError = 0;
                                 }
                                 if($CostComponentsError==1) {
                                     $error[] = 'All Cost Component is blank at line no:' . $lineno;
@@ -1535,8 +1554,11 @@ class RateUploadController extends \BaseController {
                                 $CostComponents[] = 'PackageCostPerMinute';
                                 $CostComponents[] = 'RecordingCostPerMinute';
 
+                                $CostComponentsMapped = 0;
+
                                 if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn])) {
                                     $tempdata['OneOffCost'] = trim($temp_row[$attrselection->$OneOffCostColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['OneOffCost'] = NULL;
                                 }
@@ -1544,28 +1566,35 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$MonthlyCostColumn) && isset($temp_row[$attrselection->$MonthlyCostColumn])) {
                                     $temp_row[$attrselection->$MonthlyCostColumn] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->$MonthlyCostColumn]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
                                     $tempdata['MonthlyCost'] = trim($temp_row[$attrselection->$MonthlyCostColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['MonthlyCost'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$PackageCostPerMinuteColumn) && isset($temp_row[$attrselection->$PackageCostPerMinuteColumn])) {
                                     $tempdata['PackageCostPerMinute'] = trim($temp_row[$attrselection->$PackageCostPerMinuteColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['PackageCostPerMinute'] = NULL;
                                 }
 
                                 if (!empty($attrselection->$RecordingCostPerMinuteColumn) && isset($temp_row[$attrselection->$RecordingCostPerMinuteColumn])) {
                                     $tempdata['RecordingCostPerMinute'] = trim($temp_row[$attrselection->$RecordingCostPerMinuteColumn]);
+                                    $CostComponentsMapped++;
                                 } else {
                                     $tempdata['RecordingCostPerMinute'] = NULL;
                                 }
 
-                                $CostComponentsError=1;
-                                foreach ($CostComponents as $key => $component) {
-                                    if($tempdata[$component] != NULL) {
-                                        $CostComponentsError = 0;
-                                        break;
+                                if($CostComponentsMapped > 0) {
+                                    $CostComponentsError = 1;
+                                    foreach ($CostComponents as $key => $component) {
+                                        if ($tempdata[$component] != NULL) {
+                                            $CostComponentsError = 0;
+                                            break;
+                                        }
                                     }
+                                } else {
+                                    $CostComponentsError = 0;
                                 }
                                 if($CostComponentsError==1) {
                                     $error[] = 'All Cost Component is blank at line no:' . $lineno;
