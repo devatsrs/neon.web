@@ -76,12 +76,12 @@
                 </div>
             </div>
         @endif
-        
+
         @if (isset($services) && count($services) > 0)
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="drp_rateGenerators" class="control-label ">Service ID</label>
-                    {{Form::select('Setting[ServiceId][]', $services, (isset($commandconfigval->services)?$commandconfigval->services:'') ,array("id"=>"services" ,"class"=>"select2","data-placeholder"=>"Select services"))}}
+                    {{Form::select('Setting[ServiceId][]', $services, (isset($commandconfigval->ServiceId)?$commandconfigval->ServiceId:'') ,array("id"=>"services" ,"class"=>"select2","data-placeholder"=>"Select services"))}}
                 </div>
             </div>
         @endif
@@ -144,6 +144,7 @@
 </div>
 
 <script type="text/javascript" >
+
 // Timepicker
         if ($.isFunction($.fn.timepicker))
         {
