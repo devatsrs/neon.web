@@ -11,10 +11,10 @@
         </li>
 
         <li class="active">
-            <strong>Update Rate Generator Rule</strong>
+            <strong>Update Rate Generator Margin</strong>
         </li>
     </ol>
-    <h3>Update Rate Generator Rule</h3>
+    <h3>Update Rate Generator Margin</h3>
     <div class="float-right">
         <button type="button"  class="saveall btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
             <i class="entypo-floppy"></i>
@@ -26,24 +26,18 @@
         </a>
     </div>
 
-
-
     <div class="row">
         <div class="col-md-12">
             <ul class="nav nav-tabs bordered" >
-                <li class="active"><a data-toggle="tab" href="#tab-code_description">Call Codes</a></li>
-                <li><a data-toggle="tab" href="#tab-source">Sources</a></li>
+                <li class="active"><a data-toggle="tab" href="#tab-details">Details</a></li>
                 <li><a data-toggle="tab" href="#tab-margin">Margin</a></li>
             </ul>
             <div class="tab-content">
-                <div class="tab-pane active" id="tab-code_description">
-                    @include('rategenerators.rules.edit_code', array('id', 'RateRuleID', 'rategenerator_rules'))
-                </div>
-                <div class="tab-pane" id="tab-source">
-                    @include('rategenerators.rules.edit_source', array('id', 'RateRuleID', 'rategenerator_sources', 'vendors', 'rategenerator'))
+                <div class="tab-pane active" id="tab-details">
+                    @include('rategenerators.rules.edit_details', array('id', 'RateRuleID', 'rategenerator_rules'))
                 </div>
                 <div class="tab-pane" id="tab-margin">
-                     @include('rategenerators.rules.edit_margin', array('id', 'RateRuleID', 'rategenerator_margins'))
+                    @include('rategenerators.rules.edit_margin', array('id', 'RateRuleID', 'rategenerator_margins'))
                 </div>
             </div>
 
@@ -54,38 +48,17 @@
 
             $(".saveall.btn").click(function(e){
 
-                var DestinationCode         = $("#rategenerator-code-from input[name='Code']").val();
-                var DestinationDescription  = $("#rategenerator-code-from input[name='Description']").val();
-                var OriginationCode         = $("#rategenerator-code-from input[name='OriginationCode']").val();
-                var OriginationDescription  = $("#rategenerator-code-from input[name='OriginationDescription']").val();
+                var Origination = $("#rategenerator-code-from input[name='Origination']").val();
+                var Component = $("#rategenerator-code-from select[name='Component']").val();
+                var TimeOfDay = $("#rategenerator-code-from select[name='TimeOfDay']").val();
 
-//                if((typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
-//
-//                    setTimeout(function(){$('.btn').button('reset');},10);
-//                    toastr.error("Please Enter a Origination Code Or Origination Description", "Error", toastr_opts);
-//                    return false;
-//
-//                }
-
-                if((typeof DestinationCode  == 'undefined' || DestinationCode.trim() == '' ) && (typeof DestinationDescription  == 'undefined' || DestinationDescription.trim() == '' ) && (typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
-
+                if(Origination == '' && Component == '' && TimeOfDay == ''){
                     setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Enter any one from Origination Code,OriginationDescription,Destination Code,Destination Description", "Error", toastr_opts);
-                    return false;
-
-                }
-
-                if($("#rategenerator-source-from input[name='AccountIds[]']:checked").length == 0 ) {
-
-                    setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Select Source", "Error", toastr_opts);
+                    toastr.error("Please Select Origination, Component, Time of Day", "Error", toastr_opts);
                     return false;
                 }
-
 
                 var _url = $('#rategenerator-code-from').attr("action");
-
-
                 var formData = $('#rategenerator-code-from').serialize();
 
                 $.post( _url, formData, function( response ) {
@@ -94,28 +67,9 @@
                     if ( response.status =='success' ) {
                         toastr.success(response.message, "Success", toastr_opts);
                     } else {
-
-
                         toastr.error(response.message, "Error", toastr_opts);
                         return false;
                     }
-
-                    //source
-                    var _url = $('#rategenerator-source-from').attr("action");
-                    var formData = $('#rategenerator-source-from').serialize();
-
-                    $.post( _url, formData, function( response ) {
-
-                        $(".btn").button('reset');
-                        if ( response.status =='success' ) {
-                            toastr.success(response.message, "Success", toastr_opts);
-                        } else {
-                            toastr.error(response.message, "Error", toastr_opts);
-
-                            return false;
-                        }
-
-                      });
                 });
 
                 return false;
@@ -124,11 +78,9 @@
 
 
             $(".btn.delete").click(function (e) {
-
                 response = confirm('Are you sure?');
 
                 if (response) {
-
                     $.ajax({
                         url: $(this).attr("href"),
                         type: 'POST',
