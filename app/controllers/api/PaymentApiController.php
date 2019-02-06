@@ -290,6 +290,7 @@ class PaymentApiController extends ApiController {
 					$PaymentData['AccountPaymentProfileID']=$CustomerProfile->AccountPaymentProfileID;
 					$PaymentData['outstanginamount']=$data['Amount'];
 					$PaymentData['PaymentGateway']=$PaymentMethod;
+					$PaymentData['CreatedBy']="API";
 
 					$PaymentResponse = $PaymentIntegration->paymentWithApiProfile($PaymentData);
 
