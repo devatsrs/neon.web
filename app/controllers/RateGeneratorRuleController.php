@@ -7,10 +7,12 @@ class RateGeneratorRuleController extends \BaseController {
 
         if ($id > 0) {
 
+            $rateGenerator = RateGenerator::findOrFail($id);
             $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource')->where([
                 "RateGeneratorId" => $id
             ]) ->orderBy("Order", "asc")->get();
 
+            $Timezones = Timezones::getTimezonesIDList();
             $companyID = User::get_companyID();
             $vendors = Account::select([
                 "AccountName",
@@ -18,19 +20,20 @@ class RateGeneratorRuleController extends \BaseController {
                 "IsVendor"
             ])->where(["Status" => 1, "IsVendor" => 1, "AccountType" => 1, "CompanyID" => $companyID /*'CodeDeckId'=>$rategenerator->CodeDeckId*/])->get();
 
-            return View::make('rategenerators.rules.add', compact('id','vendors','rategenerator_rules'));
+            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules'));
         }
     }
     public function edit($id, $RateRuleID) {
         if ($id > 0 && $RateRuleID > 0) {
             //Code
             $companyID = User::get_companyID();
-            $rategenerator_rule = RateRule::where(["RateRuleId" => $RateRuleID])->get(["Code","Description","OriginationCode","OriginationDescription"])->first()->toArray();
+            $rategenerator_rule = RateRule::where(["RateRuleId" => $RateRuleID])->get()->first()->toArray();
             $DestinationCode        = $rategenerator_rule["Code"];
             $DestinationDescription = $rategenerator_rule["Description"];
             $OriginationCode        = $rategenerator_rule["OriginationCode"];
             $OriginationDescription = $rategenerator_rule["OriginationDescription"];
 
+            $Timezones = Timezones::getTimezonesIDList();
             //source
             $rategenerator_sources = RateRuleSource::where(["RateRuleID" => $RateRuleID])->lists('AccountID', 'AccountId');
             $rategenerator = RateGenerator::find($id);
@@ -46,7 +49,7 @@ class RateGeneratorRuleController extends \BaseController {
                 "RateRuleID" => $RateRuleID
             ])->get();
 
-            return View::make('rategenerators.rules.edit', compact('id', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins'));
+            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins'));
         }
     }
 
@@ -91,45 +94,32 @@ class RateGeneratorRuleController extends \BaseController {
             $last_max_order =  RateRule::where(["RateGeneratorId" => $id])->max('Order');
             $data = Input::all();
             $data['Order'] = $last_max_order+1;
-           // print_R($data);exit;
+            // print_R($data);exit;
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateGeneratorId'] = $id;
 
-           // $data['RateGeneratorId']
+            // $data['RateGeneratorId']
+
+            $rateGenerator = RateGenerator::findOrFail($id);
+
             $rules = array(
-                'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
-                'Description' => 'required_without_all:Code,OriginationCode,OriginationDescription',
-                'OriginationCode' => 'required_without_all:Code,Description,OriginationDescription',
-                'OriginationDescription' => 'required_without_all:Code,Description,OriginationCode',
-                'CreatedBy' => 'required'
+                'Component'   => 'required',
+                'Origination' => 'required',
+                'TimeOfDay'   => 'required',
+                'CreatedBy'   => 'required'
             );
+
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
 
-            if(isset($data['Code']) && !empty($data['Code']) || (isset($data['Description']) && !empty($data['Description']) ) ) {
-                $rateRuleDesination = RateRule::select('Code', 'Description')->where(["RateGeneratorId" => $data['RateGeneratorId'], "Code" => $data['Code'], "Description" => $data['Description']])->first();
-                if ($rateRuleDesination) {
-                    if (isset($rateRuleDesination->Code) && isset($rateRuleDesination->Description)) {
-                        return Response::json(array("status" => "failed", "message" => "Destination Code or Description already exist"));
-                    }
-                }
-            }
-            if(isset($data['OriginationCode']) && !empty($data['OriginationCode']) || (isset($data['OriginationDescription']) && !empty($data['OriginationDescription']) ) ) {
-                $rateRuleOrigination = RateRule::select('OriginationCode', 'OriginationDescription')->where(["RateGeneratorId" => $data['RateGeneratorId'], "OriginationCode" => $data['OriginationCode'], "OriginationDescription" => $data['OriginationDescription']])->first();
-                if ($rateRuleOrigination) {
-                    if (isset($rateRuleOrigination->OriginationCode) && isset($rateRuleOrigination->OriginationDescription)) {
-                        return Response::json(array("status" => "failed", "message" => "Origination Code or Description already exist"));
-                    }
-                }
-            }
 
             if ($rule_id = RateRule::insertGetId($data)) {
                 return Response::json(array("status" => "success", "message" => "RateGenerator Rule Successfully Created" , "redirect" => \Illuminate\Support\Facades\URL::to('/rategenerators/' . $id .'/rule/'.$rule_id . '/edit') ));
             } else {
-                 return Response::json(array("status" => "failed", "message" => "Problem Creating RateGenerator Rule."));
+                return Response::json(array("status" => "failed", "message" => "Problem Creating RateGenerator Rule."));
             }
         }
     }
@@ -137,20 +127,19 @@ class RateGeneratorRuleController extends \BaseController {
     // Update Code
     public function update_rule($id, $RateRuleID) {
 
-            if ($id > 0 && $RateRuleID > 0) {
-                $data = Input::all();
+        if ($id > 0 && $RateRuleID > 0) {
+            $data = Input::all();
 //             $companyID = User::get_companyID();
-            $rategenerator_rules = RateRule::find($RateRuleID); // RateRule::where([ "RateRuleID" => $RateRuleID])->get();
+            $rategenerator_rules = RateRule::findOrFail($RateRuleID); // RateRule::where([ "RateRuleID" => $RateRuleID])->get();
 
             $data ['ModifiedBy'] = User::get_user_full_name();
 
-                    $rules = array(
-                        'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
-                        'Description' => 'required_without_all:Code,OriginationCode,OriginationDescription',
-                        'OriginationCode' => 'required_without_all:Code,Description,OriginationDescription',
-                        'OriginationDescription' => 'required_without_all:Code,Description,OriginationCode',
-                        'ModifiedBy' => 'required'
-                    );
+            $rules = array(
+                'Component'   => 'required',
+                'Origination' => 'required',
+                'TimeOfDay'   => 'required',
+                'ModifiedBy'  => 'required'
+            );
 
             $validator = Validator::make($data, $rules);
 
