@@ -309,34 +309,47 @@ class FileUploadTemplate extends \Eloquent {
                 $RateTable = RateTable::find($data['Ratetable']);
             }
 
-            $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
+            $Timezones = Timezones::getTimezonesIDList();
             if(count($Timezones) > 0) { // if there are any timezones available
                 $TimezonesIDsArray = array();
 
                 if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
                     foreach ($Timezones as $ID => $Title) {
+                        $ID = $ID == 1 ? '' : $ID;
+                        $TimezonesIDsArray[] = 'selection.OneOffCost'.$ID;
                         $TimezonesIDsArray[] = 'selection.MonthlyCost'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CostPerCall'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CostPerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.SurchargePerCall'.$ID;
+                        $TimezonesIDsArray[] = 'selection.SurchargePerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.OutpaymentPerCall'.$ID;
+                        $TimezonesIDsArray[] = 'selection.OutpaymentPerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.Surcharges'.$ID;
+                        $TimezonesIDsArray[] = 'selection.Chargeback'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CollectionCostAmount'.$ID;
+                        $TimezonesIDsArray[] = 'selection.CollectionCostPercentage'.$ID;
+                        $TimezonesIDsArray[] = 'selection.RegistrationCostPerNumber'.$ID;
                     }
+                    unset($TimezonesIDsArray['selection.MonthlyCost']);
                     $TimezonesIDsString = implode(',',$TimezonesIDsArray);
 
                     $rules_for_type['selection.MonthlyCost'] = 'required_without_all:' . $TimezonesIDsString;
-                    $message_for_type['selection.MonthlyCost.required_without_all'] = "Please select Monthly Cost against at least any one timezone.";
+                    $message_for_type['selection.MonthlyCost.required_without_all'] = "Any one cost component is required.";
                 } else {
                     foreach ($Timezones as $ID => $Title) {
+                        $ID = $ID == 1 ? '' : $ID;
                         $TimezonesIDsArray[] = 'selection.Rate' . $ID;
                     }
-                    $TimezonesIDsString = implode(',', $TimezonesIDsArray);
+                    unset($TimezonesIDsArray['selection.Rate']);
+                    if(count($TimezonesIDsArray) > 0) {
+                        $TimezonesIDsString = implode(',', $TimezonesIDsArray);
 
-                    $rules_for_type['selection.Rate'] = 'required_without_all:' . $TimezonesIDsString;
-                    $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
-                }
-            } else { // if there is only 1 timezone, default timezone
-                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) {
-                    $rules_for_type['selection.MonthlyCost'] = 'required';
-                    $message_for_type['selection.MonthlyCost.required'] = "Monthly Cost Field is required";
-                } else {
-                    $rules_for_type['selection.Rate'] = 'required';
-                    $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                        $rules_for_type['selection.Rate'] = 'required_without_all:' . $TimezonesIDsString;
+                        $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
+                    } else {
+                        $rules_for_type['selection.Rate'] = 'required';
+                        $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                    }
                 }
             }
             
