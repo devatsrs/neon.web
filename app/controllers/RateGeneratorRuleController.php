@@ -105,7 +105,6 @@ class RateGeneratorRuleController extends \BaseController {
             if($rateGenerator->SelectType == 2) {
                 $rules = array(
                     'Component' => 'required',
-                    'Origination' => 'required',
                     'TimeOfDay' => 'required',
                     'CreatedBy' => 'required'
                 );
@@ -165,7 +164,6 @@ class RateGeneratorRuleController extends \BaseController {
             if($rateGenerator->SelectType == 2) {
                 $rules = array(
                     'Component'   => 'required',
-                    'Origination' => 'required',
                     'TimeOfDay'   => 'required',
                     'ModifiedBy'  => 'required'
                 );
