@@ -23,9 +23,11 @@ class LCRDIDController extends \BaseController {
             NeonCookie::setCookie('LCRPosition',$data['LCRPosition'],60);
         }
 
-       // $data['ProductID'] = 1; // for testing only
 
-        $query = "call prc_GetDIDLCR(".$companyID.", ".$data['ProductID']." ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."'";
+
+        //$data['ProductID'] = 1; // for testing only
+
+        $query = "call prc_GetDIDLCR(".$companyID.", ".$data['ProductID']." ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
@@ -50,6 +52,7 @@ class LCRDIDController extends \BaseController {
                 $query .=',0)';
 
         //echo $query;
+        //exit;
         //  Log::info($query);
 
         return DataTableSql::of($query)->make();
