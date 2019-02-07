@@ -1033,12 +1033,12 @@ class AccountsApiController extends ApiController {
 
 					if ($BillingSetting['billing_cycle'] == 7) {
 						$validValues = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-						$BillingCycleOptions = explode(',', $BillingSetting['billing_cycle_options']);
-						foreach($BillingCycleOptions as $BillingCycleOption) {
-							if (!in_array($BillingCycleOption, $validValues)) {
+					//	$BillingCycleOptions = explode(',', $BillingSetting['billing_cycle_options']);
+					//	foreach($BillingCycleOptions as $BillingCycleOption) {
+							if (!in_array($BillingSetting['billing_cycle_options'], $validValues)) {
 								return Response::json(["ErrorMessage" => Codes::$Code1028[1]],Codes::$Code1028[0]);
 							}
-						}
+					//	}
 					}
 				} else {
 					$BillingSetting['billing_cycle_options'] = '';
