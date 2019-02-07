@@ -1118,6 +1118,7 @@ class AccountsApiController extends ApiController {
 
 					$dataAccountBilling['NextInvoiceDate'] = $NextBillingDate;
 					$dataAccountBilling['NextChargeDate'] = $NextChargedDate;
+					$dataAccountBilling['BillingCycleType'] = $BillingCycleTypeID[$BillingCycleType];
 
 					//if not first invoice generation
 
