@@ -53,7 +53,7 @@
                 </div>
                 <div class="form-group" id="Timezone">
                     <label class="control-label">Time Of Day</label>
-                    {{ Form::select('Timezone', $Timezones, '', array("class"=>"select2")) }}
+                    {{ Form::select('Timezone', $Timezones, '2', array("class"=>"select2","disabled"=>"disabled")) }}
                 </div>
                 <div class="form-group" id="TimezonePercentage">
                     <label class="control-label">Time Of Day %</label>
