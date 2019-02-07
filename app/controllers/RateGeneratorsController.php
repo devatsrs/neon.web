@@ -170,7 +170,6 @@ class RateGeneratorsController extends \BaseController {
                         break;
                     } else {
                         if(empty($data['Component-'. $numberArray[$i]]) ||
-                            empty($data['Origination-'. $numberArray[$i]]) ||
                             empty($data['TimeOfDay-'. $numberArray[$i]]) ||
                             empty($data['Action-'. $numberArray[$i]]) ||
                             empty($data['MergeTo-'. $numberArray[$i]])){
@@ -180,7 +179,7 @@ class RateGeneratorsController extends \BaseController {
                             ));
                         }
                         $componts[] = $data['Component-' . $numberArray[$i]];
-                        $origination[] = $data['Origination-' . $numberArray[$i]];
+                        $origination[] = @$data['Origination-' . $numberArray[$i]];
                         $timeofday[] = $data['TimeOfDay-' . $numberArray[$i]];
                         $action[] = $data['Action-' . $numberArray[$i]];
                         $mergeTo[] = $data['MergeTo-' . $numberArray[$i]];
@@ -199,7 +198,6 @@ class RateGeneratorsController extends \BaseController {
                     $data['SelectedComponents'] = implode(",", $data['AllComponent']);
                 }
 
-
                 $calculatedRates = array_unique(explode(",", $getRateNumberString));
 
                 for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
@@ -214,10 +212,11 @@ class RateGeneratorsController extends \BaseController {
                         break;
                     } else {
                         if(!isset($data['RateComponent-'. $calculatedRates[$i]]) ||
-                            empty($data['RateOrigination-'. $calculatedRates[$i]]) ||
                             empty($data['RateTimeOfDay-'. $calculatedRates[$i]]) ||
                             !isset($data['RateLessThen-'. $calculatedRates[$i]]) ||
-                            !isset($data['ChangeRateTo-'. $calculatedRates[$i]])){
+                            !is_numeric($data['RateLessThen-'. $calculatedRates[$i]]) ||
+                            !isset($data['ChangeRateTo-'. $calculatedRates[$i]]) ||
+                            !is_numeric($data['ChangeRateTo-'. $calculatedRates[$i]])){
                             return Response::json(array(
                                 "status" => "failed",
                                 "message" => "Calculated Rate Value is missing."
@@ -225,7 +224,7 @@ class RateGeneratorsController extends \BaseController {
                         }
 
                         $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
-                        $rOrigination[]  = $data['RateOrigination-' . $calculatedRates[$i]];
+                        $rOrigination[]  = @$data['RateOrigination-' . $calculatedRates[$i]];
                         $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
                         $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
                         $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
@@ -517,7 +516,6 @@ class RateGeneratorsController extends \BaseController {
                         break;
                     } else {
                         if(empty($data['Component-'. $numberArray[$i]]) ||
-                            empty($data['Origination-'. $numberArray[$i]]) ||
                             empty($data['TimeOfDay-'. $numberArray[$i]]) ||
                             empty($data['Action-'. $numberArray[$i]]) ||
                             empty($data['MergeTo-'. $numberArray[$i]])){
@@ -527,7 +525,7 @@ class RateGeneratorsController extends \BaseController {
                             ));
                         }
                         $componts[] = $data['Component-' . $numberArray[$i]];
-                        $origination[] = $data['Origination-' . $numberArray[$i]];
+                        $origination[] = @$data['Origination-' . $numberArray[$i]];
                         $timeofday[] = $data['TimeOfDay-' . $numberArray[$i]];
                         $action[] = $data['Action-' . $numberArray[$i]];
                         $mergeTo[] = $data['MergeTo-' . $numberArray[$i]];
@@ -560,10 +558,11 @@ class RateGeneratorsController extends \BaseController {
                         break;
                     } else {
                         if(!isset($data['RateComponent-'. $calculatedRates[$i]]) ||
-                            empty($data['RateOrigination-'. $calculatedRates[$i]]) ||
                             empty($data['RateTimeOfDay-'. $calculatedRates[$i]]) ||
                             !isset($data['RateLessThen-'. $calculatedRates[$i]]) ||
-                            !isset($data['ChangeRateTo-'. $calculatedRates[$i]])){
+                            !is_numeric($data['RateLessThen-'. $calculatedRates[$i]]) ||
+                            !isset($data['ChangeRateTo-'. $calculatedRates[$i]]) ||
+                            !is_numeric($data['ChangeRateTo-'. $calculatedRates[$i]])){
                             return Response::json(array(
                                 "status" => "failed",
                                 "message" => "Calculated Rate Value is missing."
@@ -571,7 +570,7 @@ class RateGeneratorsController extends \BaseController {
                         }
 
                         $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
-                        $rOrigination[]  = $data['RateOrigination-' . $calculatedRates[$i]];
+                        $rOrigination[]  = @$data['RateOrigination-' . $calculatedRates[$i]];
                         $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
                         $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
                         $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
