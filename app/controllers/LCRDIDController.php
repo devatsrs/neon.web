@@ -53,7 +53,7 @@ class LCRDIDController extends \BaseController {
 
         //echo $query;
         //exit;
-        //  Log::info($query);
+        Log::info($query);
 
         return DataTableSql::of($query)->make();
 
