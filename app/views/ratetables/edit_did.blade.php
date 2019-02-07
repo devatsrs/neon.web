@@ -1516,7 +1516,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label"> Destination Code</label>
+                                <label class="control-label">Code</label>
                                 {{--{{ Form::select('RateID', array(), '', array("class"=>"select2 rateid_list")) }}--}}
                                 <input type="hidden" class="rateid_list" name="RateID" />
                             </div>

@@ -12,18 +12,7 @@ class RateTableDIDRate extends \Eloquent {
         'RateTableId'   =>      'required',
         'EffectiveDate' =>      'required',
         'TimezonesID'   =>      'required',
-        'MonthlyCost'   =>      'required_without_all:OneOffCost,
-                                                    CostPerCall,
-                                                    CostPerMinute,
-                                                    SurchargePerCall,
-                                                    SurchargePerMinute,
-                                                    OutpaymentPerCall,
-                                                    OutpaymentPerMinute,
-                                                    Surcharges,
-                                                    Chargeback,
-                                                    CollectionCostAmount,
-                                                    CollectionCostPercentage,
-                                                    RegistrationCostPerNumber',
+        'MonthlyCost'   =>      'required_without_all:OneOffCost,CostPerCall,CostPerMinute,SurchargePerCall,SurchargePerMinute,OutpaymentPerCall,OutpaymentPerMinute,Surcharges,Chargeback,CollectionCostAmount,CollectionCostPercentage,RegistrationCostPerNumber',
     ];
 
     public static $message = [

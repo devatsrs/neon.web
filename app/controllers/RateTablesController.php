@@ -762,6 +762,7 @@ class RateTablesController extends \BaseController {
     public static function add_newrate($id){
         $data = Input::all();
         $rateTable = RateTable::find($id);
+        $username = User::get_user_full_name();
 
         $data['RateTableId'] = $id;
 
@@ -822,6 +823,7 @@ class RateTablesController extends \BaseController {
             }
 
             $Rate = RateTableRate::insert($RateTableRate);
+            $archive_query = "CALL prc_ArchiveOldRateTableRate('".$RateTableRate['RateTableId']."','".$RateTableRate['TimezonesID']."','".$username."');";
         } else if($rateTable->Type == $TypeDID) {
             $RateTableRate['OneOffCost']                = $data['OneOffCost'] == '' ? NULL : $data['OneOffCost'];
             $RateTableRate['MonthlyCost']               = $data['MonthlyCost' ] == '' ? NULL : $data['MonthlyCost'];
@@ -851,6 +853,7 @@ class RateTablesController extends \BaseController {
             $RateTableRate['RegistrationCostPerNumberCurrency'] = $data['RegistrationCostPerNumberCurrency' ] == '' ? NULL : $data['RegistrationCostPerNumberCurrency'];
 
             $Rate = RateTableDIDRate::insert($RateTableRate);
+            $archive_query = "CALL prc_ArchiveOldRateTableDIDRate('".$RateTableRate['RateTableId']."','".$RateTableRate['TimezonesID']."','".$username."');";
         } else {
             unset($RateTableRate['OriginationRateID']);
             $RateTableRate['OneOffCost']                        = $data['OneOffCost'] == '' ? NULL : $data['OneOffCost'];
@@ -864,9 +867,11 @@ class RateTablesController extends \BaseController {
             $RateTableRate['RecordingCostPerMinuteCurrency']    = $data['RecordingCostPerMinuteCurrency' ] == '' ? NULL : $data['RecordingCostPerMinuteCurrency'];
 
             $Rate = RateTablePKGRate::insert($RateTableRate);
+            $archive_query = "CALL prc_ArchiveOldRateTablePKGRate('".$RateTableRate['RateTableId']."','".$RateTableRate['TimezonesID']."','".$username."');";
         }
 
         if ($Rate) {
+            DB::statement($archive_query);
             return Response::json(array("status" => "success", "message" => "Rate Successfully Inserted "));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Inserting  Rate."));
