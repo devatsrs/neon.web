@@ -53,7 +53,7 @@
                 </div>
                 <div class="form-group" id="Timezone">
                     <label class="control-label">Time Of Day</label>
-                    {{ Form::select('Timezone', $Timezones, '', array("class"=>"select2")) }}
+                    {{ Form::select('Timezone', $Timezones, '2', array("class"=>"select2","disabled"=>"disabled")) }}
                 </div>
                 <div class="form-group" id="TimezonePercentage">
                     <label class="control-label">Time Of Day %</label>
@@ -69,11 +69,11 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Date From</label>
-                    {{Form::text('DateFrom', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
+                    {{Form::text('DateFrom', date('Y-m-d',strtotime("-1 month")) ,array("class"=>"form-control datepicker","Placeholder"=>"Date From" , "data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Date To</label>
-                    {{Form::text('DateTo', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
+                    {{Form::text('DateTo', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Date To" , "data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
                 </div>
                 <div class="form-group">
                     <br/>
@@ -324,7 +324,7 @@
                     },
                     "fnDrawCallback": function (results) {
 
-                        $('.btn.btn').button('reset');
+                        $('.btn').button('reset');
 
                         //Clear All Fields on Refresh
                         $('#dt_company1').html("");
