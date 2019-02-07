@@ -76,12 +76,12 @@ class BillingClassApiController extends ApiController {
                     return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
 		}
                 
-                if(!empty($data['BalanceThreshold'])) {
-                    $Threshold=$data['BalanceThreshold'];
+                if(!empty($data['NotificationId'])) {
+                    $NotificationId=$data['NotificationId'];
                 }else{
                    return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code402[0]);
                 }
-                AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'BalanceThreshold'=>$Threshold))->delete();
+                AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'AccountBalanceThresholdID'=>$NotificationId))->delete();
                 return Response::json(json_decode('{}'),Codes::$Code200[0]);
             }catch (\Exception $e) {
                     Log::info($e);
@@ -96,27 +96,48 @@ class BillingClassApiController extends ApiController {
 	 * Update Success
 	 */
 	public function setLowBalanceNotification(){
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data=json_decode(json_encode($post_vars),true);
-                
-                foreach($data as $key=>$val){
+        $post_vars = "";
+        $data = [];
+
+        try {
+            $post_vars = json_decode(file_get_contents("php://input"));
+            //$post_vars = Input::all();
+            $data=json_decode(json_encode($post_vars),true);
+            $countValues = count($data);
+            if ($countValues == 0) {
+                Log::info('Exception in createAccountService.Invalid JSON String');
+                return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+            }
+        }catch(Exception $ex) {
+            Log::info('Exception in RcreateAccountService.Invalid JSON String' . $ex->getTraceAsString());
+            return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+        }
+		//$post_vars = json_decode(file_get_contents("php://input"));
+		//$data=json_decode(json_encode($post_vars),true);
+
+             //   foreach($data as $key=>$val){
                     //$AccountID = $val['AccountID'];
-                     if(!empty($val['AccountID'])) {
-                        $AccountID = $val['AccountID'];
-                        $Account = Account::where(["AccountID" => $val['AccountID']])->select('AccountID','CompanyId')->first();
+                     if(!empty($data['AccountID'])) {
+                        $AccountID = $data['AccountID'];
+                         Log::info('setLowBalanceNotification:AccountID' . $AccountID);
+                        $Account = Account::where(["AccountID" => $data['AccountID']])->select('AccountID','CompanyId')->first();
 
                         if(!empty($Account)){
                             $AccountID=$Account->AccountID;
                             $CompanyID=$Account->CompanyId;
+                        }else{
+                            return Response::json(["ErrorMessage"=>"AccountID Not Found"],Codes::$Code402[0]);
                         }
-                    }else if(!empty($val['AccountNo'])){
-                        $Account = Account::where(["Number" => $val['AccountNo']])->select('AccountID','CompanyId')->first();
+                    }else if(!empty($data['AccountNo'])){
+                        $Account = Account::where(["Number" => $data['AccountNo']])->select('AccountID','CompanyId')->first();
                         if(!empty($Account)){
                                 $AccountID=$Account->AccountID;
                                 $CompanyID=$Account->CompanyId;
+                        }else{
+                            return Response::json(["ErrorMessage"=>"Account Number Not Found"],Codes::$Code402[0]);
                         }
-                    }else if(!empty($val['AccountDynamicField'])){
-                        $AccountID=Account::findAccountBySIAccountRef($val['AccountDynamicField']);
+                    }else if(!empty($data['AccountDynamicField'])){
+                        $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
                         if(empty($AccountID)){
                             return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
                         }
@@ -129,10 +150,10 @@ class BillingClassApiController extends ApiController {
                             return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
                     }
                     
-                    foreach($val['BalanceThreshold'] as $keys=>$value){ 
-                        
-                        if(!empty($value['Threshold'])) {
-                            $Threshold=$value['Threshold'];
+              //      foreach($val['BalanceThreshold'] as $keys=>$value){
+                    $ThresholdReferenceArr=json_decode(json_encode($data['BalanceThreshold']),true);
+                        if(!empty($ThresholdReferenceArr['Threshold'])) {
+                            $Threshold=$ThresholdReferenceArr['Threshold'];
                         }else{
                            return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code402[0]);
                         }
@@ -140,15 +161,15 @@ class BillingClassApiController extends ApiController {
                             $PostData=array();
                             $PostData['BalanceThreshold'] = $Threshold;
                             $PostData['AccountID'] = $AccountID;
-                            $PostData['BalanceThresholdEmail'] = $value['Email'];
-                            AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'BalanceThresholdEmail'=>$value['Email'],'BalanceThreshold'=>$Threshold))->delete();
+                            $PostData['BalanceThresholdEmail'] = $ThresholdReferenceArr['Email'];
+                            AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'BalanceThresholdEmail'=>$ThresholdReferenceArr['Email'],'BalanceThreshold'=>$Threshold))->delete();
                             AccountBalanceThreshold::insert($PostData);
                         }catch (\Exception $e) {
                                 Log::info($e);
                                 return Response::json(["ErrorMessage"=>"Something Went Wrong. Exception Generated."],Codes::$Code500[0]);
                         }
-                    }
-                }
+                 //   }
+             //   }
                 //return Response::json(["status"=>"success"],Codes::$Code200[0]);
                 return Response::json(json_decode('{}'),Codes::$Code200[0]);
                 exit();
@@ -283,13 +304,13 @@ class BillingClassApiController extends ApiController {
 			//$result['BalanceThreshold']=AccountBalance::where('AccountID', $AccountID)->pluck('BalanceThreshold');
 			//$result['Status']=$BillingClass->LowBalanceReminderStatus;
 			//$BillingClass=AccountBilling::join('tblBillingClass','tblAccountBilling.BillingClassID','=','tblBillingClass.BillingClassID')->where(['tblAccountBilling.AccountID'=>$AccountID])->select('tblBillingClass.*')->first();
-                        $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $AccountID))->select('BalanceThreshold AS Threshold','BalanceThresholdEmail AS Email')->get(['BalanceThreshold','BalanceThresholdEmail']);
+                        $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $AccountID))->select('AccountBalanceThresholdID AS NotificationId','BalanceThreshold AS Threshold','BalanceThresholdEmail AS Email')->get(['BalanceThreshold','BalanceThresholdEmail']);
                         unset($AccountBalanceThreshold['created_at']);unset($AccountBalanceThreshold['updated_at']);
                         $result['BalanceThreshold']=json_decode($AccountBalanceThreshold);
                         
 			//$result['BillingClass']=json_decode($BillingClass->LowBalanceReminderSettings);
 
-			return Response::json(json_decode('{}'),Codes::$Code200[0]);
+			return Response::json($result,Codes::$Code200[0]);
 
 		}else{
 			return Response::json(["ErrorMessage"=>"AccountID Not Found"],Codes::$Code402[0]);
