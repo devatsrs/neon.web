@@ -1207,7 +1207,7 @@
                                 <input type="text" name="CollectionCostPercentage" class="form-control numbercheck" placeholder="">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 clear">
                             <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Registration Cost Per Number</label>
                                 <input type="text" name="RegistrationCostPerNumber" class="form-control numbercheck" placeholder="">
@@ -1456,7 +1456,7 @@
                                 <input type="text" name="CollectionCostPercentage" class="form-control numbercheck" value="" />
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 clear">
                             <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateRegistrationCostPerNumber" class="" />
                                 <label class="control-label">Registration Cost Per Number</label>
