@@ -1085,6 +1085,7 @@ class AccountsApiController extends ApiController {
 					$BankPaymentDetails['CompanyID'] = $CompanyID;
 					$BankPaymentDetails['PayoutType'] = "bank";
 					$BankPaymentDetails['AccountID'] = $account->AccountID;
+					$BankPaymentDetails['Title'] = $account->AccountID;
 
 					$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($BankPaymentDetails['PaymentGatewayID']);
 					$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
