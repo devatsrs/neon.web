@@ -1093,9 +1093,12 @@ class AccountsApiController extends ApiController {
 					$AccountResponse = $PaymentIntegration->createAccount($BankPaymentDetails);
 					Log::info('$Account Payment Response1 ' . print_r($AccountResponse,true));
 					$AccountResponse = json_decode($AccountResponse);
+					//$post_vars = Input::all();
+					$AccountResponse=json_decode(json_encode($AccountResponse),true);
+					//$AccountResponse = json_decode($AccountResponse);
 					Log::info('$Account Payment Response ' . print_r($AccountResponse,true));
-					if ($AccountResponse->status == 'failed') {
-						return Response::json(["ErrorMessage" => $AccountResponse->message],Codes::$Code1033[0]);
+					if ($AccountResponse["status"] == 'failed') {
+						return Response::json(["ErrorMessage" => $AccountResponse["message"]],Codes::$Code1033[0]);
 					}
 
 				}
