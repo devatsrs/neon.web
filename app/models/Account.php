@@ -30,6 +30,15 @@ class Account extends \Eloquent {
         'CurrencyId' => 'required',
 
     );
+    public static $APIrules = array(
+
+        'CompanyID' =>  'required',
+        'Country'=>'required',
+        'Number' =>  'required|unique:tblAccount,Number',
+        'AccountName' => 'required|unique:tblAccount,AccountName',
+        'CurrencyId' => 'required',
+
+    );
     /** add columns here to save in table  */
     protected $fillable = array(
         'AccountType','CompanyID','CurrencyId','Title','Owner',

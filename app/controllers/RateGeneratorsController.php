@@ -62,10 +62,10 @@ class RateGeneratorsController extends \BaseController {
         $currencylist = Currency::getCurrencyDropdownIDList();
         $Timezones = Timezones::getTimezonesIDList();
         $AllTypes =  RateType::getRateTypeDropDownList();
+        unset($AllTypes[3]);
         $Categories = DidCategory::getCategoryDropdownIDList();
         $Products = ServiceTemplate::lists("Name", "ServiceTemplateId");
-
-        return View::make('rategenerators.create', compact('trunks','Products','AllTypes','Categories','codedecklist','currencylist','trunk_keys','Timezones'));
+        return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Categories','codedecklist','currencylist','trunk_keys','Timezones'));
     }
 
     public function store() {
@@ -77,35 +77,51 @@ class RateGeneratorsController extends \BaseController {
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $data ['DIDCategoryID']= isset($data['Category']) ? $data['Category'] : '';
         $data['VendorPositionPercentage'] = $data['percentageRate'];
-        $getNumberString = $data['getIDs'];
-        $getRateNumberString = $data['getRateIDs'];
+        $getNumberString = @$data['getIDs'];
+        $getRateNumberString = @$data['getRateIDs'];
         $SelectType = $data['SelectType'];
 
-        $rules = array(
-            'CompanyID'         => 'required',
-            'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
-            'CurrencyID'        => 'required',
-            'Policy'            => 'required',
-            'ProductID'         => 'required',
-            'DateFrom'          => 'required|date|date_format:Y-m-d',
-            'DateTo'            => 'required|date|date_format:Y-m-d',
-            'Calls'             => 'numeric',
-            'Minutes'           => 'numeric',
-            'TimeOfDayPercentage'   => 'numeric',
-            'OriginationPercentage' => 'numeric',
-            'LessThenRate'      => 'numeric',
-            'ChargeRate'        => 'numeric',
-            'percentageRate'    => 'numeric',
-        );
+        if($SelectType != 2) {
+            $rules = array(
+                'CompanyID' => 'required',
+                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,' . $data['CompanyID'],
+                'Timezones' => 'required',
+                'codedeckid' => 'required',
+                'CurrencyID' => 'required',
+                'Policy' => 'required',
+                'LessThenRate' => 'numeric',
+                'ChargeRate' => 'numeric',
+                'percentageRate' => 'numeric',
+            );
+        } else {
+            $rules = array(
+                'CompanyID'         => 'required',
+                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
+                'CurrencyID'        => 'required',
+                'Policy'            => 'required',
+                'ProductID'         => 'required',
+                'DateFrom'          => 'required|date|date_format:Y-m-d',
+                'DateTo'            => 'required|date|date_format:Y-m-d',
+                'Calls'             => 'numeric',
+                'Minutes'           => 'numeric',
+                'TimeOfDayPercentage'   => 'numeric',
+                'OriginationPercentage' => 'numeric',
+                'LessThenRate'      => 'numeric',
+                'ChargeRate'        => 'numeric',
+                'percentageRate'    => 'numeric',
+            );
+        }
 
         if($SelectType == 1) {
             $rules['TrunkID']='required';
             $rules['RatePosition']='required|numeric';
             $rules['UseAverage']='required';
-
         }
 
-        $message = array('ProductID.required' => 'Please select product.');
+        $message = array(
+            'Timezones.required' => 'Please select at least 1 Timezone',
+            'ProductID.required' => 'Please select product.'
+        );
 
         if(!empty($data['IsMerge'])) {
             $rules['TakePrice'] = "required";
@@ -154,7 +170,6 @@ class RateGeneratorsController extends \BaseController {
                         break;
                     } else {
                         if(empty($data['Component-'. $numberArray[$i]]) ||
-                            empty($data['Origination-'. $numberArray[$i]]) ||
                             empty($data['TimeOfDay-'. $numberArray[$i]]) ||
                             empty($data['Action-'. $numberArray[$i]]) ||
                             empty($data['MergeTo-'. $numberArray[$i]])){
@@ -164,7 +179,7 @@ class RateGeneratorsController extends \BaseController {
                             ));
                         }
                         $componts[] = $data['Component-' . $numberArray[$i]];
-                        $origination[] = $data['Origination-' . $numberArray[$i]];
+                        $origination[] = @$data['Origination-' . $numberArray[$i]];
                         $timeofday[] = $data['TimeOfDay-' . $numberArray[$i]];
                         $action[] = $data['Action-' . $numberArray[$i]];
                         $mergeTo[] = $data['MergeTo-' . $numberArray[$i]];
@@ -182,6 +197,52 @@ class RateGeneratorsController extends \BaseController {
                 if (!empty($data['AllComponent'])) {
                     $data['SelectedComponents'] = implode(",", $data['AllComponent']);
                 }
+
+                $calculatedRates = array_unique(explode(",", $getRateNumberString));
+
+                for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
+                    $GetRateComponents[] = 'RateComponent-' . $calculatedRates[$i];
+
+                    if (!isset($data[$GetRateComponents[$i]])) {
+                        unset($data['RateComponent-' . $calculatedRates[$i]]);
+                        unset($data['RateOrigination-' . $calculatedRates[$i]]);
+                        unset($data['RateTimeOfDay-' . $calculatedRates[$i]]);
+                        unset($data['RateLessThen-' . $calculatedRates[$i]]);
+                        unset($data['ChangeRateTo-' . $calculatedRates[$i]]);
+                        break;
+                    } else {
+                        if(!isset($data['RateComponent-'. $calculatedRates[$i]]) ||
+                            empty($data['RateTimeOfDay-'. $calculatedRates[$i]]) ||
+                            !isset($data['RateLessThen-'. $calculatedRates[$i]]) ||
+                            !is_numeric($data['RateLessThen-'. $calculatedRates[$i]]) ||
+                            !isset($data['ChangeRateTo-'. $calculatedRates[$i]]) ||
+                            !is_numeric($data['ChangeRateTo-'. $calculatedRates[$i]])){
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Calculated Rate Value is missing."
+                            ));
+                        }
+
+                        $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
+                        $rOrigination[]  = @$data['RateOrigination-' . $calculatedRates[$i]];
+                        $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
+                        $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
+                        $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
+                    }
+
+                    unset($data['RateComponent-' . $calculatedRates[$i]]);
+                    unset($data['RateOrigination-' . $calculatedRates[$i]]);
+                    unset($data['RateTimeOfDay-' . $calculatedRates[$i]]);
+                    unset($data['RateLessThen-' . $calculatedRates[$i]]);
+                    unset($data['ChangeRateTo-' . $calculatedRates[$i]]);
+                }
+
+                unset($data['RateComponent-1']);
+                unset($data['RateOrigination-1']);
+                unset($data['RateTimeOfDay-1']);
+                unset($data['RateLessThen-1']);
+                unset($data['ChangeRateTo-1']);
+                unset($data['getRateIDs']);
             } else {
                 unset($data['getIDs']);
                 unset($data['Component-1']);
@@ -190,56 +251,14 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['Action-1']);
                 unset($data['MergeTo-1']);
                 unset($data['Category']);
-
+                unset($data['RateComponent-1']);
+                unset($data['RateOrigination-1']);
+                unset($data['RateTimeOfDay-1']);
+                unset($data['RateLessThen-1']);
+                unset($data['ChangeRateTo-1']);
+                unset($data['getRateIDs']);
             }
 
-
-            $calculatedRates = array_unique(explode(",", $getRateNumberString));
-
-            for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
-                $GetRateComponents[] = 'RateComponent-' . $calculatedRates[$i];
-
-                if (!isset($data[$GetRateComponents[$i]])) {
-                    unset($data['RateComponent-' . $calculatedRates[$i]]);
-                    unset($data['RateOrigination-' . $calculatedRates[$i]]);
-                    unset($data['RateTimeOfDay-' . $calculatedRates[$i]]);
-                    unset($data['RateLessThen-' . $calculatedRates[$i]]);
-                    unset($data['ChangeRateTo-' . $calculatedRates[$i]]);
-                    break;
-                } else {
-                    if(!isset($data['RateComponent-'. $calculatedRates[$i]]) ||
-                        empty($data['RateOrigination-'. $calculatedRates[$i]]) ||
-                        empty($data['RateTimeOfDay-'. $calculatedRates[$i]]) ||
-                        !isset($data['RateLessThen-'. $calculatedRates[$i]]) ||
-                        !isset($data['ChangeRateTo-'. $calculatedRates[$i]])){
-                        return Response::json(array(
-                            "status" => "failed",
-                            "message" => "Calculated Rate Value is missing."
-                        ));
-                    }
-
-                    $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
-                    $rOrigination[]  = $data['RateOrigination-' . $calculatedRates[$i]];
-                    $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
-                    $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
-                    $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
-                }
-
-                unset($data['RateComponent-' . $calculatedRates[$i]]);
-                unset($data['RateOrigination-' . $calculatedRates[$i]]);
-                unset($data['RateTimeOfDay-' . $calculatedRates[$i]]);
-                unset($data['RateLessThen-' . $calculatedRates[$i]]);
-                unset($data['ChangeRateTo-' . $calculatedRates[$i]]);
-            }
-
-
-            unset($data['RateComponent-1']);
-            unset($data['RateOrigination-1']);
-            unset($data['RateTimeOfDay-1']);
-            unset($data['RateLessThen-1']);
-            unset($data['ChangeRateTo-1']);
-
-            unset($data['getRateIDs']);
             unset($data['AllComponent']);
 
             $rateg = RateGenerator::create($data);
@@ -265,7 +284,6 @@ class RateGeneratorsController extends \BaseController {
                         $GetAction      = $action[$i];
                         $GetMergeTo     = $mergeTo[$i];
 
-
                         $addComponents['RatePositionID'] = $data['RatePosition'];
                         $addComponents['TrunkID'] = $data['TrunkID'];
                         $addComponents['CurrencyID'] = $data['CurrencyID'];
@@ -282,27 +300,27 @@ class RateGeneratorsController extends \BaseController {
                         }
 
                     }
-                }
 
-                $calculatedRates = explode(",", $getRateNumberString);
-                $addCalRate = array();
-                for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
-                    if (!isset($rComponent[$i])) {
-                        break;
-                    }
+                    $calculatedRates = explode(",", $getRateNumberString);
+                    $addCalRate = array();
+                    for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
+                        if (!isset($rComponent[$i])) {
+                            break;
+                        }
 
-                    $addCalRate['RatePositionID']  = $data['RatePosition'];
-                    $addCalRate['TrunkID']         = $data['TrunkID'];
-                    $addCalRate['CurrencyID']      = $data['CurrencyID'];
-                    $addCalRate['Component']       = implode(",", $rComponent[$i]);
-                    $addCalRate['Origination']     = $rOrigination[$i];
-                    $addCalRate['TimeOfDay']       = $rTimeOfDay[$i];
-                    $addCalRate['RateLessThen']    = $rRateLessThen[$i];
-                    $addCalRate['ChangeRateTo']    = $rChangeRateTo[$i];
-                    $addCalRate['RateGeneratorId'] = $rateg->RateGeneratorId;
+                        $addCalRate['RatePositionID']  = $data['RatePosition'];
+                        $addCalRate['TrunkID']         = $data['TrunkID'];
+                        $addCalRate['CurrencyID']      = $data['CurrencyID'];
+                        $addCalRate['Component']       = implode(",", $rComponent[$i]);
+                        $addCalRate['Origination']     = $rOrigination[$i];
+                        $addCalRate['TimeOfDay']       = $rTimeOfDay[$i];
+                        $addCalRate['RateLessThen']    = $rRateLessThen[$i];
+                        $addCalRate['ChangeRateTo']    = $rChangeRateTo[$i];
+                        $addCalRate['RateGeneratorId'] = $rateg->RateGeneratorId;
 
-                    if (RateGeneratorCalculatedRate::create($addCalRate)) {
-                        $CostComponentSaved = "and Calculated Rate Updated";
+                        if (RateGeneratorCalculatedRate::create($addCalRate)) {
+                            $CostComponentSaved = "and Calculated Rate Updated";
+                        }
                     }
                 }
 
@@ -362,11 +380,11 @@ class RateGeneratorsController extends \BaseController {
             $rategenerator = RateGenerator::find($id);
             $Timezones = Timezones::getTimezonesIDList();
 
-
             $AllTypes =  RateType::getRateTypeDropDownList();
+            unset($AllTypes[3]);
 
             // Debugbar::info($rategenerator_rules);
-            return View::make('rategenerators.edit', compact('id', 'Products', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator' ,'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
+            return View::make('rategenerators.edit', compact('id', 'Products', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
         }
     }
 
@@ -391,8 +409,8 @@ class RateGeneratorsController extends \BaseController {
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $data ['DIDCategoryID']= isset($data['Category']) ? $data['Category'] : '';
         $data['VendorPositionPercentage'] = $data['percentageRate'];
-        $getNumberString = $data['getIDs'];
-        $getRateNumberString = $data['getRateIDs'];
+        $getNumberString = @$data['getIDs'];
+        $getRateNumberString = @$data['getRateIDs'];
 
         unset($data['SelectType']);
 
@@ -405,34 +423,71 @@ class RateGeneratorsController extends \BaseController {
             $SelectType = $Type->SelectType;
         }
 
-        $rules = array(
-            'CompanyID'         => 'required',
-            'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
-            'CurrencyID'        => 'required',
-            'Policy'            => 'required',
-            'ProductID'         => 'required',
-            'DateFrom'          => 'required|date|date_format:Y-m-d',
-            'DateTo'            => 'required|date|date_format:Y-m-d',
-            'Calls'             => 'numeric',
-            'Minutes'           => 'numeric',
-            'TimeOfDayPercentage'   => 'numeric',
-            'OriginationPercentage' => 'numeric',
-            'LessThenRate'      => 'numeric',
-            'ChargeRate'        => 'numeric',
-            'percentageRate'    => 'numeric',
-        );
-
-        if($SelectType == 1) {
-            $rules['TrunkID']      = 'required';
-            $rules['RatePosition'] = 'required|numeric';
-            $rules['UseAverage']   = 'required';
+        if($SelectType != 2) {
+            $rules = array(
+                'CompanyID' => 'required',
+                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
+                'Timezones' => 'required',
+                'codedeckid' => 'required',
+                'CurrencyID' => 'required',
+                'Policy' => 'required',
+                'LessThenRate' => 'numeric',
+                'ChargeRate' => 'numeric',
+                'percentageRate' => 'numeric',
+            );
+        } else {
+            $rules = array(
+                'CompanyID'         => 'required',
+                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
+                'CurrencyID'        => 'required',
+                'Policy'            => 'required',
+                'ProductID'         => 'required',
+                'DateFrom'          => 'required|date|date_format:Y-m-d',
+                'DateTo'            => 'required|date|date_format:Y-m-d',
+                'Calls'             => 'numeric',
+                'Minutes'           => 'numeric',
+                'TimeOfDayPercentage'   => 'numeric',
+                'OriginationPercentage' => 'numeric',
+                'LessThenRate'      => 'numeric',
+                'ChargeRate'        => 'numeric',
+                'percentageRate'    => 'numeric',
+            );
         }
 
-        $message = array('ProductID.required' => 'Please select product.');
+        if($SelectType == 1) {
+            $rules['TrunkID']='required';
+            $rules['RatePosition']='required|numeric';
+            $rules['UseAverage']='required';
+
+        }
+
+        $message = array(
+            'Timezones.required' => 'Please select at least 1 Timezone',
+            'ProductID.required' => 'Please select product.'
+        );
+
+        if(!empty($data['IsMerge'])) {
+            $rules['TakePrice'] = "required";
+            $rules['MergeInto'] = "required";
+        } else {
+            $data['IsMerge'] = 0;
+        }
+
         $validator = Validator::make($data, $rules, $message);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+
+        //Validation For LessThenRate-ChargeRate
+        if(!empty($data['LessThenRate']) || !empty($data['ChargeRate'])){
+            if(empty($data['LessThenRate'])){
+                return Response::json(array("status" => "failed", "message" => "LessThenRate is required if given ChargeRate."));
+            }
+
+            if(empty($data['ChargeRate'])){
+                return Response::json(array("status" => "failed", "message" => "ChargeRate is required if given LessThenRate."));
+            }
         }
 
         $data ['ModifiedBy'] = User::get_user_full_name();
@@ -461,7 +516,6 @@ class RateGeneratorsController extends \BaseController {
                         break;
                     } else {
                         if(empty($data['Component-'. $numberArray[$i]]) ||
-                            empty($data['Origination-'. $numberArray[$i]]) ||
                             empty($data['TimeOfDay-'. $numberArray[$i]]) ||
                             empty($data['Action-'. $numberArray[$i]]) ||
                             empty($data['MergeTo-'. $numberArray[$i]])){
@@ -471,7 +525,7 @@ class RateGeneratorsController extends \BaseController {
                             ));
                         }
                         $componts[] = $data['Component-' . $numberArray[$i]];
-                        $origination[] = $data['Origination-' . $numberArray[$i]];
+                        $origination[] = @$data['Origination-' . $numberArray[$i]];
                         $timeofday[] = $data['TimeOfDay-' . $numberArray[$i]];
                         $action[] = $data['Action-' . $numberArray[$i]];
                         $mergeTo[] = $data['MergeTo-' . $numberArray[$i]];
@@ -489,6 +543,52 @@ class RateGeneratorsController extends \BaseController {
                 if (!empty($data['AllComponent'])) {
                     $data['SelectedComponents'] = implode(",", $data['AllComponent']);
                 }
+
+                $calculatedRates = array_unique(explode(",", $getRateNumberString));
+
+                for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
+                    $GetRateComponents[] = 'RateComponent-' . $calculatedRates[$i];
+
+                    if (!isset($data[$GetRateComponents[$i]])) {
+                        unset($data['RateComponent-' . $calculatedRates[$i]]);
+                        unset($data['RateOrigination-' . $calculatedRates[$i]]);
+                        unset($data['RateTimeOfDay-' . $calculatedRates[$i]]);
+                        unset($data['RateLessThen-' . $calculatedRates[$i]]);
+                        unset($data['ChangeRateTo-' . $calculatedRates[$i]]);
+                        break;
+                    } else {
+                        if(!isset($data['RateComponent-'. $calculatedRates[$i]]) ||
+                            empty($data['RateTimeOfDay-'. $calculatedRates[$i]]) ||
+                            !isset($data['RateLessThen-'. $calculatedRates[$i]]) ||
+                            !is_numeric($data['RateLessThen-'. $calculatedRates[$i]]) ||
+                            !isset($data['ChangeRateTo-'. $calculatedRates[$i]]) ||
+                            !is_numeric($data['ChangeRateTo-'. $calculatedRates[$i]])){
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Calculated Rate Value is missing."
+                            ));
+                        }
+
+                        $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
+                        $rOrigination[]  = @$data['RateOrigination-' . $calculatedRates[$i]];
+                        $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
+                        $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
+                        $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
+                    }
+
+                    unset($data['RateComponent-' . $calculatedRates[$i]]);
+                    unset($data['RateOrigination-' . $calculatedRates[$i]]);
+                    unset($data['RateTimeOfDay-' . $calculatedRates[$i]]);
+                    unset($data['RateLessThen-' . $calculatedRates[$i]]);
+                    unset($data['ChangeRateTo-' . $calculatedRates[$i]]);
+                }
+
+                unset($data['getRateIDs']);
+                unset($data['RateComponent-1']);
+                unset($data['RateOrigination-1']);
+                unset($data['RateTimeOfDay-1']);
+                unset($data['RateLessThen-1']);
+                unset($data['ChangeRateTo-1']);
             } else {
                 unset($data['getIDs']);
                 unset($data['Component-1']);
@@ -497,60 +597,22 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['TimeOfDay-1']);
                 unset($data['MergeTo-1']);
                 unset($data['Category']);
+                unset($data['RateComponent-1']);
+                unset($data['RateOrigination-1']);
+                unset($data['RateTimeOfDay-1']);
+                unset($data['RateLessThen-1']);
+                unset($data['ChangeRateTo-1']);
+                unset($data['getRateIDs']);
             }
 
-            $calculatedRates = array_unique(explode(",", $getRateNumberString));
-
-            for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
-                $GetRateComponents[] = 'RateComponent-' . $calculatedRates[$i];
-
-                if (!isset($data[$GetRateComponents[$i]])) {
-                    unset($data['RateComponent-' . $calculatedRates[$i]]);
-                    unset($data['RateOrigination-' . $calculatedRates[$i]]);
-                    unset($data['RateTimeOfDay-' . $calculatedRates[$i]]);
-                    unset($data['RateLessThen-' . $calculatedRates[$i]]);
-                    unset($data['ChangeRateTo-' . $calculatedRates[$i]]);
-                    break;
-                } else {
-                    if(!isset($data['RateComponent-'. $calculatedRates[$i]]) ||
-                        empty($data['RateOrigination-'. $calculatedRates[$i]]) ||
-                        empty($data['RateTimeOfDay-'. $calculatedRates[$i]]) ||
-                        !isset($data['RateLessThen-'. $calculatedRates[$i]]) ||
-                        !isset($data['ChangeRateTo-'. $calculatedRates[$i]])){
-                        return Response::json(array(
-                            "status" => "failed",
-                            "message" => "Calculated Rate Value is missing."
-                        ));
-                    }
-
-                    $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
-                    $rOrigination[]  = $data['RateOrigination-' . $calculatedRates[$i]];
-                    $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
-                    $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
-                    $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
-                }
-
-                unset($data['RateComponent-' . $calculatedRates[$i]]);
-                unset($data['RateOrigination-' . $calculatedRates[$i]]);
-                unset($data['RateTimeOfDay-' . $calculatedRates[$i]]);
-                unset($data['RateLessThen-' . $calculatedRates[$i]]);
-                unset($data['ChangeRateTo-' . $calculatedRates[$i]]);
-            }
-
-
-            unset($data['RateComponent-1']);
-            unset($data['RateOrigination-1']);
-            unset($data['RateTimeOfDay-1']);
-            unset($data['RateLessThen-1']);
-            unset($data['ChangeRateTo-1']);
-
-            unset($data['getRateIDs']);
             unset($data['AllComponent']);
 
             if ($RateGenerator->update($data)) {
                 $CostComponentSaved = "Updated";
 
                 RateGeneratorComponent::where("RateGeneratorId", $id)->delete();
+                RateGeneratorCalculatedRate::where("RateGeneratorId", $id)->delete();
+
                 if ($SelectType == 2) {
 
                     $numberArray = explode(",", $getNumberString);
@@ -558,17 +620,14 @@ class RateGeneratorsController extends \BaseController {
                     $addComponents = array();
                     $i = 0;
                     for ($i = 0; $i < sizeof($numberArray) - 1; $i++) {
-
                         if (!isset($componts[$i])) {
                             break;
                         }
-
                         $GetComponent   = $componts[$i];
                         $GetOrigination = $origination[$i];
                         $GetTimeOfDay   = $timeofday[$i];
                         $GetAction      = $action[$i];
                         $GetMergeTo     = $mergeTo[$i];
-
 
                         $addComponents['RatePositionID'] = $data['RatePosition'];
                         $addComponents['TrunkID'] = $data['TrunkID'];
@@ -584,34 +643,32 @@ class RateGeneratorsController extends \BaseController {
                         if (RateGeneratorComponent::create($addComponents)) {
                             $CostComponentSaved = "and Cost component Updated";
                         }
+                    }
 
+                    $calculatedRates = explode(",", $getRateNumberString);
+                    $addCalRate = array();
+
+                    for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
+                        if (!isset($rComponent[$i])) {
+                            break;
+                        }
+
+                        $addCalRate['RatePositionID']  = $data['RatePosition'];
+                        $addCalRate['TrunkID']         = $data['TrunkID'];
+                        $addCalRate['CurrencyID']      = $data['CurrencyID'];
+                        $addCalRate['Component']       = implode(",", $rComponent[$i]);
+                        $addCalRate['Origination']     = $rOrigination[$i];
+                        $addCalRate['TimeOfDay']       = $rTimeOfDay[$i];
+                        $addCalRate['RateLessThen']    = $rRateLessThen[$i];
+                        $addCalRate['ChangeRateTo']    = $rChangeRateTo[$i];
+                        $addCalRate['RateGeneratorId'] = $RateGeneratorID;
+
+                        if (RateGeneratorCalculatedRate::create($addCalRate)) {
+                            $CostComponentSaved = "and Calculated Rate Updated";
+                        }
                     }
                 }
 
-
-                RateGeneratorCalculatedRate::where("RateGeneratorId", $id)->delete();
-                $calculatedRates = explode(",", $getRateNumberString);
-                $addCalRate = array();
-
-                for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
-                    if (!isset($rComponent[$i])) {
-                        break;
-                    }
-
-                    $addCalRate['RatePositionID']  = $data['RatePosition'];
-                    $addCalRate['TrunkID']         = $data['TrunkID'];
-                    $addCalRate['CurrencyID']      = $data['CurrencyID'];
-                    $addCalRate['Component']       = implode(",", $rComponent[$i]);
-                    $addCalRate['Origination']     = $rOrigination[$i];
-                    $addCalRate['TimeOfDay']       = $rTimeOfDay[$i];
-                    $addCalRate['RateLessThen']    = $rRateLessThen[$i];
-                    $addCalRate['ChangeRateTo']    = $rChangeRateTo[$i];
-                    $addCalRate['RateGeneratorId'] = $RateGeneratorID;
-
-                    if (RateGeneratorCalculatedRate::create($addCalRate)) {
-                        $CostComponentSaved = "and Calculated Rate Updated";
-                    }
-                }
                 DB::commit();
 
                 return Response::json(array(
@@ -656,6 +713,7 @@ class RateGeneratorsController extends \BaseController {
                 DB::beginTransaction();
 
                 RateGeneratorComponent::where('RateGeneratorId',$id)->delete();
+                RateGeneratorCalculatedRate::where('RateGeneratorId',$id)->delete();
                 RateGenerator::find($id)->delete();
                 DB::commit();
                 return Response::json(array("status" => "success", "message" => "Rate Generator Successfully deleted"));
@@ -673,7 +731,6 @@ class RateGeneratorsController extends \BaseController {
             try {
                 DB::beginTransaction();
                 $RateGeneratorId = $id;
-
 
                 $data = compact("RateGeneratorId");
                 $data["EffectiveDate"] = Input::get('EffectiveDate');

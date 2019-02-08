@@ -29,9 +29,6 @@
         </div>
         <br/>
 
-
-
-
         <div class="row">
             <div class="panel-body">
                 <div class="panel panel-primary" data-collapsed="0">
@@ -44,8 +41,12 @@
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
+
                     <div class="panel-body">
+
                         <div class="form-group">
+
+
                             <label for="field-1" class="col-sm-2 control-label">Type</label>
                             <div class="col-sm-4">
                                 {{Form::select('SelectType',$AllTypes,'',array("class"=>"form-control select2 small"))}}
@@ -94,6 +95,19 @@
                             </div>
 
                         </div>
+
+                        <div class="form-group NonDID-Div">
+                            <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="LessThenRate" value="" />
+
+                            </div>
+
+                            <label for="field-1" class="col-sm-2 control-label">Change rate to</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="ChargeRate" value="" />
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Currency</label>
                             <div class="col-sm-4">
@@ -110,16 +124,52 @@
                                     <input type="text" class="form-control popover-primary" rows="1" id="percentageRate" name="percentageRate" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Use vendor position mention in Rate Position unless vendor selected position is more then N% more costly than the previous vendor" data-original-title="Percentage" />
                                 </div>
                             </div>
-
                         </div>
+                        <div class="form-group NonDID-Div">
+                            <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('codedeckid', $codedecklist,  null , array("class"=>"select2")) }}
 
-                        <div class="form-group">
+                            </div>
+
+                            <label for="field-1" class="col-sm-2 control-label">Timezones</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('Timezones[]', $Timezones, array_keys($Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
+                            </div>
+                        </div>
+                        <div class="form-group NonDID-Div">
+                            <label class="col-sm-2 control-label">Merge Rate By Timezones</label>
+                            <div class="col-sm-4">
+                                <div class="make-switch switch-small">
+                                    {{Form::checkbox('IsMerge', 1,  null, array('id' => 'IsMerge') );}}
+                                </div>
+                            </div>
+                            <label class="col-sm-2 control-label IsMerge">Take Price</label>
+                            <div class="col-sm-4 IsMerge">
+                                {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), null , array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        <div class="form-group NonDID-Div">
+                            <label class="col-sm-2 control-label IsMerge">Merge Into</label>
+                            <div class="col-sm-4 IsMerge">
+                                {{ Form::select('MergeInto', $Timezones, null , array("class"=>"select2")) }}
+                            </div>
+
+                            <div id="hide-components">
+                                <label for="field-1" class="col-sm-2 control-label">Components</label>
+                                <div class="col-sm-4">
+                                    {{ Form::select('AllComponent[]', RateGenerator::$Component, null, array("class"=>"select2 multiselect" , "multiple"=>"multiple", "id"=>"AllComponent" )) }}
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="form-group DID-Div">
                             <label for="field-1" class="col-sm-2 control-label">Product</label>
                             <div class="col-sm-10">
                                 {{ Form::select('ProductID', $Products, null, array("class"=>"select2")) }}
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group DID-Div">
                             <label for="StartDate" class="col-sm-2 control-label">Date From</label>
                             <div class="col-sm-4">
                                 <input id="StartDate" type="text" name="DateFrom" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
@@ -129,7 +179,7 @@
                                 <input id="EndDate" type="text" name="DateTo" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group DID-Div">
                             <label for="Calls" class="col-sm-2 control-label">Calls</label>
                             <div class="col-sm-4">
                                 <input type="number" min="0" class="form-control" id="Calls" name="Calls"/>
@@ -139,7 +189,7 @@
                                 <input type="number" min="0" class="form-control" id="Minutes" name="Minutes"/>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group DID-Div">
                             <label for="TimeOfDay" class="col-sm-2 control-label">Time of Day</label>
                             <div class="col-sm-4">
                                 {{ Form::select('TimeOfDay', $Timezones, null, array("class"=>"select2")) }}
@@ -149,7 +199,7 @@
                                 <input type="number" min="0" class="form-control" id="TimeOfDayPercentage" name="TimeOfDayPercentage"/>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group DID-Div">
                             <label for="Origination" class="col-sm-2 control-label">Origination</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" id="Origination" name="Origination"/>
@@ -162,14 +212,11 @@
                         <div class="form-group" id="DIDCategoryDiv">
                             <label for="field-1" class="col-sm-2 control-label">Category</label>
                             <div class="col-sm-4">
-                                {{ Form::select('Category', $Categories, null, array("class"=>"select2")) }}
+                                {{ Form::select('Category', $Categories,null, array("class"=>"select2")) }}
                             </div>
                         </div>
-
-
                     </div>
                 </div>
-
 
                 <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
                     <div class="panel-heading">
@@ -181,9 +228,7 @@
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
-
                     <div class="panel-body">
-
                         <div class="col-md-12">
                             <br/>
                             <input type="hidden" id="getIDs" name="getIDs" value=""/>
@@ -202,7 +247,6 @@
                                 <tr id="selectedRow-1">
                                     <td id="testValues">
                                         {{ Form::select('Component-1[]', RateGenerator::$Component, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}
-
                                     </td>
                                     <td>
                                         <input type="text" class="form-control" name="Origination-1"/>
@@ -232,13 +276,10 @@
 
                                 </tbody>
                             </table>
-
                         </div>
-
-
                     </div>
                 </div>
-                <div class="panel panel-primary" data-collapsed="0" id="Calculated-Rate">
+                <div class="panel panel-primary DID-Div" data-collapsed="0" id="Calculated-Rate">
                     <div class="panel-heading">
                         <div class="panel-title">
                             Calculated Rate
@@ -292,7 +333,6 @@
                                 </tr>
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </div>
@@ -316,7 +356,6 @@
          });
          });*/
 
-
         function getIds(tblID, idInp){
             $('#'+idInp).val("");
             $('#' + tblID + ' tbody tr').each(function() {
@@ -333,7 +372,15 @@
             });
         }
 
+
         $(document).ready(function() {
+
+            if(performance.navigation.type == 2)
+            {
+                $('#getIDs').val('');
+                $('#getRateIDs').val('');
+                $("#hide-components").hide();
+            }
 
             $("#StartDate").datepicker({
                 todayBtn:  1,
@@ -358,17 +405,12 @@
                 $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
             }
 
-            if(performance.navigation.type == 2)
-            {
-                $('#getIDs').val('');
-                $("#hide-components").hide();
-
-            }
 
             $(window).load(function() {
                 getIds("servicetableSubBox", "getIDs");
                 getIds("ratetableSubBox", "getRateIDs");
             });
+
             $('#servicetableSubBox tbody tr').each(function() {
 
                 var id = getNumber(this.id);
@@ -417,6 +459,8 @@
             $("#group-preference-div").hide();
             $("#DIDCategoryDiv").show();
             $("#Merge-components").show();
+            $(".DID-Div").show();
+            $(".NonDID-Div").hide();
 
         }else if(TypeValue == 1){
             $("#rate-ostion-trunk-div").show();
@@ -425,7 +469,11 @@
             $("#Merge-components").hide();
             $("#DIDCategoryDiv").hide();
             $("#hide-components").hide();
-
+            $(".DID-Div").hide();
+            $(".NonDID-Div").show();
+        } else {
+            $(".DID-Div").hide();
+            $(".NonDID-Div").show();
         }
 
         $("#rategenerator-from [name='SelectType']").on('change', function() {
@@ -439,6 +487,8 @@
                 $("#Merge-components").show();
                 $("#DIDCategoryDiv").show();
                 $("#hide-components").show();
+                $(".DID-Div").show();
+                $(".NonDID-Div").hide();
 
 
             }else if(TypeValue == 1){
@@ -448,6 +498,11 @@
                 $("#Merge-components").hide();
                 $("#hide-components").hide();
                 $("#DIDCategoryDiv").hide();
+                $(".DID-Div").hide();
+                $(".NonDID-Div").show();
+            } else {
+                $(".DID-Div").hide();
+                $(".NonDID-Div").show();
             }
 
         });
