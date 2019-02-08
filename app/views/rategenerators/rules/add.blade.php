@@ -26,33 +26,64 @@
         </a>
     </div>
     <div class="clearfix"></div>
-
-    <form role="form" id="rategenerator-code-from" method="post" action="{{URL::to('rategenerators/'.$id.'/rule/store_code')}}">
+    @if($rateGenerator->SelectType != 2)
         <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="field-4" class="control-label">Component</label>
-                    {{ Form::select('Component', RateGenerator::$Component, '', array("class"=>"select2")) }}
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Origination</label>
-                    <input type="text" class="form-control" name="Origination"/>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Time of Day</label>
-                    {{ Form::select('TimeOfDay', $Timezones, '', array("class"=>"select2")) }}
+            <div class="col-md-12">
+                <ul class="nav nav-tabs bordered">
+                    <li class="active"><a data-toggle="tab" href="#tab-code_description">Call Codes</a></li>
+                    <li><a data-toggle="tab" href="#tab-source">Sources</a></li>
+                    <li><a class="disabled" href="#">Margin</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab-code_description">
+                        @include('rategenerators.rules.add_code', array('id'))
+                    </div>
                 </div>
             </div>
         </div>
-    </form>
+    @else
+        <form role="form" id="rategenerator-code-from" method="post" action="{{URL::to('rategenerators/'.$id.'/rule/store_code')}}">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="field-4" class="control-label">Component</label>
+                        {{ Form::select('Component', RateGenerator::$Component, '', array("class"=>"select2")) }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="field-5" class="control-label">Origination</label>
+                        <input type="text" class="form-control" name="Origination"/>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="field-5" class="control-label">Time of Day</label>
+                        {{ Form::select('TimeOfDay', $Timezones, '', array("class"=>"select2")) }}
+                    </div>
+                </div>
+            </div>
+        </form>
+    @endif
 
     <script type="text/javascript">
         jQuery(document).ready(function($) {
             $(".saveall.btn").click(function(e){
+
+                        @if($rateGenerator->SelectType != 2)
+                var OriginationCode = $("#rategenerator-code-from input[name='OriginationCode']").val();
+                var OriginationDescription = $("#rategenerator-code-from input[name='OriginationDescription']").val();
+                var DestinationCode = $("#rategenerator-code-from input[name='Code']").val();
+                var DestinationDescription = $("#rategenerator-code-from input[name='Description']").val();
+
+                if((typeof DestinationCode  == 'undefined' || DestinationCode.trim() == '' ) && (typeof DestinationDescription  == 'undefined' || DestinationDescription.trim() == '' ) && (typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
+
+                    setTimeout(function(){$('.btn').button('reset');},10);
+                    toastr.error("Please Enter any one from Origination Code,OriginationDescription,Destination Code,Destination Description", "Error", toastr_opts);
+                    return false;
+
+                }
+                        @else
 
                 var Origination = $("#rategenerator-code-from input[name='Origination']").val();
                 var Component = $("#rategenerator-code-from select[name='Component']").val();
@@ -63,6 +94,7 @@
                     toastr.error("Please Select Origination, Component, Time of Day", "Error", toastr_opts);
                     return false;
                 }
+                        @endif
                 var _url = $("#rategenerator-code-from").attr("action");
                 submit_ajax(_url,$("#rategenerator-code-from").serialize());
 
