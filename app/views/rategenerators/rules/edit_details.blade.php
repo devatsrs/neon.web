@@ -26,7 +26,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="field-5" class="control-label">Origination</label>
-                        <input type="text" class="form-control" name="Origination" value="{{$rategenerator_rule['Origination']}}"/>
+                        <input type="text" class="form-control" name="Origination" value="{{$rategenerator_rule['OriginationDescription']}}"/>
                     </div>
                 </div>
                 <div class="col-md-4">
