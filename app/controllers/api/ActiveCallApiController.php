@@ -90,8 +90,7 @@ class ActiveCallApiController extends ApiController {
                     $ActiveCallData['CLD']=$data['CLD'];
                     $ActiveCallData['CallType']=$data['CallType'];
                     $ActiveCallData['UUID']=$data['UUID'];
-                    $ActiveCallData['VendorID']=$data['VendorID'];
-
+                    $ActiveCallData['VendorID']=empty($data['VendorID']) ? 0 : $data['VendorID'];
                     $ActiveCallData['VendorConnectionName']=empty($data['VendorConnectionName']) ? '' : $data['VendorConnectionName'];
                     $ActiveCallData['OriginType']=empty($data['OriginType']) ? '' : $data['OriginType'];
                     $ActiveCallData['OriginProvider']=empty($data['OriginProvider']) ? '' : $data['OriginProvider'];
