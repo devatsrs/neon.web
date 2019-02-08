@@ -206,7 +206,7 @@ class RateTablesController extends \BaseController {
         $CurrencyDropDown = Currency::getCurrencyDropdownIDList();
 
         if($rateTable->Type == $TypeVoiceCall) {
-            return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE'));
+            return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE','CurrencyDropDown'));
         } else if($rateTable->Type == $TypeDID) {
             return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown'));
         } else {
@@ -299,7 +299,7 @@ class RateTablesController extends \BaseController {
         if ($id > 0) {
             $data           = Input::all();//echo "<pre>";print_r($data);exit();
             $username       = User::get_user_full_name();
-            $EffectiveDate  = $EndDate = $Rate = $RateN = $Interval1 = $IntervalN = $ConnectionFee = $OriginationRateID = $RoutingCategoryID = $Preference = $Blocked = 'null';
+            $EffectiveDate  = $EndDate = $Rate = $RateN = $Interval1 = $IntervalN = $ConnectionFee = $OriginationRateID = $RoutingCategoryID = $Preference = $Blocked = $RateCurrency = $ConnectionFeeCurrency = 'null';
             try {
                 DB::beginTransaction();
                 $p_criteria = 0;
@@ -329,7 +329,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -353,9 +353,9 @@ class RateTablesController extends \BaseController {
             $data = Input::all();//echo "<pre>";print_r($data);exit();
             $error = 0;
 
-            $EffectiveDate = $EndDate = $Rate = $RateN = $Interval1 = $IntervalN = $ConnectionFee = $OriginationRateID = $RoutingCategoryID = $Preference = $Blocked = 'null';
+            $EffectiveDate = $EndDate = $Rate = $RateN = $Interval1 = $IntervalN = $ConnectionFee = $OriginationRateID = $RoutingCategoryID = $Preference = $Blocked = $RateCurrency = $ConnectionFeeCurrency = 'null';
 
-            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateRateN']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee']) || !empty($data['updateOriginationRateID']) || !empty($data['updateRoutingCategoryID']) || !empty($data['updatePreference']) || !empty($data['updateBlocked'])) {// || !empty($data['EndDate'])
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateRateN']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee']) || !empty($data['updateOriginationRateID']) || !empty($data['updateRoutingCategoryID']) || !empty($data['updatePreference']) || !empty($data['updateBlocked']) || !empty($data['RateCurrency']) || !empty($data['ConnectionFeeCurrency'])) {// || !empty($data['EndDate'])
                 if(!empty($data['updateEffectiveDate'])) {
                     if(!empty($data['EffectiveDate'])) {
                         $EffectiveDate = "'".$data['EffectiveDate']."'";
@@ -403,6 +403,16 @@ class RateTablesController extends \BaseController {
                         $ConnectionFee = $data['ConnectionFee'] != '' ? "'".floatval($data['ConnectionFee'])."'" : "'NULL'";
                     } else if (empty($data['updateType'])) {
                         $error=1;
+                    }
+                }
+                if(!empty($data['updateRateCurrency'])) {
+                    if(!empty($data['RateCurrency'])) {
+                        $RateCurrency = "'".$data['RateCurrency']."'";
+                    }
+                }
+                if(!empty($data['updateConnectionFeeCurrency'])) {
+                    if(!empty($data['ConnectionFeeCurrency'])) {
+                        $ConnectionFeeCurrency = "'".$data['ConnectionFeeCurrency']."'";
                     }
                 }
                 if(!empty($data['updateOriginationRateID'])) {
@@ -472,7 +482,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -807,11 +817,13 @@ class RateTablesController extends \BaseController {
         }
 
         if($rateTable->Type == $TypeVoiceCall) {
-            $RateTableRate['Rate'] = $data['Rate'];
-            $RateTableRate['RateN'] = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
-            $RateTableRate['Interval1'] = $data['Interval1'];
-            $RateTableRate['IntervalN'] = $data['IntervalN'];
-            $RateTableRate['ConnectionFee'] = $data['ConnectionFee'];
+            $RateTableRate['Rate']                  = $data['Rate'];
+            $RateTableRate['RateN']                 = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
+            $RateTableRate['Interval1']             = $data['Interval1'];
+            $RateTableRate['IntervalN']             = $data['IntervalN'];
+            $RateTableRate['ConnectionFee']         = $data['ConnectionFee'];
+            $RateTableRate['RateCurrency']          = $data['RateCurrency'] == '' ? NULL : $data['RateCurrency'];
+            $RateTableRate['ConnectionFeeCurrency'] = $data['ConnectionFeeCurrency' ] == '' ? NULL : $data['ConnectionFeeCurrency'];
 
             if ($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR) {
                 $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');

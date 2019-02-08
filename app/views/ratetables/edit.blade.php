@@ -214,7 +214,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate'];
+        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate','RateCurrency','ConnectionFeeCurrency'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -712,21 +712,29 @@
                         {
                             "bVisible" : false
                         }, //6 interval n
-                        {}, //7 ConnectionFee
+                        {
+                            mRender: function(col, type, full) {
+                                if(col != null && col != '') return full[28] + col; else return '';  //ConnectionFeeCurrency+ConnectionFee
+                            }
+                        }, //7 ConnectionFee
                         {
                             "bVisible" : bVisible
                         }, //8 PreviousRate
                         {
-                            mRender: function(id, type, full) {
-                                if(full[9] > full[8])
-                                    return full[9]+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
-                                else if(full[9] < full[8])
-                                    return full[9]+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
-                                else
-                                    return full[9]
+                            mRender: function(col, type, full) {
+                                var rate_html = full[27] + col; //RateCurrency+Rate
+                                if(col > full[8])
+                                    rate_html = rate_html+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(col < full[8])
+                                    rate_html = rate_html+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
                             }
                         }, //9 Rate
-                        {}, //10 RateN
+                        {
+                            mRender: function(col, type, full) {
+                                if(col != null && col != '') return full[27] + col; else return '';  //RateCurrency+RateN
+                            }
+                        }, //10 RateN
                         {}, //11 Effective Date
                         {
                             "bVisible" : bVisible,
@@ -892,7 +900,7 @@
                     $("#edit-rate-table-form  [name=OriginationRateID]").select2("val", "");
                     var cur_obj = $(this).prevAll("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){
-                        $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                        $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger('change');
                     }
 
                     var OriginationRateID = cur_obj.find("input[name=OriginationRateID]").val();
@@ -1065,7 +1073,7 @@
                             html += "<td>" + data['Interval1'] + "</td>";
                             html += "<td>" + data['IntervalN'] + "</td>";
                             html += "<td>" + (data['ConnectionFee'] != null?data['ConnectionFee']:'') + "</td>";
-                            html += "<td>" + data['Rate'] + "</td>";
+                            html += "<td>" + (data['Rate'] != null?data['Rate']:'') + "</td>";
                             html += "<td>" + (data['RateN'] != null?data['RateN']:'') + "</td>";
                             html += "<td>" + data['EffectiveDate'] + "</td>";
                             html += "<td>" + data['EndDate'] + "</td>";
@@ -1112,6 +1120,9 @@
 #selectcheckbox{
     padding: 15px 10px;
 }
+.component-form-control {
+    padding: 0;
+}
 </style>
 @stop @section('footer_ext') @parent
 <div class="modal fade" id="modal-rate-table">
@@ -1143,17 +1154,25 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Connection Fee</label>
                                 <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('ConnectionFeeCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Rate1</label>
                                 <input type="text" name="Rate" class="form-control Rate1" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('RateCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1226,6 +1245,8 @@
                     <input type="hidden" name="updateConnectionFee" value="on">
                     <input type="hidden" name="updateEndDate" value="on">
                     <input type="hidden" name="updateType" value="singleEdit">
+                    <input type="hidden" name="updateRateCurrency" value="on">
+                    <input type="hidden" name="updateConnectionFeeCurrency" value="on">
                     @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                         @if($ROUTING_PROFILE == 1)
                     <input type="hidden" name="updateRoutingCategoryID" value="on">
@@ -1281,19 +1302,29 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateConnectionFee" class="" />
                                 <label class="control-label">Connection Fee</label>
                                 <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateConnectionFeeCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('ConnectionFeeCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateRate" class="" />
                                 <label class="control-label">Rate1</label>
                                 <input type="text" name="Rate" class="form-control Rate1" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateRateCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('RateCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1419,15 +1450,23 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Connection Fee</label>
                                 <input type="text" name="ConnectionFee" class="form-control" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('ConnectionFeeCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6 clear">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Rate1</label>
                                 <input type="text" name="Rate" class="form-control Rate1" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('RateCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1436,7 +1475,7 @@
                                 <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 clear">
                             <div class="form-group">
                                 <label class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
