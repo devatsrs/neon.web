@@ -260,7 +260,7 @@
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
         @if( User::checkCategoryPermission('Report','Add'))
           <li class="two-links"> <a href="{{Url::to('/report')}}" class="first"> <i class="fa fa-line-chart"></i><span>Reports</span></a> <a href="{{URL::to('report/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
-        @elseif( User::checkCategoryPermission('Report','All'))
+        @elseif( User::checkCategoryPermission('Report','View'))
           <li> <a href="{{Url::to('/report')}}"> <i class="fa fa-line-chart"></i><span>Reports</span></a></li>
         @endif
     @endif
