@@ -3990,6 +3990,8 @@ ThisSP:BEGIN
 		`IntervalN` int,
 		`Blocked` tinyint,
 		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
 		`DialStringPrefix` varchar(500),
 		INDEX IX_orogination_code (OriginationCode),
 		INDEX IX_origination_description (OriginationDescription),
@@ -4021,6 +4023,8 @@ ThisSP:BEGIN
 		`IntervalN` int,
 		`Blocked` tinyint,
 		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
 		`DialStringPrefix` varchar(500),
 		INDEX IX_orogination_code (OriginationCode),
 		INDEX IX_origination_description (OriginationDescription),
@@ -4052,6 +4056,8 @@ ThisSP:BEGIN
 		`IntervalN` int,
 		`Forbidden` varchar(100) ,
 		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
 		`DialStringPrefix` varchar(500),
 		INDEX IX_orogination_code (OriginationCode),
 		INDEX IX_origination_description (OriginationDescription),
@@ -4116,6 +4122,8 @@ ThisSP:BEGIN
 		`IntervalN`,
 		`Blocked`,
 		`RoutingCategoryID`,
+		`RateCurrency`,
+		`ConnectionFeeCurrency`,
 		`DialStringPrefix`
 	FROM tmp_split_RateTableRate_
 	WHERE tmp_split_RateTableRate_.ProcessId = p_processId;
@@ -4286,8 +4294,10 @@ ThisSP:BEGIN
 					`Interval1`,
 					`IntervalN`,
 					tblTempRateTableRate.Forbidden as Forbidden,
-					tblTempRateTableRate.DialStringPrefix as DialStringPrefix,
-					`RoutingCategoryID`
+					`RoutingCategoryID`,
+					`RateCurrency`,
+					`ConnectionFeeCurrency`,
+					tblTempRateTableRate.DialStringPrefix as DialStringPrefix
 				FROM tmp_TempRateTableRate_ as tblTempRateTableRate
 				INNER JOIN tmp_DialString_ ds
 					ON ( (tblTempRateTableRate.Code = ds.ChargeCode AND tblTempRateTableRate.DialStringPrefix = '') OR (tblTempRateTableRate.DialStringPrefix != '' AND tblTempRateTableRate.DialStringPrefix =  ds.DialString AND tblTempRateTableRate.Code = ds.ChargeCode  ))
@@ -4327,8 +4337,10 @@ ThisSP:BEGIN
 					Interval1,
 					IntervalN,
 					Forbidden,
-					DialStringPrefix,
-					RoutingCategoryID
+					RoutingCategoryID,
+					RateCurrency,
+					ConnectionFeeCurrency,
+					DialStringPrefix
 				)
 				SELECT DISTINCT
 					`TempRateTableRateID`,
@@ -4349,8 +4361,10 @@ ThisSP:BEGIN
 					`Interval1`,
 					`IntervalN`,
 					`Forbidden`,
-					DialStringPrefix,
-					RoutingCategoryID
+					`RoutingCategoryID`,
+					`RateCurrency`,
+					`ConnectionFeeCurrency`,
+					`DialStringPrefix`
 				FROM tmp_RateTableRateDialString_3;
 
 				UPDATE tmp_TempRateTableRate_ as tblTempRateTableRate
@@ -4638,7 +4652,7 @@ BEGIN
 		SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
 		SELECT
-			distinct
+		--	distinct
 			IF(p_Action='Deleted',RateTableRateID,TempRateTableRateID) AS RateTableRateID,
 			`OriginationCode`,
 			`OriginationDescription`,
@@ -4749,7 +4763,7 @@ BEGIN
 	IF p_isExport = 1
 	THEN
 		SELECT
-			distinct
+		--	distinct
 			`OriginationCode`,
 			`OriginationDescription`,
 			RTCL.`Code`,
