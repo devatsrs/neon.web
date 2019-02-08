@@ -830,47 +830,20 @@ Cost per month +
 (Collection Cost amount *Minutes)
 */
 
-	CASE WHEN  t.TimezonesID is null OR t.TimezonesID  = @v_DefaultTimeZoneID THEN
-		(
+	(
 
-			(	IFNULL(@MonthlyCost,0) 				)				+
-			(IFNULL(@CostPerMinute,0) * @p_Minutes)	+
-			(IFNULL(@CostPerCall,0) * @p_Calls)		+
-			(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
-			(IFNULL(@OutpaymentPerMinute,0) * 	@p_Minutes)	+
-			(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
-			(IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
-			(IFNULL(@CollectionCostAmount,0) * @p_Minutes)
+		(	IFNULL(@MonthlyCost,0) 				)				+
+		(IFNULL(@CostPerMinute,0) * (select minutes from tmp_timezone_minutes tm where tm.TimezonesID = t.TimezonesID ))	+
+		(IFNULL(@CostPerCall,0) * @p_Calls)		+
+		(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
+		(IFNULL(@OutpaymentPerMinute,0) *  (select minutes from tmp_timezone_minutes_2 tm2 where tm2.TimezonesID = t.TimezonesID ))	+
+		(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
+		(IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
+		(IFNULL(@CollectionCostAmount,0) * (select minutes from tmp_timezone_minutes_3 tm3 where tm3.TimezonesID = t.TimezonesID ) )
 
 
-		)
-	WHEN  t.TimezonesID  = @v_PeakTimeZoneID THEN
-		(
+	)
 
-			(	IFNULL(@MonthlyCost,0) 				)				+
-			(IFNULL(@CostPerMinute,0) * @v_PeakTimeZoneMinutes)	+
-			(IFNULL(@CostPerCall,0) * @p_Calls)		+
-			(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
-			(IFNULL(@OutpaymentPerMinute,0) * 	@v_PeakTimeZoneMinutes)	+
-			(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
-			(IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
-			(IFNULL(@CollectionCostAmount,0) * @v_PeakTimeZoneMinutes)
-
-		)
-	WHEN  t.TimezonesID  = @v_OffPeakTimeZoneID THEN
-		(
-
-			(	IFNULL(@MonthlyCost,0) 				)				+
-			(IFNULL(@CostPerMinute,0) * @v_OffpeakTimeZoneMinutes)	+
-			(IFNULL(@CostPerCall,0) * @p_Calls)		+
-			(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
-			(IFNULL(@OutpaymentPerMinute,0) * 	@v_OffpeakTimeZoneMinutes)	+
-			(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
-			(IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
-			(IFNULL(@CollectionCostAmount,0) * @v_OffpeakTimeZoneMinutes)
-
-		)
-	END
 		as Total
 
 
