@@ -60,11 +60,13 @@ class BillingClassApiController extends ApiController {
                     if(!empty($Account)){
                         $AccountID=$Account->AccountID;
                         $CompanyID=$Account->CompanyId;
+                    }else{
+                        return Response::json(["ErrorMessage"=>"Account Number Found."],Codes::$Code402[0]);
                     }
 		}else if(!empty($data['AccountDynamicField'])){
                     $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
                     if(empty($AccountID)){
-                        return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
+                        return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
                     }
                     $Account = Account::where(["AccountID" => $AccountID])->first();
                     if(!empty($Account)){
@@ -81,7 +83,12 @@ class BillingClassApiController extends ApiController {
                 }else{
                    return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code402[0]);
                 }
+                $AccountBalanceThreshhold =  AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'AccountBalanceThresholdID'=>$NotificationId))->first();
+                if(count($AccountBalanceThreshhold) > 0){
                 AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'AccountBalanceThresholdID'=>$NotificationId))->delete();
+                }else{
+                    return Response::json(["ErrorMessage"=>"NotificationID Not Found"],Codes::$Code402[0]);
+                }
                 return Response::json(json_decode('{}'),Codes::$Code200[0]);
             }catch (\Exception $e) {
                     Log::info($e);
