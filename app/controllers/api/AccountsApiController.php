@@ -1091,8 +1091,10 @@ class AccountsApiController extends ApiController {
 					$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($BankPaymentDetails['PaymentGatewayID']);
 					$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
 					$AccountResponse = $PaymentIntegration->createAccount($BankPaymentDetails);
-					if ($AccountResponse['status'] == 'failed') {
-						return Response::json(["ErrorMessage" => $AccountResponse['message']],Codes::$Code1033[0]);
+					$AccountResponse = json_decode($AccountResponse);
+					Log::info('$Account Payment Response ' . print_r($AccountResponse,true));
+					if ($AccountResponse->status == 'failed') {
+						return Response::json(["ErrorMessage" => $AccountResponse->message],Codes::$Code1033[0]);
 					}
 
 				}
