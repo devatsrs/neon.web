@@ -216,7 +216,7 @@
     <div class="control-FromCurrency">
         <label class="col-sm-2 control-label control-FromCurrency-controls">Currency Conversion <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select currency to convert rates to your base currency" data-original-title="Currency Conversion">?</span></label>
         <div class="col-sm-4 control-FromCurrency-controls">
-            {{Form::select('selection[FromCurrency]', $currencies ,(isset($attrselection->FromCurrency)?$attrselection->FromCurrency:''),array("class"=>" small"))}}
+            {{Form::select('selection[FromCurrency]', $currencies ,(isset($attrselection->FromCurrency)?$attrselection->FromCurrency:''),array("class"=>" small","id"=>"FromCurrency"))}}
         </div>
     </div>
     <div class="control-OriginationCountryCode">
