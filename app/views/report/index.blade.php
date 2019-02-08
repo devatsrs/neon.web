@@ -22,7 +22,6 @@
                 Filter
             </h2>
             <form id="report_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
- 
                         <div class="form-group">
                             <label for="field-1" class="control-label">Name</label>
                             <input class="form-control" name="Name" type="text" >
@@ -41,19 +40,22 @@
         </div>
     </div>
 @stop
-    @if(User::checkCategoryPermission('Report','Add'))
+
         <p style="text-align: right;">
+            @if(User::checkCategoryPermission('Report','Add'))
             <a href="{{URL::to('report/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left" id="add-report">
                 <i class="entypo-plus"></i>
                 Add New
             </a>
-
+            @endif
+            @if(User::checkCategoryPermission('Report','Schedule'))
             <a href="{{URL::to('report/schedule')}}" class=" btn btn-primary btn-sm btn-icon icon-left">
                 <i class="fa fa-list"></i>
                 Schedule
             </a>
+            @endif
         </p>
-    @endif
+
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
@@ -114,11 +116,20 @@
                             action += '</div>';
                             var Status = full[3];
                             var ReportScheduleID = full[2];
-                            @if(User::checkCategoryPermission('Report','Update'))
+                            @if(User::checkCategoryPermission('Report','Edit'))
                                 action += ' <a href="' + report_edit_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                            @endif
+                            @if(User::checkCategoryPermission('Report','View'))
                                 action += ' <a href="' + report_edit_url.replace("{id}", id) + '?report=run" class="btn btn-default btn-sm tooltip-primary" data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>';
-                                action += ' <a class="btn btn-default btn-sm tooltip-primary dropdown-toggle" data-original-title="Export" title="" data-placement="top" data-toggle="dropdown"><i class="fa fa-download"></i>&nbsp;</a>' +
-                                        '<ul class="dropdown-menu dropdown-menu-left" role="menu" style="left:60px;top:35px;background-color: #000; border-color: #000; margin-top:0px; min-width: 0"> <li> <a href="' + report_export_url.replace("{id}", id) + '?Type={{Report::XLS}}" class="save-report-data"> <span>Excel</span> </a> </li><li> <a href="' + report_export_url.replace("{id}", id) + '?Type={{Report::PNG}}" class="save-report-data"> <span>PNG</span> </a> </li> <li> <a href="' + report_export_url.replace("{id}", id) + '?Type={{Report::PDF}}" class="save-report-data">  <span>PDF</span> </a> </li> </ul>';
+                            @endif
+                            @if(User::checkCategoryPermission('Report','Download'))
+                                action += ' <a class="btn btn-default btn-sm tooltip-primary dropdown-toggle" data-original-title="Export" title="" data-placement="top" data-toggle="dropdown"><i class="fa fa-download"></i>&nbsp;</a>' ;
+                                action += '<ul class="dropdown-menu dropdown-menu-left" role="menu" style="left:60px;top:35px;background-color: #000; border-color: #000; margin-top:0px; min-width: 0"> ' +
+                                    '<li> <a href="' + report_export_url.replace("{id}", id) + '?Type={{Report::XLS}}" class="save-report-data"> <span>Excel</span> </a> </li>' +
+                                    '<li> <a href="' + report_export_url.replace("{id}", id) + '?Type={{Report::PNG}}" class="save-report-data"> <span>PNG</span> </a> </li> ' +
+                                    '<li> <a href="' + report_export_url.replace("{id}", id) + '?Type={{Report::PDF}}" class="save-report-data">  <span>PDF</span> </a> </li> </ul>';
+                            @endif
+                            @if(User::checkCategoryPermission('Report','Schedule'))
                             if(ReportScheduleID) {
                                 action += ' <a href="' + report_schedule_url.replace("{id}", ReportScheduleID) + '" class="schedule_report  btn btn-default btn-sm tooltip-primary" data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>';
                             }else{
@@ -127,12 +138,12 @@
                                 action += ' <a href="' + report_history_url+'?ReportID=' +id+'" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-time"></i>&nbsp;</a>';
                             @endif
 
-                                    @if(User::checkCategoryPermission('Report','Delete'))
+                            @if(User::checkCategoryPermission('Report','Delete'))
                             //if(full[2] == 0) {
                                 action += ' <a href="' + report_delete_url.replace("{id}", id) + '" class="delete-report btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                             //}
                             @endif
-                            @if(User::checkCategoryPermission('Report','Update'))
+                            @if(User::checkCategoryPermission('Report','Schedule'))
                                 if(full[4]) {
                                     if (Status == 1) {
                                         action += '&nbsp;<button data-id="' + ReportScheduleID + '" data-status="' + Status + '" class="change_schedule btn btn-red btn-sm" type="button" title="Scheduling InActive" data-placement="left" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
