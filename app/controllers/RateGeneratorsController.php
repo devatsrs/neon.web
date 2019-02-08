@@ -409,8 +409,8 @@ class RateGeneratorsController extends \BaseController {
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $data ['DIDCategoryID']= isset($data['Category']) ? $data['Category'] : '';
         $data['VendorPositionPercentage'] = $data['percentageRate'];
-        $getNumberString = $data['getIDs'];
-        $getRateNumberString = $data['getRateIDs'];
+        $getNumberString = @$data['getIDs'];
+        $getRateNumberString = @$data['getRateIDs'];
 
         unset($data['SelectType']);
 
