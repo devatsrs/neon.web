@@ -396,6 +396,10 @@ class StripeBilling {
 				];
 			}
 
+
+			Log::info('StripBiling ' . $this->stripe_secret_key);
+			Log::info('StripBiling ' . $this->stripe_publishable_key);
+			Log::info('StripBiling ' . print_r($tokenArr,true));
 			$token = Stripe::tokens()->create($tokenArr);
 			Log::info(print_r($token,true));
 

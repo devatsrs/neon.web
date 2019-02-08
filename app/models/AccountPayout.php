@@ -7,6 +7,12 @@ class AccountPayout extends \Eloquent
     protected $primaryKey = "AccountPayoutID";
     public static $StatusActive = 1;
     public static $StatusDeactive = 0;
+    public static  $AccountPayoutBankRules = array(
+    'AccountNumber'     => 'required|digits_between:6,19',
+    'RoutingNumber'     => 'required',
+    'AccountHolderType' => 'required',
+    'AccountHolderName' => 'required',
+    );
 
     public static function getActivePayoutAccounts($AccountID,$PaymentGatewayID)
     {
@@ -103,16 +109,10 @@ class AccountPayout extends \Eloquent
     }
 
 
+
     public static function bankValidation($data){
         $ValidationResponse = array();
-        $rules = array(
-            'AccountNumber'     => 'required|digits_between:6,19',
-            'RoutingNumber'     => 'required',
-            'AccountHolderType' => 'required',
-            'AccountHolderName' => 'required',
-        );
-
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, AccountPayout::$AccountPayoutBankRules);
         if ($validator->fails()) {
             $errors = "";
             foreach ($validator->messages()->all() as $error){
