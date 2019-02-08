@@ -1661,6 +1661,9 @@ function next_billing_date($BillingCycleType,$BillingCycleValue,$BillingStartDat
             case 'yearly':
                 $NextInvoiceDate = date("Y-m-d", strtotime("+1 year", $BillingStartDate));
                 break;
+            case 'manual':
+                $NextInvoiceDate = $BillingStartDate;
+                break;
         }
         $Timezone = Company::getCompanyTimeZone(0);
         if(isset($Timezone) && $Timezone != ''){
@@ -1670,6 +1673,7 @@ function next_billing_date($BillingCycleType,$BillingCycleValue,$BillingStartDat
     }
     return $NextInvoiceDate;
 }
+
 function tax_exists($TaxRateID, $array) {
     $result = -1;
     for($i=0; $i<sizeof($array); $i++) {
