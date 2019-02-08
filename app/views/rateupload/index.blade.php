@@ -1112,6 +1112,18 @@
                 });
                 $('#modal-manage-columns').modal('hide');
             });
+
+            $(document).on("change","#FromCurrency", function() {
+                var val = $(this).val();
+                if(val != '') {
+                    $('.CurrencyDD').each(function() {
+                        $(this).select2('val','');
+                    });
+                    $('.CurrencyDD').hide();
+                } else {
+                    $('.CurrencyDD').show();
+                }
+            });
         });
 
         function createGrid(data){

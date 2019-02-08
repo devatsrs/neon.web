@@ -16,7 +16,7 @@
         <a href="{{URL::to('accounts')}}"> </i>Accounts</a>
     </li>
     <li>
-        <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}"></i>Edit Account({{$account->AccountName}})</a>
+        <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
     </li>
     @if($AccountServiceID!='0')
     <li>
