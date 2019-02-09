@@ -52,6 +52,8 @@
                     $ConnectionFeeColumn   = 'ConnectionFee'.$id;
                     $BlockedColumn         = 'Blocked'.$id;
                     $RoutingCategory       = 'RoutingCategory'.$id;
+                    $RateCurrencyColumn    = 'RateCurrency'.$id;
+                    $ConnectionFeeCurrencyColumn = 'ConnectionFeeCurrency'.$id;
                 ?>
                 <div class="panel panel-primary {{$id != '' ? 'panel-collapse' : ''}}" id="panel-mapping-{{$id}}" data-collapsed="0">
                     <div class="panel-heading">
@@ -66,8 +68,11 @@
                     <div class="panel-body field-remaping" id="mapping-{{$id}}" style="{{$id != '' ? 'display:none;' : ''}}">
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Rate 1</label>
-                            <div class="col-sm-4">
+                            <div class="col-sm-2">
                                 {{Form::select('selection['.$Rate1Column.']', $columns,(isset($attrselection->$Rate1Column)?$attrselection->$Rate1Column:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$RateCurrencyColumn.']', $component_currencies,(isset($attrselection->$RateCurrencyColumn)?$attrselection->$RateCurrencyColumn:''),array("class"=>"select2 CurrencyDD small"))}}
                             </div>
                             <label class="col-sm-2 control-label">
                                 Rate N
@@ -99,8 +104,11 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Connection Fee</label>
-                            <div class="col-sm-4">
+                            <div class="col-sm-2">
                                 {{Form::select('selection['.$ConnectionFeeColumn.']', $columns,(isset($attrselection->$ConnectionFeeColumn)?$attrselection->$ConnectionFeeColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$ConnectionFeeCurrencyColumn.']', $component_currencies,(isset($attrselection->$ConnectionFeeCurrencyColumn)?$attrselection->$ConnectionFeeCurrencyColumn:''),array("class"=>"select2 CurrencyDD small"))}}
                             </div>
                             <label class="col-sm-2 control-label vendor_selection_routing_box">Routing Category</label>
                             <div class="col-sm-4 vendor_selection_routing_box">
@@ -208,7 +216,7 @@
     <div class="control-FromCurrency">
         <label class="col-sm-2 control-label control-FromCurrency-controls">Currency Conversion <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select currency to convert rates to your base currency" data-original-title="Currency Conversion">?</span></label>
         <div class="col-sm-4 control-FromCurrency-controls">
-            {{Form::select('selection[FromCurrency]', $currencies ,(isset($attrselection->FromCurrency)?$attrselection->FromCurrency:''),array("class"=>" small"))}}
+            {{Form::select('selection[FromCurrency]', $currencies ,(isset($attrselection->FromCurrency)?$attrselection->FromCurrency:''),array("class"=>" small","id"=>"FromCurrency"))}}
         </div>
     </div>
     <div class="control-OriginationCountryCode">

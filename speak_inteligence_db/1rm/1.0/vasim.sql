@@ -412,6 +412,21 @@ CREATE TABLE IF NOT EXISTS `tblTempRateTablePKGRate` (
 INSERT INTO `tblFileUploadTemplateType` (`FileUploadTemplateTypeID`, `TemplateType`, `Title`, `UploadDir`, `created_at`, `created_by`, `Status`) VALUES (14, 'RatetablePKGRate', 'Ratetable Package Rate', 'RATETABLE_UPLOAD', '2019-01-31 13:59:54', 'Vasim Seta', 1);
 INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (35, 'PRTU', 'Package Rate Table Upload', NULL, '2019-01-31 14:29:35', 'RateManagementSystem', NULL, NULL);
 
+ALTER TABLE `tblRateTableRate`
+	ADD COLUMN `RateCurrency` INT(11) NULL DEFAULT NULL AFTER `ApprovedDate`,
+	ADD COLUMN `ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL AFTER `RateCurrency`;
+
+ALTER TABLE `tblRateTableRateArchive`
+	ADD COLUMN `RateCurrency` INT(11) NULL DEFAULT NULL AFTER `ApprovedDate`,
+	ADD COLUMN `ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL AFTER `RateCurrency`;
+
+ALTER TABLE `tblRateTableRateChangeLog`
+	ADD COLUMN `RateCurrency` INT(11) NULL DEFAULT NULL AFTER `RoutingCategoryID`,
+	ADD COLUMN `ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL AFTER `RateCurrency`;
+
+ALTER TABLE `tblTempRateTableRate`
+	ADD COLUMN `RateCurrency` INT(11) NULL DEFAULT NULL AFTER `RoutingCategoryID`,
+	ADD COLUMN `ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL AFTER `RateCurrency`;
 
 
 
@@ -469,6 +484,8 @@ BEGIN
 		`ApprovedStatus`,
 		`ApprovedBy`,
 		`ApprovedDate`,
+		`RateCurrency`,
+		`ConnectionFeeCurrency`,
 		concat('Ends Today rates @ ' , now() ) as `Notes`
 	FROM tblRateTableRate
 	WHERE FIND_IN_SET(RateTableId,p_RateTableIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(TimezonesID,p_TimezonesIDs) != 0) AND EndDate <= NOW();
@@ -505,6 +522,8 @@ CREATE PROCEDURE `prc_RateTableRateUpdateDelete`(
 	IN `p_RoutingCategoryID` INT,
 	IN `p_Preference` TEXT,
 	IN `p_Blocked` TINYINT,
+	IN `p_RateCurrency` DECIMAL(18,6),
+	IN `p_ConnectionFeeCurrency` DECIMAL(18,6),
 	IN `p_Critearea_CountryId` INT,
 	IN `p_Critearea_Code` VARCHAR(50),
 	IN `p_Critearea_Description` VARCHAR(200),
@@ -553,7 +572,9 @@ ThisSP:BEGIN
 		`Blocked` tinyint NOT NULL DEFAULT 0,
 		`ApprovedStatus` tinyint,
 		`ApprovedBy` varchar(50),
-		`ApprovedDate` datetime
+		`ApprovedDate` datetime,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL
 	);
 
 	INSERT INTO tmp_TempRateTableRate_
@@ -579,7 +600,9 @@ ThisSP:BEGIN
 		IFNULL(p_Blocked,rtr.Blocked) AS Blocked,
 		rtr.ApprovedStatus AS ApprovedStatus,
 		rtr.ApprovedBy,
-		rtr.ApprovedDate
+		rtr.ApprovedDate,
+		IFNULL(p_RateCurrency,rtr.RateCurrency) AS RateCurrency,
+		IFNULL(p_ConnectionFeeCurrency,rtr.ConnectionFeeCurrency) AS ConnectionFeeCurrency
 	FROM
 		tblRateTableRate rtr
 	INNER JOIN
@@ -657,7 +680,9 @@ ThisSP:BEGIN
 			((rtr.IntervalN IS NULL && temp.IntervalN IS NULL) || rtr.IntervalN = temp.IntervalN) AND
 			((rtr.RoutingCategoryID IS NULL && temp.RoutingCategoryID IS NULL) || rtr.RoutingCategoryID = temp.RoutingCategoryID) AND
 			((rtr.Preference IS NULL && temp.Preference IS NULL) || rtr.Preference = temp.Preference) AND
-			((rtr.Blocked IS NULL && temp.Blocked IS NULL) || rtr.Blocked = temp.Blocked);
+			((rtr.Blocked IS NULL && temp.Blocked IS NULL) || rtr.Blocked = temp.Blocked) AND
+			((rtr.RateCurrency IS NULL && temp.RateCurrency IS NULL) || rtr.RateCurrency = temp.RateCurrency) AND
+			((rtr.ConnectionFeeCurrency IS NULL && temp.ConnectionFeeCurrency IS NULL) || rtr.ConnectionFeeCurrency = temp.ConnectionFeeCurrency);
 
 		-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
 		IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
@@ -710,7 +735,9 @@ ThisSP:BEGIN
 			Blocked,
 			ApprovedStatus,
 			ApprovedBy,
-			ApprovedDate
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency
 		)
 		select
 			OriginationRateID,
@@ -733,7 +760,9 @@ ThisSP:BEGIN
 			Blocked,
 			ApprovedStatus,
 			ApprovedBy,
-			ApprovedDate
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency
 		from
 			tmp_TempRateTableRate_;
 
@@ -1672,6 +1701,10 @@ BEGIN
      	ApprovedStatus TINYINT,
      	ApprovedBy VARCHAR(50),
      	ApprovedDate DATE,
+		RateCurrency INT(11),
+		ConnectionFeeCurrency INT(11),
+		RateCurrencySymbol VARCHAR(255),
+		ConnectionFeeCurrencySymbol VARCHAR(255),
 		INDEX tmp_RateTableRate_RateID (`Code`)
 	);
 
@@ -1696,20 +1729,28 @@ BEGIN
 		vra.RateID,
      	vra.RoutingCategoryID,
      	RC.Name AS RoutingCategoryName,
-      vra.Preference,
-      vra.Blocked,
-      vra.ApprovedStatus,
-      vra.ApprovedBy,
-      vra.ApprovedDate
+		vra.Preference,
+		vra.Blocked,
+		vra.ApprovedStatus,
+		vra.ApprovedBy,
+		vra.ApprovedDate,
+		tblRateCurrency.CurrencyID AS RateCurrency,
+		tblConnectionFeeCurrency.CurrencyID AS ConnectionFeeCurrency,
+		IFNULL(tblRateCurrency.Symbol,'') AS RateCurrencySymbol,
+		IFNULL(tblConnectionFeeCurrency.Symbol,'') AS ConnectionFeeCurrencySymbol
 	FROM
 		tblRateTableRateArchive vra
 	JOIN
 		tblRate r ON r.RateID=vra.RateId
-   LEFT JOIN
+	LEFT JOIN
 		tblRate AS OriginationRate ON OriginationRate.RateID = vra.OriginationRateID
+    LEFT JOIN tblCurrency AS tblRateCurrency
+        ON tblRateCurrency.CurrencyID = vra.RateCurrency
+    LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+        ON tblConnectionFeeCurrency.CurrencyID = vra.ConnectionFeeCurrency
 	LEFT JOIN
 		tblRateTableRate vr ON vr.RateTableId = vra.RateTableId AND vr.RateId = vra.RateId AND vr.OriginationRateID = vra.OriginationRateID AND vr.TimezonesID = vra.TimezonesID
-   LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
+	LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
     	ON RC.RoutingCategoryID = vra.RoutingCategoryID
 	WHERE
 		r.CompanyID = p_CompanyID AND
@@ -1761,9 +1802,13 @@ BEGIN
 				RoutingCategoryName,
 				Preference,
 				Blocked,
-		      ApprovedStatus,
-		      ApprovedBy,
-		      ApprovedDate
+				ApprovedStatus,
+				ApprovedBy,
+				ApprovedDate,
+				RateCurrency,
+				ConnectionFeeCurrency,
+				RateCurrencySymbol,
+				ConnectionFeeCurrencySymbol
 			FROM
 				tmp_RateTableRate_
 			ORDER BY
@@ -1887,7 +1932,11 @@ BEGIN
 				MAX(Blocked) AS Blocked,
 				ApprovedStatus,
 				MAX(ApprovedBy) AS ApprovedBy,
-				MAX(ApprovedDate) AS ApprovedDate
+				MAX(ApprovedDate) AS ApprovedDate,
+				MAX(RateCurrency) AS RateCurrency,
+				MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency,
+				MAX(RateCurrencySymbol) AS RateCurrencySymbol,
+				MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol
 			FROM
 				tmp_RateTableRate_
 			GROUP BY
@@ -1997,14 +2046,14 @@ BEGIN
 
 		SET @stm1 = "
 			SELECT
-	         OriginationCode,
-	         OriginationDescription,
-	         Code AS DestinationCode,
-	         Description AS DestinationDescription,
-	         CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
-	         ConnectionFee,
-				Rate,
-				RateN,
+				OriginationCode,
+				OriginationDescription,
+				Code AS DestinationCode,
+				Description AS DestinationDescription,
+				CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+				CONCAT(ConnectionFeeCurrencySymbol,ConnectionFee) AS ConnectionFee,
+				CONCAT(RateCurrencySymbol,Rate) AS Rate,
+				CONCAT(RateCurrencySymbol,RateN) AS RateN,
 				EffectiveDate
 		";
 
@@ -2523,76 +2572,76 @@ CREATE PROCEDURE `prc_GetRateTableDIDRatesArchiveGrid`(
 BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
-   CREATE TEMPORARY TABLE tmp_RateTableRate_ (
-   		Country VARCHAR(50),
-        OriginationCode VARCHAR(50),
-        OriginationDescription VARCHAR(200),
-        Code VARCHAR(50),
-        Description VARCHAR(200),
-        CityTariff VARCHAR(50),
-        OneOffCost DECIMAL(18,6),
-		  MonthlyCost DECIMAL(18,6),
-		  CostPerCall DECIMAL(18,6),
-		  CostPerMinute DECIMAL(18,6),
-		  SurchargePerCall DECIMAL(18,6),
-		  SurchargePerMinute DECIMAL(18,6),
-		  OutpaymentPerCall DECIMAL(18,6),
-		  OutpaymentPerMinute DECIMAL(18,6),
-		  Surcharges DECIMAL(18,6),
-		  Chargeback DECIMAL(18,6),
-		  CollectionCostAmount DECIMAL(18,6),
-		  CollectionCostPercentage DECIMAL(18,6),
-		  RegistrationCostPerNumber DECIMAL(18,6),
-        EffectiveDate DATE,
-        EndDate DATE,
-        updated_at DATETIME,
-        ModifiedBy VARCHAR(50),
-			ApprovedStatus tinyint(4),
-			ApprovedDate DATETIME,
-			ApprovedBy VARCHAR(50),
-		  OneOffCostCurrency VARCHAR(255),
-        MonthlyCostCurrency VARCHAR(255),
-        CostPerCallCurrency VARCHAR(255),
-        CostPerMinuteCurrency VARCHAR(255),
-        SurchargePerCallCurrency VARCHAR(255),
-        SurchargePerMinuteCurrency VARCHAR(255),
-        OutpaymentPerCallCurrency VARCHAR(255),
-        OutpaymentPerMinuteCurrency VARCHAR(255),
-        SurchargesCurrency VARCHAR(255),
-        ChargebackCurrency VARCHAR(255),
-        CollectionCostAmountCurrency VARCHAR(255),
-        RegistrationCostPerNumberCurrency VARCHAR(255)
-   );
+	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
+		Country VARCHAR(50),
+		OriginationCode VARCHAR(50),
+		OriginationDescription VARCHAR(200),
+		Code VARCHAR(50),
+		Description VARCHAR(200),
+		CityTariff VARCHAR(50),
+		OneOffCost DECIMAL(18,6),
+		MonthlyCost DECIMAL(18,6),
+		CostPerCall DECIMAL(18,6),
+		CostPerMinute DECIMAL(18,6),
+		SurchargePerCall DECIMAL(18,6),
+		SurchargePerMinute DECIMAL(18,6),
+		OutpaymentPerCall DECIMAL(18,6),
+		OutpaymentPerMinute DECIMAL(18,6),
+		Surcharges DECIMAL(18,6),
+		Chargeback DECIMAL(18,6),
+		CollectionCostAmount DECIMAL(18,6),
+		CollectionCostPercentage DECIMAL(18,6),
+		RegistrationCostPerNumber DECIMAL(18,6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		ModifiedBy VARCHAR(50),
+		ApprovedStatus tinyint(4),
+		ApprovedDate DATETIME,
+		ApprovedBy VARCHAR(50),
+		OneOffCostCurrency VARCHAR(255),
+		MonthlyCostCurrency VARCHAR(255),
+		CostPerCallCurrency VARCHAR(255),
+		CostPerMinuteCurrency VARCHAR(255),
+		SurchargePerCallCurrency VARCHAR(255),
+		SurchargePerMinuteCurrency VARCHAR(255),
+		OutpaymentPerCallCurrency VARCHAR(255),
+		OutpaymentPerMinuteCurrency VARCHAR(255),
+		SurchargesCurrency VARCHAR(255),
+		ChargebackCurrency VARCHAR(255),
+		CollectionCostAmountCurrency VARCHAR(255),
+		RegistrationCostPerNumberCurrency VARCHAR(255)
+	);
 
 	INSERT INTO tmp_RateTableRate_ (
 		Country,
 		OriginationCode,
-	  	OriginationDescription,
+		OriginationDescription,
 		Code,
-	  	Description,
-	  	CityTariff,
-	  	OneOffCost,
-	   MonthlyCost,
-	   CostPerCall,
-	   CostPerMinute,
-	   SurchargePerCall,
-	  	SurchargePerMinute,
-	  	OutpaymentPerCall,
-	  	OutpaymentPerMinute,
-	  	Surcharges,
-	  	Chargeback,
-	  	CollectionCostAmount,
-	  	CollectionCostPercentage,
-	 	RegistrationCostPerNumber,
-	  	EffectiveDate,
-	  	EndDate,
-	  	updated_at,
-	  	ModifiedBy,
+		Description,
+		CityTariff,
+		OneOffCost,
+		MonthlyCost,
+		CostPerCall,
+		CostPerMinute,
+		SurchargePerCall,
+		SurchargePerMinute,
+		OutpaymentPerCall,
+		OutpaymentPerMinute,
+		Surcharges,
+		Chargeback,
+		CollectionCostAmount,
+		CollectionCostPercentage,
+		RegistrationCostPerNumber,
+		EffectiveDate,
+		EndDate,
+		updated_at,
+		ModifiedBy,
 		ApprovedStatus,
 		ApprovedDate,
 		ApprovedBy,
-	  	OneOffCostCurrency,
- 		MonthlyCostCurrency,
+		OneOffCostCurrency,
+		MonthlyCostCurrency,
 		CostPerCallCurrency,
 		CostPerMinuteCurrency,
 		SurchargePerCallCurrency,
@@ -2604,26 +2653,26 @@ BEGIN
 		CollectionCostAmountCurrency,
 		RegistrationCostPerNumberCurrency
 	)
-   SELECT
-   	tblCountry.Country,
+	SELECT
+		tblCountry.Country,
 		o_r.Code AS OriginationCode,
 		o_r.Description AS OriginationDescription,
 		r.Code,
 		r.Description,
 		vra.CityTariff,
 		vra.OneOffCost,
-	  	vra.MonthlyCost,
-	  	vra.CostPerCall,
-	  	vra.CostPerMinute,
-	 	vra.SurchargePerCall,
-	  	vra.SurchargePerMinute,
-	  	vra.OutpaymentPerCall,
-	  	vra.OutpaymentPerMinute,
-	  	vra.Surcharges,
-	  	vra.Chargeback,
-	  	vra.CollectionCostAmount,
-	  	vra.CollectionCostPercentage,
-	  	vra.RegistrationCostPerNumber,
+		vra.MonthlyCost,
+		vra.CostPerCall,
+		vra.CostPerMinute,
+		vra.SurchargePerCall,
+		vra.SurchargePerMinute,
+		vra.OutpaymentPerCall,
+		vra.OutpaymentPerMinute,
+		vra.Surcharges,
+		vra.Chargeback,
+		vra.CollectionCostAmount,
+		vra.CollectionCostPercentage,
+		vra.RegistrationCostPerNumber,
 		vra.EffectiveDate,
 		IFNULL(vra.EndDate,'') AS EndDate,
 		IFNULL(vra.created_at,'') AS ModifiedDate,
@@ -2685,9 +2734,9 @@ BEGIN
 		vra.OriginationRateID = p_OriginationRateID AND
 		vra.CityTariff = p_CityTariff
 		/*(
-			(vra.RateID, vra.OriginationRateID) IN (
-				SELECT RateID,OriginationRateID FROM temp_rateids_
-			)
+		(vra.RateID, vra.OriginationRateID) IN (
+		SELECT RateID,OriginationRateID FROM temp_rateids_
+		)
 		)*/
 	ORDER BY
 		vra.EffectiveDate DESC, vra.created_at DESC;
@@ -2695,23 +2744,23 @@ BEGIN
 	SELECT
 		Country,
 		OriginationCode,
-	  	OriginationDescription,
+		OriginationDescription,
 		Code,
 		Description,
 		CityTariff,
-		CONCAT(OneOffCostCurrency, OneOffCost) AS OneOffCost,
-		CONCAT(MonthlyCostCurrency, MonthlyCost) AS MonthlyCost,
-		CONCAT(CostPerCallCurrency, CostPerCall) AS CostPerCall,
-		CONCAT(CostPerMinuteCurrency, CostPerMinute) AS CostPerMinute,
-		CONCAT(SurchargePerCallCurrency, SurchargePerCall) AS SurchargePerCall,
-		CONCAT(SurchargePerMinuteCurrency, SurchargePerMinute) AS SurchargePerMinute,
-		CONCAT(OutpaymentPerCallCurrency, OutpaymentPerCall) AS OutpaymentPerCall,
-		CONCAT(OutpaymentPerMinuteCurrency, OutpaymentPerMinute) AS OutpaymentPerMinute,
-		CONCAT(SurchargesCurrency, Surcharges) AS Surcharges,
-		CONCAT(ChargebackCurrency, Chargeback) AS Chargeback,
-		CONCAT(CollectionCostAmountCurrency, CollectionCostAmount) AS CollectionCostAmount,
-	  	CollectionCostPercentage,
-		CONCAT(RegistrationCostPerNumberCurrency, RegistrationCostPerNumber) AS RegistrationCostPerNumber,
+		CONCAT(IFNULL(OneOffCostCurrency,''), OneOffCost) AS OneOffCost,
+		CONCAT(IFNULL(MonthlyCostCurrency,''), MonthlyCost) AS MonthlyCost,
+		CONCAT(IFNULL(CostPerCallCurrency,''), CostPerCall) AS CostPerCall,
+		CONCAT(IFNULL(CostPerMinuteCurrency,''), CostPerMinute) AS CostPerMinute,
+		CONCAT(IFNULL(SurchargePerCallCurrency,''), SurchargePerCall) AS SurchargePerCall,
+		CONCAT(IFNULL(SurchargePerMinuteCurrency,''), SurchargePerMinute) AS SurchargePerMinute,
+		CONCAT(IFNULL(OutpaymentPerCallCurrency,''), OutpaymentPerCall) AS OutpaymentPerCall,
+		CONCAT(IFNULL(OutpaymentPerMinuteCurrency,''), OutpaymentPerMinute) AS OutpaymentPerMinute,
+		CONCAT(IFNULL(SurchargesCurrency,''), Surcharges) AS Surcharges,
+		CONCAT(IFNULL(ChargebackCurrency,''), Chargeback) AS Chargeback,
+		CONCAT(IFNULL(CollectionCostAmountCurrency,''), CollectionCostAmount) AS CollectionCostAmount,
+		CollectionCostPercentage,
+		CONCAT(IFNULL(RegistrationCostPerNumberCurrency,''), RegistrationCostPerNumber) AS RegistrationCostPerNumber,
 		EffectiveDate,
 		EndDate,
 		IFNULL(updated_at,'') AS ModifiedDate,
@@ -2774,7 +2823,7 @@ BEGIN
         Description VARCHAR(200),
         Interval1 INT,
         IntervalN INT,
-		  ConnectionFee DECIMAL(18, 6),
+		ConnectionFee DECIMAL(18, 6),
         PreviousRate DECIMAL(18, 6),
         Rate DECIMAL(18, 6),
         RateN DECIMAL(18, 6),
@@ -2792,6 +2841,10 @@ BEGIN
         ApprovedStatus TINYINT,
         ApprovedBy VARCHAR(50),
         ApprovedDate DATETIME,
+		RateCurrency INT(11),
+		ConnectionFeeCurrency INT(11),
+		RateCurrencySymbol VARCHAR(255),
+		ConnectionFeeCurrencySymbol VARCHAR(255),
         INDEX tmp_RateTableRate_RateID (`RateID`)
     );
 
@@ -2806,7 +2859,7 @@ BEGIN
         tblRate.Description,
         ifnull(tblRateTableRate.Interval1,1) as Interval1,
         ifnull(tblRateTableRate.IntervalN,1) as IntervalN,
-		  tblRateTableRate.ConnectionFee,
+		tblRateTableRate.ConnectionFee,
         null as PreviousRate,
         IFNULL(tblRateTableRate.Rate, 0) as Rate,
         IFNULL(tblRateTableRate.RateN, 0) as RateN,
@@ -2823,13 +2876,21 @@ BEGIN
         tblRateTableRate.Blocked,
         tblRateTableRate.ApprovedStatus,
         tblRateTableRate.ApprovedBy,
-        tblRateTableRate.ApprovedDate
+        tblRateTableRate.ApprovedDate,
+		tblRateCurrency.CurrencyID AS RateCurrency,
+		tblConnectionFeeCurrency.CurrencyID AS ConnectionFeeCurrency,
+		IFNULL(tblRateCurrency.Symbol,'') AS RateCurrencySymbol,
+		IFNULL(tblConnectionFeeCurrency.Symbol,'') AS ConnectionFeeCurrencySymbol
     FROM tblRate
     LEFT JOIN tblRateTableRate
         ON tblRateTableRate.RateID = tblRate.RateID
         AND tblRateTableRate.RateTableId = p_RateTableId
+    LEFT JOIN tblCurrency AS tblRateCurrency
+        ON tblRateCurrency.CurrencyID = tblRateTableRate.RateCurrency
+    LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+        ON tblConnectionFeeCurrency.CurrencyID = tblRateTableRate.ConnectionFeeCurrency
     LEFT JOIN tblRate AS OriginationRate
-    	  ON OriginationRate.RateID = tblRateTableRate.OriginationRateID
+		ON OriginationRate.RateID = tblRateTableRate.OriginationRateID
     INNER JOIN tblRateTable
         ON tblRateTable.RateTableId = tblRateTableRate.RateTableId
     LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
@@ -2975,7 +3036,7 @@ BEGIN
         	FROM tmp_RateTableRate_;
 
 		ELSE
-			SELECT group_concat(ID) AS ID,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,MAX(Description),MAX(Interval1),MAX(Intervaln),MAX(ConnectionFee),MAX(PreviousRate),MAX(Rate),MAX(RateN),MAX(EffectiveDate),MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate FROM tmp_RateTableRate_
+			SELECT group_concat(ID) AS ID,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,MAX(Description),MAX(Interval1),MAX(Intervaln),MAX(ConnectionFee),MAX(PreviousRate),MAX(Rate),MAX(RateN),MAX(EffectiveDate),MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate, MAX(RateCurrency) AS RateCurrency, MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency, MAX(RateCurrencySymbol) AS RateCurrencySymbol, MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol FROM tmp_RateTableRate_
 					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, ApprovedStatus
 					ORDER BY
                 CASE
@@ -3085,14 +3146,14 @@ BEGIN
 
 		SET @stm1 = "
 			SELECT
-	         OriginationCode,
-	         OriginationDescription,
-	         Code AS DestinationCode,
-	         Description AS DestinationDescription,
-	         CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
-	         ConnectionFee,
-				Rate,
-				RateN,
+				OriginationCode,
+				OriginationDescription,
+				Code AS DestinationCode,
+				Description AS DestinationDescription,
+				CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+				CONCAT(ConnectionFeeCurrencySymbol,ConnectionFee) AS ConnectionFee,
+				CONCAT(RateCurrencySymbol,Rate) AS Rate,
+				CONCAT(RateCurrencySymbol,RateN) AS RateN,
 				EffectiveDate
 		";
 
@@ -3109,7 +3170,7 @@ BEGIN
 
 	   -- advance view
 		IF p_isExport = 11
-	   THEN
+		THEN
 	   	SET @stm2 = ", PreviousRate, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
 
 	   	-- rate approval process is on and rate table is vendor rate table
@@ -3216,7 +3277,9 @@ BEGIN
 		ApprovedBy VARCHAR(50),
         RoutingCategoryName VARCHAR(50),
         Preference INT,
-        Blocked TINYINT
+        Blocked TINYINT,
+		RateCurrency VARCHAR(255),
+		ConnectionFeeCurrency VARCHAR(255)
 	);
 
 	IF p_View = 1
@@ -3240,7 +3303,9 @@ BEGIN
 			ApprovedBy,
 		  	RoutingCategoryName,
         	Preference,
-        	Blocked
+        	Blocked,
+			RateCurrency,
+			ConnectionFeeCurrency
 		)
 	   SELECT
 			o_r.Code AS OriginationCode,
@@ -3261,13 +3326,19 @@ BEGIN
 			vra.ApprovedBy,
         	RC.Name AS RoutingCategoryName,
         	vra.Preference,
-        	vra.Blocked
+        	vra.Blocked,
+			tblRateCurrency.Symbol AS RateCurrency,
+			tblConnectionFeeCurrency.Symbol AS ConnectionFeeCurrency
 		FROM
 			tblRateTableRateArchive vra
 		JOIN
 			tblRate r ON r.RateID=vra.RateId
 		LEFT JOIN
 			tblRate o_r ON o_r.RateID=vra.OriginationRateID
+		LEFT JOIN tblCurrency AS tblRateCurrency
+			ON tblRateCurrency.CurrencyID = vra.RateCurrency
+		LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+			ON tblConnectionFeeCurrency.CurrencyID = vra.ConnectionFeeCurrency
     	LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
     	  	ON RC.RoutingCategoryID = vra.RoutingCategoryID
 		WHERE
@@ -3301,7 +3372,9 @@ BEGIN
 			ApprovedBy,
 			RoutingCategoryName,
         	Preference,
-        	Blocked
+        	Blocked,
+			RateCurrency,
+			ConnectionFeeCurrency
 		)
 	   SELECT
 			GROUP_CONCAT(DISTINCT o_r.Code) AS OriginationCode,
@@ -3322,13 +3395,19 @@ BEGIN
 			MAX(vra.ApprovedBy) AS ApprovedBy,
         	MAX(RC.Name) AS RoutingCategoryName,
         	MAX(vra.Preference) AS Preference,
-        	MAX(vra.Blocked) AS Blocked
+        	MAX(vra.Blocked) AS Blocked,
+			MAX(tblRateCurrency.Symbol) AS RateCurrency,
+			MAX(tblConnectionFeeCurrency.Symbol) AS ConnectionFeeCurrency
 		FROM
 			tblRateTableRateArchive vra
 		JOIN
 			tblRate r ON r.RateID=vra.RateId
 		LEFT JOIN
 			tblRate o_r ON o_r.RateID=vra.OriginationRateID
+		LEFT JOIN tblCurrency AS tblRateCurrency
+			ON tblRateCurrency.CurrencyID = vra.RateCurrency
+		LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+			ON tblConnectionFeeCurrency.CurrencyID = vra.ConnectionFeeCurrency
     	LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
     	  	ON RC.RoutingCategoryID = vra.RoutingCategoryID
 		WHERE
@@ -3353,9 +3432,9 @@ BEGIN
 		Description,
 		Interval1,
 		IntervalN,
-		ConnectionFee,
-		Rate,
-		RateN,
+		CONCAT(IFNULL(ConnectionFeeCurrency,''), ConnectionFee) AS ConnectionFee,
+		CONCAT(IFNULL(RateCurrency,''), Rate) AS Rate,
+		CONCAT(IFNULL(RateCurrency,''), RateN) AS RateN,
 		EffectiveDate,
 		EndDate,
 		IFNULL(updated_at,'') AS ModifiedDate,
@@ -3426,8 +3505,10 @@ ThisSP:BEGIN
 		`Interval1` int,
 		`IntervalN` int,
 		`Blocked` tinyint,
-		`DialStringPrefix` varchar(500) ,
 		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
+		`DialStringPrefix` varchar(500) ,
 		INDEX tmp_EffectiveDate (`EffectiveDate`),
 		INDEX tmp_OriginationCode (`OriginationCode`),
 		INDEX tmp_Code (`Code`),
@@ -3455,8 +3536,10 @@ ThisSP:BEGIN
 		`Interval1` int,
 		`IntervalN` int,
 		`Blocked` tinyint,
-		`DialStringPrefix` varchar(500) ,
 		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
+		`DialStringPrefix` varchar(500) ,
 		INDEX tmp_EffectiveDate (`EffectiveDate`),
 		INDEX tmp_OriginationCode (`OriginationCode`),
 		INDEX tmp_Code (`Code`),
@@ -3522,6 +3605,8 @@ ThisSP:BEGIN
             Preference,
             Blocked,
             RoutingCategoryID,
+            RateCurrency,
+            ConnectionFeeCurrency,
             `Action`,
             ProcessID,
             created_at
@@ -3529,24 +3614,26 @@ ThisSP:BEGIN
 		SELECT
 			tblTempRateTableRate.TempRateTableRateID,
 			tblRateTableRate.RateTableRateID,
-         p_RateTableId AS RateTableId,
-         tblTempRateTableRate.TimezonesID,
-         IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
-         tblTempRateTableRate.OriginationCode,
-         tblTempRateTableRate.OriginationDescription,
-         tblRate.RateId,
-         tblTempRateTableRate.Code,
-         tblTempRateTableRate.Description,
-         tblTempRateTableRate.Rate,
-         tblTempRateTableRate.RateN,
+			p_RateTableId AS RateTableId,
+			tblTempRateTableRate.TimezonesID,
+			IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
+			tblTempRateTableRate.OriginationCode,
+			tblTempRateTableRate.OriginationDescription,
+			tblRate.RateId,
+			tblTempRateTableRate.Code,
+			tblTempRateTableRate.Description,
+			tblTempRateTableRate.Rate,
+			tblTempRateTableRate.RateN,
 			tblTempRateTableRate.EffectiveDate,
 			tblTempRateTableRate.EndDate ,
 			IFNULL(tblTempRateTableRate.Interval1,tblRate.Interval1 ) as Interval1,
 			IFNULL(tblTempRateTableRate.IntervalN , tblRate.IntervalN ) as IntervalN,
 			tblTempRateTableRate.ConnectionFee,
-         tblTempRateTableRate.Preference,
-         tblTempRateTableRate.Blocked,
-         tblTempRateTableRate.RoutingCategoryID,
+			tblTempRateTableRate.Preference,
+			tblTempRateTableRate.Blocked,
+			tblTempRateTableRate.RoutingCategoryID,
+			tblTempRateTableRate.RateCurrency,
+			tblTempRateTableRate.ConnectionFeeCurrency,
 			'New' AS `Action`,
 			p_processId AS ProcessID,
 			now() AS created_at
@@ -3597,55 +3684,59 @@ ThisSP:BEGIN
 
 
                 INSERT INTO tblRateTableRateChangeLog(
-                    TempRateTableRateID,
-                    RateTableRateID,
-                    RateTableId,
-                    TimezonesID,
-                    OriginationRateID,
-                    OriginationCode,
-                    OriginationDescription,
-                    RateId,
-                    Code,
-                    Description,
-                    Rate,
-                    RateN,
-                    EffectiveDate,
-                    EndDate,
-                    Interval1,
-                    IntervalN,
-                    ConnectionFee,
-			           Preference,
-			           Blocked,
-			           RoutingCategoryID,
-                    `Action`,
-                    ProcessID,
-                    created_at
+					TempRateTableRateID,
+					RateTableRateID,
+					RateTableId,
+					TimezonesID,
+					OriginationRateID,
+					OriginationCode,
+					OriginationDescription,
+					RateId,
+					Code,
+					Description,
+					Rate,
+					RateN,
+					EffectiveDate,
+					EndDate,
+					Interval1,
+					IntervalN,
+					ConnectionFee,
+					Preference,
+					Blocked,
+					RoutingCategoryID,
+					RateCurrency,
+					ConnectionFeeCurrency,
+					`Action`,
+					ProcessID,
+					created_at
                 )
                 SELECT
-                    distinct
-                    tblTempRateTableRate.TempRateTableRateID,
-                    RateTableRate.RateTableRateID,
-                    p_RateTableId AS RateTableId,
-                    tblTempRateTableRate.TimezonesID,
-                    IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
-                    OriginationRate.Code AS OriginationCode,
-                    OriginationRate.Description AS OriginationDescription,
-                    tblRate.RateId,
-                    tblRate.Code,
-                    tblRate.Description,
-                    tblTempRateTableRate.Rate,
-                    tblTempRateTableRate.RateN,
-                    tblTempRateTableRate.EffectiveDate,
-                    tblTempRateTableRate.EndDate ,
-                    tblTempRateTableRate.Interval1,
-                    tblTempRateTableRate.IntervalN,
-                    tblTempRateTableRate.ConnectionFee,
-				        tblTempRateTableRate.Preference,
-				        tblTempRateTableRate.Blocked,
-				        tblTempRateTableRate.RoutingCategoryID,
-                    IF(tblTempRateTableRate.NewRate > RateTableRate.Rate, 'Increased', IF(tblTempRateTableRate.NewRate < RateTableRate.Rate, 'Decreased','')) AS `Action`,
-                    p_processid AS ProcessID,
-                    now() AS created_at
+					distinct
+					tblTempRateTableRate.TempRateTableRateID,
+					RateTableRate.RateTableRateID,
+					p_RateTableId AS RateTableId,
+					tblTempRateTableRate.TimezonesID,
+					IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
+					OriginationRate.Code AS OriginationCode,
+					OriginationRate.Description AS OriginationDescription,
+					tblRate.RateId,
+					tblRate.Code,
+					tblRate.Description,
+					tblTempRateTableRate.Rate,
+					tblTempRateTableRate.RateN,
+					tblTempRateTableRate.EffectiveDate,
+					tblTempRateTableRate.EndDate ,
+					tblTempRateTableRate.Interval1,
+					tblTempRateTableRate.IntervalN,
+					tblTempRateTableRate.ConnectionFee,
+					tblTempRateTableRate.Preference,
+					tblTempRateTableRate.Blocked,
+					tblTempRateTableRate.RoutingCategoryID,
+					tblTempRateTableRate.RateCurrency,
+					tblTempRateTableRate.ConnectionFeeCurrency,
+					IF(tblTempRateTableRate.NewRate > RateTableRate.Rate, 'Increased', IF(tblTempRateTableRate.NewRate < RateTableRate.Rate, 'Decreased','')) AS `Action`,
+					p_processid AS ProcessID,
+					now() AS created_at
                 FROM
                 (
 
@@ -3704,52 +3795,56 @@ ThisSP:BEGIN
         THEN
 
             INSERT INTO tblRateTableRateChangeLog(
-                RateTableRateID,
-                RateTableId,
-                TimezonesID,
-                OriginationRateID,
-                OriginationCode,
-                OriginationDescription,
-                RateId,
-                Code,
-                Description,
-                Rate,
-                RateN,
-                EffectiveDate,
-                EndDate,
-                Interval1,
-                IntervalN,
-                ConnectionFee,
-		          Preference,
-		          Blocked,
-		          RoutingCategoryID,
-                `Action`,
-                ProcessID,
-                created_at
+				RateTableRateID,
+				RateTableId,
+				TimezonesID,
+				OriginationRateID,
+				OriginationCode,
+				OriginationDescription,
+				RateId,
+				Code,
+				Description,
+				Rate,
+				RateN,
+				EffectiveDate,
+				EndDate,
+				Interval1,
+				IntervalN,
+				ConnectionFee,
+				Preference,
+				Blocked,
+				RoutingCategoryID,
+				RateCurrency,
+				ConnectionFeeCurrency,
+				`Action`,
+				ProcessID,
+				created_at
             )
             SELECT DISTINCT
-                tblRateTableRate.RateTableRateID,
-                p_RateTableId AS RateTableId,
-                tblRateTableRate.TimezonesID,
-                tblRateTableRate.OriginationRateID,
-                OriginationRate.Code,
-                OriginationRate.Description,
-                tblRateTableRate.RateId,
-                tblRate.Code,
-                tblRate.Description,
-                tblRateTableRate.Rate,
-                tblRateTableRate.RateN,
-                tblRateTableRate.EffectiveDate,
-                tblRateTableRate.EndDate ,
-                tblRateTableRate.Interval1,
-                tblRateTableRate.IntervalN,
-                tblRateTableRate.ConnectionFee,
-                tblRateTableRate.Preference,
-                tblRateTableRate.Blocked,
-                tblRateTableRate.RoutingCategoryID,
-                'Deleted' AS `Action`,
-                p_processId AS ProcessID,
-                now() AS deleted_at
+				tblRateTableRate.RateTableRateID,
+				p_RateTableId AS RateTableId,
+				tblRateTableRate.TimezonesID,
+				tblRateTableRate.OriginationRateID,
+				OriginationRate.Code,
+				OriginationRate.Description,
+				tblRateTableRate.RateId,
+				tblRate.Code,
+				tblRate.Description,
+				tblRateTableRate.Rate,
+				tblRateTableRate.RateN,
+				tblRateTableRate.EffectiveDate,
+				tblRateTableRate.EndDate ,
+				tblRateTableRate.Interval1,
+				tblRateTableRate.IntervalN,
+				tblRateTableRate.ConnectionFee,
+				tblRateTableRate.Preference,
+				tblRateTableRate.Blocked,
+				tblRateTableRate.RoutingCategoryID,
+				tblRateTableRate.RateCurrency,
+				tblRateTableRate.ConnectionFeeCurrency,
+				'Deleted' AS `Action`,
+				p_processId AS ProcessID,
+				now() AS deleted_at
             FROM tblRateTableRate
             JOIN tblRate
                 ON tblRate.RateID = tblRateTableRate.RateId AND tblRate.CompanyID = p_companyId
@@ -3795,6 +3890,8 @@ ThisSP:BEGIN
             Preference,
             Blocked,
             RoutingCategoryID,
+            RateCurrency,
+            ConnectionFeeCurrency,
             `Action`,
             ProcessID,
             created_at
@@ -3819,6 +3916,8 @@ ThisSP:BEGIN
             tblRateTableRate.Preference,
             tblRateTableRate.Blocked,
             tblRateTableRate.RoutingCategoryID,
+			tblRateTableRate.RateCurrency,
+			tblRateTableRate.ConnectionFeeCurrency,
             'Deleted' AS `Action`,
             p_processId AS ProcessID,
             now() AS deleted_at
@@ -3891,6 +3990,8 @@ ThisSP:BEGIN
 		`IntervalN` int,
 		`Blocked` tinyint,
 		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
 		`DialStringPrefix` varchar(500),
 		INDEX IX_orogination_code (OriginationCode),
 		INDEX IX_origination_description (OriginationDescription),
@@ -3922,6 +4023,8 @@ ThisSP:BEGIN
 		`IntervalN` int,
 		`Blocked` tinyint,
 		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
 		`DialStringPrefix` varchar(500),
 		INDEX IX_orogination_code (OriginationCode),
 		INDEX IX_origination_description (OriginationDescription),
@@ -3953,6 +4056,8 @@ ThisSP:BEGIN
 		`IntervalN` int,
 		`Forbidden` varchar(100) ,
 		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
 		`DialStringPrefix` varchar(500),
 		INDEX IX_orogination_code (OriginationCode),
 		INDEX IX_origination_description (OriginationDescription),
@@ -4017,6 +4122,8 @@ ThisSP:BEGIN
 		`IntervalN`,
 		`Blocked`,
 		`RoutingCategoryID`,
+		`RateCurrency`,
+		`ConnectionFeeCurrency`,
 		`DialStringPrefix`
 	FROM tmp_split_RateTableRate_
 	WHERE tmp_split_RateTableRate_.ProcessId = p_processId;
@@ -4187,8 +4294,10 @@ ThisSP:BEGIN
 					`Interval1`,
 					`IntervalN`,
 					tblTempRateTableRate.Forbidden as Forbidden,
-					tblTempRateTableRate.DialStringPrefix as DialStringPrefix,
-					`RoutingCategoryID`
+					`RoutingCategoryID`,
+					`RateCurrency`,
+					`ConnectionFeeCurrency`,
+					tblTempRateTableRate.DialStringPrefix as DialStringPrefix
 				FROM tmp_TempRateTableRate_ as tblTempRateTableRate
 				INNER JOIN tmp_DialString_ ds
 					ON ( (tblTempRateTableRate.Code = ds.ChargeCode AND tblTempRateTableRate.DialStringPrefix = '') OR (tblTempRateTableRate.DialStringPrefix != '' AND tblTempRateTableRate.DialStringPrefix =  ds.DialString AND tblTempRateTableRate.Code = ds.ChargeCode  ))
@@ -4228,8 +4337,10 @@ ThisSP:BEGIN
 					Interval1,
 					IntervalN,
 					Forbidden,
-					DialStringPrefix,
-					RoutingCategoryID
+					RoutingCategoryID,
+					RateCurrency,
+					ConnectionFeeCurrency,
+					DialStringPrefix
 				)
 				SELECT DISTINCT
 					`TempRateTableRateID`,
@@ -4250,8 +4361,10 @@ ThisSP:BEGIN
 					`Interval1`,
 					`IntervalN`,
 					`Forbidden`,
-					DialStringPrefix,
-					RoutingCategoryID
+					`RoutingCategoryID`,
+					`RateCurrency`,
+					`ConnectionFeeCurrency`,
+					`DialStringPrefix`
 				FROM tmp_RateTableRateDialString_3;
 
 				UPDATE tmp_TempRateTableRate_ as tblTempRateTableRate
@@ -4415,6 +4528,8 @@ ThisSP:BEGIN
 			`IntervalN`,
 			`Blocked`,
 			`RoutingCategoryID`,
+			`RateCurrency`,
+			`ConnectionFeeCurrency`,
 			`DialStringPrefix`
 		FROM my_splits
 		INNER JOIN tblTempRateTableRate
@@ -4447,6 +4562,8 @@ ThisSP:BEGIN
 			`IntervalN`,
 			`Blocked`,
 			`RoutingCategoryID`,
+			`RateCurrency`,
+			`ConnectionFeeCurrency`,
 			`DialStringPrefix`
 		FROM tblTempRateTableRate
 		WHERE ProcessId = p_processId;
@@ -4535,13 +4652,31 @@ BEGIN
 		SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
 		SELECT
-			distinct
+		--	distinct
 			IF(p_Action='Deleted',RateTableRateID,TempRateTableRateID) AS RateTableRateID,
-			`OriginationCode`,`OriginationDescription`,`Code`,RTCL.`Description`,tz.Title,`Rate`,`RateN`,`EffectiveDate`,`EndDate`,`ConnectionFee`,`Interval1`,`IntervalN`,`Preference`,`Blocked`,RC.`Name` AS RoutingCategory
+			`OriginationCode`,
+			`OriginationDescription`,
+			RTCL.`Code`,
+			RTCL.`Description`,
+			tz.Title,
+			CONCAT(IFNULL(tblRateCurrency.Symbol,''), IFNULL(Rate,'')) AS Rate,
+			CONCAT(IFNULL(tblRateCurrency.Symbol,''), IFNULL(RateN,'')) AS RateN,
+			`EffectiveDate`,
+			`EndDate`,
+			CONCAT(IFNULL(tblConnectionFeeCurrency.Symbol,''), IFNULL(ConnectionFee,'')) AS ConnectionFee,
+			`Interval1`,
+			`IntervalN`,
+			`Preference`,
+			`Blocked`,
+			RC.`Name` AS RoutingCategory
 		FROM
 			tblRateTableRateChangeLog AS RTCL
 		JOIN
 			tblTimezones tz ON RTCL.TimezonesID = tz.TimezonesID
+		LEFT JOIN tblCurrency AS tblRateCurrency
+			ON tblRateCurrency.CurrencyID = RTCL.RateCurrency
+		LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+			ON tblConnectionFeeCurrency.CurrencyID = RTCL.ConnectionFeeCurrency
 		LEFT JOIN
 			speakintelligentRouting.tblRoutingCategory RC ON RC.RoutingCategoryID = RTCL.RoutingCategoryID
 		WHERE
@@ -4549,7 +4684,7 @@ BEGIN
 			RTCL.TimezonesID = p_Timezone AND
 			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
 			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
-			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%')) AND
+			(p_Code IS NULL OR p_Code = '' OR RTCL.Code LIKE REPLACE(p_Code, '*', '%')) AND
 			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
 			(p_RoutingCategoryID IS NULL OR RTCL.RoutingCategoryID = p_RoutingCategoryID)
 		ORDER BY
@@ -4566,10 +4701,10 @@ BEGIN
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN OriginationDescription
 			END ASC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN RTCL.Code
 			END ASC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN RTCL.Code
 			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN RTCL.Description
@@ -4620,7 +4755,7 @@ BEGIN
 			RTCL.TimezonesID = p_Timezone AND
 			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
 			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
-			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%')) AND
+			(p_Code IS NULL OR p_Code = '' OR RTCL.Code LIKE REPLACE(p_Code, '*', '%')) AND
 			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
 			(p_RoutingCategoryID IS NULL OR RTCL.RoutingCategoryID = p_RoutingCategoryID);
 	END IF;
@@ -4628,12 +4763,30 @@ BEGIN
 	IF p_isExport = 1
 	THEN
 		SELECT
-			distinct
-			`OriginationCode`,`OriginationDescription`,`Code`,RTCL.`Description`,tz.Title,`Rate`,`RateN`,`EffectiveDate`,`EndDate`,`ConnectionFee`,`Interval1`,`IntervalN`,`Preference`,`Blocked`,RC.Name AS `RoutingCategory`
+		--	distinct
+			`OriginationCode`,
+			`OriginationDescription`,
+			RTCL.`Code`,
+			RTCL.`Description`,
+			tz.Title,
+			CONCAT(IFNULL(tblRateCurrency.Symbol,''), IFNULL(Rate,'')) AS Rate,
+			CONCAT(IFNULL(tblRateCurrency.Symbol,''), IFNULL(RateN,'')) AS RateN,
+			`EffectiveDate`,
+			`EndDate`,
+			CONCAT(IFNULL(tblConnectionFeeCurrency.Symbol,''), IFNULL(ConnectionFee,'')) AS ConnectionFee,
+			`Interval1`,
+			`IntervalN`,
+			`Preference`,
+			`Blocked`,
+			RC.Name AS `RoutingCategory`
 		FROM
 			tblRateTableRateChangeLog AS RTCL
 		JOIN
 			tblTimezones tz ON RTCL.TimezonesID = tz.TimezonesID
+		LEFT JOIN tblCurrency AS tblRateCurrency
+			ON tblRateCurrency.CurrencyID = RTCL.RateCurrency
+		LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+			ON tblConnectionFeeCurrency.CurrencyID = RTCL.ConnectionFeeCurrency
 		LEFT JOIN
 			speakintelligentRouting.tblRoutingCategory RC ON RC.RoutingCategoryID = RTCL.RoutingCategoryID
 		WHERE
@@ -4641,7 +4794,7 @@ BEGIN
 			RTCL.TimezonesID = p_Timezone AND
 			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
 			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
-			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%')) AND
+			(p_Code IS NULL OR p_Code = '' OR RTCL.Code LIKE REPLACE(p_Code, '*', '%')) AND
 			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
 			(p_RoutingCategoryID IS NULL OR RTCL.RoutingCategoryID = p_RoutingCategoryID);
 	END IF;
@@ -4724,8 +4877,10 @@ ThisSP:BEGIN
 		`Interval1` int,
 		`IntervalN` int,
 		`Blocked` tinyint,
-		`DialStringPrefix` varchar(500) ,
 		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
+		`DialStringPrefix` varchar(500) ,
 		INDEX tmp_EffectiveDate (`EffectiveDate`),
 		INDEX tmp_OriginationCode (`OriginationCode`),
 		INDEX tmp_Code (`Code`),
@@ -4753,8 +4908,10 @@ ThisSP:BEGIN
 		`Interval1` int,
 		`IntervalN` int,
 		`Blocked` tinyint,
-		`DialStringPrefix` varchar(500) ,
 		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
+		`DialStringPrefix` varchar(500) ,
 		INDEX tmp_EffectiveDate (`EffectiveDate`),
 		INDEX tmp_OriginationCode (`OriginationCode`),
 		INDEX tmp_Code (`Code`),
@@ -4783,6 +4940,8 @@ ThisSP:BEGIN
 		Preference varchar(100) ,
 		Blocked tinyint,
 		RoutingCategoryID int,
+		RateCurrency INT(11) NULL DEFAULT NULL,
+		ConnectionFeeCurrency INT(11) NULL DEFAULT NULL,
 		deleted_at DATETIME,
 		INDEX tmp_RateTableRateDiscontinued_RateTableRateID (`RateTableRateID`)
 	);
@@ -4799,9 +4958,6 @@ ThisSP:BEGIN
 
 	IF newstringcode = 0
 	THEN
-
-
-
 
 		IF (SELECT count(*) FROM tblRateTableRateChangeLog WHERE ProcessID = p_processId ) > 0
 		THEN
@@ -4880,6 +5036,8 @@ ThisSP:BEGIN
 				Preference,
 				Blocked,
 				RoutingCategoryID,
+				RateCurrency,
+				ConnectionFeeCurrency,
 				deleted_at
 			)
 			SELECT DISTINCT
@@ -4902,6 +5060,8 @@ ThisSP:BEGIN
 				tblRateTableRate.Preference,
 				tblRateTableRate.Blocked,
 				tblRateTableRate.RoutingCategoryID,
+				tblRateTableRate.RateCurrency,
+				tblRateTableRate.ConnectionFeeCurrency,
 				now() AS deleted_at
 			FROM tblRateTableRate
 			JOIN tblRate
@@ -4938,13 +5098,7 @@ ThisSP:BEGIN
 
 		IF ( (SELECT count(*) FROM tblRateTableRate WHERE  RateTableId = p_RateTableId AND EndDate <= NOW() )  > 0  ) THEN
 
-
-
-
-
 			call prc_RateTableRateUpdatePreviousRate(p_RateTableId,'');
-
-
 			call prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_UserName);
 
 		END IF;
@@ -5264,7 +5418,6 @@ ThisSP:BEGIN
 		call prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_UserName);
 
 
-
 		INSERT INTO tblRateTableRate (
 			RateTableId,
 			TimezonesID,
@@ -5281,7 +5434,9 @@ ThisSP:BEGIN
 			Blocked,
 			RoutingCategoryID,
 			PreviousRate,
-			ApprovedStatus
+			ApprovedStatus,
+			RateCurrency,
+			ConnectionFeeCurrency
 		)
 		SELECT DISTINCT
 			p_RateTableId,
@@ -5336,7 +5491,9 @@ ThisSP:BEGIN
 			tblTempRateTableRate.RoutingCategoryID,
 			IFNULL(tmp_PreviousRate.PreviousRate,0) AS PreviousRate,
 			 -- if rate table is not vendor rate table and Rate Approval Process is on then rate will be upload as not approved
-			IF(v_RateTableAppliedTo_!=2,IF(v_RateApprovalProcess_=1,0,1),1) AS ApprovedStatus
+			IF(v_RateTableAppliedTo_!=2,IF(v_RateApprovalProcess_=1,0,1),1) AS ApprovedStatus,
+			tblTempRateTableRate.RateCurrency,
+			tblTempRateTableRate.ConnectionFeeCurrency
 		FROM tmp_TempRateTableRate_ as tblTempRateTableRate
 		JOIN tblRate
 			ON tblRate.Code = tblTempRateTableRate.Code
@@ -5433,7 +5590,6 @@ ThisSP:BEGIN
 
 
 	call prc_RateTableRateUpdatePreviousRate(p_RateTableId,'');
-
 
 	call prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_UserName);
 
@@ -7410,18 +7566,18 @@ ThisSP:BEGIN
 				tblRateTableDIDRate.CollectionCostAmount,
 				tblRateTableDIDRate.CollectionCostPercentage,
 				tblRateTableDIDRate.RegistrationCostPerNumber,
-				tblTempRateTableDIDRate.OneOffCostCurrency,
-				tblTempRateTableDIDRate.MonthlyCostCurrency,
-				tblTempRateTableDIDRate.CostPerCallCurrency,
-				tblTempRateTableDIDRate.CostPerMinuteCurrency,
-				tblTempRateTableDIDRate.SurchargePerCallCurrency,
-				tblTempRateTableDIDRate.SurchargePerMinuteCurrency,
-				tblTempRateTableDIDRate.OutpaymentPerCallCurrency,
-				tblTempRateTableDIDRate.OutpaymentPerMinuteCurrency,
-				tblTempRateTableDIDRate.SurchargesCurrency,
-				tblTempRateTableDIDRate.ChargebackCurrency,
-				tblTempRateTableDIDRate.CollectionCostAmountCurrency,
-				tblTempRateTableDIDRate.RegistrationCostPerNumberCurrency,
+				tblRateTableDIDRate.OneOffCostCurrency,
+				tblRateTableDIDRate.MonthlyCostCurrency,
+				tblRateTableDIDRate.CostPerCallCurrency,
+				tblRateTableDIDRate.CostPerMinuteCurrency,
+				tblRateTableDIDRate.SurchargePerCallCurrency,
+				tblRateTableDIDRate.SurchargePerMinuteCurrency,
+				tblRateTableDIDRate.OutpaymentPerCallCurrency,
+				tblRateTableDIDRate.OutpaymentPerMinuteCurrency,
+				tblRateTableDIDRate.SurchargesCurrency,
+				tblRateTableDIDRate.ChargebackCurrency,
+				tblRateTableDIDRate.CollectionCostAmountCurrency,
+				tblRateTableDIDRate.RegistrationCostPerNumberCurrency,
                 tblRateTableDIDRate.EffectiveDate,
                 tblRateTableDIDRate.EndDate ,
                 'Deleted' AS `Action`,
@@ -7517,18 +7673,18 @@ ThisSP:BEGIN
 			tblRateTableDIDRate.CollectionCostAmount,
 			tblRateTableDIDRate.CollectionCostPercentage,
 			tblRateTableDIDRate.RegistrationCostPerNumber,
-			tblTempRateTableDIDRate.OneOffCostCurrency,
-			tblTempRateTableDIDRate.MonthlyCostCurrency,
-			tblTempRateTableDIDRate.CostPerCallCurrency,
-			tblTempRateTableDIDRate.CostPerMinuteCurrency,
-			tblTempRateTableDIDRate.SurchargePerCallCurrency,
-			tblTempRateTableDIDRate.SurchargePerMinuteCurrency,
-			tblTempRateTableDIDRate.OutpaymentPerCallCurrency,
-			tblTempRateTableDIDRate.OutpaymentPerMinuteCurrency,
-			tblTempRateTableDIDRate.SurchargesCurrency,
-			tblTempRateTableDIDRate.ChargebackCurrency,
-			tblTempRateTableDIDRate.CollectionCostAmountCurrency,
-			tblTempRateTableDIDRate.RegistrationCostPerNumberCurrency,
+			tblRateTableDIDRate.OneOffCostCurrency,
+			tblRateTableDIDRate.MonthlyCostCurrency,
+			tblRateTableDIDRate.CostPerCallCurrency,
+			tblRateTableDIDRate.CostPerMinuteCurrency,
+			tblRateTableDIDRate.SurchargePerCallCurrency,
+			tblRateTableDIDRate.SurchargePerMinuteCurrency,
+			tblRateTableDIDRate.OutpaymentPerCallCurrency,
+			tblRateTableDIDRate.OutpaymentPerMinuteCurrency,
+			tblRateTableDIDRate.SurchargesCurrency,
+			tblRateTableDIDRate.ChargebackCurrency,
+			tblRateTableDIDRate.CollectionCostAmountCurrency,
+			tblRateTableDIDRate.RegistrationCostPerNumberCurrency,
             tblRateTableDIDRate.EffectiveDate,
             IFNULL(tblTempRateTableDIDRate.EndDate,tblRateTableDIDRate.EndDate) as  EndDate ,
             'Deleted' AS `Action`,
@@ -10926,10 +11082,10 @@ BEGIN
 
 	SELECT
 		Code,
-		CONCAT(OneOffCostCurrency, OneOffCost) AS OneOffCost,
-		CONCAT(MonthlyCostCurrency, MonthlyCost) AS MonthlyCost,
-		CONCAT(PackageCostPerMinuteCurrency, PackageCostPerMinute) AS PackageCostPerMinute,
-		CONCAT(RecordingCostPerMinuteCurrency, RecordingCostPerMinute) AS RecordingCostPerMinute,
+		CONCAT(IFNULL(OneOffCostCurrency,''), OneOffCost) AS OneOffCost,
+		CONCAT(IFNULL(MonthlyCostCurrency,''), MonthlyCost) AS MonthlyCost,
+		CONCAT(IFNULL(PackageCostPerMinuteCurrency,''), PackageCostPerMinute) AS PackageCostPerMinute,
+		CONCAT(IFNULL(RecordingCostPerMinuteCurrency,''), RecordingCostPerMinute) AS RecordingCostPerMinute,
 		EffectiveDate,
 		EndDate,
 		IFNULL(updated_at,'') AS ModifiedDate,
@@ -12384,10 +12540,10 @@ ThisSP:BEGIN
 				tblRateTablePKGRate.MonthlyCost,
 				tblRateTablePKGRate.PackageCostPerMinute,
 				tblRateTablePKGRate.RecordingCostPerMinute,
-				tblTempRateTablePKGRate.OneOffCostCurrency,
-				tblTempRateTablePKGRate.MonthlyCostCurrency,
-				tblTempRateTablePKGRate.PackageCostPerMinuteCurrency,
-				tblTempRateTablePKGRate.RecordingCostPerMinuteCurrency,
+				tblRateTablePKGRate.OneOffCostCurrency,
+				tblRateTablePKGRate.MonthlyCostCurrency,
+				tblRateTablePKGRate.PackageCostPerMinuteCurrency,
+				tblRateTablePKGRate.RecordingCostPerMinuteCurrency,
 				tblRateTablePKGRate.EffectiveDate,
                 tblRateTablePKGRate.EndDate ,
                 'Deleted' AS `Action`,
@@ -12445,10 +12601,10 @@ ThisSP:BEGIN
 			tblRateTablePKGRate.MonthlyCost,
 			tblRateTablePKGRate.PackageCostPerMinute,
 			tblRateTablePKGRate.RecordingCostPerMinute,
-			tblTempRateTablePKGRate.OneOffCostCurrency,
-			tblTempRateTablePKGRate.MonthlyCostCurrency,
-			tblTempRateTablePKGRate.PackageCostPerMinuteCurrency,
-			tblTempRateTablePKGRate.RecordingCostPerMinuteCurrency,
+			tblRateTablePKGRate.OneOffCostCurrency,
+			tblRateTablePKGRate.MonthlyCostCurrency,
+			tblRateTablePKGRate.PackageCostPerMinuteCurrency,
+			tblRateTablePKGRate.RecordingCostPerMinuteCurrency,
 			tblRateTablePKGRate.EffectiveDate,
             IFNULL(tblTempRateTablePKGRate.EndDate,tblRateTablePKGRate.EndDate) as  EndDate ,
             'Deleted' AS `Action`,

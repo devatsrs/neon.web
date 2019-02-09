@@ -1112,6 +1112,18 @@
                 });
                 $('#modal-manage-columns').modal('hide');
             });
+
+            $(document).on("change","#FromCurrency", function() {
+                var val = $(this).val();
+                if(val != '') {
+                    $('.CurrencyDD').each(function() {
+                        $(this).select2('val','');
+                    });
+                    $('.CurrencyDD').hide();
+                } else {
+                    $('.CurrencyDD').show();
+                }
+            });
         });
 
         function createGrid(data){
@@ -1140,7 +1152,11 @@
                 body.append(tr);
             });
             $("#mapping #tab1 select").each(function(i, el){
-                if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[OriginationDialCodeSeparator]' && el.name != 'selection[FromCurrency]'){
+                if(el.name.indexOf('RateCurrency') != -1 || el.name.indexOf('ConnectionFeeCurrency') != -1) {
+                    var self = $('#add-template-form [name="'+el.name+'"]');
+                    var label = 'Map From File';
+                    rebuildSelectComposite(self, data.columns, label);
+                } else if (el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[OriginationDialCodeSeparator]' && el.name != 'selection[FromCurrency]'){
                     var self = $('#add-template-form [name="'+el.name+'"]');
                     rebuildSelect2(self,data.columns,'Skip loading');
                 }

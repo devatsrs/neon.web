@@ -29,9 +29,6 @@
         </div>
         <br/>
 
-
-
-
         <div class="row">
             <div class="panel-body">
                 <div class="panel panel-primary" data-collapsed="0">
@@ -44,14 +41,13 @@
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
+
                     <div class="panel-body">
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Type</label>
                             <div class="col-sm-4">
                                 {{Form::select('SelectType',$AllTypes,'',array("class"=>"form-control select2 small"))}}
-
                             </div>
-
                             <label for="field-1" class="col-sm-2 control-label">Name</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" name="RateGeneratorName" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{Input::old('RateGeneratorName')}}" />
@@ -59,7 +55,6 @@
                         </div>
 
                         <div class="form-group" id="rate-ostion-trunk-div">
-
                             <label for="field-1" class="col-sm-2 control-label">Policy</label>
                             <div class="col-sm-4">
                                 {{ Form::select('Policy', LCR::$policy, null , array("class"=>"select2")) }}
@@ -94,6 +89,19 @@
                             </div>
 
                         </div>
+
+                        <div class="form-group NonDID-Div">
+                            <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="LessThenRate" value="" />
+
+                            </div>
+
+                            <label for="field-1" class="col-sm-2 control-label">Change rate to</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="ChargeRate" value="" />
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Currency</label>
                             <div class="col-sm-4">
@@ -110,26 +118,62 @@
                                     <input type="text" class="form-control popover-primary" rows="1" id="percentageRate" name="percentageRate" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Use vendor position mention in Rate Position unless vendor selected position is more then N% more costly than the previous vendor" data-original-title="Percentage" />
                                 </div>
                             </div>
-
                         </div>
+                        <div class="form-group NonDID-Div">
+                            <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('codedeckid', $codedecklist,  null , array("class"=>"select2")) }}
 
-                        <div class="form-group">
+                            </div>
+
+                            <label for="field-1" class="col-sm-2 control-label">Timezones</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('Timezones[]', $Timezones, array_keys($Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
+                            </div>
+                        </div>
+                        <div class="form-group NonDID-Div">
+                            <label class="col-sm-2 control-label">Merge Rate By Timezones</label>
+                            <div class="col-sm-4">
+                                <div class="make-switch switch-small">
+                                    {{Form::checkbox('IsMerge', 1,  null, array('id' => 'IsMerge') );}}
+                                </div>
+                            </div>
+                            <label class="col-sm-2 control-label IsMerge">Take Price</label>
+                            <div class="col-sm-4 IsMerge">
+                                {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), null , array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        <div class="form-group NonDID-Div">
+                            <label class="col-sm-2 control-label IsMerge">Merge Into</label>
+                            <div class="col-sm-4 IsMerge">
+                                {{ Form::select('MergeInto', $Timezones, null , array("class"=>"select2")) }}
+                            </div>
+
+                            <div id="hide-components">
+                                <label for="field-1" class="col-sm-2 control-label">Components</label>
+                                <div class="col-sm-4">
+                                    {{ Form::select('AllComponent[]', RateGenerator::$Component, null, array("class"=>"select2 multiselect" , "multiple"=>"multiple", "id"=>"AllComponent" )) }}
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="form-group DID-Div">
                             <label for="field-1" class="col-sm-2 control-label">Product</label>
                             <div class="col-sm-10">
                                 {{ Form::select('ProductID', $Products, null, array("class"=>"select2")) }}
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="StartDate" class="col-sm-2 control-label">Date From</label>
+                        <div class="form-group DID-Div">
+                            <label for="DateFrom" class="col-sm-2 control-label">Date From</label>
                             <div class="col-sm-4">
-                                <input id="StartDate" type="text" name="DateFrom" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                                <input id="DateFrom" type="text" name="DateFrom" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
                             </div>
-                            <label for="EndDate" class="col-sm-2 control-label">Date To</label>
+                            <label for="DateTo" class="col-sm-2 control-label">Date To</label>
                             <div class="col-sm-4">
-                                <input id="EndDate" type="text" name="DateTo" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                                <input id="DateTo" type="text" name="DateTo" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group DID-Div">
                             <label for="Calls" class="col-sm-2 control-label">Calls</label>
                             <div class="col-sm-4">
                                 <input type="number" min="0" class="form-control" id="Calls" name="Calls"/>
@@ -139,17 +183,17 @@
                                 <input type="number" min="0" class="form-control" id="Minutes" name="Minutes"/>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group DID-Div">
                             <label for="TimeOfDay" class="col-sm-2 control-label">Time of Day</label>
                             <div class="col-sm-4">
-                                {{ Form::select('TimeOfDay', $Timezones, null, array("class"=>"select2")) }}
+                                {{ Form::select('TimezonesID', $Timezones, null, array("class"=>"select2")) }}
                             </div>
                             <label for="TimeOfDayPercentage" class="col-sm-2 control-label">Time of Day %</label>
                             <div class="col-sm-4">
-                                <input type="number" min="0" class="form-control" id="TimeOfDayPercentage" name="TimeOfDayPercentage"/>
+                                <input type="number" min="0" class="form-control" id="TimeOfDayPercentage" name="TimezonesPercentage"/>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group DID-Div">
                             <label for="Origination" class="col-sm-2 control-label">Origination</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" id="Origination" name="Origination"/>
@@ -162,14 +206,11 @@
                         <div class="form-group" id="DIDCategoryDiv">
                             <label for="field-1" class="col-sm-2 control-label">Category</label>
                             <div class="col-sm-4">
-                                {{ Form::select('Category', $Categories, null, array("class"=>"select2")) }}
+                                {{ Form::select('Category', $Categories,null, array("class"=>"select2")) }}
                             </div>
                         </div>
-
-
                     </div>
                 </div>
-
 
                 <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
                     <div class="panel-heading">
@@ -181,20 +222,20 @@
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
-
                     <div class="panel-body">
-
                         <div class="col-md-12">
                             <br/>
                             <input type="hidden" id="getIDs" name="getIDs" value=""/>
                             <table id="servicetableSubBox" class="table table-bordered datatable">
                                 <thead>
                                 <tr>
-                                    <th width="25%">Component</th>
-                                    <th width="15%">Origination</th>
-                                    <th width="15%">Time of Day</th>
-                                    <th width="15%">Action</th>
-                                    <th width="20%">Merge To</th>
+                                    <th width="20%">Component</th>
+                                    <th width="10%">Origination</th>
+                                    <th width="12%">Time of Day</th>
+                                    <th width="11%">Action</th>
+                                    <th width="15%">Merge To</th>
+                                    <th width="10%">To Origination</th>
+                                    <th width="12%">To Time of Day</th>
                                     <th width="10%">Add</th>
                                 </tr>
                                 </thead>
@@ -202,7 +243,6 @@
                                 <tr id="selectedRow-1">
                                     <td id="testValues">
                                         {{ Form::select('Component-1[]', RateGenerator::$Component, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}
-
                                     </td>
                                     <td>
                                         <input type="text" class="form-control" name="Origination-1"/>
@@ -219,6 +259,12 @@
 
                                     </td>
                                     <td>
+                                        <input type="text" class="form-control" name="ToOrigination-1"/>
+                                    </td>
+                                    <td>
+                                        {{ Form::select('ToTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
+                                    </td>
+                                    <td>
                                         <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="Service-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
                                             <i></i>
                                             +
@@ -232,13 +278,10 @@
 
                                 </tbody>
                             </table>
-
                         </div>
-
-
                     </div>
                 </div>
-                <div class="panel panel-primary" data-collapsed="0" id="Calculated-Rate">
+                <div class="panel panel-primary DID-Div" data-collapsed="0" id="Calculated-Rate">
                     <div class="panel-heading">
                         <div class="panel-title">
                             Calculated Rate
@@ -292,7 +335,6 @@
                                 </tr>
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </div>
@@ -316,7 +358,6 @@
          });
          });*/
 
-
         function getIds(tblID, idInp){
             $('#'+idInp).val("");
             $('#' + tblID + ' tbody tr').each(function() {
@@ -333,14 +374,22 @@
             });
         }
 
+
         $(document).ready(function() {
 
-            $("#StartDate").datepicker({
+            if(performance.navigation.type == 2)
+            {
+                $('#getIDs').val('');
+                $('#getRateIDs').val('');
+                $("#hide-components").hide();
+            }
+
+            $("#DateFrom").datepicker({
                 todayBtn:  1,
                 autoclose: true
             }).on('changeDate', function (selected) {
                 var minDate = new Date(selected.date.valueOf());
-                var endDate = $('#EndDate');
+                var endDate = $('#DateTo');
                 endDate.datepicker('setStartDate', minDate);
                 if(endDate.val() && new Date(endDate.val()) != undefined) {
                     if(minDate > new Date(endDate.val()))
@@ -348,27 +397,22 @@
                 }
             });
 
-            $("#EndDate").datepicker({autoclose: true})
+            $("#DateTo").datepicker({autoclose: true})
                     .on('changeDate', function (selected) {
                         var maxDate = new Date(selected.date.valueOf());
                         //$('#StartDate').datepicker('setEndDate', maxDate);
                     });
 
-            if(new Date($('#StartDate').val()) != undefined){
-                $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
+            if(new Date($('#DateFrom').val()) != undefined){
+                $("#DateTo").datepicker('setStartDate', new Date($('#DateFrom').val()))
             }
 
-            if(performance.navigation.type == 2)
-            {
-                $('#getIDs').val('');
-                $("#hide-components").hide();
-
-            }
 
             $(window).load(function() {
                 getIds("servicetableSubBox", "getIDs");
                 getIds("ratetableSubBox", "getRateIDs");
             });
+
             $('#servicetableSubBox tbody tr').each(function() {
 
                 var id = getNumber(this.id);
@@ -417,6 +461,8 @@
             $("#group-preference-div").hide();
             $("#DIDCategoryDiv").show();
             $("#Merge-components").show();
+            $(".DID-Div").show();
+            $(".NonDID-Div").hide();
 
         }else if(TypeValue == 1){
             $("#rate-ostion-trunk-div").show();
@@ -425,7 +471,11 @@
             $("#Merge-components").hide();
             $("#DIDCategoryDiv").hide();
             $("#hide-components").hide();
-
+            $(".DID-Div").hide();
+            $(".NonDID-Div").show();
+        } else {
+            $(".DID-Div").hide();
+            $(".NonDID-Div").show();
         }
 
         $("#rategenerator-from [name='SelectType']").on('change', function() {
@@ -439,6 +489,8 @@
                 $("#Merge-components").show();
                 $("#DIDCategoryDiv").show();
                 $("#hide-components").show();
+                $(".DID-Div").show();
+                $(".NonDID-Div").hide();
 
 
             }else if(TypeValue == 1){
@@ -448,6 +500,11 @@
                 $("#Merge-components").hide();
                 $("#hide-components").hide();
                 $("#DIDCategoryDiv").hide();
+                $(".DID-Div").hide();
+                $(".NonDID-Div").show();
+            } else {
+                $(".DID-Div").hide();
+                $(".NonDID-Div").show();
             }
 
         });
@@ -558,13 +615,15 @@
             if(tblID == "servicetableSubBox") {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Component-' + numb + '[]').attr('id', 'Component-' + numb).select2().select2('val', '');
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2().select2('val', '');
-                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(3)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(4)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
             }
@@ -597,8 +656,13 @@
             $('#' + tblID + ' tr:last').children('td:eq(2)').find('div:first').remove();
             $('#' + tblID + ' tr:last').children('td:eq(3)').find('div:first').remove();
             $('#' + tblID + ' tr:last').children('td:eq(4)').find('div:first').remove();
-            $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').find('a').removeClass('hidden');
 
+            if(tblID == "servicetableSubBox") {
+                $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').find('a').removeClass('hidden');
+            } else
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').find('a').removeClass('hidden');
         }
 
         function deleteRow(id, tblID, idInp)

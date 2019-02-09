@@ -50,7 +50,6 @@
     <br>
     <br>
 
-
     <div class="clear  row">
         <div class="col-md-12">
             <form role="form" id="rategenerator-from" method="post" action="{{URL::to('rategenerators/'.$rategenerators->RateGeneratorId.'/update')}}" class="form-horizontal form-groups-bordered">
@@ -64,47 +63,38 @@
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
-
                     <div class="panel-body">
-
                         <div class="form-group">
-
                             <label for="field-1" class="col-sm-2 control-label">Type</label>
                             <div class="col-sm-4">
-                                {{Form::select('SelectType',$AllTypes,$rategenerators->SelectType,array("class"=>"form-control select2 small","disabled"=>"disabled"))}}
-
+                                {{Form::select('SelectType',$AllTypes, $rategenerators->SelectType,array("class"=>"form-control select2 small","disabled"=>"disabled"))}}
                             </div>
                             <label for="field-1" class="col-sm-2 control-label">Name</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" name="RateGeneratorName" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{$rategenerators->RateGeneratorName}}" />
                             </div>
-
                         </div>
                         <div class="form-group" id="rate-ostion-trunk-div">
                             <label for="field-1" class="col-sm-2 control-label">Policy</label>
                             <div class="col-sm-4">
                                 {{ Form::select('Policy', LCR::$policy, $rategenerators->Policy , array("class"=>"select2")) }}
                             </div>
-
                             <label for="field-1" class="col-sm-2 control-label">Trunk</label>
                             <div class="col-sm-4">
                                 {{ Form::select('TrunkID', $trunks, $rategenerators->TrunkID , array("class"=>"select2")) }}
                             </div>
                         </div>
                         <div class="form-group" id="group-preference-div">
-
                             <label for="field-1" class="col-sm-2 control-label">Group By</label>
                             <div class="col-sm-4">
                                 {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), $rategenerators->GroupBy , array("class"=>"select2")) }}
                             </div>
-
                             <label for="field-1" class="col-sm-2 control-label">Use Preference</label>
                             <div class="col-sm-1">
                                 <div class="make-switch switch-small">
                                     {{Form::checkbox('UsePreference', 1,  $rategenerators->UsePreference );}}
                                 </div>
                             </div>
-
                             <div id="rate-aveg-div">
                                 <label for="field-1" class="col-sm-1 control-label">Use Average</label>
                                 <div class="col-sm-2">
@@ -115,6 +105,21 @@
                             </div>
                         </div>
 
+                        @if($rategenerator->SelectType != 2)
+                            <div class="form-group NonDID-Div">
+                                <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="LessThenRate" value="{{(!empty($rategenerators->LessThenRate)?$rategenerators->LessThenRate:'')}}" />
+
+                                </div>
+
+                                <label for="field-1" class="col-sm-2 control-label">Change rate to</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="ChargeRate" value="{{(!empty($rategenerators->ChargeRate)?$rategenerators->ChargeRate:'')}}" />
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Currency</label>
                             <div class="col-sm-4">
@@ -122,7 +127,6 @@
                                     unset($array_op['disabled']);
                                 }
                                 ?>
-
                                         <!--{ Form::select('CurrencyID', $currencylist,  $rategenerators->CurrencyID, array_merge( array("class"=>"select2"),$array_op)) }}-->
                                 {{Form::SelectControl('currency',0,$rategenerators->CurrencyID,($rategenerators->CurrencyID==''?0:1))}}
                                 @if($rategenerators->CurrencyID !='')
@@ -140,57 +144,98 @@
                                     <input type="text" class="form-control popover-primary" rows="1" id="percentageRate" name="percentageRate" value="{{$rategenerators->percentageRate}}" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Use vendor position mention in Rate Position unless vendor selected position is more then N% more costly than the previous vendor" data-original-title="Percentage" />
                                 </div>
                             </div>
-
                         </div>
                         {{--<input type="hidden" name="GroupBy" value="Code">--}}
 
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-2 control-label">Product</label>
-                            <div class="col-sm-10">
-                                {{ Form::select('ProductID', $Products, $rategenerators->ProductID, array("class"=>"select2")) }}
+                        @if($rategenerator->SelectType != 2)
+                            <div class="form-group NonDID-Div">
+                                <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
+                                <div class="col-sm-4">
+                                    {{ Form::select('codedeckid', $codedecklist,  $rategenerators->CodeDeckId, array_merge( array("class"=>"select2"),$array_op)) }}
+                                    @if(isset($array_op['disabled']) && $array_op['disabled'] == 'disabled')
+                                        <input type="hidden" name="codedeckid" readonly  value="{{$rategenerators->CodeDeckId}}">
+                                    @endif
+                                </div>
+                                <label for="field-1" class="col-sm-2 control-label">Timezones</label>
+                                <div class="col-sm-4">
+                                    {{ Form::select('Timezones[]', $Timezones, explode(',',$rategenerators->Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="StartDate" class="col-sm-2 control-label">Date From</label>
-                            <div class="col-sm-4">
-                                <input id="StartDate" type="text" name="DateFrom" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD" value="{{$rategenerators->DateFrom}}"/>
+                            <div class="form-group NonDID-Div">
+                                <label class="col-sm-2 control-label">Merge Rate By Timezones</label>
+                                <div class="col-sm-4">
+                                    <div class="make-switch switch-small">
+                                        {{Form::checkbox('IsMerge', 1,  $rategenerators->IsMerge, array('id' => 'IsMerge') );}}
+                                    </div>
+                                </div>
+                                <label class="col-sm-2 control-label IsMerge">Take Price</label>
+                                <div class="col-sm-4 IsMerge">
+                                    {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), $rategenerators->TakePrice , array("class"=>"select2")) }}
+                                </div>
                             </div>
-                            <label for="EndDate" class="col-sm-2 control-label">Date To</label>
-                            <div class="col-sm-4">
-                                <input id="EndDate" type="text" name="DateTo" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD" value="{{$rategenerators->DateTo}}"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="Calls" class="col-sm-2 control-label">Calls</label>
-                            <div class="col-sm-4">
-                                <input type="number" min="0" class="form-control" id="Calls" value="{{$rategenerators->Calls}}" name="Calls"/>
-                            </div>
-                            <label for="Minutes" class="col-sm-2 control-label">Minutes</label>
-                            <div class="col-sm-4">
-                                <input type="number" min="0" class="form-control" id="Minutes" value="{{$rategenerators->Minutes}}" name="Minutes"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="TimeOfDay" class="col-sm-2 control-label">Time of Day</label>
-                            <div class="col-sm-4">
-                                {{ Form::select('TimeOfDay', $Timezones, $rategenerators->TimeOfDay, array("class"=>"select2")) }}
-                            </div>
-                            <label for="TimeOfDayPercentage" class="col-sm-2 control-label">Time of Day %</label>
-                            <div class="col-sm-4">
-                                <input type="number" min="0" class="form-control" value="{{$rategenerators->TimeOfDayPercentage}}" id="TimeOfDayPercentage" name="TimeOfDayPercentage"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="Origination" class="col-sm-2 control-label">Origination</label>
-                            <div class="col-sm-4">
-                                <input type="text" class="form-control" id="Origination" value="{{$rategenerators->Origination}}" name="Origination"/>
-                            </div>
-                            <label for="OriginationPercentage" class="col-sm-2 control-label">Origination %</label>
-                            <div class="col-sm-4">
-                                <input type="number" min="0" class="form-control" value="{{$rategenerators->OriginationPercentage}}" id="OriginationPercentage" name="OriginationPercentage"/>
-                            </div>
-                        </div>
+                            <div class="form-group NonDID-Div">
+                                <label class="col-sm-2 control-label IsMerge">Merge Into</label>
+                                <div class="col-sm-4 IsMerge">
+                                    {{ Form::select('MergeInto', $Timezones, $rategenerators->MergeInto , array("class"=>"select2")) }}
+                                </div>
+                                <div id="hide-components">
+                                    <label for="field-1" class="col-sm-2 control-label">Components</label>
+                                    <div class="col-sm-4">
+                                        {{ Form::select('AllComponent[]', RateGenerator::$Component, explode("," ,$rategenerators->SelectedComponents) , array("class"=>"select2 multiselect" , "multiple"=>"multiple", "id"=>"AllComponent" )) }}
+                                    </div>
 
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($rategenerator->SelectType == 2)
+                            <div class="form-group DID-Div">
+                                <label for="field-1" class="col-sm-2 control-label">Product</label>
+                                <div class="col-sm-10">
+                                    {{ Form::select('ProductID', $Products, $rategenerators->ProductID, array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                            <div class="form-group DID-Div">
+                                <label for="DateFrom" class="col-sm-2 control-label">Date From</label>
+                                <div class="col-sm-4">
+                                    <input id="DateFrom" type="text" name="DateFrom" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD" value="{{$rategenerators->DateFrom}}"/>
+                                </div>
+                                <label for="DateTo" class="col-sm-2 control-label">Date To</label>
+                                <div class="col-sm-4">
+                                    <input id="DateTo" type="text" name="DateTo" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD" value="{{$rategenerators->DateTo}}"/>
+                                </div>
+                            </div>
+                            <div class="form-group DID-Div">
+                                <label for="Calls" class="col-sm-2 control-label">Calls</label>
+                                <div class="col-sm-4">
+                                    <input type="number" min="0" class="form-control" id="Calls" value="{{$rategenerators->Calls}}" name="Calls"/>
+                                </div>
+                                <label for="Minutes" class="col-sm-2 control-label">Minutes</label>
+                                <div class="col-sm-4">
+                                    <input type="number" min="0" class="form-control" id="Minutes" value="{{$rategenerators->Minutes}}" name="Minutes"/>
+                                </div>
+                            </div>
+                            <div class="form-group DID-Div">
+                                <label for="TimeOfDay" class="col-sm-2 control-label">Time of Day</label>
+                                <div class="col-sm-4">
+                                    {{ Form::select('TimezonesID', $Timezones, $rategenerators->TimezonesID, array("class"=>"select2")) }}
+                                </div>
+                                <label for="TimeOfDayPercentage" class="col-sm-2 control-label">Time of Day %</label>
+                                <div class="col-sm-4">
+                                    <input type="number" min="0" class="form-control" value="{{$rategenerators->TimezonesPercentage}}" id="TimeOfDayPercentage" name="TimezonesPercentage"/>
+                                </div>
+                            </div>
+                            <div class="form-group DID-Div">
+                                <label for="Origination" class="col-sm-2 control-label">Origination</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" id="Origination" value="{{$rategenerators->Origination}}" name="Origination"/>
+                                </div>
+                                <label for="OriginationPercentage" class="col-sm-2 control-label">Origination %</label>
+                                <div class="col-sm-4">
+                                    <input type="number" min="0" class="form-control" value="{{$rategenerators->OriginationPercentage}}" id="OriginationPercentage" name="OriginationPercentage"/>
+                                </div>
+                            </div>
+                        @endif
                         <div class="form-group" id="DIDCategoryDiv">
                             <label for="field-1" class="col-sm-2 control-label">Category</label>
                             <div class="col-sm-4">
@@ -200,18 +245,15 @@
                     </div>
                 </div>
 
-
                 <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
                     <div class="panel-heading">
                         <div class="panel-title">
                             Merge Components
                         </div>
-
                         <div class="panel-options">
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
-
                     <div class="panel-body">
                         <div class="col-md-12">
                             <br/>
@@ -219,16 +261,17 @@
                             <table id="servicetableSubBox" class="table table-bordered datatable">
                                 <thead>
                                 <tr>
-                                    <th width="25%">Component</th>
-                                    <th width="15%">Origination</th>
-                                    <th width="15%">Time of Day</th>
-                                    <th width="15%">Action</th>
-                                    <th width="20%">Merge To</th>
+                                    <th width="20%">Component</th>
+                                    <th width="10%">Origination</th>
+                                    <th width="12%">Time of Day</th>
+                                    <th width="11%">Action</th>
+                                    <th width="15%">Merge To</th>
+                                    <th width="10%">To Origination</th>
+                                    <th width="12%">To Time of Day</th>
                                     <th width="10%">Add</th>
                                 </tr>
                                 </thead>
                                 <tbody id="tbody">
-
                                 <?php
                                 $ComponentsArr=array();
                                 if(!empty($rategenerators->SelectedComponents)){
@@ -277,7 +320,7 @@
                                             <input type="text" class="form-control" value="{{$Component->Origination}}" name="Origination-{{$a}}"/>
                                         </td>
                                         <td>
-                                            {{ Form::select('TimeOfDay-'.$a, $Timezones, $Component->TimeOfDay, array("class"=>"select2")) }}
+                                            {{ Form::select('TimeOfDay-'.$a, $Timezones, $Component->TimezonesID, array("class"=>"select2")) }}
                                         </td>
                                         <td>
                                             {{ Form::select('Action-'.$a,  RateGenerator::$Action, $ActionsArray1, array("class"=>"select2")) }}
@@ -286,6 +329,12 @@
                                         <td>
                                             {{ Form::select('MergeTo-'.$a, RateGenerator::$Component,  $MergeToArray1 , array("class"=>"select2" , "id"=>"MergeTo-".$a)) }}
 
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" value="{{$Component->ToOrigination}}" name="ToOrigination-{{$a}}"/>
+                                        </td>
+                                        <td>
+                                            {{ Form::select('ToTimeOfDay-'.$a, $Timezones, $Component->ToTimezonesID, array("class"=>"select2")) }}
                                         </td>
                                         <td>
                                             <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="Service-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
@@ -307,7 +356,6 @@
                                 <tr id="selectedRow-1">
                                     <td id="testValues">
                                         {{ Form::select('Component-1[]', RateGenerator::$Component, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}
-
                                     </td>
                                     <td>
                                         <input type="text" class="form-control" name="Origination-1"/>
@@ -317,11 +365,15 @@
                                     </td>
                                     <td>
                                         {{ Form::select('Action-1',  RateGenerator::$Action, RateGenerator::$Action, array("class"=>"select2")) }}
-
                                     </td>
                                     <td>
                                         {{ Form::select('MergeTo-1', RateGenerator::$Component,  null , array("class"=>"select2" , "id"=>"MergeTo-1")) }}
-
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="ToOrigination-1"/>
+                                    </td>
+                                    <td>
+                                        {{ Form::select('ToTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                                     </td>
                                     <td>
                                         <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="Service-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
@@ -342,113 +394,115 @@
                         </div>
                     </div>
                 </div>
-                <div class="panel panel-primary" data-collapsed="0" id="Calculated-Rate">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Calculated Rate
+                @if($rategenerator->SelectType == 2)
+                    <div class="panel panel-primary" data-collapsed="0" id="Calculated-Rate">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                Calculated Rate
+                            </div>
+                            <div class="panel-options">
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                            </div>
                         </div>
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="col-md-12">
-                            <br/>
-                            <input type="hidden" id="getRateIDs" name="getRateIDs" value=""/>
-                            <table id="ratetableSubBox" class="table table-bordered datatable">
-                                <thead>
-                                <tr>
-                                    <th width="25%">Component</th>
-                                    <th width="15%">Origination</th>
-                                    <th width="15%">Time of Day</th>
-                                    <th width="17.5%">Calculated Rate</th>
-                                    <th width="17.5%">Change Rate To</th>
-                                    <th width="10%">Add</th>
-                                </tr>
-                                </thead>
-                                <tbody id="ratetbody">
-                                <?php
-                                $CalculatedArr=array();
-                                if (isset($rateGeneratorCalculatedRate) && count($rateGeneratorCalculatedRate) > 0)
-                                {
-                                $a = 0;
-                                $hiddenClass='';
-                                ?>
-
-                                @foreach ($rateGeneratorCalculatedRate as $calculatedRate)
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <br/>
+                                <input type="hidden" id="getRateIDs" name="getRateIDs" value=""/>
+                                <table id="ratetableSubBox" class="table table-bordered datatable">
+                                    <thead>
+                                    <tr>
+                                        <th width="25%">Component</th>
+                                        <th width="15%">Origination</th>
+                                        <th width="15%">Time of Day</th>
+                                        <th width="17.5%">Calculated Rate</th>
+                                        <th width="17.5%">Change Rate To</th>
+                                        <th width="10%">Add</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="ratetbody">
                                     <?php
-                                    $a++;
-                                    if($a==1){
-                                        $hiddenClass='hidden';
-                                    }else{
-                                        $hiddenClass='';
-                                    }
+                                    $CalculatedArr=array();
+                                    if (isset($rateGeneratorCalculatedRate) && count($rateGeneratorCalculatedRate) > 0)
+                                    {
+                                    $a = 0;
+                                    $hiddenClass='';
                                     ?>
-                                    <tr id="selectedRateRow-{{$a}}">
+
+                                    @foreach ($rateGeneratorCalculatedRate as $calculatedRate)
+                                        <?php
+                                        $a++;
+                                        if($a==1){
+                                            $hiddenClass='hidden';
+                                        }else{
+                                            $hiddenClass='';
+                                        }
+                                        ?>
+                                        <tr id="selectedRateRow-{{$a}}">
+                                            <td>
+                                                {{ Form::select('RateComponent-'.$a.'[]', RateGenerator::$Component, explode("," ,$calculatedRate->Component), array("class"=>"select2 selected-RComponents" ,'multiple', "id"=>"RateComponent-".$a)) }}
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" value="{{$calculatedRate->Origination}}" name="RateOrigination-{{$a}}"/>
+                                            </td>
+                                            <td>
+                                                {{ Form::select('RateTimeOfDay-'.$a, $Timezones, $calculatedRate->TimezonesID, array("class"=>"select2")) }}
+                                            </td>
+                                            <td>
+                                                <input type="number" min="0" value="{{$calculatedRate->RateLessThen}}" class="form-control" name="RateLessThen-{{$a}}"/>
+                                            </td>
+                                            <td>
+                                                <input type="number" min="0" value="{{$calculatedRate->ChangeRateTo}}" class="form-control" name="ChangeRateTo-{{$a}}"/>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
+                                                    <i></i>
+                                                    +
+                                                </button>
+                                                <a onclick="deleteRow(this.id,'ratetableSubBox','getRateIDs')" id="rateCal-{{$a}}" class="btn btn-danger btn-sm {{$hiddenClass}}" data-loading-text="Loading..." >
+                                                    <i></i>
+                                                    -
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    <?php } else { ?>
+                                    <tr id="selectedRateRow-1">
                                         <td>
-                                            {{ Form::select('RateComponent-'.$a.'[]', RateGenerator::$Component, explode("," ,$calculatedRate->Component), array("class"=>"select2 selected-RComponents" ,'multiple', "id"=>"RateComponent-".$a)) }}
+                                            {{ Form::select('RateComponent-1[]', RateGenerator::$Component, '', array("class"=>"select2 selected-Components" ,'multiple', "id"=>"RateComponent-1")) }}
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control" value="{{$calculatedRate->Origination}}" name="RateOrigination-{{$a}}"/>
+                                            <input type="text" class="form-control" name="RateOrigination-1"/>
                                         </td>
                                         <td>
-                                            {{ Form::select('RateTimeOfDay-'.$a, $Timezones, $calculatedRate->TimeOfDay, array("class"=>"select2")) }}
+                                            {{ Form::select('RateTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                                         </td>
                                         <td>
-                                            <input type="number" min="0" value="{{$calculatedRate->RateLessThen}}" class="form-control" name="RateLessThen-{{$a}}"/>
+                                            <input type="number" min="0" class="form-control" name="RateLessThen-1"/>
                                         </td>
                                         <td>
-                                            <input type="number" min="0" value="{{$calculatedRate->ChangeRateTo}}" class="form-control" name="ChangeRateTo-{{$a}}"/>
+                                            <input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>
                                         </td>
                                         <td>
                                             <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
                                                 <i></i>
                                                 +
                                             </button>
-                                            <a onclick="deleteRow(this.id,'ratetableSubBox','getRateIDs')" id="rateCal-{{$a}}" class="btn btn-danger btn-sm {{$hiddenClass}}" data-loading-text="Loading..." >
+                                            <a onclick="deleteRow(this.id,'ratetableSubBox','getRateIDs')" id="rateCal-0" class="btn btn-danger btn-sm hidden" data-loading-text="Loading..." >
                                                 <i></i>
                                                 -
                                             </a>
                                         </td>
                                     </tr>
-                                @endforeach
-                                <?php } else { ?>
-                                <tr id="selectedRateRow-1">
-                                    <td>
-                                        {{ Form::select('RateComponent-1[]', RateGenerator::$Component, '', array("class"=>"select2 selected-Components" ,'multiple', "id"=>"RateComponent-1")) }}
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" name="RateOrigination-1"/>
-                                    </td>
-                                    <td>
-                                        {{ Form::select('RateTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
-                                    </td>
-                                    <td>
-                                        <input type="number" min="0" class="form-control" name="RateLessThen-1"/>
-                                    </td>
-                                    <td>
-                                        <input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>
-                                    </td>
-                                    <td>
-                                        <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
-                                            <i></i>
-                                            +
-                                        </button>
-                                        <a onclick="deleteRow(this.id,'ratetableSubBox','getRateIDs')" id="rateCal-0" class="btn btn-danger btn-sm hidden" data-loading-text="Loading..." >
-                                            <i></i>
-                                            -
-                                        </a>
-                                    </td>
-                                </tr>
-                                <?php
-                                }
-                                ?>
-                                </tbody>
-                            </table>
+                                    <?php
+                                    }
+                                    ?>
+                                    </tbody>
+                                </table>
 
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
             </form>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
@@ -462,75 +516,100 @@
                 </div>
                 <div class="panel-body">
 
-                    <div class="col-md-12">
-                        <div class="pull-right">
+                    <div class="pull-right">
 
-                            <a  href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/rule/add" class="btn addnew btn-primary btn-sm btn-icon icon-left" >
-                                <i class="entypo-floppy"></i>
-                                Add New
-                            </a>
-                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Rules will be applied in the order they are setup. Keep * at the top." data-original-title="Add New Rule">?</span>
-                            <br><br>
-                        </div>
-
-                        @if(count($rategenerator_rules))
-                            <form id="RateRulesDataFrom" method="POST">
-                                <div class="dataTables_wrapper">
-                                    <table class="table table-bordered datatable" id="table-4">
-                                        <thead>
-                                        <tr>
-                                            <th width="25%">Component</th>
-                                            <th width="15%">Origination</th>
-                                            <th width="15%">Time of Day</th>
-                                            <th width="30%">Margins</th>
-                                            <th width="15%">Action</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody id="sortable">
-                                        @foreach($rategenerator_rules as $rategenerator_rule)
-                                            <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
-                                                <td>
-                                                    {{ @RateGenerator::$Component[$rategenerator_rule->Component] }}
-                                                </td>
-                                                <td>
-                                                    {{ $rategenerator_rule->Origination }}
-                                                </td>
-                                                <td>
-                                                    {{ @$Timezones[$rategenerator_rule->TimeOfDay] }}
-                                                </td>
-                                                <td>
-                                                    @if(count($rategenerator_rule['RateRuleMargin']))
-                                                        @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
-                                                            {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} {{$materulemargin->FixedValue}} <br>
-
-                                                        @endforeach
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/edit' )}}" id="add-new-margin" class="update btn btn-primary btn-sm">
-                                                        <i class="entypo-pencil"></i>
-                                                    </a>
-
-                                                    <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/clone_rule' )}}" data-rate-generator-id="{{$id}}" id="clone-rule" class="clone_rule btn btn-default  btn-sm" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip" data-loading-text="...">
-                                                        <i class="fa fa-clone"></i>
-                                                    </a>
-
-                                                    <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/delete' )}}" class="btn delete btn-danger btn-sm" data = "0" data-redirect="{{Request::url()}}">
-                                                        <i class="entypo-trash"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <input type="hidden" name="main_fields_sort" id="main_fields_sort" value="">
-                            </form>
-                        @endif
+                        <a  href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/rule/add" class="btn addnew btn-primary btn-sm btn-icon icon-left" >
+                            <i class="entypo-floppy"></i>
+                            Add New
+                        </a>
+                        <br><br>
                     </div>
+
+                    @if(count($rategenerator_rules))
+                        <form id="RateRulesDataFrom" method="POST" />
+                        <div class="dataTables_wrapper clear-both">
+                            <table class="table table-bordered datatable" id="table-4">
+                                <thead>
+                                <tr>
+                                    @if($rategenerator->SelectType == 2)
+                                        <th width="25%">Component</th>
+                                        <th width="15%">Origination</th>
+                                        <th width="15%">Time of Day</th>
+                                    @else
+                                        <th width="25%">Rate Filter Origination</th>
+                                        <th width="15%">Rate Filter Destination</th>
+                                        <th width="15%">Sources</th>
+                                    @endif
+                                    <th width="30%">Margins</th>
+                                    <th width="15%">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody id="sortable">
+                                @foreach($rategenerator_rules as $rategenerator_rule)
+                                    <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
+                                        @if($rategenerator->SelectType == 2)
+                                            <td>
+                                                {{ @RateGenerator::$Component[$rategenerator_rule->Component] }}
+                                            </td>
+                                            <td>
+                                                {{ $rategenerator_rule->OriginationDescription }}
+                                            </td>
+                                            <td>
+                                                {{ @$Timezones[$rategenerator_rule->TimeOfDay] }}
+                                            </td>
+                                        @else
+                                            <td>
+                                                {{$rategenerator_rule->OriginationCode}}@if(!empty($rategenerator_rule->OriginationCode)) <br/> @endif
+                                                {{$rategenerator_rule->OriginationDescription}}
+                                            </td>
+                                            <td>
+                                                {{$rategenerator_rule->Code}}@if(!empty($rategenerator_rule->Code)) <br/> @endif
+                                                {{$rategenerator_rule->Description}}
+                                            </td>
+                                            <td>
+                                                @if(count($rategenerator_rule['RateRuleSource']))
+                                                    @foreach($rategenerator_rule['RateRuleSource'] as $rateruleSource )
+                                                        {{Account::getCompanyNameByID($rateruleSource->AccountId);}}<br>
+                                                    @endforeach
+                                                @endif
+                                            </td>
+                                        @endif
+                                        <td>
+                                            @if(count($rategenerator_rule['RateRuleMargin']))
+                                                @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
+                                                    {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} {{$materulemargin->FixedValue}} <br>
+
+                                                @endforeach
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/edit' )}}" id="add-new-margin" class="update btn btn-primary btn-sm">
+                                                <i class="entypo-pencil"></i>
+                                            </a>
+
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/clone_rule' )}}" data-rate-generator-id="{{$id}}" id="clone-rule" class="clone_rule btn btn-default  btn-sm" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip" data-loading-text="...">
+                                                <i class="fa fa-clone"></i>
+                                            </a>
+
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/delete' )}}" class="btn delete btn-danger btn-sm" data = "0" data-redirect="{{Request::url()}}">
+                                                <i class="entypo-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+
+
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <input type="hidden" name="main_fields_sort" id="main_fields_sort" value="">
+                        </form>
+                    @endif
+
                 </div>
             </div>
         </div>
+
     </div>
     <style>
         #sortable tr:hover {
@@ -539,12 +618,8 @@
         .IsMerge {
             display: none;
         }
-        .select2.form-control {
-            margin: 0;
-        }
     </style>
     <script type="text/javascript">
-
 
         function getIds(tblID, idInp){
             $('#'+idInp).val("");
@@ -562,8 +637,6 @@
             });
         }
 
-
-
         jQuery(document).ready(function() {
             /*$(".btn.addnew").click(function(ev) {
              jQuery('#modal-rate-generator-rule').modal('show', {backdrop: 'static'});
@@ -572,12 +645,12 @@
 
             var selectAllComponents;
 
-            $("#StartDate").datepicker({
+            $("#DateFrom").datepicker({
                 todayBtn:  1,
                 autoclose: true
             }).on('changeDate', function (selected) {
                 var minDate = new Date(selected.date.valueOf());
-                var endDate = $('#EndDate');
+                var endDate = $('#DateTo');
                 endDate.datepicker('setStartDate', minDate);
                 if(endDate.val() && new Date(endDate.val()) != undefined) {
                     if(minDate > new Date(endDate.val()))
@@ -585,14 +658,14 @@
                 }
             });
 
-            $("#EndDate").datepicker({autoclose: true})
+            $("#DateTo").datepicker({autoclose: true})
                     .on('changeDate', function (selected) {
                         var maxDate = new Date(selected.date.valueOf());
                         //$('#StartDate').datepicker('setEndDate', maxDate);
                     });
 
-            if(new Date($('#StartDate').val()) != undefined){
-                $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
+            if(new Date($('#DateFrom').val()) != undefined){
+                $("#DateTo").datepicker('setStartDate', new Date($('#DateFrom').val()))
             }
 
             var TypeValue = $("#rategenerator-from [name='SelectType']").val();
@@ -603,6 +676,8 @@
                 $("#group-preference-div").hide();
                 $("#DIDCategoryDiv").show();
                 $("#Merge-components").show();
+                $(".DID-Div").show();
+                $(".NonDID-Div").hide();
 
             }else if(TypeValue == 1){
                 $("#rate-ostion-trunk-div").show();
@@ -611,6 +686,11 @@
                 $("#Merge-components").hide();
                 $("#DIDCategoryDiv").hide();
                 $("#hide-components").hide();
+                $(".DID-Div").hide();
+                $(".NonDID-Div").show();
+            } else {
+                $(".DID-Div").hide();
+                $(".NonDID-Div").show();
             }
 
             $(window).load(function() {
@@ -619,6 +699,64 @@
             });
 
 
+            $( "#AllComponent" ).on('change', function() {
+
+                var selectAllComponents = $("#AllComponent").val();
+                selectAllComponents = String(selectAllComponents);
+                var ComponentsArray = selectAllComponents.split(',');
+                var addCostComponents = new Array();
+                var j= 0;
+
+
+                $('#servicetableSubBox tbody tr').each(function() {
+
+                    if(this.id == 'selectedRow-0')
+                        var id = 0;
+                    else
+                        var id = getNumber(this.id);
+
+                    var component = $('#Component-' + id).val();
+                    component = String(component);
+                    var getCompArray = component.split(',');
+
+//                for( var i = 0; i < ComponentsArray.length; i++){
+//                    alert(ComponentsArray[i]);
+//                    if ( ComponentsArray[i] == getCompArray[i]) {
+//                          ComponentsArray.splice(ComponentsArray.indexOf(i), 1);
+//                    }
+//                }
+//                $('#MergeTo-'+id+' option').each(function() {
+//                    $(this).remove();
+//                });
+                    $('#Component-'+id+' option').each(function() {
+                        $(this).remove();
+                    });
+                    $('#MergeTo-'+id+' option').each(function() {
+                        $(this).remove();
+                    });
+                    var i;
+                    for (i = 0; i < ComponentsArray.length; ++i) {
+                        var data = {
+                            id: ComponentsArray[i],
+                            text: ComponentsArray[i]
+                        };
+
+                        if( typeof data.id != 'undefined' && data.id  != 'null'){
+
+                            var newOption = new Option(data.text, data.id, false, false);
+                            var newOption2 = new Option(data.text, data.id, false, false);
+
+                            $('#Component-'+id).append(newOption).trigger('change');
+                            $('#MergeTo-'+id).append(newOption2).trigger('change');
+                        }
+                    }
+
+                    $('#Component-'+id).select2().select2('val', getCompArray);
+
+                });
+
+            });
+
             var TypeValue = $("#rategenerator-from [name='SelectType']").val();
             if(TypeValue == 2){
                 $("#rate-ostion-trunk-div").hide();
@@ -626,7 +764,8 @@
                 $("#group-preference-div").hide();
                 $("#DIDCategoryDiv").show();
                 $("#Merge-components").show();
-
+                $(".DID-Div").show();
+                $(".NonDID-Div").hide();
             }else if(TypeValue == 1){
                 $("#rate-ostion-trunk-div").show();
                 $("#rate-aveg-div").show();
@@ -634,6 +773,11 @@
                 $("#Merge-components").hide();
                 $("#DIDCategoryDiv").hide();
                 $("#hide-components").hide();
+                $(".DID-Div").hide();
+                $(".NonDID-Div").show();
+            } else {
+                $(".DID-Div").hide();
+                $(".NonDID-Div").show();
             }
 
             function initSortable(){
@@ -1008,11 +1152,8 @@
                 }
             });
 
-
             $("#rategenerator-from [name='SelectType']").on('change', function() {
-
                 var TypeValue = $(this).val();
-
                 if(TypeValue == 2){
                     $("#rate-ostion-trunk-div").hide();
                     $("#rate-aveg-div").hide();
@@ -1020,8 +1161,8 @@
                     $("#Merge-components").show();
                     $("#DIDCategoryDiv").show();
                     $("#hide-components").show();
-
-
+                    $(".DID-Div").show();
+                    $(".NonDID-Div").hide();
                 }else if(TypeValue == 1){
                     $("#rate-ostion-trunk-div").show();
                     $("#rate-aveg-div").show();
@@ -1029,11 +1170,13 @@
                     $("#Merge-components").hide();
                     $("#hide-components").hide();
                     $("#DIDCategoryDiv").hide();
+                    $(".DID-Div").hide();
+                    $(".NonDID-Div").show();
+                } else {
+                    $(".DID-Div").hide();
+                    $(".NonDID-Div").show();
                 }
-
             });
-
-
         });
 
 
@@ -1059,13 +1202,15 @@
             if(tblID == "servicetableSubBox") {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Component-' + numb + '[]').attr('id', 'Component-' + numb).select2().select2('val', '');
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2().select2('val', '');
-                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(3)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(4)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
             }
@@ -1078,14 +1223,14 @@
             }
 
             /* if(tblID == "servicetableSubBox") {
-                $('#Component-' + numb + ' option').each(function () {
-                    $(this).remove();
-                });
-            } else {
-                $('#RateComponent-' + numb + ' option').each(function () {
-                    $(this).remove();
-                });
-            }*/
+             $('#Component-' + numb + ' option').each(function () {
+             $(this).remove();
+             });
+             } else {
+             $('#RateComponent-' + numb + ' option').each(function () {
+             $(this).remove();
+             });
+             }*/
             if(tblID == "servicetableSubBox") {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').children('a').attr('id', "merge-"+ numb);
             } else{
@@ -1098,8 +1243,13 @@
             $('#' + tblID + ' tr:last').children('td:eq(2)').find('div:first').remove();
             $('#' + tblID + ' tr:last').children('td:eq(3)').find('div:first').remove();
             $('#' + tblID + ' tr:last').children('td:eq(4)').find('div:first').remove();
-            $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').find('a').removeClass('hidden');
 
+            if(tblID == "servicetableSubBox") {
+                $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').find('a').removeClass('hidden');
+            } else
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').find('a').removeClass('hidden');
         }
 
         function deleteRow(id, tblID, idInp)
@@ -1129,6 +1279,7 @@
                 return false;
             }
         }
+
     </script>
     @include('includes.ajax_submit_script', array('formID'=>'rategenerator-from' , 'url' => ('rategenerators/'.$rategenerators->RateGeneratorId.'/update')))
 

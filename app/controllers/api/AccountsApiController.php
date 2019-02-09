@@ -736,11 +736,11 @@ class AccountsApiController extends ApiController {
 			$data['Email'] = isset($accountData['Email']) ? $accountData['Email'] : '';
 			$data['BillingEmail'] = isset($accountData['BillingEmail']) ? $accountData['BillingEmail'] : '';
 			$data['Owner'] = isset($accountData['OwnerID']) ? $accountData['OwnerID'] : '';
-			$data['CurrencyId'] = isset($accountData['CurrencyID']) ? $accountData['CurrencyID'] : '';
-			$data['Country'] = isset($accountData['CountryID']) ? $accountData['CountryID'] : '';
+			$data['CurrencyId'] = isset($accountData['CurrencySymbol']) ? $accountData['CurrencySymbol'] : '';
+			$data['Country'] = isset($accountData['CountryIso2']) ? $accountData['CountryIso2'] : '';
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
-			$data['Language']= isset($accountData['LanguageID']) ? $accountData['LanguageID'] : '';
+			$data['Language']= isset($accountData['LanguageIso2']) ? $accountData['LanguageIso2'] : '';
 
 			$data['CompanyID'] = $CompanyID;
 			$data['AccountType'] = 1;
@@ -769,7 +769,24 @@ class AccountsApiController extends ApiController {
 			$data['AccountType'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
 			$data['PaymentMethod'] = isset($accountData['PaymentMethodID']) ? $accountData['PaymentMethodID'] : '' ;
+			$BankPaymentDetails['AccountNumber'] = isset($accountData['AccountNumber']) ? $accountData['AccountNumber'] : '' ;
+			$BankPaymentDetails['RoutingNumber'] = isset($accountData['RoutingNumber']) ? $accountData['RoutingNumber'] : '' ;
+			$BankPaymentDetails['AccountHolderType'] = isset($accountData['AccountHolderType']) ? $accountData['AccountHolderType'] : '' ;//company,individual
+			$BankPaymentDetails['AccountHolderName'] = isset($accountData['AccountHolderName']) ? $accountData['AccountHolderName'] : '' ;
 
+			$BankPaymentDetails['CardNumber'] = isset($accountData['CardNumber']) ? $accountData['CardNumber'] : '' ;
+			$BankPaymentDetails['CardType'] = isset($accountData['CardType']) ? $accountData['CardType'] : '' ;//Discover,MasterCard,Visa
+			$BankPaymentDetails['ExpirationMonth'] = isset($accountData['ExpirationMonth']) ? $accountData['ExpirationMonth'] : '' ;
+			$BankPaymentDetails['ExpirationYear'] = isset($accountData['ExpirationYear']) ? $accountData['ExpirationYear'] : '' ;
+			$BankPaymentDetails['NameOnCard'] = isset($accountData['NameOnCard']) ? $accountData['NameOnCard'] : '' ;
+			$BankPaymentDetails['CVVNumber'] = isset($accountData['CVVNumber']) ? $accountData['CVVNumber'] : '' ;
+
+			//stripe = credit stipeAch = bank
+			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
+				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$PaymentMethod)) {
+					return Response::json(array("status" => Codes::$Code1020[0], "ErrorMessage" => Codes::$Code1020[1]));
+				}
+			}
 
 
 			$AccountPaymentAutomation['AutoTopup']= isset($accountData['AutoTopup']) ? $accountData['AutoTopup'] :'';
@@ -779,9 +796,9 @@ class AccountsApiController extends ApiController {
 			$AccountPaymentAutomation['OutPaymentThreshold']= isset($accountData['OutPaymentThreshold']) ? $accountData['OutPaymentThreshold'] : '';
 			$AccountPaymentAutomation['OutPaymentAmount']= isset($accountData['OutPaymentAmount']) ? $accountData['OutPaymentAmount'] : '';
 
-			if (!empty($data['PaymentMethod']) && !in_array($data['PaymentMethod'], AccountsApiController::$PaymentMethod)) {
-				return Response::json(array("status" => Codes::$Code1020[0], "ErrorMessage" => Codes::$Code1020[1]));
-			}
+			//if (!empty($data['PaymentMethod']) && !in_array($data['PaymentMethod'], AccountsApiController::$PaymentMethod)) {
+			//	return Response::json(array("status" => Codes::$Code1020[0], "ErrorMessage" => Codes::$Code1020[1]));
+			//}
 
 			if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1) {
 				$rules = [];
@@ -801,6 +818,27 @@ class AccountsApiController extends ApiController {
 					return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
 				}
 			}
+
+			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] == 8) {
+				if (!empty($BankPaymentDetails['CardNumber'])) {
+					$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
+					if ($CardValidationResponse["status"] == "failed") {
+						return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $CardValidationResponse["message"]]);
+					}
+				}else {
+					$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
+					if ($validator->fails()) {
+						$errors = "";
+						foreach ($validator->messages()->all() as $error) {
+							$errors .= $error . "<br>";
+						}
+						return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
+					}
+				}
+
+
+			}
+
 
 			if (!empty($AccountPaymentAutomation['AutoOutpayment']) && $AccountPaymentAutomation['AutoOutpayment'] == 1) {
 				$rules = [];
@@ -852,15 +890,15 @@ class AccountsApiController extends ApiController {
 
 
 
-			Account::$rules['AccountName'] = 'required';
-			Account::$rules['Number'] = 'required';
+			Account::$APIrules['AccountName'] = 'required';
+			Account::$APIrules['Number'] = 'required';
 
 
 
 
 
 
-			$validator = Validator::make($data, Account::$rules, Account::$messages);
+			$validator = Validator::make($data, Account::$APIrules, Account::$messages);
 
 			if ($validator->fails()) {
 				$errors = "";
@@ -943,30 +981,40 @@ class AccountsApiController extends ApiController {
 				}
 
 			}
-			$data['CurrencyId'] = Currency::where('CurrencyId',$data['CurrencyId'])->pluck('CurrencyId');
+			$data['CurrencyId'] = Currency::where('Symbol',$data['CurrencyId'])->pluck('CurrencyId');
 			if (!isset($data['CurrencyId'])) {
 				return Response::json(["ErrorMessage" => Codes::$Code1012[1],Codes::$Code1012[0]]);
 			}
-			$data['Country'] = Country::where(['CountryID' => $data['Country']])->pluck('Country');
+			$data['Country'] = Country::where(['ISO2' => $data['Country']])->pluck('Country');
 			if (!isset($data['Country'])) {
 				return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
 			}
 
-			$data['LanguageID'] = Language::where('LanguageID',$data['Language'])->pluck('LanguageID');
+			$data['LanguageID'] = Language::where('ISOCode',$data['Language'])->pluck('LanguageID');
 			if (!isset($data['LanguageID'])) {
 				return Response::json(["ErrorMessage" => Codes::$Code1014[1]],Codes::$Code1014[0]);
 			}
 
-			$data['Owner'] = User::where('UserID',$data['Owner'])->pluck('UserID');
-			if (!isset($data['Owner'])) {
-				return Response::json(["ErrorMessage" => Codes::$Code1019[1]],Codes::$Code1019[0]);
+			if (isset($data['Owner']) && !empty($data['Owner'])) {
+				$data['Owner'] = User::where('UserID', $data['Owner'])->pluck('UserID');
+				if (!isset($data['Owner'])) {
+					return Response::json(["ErrorMessage" => Codes::$Code1019[1]], Codes::$Code1019[0]);
+				}
 			}
 
 			AccountBilling::$rulesAPI['billing_type'] = 'required';
 			AccountBilling::$rulesAPI['billing_class'] = 'required';
 			AccountBilling::$rulesAPI['billing_cycle'] = 'required';
 			//AccountBilling::$rulesAPI['billing_cycle_options'] = 'required';
-
+			$BillingCycleTypeID[0] = "daily";
+			$BillingCycleTypeID[1] = "fortnightly";
+			$BillingCycleTypeID[2] = "in_specific_days";
+			$BillingCycleTypeID[3] = "manual";
+			$BillingCycleTypeID[4] = "monthly";
+			$BillingCycleTypeID[5] = "monthly_anniversary";
+			$BillingCycleTypeID[6] = "quarterly";
+			$BillingCycleTypeID[7] = "weekly";
+			$BillingCycleTypeID[8] = "yearly";
 
 			$BillingSetting['billing_type'] = isset($accountData['BillingTypeID']) ? $accountData['BillingTypeID'] : '';
 			$BillingSetting['billing_class']= isset($accountData['BillingClassID']) ? $accountData['BillingClassID'] : '';
@@ -1007,15 +1055,7 @@ class AccountsApiController extends ApiController {
 					return Response::json(["ErrorMessage" => Codes::$Code1026[1]],Codes::$Code1026[0]);
 				}
 
-				$BillingCycleTypeID[0] = "Daily";
-				$BillingCycleTypeID[1] = "Fortnightly";
-				$BillingCycleTypeID[2] = "In Specific days";
-				$BillingCycleTypeID[3] = "Manual";
-				$BillingCycleTypeID[4] = "Monthly";
-				$BillingCycleTypeID[5] = "Monthly anniversary";
-				$BillingCycleTypeID[6] = "Quarterly";
-				$BillingCycleTypeID[7] = "Weekly";
-				$BillingCycleTypeID[8] = "Yearly";
+
 
 				if ($BillingSetting['billing_cycle'] == 2 || $BillingSetting['billing_cycle'] == 5 || $BillingSetting['billing_cycle'] == 7) {
 					if (empty($BillingSetting['billing_cycle_options'])) {
@@ -1030,14 +1070,16 @@ class AccountsApiController extends ApiController {
 					}
 
 					if ($BillingSetting['billing_cycle'] == 7) {
-						$validValues = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-						$BillingCycleOptions = explode(',', $BillingSetting['billing_cycle_options']);
-						foreach($BillingCycleOptions as $BillingCycleOption) {
-							if (!in_array($BillingCycleOption, $validValues)) {
+						$validValues = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+					//	$BillingCycleOptions = explode(',', $BillingSetting['billing_cycle_options']);
+					//	foreach($BillingCycleOptions as $BillingCycleOption) {
+							if (!in_array($BillingSetting['billing_cycle_options'], $validValues)) {
 								return Response::json(["ErrorMessage" => Codes::$Code1028[1]],Codes::$Code1028[0]);
 							}
-						}
+					//	}
 					}
+				} else {
+					$BillingSetting['billing_cycle_options'] = '';
 				}
 
 
@@ -1051,6 +1093,32 @@ class AccountsApiController extends ApiController {
 				$AccountDetails['AccountID'] = $account->AccountID;
 				AccountDetails::create($AccountDetails);
 				$account->update($data);
+
+				if (isset($data['PaymentMethod']) && $data['PaymentMethod'] == 8) {
+					$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
+					$BankPaymentDetails['CompanyID'] = $CompanyID;
+					if (!empty($BankPaymentDetails['CardNumber'])) {
+						$BankPaymentDetails['PayoutType'] = "card";
+					}else {
+						$BankPaymentDetails['PayoutType'] = "bank";
+					}
+					$BankPaymentDetails['AccountID'] = $account->AccountID;
+					$BankPaymentDetails['Title'] = $account->AccountID;
+					$BankPaymentDetails['CustomerAccountName'] = $account->AccountName;
+
+					$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($BankPaymentDetails['PaymentGatewayID']);
+					$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
+					$AccountResponse = $PaymentIntegration->createAccount($BankPaymentDetails);
+					Log::info('$Account Payment Response2 ' . $AccountResponse->getContent());
+					$AccountResponse = $AccountResponse->getContent();
+					$AccountResponse = json_decode($AccountResponse);
+					$AccountResponse = json_decode(json_encode($AccountResponse), true);
+					$AccountResponse=json_decode(json_encode($AccountResponse),true);
+					if ($AccountResponse["status"] == 'failed') {
+						return Response::json(["ErrorMessage" => $AccountResponse["message"]],Codes::$Code1033[0]);
+					}
+
+				}
 
 				if (isset($accountData['AccountDynamicField'])) {
 					//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
@@ -1101,8 +1169,8 @@ class AccountsApiController extends ApiController {
 
 					///**
 					//*  if not first invoice generation
-					Log::info('Billing Date ' . $BillingCycleType . ' ' . $BillingCycleValue . ' ' . $BillingStartDate);
-					$NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, strtotime($BillingStartDate));
+					Log::info('Billing Date ' . $BillingCycleTypeID[$BillingCycleType] . ' ' . $BillingCycleValue . ' ' . $BillingStartDate);
+					$NextBillingDate = next_billing_date($BillingCycleTypeID[$BillingCycleType], $BillingCycleValue, strtotime($BillingStartDate));
 					$NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
 
 					$dataAccountBilling['BillingStartDate'] = $BillingStartDate;
@@ -1114,6 +1182,7 @@ class AccountsApiController extends ApiController {
 
 					$dataAccountBilling['NextInvoiceDate'] = $NextBillingDate;
 					$dataAccountBilling['NextChargeDate'] = $NextChargedDate;
+					$dataAccountBilling['BillingCycleType'] = $BillingCycleTypeID[$BillingCycleType];
 
 					//if not first invoice generation
 

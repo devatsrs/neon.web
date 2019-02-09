@@ -1089,6 +1089,8 @@ class RateUploadController extends \BaseController {
                 $ConnectionFeeColumn              = 'ConnectionFee'.$id;
                 $BlockedColumn                    = 'Blocked'.$id;
                 $RoutingCategory                  = 'RoutingCategory'.$id;
+                $RateCurrencyColumn               = 'RateCurrency'.$id;
+                $ConnectionFeeCurrencyColumn      = 'ConnectionFeeCurrency'.$id;
 
                 $OneOffCostColumn                 = 'OneOffCost'.$id;
                 $MonthlyCostColumn                = 'MonthlyCost'.$id;
@@ -1677,6 +1679,32 @@ class RateUploadController extends \BaseController {
                                     $tempdata['ConnectionFee'] = trim($temp_row[$attrselection->$ConnectionFeeColumn]);
                                 }
 
+                                if (!empty($attrselection->$RateCurrencyColumn)) {
+                                    if (array_key_exists($attrselection->$RateCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                        $tempdata['RateCurrency'] = $attrselection->$RateCurrencyColumn;
+                                    } else if (isset($temp_row[$attrselection->$RateCurrencyColumn]) && array_search($temp_row[$attrselection->$RateCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['RateCurrency'] = array_search($temp_row[$attrselection->$RateCurrencyColumn], $component_currencies);
+                                    } else {
+                                        $tempdata['RateCurrency'] = NULL;
+                                        $error[] = 'Rate Currency is not match at line no:' . $lineno;
+                                    }
+                                } else {
+                                    $tempdata['RateCurrency'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$ConnectionFeeCurrencyColumn)) {
+                                    if (array_key_exists($attrselection->$ConnectionFeeCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
+                                        $tempdata['ConnectionFeeCurrency'] = $attrselection->$ConnectionFeeCurrencyColumn;
+                                    } else if (isset($temp_row[$attrselection->$ConnectionFeeCurrencyColumn]) && array_search($temp_row[$attrselection->$ConnectionFeeCurrencyColumn], $component_currencies)) {// if currency selected from file
+                                        $tempdata['ConnectionFeeCurrency'] = array_search($temp_row[$attrselection->$ConnectionFeeCurrencyColumn], $component_currencies);
+                                    } else {
+                                        $tempdata['ConnectionFeeCurrency'] = NULL;
+                                        $error[] = 'Connection Fee Currency is not match at line no:' . $lineno;
+                                    }
+                                } else {
+                                    $tempdata['ConnectionFeeCurrency'] = NULL;
+                                }
+
                                 if (!empty($attrselection->$Interval1Column) && isset($temp_row[$attrselection->$Interval1Column])) {
                                     $tempdata['Interval1'] = intval(trim($temp_row[$attrselection->$Interval1Column]));
                                 }
@@ -1750,7 +1778,7 @@ class RateUploadController extends \BaseController {
 
                             $tempdata['TimezonesID'] = $TimezoneID;
 
-                            if (isset($tempdata['Code']) && isset($tempdata['Description']) && ((isset($tempdata['Rate']) || $CostComponentsError==0) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
+                            if (isset($tempdata['Code']) && isset($tempdata['Description']) && ((isset($tempdata['Rate']) || $CostComponentsMapped>0) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
                                 if (isset($tempdata['EndDate'])) {
                                     $batch_insert_array[] = $tempdata;
                                 } else {
