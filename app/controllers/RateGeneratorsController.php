@@ -104,7 +104,7 @@ class RateGeneratorsController extends \BaseController {
                 'DateTo'            => 'required|date|date_format:Y-m-d',
                 'Calls'             => 'numeric',
                 'Minutes'           => 'numeric',
-                'TimeOfDayPercentage'   => 'numeric',
+                'TimezonesPercentage'   => 'numeric',
                 'OriginationPercentage' => 'numeric',
                 'LessThenRate'      => 'numeric',
                 'ChargeRate'        => 'numeric',
@@ -120,7 +120,8 @@ class RateGeneratorsController extends \BaseController {
 
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone',
-            'ProductID.required' => 'Please select product.'
+            'ProductID.required' => 'Please select product.',
+            'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.'
         );
 
         if(!empty($data['IsMerge'])) {
@@ -167,22 +168,26 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['TimeOfDay-' . $numberArray[$i]]);
                         unset($data['Action-' . $numberArray[$i]]);
                         unset($data['MergeTo-' . $numberArray[$i]]);
-                        break;
+                        unset($data['ToOrigination-' . $numberArray[$i]]);
+                        unset($data['ToTimeOfDay-' . $numberArray[$i]]);
                     } else {
                         if(empty($data['Component-'. $numberArray[$i]]) ||
                             empty($data['TimeOfDay-'. $numberArray[$i]]) ||
                             empty($data['Action-'. $numberArray[$i]]) ||
-                            empty($data['MergeTo-'. $numberArray[$i]])){
+                            empty($data['MergeTo-'. $numberArray[$i]]) ||
+                            empty($data['ToTimeOfDay-'. $numberArray[$i]])){
                             return Response::json(array(
                                 "status" => "failed",
                                 "message" => "Merge components Value is missing."
                             ));
                         }
-                        $componts[] = $data['Component-' . $numberArray[$i]];
-                        $origination[] = @$data['Origination-' . $numberArray[$i]];
-                        $timeofday[] = $data['TimeOfDay-' . $numberArray[$i]];
-                        $action[] = $data['Action-' . $numberArray[$i]];
-                        $mergeTo[] = $data['MergeTo-' . $numberArray[$i]];
+                        $componts[]      = $data['Component-' . $numberArray[$i]];
+                        $origination[]   = @$data['Origination-' . $numberArray[$i]];
+                        $timeofday[]     = $data['TimeOfDay-' . $numberArray[$i]];
+                        $action[]        = $data['Action-' . $numberArray[$i]];
+                        $mergeTo[]       = $data['MergeTo-' . $numberArray[$i]];
+                        $originationTo[] = @$data['ToOrigination-' . $numberArray[$i]];
+                        $timeofdayTo[]   = $data['ToTimeOfDay-' . $numberArray[$i]];
                     }
 
                     unset($data['Component-' . $numberArray[$i]]);
@@ -190,6 +195,8 @@ class RateGeneratorsController extends \BaseController {
                     unset($data['TimeOfDay-' . $numberArray[$i]]);
                     unset($data['Action-' . $numberArray[$i]]);
                     unset($data['MergeTo-' . $numberArray[$i]]);
+                    unset($data['ToOrigination-' . $numberArray[$i]]);
+                    unset($data['ToTimeOfDay-' . $numberArray[$i]]);
                 }
 
                 unset($data['getIDs']);
@@ -209,7 +216,6 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['RateTimeOfDay-' . $calculatedRates[$i]]);
                         unset($data['RateLessThen-' . $calculatedRates[$i]]);
                         unset($data['ChangeRateTo-' . $calculatedRates[$i]]);
-                        break;
                     } else {
                         if(!isset($data['RateComponent-'. $calculatedRates[$i]]) ||
                             empty($data['RateTimeOfDay-'. $calculatedRates[$i]]) ||
@@ -250,6 +256,8 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['TimeOfDay-1']);
                 unset($data['Action-1']);
                 unset($data['MergeTo-1']);
+                unset($data['ToOrigination-1']);
+                unset($data['ToTimeOfDay-1']);
                 unset($data['Category']);
                 unset($data['RateComponent-1']);
                 unset($data['RateOrigination-1']);
@@ -273,7 +281,6 @@ class RateGeneratorsController extends \BaseController {
                     $i = 0;
 
                     for ($i = 0; $i < sizeof($numberArray) - 1; $i++) {
-
                         if (!isset($componts[$i])) {
                             break;
                         }
@@ -283,22 +290,21 @@ class RateGeneratorsController extends \BaseController {
                         $GetTimeOfDay   = $timeofday[$i];
                         $GetAction      = $action[$i];
                         $GetMergeTo     = $mergeTo[$i];
-
-                        $addComponents['RatePositionID'] = $data['RatePosition'];
-                        $addComponents['TrunkID'] = $data['TrunkID'];
-                        $addComponents['CurrencyID'] = $data['CurrencyID'];
+                        $GetToOrigination  = $originationTo[$i];
+                        $GetToTimeOfDay    = $timeofdayTo[$i];
 
                         $addComponents['Component'] = implode(",", $GetComponent);
                         $addComponents['Origination'] = $GetOrigination;
-                        $addComponents['TimeOfDay'] = $GetTimeOfDay;
+                        $addComponents['TimezonesID'] = $GetTimeOfDay;
                         $addComponents['Action'] = $GetAction;
                         $addComponents['MergeTo'] = $GetMergeTo;
+                        $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
+                        $addComponents['ToOrigination'] = $GetToOrigination;
                         $addComponents['RateGeneratorId'] = $rateg->RateGeneratorId;
 
                         if (RateGeneratorComponent::create($addComponents)) {
                             $CostComponentSaved = "and Cost component Updated";
                         }
-
                     }
 
                     $calculatedRates = explode(",", $getRateNumberString);
@@ -308,12 +314,9 @@ class RateGeneratorsController extends \BaseController {
                             break;
                         }
 
-                        $addCalRate['RatePositionID']  = $data['RatePosition'];
-                        $addCalRate['TrunkID']         = $data['TrunkID'];
-                        $addCalRate['CurrencyID']      = $data['CurrencyID'];
                         $addCalRate['Component']       = implode(",", $rComponent[$i]);
                         $addCalRate['Origination']     = $rOrigination[$i];
-                        $addCalRate['TimeOfDay']       = $rTimeOfDay[$i];
+                        $addCalRate['TimezonesID']     = $rTimeOfDay[$i];
                         $addCalRate['RateLessThen']    = $rRateLessThen[$i];
                         $addCalRate['ChangeRateTo']    = $rChangeRateTo[$i];
                         $addCalRate['RateGeneratorId'] = $rateg->RateGeneratorId;
@@ -446,7 +449,7 @@ class RateGeneratorsController extends \BaseController {
                 'DateTo'            => 'required|date|date_format:Y-m-d',
                 'Calls'             => 'numeric',
                 'Minutes'           => 'numeric',
-                'TimeOfDayPercentage'   => 'numeric',
+                'TimezonesPercentage'   => 'numeric',
                 'OriginationPercentage' => 'numeric',
                 'LessThenRate'      => 'numeric',
                 'ChargeRate'        => 'numeric',
@@ -463,7 +466,8 @@ class RateGeneratorsController extends \BaseController {
 
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone',
-            'ProductID.required' => 'Please select product.'
+            'ProductID.required' => 'Please select product.',
+            'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.'
         );
 
         if(!empty($data['IsMerge'])) {
@@ -505,7 +509,7 @@ class RateGeneratorsController extends \BaseController {
                 $i = 0;
 
                 for ($i; $i < sizeof($numberArray) - 1; $i++) {
-                    $GetAllcomponts[] = 'Component-' . $numberArray[$i];
+                    $GetAllcomponts[$i] = 'Component-' . $numberArray[$i];
 
                     if (!isset($data[$GetAllcomponts[$i]])) {
                         unset($data['Component-' . $numberArray[$i]]);
@@ -513,22 +517,27 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['TimeOfDay-' . $numberArray[$i]]);
                         unset($data['Action-' . $numberArray[$i]]);
                         unset($data['MergeTo-' . $numberArray[$i]]);
-                        break;
+                        unset($data['ToOrigination-' . $numberArray[$i]]);
+                        unset($data['ToTimeOfDay-' . $numberArray[$i]]);
                     } else {
                         if(empty($data['Component-'. $numberArray[$i]]) ||
                             empty($data['TimeOfDay-'. $numberArray[$i]]) ||
                             empty($data['Action-'. $numberArray[$i]]) ||
-                            empty($data['MergeTo-'. $numberArray[$i]])){
+                            empty($data['MergeTo-'. $numberArray[$i]]) ||
+                            empty($data['ToTimeOfDay-'. $numberArray[$i]])){
                             return Response::json(array(
                                 "status" => "failed",
                                 "message" => "Merge components Value is missing."
                             ));
                         }
+
                         $componts[] = $data['Component-' . $numberArray[$i]];
                         $origination[] = @$data['Origination-' . $numberArray[$i]];
                         $timeofday[] = $data['TimeOfDay-' . $numberArray[$i]];
                         $action[] = $data['Action-' . $numberArray[$i]];
                         $mergeTo[] = $data['MergeTo-' . $numberArray[$i]];
+                        $originationTo[] = @$data['ToOrigination-' . $numberArray[$i]];
+                        $timeofdayTo[] = $data['ToTimeOfDay-' . $numberArray[$i]];
                     }
 
                     unset($data['Component-' . $numberArray[$i]]);
@@ -536,6 +545,8 @@ class RateGeneratorsController extends \BaseController {
                     unset($data['TimeOfDay-' . $numberArray[$i]]);
                     unset($data['Action-' . $numberArray[$i]]);
                     unset($data['MergeTo-' . $numberArray[$i]]);
+                    unset($data['ToOrigination-' . $numberArray[$i]]);
+                    unset($data['ToTimeOfDay-' . $numberArray[$i]]);
                 }
 
                 unset($data['getIDs']);
@@ -547,7 +558,7 @@ class RateGeneratorsController extends \BaseController {
                 $calculatedRates = array_unique(explode(",", $getRateNumberString));
 
                 for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
-                    $GetRateComponents[] = 'RateComponent-' . $calculatedRates[$i];
+                    $GetRateComponents[$i] = 'RateComponent-' . $calculatedRates[$i];
 
                     if (!isset($data[$GetRateComponents[$i]])) {
                         unset($data['RateComponent-' . $calculatedRates[$i]]);
@@ -555,7 +566,6 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['RateTimeOfDay-' . $calculatedRates[$i]]);
                         unset($data['RateLessThen-' . $calculatedRates[$i]]);
                         unset($data['ChangeRateTo-' . $calculatedRates[$i]]);
-                        break;
                     } else {
                         if(!isset($data['RateComponent-'. $calculatedRates[$i]]) ||
                             empty($data['RateTimeOfDay-'. $calculatedRates[$i]]) ||
@@ -596,6 +606,8 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['Origination-1']);
                 unset($data['TimeOfDay-1']);
                 unset($data['MergeTo-1']);
+                unset($data['ToOrigination-1']);
+                unset($data['ToTimeOfDay-1']);
                 unset($data['Category']);
                 unset($data['RateComponent-1']);
                 unset($data['RateOrigination-1']);
@@ -628,16 +640,16 @@ class RateGeneratorsController extends \BaseController {
                         $GetTimeOfDay   = $timeofday[$i];
                         $GetAction      = $action[$i];
                         $GetMergeTo     = $mergeTo[$i];
-
-                        $addComponents['RatePositionID'] = $data['RatePosition'];
-                        $addComponents['TrunkID'] = $data['TrunkID'];
-                        $addComponents['CurrencyID'] = $data['CurrencyID'];
+                        $GetToOrigination = $originationTo[$i];
+                        $GetToTimeOfDay   = $timeofdayTo[$i];
 
                         $addComponents['Component'] = implode(",", $GetComponent);
                         $addComponents['Origination'] = $GetOrigination;
-                        $addComponents['TimeOfDay'] = $GetTimeOfDay;
+                        $addComponents['TimezonesID'] = $GetTimeOfDay;
                         $addComponents['Action'] = $GetAction;
                         $addComponents['MergeTo'] = $GetMergeTo;
+                        $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
+                        $addComponents['ToOrigination'] = $GetToOrigination;
                         $addComponents['RateGeneratorId'] = $RateGeneratorID;
 
                         if (RateGeneratorComponent::create($addComponents)) {
@@ -653,12 +665,9 @@ class RateGeneratorsController extends \BaseController {
                             break;
                         }
 
-                        $addCalRate['RatePositionID']  = $data['RatePosition'];
-                        $addCalRate['TrunkID']         = $data['TrunkID'];
-                        $addCalRate['CurrencyID']      = $data['CurrencyID'];
                         $addCalRate['Component']       = implode(",", $rComponent[$i]);
                         $addCalRate['Origination']     = $rOrigination[$i];
-                        $addCalRate['TimeOfDay']       = $rTimeOfDay[$i];
+                        $addCalRate['TimezonesID']     = $rTimeOfDay[$i];
                         $addCalRate['RateLessThen']    = $rRateLessThen[$i];
                         $addCalRate['ChangeRateTo']    = $rChangeRateTo[$i];
                         $addCalRate['RateGeneratorId'] = $RateGeneratorID;

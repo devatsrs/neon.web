@@ -98,6 +98,10 @@ class RateGeneratorRuleController extends \BaseController {
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateGeneratorId'] = $id;
 
+            if(isset($data['Origination'])) {
+                $data ['OriginationDescription'] = $data['Origination'];
+                unset($data['Origination']);
+            }
             // $data['RateGeneratorId']
 
             $rateGenerator = RateGenerator::findOrFail($id);
@@ -160,6 +164,11 @@ class RateGeneratorRuleController extends \BaseController {
             $rategenerator_rules = RateRule::findOrFail($RateRuleID); // RateRule::where([ "RateRuleID" => $RateRuleID])->get();
             $rateGenerator = RateGenerator::findOrFail($id);
             $data ['ModifiedBy'] = User::get_user_full_name();
+
+            if(isset($data['Origination'])) {
+                $data ['OriginationDescription'] = $data['Origination'];
+                unset($data['Origination']);
+            }
 
             if($rateGenerator->SelectType == 2) {
                 $rules = array(

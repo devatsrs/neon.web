@@ -43,16 +43,11 @@
                     </div>
 
                     <div class="panel-body">
-
                         <div class="form-group">
-
-
                             <label for="field-1" class="col-sm-2 control-label">Type</label>
                             <div class="col-sm-4">
                                 {{Form::select('SelectType',$AllTypes,'',array("class"=>"form-control select2 small"))}}
-
                             </div>
-
                             <label for="field-1" class="col-sm-2 control-label">Name</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" name="RateGeneratorName" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{Input::old('RateGeneratorName')}}" />
@@ -60,7 +55,6 @@
                         </div>
 
                         <div class="form-group" id="rate-ostion-trunk-div">
-
                             <label for="field-1" class="col-sm-2 control-label">Policy</label>
                             <div class="col-sm-4">
                                 {{ Form::select('Policy', LCR::$policy, null , array("class"=>"select2")) }}
@@ -170,13 +164,13 @@
                             </div>
                         </div>
                         <div class="form-group DID-Div">
-                            <label for="StartDate" class="col-sm-2 control-label">Date From</label>
+                            <label for="DateFrom" class="col-sm-2 control-label">Date From</label>
                             <div class="col-sm-4">
-                                <input id="StartDate" type="text" name="DateFrom" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                                <input id="DateFrom" type="text" name="DateFrom" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
                             </div>
-                            <label for="EndDate" class="col-sm-2 control-label">Date To</label>
+                            <label for="DateTo" class="col-sm-2 control-label">Date To</label>
                             <div class="col-sm-4">
-                                <input id="EndDate" type="text" name="DateTo" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
+                                <input id="DateTo" type="text" name="DateTo" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="YYYY-MM-DD"/>
                             </div>
                         </div>
                         <div class="form-group DID-Div">
@@ -192,11 +186,11 @@
                         <div class="form-group DID-Div">
                             <label for="TimeOfDay" class="col-sm-2 control-label">Time of Day</label>
                             <div class="col-sm-4">
-                                {{ Form::select('TimeOfDay', $Timezones, null, array("class"=>"select2")) }}
+                                {{ Form::select('TimezonesID', $Timezones, null, array("class"=>"select2")) }}
                             </div>
                             <label for="TimeOfDayPercentage" class="col-sm-2 control-label">Time of Day %</label>
                             <div class="col-sm-4">
-                                <input type="number" min="0" class="form-control" id="TimeOfDayPercentage" name="TimeOfDayPercentage"/>
+                                <input type="number" min="0" class="form-control" id="TimeOfDayPercentage" name="TimezonesPercentage"/>
                             </div>
                         </div>
                         <div class="form-group DID-Div">
@@ -235,11 +229,13 @@
                             <table id="servicetableSubBox" class="table table-bordered datatable">
                                 <thead>
                                 <tr>
-                                    <th width="25%">Component</th>
-                                    <th width="15%">Origination</th>
-                                    <th width="15%">Time of Day</th>
-                                    <th width="15%">Action</th>
-                                    <th width="20%">Merge To</th>
+                                    <th width="20%">Component</th>
+                                    <th width="10%">Origination</th>
+                                    <th width="12%">Time of Day</th>
+                                    <th width="11%">Action</th>
+                                    <th width="15%">Merge To</th>
+                                    <th width="10%">To Origination</th>
+                                    <th width="12%">To Time of Day</th>
                                     <th width="10%">Add</th>
                                 </tr>
                                 </thead>
@@ -261,6 +257,12 @@
                                     <td>
                                         {{ Form::select('MergeTo-1', RateGenerator::$Component,  null , array("class"=>"select2" , "id"=>"MergeTo-1")) }}
 
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="ToOrigination-1"/>
+                                    </td>
+                                    <td>
+                                        {{ Form::select('ToTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                                     </td>
                                     <td>
                                         <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="Service-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
@@ -382,12 +384,12 @@
                 $("#hide-components").hide();
             }
 
-            $("#StartDate").datepicker({
+            $("#DateFrom").datepicker({
                 todayBtn:  1,
                 autoclose: true
             }).on('changeDate', function (selected) {
                 var minDate = new Date(selected.date.valueOf());
-                var endDate = $('#EndDate');
+                var endDate = $('#DateTo');
                 endDate.datepicker('setStartDate', minDate);
                 if(endDate.val() && new Date(endDate.val()) != undefined) {
                     if(minDate > new Date(endDate.val()))
@@ -395,14 +397,14 @@
                 }
             });
 
-            $("#EndDate").datepicker({autoclose: true})
+            $("#DateTo").datepicker({autoclose: true})
                     .on('changeDate', function (selected) {
                         var maxDate = new Date(selected.date.valueOf());
                         //$('#StartDate').datepicker('setEndDate', maxDate);
                     });
 
-            if(new Date($('#StartDate').val()) != undefined){
-                $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
+            if(new Date($('#DateFrom').val()) != undefined){
+                $("#DateTo").datepicker('setStartDate', new Date($('#DateFrom').val()))
             }
 
 
@@ -613,13 +615,15 @@
             if(tblID == "servicetableSubBox") {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Component-' + numb + '[]').attr('id', 'Component-' + numb).select2().select2('val', '');
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2().select2('val', '');
-                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(3)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(4)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
             }
@@ -652,8 +656,13 @@
             $('#' + tblID + ' tr:last').children('td:eq(2)').find('div:first').remove();
             $('#' + tblID + ' tr:last').children('td:eq(3)').find('div:first').remove();
             $('#' + tblID + ' tr:last').children('td:eq(4)').find('div:first').remove();
-            $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').find('a').removeClass('hidden');
 
+            if(tblID == "servicetableSubBox") {
+                $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').find('a').removeClass('hidden');
+            } else
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').find('a').removeClass('hidden');
         }
 
         function deleteRow(id, tblID, idInp)
