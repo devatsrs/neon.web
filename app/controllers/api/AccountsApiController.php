@@ -755,7 +755,9 @@ class AccountsApiController extends ApiController {
 				}
 				$ResellerCompanyID = $Reseller->ChildCompanyID;
 				$ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
-				$ResellerUserID = $ResellerUser->UserID;
+				if (isset($ResellerUser)) {
+					$ResellerUserID = $ResellerUser->UserID;
+				}
 				$CompanyID=$ResellerCompanyID;
 				$data['Owner'] = $ResellerUserID;
 			}
