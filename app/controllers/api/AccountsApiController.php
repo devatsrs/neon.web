@@ -724,7 +724,7 @@ class AccountsApiController extends ApiController {
 			$DynamicFields = '';
 			$date = date('Y-m-d H:i:s.000');
 			$DynamicFieldsExist = '';
-			$Reseller = '';
+			$Reseller = [];
 			//$data['Owner'] = $post_vars->Owner;
 
 			$data['Number'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
@@ -742,7 +742,7 @@ class AccountsApiController extends ApiController {
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
 			$data['Language']= isset($accountData['LanguageIso2']) ? $accountData['LanguageIso2'] : '';
-			$ResellerOwner = empty($accountData['ResellerOwnerID']) ? 0 : $accountData['ResellerOwnerID'];
+			$ResellerOwner = empty($accountData['AccounrResellerID']) ? 0 : $accountData['AccounrResellerID'];
 
 			$data['AccountType'] = 1;
 			$data['IsVendor'] = isset($accountData['IsVendor']);
@@ -1116,7 +1116,9 @@ class AccountsApiController extends ApiController {
 				$AccountDetails['AccountID'] = $account->AccountID;
 				AccountDetails::create($AccountDetails);
 
-				if (isset($Reseller)) {
+				if (!empty($ResellerOwner) &&  $ResellerOwner>0) {
+						//$Reseller = Reseller::getResellerDetails($ResellerOwner);
+					//Log::info("ResellerName 123 :" . $Reseller["ResellerName"]);
 					$ResellerDetails['ResellerName'] = $Reseller["ResellerName"];
 					$ResellerDetails['CompanyID'] = $Reseller["CompanyID"];
 					$ResellerDetails['ChildCompanyID'] = $Reseller["ChildCompanyID"];
