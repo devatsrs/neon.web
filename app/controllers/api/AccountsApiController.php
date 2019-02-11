@@ -741,10 +741,31 @@ class AccountsApiController extends ApiController {
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
 			$data['Language']= isset($accountData['LanguageIso2']) ? $accountData['LanguageIso2'] : '';
+			$ResellerOwner = empty($accountData['ResellerOwnerID']) ? 0 : $accountData['ResellerOwnerID'];
 
-			$data['CompanyID'] = $CompanyID;
 			$data['AccountType'] = 1;
 			$data['IsVendor'] = isset($accountData['IsVendor']);
+
+
+
+			if(!empty($ResellerOwner) &&  $ResellerOwner>0){
+				$Reseller = Reseller::getResellerDetails($ResellerOwner);
+				if (!isset($Reseller)) {
+					return Response::json(["status" => Codes::$Code1035[0],"ErrorMessage"=>Codes::$Code1035[1]]);
+				}
+				$ResellerCompanyID = $Reseller->ChildCompanyID;
+				$ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
+				if (isset($ResellerUser)) {
+					$ResellerUserID = $ResellerUser->UserID;
+					$data['Owner'] = $ResellerUserID;
+				}
+
+				$CompanyID=$ResellerCompanyID;
+
+			}
+
+			$data['CompanyID'] = $CompanyID;
+
 			if (!empty($accountData['IsVendor']) && ($accountData['IsVendor'] != 0 && $accountData['IsVendor'] != 1)) {
 				return Response::json(["status" => Codes::$Code1025[0],"ErrorMessage"=>Codes::$Code1025[1]]);
 			}else {
@@ -1090,7 +1111,7 @@ class AccountsApiController extends ApiController {
 
 			DB::beginTransaction();
 			if ($account = Account::create($data)) {
-				if (trim(Input::get('Number')) == '') {
+				if (trim($data['Number']) == '') {
 					CompanySetting::setKeyVal('LastAccountNo', $account->Number);
 				}
 				$AccountDetails=array();
