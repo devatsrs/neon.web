@@ -1096,6 +1096,22 @@ class AccountsApiController extends ApiController {
 				$AccountDetails=array();
 				$AccountDetails['AccountID'] = $account->AccountID;
 				AccountDetails::create($AccountDetails);
+				$AccountBalance['AccountID'] =  $account->AccountID;
+				$AccountBalance['PermanentCredit'] =  0;
+				$AccountBalance['TemporaryCredit'] =  0;
+				$AccountBalance['TemporaryCreditDateTime'] =  $date;
+				$AccountBalance['BalanceThreshold'] =  0;
+				$AccountBalance['BalanceAmount'] =  0;
+				$AccountBalance['EmailToCustomer'] =  0;
+				$AccountBalance['UnbilledAmount'] =  0;
+				$AccountBalance['SOAOffset'] =  0;
+				$AccountBalance['VendorUnbilledAmount'] =  0;
+				$AccountBalance['OutPayment'] =  0;
+				AccountBalance::create($AccountBalance);
+				$AccountBalanceThreshold['AccountID'] =  $account->AccountID;
+				$AccountBalanceThreshold['BalanceThreshold'] =  0;
+				$AccountBalanceThreshold['BalanceThresholdEmail'] =  '';
+				AccountBalanceThreshold::create($AccountBalanceThreshold);
 				$account->update($data);
 
 				if (isset($data['PaymentMethod']) && $data['PaymentMethod'] == 8) {
