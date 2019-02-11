@@ -88,8 +88,8 @@
                        {{Form::select('Owner',$account_owners,$account->Owner,array("class"=>"select2"))}}
                     </div>
 
-                    <label class="col-md-2 control-label">Ownership</label>
-                    <div class="col-md-4">
+                    <label class="col-md-2 control-label hidden">Ownership</label>
+                    <div class="col-md-4 hidden">
                         <?php $ownership_array = array( ""=>"None", "Private"=>"Private" , "Public"=>"Public" ,"Subsidiary"=>"Subsidiary","Other"=>"Other" ); ?>
                         {{Form::select('Ownership', $ownership_array, $account->Ownership ,array("class"=>"form-control select2"))}}
                     </div>
@@ -153,8 +153,8 @@
                         </div>
                     </div>
 
-                    <label class="col-md-2 control-label">Employee</label>
-                    <div class="col-md-4">
+                    <label class="col-md-2 control-label hidden">Employee</label>
+                    <div class="col-md-4 hidden">
                         <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                     </div>
                 </div>
