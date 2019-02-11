@@ -58,6 +58,8 @@ class Codes
     public static $Code1031 =["402","Invalid Package ID"];
     public static $Code1032 =["402","Please provide the valid Service"];
     public static $Code1033 =["402","Error while creating the payment account"];
+    public static $Code1034 =["402","Please provide either Bank or Card Details"];
+    public static $Code1035 =["402","Please provide the valid Reseller ID"];
 
 
 
