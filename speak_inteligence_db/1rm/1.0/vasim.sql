@@ -430,6 +430,14 @@ ALTER TABLE `tblTempRateTableRate`
 
 UPDATE tblDynamicFields SET `Status`=0 WHERE `Type`='account' AND FieldSlug IN ('pbxaccountstatus','autoblock');
 
+ALTER TABLE `tblAccount`
+  ADD COLUMN `DifferentBillingAddress` TINYINT NOT NULL DEFAULT '0' AFTER `Country`,
+	ADD COLUMN `BillingAddress1` VARCHAR(100) NULL DEFAULT NULL AFTER `DifferentBillingAddress`,
+	ADD COLUMN `BillingAddress2` VARCHAR(100) NULL DEFAULT NULL AFTER `BillingAddress1`,
+	ADD COLUMN `BillingAddress3` VARCHAR(100) NULL DEFAULT NULL AFTER `BillingAddress2`,
+	ADD COLUMN `BillingCity` VARCHAR(50) NULL DEFAULT NULL AFTER `BillingAddress3`,
+	ADD COLUMN `BillingPostCode` VARCHAR(50) NULL DEFAULT NULL AFTER `BillingCity`,
+	ADD COLUMN `BillingCountry` VARCHAR(50) NULL DEFAULT NULL AFTER `BillingPostCode`;
 
 
 
