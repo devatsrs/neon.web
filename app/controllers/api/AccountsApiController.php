@@ -820,6 +820,9 @@ class AccountsApiController extends ApiController {
 			}
 
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] == 8) {
+				if (!empty($BankPaymentDetails['CardNumber']) && !empty($BankPaymentDetails['AccountNumber'])) {
+					return Response::json(["status" => Codes::$Code1034[0], "ErrorMessage" => Codes::$Code1034[1]]);
+				}
 				if (!empty($BankPaymentDetails['CardNumber'])) {
 					$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
 					if ($CardValidationResponse["status"] == "failed") {
@@ -1085,6 +1088,7 @@ class AccountsApiController extends ApiController {
 
 			}
 
+			DB::beginTransaction();
 			if ($account = Account::create($data)) {
 				if (trim(Input::get('Number')) == '') {
 					CompanySetting::setKeyVal('LastAccountNo', $account->Number);
@@ -1115,6 +1119,7 @@ class AccountsApiController extends ApiController {
 					$AccountResponse = json_decode(json_encode($AccountResponse), true);
 					$AccountResponse=json_decode(json_encode($AccountResponse),true);
 					if ($AccountResponse["status"] == 'failed') {
+						DB::rollback();
 						return Response::json(["ErrorMessage" => $AccountResponse["message"]],Codes::$Code1033[0]);
 					}
 
@@ -1267,7 +1272,7 @@ class AccountsApiController extends ApiController {
 							$CompanyData['created_at'] = $CurrentTime;
 							$CompanyData['created_by'] = $CreatedBy;
 
-							DB::beginTransaction();
+
 
 							if ($ChildCompany = Company::create($CompanyData)) {
 								$ChildCompanyID = $ChildCompany->CompanyID;
@@ -1289,7 +1294,7 @@ class AccountsApiController extends ApiController {
 										CompanyConfiguration::where(['Key' => 'WEB_URL', 'CompanyID' => $ChildCompany->CompanyID])->update(['Value' => $ResellerDomain]);
 									}
 									CompanyGateway::createDefaultCronJobs($ChildCompanyID);
-									DB::commit();
+
 								}
 
 							} else {
@@ -1311,8 +1316,10 @@ class AccountsApiController extends ApiController {
 				$AccountSuccessMessage['redirect'] = URL::to('/accounts/' . $account->AccountID . '/edit');
 
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
+				DB::commit();
 				return Response::json($AccountSuccessMessage,Codes::$Code200[0]);
 			} else {
+				DB::rollback();
 				return Response::json(array("ErrorMessage" => Codes::$Code500[1]),Codes::$Code500[0]);
 			}
 
