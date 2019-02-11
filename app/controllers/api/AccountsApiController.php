@@ -1110,7 +1110,7 @@ class AccountsApiController extends ApiController {
 				AccountBalance::create($AccountBalance);
 				$AccountBalanceThreshold['AccountID'] =  $account->AccountID;
 				$AccountBalanceThreshold['BalanceThreshold'] =  0;
-				$AccountBalanceThreshold['BalanceThresholdEmail'] =  0;
+				$AccountBalanceThreshold['BalanceThresholdEmail'] =  '';
 				AccountBalanceThreshold::create($AccountBalanceThreshold);
 				$account->update($data);
 
