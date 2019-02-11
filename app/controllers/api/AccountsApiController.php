@@ -759,7 +759,7 @@ class AccountsApiController extends ApiController {
 					$ResellerUserID = $ResellerUser->UserID;
 					$data['Owner'] = $ResellerUserID;
 				}
-				
+
 				$CompanyID=$ResellerCompanyID;
 
 			}
