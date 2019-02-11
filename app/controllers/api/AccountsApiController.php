@@ -724,6 +724,7 @@ class AccountsApiController extends ApiController {
 			$DynamicFields = '';
 			$date = date('Y-m-d H:i:s.000');
 			$DynamicFieldsExist = '';
+			$Reseller = '';
 			//$data['Owner'] = $post_vars->Owner;
 
 			$data['Number'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
@@ -840,16 +841,13 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] == 8) {
-				if (!empty($BankPaymentDetails['CardNumber']) && !empty($BankPaymentDetails['AccountNumber'])) {
-					return Response::json(["status" => Codes::$Code1034[0], "ErrorMessage" => Codes::$Code1034[1]]);
-				}
-				if (!empty($BankPaymentDetails['CardNumber'])) {
-					$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
-					if ($CardValidationResponse["status"] == "failed") {
-						return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $CardValidationResponse["message"]]);
-					}
-				}else {
+			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 8 || $data['PaymentMethod'] == 9)) {
+				if ($data['PaymentMethod'] == 8) {
+						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
+						if ($CardValidationResponse["status"] == "failed") {
+							return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $CardValidationResponse["message"]]);
+						}
+				}else if ($data['PaymentMethod'] == 9) {
 					$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
 					if ($validator->fails()) {
 						$errors = "";
@@ -1117,6 +1115,24 @@ class AccountsApiController extends ApiController {
 				$AccountDetails=array();
 				$AccountDetails['AccountID'] = $account->AccountID;
 				AccountDetails::create($AccountDetails);
+
+				if (isset($Reseller)) {
+					$ResellerDetails['ResellerName'] = $Reseller->ResellerName;
+					$ResellerDetails['CompanyID'] = $Reseller->CompanyID;
+					$ResellerDetails['ChildCompanyID'] = $Reseller->ChildCompanyID;
+					$ResellerDetails['AccountID'] = $account->AccountID;
+					$ResellerDetails['FirstName'] = $Reseller->FirstName;
+					$ResellerDetails['LastName'] = $Reseller->LastName;
+					$ResellerDetails['Email'] = $Reseller->Email;
+					$ResellerDetails['Password'] = $Reseller->Password;
+					$ResellerDetails['Status'] = $Reseller->Status;
+					$ResellerDetails['AllowWhiteLabel'] = $Reseller->AllowWhiteLabel;
+					$ResellerDetails['created_by'] = $Reseller->created_by;
+					$ResellerDetails['updated_by'] = $Reseller->updated_by;
+					Reseller::create($ResellerDetails);
+				}
+
+
 				$AccountBalance['AccountID'] =  $account->AccountID;
 				$AccountBalance['PermanentCredit'] =  0;
 				$AccountBalance['TemporaryCredit'] =  0;
@@ -1135,7 +1151,7 @@ class AccountsApiController extends ApiController {
 				AccountBalanceThreshold::create($AccountBalanceThreshold);
 				$account->update($data);
 
-				if (isset($data['PaymentMethod']) && $data['PaymentMethod'] == 8) {
+				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 8 || $data['PaymentMethod'] == 9)) {
 					$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
 					$BankPaymentDetails['CompanyID'] = $CompanyID;
 					if (!empty($BankPaymentDetails['CardNumber'])) {
