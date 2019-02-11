@@ -1117,18 +1117,18 @@ class AccountsApiController extends ApiController {
 				AccountDetails::create($AccountDetails);
 
 				if (isset($Reseller)) {
-					$ResellerDetails['ResellerName'] = $Reseller->ResellerName;
-					$ResellerDetails['CompanyID'] = $Reseller->CompanyID;
-					$ResellerDetails['ChildCompanyID'] = $Reseller->ChildCompanyID;
-					$ResellerDetails['AccountID'] = $account->AccountID;
-					$ResellerDetails['FirstName'] = $Reseller->FirstName;
-					$ResellerDetails['LastName'] = $Reseller->LastName;
-					$ResellerDetails['Email'] = $Reseller->Email;
-					$ResellerDetails['Password'] = $Reseller->Password;
-					$ResellerDetails['Status'] = $Reseller->Status;
-					$ResellerDetails['AllowWhiteLabel'] = $Reseller->AllowWhiteLabel;
-					$ResellerDetails['created_by'] = $Reseller->created_by;
-					$ResellerDetails['updated_by'] = $Reseller->updated_by;
+					$ResellerDetails['ResellerName'] = $Reseller["ResellerName"];
+					$ResellerDetails['CompanyID'] = $Reseller["CompanyID"];
+					$ResellerDetails['ChildCompanyID'] = $Reseller["ChildCompanyID"];
+					$ResellerDetails['AccountID'] = $account["AccountID"];
+					$ResellerDetails['FirstName'] = $Reseller["FirstName"];
+					$ResellerDetails['LastName'] = $Reseller["LastName"];
+					$ResellerDetails['Email'] = $Reseller["Email"];
+					$ResellerDetails['Password'] = $Reseller["Password"];
+					$ResellerDetails['Status'] = $Reseller["Status"];
+					$ResellerDetails['AllowWhiteLabel'] = $Reseller["AllowWhiteLabel"];
+					$ResellerDetails['created_by'] = $Reseller["created_by"];
+					$ResellerDetails['updated_by'] = $Reseller["updated_by"];
 					Reseller::create($ResellerDetails);
 				}
 
@@ -1379,6 +1379,7 @@ class AccountsApiController extends ApiController {
 			}
 
 		} catch (Exception $ex) {
+			DB::rollback();
 			Log::error("CreateAccountAPI Exception" . $ex->getTraceAsString());
 			return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
 			//return  Response::json(array("status" => "failed", "message" => $ex->getMessage(),'LastID'=>'','newcreated'=>''));
