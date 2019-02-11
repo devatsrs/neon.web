@@ -1103,11 +1103,13 @@ class AccountsApiController extends ApiController {
 					$BankPaymentDetails['CompanyID'] = $CompanyID;
 					if (!empty($BankPaymentDetails['CardNumber'])) {
 						$BankPaymentDetails['PayoutType'] = "card";
+						$BankPaymentDetails['Title'] = $BankPaymentDetails['NameOnCard'];
 					}else {
+						$BankPaymentDetails['Title'] = $BankPaymentDetails['AccountHolderName'];
 						$BankPaymentDetails['PayoutType'] = "bank";
 					}
 					$BankPaymentDetails['AccountID'] = $account->AccountID;
-					$BankPaymentDetails['Title'] = $account->AccountID;
+
 					$BankPaymentDetails['CustomerAccountName'] = $account->AccountName;
 
 					$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($BankPaymentDetails['PaymentGatewayID']);
