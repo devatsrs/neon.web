@@ -369,6 +369,218 @@
         </div>
     </div>
     @endif
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('PaymentRemindersWidget','View'))
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-primary panel-table">
+                <div class="panel-heading">
+                    <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+                    <div class="panel-title forecase_title">
+                        <h3>Payment Reminders  </h3>
+                        <div class="PaymentReminders"></div>
+                    </div>
+                </div>
+                <div class="form_Sales panel-body white-bg">
+                    <form novalidate class="form-horizontal form-groups-bordered"  id="PaymentRemindersForm">
+                        <div class="form-group form-group-border-none">
+                            <div class="col-sm-10">
+                                <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Account Name</label>
+                                <div class="col-sm-4"> 
+                                    <select id="drp_toandfro_jump" class="selectboxit1 form-control1" name="customers"><option value="">Select</option><option value="6766">00000000000000</option><option value="6779">2019012228281213</option><option value="6761" selected="selected">asdfasdf1111001</option><option value="6765">asdfasdf11110033</option><option value="6748">BICS</option><option value="6729">Demo_YC</option><option value="6762">fdsafsdfafa</option><option value="6772">LHR Pakistan</option><option value="6728">MCXess</option><option value="6764">ss1</option><option value="6747">TATA</option><option value="6763">Test Prepaid Account</option><option value="6727">Ziggo</option></select>
+                                </div>
+                                <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
+                                <div class="col-sm-6"> 
+                                    <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
+                                    <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <table class="table table-bordered datatable" id="PaymentReminders-4">
+                        <thead>
+                        <tr>
+                            <th>Account Name</th>
+                            <th>Notification Type</th>
+                            <th>Date Sent</th>
+                            <th>Email From</th>
+                            <th>Email To</th>
+                            <th>Subject</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="view-modal-notification">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                  <h4 class="modal-title">View Payment</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="field-5" class="control-label text-left bold">Subject: </label>
+                        <div name="emailsubject"></div>
+                      </div>
+                    </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="field-5" class="control-label text-left bold">Message</label>
+                        <div name="emailmessage"></div>
+                      </div>
+                    </div>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+    </div>
+    @endif
+    
+    <script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        
+        $('table tbody').on('click', '.view-email-body', function (ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        var self = $(this);
+                        elementId=$(this).attr("data-id");
+                        console.log($(this).attr("data-id"));
+                        $('#view-modal-notification').trigger("reset");
+                        
+                        $("#view-modal-notification [name='emailsubject']").html($('#subject_'+elementId).html());
+                        $("#view-modal-notification [name='emailmessage']").html($('#msg_'+elementId).html());
+                        
+                        $('#view-modal-notification h4').html('Email Log Detail');
+                        $('#view-modal-notification').modal('show');
+                    });
+                    
+         data_table = $("#PaymentReminders-4").dataTable({
+
+            "bProcessing":true,
+            "bServerSide":true,
+            "sAjaxSource": baseurl + "/billing_dashboard/paymentreminders_ajax_datagrid",
+             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "sPaginationType": "bootstrap",
+            "oTableTools": {},
+            "aaSorting"   : [[4, 'desc']],
+            "aoColumns":
+             [
+                { "bSortable": true }, //0 AccountName
+                {  "bSortable": true,
+                    mRender: function ( id, type, full ) {
+                         var action , edit_ , show_ , delete_;
+                         //console.log(id);
+                         if(id==4){
+                           action='Low balance';  
+                         }else{
+                             action='Payment Reminders';
+                         }                         
+                       return action; 
+                    } 
+                }, //1 EmailType
+                { "bSortable": true }, //2 CreatedBy
+                { "bSortable": true }, //3 Emailfrom
+                { "bSortable": true }, //3 EmailTo
+                { "bSortable": true }, //3 Message
+                {  // 4 Contact ID
+                   "bSortable": true,
+                    mRender: function ( id, type, full ) {
+                        var action , edit_ , show_ ;
+                        edit_ = "{{ URL::to('contacts/{id}/edit')}}";
+                        show_ = "{{ URL::to('contacts/{id}/show')}}";
+                        delete_ = "{{ URL::to('contacts/{id}/delete')}}";
+
+                        edit_ = edit_.replace( '{id}', id );
+                        show_ = show_.replace( '{id}', id );
+                        delete_  = delete_ .replace( '{id}', id );
+                        action = '<div id="subject_'+full[7]+'" style="display:none" >'+full[5]+'</div><div id="msg_'+full[7]+'" style="display:none" >'+full[6]+'</div>';
+                       
+                        action += ' <a data-name = "' + full[7] + '" data-id="' + full[7] + '" Title="View" class="view-email-body btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
+                        
+                        return action;
+                      }
+                  },
+            ],
+            "oTableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/contacts/exports/xlsx", //baseurl + "/generate_xlsx.php",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/contacts/exports/csv", //baseurl + "/generate_csv.php",
+                        sButtonClass: "save-collection btn-sm"
+                    }
+                ]
+            }
+        });
+
+        $(".dataTables_wrapper select").select2({
+            minimumResultsForSearch: -1
+        });
+
+        // Highlighted rows
+        $("#table-2 tbody input[type=checkbox]").each(function (i, el) {
+            var $this = $(el),
+                $p = $this.closest('tr');
+
+            $(el).on('change', function () {
+                var is_checked = $this.is(':checked');
+
+                $p[is_checked ? 'addClass' : 'removeClass']('highlight');
+            });
+        });
+
+        // Replace Checboxes
+        $(".pagination a").click(function (ev) {
+            replaceCheckboxes();
+        });
+    });
+    $('body').on('click', 'a[title="Delete"]', function (e) {
+                e.preventDefault();
+                var response = confirm('Are you sure?');
+                if (response) {
+                    $.ajax({
+                        url: $(this).attr("href"),
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function (response) {
+                            $(".btn.delete").button('reset');
+                            if (response.status == 'success') {
+                                data_table.fnFilter('', 0);
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        // Form data
+                        //data: {},
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+
+
+                }
+                return false;
+
+            });
+
+
+</script>
     <script src="{{ URL::asset('assets/js/highcharts.js') }}"></script>
     <script type="text/javascript">
 
@@ -916,6 +1128,16 @@
                     $(".search.btn").button('reset');
                     loadingUnload('#invoice_expense_bar_chart', 0);
                     $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
+                }, "html");
+                @endif
+            }
+            function PaymentReminders() {
+                @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets)) && User::checkCategoryPermission('PaymentRemindersWidget','View'))
+                var get_url = baseurl + "/billing_dashboard/paymentreminders";
+                data = $('#PaymentRemindersForm').serialize() + '&paymentreminders=1';
+                $.get(get_url, data, function (response) {
+                    $(".search.btn").button('reset');
+                    $(".PaymentReminders").html(response);
                 }, "html");
                 @endif
             }

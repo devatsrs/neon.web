@@ -282,4 +282,25 @@ class BillingDashboard extends \BaseController {
         $reponse['series'] = $series;
         return json_encode($reponse,JSON_NUMERIC_CHECK);
     }
+    public function PaymentReminders(){
+        $data = Input::all();
+        $CurrencyID = "";
+        
+        $companyID = User::get_companyID();
+        return View::make('billingdashboard.paymentreminders', compact('InvoiceExpense','CurrencySymbol'));
+    }
+    public function paymentreminders_ajax_datagrid() {
+
+        $companyID = User::get_companyID();
+        if (User::is('AccountManager')) {
+            $userID = User::get_userID();
+            $AccountEmaillog = AccountEmailLog::leftjoin('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
+            ->select(["tblAccount.AccountName","AccountEmailLog.EmailType", "AccountEmailLog.CreatedBy", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" ( AccountEmailLog.EmailType IN (4,3) ) AND ( tblAccount.Owner = ".    $userID. " OR tblAccount.AccountType = 0 ) ");
+        }else{
+            $AccountEmaillog = AccountEmailLog::leftjoin('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
+                ->select(["tblAccount.AccountName","AccountEmailLog.EmailType", "AccountEmailLog.CreatedBy", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw("( AccountEmailLog.EmailType IN (4,3) ) ");
+        }
+
+        return Datatables::of($AccountEmaillog)->make();
+    }
 }
