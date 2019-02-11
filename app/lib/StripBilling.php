@@ -438,13 +438,19 @@ class StripeBilling {
 						else
 							$option['CardID'] = $external['id'];
 
+						$CustomerAccountName = '';
+						try {
+							$CustomerAccountName = Customer::get_accountName();
+						}catch (Exception $e) {
+							$CustomerAccountName = $data['CustomerAccountName'];
+						}
 						$AccountDetails = array(
 							'Title' 	=> $data['Title'],
 							'Status' 	=> 1,
 							'isDefault' => $isDefault,
 							'Options' 	=> json_encode($option),
 							'Type'		=> $data['PayoutType'],
-							'created_by'=> Customer::get_accountName(),
+							'created_by'=> $CustomerAccountName,
 							'CompanyID' => $CompanyID,
 							'AccountID' => $CustomerID,
 							'PaymentGatewayID' => $PaymentGatewayID
