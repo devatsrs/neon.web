@@ -608,6 +608,7 @@ class AccountsController extends \BaseController {
 
             //get account card data
              $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$ResellerOwner."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
+            Log::info("Show My Sql Query:" . $sql);
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
@@ -1786,7 +1787,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function expense($id){
         $CurrencySymbol = Account::getCurrency($id);
-        return View::make('accounts.expense',compact('id','CurrencySymbol'));
+        $account = Account::find($id);
+        return View::make('accounts.expense',compact('id','CurrencySymbol','account'));
     }
     public function expense_chart(){
         $data = Input::all();

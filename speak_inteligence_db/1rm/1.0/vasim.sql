@@ -428,7 +428,7 @@ ALTER TABLE `tblTempRateTableRate`
 	ADD COLUMN `RateCurrency` INT(11) NULL DEFAULT NULL AFTER `RoutingCategoryID`,
 	ADD COLUMN `ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL AFTER `RateCurrency`;
 
-
+UPDATE tblDynamicFields SET `Status`=0 WHERE `Type`='account' AND FieldSlug IN ('pbxaccountstatus','autoblock');
 
 
 

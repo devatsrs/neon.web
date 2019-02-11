@@ -12,6 +12,9 @@
     <li>
         <a><span>{{customer_dropbox($id,["IsCustomer"=>1])}}</span></a>
     </li>
+    <li>
+        <a href="{{URL::to('accounts/'.$Account->AccountID.'/edit')}}"></i>Edit Account({{$Account->AccountName}})</a>
+    </li>
     <li class="active">
         <strong>Customer Rate</strong>
     </li>
