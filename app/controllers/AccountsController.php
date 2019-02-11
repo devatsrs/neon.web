@@ -1786,7 +1786,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function expense($id){
         $CurrencySymbol = Account::getCurrency($id);
-        return View::make('accounts.expense',compact('id','CurrencySymbol'));
+        $account = Account::find($id);
+        return View::make('accounts.expense',compact('id','CurrencySymbol','account'));
     }
     public function expense_chart(){
         $data = Input::all();
