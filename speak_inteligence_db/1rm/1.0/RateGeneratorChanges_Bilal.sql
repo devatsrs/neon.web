@@ -21,3 +21,7 @@ ALTER TABLE `tblRateGeneratorCostComponent`
 
 ALTER TABLE `tblRateRule`
 	DROP COLUMN `Origination`;
+
+ALTER TABLE `tblRateGeneratorCalculatedRate`
+	CHANGE COLUMN `RateLessThen` `RateLessThen` DECIMAL(18,2) NULL DEFAULT NULL AFTER `TimezonesID`,
+	CHANGE COLUMN `ChangeRateTo` `ChangeRateTo` DECIMAL(18,2) NULL DEFAULT NULL AFTER `RateLessThen`;
