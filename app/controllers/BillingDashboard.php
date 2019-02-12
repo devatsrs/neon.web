@@ -304,8 +304,8 @@ class BillingDashboard extends \BaseController {
             $to=0;
         }
         $countQryString="";
-        if(!empty($data['accountid'])){
-            $countQryString = ' (tblAccount.AccountID='.$data['accountid'].') AND ';
+        if(!empty($data['accountID'])){
+            $countQryString = ' (tblAccount.AccountID='.$data['accountID'].') AND ';
         }
         if (User::is('AccountManager')) {
             $userID = User::get_userID();
