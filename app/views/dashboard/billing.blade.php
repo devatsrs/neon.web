@@ -377,6 +377,7 @@
                     <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
                     <div class="panel-title forecase_title">
                         <h3>Payment Reminders  </h3>
+                        
                         <div class="PaymentReminders"></div>
                     </div>
                 </div>
@@ -386,12 +387,13 @@
                             <div class="col-sm-10">
                                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Account Name</label>
                                 <div class="col-sm-4"> 
-                                    <select id="drp_toandfro_jump" class="selectboxit1 form-control1" name="customers"><option value="">Select</option><option value="6766">00000000000000</option><option value="6779">2019012228281213</option><option value="6761" selected="selected">asdfasdf1111001</option><option value="6765">asdfasdf11110033</option><option value="6748">BICS</option><option value="6729">Demo_YC</option><option value="6762">fdsafsdfafa</option><option value="6772">LHR Pakistan</option><option value="6728">MCXess</option><option value="6764">ss1</option><option value="6747">TATA</option><option value="6763">Test Prepaid Account</option><option value="6727">Ziggo</option></select>
+                                    {{Form::select('accountID',$accounts,'',array("class"=>"select2 small"))}}
+                                    
                                 </div>
                                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
                                 <div class="col-sm-6"> 
                                     <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
-                                    <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+                                    <button type="submit" id="submit_paymentreminder" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -447,87 +449,110 @@
     
     <script type="text/javascript">
     jQuery(document).ready(function ($) {
-        
-        $('table tbody').on('click', '.view-email-body', function (ev) {
-                        ev.preventDefault();
-                        ev.stopPropagation();
-                        var self = $(this);
-                        elementId=$(this).attr("data-id");
-                        console.log($(this).attr("data-id"));
-                        $('#view-modal-notification').trigger("reset");
-                        
-                        $("#view-modal-notification [name='emailsubject']").html($('#subject_'+elementId).html());
-                        $("#view-modal-notification [name='emailmessage']").html($('#msg_'+elementId).html());
-                        
-                        $('#view-modal-notification h4').html('Email Log Detail');
-                        $('#view-modal-notification').modal('show');
-                    });
-                    
-         data_table = $("#PaymentReminders-4").dataTable({
+        $("#submit_paymentreminder").click(function(e) {
+            e.preventDefault();
+             accountID = $('#PaymentRemindersForm').find('[name="accountID"]').val();
+             Duedate = $('#PaymentRemindersForm').find('[name="Duedate"]').val();
+            data_tables.fnFilter('', 0);
+        })
+        var accountID = $('#PaymentRemindersForm').find('[name="accountID"]').val();
+        var Duedate = $('#PaymentRemindersForm').find('[name="Duedate"]').val();
+         //$('#submit_paymentreminder').trigger('click');
+         data_tables = $("#PaymentReminders-4").dataTable({
+                "bProcessing":true,
+                "bServerSide":true,
+                "sAjaxSource": baseurl + "/billing_dashboard/paymentreminders_ajax_datagrid",
+                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "sPaginationType": "bootstrap",
+                "oTableTools": {},
+                "aaSorting"   : [[4, 'desc']],
+                "fnServerParams": function (aoData) {
+                        aoData.push(
+                                {"name": "accountID", "value": accountID},{"name": "Duedate", "value": Duedate},
 
-            "bProcessing":true,
-            "bServerSide":true,
-            "sAjaxSource": baseurl + "/billing_dashboard/paymentreminders_ajax_datagrid",
-             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
-            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "sPaginationType": "bootstrap",
-            "oTableTools": {},
-            "aaSorting"   : [[4, 'desc']],
-            "aoColumns":
-             [
-                { "bSortable": true }, //0 AccountName
-                {  "bSortable": true,
-                    mRender: function ( id, type, full ) {
-                         var action , edit_ , show_ , delete_;
-                         //console.log(id);
-                         if(id==4){
-                           action='Low balance';  
-                         }else{
-                             action='Payment Reminders';
-                         }                         
-                       return action; 
-                    } 
-                }, //1 EmailType
-                { "bSortable": true }, //2 CreatedBy
-                { "bSortable": true }, //3 Emailfrom
-                { "bSortable": true }, //3 EmailTo
-                { "bSortable": true }, //3 Message
-                {  // 4 Contact ID
-                   "bSortable": true,
-                    mRender: function ( id, type, full ) {
-                        var action , edit_ , show_ ;
-                        edit_ = "{{ URL::to('contacts/{id}/edit')}}";
-                        show_ = "{{ URL::to('contacts/{id}/show')}}";
-                        delete_ = "{{ URL::to('contacts/{id}/delete')}}";
+                        );
+                        data_table_extra_params.length = 0;
+                        data_table_extra_params.push(
+                                {"name": "Name", "value": accountID},{"name": "Duedate", "value": Duedate},
+                                {"name": "Export", "value": 1}
+                        );
 
-                        edit_ = edit_.replace( '{id}', id );
-                        show_ = show_.replace( '{id}', id );
-                        delete_  = delete_ .replace( '{id}', id );
-                        action = '<div id="subject_'+full[7]+'" style="display:none" >'+full[5]+'</div><div id="msg_'+full[7]+'" style="display:none" >'+full[6]+'</div>';
-                       
-                        action += ' <a data-name = "' + full[7] + '" data-id="' + full[7] + '" Title="View" class="view-email-body btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
-                        
-                        return action;
-                      }
-                  },
-            ],
-            "oTableTools": {
-                "aButtons": [
-                    {
-                        "sExtends": "download",
-                        "sButtonText": "EXCEL",
-                        "sUrl": baseurl + "/contacts/exports/xlsx", //baseurl + "/generate_xlsx.php",
-                        sButtonClass: "save-collection btn-sm"
                     },
-                    {
-                        "sExtends": "download",
-                        "sButtonText": "CSV",
-                        "sUrl": baseurl + "/contacts/exports/csv", //baseurl + "/generate_csv.php",
-                        sButtonClass: "save-collection btn-sm"
-                    }
-                ]
-            }
+                "aoColumns":
+                 [
+                    { "bSortable": true }, //0 AccountName
+                    {  "bSortable": true,
+                        mRender: function ( id, type, full ) {
+                             var action , edit_ , show_ , delete_;
+                             //console.log(id);
+                             if(id==4){
+                               action='Low balance';  
+                             }else{
+                                 action='Payment Reminders';
+                             }                         
+                           return action; 
+                        } 
+                    }, //1 EmailType
+                    { "bSortable": true }, //2 CreatedBy
+                    { "bSortable": true }, //3 Emailfrom
+                    { "bSortable": true }, //3 EmailTo
+                    { "bSortable": true }, //3 Message
+                    {  // 4 Contact ID
+                       "bSortable": true,
+                        mRender: function ( id, type, full ) {
+                            var action , edit_ , show_ ;
+                            edit_ = "{{ URL::to('contacts/{id}/edit')}}";
+                            show_ = "{{ URL::to('contacts/{id}/show')}}";
+                            delete_ = "{{ URL::to('contacts/{id}/delete')}}";
+
+                            edit_ = edit_.replace( '{id}', id );
+                            show_ = show_.replace( '{id}', id );
+                            delete_  = delete_ .replace( '{id}', id );
+                            action = '<div id="subject_'+full[7]+'" style="display:none" >'+full[5]+'</div><div id="msg_'+full[7]+'" style="display:none" >'+full[6]+'</div>';
+
+                            action += ' <a data-name = "' + full[7] + '" data-id="' + full[7] + '" Title="View" class="view-email-body btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
+
+                            return action;
+                          }
+                      },
+                ],
+                "oTableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/contacts/exports/xlsx", //baseurl + "/generate_xlsx.php",
+                            sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/contacts/exports/csv", //baseurl + "/generate_csv.php",
+                            sButtonClass: "save-collection btn-sm"
+                        }
+                    ]
+                }
+            });
+         
+        $('table tbody').on('click', '.view-email-body', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            var self = $(this);
+            elementId=$(this).attr("data-id");
+
+            $('#view-modal-notification').trigger("reset");
+
+            $("#view-modal-notification [name='emailsubject']").html($('#subject_'+elementId).html());
+            $("#view-modal-notification [name='emailmessage']").html($('#msg_'+elementId).html());
+
+            $('#view-modal-notification h4').html('Email Log Detail');
+            $('#view-modal-notification').modal('show');
         });
+        
+        
+            
+         
 
         $(".dataTables_wrapper select").select2({
             minimumResultsForSearch: -1
@@ -972,7 +997,7 @@
             });
         });
 
-
+        
         $('#invoiceExpensefilter-form [name="ListType"]').change(function(){
             invoiceExpense();
         });

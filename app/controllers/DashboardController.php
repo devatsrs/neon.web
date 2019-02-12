@@ -154,7 +154,8 @@ class DashboardController extends BaseController {
         if(!empty($BillingDashboardWidgets)) {
             $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
         }
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets','StartDateDefault1','GetDashboardPR','GetDashboardPL'));
+        $accounts = Account::getAccountIDList();
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets','StartDateDefault1','GetDashboardPR','GetDashboardPL','accounts'));
 
     }
     public function monitor_dashboard(){
