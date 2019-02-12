@@ -376,8 +376,7 @@
                 <div class="panel-heading">
                     <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
                     <div class="panel-title forecase_title">
-                        <h3>Payment Reminders  </h3>
-                        
+                        <h3>Notification</h3>
                         <div class="PaymentReminders"></div>
                     </div>
                 </div>
@@ -385,9 +384,9 @@
                     <form novalidate class="form-horizontal form-groups-bordered"  id="PaymentRemindersForm">
                         <div class="form-group form-group-border-none">
                             <div class="col-sm-10">
-                                <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Account Name</label>
+                                <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Account</label>
                                 <div class="col-sm-4"> 
-                                    {{Form::select('accountID',$accounts,'',array("class"=>"select2 small"))}}
+                                    {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
                                     
                                 </div>
                                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
@@ -398,10 +397,12 @@
                             </div>
                         </div>
                     </form>
+                    <br />
+                    
                     <table class="table table-bordered datatable" id="PaymentReminders-4">
                         <thead>
                         <tr>
-                            <th>Account Name</th>
+                            <th>Account</th>
                             <th>Notification Type</th>
                             <th>Date Sent</th>
                             <th>Email From</th>
@@ -502,9 +503,9 @@
                        "bSortable": true,
                         mRender: function ( id, type, full ) {
                             var action , edit_ , show_ ;
-                            edit_ = "{{ URL::to('contacts/{id}/edit')}}";
-                            show_ = "{{ URL::to('contacts/{id}/show')}}";
-                            delete_ = "{{ URL::to('contacts/{id}/delete')}}";
+                            edit_ = "{{ URL::to('billing_dashboard/{id}/edit')}}";
+                            show_ = "{{ URL::to('billing_dashboard/{id}/show')}}";
+                            delete_ = "{{ URL::to('billing_dashboard/{id}/delete')}}";
 
                             edit_ = edit_.replace( '{id}', id );
                             show_ = show_.replace( '{id}', id );
@@ -522,13 +523,13 @@
                         {
                             "sExtends": "download",
                             "sButtonText": "EXCEL",
-                            "sUrl": baseurl + "/contacts/exports/xlsx", //baseurl + "/generate_xlsx.php",
+                            "sUrl": baseurl + "/billing_dashboard/exports/xlsx", //baseurl + "/generate_xlsx.php",
                             sButtonClass: "save-collection btn-sm"
                         },
                         {
                             "sExtends": "download",
                             "sButtonText": "CSV",
-                            "sUrl": baseurl + "/contacts/exports/csv", //baseurl + "/generate_csv.php",
+                            "sUrl": baseurl + "/billing_dashboard/exports/csv", //baseurl + "/generate_csv.php",
                             sButtonClass: "save-collection btn-sm"
                         }
                     ]
