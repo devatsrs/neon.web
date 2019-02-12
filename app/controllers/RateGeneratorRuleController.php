@@ -148,6 +148,38 @@ class RateGeneratorRuleController extends \BaseController {
             }
 
             if ($rule_id = RateRule::insertGetId($data)) {
+
+                // If type is not DID
+                // Selecting all vendors as sources by default
+                if($rateGenerator->SelectType != 2){
+                    $companyID = User::get_companyID();
+                    $vendors = Account::select(["AccountID"])->where(["Status" => 1, "IsVendor" => 1, "AccountType" => 1, "CompanyID" => $companyID])->get();
+                    if($vendors != false){
+                        $insertSources = [];
+                        foreach($vendors as $vendor){
+                            $insertSources[] = [
+                                'RateRuleId' => $rule_id,
+                                'AccountId'  => $vendor->AccountID,
+                                'CreatedBy'  => $data['CreatedBy'],
+                                'created_at' => date('Y-m-d H:i:s'),
+                                'ModifiedBy' => $data['CreatedBy'],
+                                'updated_at' => date('Y-m-d H:i:s'),
+                            ];
+                        }
+
+                        if(!empty($insertSources)){
+                            try {
+                                DB::beginTransaction();
+                                RateRuleSource::insert($insertSources);
+                                //$rateGenerator->update(['Sources' => 'all']);
+                                DB::commit();
+                            } catch (Exception $ex) {
+                                DB::rollback();
+                            }
+                        }
+                    }
+                }
+
                 return Response::json(array("status" => "success", "message" => "RateGenerator Rule Successfully Created" , "redirect" => \Illuminate\Support\Facades\URL::to('/rategenerators/' . $id .'/rule/'.$rule_id . '/edit') ));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating RateGenerator Rule."));

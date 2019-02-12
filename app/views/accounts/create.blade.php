@@ -62,36 +62,36 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">First Name</label>
                         <div class="col-md-4">
-                            <input type="text" name="FirstName" class="form-control" id="field-1" placeholder="" value="{{Input::old('FirstName')}}" />
+                            <input type="text" name="FirstName" class="form-control" placeholder="" value="{{Input::old('FirstName')}}" />
                         </div>
 
                         <label class="col-md-2 control-label">Last Name</label>
                         <div class="col-md-4">
-                            <input type="text" name="LastName" class="form-control" id="field-1" placeholder="" value="{{Input::old('LastName')}}" />
+                            <input type="text" name="LastName" class="form-control" placeholder="" value="{{Input::old('LastName')}}" />
                         </div>
 
                     </div>
                     <div class="form-group">
                         <label class="col-md-2 control-label">Account Number</label>
                         <div class="col-md-4">
-                            <input type="text" name="Number" class="form-control" id="field-1" placeholder="AUTO" value="{{ $LastAccountNo   }}" />
+                            <input type="text" name="Number" class="form-control" placeholder="AUTO" value="{{ $LastAccountNo   }}" />
                         </div>
 
                         <label class="col-md-2 control-label">Website</label>
                         <div class="col-md-4">
-                            <input type="text" name="Website" class="form-control" id="field-1" placeholder="" value="{{Input::old('Website')}}" />
+                            <input type="text" name="Website" class="form-control" placeholder="" value="{{Input::old('Website')}}" />
                         </div>
 
                     </div>
                     <div class="form-group">
                         <label class="col-md-2 control-label">*Account Name</label>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" name="AccountName" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{{Input::old('AccountName')}}" />
+                            <input type="text" class="form-control" name="AccountName" data-validate="required" data-message-required="This is custom message for required field." placeholder="" value="{{Input::old('AccountName')}}" />
                         </div>
 
                         <label class="col-md-2 control-label">Phone</label>
                         <div class="col-md-4">
-                            <input type="text" class="form-control"  name="Phone" id="field-1" placeholder="" value="{{Input::old('Phone')}}" />
+                            <input type="text" class="form-control"  name="Phone" placeholder="" value="{{Input::old('Phone')}}" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -104,7 +104,7 @@
 
                         <label class="col-md-2 control-label">Fax</label>
                         <div class="col-md-4">
-                            <input type="text" name="Fax" class="form-control" id="field-1" placeholder="" value="{{Input::old('Fax')}}" />
+                            <input type="text" name="Fax" class="form-control" placeholder="" value="{{Input::old('Fax')}}" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -117,7 +117,7 @@
 
                         <label class="col-md-2 control-label hidden">Employee</label>
                         <div class="col-md-4 hidden">
-                            <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{Input::old('Employee')}}" />
+                            <input type="text" name="Employee" class="form-control" placeholder="" value="{{Input::old('Employee')}}" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -137,12 +137,12 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Email</label>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" name="Email" data-validate="required" data-message-required="" id="field-1" placeholder="" value="{{Input::old('Email')}}" />
+                            <input type="text" class="form-control" name="Email" data-validate="required" data-message-required="" placeholder="" value="{{Input::old('Email')}}" />
                         </div>
 
                         <label class="col-md-2 control-label">Billing Email</label>
                         <div class="col-md-4">
-                            <input type="text" class="form-control"  name="BillingEmail" id="field-1" placeholder="" value="{{Input::old('BillingEmail')}}" />
+                            <input type="text" class="form-control"  name="BillingEmail" placeholder="" value="{{Input::old('BillingEmail')}}" />
                         </div>
 
                     </div>
@@ -157,7 +157,7 @@
 
                         <label class="col-md-2 control-label">VAT Number</label>
                         <div class="col-md-4">
-                            <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{Input::old('VatNumber')}}" />
+                            <input type="text" class="form-control"  name="VatNumber" placeholder="" value="{{Input::old('VatNumber')}}" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -180,12 +180,15 @@
                         </div>
                         <label class="col-md-2 control-label">Nominal Code</label>
                         <div class="col-md-4">
-                            <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{Input::old('NominalAnalysisNominalAccountNumber')}}" />
+                            <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" placeholder="" value="{{Input::old('NominalAnalysisNominalAccountNumber')}}" />
                         </div>
                     </div>
                     @if(!empty($dynamicfields) && count($dynamicfields)>0)
-                        <div class="form-group">
+                            <?php $field_count = 1; ?>
                             @foreach($dynamicfields as $dynamicfield)
+                                @if($field_count % 2 != 0) {{-- start form-group tag if first field --}}
+                                    <div class="form-group clear">
+                                @endif
                                 @if(!empty($dynamicfield['FieldSlug']))
                                     @if($dynamicfield['FieldSlug']=='accountgateway')
                                         <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
@@ -196,28 +199,46 @@
                                     @if($dynamicfield['FieldSlug']=='vendorname')
                                         <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
                                         <div class="col-md-4">
-                                            <input type="text" class="form-control" autocomplete="off"  name="vendorname" id="field-1" value="" />
+                                            <input type="text" class="form-control" autocomplete="off"  name="vendorname" value="" />
                                         </div>
                                     @endif
-                                        @if($dynamicfield['FieldSlug']=='pbxaccountstatus')
-                                    </div>
-                                    <div class="form-group">
+                                    @if($dynamicfield['FieldSlug']=='pbxaccountstatus')
                                         <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
                                         <div class="col-md-4">
                                             {{Form::select('pbxaccountstatus', array('0'=>'Unblock','1'=>'Block'),'',array("class"=>"form-control select2"))}}
                                         </div>
-                                        @endif
-                                        @if($dynamicfield['FieldSlug']=='autoblock')
-                                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}} <span id="tooltip_lowstock" data-content="If Auto block OFF then Cron job will not change the status of this Account in PBX." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary" data-original-title="" title="">?</span></label>
-                                            <div class="col-md-4">
-                                                <div class="make-switch switch-small">
-                                                    <input type="checkbox" name="autoblock" value="1">
-                                                </div>
+                                    @endif
+                                    @if($dynamicfield['FieldSlug']=='autoblock')
+                                        <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}} <span id="tooltip_lowstock" data-content="If Auto block OFF then Cron job will not change the status of this Account in PBX." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary" data-original-title="" title="">?</span></label>
+                                        <div class="col-md-4">
+                                            <div class="make-switch switch-small">
+                                                <input type="checkbox" name="autoblock" value="1">
                                             </div>
-                                        @endif
+                                        </div>
+                                    @endif
+                                    @if($dynamicfield['FieldSlug']=='COCNumber' || $dynamicfield['FieldSlug']=='PONumber' || $dynamicfield['FieldSlug']=='AccountHolder')
+                                        <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" autocomplete="off"  name="{{$dynamicfield['FieldSlug']}}" value="" />
+                                        </div>
+                                    @endif
+                                    @if($dynamicfield['FieldSlug']=='RegisterDutchFoundation' || $dynamicfield['FieldSlug']=='DirectDebit')
+                                        <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                                        <div class="col-md-4">
+                                            <div class="make-switch switch-small">
+                                                <input type="checkbox" name="{{$dynamicfield['FieldSlug']}}" value="1">
+                                            </div>
+                                        </div>
+                                    @endif
                                 @endif
+                                @if($field_count % 2 == 0) {{-- end form-group tag if second field --}}
+                                    </div>
+                                @endif
+                                <?php $field_count++; ?>
                             @endforeach
-                        </div>
+                            @if($field_count % 2 == 0) {{-- end form-group tag if last field is the first --}}
+                                </div>
+                            @endif
                     @endif
                     <div class="form-group">
                         <label class="col-md-2 control-label">Languages</label>
@@ -272,6 +293,10 @@
                                 </div>
 
                                 <div class="panel-options">
+                                    Use Different Billing Address
+                                    <div class="make-switch switch-small">
+                                        <input type="checkbox" name="DifferentBillingAddress" id="DifferentBillingAddress" value="1">
+                                    </div>
                                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                                 </div>
                             </div>
@@ -280,35 +305,70 @@
                                 <div class="form-group">
                                     <label class="col-md-2 control-label">Address Line 1</label>
                                     <div class="col-md-4">
-                                        <input type="text" name="Address1" class="form-control" id="field-1" placeholder="" value="{{Input::old('Address1')}}" />
+                                        <input type="text" name="Address1" class="form-control" placeholder="" value="{{Input::old('Address1')}}" />
                                     </div>
 
                                     <label class="col-md-2 control-label">City</label>
                                     <div class="col-md-4">
-                                        <input type="text" name="City" class="form-control" id="field-1" placeholder="" value="{{Input::old('City')}}" />
+                                        <input type="text" name="City" class="form-control" placeholder="" value="{{Input::old('City')}}" />
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-md-2 control-label">Address Line 2</label>
                                     <div class="col-md-4">
-                                        <input type="text" name="Address2" class="form-control" id="field-1" placeholder="" value="{{Input::old('Address2')}}" />
+                                        <input type="text" name="Address2" class="form-control" placeholder="" value="{{Input::old('Address2')}}" />
                                     </div>
 
                                     <label class="col-md-2 control-label">Post/Zip Code</label>
                                     <div class="col-md-4">
-                                        <input type="text" name="PostCode" class="form-control" id="field-1" placeholder="" value="{{Input::old('PostCode')}}" />
+                                        <input type="text" name="PostCode" class="form-control" placeholder="" value="{{Input::old('PostCode')}}" />
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-md-2 control-label">Address Line 3</label>
                                     <div class="col-md-4">
-                                        <input type="text" name="Address3" class="form-control" id="field-1" placeholder="" value="{{Input::old('Address3')}}" />
+                                        <input type="text" name="Address3" class="form-control" placeholder="" value="{{Input::old('Address3')}}" />
                                     </div>
 
                                     <label for=" field-1" class="col-md-2 control-label">*Country</label>
                                     <div class="col-md-4">
 
                                         {{Form::select('Country', $countries,Input::old('Country', $company->Country),array("class"=>"form-control select2"))}}
+
+                                    </div>
+                                </div>
+                                <div class="form-group billing_address hidden">
+                                    <label class="col-md-2 control-label">Billing Address Line 1</label>
+                                    <div class="col-md-4">
+                                        <input type="text" name="BillingAddress1" class="form-control" placeholder="" value="{{Input::old('BillingAddress1')}}" />
+                                    </div>
+
+                                    <label class="col-md-2 control-label">Billing City</label>
+                                    <div class="col-md-4">
+                                        <input type="text" name="BillingCity" class="form-control" placeholder="" value="{{Input::old('BillingCity')}}" />
+                                    </div>
+                                </div>
+                                <div class="form-group billing_address hidden">
+                                    <label class="col-md-2 control-label">Billing Address Line 2</label>
+                                    <div class="col-md-4">
+                                        <input type="text" name="BillingAddress2" class="form-control" placeholder="" value="{{Input::old('BillingAddress2')}}" />
+                                    </div>
+
+                                    <label class="col-md-2 control-label">Billing Post/Zip Code</label>
+                                    <div class="col-md-4">
+                                        <input type="text" name="BillingPostCode" class="form-control" placeholder="" value="{{Input::old('BillingPostCode')}}" />
+                                    </div>
+                                </div>
+                                <div class="form-group billing_address hidden">
+                                    <label class="col-md-2 control-label">Billing Address Line 3</label>
+                                    <div class="col-md-4">
+                                        <input type="text" name="BillingAddress3" class="form-control" placeholder="" value="{{Input::old('BillingAddress3')}}" />
+                                    </div>
+
+                                    <label for=" field-1" class="col-md-2 control-label">*Billing Country</label>
+                                    <div class="col-md-4">
+
+                                        {{Form::select('BillingCountry', $countries,Input::old('BillingCountry', $company->Country),array("class"=>"form-control select2"))}}
 
                                     </div>
                                 </div>
@@ -649,6 +709,14 @@
 
             return true;
         }
+
+        $('#DifferentBillingAddress').on('change', function() {
+            if($(this).is(":checked")) {
+                $('.billing_address').removeClass('hidden');
+            } else {
+                $('.billing_address').addClass('hidden');
+            }
+        });
 
     });
 function ajax_form_success(response){

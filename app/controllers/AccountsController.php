@@ -348,6 +348,41 @@ class AccountsController extends \BaseController {
                 $autoblock = 0;
             }
 
+            if (isset($data['COCNumber'])) {
+                $COCNumber = $data['COCNumber'];
+                unset($data['COCNumber']);
+            }else{
+                $COCNumber = '';
+            }
+
+            if (isset($data['PONumber'])) {
+                $PONumber = $data['PONumber'];
+                unset($data['PONumber']);
+            }else{
+                $PONumber = '';
+            }
+
+            if (isset($data['AccountHolder'])) {
+                $AccountHolder = $data['AccountHolder'];
+                unset($data['AccountHolder']);
+            }else{
+                $AccountHolder = '';
+            }
+
+            if (isset($data['RegisterDutchFoundation'])) {
+                $RegisterDutchFoundation = $data['RegisterDutchFoundation'];
+                unset($data['RegisterDutchFoundation']);
+            }else{
+                $RegisterDutchFoundation = 0;
+            }
+
+            if (isset($data['DirectDebit'])) {
+                $DirectDebit = $data['DirectDebit'];
+                unset($data['DirectDebit']);
+            }else{
+                $DirectDebit = 0;
+            }
+
             $rules = array(
                 'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
                 'AutoOutPayment' => 'numeric',
@@ -437,6 +472,14 @@ class AccountsController extends \BaseController {
                 }
             }
 
+            if(empty($data['DifferentBillingAddress'])) {
+                $data['BillingAddress1'] = $data['Address1'];
+                $data['BillingAddress2'] = $data['Address2'];
+                $data['BillingAddress3'] = $data['Address3'];
+                $data['BillingCity']     = $data['City'];
+                $data['BillingPostCode'] = $data['PostCode'];
+                $data['BillingCountry']  = $data['Country'];
+            }
 
             if ($account = Account::create($data)) {
 
@@ -491,6 +534,31 @@ class AccountsController extends \BaseController {
                 if(isset($autoblock)){
                     $DynamicData['FieldName'] = 'autoblock';
                     $DynamicData['FieldValue']= $autoblock;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(isset($COCNumber)){
+                    $DynamicData['FieldName'] = 'COCNumber';
+                    $DynamicData['FieldValue']= $COCNumber;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(isset($PONumber)){
+                    $DynamicData['FieldName'] = 'PONumber';
+                    $DynamicData['FieldValue']= $PONumber;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(isset($AccountHolder)){
+                    $DynamicData['FieldName'] = 'AccountHolder';
+                    $DynamicData['FieldValue']= $AccountHolder;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(isset($RegisterDutchFoundation)){
+                    $DynamicData['FieldName'] = 'RegisterDutchFoundation';
+                    $DynamicData['FieldValue']= $RegisterDutchFoundation;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(isset($DirectDebit)){
+                    $DynamicData['FieldName'] = 'DirectDebit';
+                    $DynamicData['FieldValue']= $DirectDebit;
                     Account::addUpdateAccountDynamicfield($DynamicData);
                 }
 
@@ -978,6 +1046,42 @@ class AccountsController extends \BaseController {
         }else{
             $autoblock = 0;
         }
+
+        if (isset($data['COCNumber'])) {
+            $COCNumber = $data['COCNumber'];
+            unset($data['COCNumber']);
+        }else{
+            $COCNumber = '';
+        }
+
+        if (isset($data['PONumber'])) {
+            $PONumber = $data['PONumber'];
+            unset($data['PONumber']);
+        }else{
+            $PONumber = '';
+        }
+
+        if (isset($data['AccountHolder'])) {
+            $AccountHolder = $data['AccountHolder'];
+            unset($data['AccountHolder']);
+        }else{
+            $AccountHolder = '';
+        }
+
+        if (isset($data['RegisterDutchFoundation'])) {
+            $RegisterDutchFoundation = $data['RegisterDutchFoundation'];
+            unset($data['RegisterDutchFoundation']);
+        }else{
+            $RegisterDutchFoundation = 0;
+        }
+
+        if (isset($data['DirectDebit'])) {
+            $DirectDebit = $data['DirectDebit'];
+            unset($data['DirectDebit']);
+        }else{
+            $DirectDebit = 0;
+        }
+
         /*$test=array();
         $test['BillingStartDate']=$data['BillingStartDate'];
         $test['BillingCycleType']=$data['BillingCycleType'];
@@ -1075,6 +1179,15 @@ class AccountsController extends \BaseController {
 //
 //        }
 
+        if(empty($data['DifferentBillingAddress'])) {
+            $data['BillingAddress1'] = $data['Address1'];
+            $data['BillingAddress2'] = $data['Address2'];
+            $data['BillingAddress3'] = $data['Address3'];
+            $data['BillingCity']     = $data['City'];
+            $data['BillingPostCode'] = $data['PostCode'];
+            $data['BillingCountry']  = $data['Country'];
+        }
+
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -1105,6 +1218,31 @@ class AccountsController extends \BaseController {
             if(isset($autoblock)){
                 $DynamicData['FieldName'] = 'autoblock';
                 $DynamicData['FieldValue']= $autoblock;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($COCNumber)){
+                $DynamicData['FieldName'] = 'COCNumber';
+                $DynamicData['FieldValue']= $COCNumber;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($PONumber)){
+                $DynamicData['FieldName'] = 'PONumber';
+                $DynamicData['FieldValue']= $PONumber;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($AccountHolder)){
+                $DynamicData['FieldName'] = 'AccountHolder';
+                $DynamicData['FieldValue']= $AccountHolder;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($RegisterDutchFoundation)){
+                $DynamicData['FieldName'] = 'RegisterDutchFoundation';
+                $DynamicData['FieldValue']= $RegisterDutchFoundation;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($DirectDebit)){
+                $DynamicData['FieldName'] = 'DirectDebit';
+                $DynamicData['FieldValue']= $DirectDebit;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
 
