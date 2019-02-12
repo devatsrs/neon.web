@@ -37,7 +37,7 @@ class ServiceTemplate extends \Eloquent
         $Query = "select distinct ParentID from tblDynamicFieldsValue where ";
         for ($i =0; $i <count($AccountReferenceArr);$i++) {
             $AccountReference = $AccountReferenceArr[$i];
-            $DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'serviceTemplate','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+            $DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'serviceTemplate','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
             if(empty($DynamicFieldsID)){
                 return '';
             }
@@ -45,7 +45,7 @@ class ServiceTemplate extends \Eloquent
 
         for ($i =0; $i <count($AccountReferenceArr);$i++) {
             $AccountReference = $AccountReferenceArr[$i];
-            $DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'serviceTemplate','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+            $DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'serviceTemplate','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
                 $Query = $Query .'(DynamicFieldsID = ' . $DynamicFieldsID . " and FieldValue='" . $AccountReference["Value"] . "')";
                 if ($i != count($AccountReferenceArr) - 1) {
                     $Query = $Query . " OR ";
