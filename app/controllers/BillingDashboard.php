@@ -292,15 +292,30 @@ class BillingDashboard extends \BaseController {
     public function paymentreminders_ajax_datagrid() {
 
         $companyID = User::get_companyID();
+        $data = Input::all();
+        if($data['Duedate']!=''){
+            $Closingdate		=	explode(' - ',$data['Duedate']);
+            $Startdate			=   $Closingdate[0];
+            $Enddate			=	$Closingdate[1];
+            $from = trim($Startdate).' 00:00:00';
+            $to = trim($Enddate).' 23:59:59';
+        }else{
+            $from = $data['Duedate'];
+            $to=0;
+        }
+        $countQryString="";
+        if(!empty($data['accountID'])){
+            $countQryString = ' (tblAccount.AccountID='.$data['accountID'].') AND ';
+        }
         if (User::is('AccountManager')) {
             $userID = User::get_userID();
             $AccountEmaillog = AccountEmailLog::leftjoin('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
-            ->select(["tblAccount.AccountName","AccountEmailLog.EmailType", "AccountEmailLog.CreatedBy", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" ( AccountEmailLog.EmailType IN (4,3) ) AND ( tblAccount.Owner = ".    $userID. " OR tblAccount.AccountType = 0 ) ");
+            ->select(["tblAccount.AccountName","AccountEmailLog.EmailType", "AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to') AND  ( tblAccount.Owner = ".    $userID. " OR tblAccount.AccountType = 0 ) ");
         }else{
             $AccountEmaillog = AccountEmailLog::leftjoin('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
-                ->select(["tblAccount.AccountName","AccountEmailLog.EmailType", "AccountEmailLog.CreatedBy", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw("( AccountEmailLog.EmailType IN (4,3) ) ");
+                ->select(["tblAccount.AccountName","AccountEmailLog.EmailType", "AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ");
         }
-
+        //( AccountEmailLog.EmailType IN (4,3) ) AND
         return Datatables::of($AccountEmaillog)->make();
     }
 }
