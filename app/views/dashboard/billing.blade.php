@@ -489,6 +489,28 @@
                              //console.log(id);
                              if(id==4){
                                action='Low balance';  
+                             } else if(id==2){
+                               action='Low balance'; 
+                                } else if(id==3){
+                               action='Weekly Payment Transaction'; 
+                             } else if(id==5){
+                               action='Pending Approval Payment'; 
+                             } else if(id==6){
+                               action='RetentionDiskSpaceEmail';
+                             } else if(id==7){
+                               action='Block Account';
+                              } else if(id==8){
+                               action='Invoice PaidBy Customer';
+                              } else if(id==9){
+                               action='Auto Add IP';
+                              } else if(id==10){
+                               action='Low Stock Reminder';
+                              } else if(id==11){
+                               action='Auto Top Account';
+                              } else if(id==13){
+                               action='Auto Out Payment';
+                              } else if(id==14){
+                               action='Customer Contract Expire'; 
                              }else{
                                  action='Payment Reminders';
                              }                         
