@@ -1088,6 +1088,8 @@ class AccountsApiController extends ApiController {
 							$BillingClass = $BillingClassSql->first();
 							if (!isset($BillingClass)) {
 								return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
+							}else {
+								$BillingSetting['billing_class'] = $BillingClass['BillingClassID'];
 							}
 
 
