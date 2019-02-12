@@ -1,3 +1,5 @@
+ALTER TABLE `tblRateTableDIDRate`
+	ADD COLUMN `VendorID` INT NULL DEFAULT NULL AFTER `ApprovedDate`;
 -- --------------------------------------------------------
 -- Host:                         192.168.1.25
 -- Server version:               5.7.23-log - MySQL Community Server (GPL)
