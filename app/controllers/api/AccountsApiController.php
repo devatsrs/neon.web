@@ -4,9 +4,7 @@ use app\controllers\api\Codes;
 
 class AccountsApiController extends ApiController {
 
-	private static $PaymentMethod = ["AuthorizeNet","AuthorizeNetEcheck",
-	"FideliPay","Paypal","PeleCard","SagePay","SagePayDirectDebit","Stripe","StripeACH","FastPay",
-	"MerchantWarrior","Wire Transfer","Other"];
+
 	public function validEmail() {
 		$data = Input::all();
 		$CompanyID = User::get_companyID();
@@ -805,7 +803,7 @@ class AccountsApiController extends ApiController {
 
 			//stripe = credit stipeAch = bank
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
-				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$PaymentMethod)) {
+				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(PaymentGateway::$paymentgateway_name)) {
 					return Response::json(array("status" => Codes::$Code1020[0], "ErrorMessage" => Codes::$Code1020[1]));
 				}
 			}
@@ -1025,7 +1023,6 @@ class AccountsApiController extends ApiController {
 			}
 
 			AccountBilling::$rulesAPI['billing_type'] = 'required';
-			AccountBilling::$rulesAPI['billing_class'] = 'required';
 			AccountBilling::$rulesAPI['billing_cycle'] = 'required';
 			//AccountBilling::$rulesAPI['billing_cycle_options'] = 'required';
 			$BillingCycleTypeID[0] = "daily";
@@ -1065,13 +1062,38 @@ class AccountsApiController extends ApiController {
 					foreach ($validator->messages()->all() as $error) {
 						$errors .= $error . "<br>";
 					}
-					return Response::json(["ErrorMessage" => $errors,Codes::$Code402[0]]);
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 				}
 
 				if (!empty($BillingSetting['billing_type']) && ($BillingSetting['billing_type'] != 1 && $BillingSetting['billing_type'] != 2)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1016[1]],Codes::$Code1016[0]);
 				}
 
+
+				if ($data['Billing'] == 1) {
+					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
+					if (!empty($BillingSetting['billing_class'])) {
+						$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID', '=', $CompanyID);
+						$BillingClass = $BillingClassSql->first();
+						if (!isset($BillingClass)) {
+							return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
+						}
+					}else {
+						if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 2 || $data['PaymentMethod'] == 3)) {
+							$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
+							$BillingSetting['billing_class'] = $BillingSetting['billing_class'] .'-'.
+																PaymentGateway::$paymentgateway_name[$data['PaymentMethod']];
+							Log::info("PaymentMethod " . $BillingSetting['billing_class'] . ' ' . $CompanyID);
+							$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])->where('CompanyID', '=', $CompanyID);
+							$BillingClass = $BillingClassSql->first();
+							if (!isset($BillingClass)) {
+								return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
+							}
+
+
+						}
+					}
+				}
 				if (!empty($BillingSetting['billing_cycle'])
 					&& ($BillingSetting['billing_cycle'] < 1 || $BillingSetting['billing_cycle'] > 8)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1026[1]],Codes::$Code1026[0]);
@@ -1116,23 +1138,7 @@ class AccountsApiController extends ApiController {
 				$AccountDetails['AccountID'] = $account->AccountID;
 				AccountDetails::create($AccountDetails);
 
-				if (!empty($ResellerOwner) &&  $ResellerOwner>0) {
-						//$Reseller = Reseller::getResellerDetails($ResellerOwner);
-					//Log::info("ResellerName 123 :" . $Reseller["ResellerName"]);
-					$ResellerDetails['ResellerName'] = $Reseller["ResellerName"];
-					$ResellerDetails['CompanyID'] = $Reseller["CompanyID"];
-					$ResellerDetails['ChildCompanyID'] = $Reseller["ChildCompanyID"];
-					$ResellerDetails['AccountID'] = $account["AccountID"];
-					$ResellerDetails['FirstName'] = $Reseller["FirstName"];
-					$ResellerDetails['LastName'] = $Reseller["LastName"];
-					$ResellerDetails['Email'] = $Reseller["Email"];
-					$ResellerDetails['Password'] = $Reseller["Password"];
-					$ResellerDetails['Status'] = $Reseller["Status"];
-					$ResellerDetails['AllowWhiteLabel'] = $Reseller["AllowWhiteLabel"];
-					$ResellerDetails['created_by'] = $Reseller["created_by"];
-					$ResellerDetails['updated_by'] = $Reseller["updated_by"];
-					Reseller::create($ResellerDetails);
-				}
+
 
 
 				$AccountBalance['AccountID'] =  $account->AccountID;
@@ -1153,7 +1159,7 @@ class AccountsApiController extends ApiController {
 				AccountBalanceThreshold::create($AccountBalanceThreshold);
 				$account->update($data);
 
-				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 8 || $data['PaymentMethod'] == 9)) {
+				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 2 || $data['PaymentMethod'] == 3)) {
 					$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
 					$BankPaymentDetails['CompanyID'] = $CompanyID;
 					if (!empty($BankPaymentDetails['CardNumber'])) {
@@ -1205,7 +1211,7 @@ class AccountsApiController extends ApiController {
 				}
 				if ($data['Billing'] == 1) {
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
-					$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class']);
+					$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$CompanyID);
 					$BillingClass = $BillingClassSql->first();
 					if (!isset($BillingClass)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1017[1]],Codes::$Code1017[0]);
@@ -1393,7 +1399,7 @@ class AccountsApiController extends ApiController {
 	{
 		Log::info('getPaymentMethodList for Account.');
 
-		return Response::json(array("status" => "success", "PaymentMethod" => AccountsApiController::$PaymentMethod));
+		return Response::json(array("status" => "success", "PaymentMethod" => PaymentGateway::$paymentgateway_name));
 	}
 
 	public function GetAccount()
