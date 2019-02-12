@@ -14,6 +14,9 @@
 	<li>
         {{customer_dropbox($id,["IsVendor"=>1])}}
 	</li>
+    <li>
+        <a href="{{URL::to('accounts/'.$Account->AccountID.'/edit')}}"></i>Edit Account({{$Account->AccountName}})</a>
+    </li>
 	<li class="active">
 		<strong>Vendor Rate Sheet  Downloads</strong>
 	</li>

@@ -428,9 +428,22 @@ ALTER TABLE `tblTempRateTableRate`
 	ADD COLUMN `RateCurrency` INT(11) NULL DEFAULT NULL AFTER `RoutingCategoryID`,
 	ADD COLUMN `ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL AFTER `RateCurrency`;
 
+UPDATE tblDynamicFields SET `Status`=0 WHERE `Type`='account' AND FieldSlug IN ('pbxaccountstatus','autoblock');
 
+ALTER TABLE `tblAccount`
+  ADD COLUMN `DifferentBillingAddress` TINYINT NOT NULL DEFAULT '0' AFTER `Country`,
+	ADD COLUMN `BillingAddress1` VARCHAR(100) NULL DEFAULT NULL AFTER `DifferentBillingAddress`,
+	ADD COLUMN `BillingAddress2` VARCHAR(100) NULL DEFAULT NULL AFTER `BillingAddress1`,
+	ADD COLUMN `BillingAddress3` VARCHAR(100) NULL DEFAULT NULL AFTER `BillingAddress2`,
+	ADD COLUMN `BillingCity` VARCHAR(50) NULL DEFAULT NULL AFTER `BillingAddress3`,
+	ADD COLUMN `BillingPostCode` VARCHAR(50) NULL DEFAULT NULL AFTER `BillingCity`,
+	ADD COLUMN `BillingCountry` VARCHAR(50) NULL DEFAULT NULL AFTER `BillingPostCode`;
 
-
+INSERT INTO `tbldynamicfields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'checkbox', 'Direct Debit', 'DirectDebit', 'Direct Debit', 0, 1, '2019-02-11 16:33:11', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
+INSERT INTO `tbldynamicfields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'checkbox', 'Register Dutch Foundation', 'RegisterDutchFoundation', 'Register Dutch Foundation', 0, 1, '2019-02-11 16:33:11', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
+INSERT INTO `tbldynamicfields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'text', 'Account Holder', 'AccountHolder', 'Account Holder', 0, 1, '2019-02-11 16:33:11', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
+INSERT INTO `tbldynamicfields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'text', 'P. O. Number', 'PONumber', 'P. O. Number', 0, 1, '2019-02-11 16:33:11', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
+INSERT INTO `tbldynamicfields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'text', 'COC Number', 'COCNumber', 'COC Number', 0, 1, '2019-02-11 16:33:11', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
 
 
 

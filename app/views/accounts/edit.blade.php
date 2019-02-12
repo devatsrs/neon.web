@@ -88,8 +88,8 @@
                        {{Form::select('Owner',$account_owners,$account->Owner,array("class"=>"select2"))}}
                     </div>
 
-                    <label class="col-md-2 control-label">Ownership</label>
-                    <div class="col-md-4">
+                    <label class="col-md-2 control-label hidden">Ownership</label>
+                    <div class="col-md-4 hidden">
                         <?php $ownership_array = array( ""=>"None", "Private"=>"Private" , "Public"=>"Public" ,"Subsidiary"=>"Subsidiary","Other"=>"Other" ); ?>
                         {{Form::select('Ownership', $ownership_array, $account->Ownership ,array("class"=>"form-control select2"))}}
                     </div>
@@ -153,8 +153,8 @@
                         </div>
                     </div>
 
-                    <label class="col-md-2 control-label">Employee</label>
-                    <div class="col-md-4">
+                    <label class="col-md-2 control-label hidden">Employee</label>
+                    <div class="col-md-4 hidden">
                         <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                     </div>
                 </div>
@@ -279,6 +279,20 @@
                             <div class="col-md-4">
                                 <div class="make-switch switch-small">
                                     <input type="checkbox" @if($dynamicfield['FieldValue'] == 1 )checked="" @endif name="autoblock" value="1">
+                                </div>
+                            </div>
+                        @endif
+                        @if($dynamicfield['FieldSlug']=='COCNumber' || $dynamicfield['FieldSlug']=='PONumber' || $dynamicfield['FieldSlug']=='AccountHolder')
+                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" autocomplete="off"  name="{{$dynamicfield['FieldSlug']}}" value="{{$dynamicfield['FieldValue']}}" />
+                            </div>
+                        @endif
+                        @if($dynamicfield['FieldSlug']=='RegisterDutchFoundation' || $dynamicfield['FieldSlug']=='DirectDebit')
+                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                            <div class="col-md-4">
+                                <div class="make-switch switch-small">
+                                    <input type="checkbox" name="{{$dynamicfield['FieldSlug']}}" @if($dynamicfield['FieldValue'] == 1 )checked="" @endif  value="1">
                                 </div>
                             </div>
                         @endif
@@ -450,6 +464,10 @@
                 </div>
 
                 <div class="panel-options">
+                    Use Different Billing Address
+                    <div class="make-switch switch-small">
+                        <input type="checkbox" name="DifferentBillingAddress" id="DifferentBillingAddress" {{$account->DifferentBillingAddress == 1 ? 'checked' : '' }} value="1">
+                    </div>
                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                 </div>
             </div>
@@ -487,6 +505,41 @@
                     <div class="col-md-4">
 
                     {{Form::select('Country', $countries, $account->Country ,array("class"=>"form-control select2"))}}
+                    </div>
+                </div>
+                <div class="form-group billing_address hidden">
+                    <label class="col-md-2 control-label">Billing Address Line 1</label>
+                    <div class="col-md-4">
+                        <input type="text" name="BillingAddress1" class="form-control" placeholder="" value="{{$account->BillingAddress1}}" />
+                    </div>
+
+                    <label class="col-md-2 control-label">Billing City</label>
+                    <div class="col-md-4">
+                        <input type="text" name="BillingCity" class="form-control" placeholder="" value="{{$account->BillingCity}}" />
+                    </div>
+                </div>
+                <div class="form-group billing_address hidden">
+                    <label class="col-md-2 control-label">Billing Address Line 2</label>
+                    <div class="col-md-4">
+                        <input type="text" name="BillingAddress2" class="form-control" placeholder="" value="{{$account->BillingAddress2}}" />
+                    </div>
+
+                    <label class="col-md-2 control-label">Billing Post/Zip Code</label>
+                    <div class="col-md-4">
+                        <input type="text" name="BillingPostCode" class="form-control" placeholder="" value="{{$account->BillingPostCode}}" />
+                    </div>
+                </div>
+                <div class="form-group billing_address hidden">
+                    <label class="col-md-2 control-label">Billing Address Line 3</label>
+                    <div class="col-md-4">
+                        <input type="text" name="BillingAddress3" class="form-control" placeholder="" value="{{$account->BillingAddress3}}" />
+                    </div>
+
+                    <label for=" field-1" class="col-md-2 control-label">*Billing Country</label>
+                    <div class="col-md-4">
+
+                        {{Form::select('BillingCountry', $countries,$account->BillingCountry,array("class"=>"form-control select2"))}}
+
                     </div>
                 </div>
             </div>
@@ -1385,6 +1438,15 @@
 
             return true;
         }
+
+        $('#DifferentBillingAddress').on('change', function() {
+            if($(this).is(":checked")) {
+                $('.billing_address').removeClass('hidden');
+            } else {
+                $('.billing_address').addClass('hidden');
+            }
+        });
+        $('#DifferentBillingAddress').trigger('change');
     });
 </script>
 

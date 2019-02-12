@@ -1317,13 +1317,15 @@ Route::group(array('before' => 'auth'), function () {
 
 
 	Route::any('/billing_dashboard/invoice_expense_chart', 'BillingDashboard@invoice_expense_chart');
-    Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
-    Route::any('/billing_dashboard/invoice_expense_total_widget', 'BillingDashboard@invoice_expense_total_widget');
+        Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
+        Route::any('/billing_dashboard/invoice_expense_total_widget', 'BillingDashboard@invoice_expense_total_widget');
 	Route::any('/billing_dashboard/ajax_top_pincode', 'BillingDashboard@ajax_top_pincode');
 	Route::any('/billing_dashboard/ajaxgrid_top_pincode/{type}', 'BillingDashboard@ajaxgrid_top_pincode');
-    Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');
+        Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');
 	Route::any('/billing_dashboard/GetDashboardPR', 'BillingDashboard@GetDashboardPR');
 	Route::any('/billing_dashboard/GetDashboardPL', 'BillingDashboard@GetDashboardPL');
+        Route::any('/billing_dashboard/paymentreminders', 'BillingDashboard@PaymentReminders');
+        Route::any('/billing_dashboard/paymentreminders_ajax_datagrid', 'BillingDashboard@paymentreminders_ajax_datagrid');
 
 
     //AccountPaymentProfile
@@ -1808,7 +1810,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('setAutoOutPaymentSettings/', 'AccountBillingApiController@setAutoOutPaymentSettings');
 	Route::post('setLowBalanceNotification/', 'BillingClassApiController@setLowBalanceNotification');
 	Route::post('LowBalanceNotification/list', 'BillingClassApiController@getLowBalanceNotification');
-        Route::post('LowBalanceNotification/delete', 'BillingClassApiController@delLowBalanceNotification');
+	Route::post('LowBalanceNotification/delete', 'BillingClassApiController@delLowBalanceNotification');
 	Route::post('account/requestFund/', 'PaymentApiController@requestFund');
 	Route::post('account/depositFund/', 'PaymentApiController@depositFund');
 	Route::post('startRecording', 'ActiveCallApiController@startRecording');
@@ -1822,6 +1824,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('language/list', 'LanguageApiController@getList');
 
 	Route::post('account/createAccount', 'AccountsApiController@createAccount');
+	Route::post('account/updateAccount', 'AccountsApiController@updateAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
 	Route::post('account/list', 'AccountsApiController@GetAccount');

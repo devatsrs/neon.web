@@ -16,6 +16,9 @@
     <li>
       <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
     </li>
+    <li>
+      <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}"></i>Edit Account({{$account->AccountName}})</a>
+    </li>
     <li class="active"> <strong>View Account</strong> </li>
     @elseif($leadOrAccountCheck=='lead')
     <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>

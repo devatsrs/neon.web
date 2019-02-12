@@ -7,6 +7,7 @@ class ConnectionController extends \BaseController {
     public function index($id)
     {
         //$companyID = User::get_companyID();
+        $Account = Account::find($id);
         $companyID = Account::where('AccountID',$id)->pluck('CompanyId');
         $trunks = Trunk::getTrunkDropdownIDList($companyID);
         /*if(count($trunks) == 0){
@@ -25,7 +26,7 @@ class ConnectionController extends \BaseController {
         $TariffVoiceCall=RateTable::getDIDTariffDropDownList($companyID,$VoiceCallType,$CurrencyID,RateTable::APPLIED_TO_VENDOR);
         $TariffPackage=RateTable::getDIDTariffDropDownList($companyID,$PackageCallType,$CurrencyID,RateTable::APPLIED_TO_VENDOR);
 
-        return View::make('vendorrates.connection', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall','companyID','DIDType','VoiceCallType','PackageCallType','TariffPackage'));
+        return View::make('vendorrates.connection', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall','companyID','DIDType','VoiceCallType','PackageCallType','TariffPackage','Account'));
 
     }
 
