@@ -1810,7 +1810,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('setAutoOutPaymentSettings/', 'AccountBillingApiController@setAutoOutPaymentSettings');
 	Route::post('setLowBalanceNotification/', 'BillingClassApiController@setLowBalanceNotification');
 	Route::post('LowBalanceNotification/list', 'BillingClassApiController@getLowBalanceNotification');
-        Route::post('LowBalanceNotification/delete', 'BillingClassApiController@delLowBalanceNotification');
+	Route::post('LowBalanceNotification/delete', 'BillingClassApiController@delLowBalanceNotification');
 	Route::post('account/requestFund/', 'PaymentApiController@requestFund');
 	Route::post('account/depositFund/', 'PaymentApiController@depositFund');
 	Route::post('startRecording', 'ActiveCallApiController@startRecording');
@@ -1824,6 +1824,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('language/list', 'LanguageApiController@getList');
 
 	Route::post('account/createAccount', 'AccountsApiController@createAccount');
+	Route::post('account/updateAccount', 'AccountsApiController@updateAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
