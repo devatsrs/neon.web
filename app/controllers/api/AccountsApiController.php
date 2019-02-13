@@ -732,7 +732,7 @@ class AccountsApiController extends ApiController {
 			$data['Address1'] = isset($accountData['Address1']) ? $accountData['Address1'] : '';
 			$data['Address2'] = isset($accountData['Address2']) ? $accountData['Address2'] : '';
 			$data['Address3'] = isset($accountData['Address3']) ? $accountData['Address3'] : '';
-			$data['PostCode'] = isset($accountData['PostCode']) ? $accountData['PostCode'] : '';
+
 			$data['City'] = isset($accountData['City']) ? $accountData['City'] : '';
 			$data['Email'] = isset($accountData['Email']) ? $accountData['Email'] : '';
 
@@ -742,7 +742,7 @@ class AccountsApiController extends ApiController {
 			$data['BillingPostCode'] = isset($accountData['BillingPostCode']) ? $accountData['BillingPostCode'] : '';
 			$data['BillingCity'] = isset($accountData['BillingCity']) ? $accountData['BillingCity'] : '';
 			$data['BillingCountry'] = isset($accountData['BillingCountryIso2']) ? $accountData['BillingCountryIso2'] : '';
-
+			$data['DifferentBillingAddress'] = isset($accountData['DifferentBillingAddress']) ? $accountData['DifferentBillingAddress'] : '';
 			$data['BillingEmail'] = isset($accountData['BillingEmail']) ? $accountData['BillingEmail'] : '';
 			$data['Owner'] = isset($accountData['OwnerID']) ? $accountData['OwnerID'] : '';
 			$data['CurrencyId'] = isset($accountData['CurrencySymbol']) ? $accountData['CurrencySymbol'] : '';
@@ -756,13 +756,15 @@ class AccountsApiController extends ApiController {
 			$data['IsVendor'] = isset($accountData['IsVendor']);
 
 
-			if(!isset($accountData['DifferentBillingAddress']) || $accountData['DifferentBillingAddress'] == 0) {
+			if(!isset($data['DifferentBillingAddress']) || $data['DifferentBillingAddress'] == 0) {
 				$data['BillingAddress1'] = $data['Address1'];
 				$data['BillingAddress2'] = $data['Address2'];
 				$data['BillingAddress3'] = $data['Address3'];
 				$data['BillingCity']     = $data['City'];
 				$data['BillingPostCode'] = $data['PostCode'];
 				$data['BillingCountry']  = $data['Country'];
+			}else {
+				$data['DifferentBillingAddress'] = 1;
 			}
 
 
@@ -1558,22 +1560,28 @@ class AccountsApiController extends ApiController {
 
 			if (isset($accountData['BillingAddress1']) && !empty($accountData['BillingAddress1'])) {
 				$data['BillingAddress1'] = $accountData['BillingAddress1'];
+				$data['DifferentBillingAddress'] = 1;
 			}
 
 			if (isset($accountData['BillingAddress2']) && !empty($accountData['BillingAddress2'])) {
 				$data['BillingAddress2'] = $accountData['BillingAddress2'];
+				$data['DifferentBillingAddress'] = 1;
 			}
 			if (isset($accountData['BillingAddress3']) && !empty($accountData['BillingAddress3'])) {
 				$data['BillingAddress3'] = $accountData['BillingAddress3'];
+				$data['DifferentBillingAddress'] = 1;
 			}
 			if (isset($accountData['BillingPostCode']) && !empty($accountData['BillingPostCode'])) {
 				$data['BillingPostCode'] = $accountData['BillingPostCode'];
+				$data['DifferentBillingAddress'] = 1;
 			}
 			if (isset($accountData['BillingCity']) && !empty($accountData['BillingCity'])) {
 				$data['BillingCity'] = $accountData['BillingCity'];
+				$data['DifferentBillingAddress'] = 1;
 			}
 			if (isset($accountData['BillingCountryIso2']) && !empty($accountData['BillingCountryIso2'])) {
 				$data['BillingCountry'] = $accountData['BillingCountryIso2'];
+				$data['DifferentBillingAddress'] = 1;
 			}
 
 
