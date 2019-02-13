@@ -79,7 +79,7 @@
 				show_summernote(modal.find('.message'),{"tasks":true});
 
 			}
-			else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){ 
+			else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){
 
 				show_summernote(modal.find('.message'),{"opportunities":true});
 
@@ -89,11 +89,17 @@
                 show_summernote(modal.find('.message'),{"contractoptions":true});
 
             }
+            else if(popup_type == {{EmailTemplate::CONTRACT_EXPIRE}}){
+
+                show_summernote(modal.find('.message'),{"contractexpireoptions":true});
+
+            }
             else if(popup_type == {{EmailTemplate::OUT_PAYMENT_TEMPLATE}}){
 
                 show_summernote(modal.find('.message'),{"outpaymentoptions":true});
 
 			}
+
 			else{
 
 				show_summernote(modal.find('.message'),{"leadoptions":true});
