@@ -48,6 +48,8 @@
                 <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
                 <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
                 <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
+                <li> <a href="{{URL::to('/servicesTemplate')}}">  <span>Products</span> </a> </li>
+                <li> <a href="{{URL::to('/package')}}">  <span>Packages</span> </a> </li>
                 <li> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li>
                 <li> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li>
                 <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
