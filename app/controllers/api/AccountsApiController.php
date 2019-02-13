@@ -750,7 +750,7 @@ class AccountsApiController extends ApiController {
 			if(!empty($ResellerOwner) &&  $ResellerOwner>0){
 				$Reseller = Reseller::getResellerDetails($ResellerOwner);
 				if (!isset($Reseller)) {
-					return Response::json(["status" => Codes::$Code1035[0],"ErrorMessage"=>Codes::$Code1035[1]]);
+					return Response::json(["ErrorMessage" => Codes::$Code1035[1]],Codes::$Code1035[0]);
 				}
 				$ResellerCompanyID = $Reseller->ChildCompanyID;
 				$ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
@@ -766,19 +766,22 @@ class AccountsApiController extends ApiController {
 			$data['CompanyID'] = $CompanyID;
 
 			if (!empty($accountData['IsVendor']) && ($accountData['IsVendor'] != 0 && $accountData['IsVendor'] != 1)) {
-				return Response::json(["status" => Codes::$Code1025[0],"ErrorMessage"=>Codes::$Code1025[1]]);
+				return Response::json(["ErrorMessage" => Codes::$Code1025[1]],Codes::$Code1025[0]);
+
 			}else {
 				$data['IsVendor'] = 0;
 			}
 			$data['IsCustomer'] = isset($accountData['IsCustomer']);
 			if (!empty($accountData['IsCustomer']) && ($accountData['IsCustomer'] != 0 && $accountData['IsCustomer'] != 1)) {
-				return Response::json(["status" => Codes::$Code1024[0],"ErrorMessage"=>Codes::$Code1024[1]]);
+				return Response::json(["ErrorMessage" => Codes::$Code1024[1]],Codes::$Code1024[0]);
+
 			}else {
 				$data['IsReseller'] = 0;
 			}
 			$data['IsReseller'] = $accountData['IsReseller'];
 			if (!empty($accountData['IsReseller']) && ($accountData['IsReseller'] != 0 && $accountData['IsReseller'] != 1)) {
-				return Response::json(["status" => Codes::$Code1023[0],"ErrorMessage"=>Codes::$Code1023[1]]);
+				return Response::json(["ErrorMessage" => Codes::$Code1023[1]],Codes::$Code1023[0]);
+
 			}else {
 				$data['IsReseller'] = 0;
 			}
@@ -804,7 +807,8 @@ class AccountsApiController extends ApiController {
 			//stripe = credit stipeAch = bank
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
 				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(PaymentGateway::$paymentgateway_name)) {
-					return Response::json(array("status" => Codes::$Code1020[0], "ErrorMessage" => Codes::$Code1020[1]));
+					return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
+
 				}
 			}
 
@@ -835,7 +839,8 @@ class AccountsApiController extends ApiController {
 					foreach ($validator->messages()->all() as $error) {
 						$errors .= $error . "<br>";
 					}
-					return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+
 				}
 			}
 
@@ -843,7 +848,8 @@ class AccountsApiController extends ApiController {
 				if ($data['PaymentMethod'] == 8) {
 						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
 						if ($CardValidationResponse["status"] == "failed") {
-							return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $CardValidationResponse["message"]]);
+							return Response::json(["ErrorMessage" => $CardValidationResponse["message"]],Codes::$Code402[0]);
+
 						}
 				}else if ($data['PaymentMethod'] == 9) {
 					$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
@@ -852,7 +858,8 @@ class AccountsApiController extends ApiController {
 						foreach ($validator->messages()->all() as $error) {
 							$errors .= $error . "<br>";
 						}
-						return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
+						return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+
 					}
 				}
 
@@ -875,7 +882,8 @@ class AccountsApiController extends ApiController {
 					foreach ($validator->messages()->all() as $error) {
 						$errors .= $error . "<br>";
 					}
-					return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+
 				}
 			}
 
@@ -898,7 +906,8 @@ class AccountsApiController extends ApiController {
 
 
 			if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-				return Response::json(array("status" => Codes::$Code1018[0], "ErrorMessage" => Codes::$Code1018[1]));
+				return Response::json(["ErrorMessage" => Codes::$Code1018[1]],Codes::$Code1018[0]);
+
 			}
 			$data['Status'] = 1;
 
