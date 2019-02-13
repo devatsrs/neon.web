@@ -1,5 +1,17 @@
 ALTER TABLE `tblRateTableDIDRate`
 	ADD COLUMN `VendorID` INT NULL DEFAULT NULL AFTER `ApprovedDate`;
+
+ALTER TABLE `tblRateTableRate`
+	ADD COLUMN `VendorID` INT NULL DEFAULT NULL AFTER `ApprovedDate`;
+
+ALTER TABLE `tblRateTableDIDRateArchive`
+	ADD COLUMN `VendorID` INT NULL AFTER `Notes`;
+
+ALTER TABLE `tblRateTableRateArchive`
+	ADD COLUMN `VendorID` INT NULL AFTER `ApprovedDate`;
+
+INSERT INTO `tblcompanysetting` (`CompanyID`, `Key`, `Value`) VALUES (1, 'UseVendorCurrencyInRateGenerator', '1');
+
 -- --------------------------------------------------------
 -- Host:                         192.168.1.25
 -- Server version:               5.7.23-log - MySQL Community Server (GPL)

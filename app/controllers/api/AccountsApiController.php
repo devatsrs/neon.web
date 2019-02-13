@@ -750,7 +750,7 @@ class AccountsApiController extends ApiController {
 			if(!empty($ResellerOwner) &&  $ResellerOwner>0){
 				$Reseller = Reseller::getResellerDetails($ResellerOwner);
 				if (!isset($Reseller)) {
-					return Response::json(["status" => Codes::$Code1035[0],"ErrorMessage"=>Codes::$Code1035[1]]);
+					return Response::json(["ErrorMessage" => Codes::$Code1035[1]],Codes::$Code1035[0]);
 				}
 				$ResellerCompanyID = $Reseller->ChildCompanyID;
 				$ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
@@ -766,19 +766,22 @@ class AccountsApiController extends ApiController {
 			$data['CompanyID'] = $CompanyID;
 
 			if (!empty($accountData['IsVendor']) && ($accountData['IsVendor'] != 0 && $accountData['IsVendor'] != 1)) {
-				return Response::json(["status" => Codes::$Code1025[0],"ErrorMessage"=>Codes::$Code1025[1]]);
+				return Response::json(["ErrorMessage" => Codes::$Code1025[1]],Codes::$Code1025[0]);
+
 			}else {
 				$data['IsVendor'] = 0;
 			}
 			$data['IsCustomer'] = isset($accountData['IsCustomer']);
 			if (!empty($accountData['IsCustomer']) && ($accountData['IsCustomer'] != 0 && $accountData['IsCustomer'] != 1)) {
-				return Response::json(["status" => Codes::$Code1024[0],"ErrorMessage"=>Codes::$Code1024[1]]);
+				return Response::json(["ErrorMessage" => Codes::$Code1024[1]],Codes::$Code1024[0]);
+
 			}else {
 				$data['IsReseller'] = 0;
 			}
 			$data['IsReseller'] = $accountData['IsReseller'];
 			if (!empty($accountData['IsReseller']) && ($accountData['IsReseller'] != 0 && $accountData['IsReseller'] != 1)) {
-				return Response::json(["status" => Codes::$Code1023[0],"ErrorMessage"=>Codes::$Code1023[1]]);
+				return Response::json(["ErrorMessage" => Codes::$Code1023[1]],Codes::$Code1023[0]);
+
 			}else {
 				$data['IsReseller'] = 0;
 			}
@@ -804,7 +807,8 @@ class AccountsApiController extends ApiController {
 			//stripe = credit stipeAch = bank
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
 				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(PaymentGateway::$paymentgateway_name)) {
-					return Response::json(array("status" => Codes::$Code1020[0], "ErrorMessage" => Codes::$Code1020[1]));
+					return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
+
 				}
 			}
 
@@ -835,24 +839,27 @@ class AccountsApiController extends ApiController {
 					foreach ($validator->messages()->all() as $error) {
 						$errors .= $error . "<br>";
 					}
-					return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+
 				}
 			}
 
-			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 8 || $data['PaymentMethod'] == 9)) {
-				if ($data['PaymentMethod'] == 8) {
+			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 2 || $data['PaymentMethod'] == 3)) {
+				if ($data['PaymentMethod'] == 2) {
 						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
 						if ($CardValidationResponse["status"] == "failed") {
-							return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $CardValidationResponse["message"]]);
+							return Response::json(["ErrorMessage" => $CardValidationResponse["message"]],Codes::$Code402[0]);
+
 						}
-				}else if ($data['PaymentMethod'] == 9) {
+				}else if ($data['PaymentMethod'] == 3) {
 					$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
 					if ($validator->fails()) {
 						$errors = "";
 						foreach ($validator->messages()->all() as $error) {
 							$errors .= $error . "<br>";
 						}
-						return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
+						return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+
 					}
 				}
 
@@ -875,7 +882,8 @@ class AccountsApiController extends ApiController {
 					foreach ($validator->messages()->all() as $error) {
 						$errors .= $error . "<br>";
 					}
-					return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+
 				}
 			}
 
@@ -898,7 +906,8 @@ class AccountsApiController extends ApiController {
 
 
 			if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-				return Response::json(array("status" => Codes::$Code1018[0], "ErrorMessage" => Codes::$Code1018[1]));
+				return Response::json(["ErrorMessage" => Codes::$Code1018[1]],Codes::$Code1018[0]);
+
 			}
 			$data['Status'] = 1;
 
@@ -944,7 +953,7 @@ class AccountsApiController extends ApiController {
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicField']),true);
 				for ($i =0; $i <count($AccountReferenceArr);$i++) {
 					$AccountReference = $AccountReferenceArr[$i];
-					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
 					if(empty($DynamicFieldsID)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1006[1]],Codes::$Code1006[0]);
 					}
@@ -1154,10 +1163,12 @@ class AccountsApiController extends ApiController {
 				$AccountBalance['SOAOffset'] =  0;
 				$AccountBalance['VendorUnbilledAmount'] =  0;
 				$AccountBalance['OutPayment'] =  0;
+				Log::info('$AccountBalance create ' .print_r($AccountBalance,true));
 				AccountBalance::create($AccountBalance);
 				$AccountBalanceThreshold['AccountID'] =  $account->AccountID;
 				$AccountBalanceThreshold['BalanceThreshold'] =  0;
 				$AccountBalanceThreshold['BalanceThresholdEmail'] =  '';
+				Log::info('$AccountBalance create ' .print_r($AccountBalanceThreshold,true));
 				AccountBalanceThreshold::create($AccountBalanceThreshold);
 				$account->update($data);
 
@@ -1195,7 +1206,7 @@ class AccountsApiController extends ApiController {
 					$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicField']),true);
 					for ($i =0; $i <count($AccountReferenceArr);$i++) {
 						$AccountReference = $AccountReferenceArr[$i];
-						$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+						$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
 							$DynamicFields['ParentID'] = $account->AccountID;
 							$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
 							$DynamicFields['CompanyID'] = $CompanyID;
@@ -1512,7 +1523,7 @@ class AccountsApiController extends ApiController {
 			if (isset($accountData['AccountName']) && !empty($accountData['AccountName'])) {
 				$data['AccountName'] = $accountData['AccountName'];
 				if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-					return Response::json(array("status" => Codes::$Code1018[0], "ErrorMessage" => Codes::$Code1018[1]));
+					return Response::json(["ErrorMessage" => Codes::$Code1018[1]], Codes::$Code1018[0]);
 				}
 				$AccountName = Account::where(['AccountName' => $data["AccountName"], 'CompanyID' => $CompanyID, 'AccountType' => 1])->count();
 				if ($AccountName > 0) {
@@ -1563,6 +1574,18 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
+			if (isset($accountData['AccountDynamicFieldValues'])) {
+				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
+				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
+				for ($i =0; $i <count($AccountReferenceArr);$i++) {
+					$AccountReference = $AccountReferenceArr[$i];
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					if(empty($DynamicFieldsID)) {
+						return Response::json(["ErrorMessage" => Codes::$Code1006[1]],Codes::$Code1006[0]);
+					}
+				}
+			}
+
 			if (!empty($BillingSetting['billing_class'])) {
 				$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID', '=', $CompanyID);
 				$BillingClass = $BillingClassSql->first();
@@ -1570,6 +1593,7 @@ class AccountsApiController extends ApiController {
 					return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
 				}
 			}
+
 
 			DB::beginTransaction();
 
@@ -1583,7 +1607,27 @@ class AccountsApiController extends ApiController {
 				}
 
 			}
-				//BillingDetails
+			if (isset($accountData['AccountDynamicFieldValues'])) {
+				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
+				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
+				for ($i =0; $i <count($AccountReferenceArr);$i++) {
+					$AccountReference = $AccountReferenceArr[$i];
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					$DynamicFieldsValue = DynamicFieldsValue::where(['ParentID'=>$accountInfo->AccountID,'DynamicFieldsID'=>$DynamicFieldsID])->first();
+					$DynamicFields['ParentID'] = $accountInfo->AccountID;
+					$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
+					$DynamicFields['CompanyID'] = $CompanyID;
+					$DynamicFields['created_at'] = $date;
+					$DynamicFields['created_by'] = $CreatedBy;
+					$DynamicFields['FieldValue'] = $AccountReference["Value"];
+					if (isset($DynamicFieldsValue)) {
+						$DynamicFieldsUpdate['FieldValue'] = $AccountReference["Value"];
+						$DynamicFieldsValue->update($DynamicFieldsUpdate);
+					}else {
+						DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
+					}
+				}
+			}
 
 
 
@@ -1610,8 +1654,8 @@ class AccountsApiController extends ApiController {
 	public function getPaymentMethodList()
 	{
 		Log::info('getPaymentMethodList for Account.');
-
-		return Response::json(array("status" => "success", "PaymentMethod" => PaymentGateway::$paymentgateway_name));
+		return Response::json(PaymentGateway::$paymentgateway_name,Codes::$Code200[0]);
+		
 	}
 
 	public function GetAccount()
