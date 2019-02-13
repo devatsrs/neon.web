@@ -400,7 +400,7 @@ class PaymentApiController extends ApiController {
 			$InvoiceData["GrandTotal"] = floatval(str_replace(",", "", $Amount));
 			$InvoiceData["CurrencyID"] = $Account->CurrencyId;
 			$InvoiceData["InvoiceType"] = Invoice::INVOICE_OUT;
-			$InvoiceData["InvoiceStatus"] = Invoice::AWAITING;
+			$InvoiceData["InvoiceStatus"] = Invoice::SEND;
 			$InvoiceData["ItemInvoice"] = Invoice::ITEM_INVOICE;
 			$InvoiceData["Note"] = 'API'; //static api generation
 			$InvoiceData["Terms"] = $Terms;  //change
