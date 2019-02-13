@@ -27,6 +27,7 @@ class RateGeneratorsController extends \BaseController {
                 'tblRateGenerator.TrunkID',
                 'tblRateGenerator.CodeDeckId',
                 'tblRateGenerator.CurrencyID',
+                'tblRateGenerator.SelectType',
             )); // by Default Status 1
 
         if(isset($data['Search']) && !empty($data['Search'])){
@@ -51,6 +52,7 @@ class RateGeneratorsController extends \BaseController {
         $Categories = DidCategory::getCategoryDropdownIDList();
         $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
         $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        unset($RateTypes[3]);
         return View::make('rategenerators.index', compact('Trunks','RateTypes','Categories','DIDType','VoiceCallType'));
     }
 
@@ -898,14 +900,23 @@ class RateGeneratorsController extends \BaseController {
 
     public function ajax_load_rate_table_dropdown(){
         $data = Input::all();
-        if(isset($data['TrunkID']) && intval($data['TrunkID']) > 0) {
-            $filterdata['TrunkID'] = intval($data['TrunkID']);
-            $filterdata['CurrencyID'] = intval($data['CurrencyID']);
+        // If type is Voice Call
+        if(@$data['Type'] == RateGenerator::VoiceCall && @$data['TrunkID'] > 0) {
+            $filterdata['Type']       = intval($data['Type']);
+            $filterdata['TrunkID']    = intval($data['TrunkID']);
             $filterdata['CodeDeckId'] = intval($data['CodeDeckId']);
+            $filterdata['NotVendor']  = true;
             $rate_table = RateTable::getRateTableCache($filterdata);
-            return View::make('rategenerators.ajax_rate_table_dropdown', compact('rate_table'));
+        } elseif(@$data['Type'] == RateGenerator::DID) {
+            $filterdata['Type']       = intval($data['Type']);
+            $filterdata['CodeDeckId'] = intval($data['CodeDeckId']);
+            $filterdata['NotVendor']  = true;
+            $rate_table = RateTable::getRateTableCache($filterdata);
+        } else {
+            $rate_table = ['' => "Select"];
         }
-        return '';
+
+        return View::make('rategenerators.ajax_rate_table_dropdown', compact('rate_table'));
     }
 
     public function ajax_existing_rategenerator_cronjob($id){

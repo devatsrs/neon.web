@@ -150,8 +150,12 @@ class InvoicesController extends \BaseController {
         $check_quickbook = $Quickbook->check_quickbook($CompanyID);
         $check_quickbook_desktop = $Quickbook->check_quickbook_desktop($CompanyID);
 		$bulk_type = 'invoices';
+        
+        $IngenicoExport = CompanyConfiguration::where(['Key' => 'INGENICO_EXPORT_BUTTON', 'CompanyID' => $CompanyID])->first();
+        
+
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID','IngenicoExport'));
 
     }
 
@@ -2277,6 +2281,59 @@ class InvoicesController extends \BaseController {
                     $sheet->fromArray($excel_data);
                 });
             })->download('csv');*/
+
+        }
+
+    }
+
+    //for ingenico Export
+
+    public function get_GUID($AccID)
+        {
+            $id = AccountPaymentProfile::where('AccountID', $AccID)->first();
+            $json_data = json_decode($id->Options);
+            return $json_data->CardID;
+        }
+        ///=====
+
+    public function IngenicoExport()
+    {
+         $data =Input::all();
+         
+         $companyID = User::get_companyID();
+         $headers = array(
+        "Content-type" => "text/csv",
+        "Content-Disposition" => "attachment; filename=file.csv",
+        "Pragma" => "no-cache",
+        "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+        "Expires" => "0"
+    );
+
+    $invoices = '';
+    $ids = explode(',',$data['InvoiceIDs']);
+    $columns = array('Naam', 'Maand', 'Betaaldatum', 'Data');
+        $file = fopen('php://output', 'w');
+        fputcsv($file, $columns);
+        $n=0;
+        foreach($ids as $invid) {
+            $invoices = Invoice::where(['InvoiceID' => $invid])->first();
+            if($invoices->accdetail->PaymentMethod == 'Stripe' && $invoices->InvoiceType == 1){
+            fputcsv($file, array(
+                $invoices->accdetail->AccountName, 
+                date('d-m-Y', strtotime($invoices->IssueDate)), 
+                date('d-m-Y', strtotime($invoices->IssueDate.' +'.$invoices->BillingClass->PaymentDueInDays.' days')) , 
+                number_format($invoices->GrandTotal, 2).', '.$invoices->currency->Code.' ,'.$invoices->AccountID.', '.$invoices->FullInvoiceNumber.', '.$this->get_GUID($invoices->AccountID)));
+            $invoices = '';
+            $n++;
+         }
+        }
+        if($n >= 1) {
+            fclose($file);
+       header('Content-type: application/csv');
+       header('Content-Disposition: attachment; filename=Export-'.date('His').'.csv');
+        } else { 
+
+            return \Redirect::to('/invoice')->with('errormsg', 'Criteria does not matched');
 
         }
 

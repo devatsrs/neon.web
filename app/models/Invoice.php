@@ -800,4 +800,23 @@ class Invoice extends \Eloquent {
         }
         return $Results;
     }
+
+    public function InvDetail()
+    {
+        return $this->hasOne(InvoiceDetail::class);
+    }
+
+    public function AccDetail()
+    {
+        return $this->hasOne(Account::class, 'AccountID', 'AccountID');
+    }
+
+    public function BillingClass()
+    {
+        return $this->hasOne(BillingClass::class, 'BillingClassID', 'BillingClassID');
+    }
+    public function currency()
+    {
+        return $this->hasOne(Currency::class, 'CurrencyId', 'CurrencyID');
+    }
 }
