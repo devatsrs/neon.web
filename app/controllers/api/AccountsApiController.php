@@ -1654,8 +1654,8 @@ class AccountsApiController extends ApiController {
 	public function getPaymentMethodList()
 	{
 		Log::info('getPaymentMethodList for Account.');
-
-		return Response::json(array("status" => "success", "PaymentMethod" => PaymentGateway::$paymentgateway_name));
+		return Response::json(PaymentGateway::$paymentgateway_name,Codes::$Code200[0]);
+		
 	}
 
 	public function GetAccount()
