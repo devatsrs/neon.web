@@ -239,7 +239,7 @@ class ServicesTemplateController extends BaseController {
                     ServiceTemplate::$rules['CancellationCharges'] = 'required|numeric';
 
                     $niceNames = ['CancellationFee' => 'Cancellation Fee'];
-                    if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2) {
+                    if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2 && $data['CancellationCharges'] != 5) {
                         ServiceTemplate::$rules['CancellationFee'] = 'required|numeric';
                         if($data['CancellationCharges'] == 3){
                             $niceNames = ['CancellationFee' => "Cancellation Fee Percentage"];
