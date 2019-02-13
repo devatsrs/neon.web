@@ -1523,7 +1523,7 @@ class AccountsApiController extends ApiController {
 			if (isset($accountData['AccountName']) && !empty($accountData['AccountName'])) {
 				$data['AccountName'] = $accountData['AccountName'];
 				if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-					return Response::json(array("status" => Codes::$Code1018[0], "ErrorMessage" => Codes::$Code1018[1]));
+					return Response::json(["ErrorMessage" => Codes::$Code1018[1]], Codes::$Code1018[0]);
 				}
 				$AccountName = Account::where(['AccountName' => $data["AccountName"], 'CompanyID' => $CompanyID, 'AccountType' => 1])->count();
 				if ($AccountName > 0) {
