@@ -944,7 +944,7 @@ class AccountsApiController extends ApiController {
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicField']),true);
 				for ($i =0; $i <count($AccountReferenceArr);$i++) {
 					$AccountReference = $AccountReferenceArr[$i];
-					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
 					if(empty($DynamicFieldsID)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1006[1]],Codes::$Code1006[0]);
 					}
@@ -1154,10 +1154,12 @@ class AccountsApiController extends ApiController {
 				$AccountBalance['SOAOffset'] =  0;
 				$AccountBalance['VendorUnbilledAmount'] =  0;
 				$AccountBalance['OutPayment'] =  0;
+				Log::info('$AccountBalance create ' .print_r($AccountBalance,true));
 				AccountBalance::create($AccountBalance);
 				$AccountBalanceThreshold['AccountID'] =  $account->AccountID;
 				$AccountBalanceThreshold['BalanceThreshold'] =  0;
 				$AccountBalanceThreshold['BalanceThresholdEmail'] =  '';
+				Log::info('$AccountBalance create ' .print_r($AccountBalanceThreshold,true));
 				AccountBalanceThreshold::create($AccountBalanceThreshold);
 				$account->update($data);
 
@@ -1195,7 +1197,7 @@ class AccountsApiController extends ApiController {
 					$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicField']),true);
 					for ($i =0; $i <count($AccountReferenceArr);$i++) {
 						$AccountReference = $AccountReferenceArr[$i];
-						$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+						$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
 							$DynamicFields['ParentID'] = $account->AccountID;
 							$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
 							$DynamicFields['CompanyID'] = $CompanyID;
@@ -1563,6 +1565,18 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
+			if (isset($accountData['AccountDynamicFieldValues'])) {
+				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
+				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
+				for ($i =0; $i <count($AccountReferenceArr);$i++) {
+					$AccountReference = $AccountReferenceArr[$i];
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					if(empty($DynamicFieldsID)) {
+						return Response::json(["ErrorMessage" => Codes::$Code1006[1]],Codes::$Code1006[0]);
+					}
+				}
+			}
+
 			if (!empty($BillingSetting['billing_class'])) {
 				$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID', '=', $CompanyID);
 				$BillingClass = $BillingClassSql->first();
@@ -1570,6 +1584,7 @@ class AccountsApiController extends ApiController {
 					return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
 				}
 			}
+
 
 			DB::beginTransaction();
 
@@ -1583,7 +1598,27 @@ class AccountsApiController extends ApiController {
 				}
 
 			}
-				//BillingDetails
+			if (isset($accountData['AccountDynamicFieldValues'])) {
+				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
+				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
+				for ($i =0; $i <count($AccountReferenceArr);$i++) {
+					$AccountReference = $AccountReferenceArr[$i];
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					$DynamicFieldsValue = DynamicFieldsValue::where(['ParentID'=>$accountInfo->AccountID,'DynamicFieldsID'=>$DynamicFieldsID])->first();
+					$DynamicFields['ParentID'] = $accountInfo->AccountID;
+					$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
+					$DynamicFields['CompanyID'] = $CompanyID;
+					$DynamicFields['created_at'] = $date;
+					$DynamicFields['created_by'] = $CreatedBy;
+					$DynamicFields['FieldValue'] = $AccountReference["Value"];
+					if (isset($DynamicFieldsValue)) {
+						$DynamicFieldsUpdate['FieldValue'] = $AccountReference["Value"];
+						$DynamicFieldsValue->update($DynamicFieldsUpdate);
+					}else {
+						DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
+					}
+				}
+			}
 
 
 
