@@ -761,7 +761,7 @@ class AccountsApiController extends ApiController {
 				$data['BillingAddress2'] = $data['Address2'];
 				$data['BillingAddress3'] = $data['Address3'];
 				$data['BillingCity']     = $data['City'];
-				$data['BillingPostCode'] = $data['PostCode'];
+				//$data['BillingPostCode'] = $data['PostCode'];
 				$data['BillingCountry']  = $data['Country'];
 			}else {
 				$data['DifferentBillingAddress'] = 1;
