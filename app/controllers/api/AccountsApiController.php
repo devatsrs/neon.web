@@ -731,8 +731,18 @@ class AccountsApiController extends ApiController {
 			$data['Phone'] = isset($accountData['Phone']) ? $accountData['Phone'] : '';
 			$data['Address1'] = isset($accountData['Address1']) ? $accountData['Address1'] : '';
 			$data['Address2'] = isset($accountData['Address2']) ? $accountData['Address2'] : '';
+			$data['Address3'] = isset($accountData['Address3']) ? $accountData['Address3'] : '';
+			$data['PostCode'] = isset($accountData['PostCode']) ? $accountData['PostCode'] : '';
 			$data['City'] = isset($accountData['City']) ? $accountData['City'] : '';
 			$data['Email'] = isset($accountData['Email']) ? $accountData['Email'] : '';
+
+			$data['BillingAddress1'] = isset($accountData['BillingAddress1']) ? $accountData['BillingAddress1'] : '';
+			$data['BillingAddress2'] = isset($accountData['BillingAddress2']) ? $accountData['BillingAddress2'] : '';
+			$data['BillingAddress3'] = isset($accountData['BillingAddress3']) ? $accountData['BillingAddress3'] : '';
+			$data['BillingPostCode'] = isset($accountData['BillingPostCode']) ? $accountData['BillingPostCode'] : '';
+			$data['BillingCity'] = isset($accountData['BillingCity']) ? $accountData['BillingCity'] : '';
+			$data['BillingCountry'] = isset($accountData['BillingCountryIso2']) ? $accountData['BillingCountryIso2'] : '';
+
 			$data['BillingEmail'] = isset($accountData['BillingEmail']) ? $accountData['BillingEmail'] : '';
 			$data['Owner'] = isset($accountData['OwnerID']) ? $accountData['OwnerID'] : '';
 			$data['CurrencyId'] = isset($accountData['CurrencySymbol']) ? $accountData['CurrencySymbol'] : '';
@@ -745,6 +755,15 @@ class AccountsApiController extends ApiController {
 			$data['AccountType'] = 1;
 			$data['IsVendor'] = isset($accountData['IsVendor']);
 
+
+			if(!isset($accountData['DifferentBillingAddress']) || $accountData['DifferentBillingAddress'] == 0) {
+				$data['BillingAddress1'] = $data['Address1'];
+				$data['BillingAddress2'] = $data['Address2'];
+				$data['BillingAddress3'] = $data['Address3'];
+				$data['BillingCity']     = $data['City'];
+				$data['BillingPostCode'] = $data['PostCode'];
+				$data['BillingCountry']  = $data['Country'];
+			}
 
 
 			if(!empty($ResellerOwner) &&  $ResellerOwner>0){
@@ -849,8 +868,11 @@ class AccountsApiController extends ApiController {
 						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
 						if ($CardValidationResponse["status"] == "failed") {
 							return Response::json(["ErrorMessage" => $CardValidationResponse["message"]],Codes::$Code402[0]);
-
 						}
+					$CardType = array("Discover", "MasterCard", "Visa");
+					if (!in_array($BankPaymentDetails['CardType'], $CardType)) {
+						return Response::json(["ErrorMessage" => Codes::$Code1036[1]],Codes::$Code1036[0]);
+					}
 				}else if ($data['PaymentMethod'] == 3) {
 					$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
 					if ($validator->fails()) {
@@ -860,6 +882,10 @@ class AccountsApiController extends ApiController {
 						}
 						return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 
+					}
+					$AccountHolderType = array("individual","company");
+					if (!in_array($BankPaymentDetails['AccountHolderType'], $AccountHolderType)) {
+						return Response::json(["ErrorMessage" => Codes::$Code1037[1]],Codes::$Code1037[0]);
 					}
 				}
 
@@ -1019,6 +1045,10 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
 			}
 
+			$data['BillingCountry']= Country::where(['ISO2' => $data['BillingCountry']])->pluck('Country');
+			if (!isset($data['BillingCountry'])) {
+				return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
+			}
 			$data['LanguageID'] = Language::where('ISOCode',$data['Language'])->pluck('LanguageID');
 			if (!isset($data['LanguageID'])) {
 				return Response::json(["ErrorMessage" => Codes::$Code1014[1]],Codes::$Code1014[0]);
@@ -1509,6 +1539,13 @@ class AccountsApiController extends ApiController {
 			if (isset($accountData['Address2']) && !empty($accountData['Address2'])) {
 				$data['Address2'] = $accountData['Address2'];
 			}
+			if (isset($accountData['Address3']) && !empty($accountData['Address3'])) {
+				$data['Address3'] = $accountData['Address3'];
+			}
+			if (isset($accountData['PostCode']) && !empty($accountData['PostCode'])) {
+				$data['PostCode'] = $accountData['PostCode'];
+			}
+
 			if (isset($accountData['City']) && !empty($accountData['City'])) {
 				$data['City'] = $accountData['City'];
 			}
@@ -1518,6 +1555,29 @@ class AccountsApiController extends ApiController {
 			if (isset($accountData['BillingEmail']) && !empty($accountData['BillingEmail'])) {
 				$data['BillingEmail'] = $accountData['BillingEmail'];
 			}
+
+			if (isset($accountData['BillingAddress1']) && !empty($accountData['BillingAddress1'])) {
+				$data['BillingAddress1'] = $accountData['BillingAddress1'];
+			}
+
+			if (isset($accountData['BillingAddress2']) && !empty($accountData['BillingAddress2'])) {
+				$data['BillingAddress2'] = $accountData['BillingAddress2'];
+			}
+			if (isset($accountData['BillingAddress3']) && !empty($accountData['BillingAddress3'])) {
+				$data['BillingAddress3'] = $accountData['BillingAddress3'];
+			}
+			if (isset($accountData['BillingPostCode']) && !empty($accountData['BillingPostCode'])) {
+				$data['BillingPostCode'] = $accountData['BillingPostCode'];
+			}
+			if (isset($accountData['BillingCity']) && !empty($accountData['BillingCity'])) {
+				$data['BillingCity'] = $accountData['BillingCity'];
+			}
+			if (isset($accountData['BillingCountryIso2']) && !empty($accountData['BillingCountryIso2'])) {
+				$data['BillingCountry'] = $accountData['BillingCountryIso2'];
+			}
+
+
+
 
 			$BillingSetting['billing_class']= isset($accountData['BillingClassID']) ? $accountData['BillingClassID'] : '';
 			if (isset($accountData['AccountName']) && !empty($accountData['AccountName'])) {
@@ -1567,6 +1627,14 @@ class AccountsApiController extends ApiController {
 					return Response::json(["ErrorMessage" => Codes::$Code1013[1]], Codes::$Code1013[0]);
 				}
 			}
+
+			if (!empty($data['BillingCountry'])) {
+				$data['BillingCountry'] = Country::where(['ISO2' => $data['BillingCountry']])->pluck('Country');
+				if (!isset($data['BillingCountry'])) {
+					return Response::json(["ErrorMessage" => Codes::$Code1013[1]], Codes::$Code1013[0]);
+				}
+			}
+
 			if (!empty($data['Language'])) {
 				$data['LanguageID'] = Language::where('ISOCode', $data['Language'])->pluck('LanguageID');
 				if (!isset($data['LanguageID'])) {
@@ -1655,7 +1723,7 @@ class AccountsApiController extends ApiController {
 	{
 		Log::info('getPaymentMethodList for Account.');
 		return Response::json(PaymentGateway::$paymentgateway_name,Codes::$Code200[0]);
-		
+
 	}
 
 	public function GetAccount()

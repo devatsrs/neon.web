@@ -60,7 +60,7 @@ class Codes
     public static $Code1033 =["402","Error while creating the payment account"];
     public static $Code1034 =["402","Please provide either Bank or Card Details"];
     public static $Code1035 =["402","Please provide the valid Reseller ID"];
-
-
+    public static $Code1036 =["402","Please provide the valid card type"];
+    public static $Code1037 =["402","Please provide the valid Account Holder type"];
 
 }
