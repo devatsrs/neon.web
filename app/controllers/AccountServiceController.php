@@ -192,14 +192,13 @@ class AccountServiceController extends \BaseController {
             $Contract['AutoRenewal'] = Input::has('AutoRenewal') ? 1 : 0;
             $Contract['ContractTerm'] = Input::get('ContractTerm');
             $Contract['Duration'] = Input::get('Duration');
-
             /**validation*/
             if($Contract['ContractStartDate'] != "" || $Contract['ContractEndDate'] != "" || $Contract['AutoRenewal'] != 0 || $Contract['Duration'] != "" || $Contract['ContractTerm'] != ""|| count($AccountServiceContract) > 0){
-                if ($Contract['ContractTerm'] == 1) {
+                if ($Contract['ContractTerm'] == 3) {
                     AccountServiceContract::$rules['FixedFee'] = 'required|numeric';
-                } else if ($Contract['ContractTerm'] == 3) {
-                    AccountServiceContract::$rules['Percentage'] = 'required|numeric';
                 } else if ($Contract['ContractTerm'] == 4) {
+                    AccountServiceContract::$rules['Percentage'] = 'required|numeric';
+                } else if ($Contract['ContractTerm'] == 5) {
                     AccountServiceContract::$rules['FixedFeeContract'] = 'required|numeric';
                 }
                 AccountServiceContract::$rules['StartDate'] = 'required|date|date_format:Y-m-d';
@@ -212,11 +211,11 @@ class AccountServiceController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
                 }
                 /**perform actions*/
-                if ($Contract['ContractTerm'] == 1) {
+                if ($Contract['ContractTerm'] == 3) {
                     $Contract['ContractReason'] = Input::get('FixedFee');
-                } else if ($Contract['ContractTerm'] == 3) {
-                    $Contract['ContractReason'] = Input::get('Percentage');
                 } else if ($Contract['ContractTerm'] == 4) {
+                    $Contract['ContractReason'] = Input::get('Percentage');
+                } else if ($Contract['ContractTerm'] == 5) {
                     $Contract['ContractReason'] = Input::get('FixedFeeContract');
                 } else {
                     $Contract['ContractReason'] = NULL;
