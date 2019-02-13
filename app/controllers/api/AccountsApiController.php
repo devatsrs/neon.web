@@ -732,7 +732,7 @@ class AccountsApiController extends ApiController {
 			$data['Address1'] = isset($accountData['Address1']) ? $accountData['Address1'] : '';
 			$data['Address2'] = isset($accountData['Address2']) ? $accountData['Address2'] : '';
 			$data['Address3'] = isset($accountData['Address3']) ? $accountData['Address3'] : '';
-			$data['PostCode'] = isset($accountData['PostalCode']) ? $accountData['PostalCode'] : '';
+			$data['PostCode'] = isset($accountData['PostCode']) ? $accountData['PostCode'] : '';
 			$data['City'] = isset($accountData['City']) ? $accountData['City'] : '';
 			$data['Email'] = isset($accountData['Email']) ? $accountData['Email'] : '';
 
