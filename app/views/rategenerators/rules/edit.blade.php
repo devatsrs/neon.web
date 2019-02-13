@@ -113,6 +113,7 @@
                         return false;
                     }
 
+                    @if($rategenerator->SelectType != 2)
                     //source
                     var _url = $('#rategenerator-source-from').attr("action");
                     var formData = $('#rategenerator-source-from').serialize();
@@ -126,6 +127,7 @@
                             return false;
                         }
                     });
+                    @endif
                 });
 
                 return false;

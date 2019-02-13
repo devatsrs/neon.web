@@ -10,7 +10,10 @@
         <a href="{{URL::to('accounts')}}">Accounts</a>
     </li>
     <li>
-        <a><span>{{customer_dropbox($id)}}</span></a>
+        <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+    </li>
+    <li>
+        <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}"></i>Edit Account({{$account->AccountName}})</a>
     </li>
     <li class="active">
         <strong> Account Activity</strong>

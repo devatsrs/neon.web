@@ -23,8 +23,6 @@ class RateTable extends \Eloquent
      * */
     public static function getRateTableCache($options= array())
     {
-
-
         if (self::$enable_cache && Cache::has('rate_table_cache')) {
             $rate_table_cache = Cache::get('rate_table_cache');  //get the admin defaults
             self::$rate_table_cache = $rate_table_cache['rate_table_cache'];
@@ -32,7 +30,14 @@ class RateTable extends \Eloquent
             self::clearCache();
             $company_id = User::get_companyID();
             if(!empty($options)){
-                self::$rate_table_cache = RateTable::where($options)->where(["Status" => 1, "CompanyID" => $company_id])->lists("RateTableName", "RateTableId");
+                $rateTable = RateTable::where(["Status" => 1, "CompanyID" => $company_id]);
+
+                if(isset($options['NotVendor'])){
+                    $rateTable->where("AppliedTo", "!=", self::APPLIED_TO_VENDOR);
+                    unset($options['NotVendor']);
+                }
+
+                self::$rate_table_cache = $rateTable->where($options)->lists("RateTableName", "RateTableId");
             }else{
                 self::$rate_table_cache = RateTable::where(["Status" => 1, "CompanyID" => $company_id])->lists("RateTableName", "RateTableId");
             }
