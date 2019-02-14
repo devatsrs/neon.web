@@ -68,16 +68,9 @@ jQuery(document).ready(function ($) {
                 },
                 {"bSortable": true},  // 0 Sequence NO
                 {"bSortable": true},  // 1  Name
-                {
-                    "bSortable": false, //service
-                    mRender: function (id, type, full) {
-                        return id;
-                    }
-
-                },  // 1  Name
-                {
-                    "bSortable": true
-                },
+                {"bSortable": true},
+                {"bSortable": true},
+                {"bSortable": true},
                 {                        // 10 Action
                     "bSortable": false,
                     mRender: function (id, type, full) {
@@ -134,9 +127,11 @@ jQuery(document).ready(function ($) {
         $('#clitable-form').trigger("reset");
         $('#modal-clitable h4').html('Add CLI');
         $("#clitable-form [name=RateTableID]").select2().select2('val', "");
+        $("#clitable-form [name=PackageID]").select2().select2('val', "");
+        $("#clitable-form [name=PackageRateTableID]").select2().select2('val', "");
 
         $('#clitable-form').attr("action", clitable_add_url);
-        $('#clitable-form').find('.edit_hide').show()
+        $('#clitable-form').find('.edit_hide').show();
         $('#modal-clitable').modal('show');
     });
     $('table tbody').on('click', '.delete-clitable', function (ev) {
@@ -156,8 +151,8 @@ jQuery(document).ready(function ($) {
         e.preventDefault();
         var _url = $(this).attr("action");
         submit_ajax_datatable(_url, $(this).serialize(), 0, data_table_clitable);
-
     });
+
     $("#bulk-delete-cli").click(function (ev) {
         var criteria = '';
         if ($('#selectallbutton').is(':checked')) {
@@ -194,6 +189,8 @@ jQuery(document).ready(function ($) {
         $('#clitable-form').trigger("reset");
         $('#modal-clitable h4').html('Update CLI');
         $("#clitable-form [name=RateTableID]").select2().select2('val', "");
+        $("#clitable-form [name=PackageID]").select2().select2('val', "");
+        $("#clitable-form [name=PackageRateTableID]").select2().select2('val', "");
         $('#clitable-form').find('input[name=CLIRateTableIDs]').val(CLIRateTableIDs);
         $('#clitable-form').find('input[name=criteria]').val(criteria);
         $('#clitable-form').attr("action", clitable_update_url);

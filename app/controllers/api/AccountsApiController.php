@@ -148,7 +148,8 @@ class AccountsApiController extends ApiController {
 				if ($AccountServiceContract['ContractStartDate'] > $AccountServiceContract['ContractEndDate']) {
 					return Response::json(["ErrorMessage"=>Codes::$Code1002[1]],Codes::$Code1002[0]);
 				}
-				if (!empty($AccountServiceContract['ContractType']) && ($AccountServiceContract['ContractType'] < 1 || $AccountServiceContract['ContractType'] > 4)) {
+
+				if (!empty($AccountServiceContract['ContractTerm']) && ($AccountServiceContract['ContractTerm'] < 1 || $AccountServiceContract['ContractTerm'] > 5)) {
 					return Response::json(["ErrorMessage"=>Codes::$Code1003[1]],Codes::$Code1003[0]);
 				}
 				if (!empty($AccountServiceContract['AutoRenewal']) && ($AccountServiceContract['AutoRenewal'] != 0 && $AccountServiceContract['AutoRenewal'] != 1)) {
@@ -460,9 +461,9 @@ class AccountsApiController extends ApiController {
 			}
 
 			$cliRateTableID = 0;
-			if (!empty($ServiceTemaplateReference->OutboundRateTableId)) {
-				$cliRateTableID = $ServiceTemaplateReference->OutboundRateTableId;
-			}
+			//if (!empty($ServiceTemaplateReference->OutboundRateTableId)) {
+			//	$cliRateTableID = $ServiceTemaplateReference->OutboundRateTableId;
+			//}
 
 
 			/*if (!empty($ServiceTemaplateReference->city_tariff)) {
@@ -510,7 +511,10 @@ class AccountsApiController extends ApiController {
 					$NumberPurchased = $NumberPurchaseds[$i];
 					Log::info('CreateAccountService:$NumberPurchasedRef .' . print_r($NumberPurchased,true));
 					$rate_tables['CLI'] = $NumberPurchased["Number"];
-					//$rate_tables['RateTableID'] = $cliRateTableID;
+					if (!empty($InboundRateTableReference)) {
+						$rate_tables['RateTableID'] = $InboundRateTableReference;
+					}
+
 					$rate_tables['AccountID'] = $Account->AccountID;
 					$rate_tables['CompanyID'] = $CompanyID;
 					$rate_tables['CityTariff'] = $ServiceTemaplateReference->city_tariff;
