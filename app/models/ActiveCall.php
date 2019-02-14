@@ -282,7 +282,7 @@ class ActiveCall extends \Eloquent {
 
         $AccountServicePackageID = 0;
         $PackageRateTableID = 0;
-        $CLIRateTable = CLIRateTable::where(['AccountID'=>$AccountID,'CLI'=>$CLD])->first();
+        $CLIRateTable = CLIRateTable::where(['AccountID'=>$AccountID,'CLI'=>$CLD,'Status'=>1])->first();
         if(!empty($CLIRateTable) && count($CLIRateTable)>0){
             $AccountServiceID = empty($CLIRateTable->AccountServiceID)?0:$CLIRateTable->AccountServiceID;
             $CLIRateTableID = empty($CLIRateTable->RateTableID)?0:$CLIRateTable->RateTableID;
