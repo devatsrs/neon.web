@@ -1127,7 +1127,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/bulk_allocate_creditnote_payment', 'CreditNotesController@bulk_allocate_creditnote_payment');
 
 	//Invoice
-	Route::any('/invoice', 'InvoicesController@index');
+	Route::any('/invoice','InvoicesController@index');
 	Route::any('/invoice/create', 'InvoicesController@create');
 	Route::any('/invoice/store', 'InvoicesController@store');
 	Route::any('/invoice/bulk_send_invoice_mail', 'InvoicesController@bulk_send_invoice_mail');
@@ -1162,6 +1162,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/update_invoice_in/{id}', 'InvoicesController@update_invoice_in');
 	Route::any('/invoice/download_doc_file/{id}', 'InvoicesController@download_doc_file');
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
+	
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
@@ -1317,13 +1318,15 @@ Route::group(array('before' => 'auth'), function () {
 
 
 	Route::any('/billing_dashboard/invoice_expense_chart', 'BillingDashboard@invoice_expense_chart');
-    Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
-    Route::any('/billing_dashboard/invoice_expense_total_widget', 'BillingDashboard@invoice_expense_total_widget');
+        Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
+        Route::any('/billing_dashboard/invoice_expense_total_widget', 'BillingDashboard@invoice_expense_total_widget');
 	Route::any('/billing_dashboard/ajax_top_pincode', 'BillingDashboard@ajax_top_pincode');
 	Route::any('/billing_dashboard/ajaxgrid_top_pincode/{type}', 'BillingDashboard@ajaxgrid_top_pincode');
-    Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');
+        Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');
 	Route::any('/billing_dashboard/GetDashboardPR', 'BillingDashboard@GetDashboardPR');
 	Route::any('/billing_dashboard/GetDashboardPL', 'BillingDashboard@GetDashboardPL');
+        Route::any('/billing_dashboard/paymentreminders', 'BillingDashboard@PaymentReminders');
+        Route::any('/billing_dashboard/paymentreminders_ajax_datagrid', 'BillingDashboard@paymentreminders_ajax_datagrid');
 
 
     //AccountPaymentProfile
@@ -1534,6 +1537,8 @@ Route::group(array('before' => 'auth'), function () {
 
 	//accountservice	
 	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
+	Route::any('accountservices/create-new/{id}', 'AccountServiceController@CreateNew');
+	Route::post('accountservices/insertservice', 'AccountServiceController@InsertService');
 	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
 	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
 	Route::any('accountservices/{id}/exports/{type}', 'AccountServiceController@exports');
@@ -1713,6 +1718,7 @@ Route::group(array('before' => 'guest'), function () {
 	}
 	exit;
     });*/
+    Route::any('/invoice/ingenicoExport', 'InvoicesController@IngenicoExport');
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
 	Route::any('/invoice/{id}/invoice_chart', 'InvoicesController@invoice_management_chart'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');
@@ -1808,7 +1814,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('setAutoOutPaymentSettings/', 'AccountBillingApiController@setAutoOutPaymentSettings');
 	Route::post('setLowBalanceNotification/', 'BillingClassApiController@setLowBalanceNotification');
 	Route::post('LowBalanceNotification/list', 'BillingClassApiController@getLowBalanceNotification');
-        Route::post('LowBalanceNotification/delete', 'BillingClassApiController@delLowBalanceNotification');
+	Route::post('LowBalanceNotification/delete', 'BillingClassApiController@delLowBalanceNotification');
 	Route::post('account/requestFund/', 'PaymentApiController@requestFund');
 	Route::post('account/depositFund/', 'PaymentApiController@depositFund');
 	Route::post('startRecording', 'ActiveCallApiController@startRecording');
@@ -1822,6 +1828,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('language/list', 'LanguageApiController@getList');
 
 	Route::post('account/createAccount', 'AccountsApiController@createAccount');
+	Route::post('account/updateAccount', 'AccountsApiController@updateAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
 	Route::post('account/list', 'AccountsApiController@GetAccount');

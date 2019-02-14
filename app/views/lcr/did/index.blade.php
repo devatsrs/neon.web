@@ -260,6 +260,36 @@
                         {    "sClass": "rate10_class", "aTargets": [ 10 ] }
                     ];
                 }
+
+                if(typeof $searchFilter.EffectiveDate  == 'undefined' || $searchFilter.EffectiveDate == '' ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select a Effective Date", "Error", toastr_opts);
+                    return false;
+                }
+                if(typeof $searchFilter.ProductID  == 'undefined' || $searchFilter.ProductID == '' ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select a Product", "Error", toastr_opts);
+                    return false;
+                }
+                if((typeof $searchFilter.Currency  == 'undefined' || $searchFilter.Currency == '' ) ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select Currency", "Error", toastr_opts);
+                    return false;
+                }
+                if(typeof $searchFilter.DIDCategoryID  == 'undefined' || $searchFilter.DIDCategoryID == '' ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select a Category", "Error", toastr_opts);
+                    return false;
+                }
+
                 data_table = $("#table").dataTable({
                     "bDestroy":    true,
                     "bProcessing": true,
@@ -326,48 +356,61 @@
 
                         $('.btn').button('reset');
 
-                        //Clear All Fields on Refresh
-                        $('#dt_company1').html("");
-                        $('#dt_company2').html("");
-                        $('#dt_company3').html("");
-                        $('#dt_company4').html("");
-                        $('#dt_company5').html("");
-                        $('#dt_company6').html("");
-                        $('#dt_company7').html("");
-                        $('#dt_company8').html("");
-                        $('#dt_company9').html("");
-                        $('#dt_company10').html("");
+                        if (typeof results != 'undefined') {
 
-                        if (typeof results.jqXHR.responseJSON.sColumns[1] != 'undefined') {
-                            $('#dt_company1').html( results.jqXHR.responseJSON.sColumns[1] );
+                            try {
+
+                                //Clear All Fields on Refresh
+                                $('#dt_company1').html("");
+                                $('#dt_company2').html("");
+                                $('#dt_company3').html("");
+                                $('#dt_company4').html("");
+                                $('#dt_company5').html("");
+                                $('#dt_company6').html("");
+                                $('#dt_company7').html("");
+                                $('#dt_company8').html("");
+                                $('#dt_company9').html("");
+                                $('#dt_company10').html("");
+
+
+                                // console.log(data_table.oApi.aoColumns);
+                                //data_table.Columns[0].ColumnName = "newColumnName";
+                                if (typeof results.jqXHR.responseJSON.sColumns[1] != 'undefined') {
+                                    $('#dt_company1').html(results.jqXHR.responseJSON.sColumns[1]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[2] != 'undefined') {
+                                    $('#dt_company2').html(results.jqXHR.responseJSON.sColumns[2]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[3] != 'undefined') {
+                                    $('#dt_company3').html(results.jqXHR.responseJSON.sColumns[3]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[4] != 'undefined') {
+                                    $('#dt_company4').html(results.jqXHR.responseJSON.sColumns[4]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
+                                    $('#dt_company5').html(results.jqXHR.responseJSON.sColumns[5]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
+                                    $('#dt_company6').html(results.jqXHR.responseJSON.sColumns[6]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
+                                    $('#dt_company7').html(results.jqXHR.responseJSON.sColumns[7]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
+                                    $('#dt_company8').html(results.jqXHR.responseJSON.sColumns[8]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
+                                    $('#dt_company9').html(results.jqXHR.responseJSON.sColumns[9]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
+                                    $('#dt_company10').html(results.jqXHR.responseJSON.sColumns[10]);
+                                }
+                            }
+                            catch(err) {
+
+                            }
                         }
-                        if (typeof results.jqXHR.responseJSON.sColumns[2] != 'undefined') {
-                            $('#dt_company2').html( results.jqXHR.responseJSON.sColumns[2] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[3] != 'undefined') {
-                            $('#dt_company3').html( results.jqXHR.responseJSON.sColumns[3] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[4] != 'undefined') {
-                            $('#dt_company4').html( results.jqXHR.responseJSON.sColumns[4] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
-                            $('#dt_company5').html( results.jqXHR.responseJSON.sColumns[5] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
-                            $('#dt_company6').html( results.jqXHR.responseJSON.sColumns[6] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
-                            $('#dt_company7').html( results.jqXHR.responseJSON.sColumns[7] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
-                            $('#dt_company8').html( results.jqXHR.responseJSON.sColumns[8] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
-                            $('#dt_company9').html( results.jqXHR.responseJSON.sColumns[9] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
-                            $('#dt_company10').html( results.jqXHR.responseJSON.sColumns[10] );
-                        }
+
                         $(".dataTables_wrapper select").select2({
                             minimumResultsForSearch: -1
                         });

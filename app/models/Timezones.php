@@ -60,9 +60,10 @@ class Timezones extends \Eloquent {
 
     public static function getTimeZoneByConnectTime($ConnectTime){
         $TimeZones = Timezones::where(['Status'=>1,'ApplyIF'=>'start'])->orderBY('TimezonesID')->get();
-        $Count = count(($TimeZones));
-        if($Count>1){
+        $TimeZoneCount = count(($TimeZones));
+        if($TimeZoneCount>1){
             foreach($TimeZones as $TimeZone){
+                $count=0;
                 if(!empty($TimeZone->FromTime) && !empty($TimeZone->ToTime)){
                     // check on time
                     $date = date('Y-m-d',strtotime($ConnectTime));
@@ -70,22 +71,31 @@ class Timezones extends \Eloquent {
                     $ToTime = $date.' '.$TimeZone->ToTime.':00';
                     //echo $ConnectTime.' '.$FromTime.' '.$ToTime;
                     if( strtotime($ConnectTime) >= strtotime($FromTime) && strtotime($ConnectTime) <= strtotime($ToTime)){
-                        return $TimeZone->TimezonesID;
+                        //return $TimeZone->TimezonesID;
+                        $count++;
                     }
+                }else{
+                    $count++;
                 }
                 if(!empty($TimeZone->Months)){
                     $Months = explode(',',$TimeZone->Months);
                     $m = date('m',strtotime($ConnectTime));
                     if(in_array($m,$Months)){
-                        return $TimeZone->TimezonesID;
+                        //return $TimeZone->TimezonesID;
+                        $count++;
                     }
+                }else{
+                    $count++;
                 }
                 if(!empty($TimeZone->DaysOfMonth)){
                     $DaysOfMonth = explode(',',$TimeZone->DaysOfMonth);
                     $d = date('d',strtotime($ConnectTime));
                     if(in_array($d,$DaysOfMonth)){
-                        return $TimeZone->TimezonesID;
+                        //return $TimeZone->TimezonesID;
+                        $count++;
                     }
+                }else{
+                    $count++;
                 }
                 if(!empty($TimeZone->DaysOfWeek)){
                     $DaysOfWeek = explode(',',$TimeZone->DaysOfWeek);
@@ -96,8 +106,14 @@ class Timezones extends \Eloquent {
                         $weekdays = date("N",strtotime($ConnectTime)) +1 ;
                     }
                     if(in_array($weekdays,$DaysOfWeek)){
-                        return $TimeZone->TimezonesID;
+                        //return $TimeZone->TimezonesID;
+                        $count++;
                     }
+                }else{
+                    $count++;
+                }
+                if($count==4){
+                    return $TimeZone->TimezonesID;
                 }
             }
         }else{

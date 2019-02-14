@@ -512,6 +512,8 @@ class ActiveCall extends \Eloquent {
         $detaildata['AccountServicePackageID'] = $ActiveCall->AccountServicePackageID;
         $detaildata['CallRecording'] = $ActiveCall->CallRecording;
         $detaildata['CallRecordingStartTime'] = $ActiveCall->CallRecordingStartTime;
+        $detaildata['OriginType'] = $ActiveCall->OriginType;
+        $detaildata['OriginProvider'] = $ActiveCall->OriginProvider;
 
         $is_inbound=0;
         if($ActiveCall->CallType=='Inbound'){
