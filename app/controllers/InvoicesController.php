@@ -2290,9 +2290,18 @@ class InvoicesController extends \BaseController {
 
     public function get_GUID($AccID)
         {
-            $id = AccountPaymentProfile::where('AccountID', $AccID)->first();
+            $id = AccountPaymentProfile::where(['AccountID' => $AccID, 'isDefault' => 1])->first();
             $json_data = json_decode($id->Options);
-            return $json_data->CardID;
+            $card = '';
+            if(!empty($json_data->CardID))
+                {
+                    $card = $json_data->CardID;
+                    
+                } 
+                if(!empty($json_data->PaymentProfileID)) {
+                    $card = $json_data->PaymentProfileID;
+                }
+                return $card;
         }
         ///=====
 
@@ -2301,36 +2310,35 @@ class InvoicesController extends \BaseController {
          $data =Input::all();
          
          $companyID = User::get_companyID();
-         $headers = array(
-        "Content-type" => "text/csv",
-        "Content-Disposition" => "attachment; filename=file.csv",
-        "Pragma" => "no-cache",
-        "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-        "Expires" => "0"
-    );
+        
 
     $invoices = '';
     $ids = explode(',',$data['InvoiceIDs']);
-    $columns = array('Naam', 'Maand', 'Betaaldatum', 'Data');
+    //$columns = array('Naam', 'Maand', 'Betaaldatum', 'Data');
         $file = fopen('php://output', 'w');
-        fputcsv($file, $columns);
         $n=0;
         foreach($ids as $invid) {
             $invoices = Invoice::where(['InvoiceID' => $invid])->first();
             if($invoices->accdetail->PaymentMethod == 'Stripe' && $invoices->InvoiceType == 1){
-            fputcsv($file, array(
-                $invoices->accdetail->AccountName, 
-                date('d-m-Y', strtotime($invoices->IssueDate)), 
-                date('d-m-Y', strtotime($invoices->IssueDate.' +'.$invoices->BillingClass->PaymentDueInDays.' days')) , 
-                number_format($invoices->GrandTotal, 2).', '.$invoices->currency->Code.' ,'.$invoices->AccountID.', '.$invoices->FullInvoiceNumber.', '.$this->get_GUID($invoices->AccountID)));
+                fwrite($file, 
+                number_format($invoices->GrandTotal, 0).','.
+                $invoices->currency->Code.',,,,'.
+                $invoices->AccountID.',,,,,,,,,,,'. 
+                $this->get_GUID($invoices->AccountID).',,,,,,,,,,,,,,,,,,'.'9'.PHP_EOL
+                //date('d/m/Y', strtotime($invoices->IssueDate.' +'.$invoices->BillingClass->PaymentDueInDays.' days'))
+            );
+
+                /*date('d-m-Y', strtotime($invoices->IssueDate)).', '. 
+                 .', '. 
+            ', '..' ,'..', '.$invoices->FullInvoiceNumber.', '.);*/
             $invoices = '';
             $n++;
-         }
+         } 
         }
         if($n >= 1) {
             fclose($file);
-       header('Content-type: application/csv');
-       header('Content-Disposition: attachment; filename=Export-'.date('His').'.csv');
+       header('Content-type: application/octet-stream');
+       header('Content-Disposition: attachment; filename=Export-'.date('His').'.txt');
         } else { 
 
             return \Redirect::to('/invoice')->with('errormsg', 'Criteria does not matched');
