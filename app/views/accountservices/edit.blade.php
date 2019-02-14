@@ -310,7 +310,7 @@
 
                 <!-- Package Section Start -->
 
-                <div class="panel panel-primary " data-collapsed="0">
+                <div class="panel panel-primary hidden" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
                             Package
@@ -327,7 +327,6 @@
                             <div class="col-md-4">
                                 {{ Form::select('PackageId', $Packages, $PackageId, array("class"=>"select2")) }}
                             </div>
-
                             <label for="field-1" class="col-md-2 control-label">
                                 RateTable
                             </label>
