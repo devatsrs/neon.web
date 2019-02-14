@@ -100,7 +100,7 @@
                 {{Form::select('selection2[OriginationCountryCode]', $columns,(isset($attrselection2->OriginationCountryCode)?$attrselection2->OriginationCountryCode:''),array("class"=>"select2 small"))}}
             </div>
             <div class="col-sm-1 control-CountryCode-controls">
-                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="it's round up the value to given decimal points. Ex: you have entered 2 in Round Charged Amount then it will round the CDR amount like this : amount is 1.2355 becomes 1.24. Note that rounding off is always done upwards." data-original-title="Round Charged Amount (123.45)">?</span>
+                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Tick this box if you are mapping country description e.g. USA. Leave it un tick if you are mapping country code e.g. 1" data-original-title="Country Mapping">?</span>
                 {{Form::checkbox('selection2[OriginationCountryMapping]', '1', false, array("class"=>"CountryMapping"))}}
             </div>
             <label class="col-sm-2 control-label">Country Code</label>
@@ -108,7 +108,7 @@
                 {{Form::select('selection2[CountryCode]', $columns,(isset($attrselection2->CountryCode)?$attrselection2->CountryCode:''),array("class"=>"select2 small"))}}
             </div>
             <div class="col-sm-1 control-CountryCode-controls">
-                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="it's round up the value to given decimal points. Ex: you have entered 2 in Round Charged Amount then it will round the CDR amount like this : amount is 1.2355 becomes 1.24. Note that rounding off is always done upwards." data-original-title="Round Charged Amount (123.45)">?</span>
+                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Tick this box if you are mapping country description e.g. USA. Leave it un tick if you are mapping country code e.g. 1" data-original-title="Country Mapping">?</span>
                 {{Form::checkbox('selection2[CountryMapping]', '1', false, array("class"=>"CountryMapping"))}}
             </div>
         </div>
@@ -197,7 +197,7 @@
             {{Form::select('selection[OriginationCountryCode]', $columns,(isset($attrselection->OriginationCountryCode)?$attrselection->OriginationCountryCode:''),array("class"=>" small"))}}
         </div>
         <div class="col-sm-1 control-OriginationCountryCode-controls">
-            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="it's round up the value to given decimal points. Ex: you have entered 2 in Round Charged Amount then it will round the CDR amount like this : amount is 1.2355 becomes 1.24. Note that rounding off is always done upwards." data-original-title="Round Charged Amount (123.45)">?</span>
+            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Tick this box if you are mapping country description e.g. USA. Leave it un tick if you are mapping country code e.g. 1" data-original-title="Country Mapping">?</span>
             {{Form::checkbox('selection[OriginationCountryMapping]', '1', false, array("class"=>"OriginationCountryMapping"))}}
         </div>
     </div>
@@ -225,7 +225,7 @@
             {{Form::select('selection[CountryCode]', $columns,(isset($attrselection->CountryCode)?$attrselection->CountryCode:''),array("class"=>" small"))}}
         </div>
         <div class="col-sm-1 control-CountryCode-controls">
-            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="it's round up the value to given decimal points. Ex: you have entered 2 in Round Charged Amount then it will round the CDR amount like this : amount is 1.2355 becomes 1.24. Note that rounding off is always done upwards." data-original-title="Round Charged Amount (123.45)">?</span>
+            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Tick this box if you are mapping country description e.g. USA. Leave it un tick if you are mapping country code e.g. 1" data-original-title="Country Mapping">?</span>
             {{Form::checkbox('selection[CountryMapping]', '1', false, array("class"=>"CountryMapping"))}}
         </div>
     </div>
