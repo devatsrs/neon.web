@@ -2321,10 +2321,10 @@ class InvoicesController extends \BaseController {
             $invoices = Invoice::where(['InvoiceID' => $invid])->first();
             if($invoices->accdetail->PaymentMethod == 'Stripe' && $invoices->InvoiceType == 1){
                 fwrite($file, 
-                PHP_EOL.number_format($invoices->GrandTotal, 0).','.
+                number_format($invoices->GrandTotal, 0).','.
                 $invoices->currency->Code.',,,,'.
                 $invoices->AccountID.',,,,,,,,,,,'. 
-                $this->get_GUID($invoices->AccountID).',,,,,,,,,,,,,,,,,,'.'9'
+                $this->get_GUID($invoices->AccountID).',,,,,,,,,,,,,,,,,,'.'9'."\r\n"
                 //date('d/m/Y', strtotime($invoices->IssueDate.'+'.$invoices->BillingClass->PaymentDueInDays.' days'))
             );
 
@@ -2337,7 +2337,8 @@ class InvoicesController extends \BaseController {
         }
         if($n >= 1) {
             fclose($file);
-       header('Content-type: application/octet-stream');
+       header('Content-Type: text/plain', true);
+      // header('Content-type: application/octet-stream');
        header('Content-Disposition: attachment; filename=Export-'.date('His').'.txt');
         } else { 
 
