@@ -2324,7 +2324,7 @@ class InvoicesController extends \BaseController {
                 PHP_EOL.number_format($invoices->GrandTotal, 0).','.
                 $invoices->currency->Code.',,,,'.
                 $invoices->AccountID.',,,,,,,,,,,'. 
-                $this->get_GUID($invoices->AccountID).',,,,,,,,,,,,,,,,,,'.'9'.'<br>\n'
+                $this->get_GUID($invoices->AccountID).',,,,,,,,,,,,,,,,,,'.'9'
                 //date('d/m/Y', strtotime($invoices->IssueDate.'+'.$invoices->BillingClass->PaymentDueInDays.' days'))
             );
 
