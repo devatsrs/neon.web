@@ -2337,7 +2337,8 @@ class InvoicesController extends \BaseController {
         }
         if($n >= 1) {
             fclose($file);
-       header('Content-type: application/octet-stream');
+       header('Content-Type: text/plain', true);
+      // header('Content-type: application/octet-stream');
        header('Content-Disposition: attachment; filename=Export-'.date('His').'.txt');
         } else { 
 
