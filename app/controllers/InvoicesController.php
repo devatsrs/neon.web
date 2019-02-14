@@ -150,8 +150,12 @@ class InvoicesController extends \BaseController {
         $check_quickbook = $Quickbook->check_quickbook($CompanyID);
         $check_quickbook_desktop = $Quickbook->check_quickbook_desktop($CompanyID);
 		$bulk_type = 'invoices';
+        
+        $IngenicoExport = CompanyConfiguration::where(['Key' => 'INGENICO_EXPORT_BUTTON', 'CompanyID' => $CompanyID])->first();
+        
+
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID','IngenicoExport'));
 
     }
 
@@ -2277,6 +2281,67 @@ class InvoicesController extends \BaseController {
                     $sheet->fromArray($excel_data);
                 });
             })->download('csv');*/
+
+        }
+
+    }
+
+    //for ingenico Export
+
+    public function get_GUID($AccID)
+        {
+            $id = AccountPaymentProfile::where(['AccountID' => $AccID, 'isDefault' => 1])->first();
+            $json_data = json_decode($id->Options);
+            $card = '';
+            if(!empty($json_data->CardID))
+                {
+                    $card = $json_data->CardID;
+                    
+                } 
+                if(!empty($json_data->PaymentProfileID)) {
+                    $card = $json_data->PaymentProfileID;
+                }
+                return $card;
+        }
+        ///=====
+
+    public function IngenicoExport()
+    {
+         $data =Input::all();
+         
+         $companyID = User::get_companyID();
+        
+
+    $invoices = '';
+    $ids = explode(',',$data['InvoiceIDs']);
+    //$columns = array('Naam', 'Maand', 'Betaaldatum', 'Data');
+        $file = fopen('php://output', 'w');
+        $n=0;
+        foreach($ids as $invid) {
+            $invoices = Invoice::where(['InvoiceID' => $invid])->first();
+            if($invoices->accdetail->PaymentMethod == 'Stripe' && $invoices->InvoiceType == 1){
+                fwrite($file, 
+                PHP_EOL.number_format($invoices->GrandTotal, 0).','.
+                $invoices->currency->Code.',,,,'.
+                $invoices->AccountID.',,,,,,,,,,,'. 
+                $this->get_GUID($invoices->AccountID).',,,,,,,,,,,,,,,,,,'.'9'
+                //date('d/m/Y', strtotime($invoices->IssueDate.'+'.$invoices->BillingClass->PaymentDueInDays.' days'))
+            );
+
+                /*date('d-m-Y', strtotime($invoices->IssueDate)).', '. 
+                 .', '. 
+            ', '..' ,'..', '.$invoices->FullInvoiceNumber.', '.);*/
+            $invoices = '';
+            $n++;
+         } 
+        }
+        if($n >= 1) {
+            fclose($file);
+       header('Content-type: application/octet-stream');
+       header('Content-Disposition: attachment; filename=Export-'.date('His').'.txt');
+        } else { 
+
+            return \Redirect::to('/invoice')->with('errormsg', 'Criteria does not matched');
 
         }
 

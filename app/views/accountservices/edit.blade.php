@@ -181,55 +181,42 @@
                         <div class="form-group">
                             <div class="col-md-12">
                                 <div class="row">
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
                                                 <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r11'>
-                                                        <i></i>
-                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 1 ) checked  @endif  id='r11' name='ContractTerm' value='1' required />
-                                                        Fixed Fee
-                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"></a>
+                                                        <input type='radio' @if(!isset($AccountServiceContract->ContractTerm) || $AccountServiceContract->ContractTerm == 1 ) checked  @endif id='r11' name='ContractTerm' value='1' required />
+                                                        No Fee
                                                     </label>
-                                                </div>
-                                                <div id="collapseOne" class="panel-collapse collapse in">
-                                                    <div class="panel-body">
-                                                        <div class="form-group">
-                                                            <div class="panel-options">
-                                                                <div class="col-md-12">
-                                                                    <label class="control-label">Fixed Fee</label>
-                                                                </div>
-                                                                <div class="col-md-12">
-                                                                    <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 1 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFee">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
                                                 <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r12'>
                                                         <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 2 ) checked  @endif id='r12' name='ContractTerm' value='2' required />
                                                         Remaining Term Of Contract
-                                                        <a data-toggle="collapse" data-parent="#accordion" href=""></a>
                                                     </label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div id="table-4_processing" class="dataTables_processing process">Processing...</div>
-                                    <div class="col-md-3">
+                                </div>
+                                <div id="table-4_processing" class="dataTables_processing process">Processing...</div>
+                                <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-4">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
                                                 <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r13'>
-                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 3 ) checked  @endif id='r13' name='ContractTerm' value='3' required />
-                                                        Remaining Term Of Contract(%)
+                                                        <i></i>
+                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 3 ) checked  @endif  id='r13' name='ContractTerm' value='3' required />
+                                                        Fixed Fee
                                                         <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"></a>
                                                     </label>
                                                 </div>
@@ -238,10 +225,10 @@
                                                         <div class="form-group">
                                                             <div class="panel-options">
                                                                 <div class="col-md-12">
-                                                                    <label class="control-label">Percentage</label>
+                                                                    <label class="control-label">Fixed Fee</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="number" min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 3 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="Percentage">
+                                                                    <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 3 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFee">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -250,13 +237,13 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
                                                 <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r14'>
                                                         <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 4 ) checked  @endif id='r14' name='ContractTerm' value='4' required />
-                                                        Fixed Fee + Remaining Term Of Contract
+                                                        Remaining Term Of Contract(%)
                                                         <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour"></a>
                                                     </label>
                                                 </div>
@@ -265,10 +252,37 @@
                                                         <div class="form-group">
                                                             <div class="panel-options">
                                                                 <div class="col-md-12">
+                                                                    <label class="control-label">Percentage</label>
+                                                                </div>
+                                                                <div class="col-md-12">
+                                                                    <input type="number" min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 4 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="Percentage">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="panel-group cancelRadio" id="accordion">
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading" style="background-color:white;text-align: center;">
+                                                    <label for='r15'>
+                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 5 ) checked  @endif id='r15' name='ContractTerm' value='5' required />
+                                                        Fixed Fee + Remaining Term Of Contract
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive"></a>
+                                                    </label>
+                                                </div>
+                                                <div id="collapseFive" class="panel-collapse collapse in">
+                                                    <div class="panel-body">
+                                                        <div class="form-group">
+                                                            <div class="panel-options">
+                                                                <div class="col-md-12">
                                                                     <label class="control-label">Fixed Fee</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 4 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFeeContract">
+                                                                    <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 5 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFeeContract">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -278,6 +292,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                {{--<div class="row">--}}
+                                    {{--<div class="col-md-4"></div>--}}
+                                   {{----}}
+                                    {{--<div class="col-md-4"></div>--}}
+
+                                {{--</div>--}}
                             </div>
                         </div>
                     </div>

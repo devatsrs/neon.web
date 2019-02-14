@@ -558,7 +558,7 @@
         selected.val(selected.data('value'))
                 .parent()
                 .addClass('active');
-        if(selected.val() != 2){
+        if(selected.val() != 2 && selected.val() != 5){
             var label = selected.val() == 3 ? "Percentage" : "Fee";
             cancelField.find('label').text(label);
             cancelField.find('input[type="text"]').attr("placeholder", label);

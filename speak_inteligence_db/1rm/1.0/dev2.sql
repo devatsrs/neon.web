@@ -1,4 +1,7 @@
 ALTER TABLE `tblRateTableDIDRate`
+	CHANGE COLUMN `OriginationRateID` `OriginationRateID` BIGINT(20) NULL DEFAULT '0' AFTER `RateTableDIDRateID`;
+
+ALTER TABLE `tblRateTableDIDRate`
 	ADD COLUMN `VendorID` INT NULL DEFAULT NULL AFTER `ApprovedDate`;
 
 ALTER TABLE `tblRateTableRate`
@@ -10,7 +13,7 @@ ALTER TABLE `tblRateTableDIDRateArchive`
 ALTER TABLE `tblRateTableRateArchive`
 	ADD COLUMN `VendorID` INT NULL AFTER `ApprovedDate`;
 
-INSERT INTO `tblcompanysetting` (`CompanyID`, `Key`, `Value`) VALUES (1, 'UseVendorCurrencyInRateGenerator', '1');
+INSERT INTO `tblCompanySetting` (`CompanyID`, `Key`, `Value`) VALUES (1, 'UseVendorCurrencyInRateGenerator', '1');
 
 -- --------------------------------------------------------
 -- Host:                         192.168.1.25

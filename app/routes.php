@@ -1127,7 +1127,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/bulk_allocate_creditnote_payment', 'CreditNotesController@bulk_allocate_creditnote_payment');
 
 	//Invoice
-	Route::any('/invoice', 'InvoicesController@index');
+	Route::any('/invoice','InvoicesController@index');
 	Route::any('/invoice/create', 'InvoicesController@create');
 	Route::any('/invoice/store', 'InvoicesController@store');
 	Route::any('/invoice/bulk_send_invoice_mail', 'InvoicesController@bulk_send_invoice_mail');
@@ -1162,6 +1162,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/update_invoice_in/{id}', 'InvoicesController@update_invoice_in');
 	Route::any('/invoice/download_doc_file/{id}', 'InvoicesController@download_doc_file');
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
+	
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
@@ -1536,6 +1537,8 @@ Route::group(array('before' => 'auth'), function () {
 
 	//accountservice	
 	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
+	Route::any('accountservices/create-new/{id}', 'AccountServiceController@CreateNew');
+	Route::post('accountservices/insertservice', 'AccountServiceController@InsertService');
 	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
 	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
 	Route::any('accountservices/{id}/exports/{type}', 'AccountServiceController@exports');
@@ -1715,6 +1718,7 @@ Route::group(array('before' => 'guest'), function () {
 	}
 	exit;
     });*/
+    Route::any('/invoice/ingenicoExport', 'InvoicesController@IngenicoExport');
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
 	Route::any('/invoice/{id}/invoice_chart', 'InvoicesController@invoice_management_chart'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');

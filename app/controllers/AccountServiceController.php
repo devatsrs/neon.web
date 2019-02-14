@@ -1,7 +1,6 @@
 <?php
 
 class AccountServiceController extends \BaseController {
-
     // view account edit page
     public function edit($id,$AccountServiceID){
         Artisan::call('cache:clear');
@@ -79,6 +78,66 @@ class AccountServiceController extends \BaseController {
 
     }
 
+    public function CreateNew($id = '')
+    {
+        $account = Account::find($id);
+        $CompanyID = Account::getCompanyIDByAccountID($id);
+        $AccountID = $id;
+        $decimal_places = get_round_decimal_places($id);
+        $products = Product::getProductDropdownList($CompanyID);
+        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
+        $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
+        $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
+        $allservices = Service::where('Status', 1)->get();
+        $InboundTariffID = '';
+        $OutboundTariffID = '';
+
+        //Billing
+        $invoice_count = Account::getInvoiceCount($id);
+        $BillingClass = BillingClass::getDropdownIDList($CompanyID);
+        $timezones = TimeZone::getTimeZoneDropdownList();
+
+
+        //As per new question call the routing profile model for fetch the routing profile list.
+        $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
+
+        //----------------------------------------------------------------------
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
+
+        $AccountSubscriptionID = $id;
+
+        $Packages = Package::getDropdownIDList();
+        $CurrencyID=Account::getCurrencyIDByAccount($id);
+        $PackageType=RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
+
+        $AppiedTo=Account::getAccountTypeByAccountID($id);
+        $RateTable=RateTable::getPackageTariffDropDownList($CompanyID,$PackageType,$AppiedTo);
+
+        $PackageId="";
+        $RateTableID="";
+
+        
+        return View::make('accountservices.create', compact('CompanyID','AccountID','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceDescription','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
+    }
+
+    public function InsertService()
+    {
+        $serviceid = Input::get('serviceid');
+        $companyid = Input::get('companyid');
+        $accountid = Input::get('accountid');
+        $add = new AccountService;
+        $add->AccountID = $accountid;
+        $add->ServiceID = $serviceid;
+        $add->CompanyID = $companyid;
+        $add->Status  = 1;
+        if($add->save()){
+            $lastid = $add->AccountServiceID;
+            return \Redirect::to('accountservices/'.$accountid.'/edit/'.$lastid);
+        }
+
+
+    }
+
     // add account services
     public function addservices($id){
         $data = Input::all();
@@ -114,7 +173,18 @@ class AccountServiceController extends \BaseController {
         $data = Input::all();
         $id=$data['account_id'];
         $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
-        $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
+        
+
+        $services = AccountService::leftjoin('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')
+        ->leftjoin('tblAccountServiceContract', 'tblAccountService.AccountServiceID', '=', 'tblAccountServiceContract.AccountServiceID')
+        ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
+        ->leftjoin('tblPackage', 'tblPackage.PackageId', '=' , 'tblCLIRateTable.PackageID' )
+        ->select(["tblAccountService.AccountServiceID","tblService.ServiceName",DB::raw("(select GROUP_CONCAT(`tblCLIRateTable`.`CLI`) as cli
+         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"),"tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate", "tblAccountService.Status"])
+        ->where("tblAccountService.AccountID",$id);
+
+        //\Log::debug($services->toSql());
+
         if(!empty($data['ServiceName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
         }
@@ -128,7 +198,7 @@ class AccountServiceController extends \BaseController {
                 $query->where('tblAccountService.Status','=','0');
             });
         }
-        $services->select($select);
+        //$services->select($select);
 
         return Datatables::of($services)->make();
     }
@@ -192,14 +262,13 @@ class AccountServiceController extends \BaseController {
             $Contract['AutoRenewal'] = Input::has('AutoRenewal') ? 1 : 0;
             $Contract['ContractTerm'] = Input::get('ContractTerm');
             $Contract['Duration'] = Input::get('Duration');
-
             /**validation*/
             if($Contract['ContractStartDate'] != "" || $Contract['ContractEndDate'] != "" || $Contract['AutoRenewal'] != 0 || $Contract['Duration'] != "" || $Contract['ContractTerm'] != ""|| count($AccountServiceContract) > 0){
-                if ($Contract['ContractTerm'] == 1) {
+                if ($Contract['ContractTerm'] == 3) {
                     AccountServiceContract::$rules['FixedFee'] = 'required|numeric';
-                } else if ($Contract['ContractTerm'] == 3) {
-                    AccountServiceContract::$rules['Percentage'] = 'required|numeric';
                 } else if ($Contract['ContractTerm'] == 4) {
+                    AccountServiceContract::$rules['Percentage'] = 'required|numeric';
+                } else if ($Contract['ContractTerm'] == 5) {
                     AccountServiceContract::$rules['FixedFeeContract'] = 'required|numeric';
                 }
                 AccountServiceContract::$rules['StartDate'] = 'required|date|date_format:Y-m-d';
@@ -212,11 +281,11 @@ class AccountServiceController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
                 }
                 /**perform actions*/
-                if ($Contract['ContractTerm'] == 1) {
+                if ($Contract['ContractTerm'] == 3) {
                     $Contract['ContractReason'] = Input::get('FixedFee');
-                } else if ($Contract['ContractTerm'] == 3) {
-                    $Contract['ContractReason'] = Input::get('Percentage');
                 } else if ($Contract['ContractTerm'] == 4) {
+                    $Contract['ContractReason'] = Input::get('Percentage');
+                } else if ($Contract['ContractTerm'] == 5) {
                     $Contract['ContractReason'] = Input::get('FixedFeeContract');
                 } else {
                     $Contract['ContractReason'] = NULL;
