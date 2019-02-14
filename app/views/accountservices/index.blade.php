@@ -60,7 +60,7 @@
                     <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                         @if(User::checkCategoryPermission('AccountService','Add'))
                             <li>
-                                <a href="javascript:void(0)" id="add-services">
+                                <a href="{{url('accountservices/create-new')}}/{{$account->AccountID}}">
                                     <i class="entypo-plus"></i>&nbsp;Add New
                                 </a>
                             </li>
@@ -100,9 +100,12 @@
                 <thead>
                 <tr>
                     <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                    <th width="35%">Service Name</th>
-                    <th width="30%">Service Title</th>
-                    <th width="30%">Action</th>
+                    <th>Service Name</th>
+                    <th>Number</th>
+                    <th>Package</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th width="20%">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -169,11 +172,12 @@
                                         return chackbox;
                                     }
                                 }, //1   CurrencyDescription
-                                {  "bSortable": true },  // 0 Service Name
-                                {  "bSortable": false },  // 0 Service Name
-                               // {  "bSortable": false },  // 1 Service Status
-                                //{  "bSortable": false },  // 2 Service ID
-                                //{  "bSortable": false },  // 3 Account Service ID
+                                { "bSortable": true },  // 0 Service Name
+                                { "bSortable": false },  // 0 Service Name
+                               { "bSortable": false },  // 1 Service Status
+                                { "bSortable": false },  // 2 Service ID
+                                {  "bSortable": false },
+                                 //{  "bSortable": false }, // 3 Account Service ID
                                 {                        // 10 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
@@ -181,7 +185,7 @@
                                 var DeActive_Card = baseurl + "/accountservices/{id}/changestatus/deactive";
                                  action = '';
                                 <?php if(User::checkCategoryPermission('AccountService','Edit')) { ?>
-                                 if (full[3]=="1") {
+                                 if (full[6]=="1") {
                                     action += ' <button href="' + DeActive_Card.replace("{id}",full[0]) + '" title=""  class="btn activeservice btn-danger btn-sm tooltip-primary" data-original-title="Deactivate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></button>';
                                  } else {
                                     action += ' <button href="' + Active_Card.replace("{id}",full[0]) + '" title="" class="btn deactiveservice btn-success btn-sm tooltip-primary" data-original-title="Activate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-check"></i></button>';
