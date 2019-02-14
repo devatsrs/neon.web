@@ -253,7 +253,12 @@ class AccountsApiController extends ApiController {
 					$NumberPurchased["Status"] = 1;
 				}
 
-				$NumberPurchaseds[count($NumberPurchaseds) + 1] = $NumberPurchased;
+				if (count($NumberPurchaseds) == 0) {
+					$NumberPurchaseds[count($NumberPurchaseds)] = $NumberPurchased;
+				}else {
+					$NumberPurchaseds[count($NumberPurchaseds) + 1] = $NumberPurchased;
+				}
+
 
 				Log::info('NumberPurchased CLI and Package Description' . print_r($NumberPurchaseds,true));
 			}
