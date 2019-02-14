@@ -2321,11 +2321,11 @@ class InvoicesController extends \BaseController {
             $invoices = Invoice::where(['InvoiceID' => $invid])->first();
             if($invoices->accdetail->PaymentMethod == 'Stripe' && $invoices->InvoiceType == 1){
                 fwrite($file, 
-                number_format($invoices->GrandTotal, 0).','.
+                PHP_EOL.number_format($invoices->GrandTotal, 0).','.
                 $invoices->currency->Code.',,,,'.
                 $invoices->AccountID.',,,,,,,,,,,'. 
-                $this->get_GUID($invoices->AccountID).',,,,,,,,,,,,,,,,,,'.'9'.PHP_EOL
-                //date('d/m/Y', strtotime($invoices->IssueDate.' +'.$invoices->BillingClass->PaymentDueInDays.' days'))
+                $this->get_GUID($invoices->AccountID).',,,,,,,,,,,,,,,,,,'.'9'
+                //date('d/m/Y', strtotime($invoices->IssueDate.'+'.$invoices->BillingClass->PaymentDueInDays.' days'))
             );
 
                 /*date('d-m-Y', strtotime($invoices->IssueDate)).', '. 
