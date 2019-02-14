@@ -280,11 +280,15 @@ class ActiveCall extends \Eloquent {
          * if not found than return error
         */
 
-        $CLIRateTable = CLIRateTable::where(['AccountID'=>$AccountID,'CLI'=>$CLD])->first();
+        $AccountServicePackageID = 0;
+        $PackageRateTableID = 0;
+        $CLIRateTable = CLIRateTable::where(['AccountID'=>$AccountID,'CLI'=>$CLD,'Status'=>1])->first();
         if(!empty($CLIRateTable) && count($CLIRateTable)>0){
             $AccountServiceID = empty($CLIRateTable->AccountServiceID)?0:$CLIRateTable->AccountServiceID;
             $CLIRateTableID = empty($CLIRateTable->RateTableID)?0:$CLIRateTable->RateTableID;
             $CityTariff = empty($CLIRateTable->CityTariff)?0:$CLIRateTable->CityTariff;
+            $AccountServicePackageID =  empty($CLIRateTable->PackageID)?0:$CLIRateTable->PackageID;
+            $PackageRateTableID =  empty($CLIRateTable->PackageRateTableID)?0:$CLIRateTable->PackageRateTableID;
         }
 
         log::info('Account Service ID '.$AccountServiceID);
@@ -320,13 +324,8 @@ class ActiveCall extends \Eloquent {
 
         $CallType = $ActiveCall->CallType;
 
-        $AccountServicePackageID = 0;
-        $AccountServicePackage = AccountServicePackage::where(['AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID])->first();
-        if(!empty($AccountServicePackage)){
-            $AccountServicePackageID = $AccountServicePackage->AccountServicePackageID;
-            $PackageId = $AccountServicePackage->PackageId;
-            $RateTableID = $AccountServicePackage->RateTableID;
-            $RateTablePKGRateID = ActiveCall::getRateTablePKGRateID($CompanyID,$RateTableID,$TimezonesID,$PackageId);
+        if($AccountServicePackageID > 0 && $PackageRateTableID > 0){
+            $RateTablePKGRateID = ActiveCall::getRateTablePKGRateID($CompanyID,$PackageRateTableID,$TimezonesID,$AccountServicePackageID);
         }
 
         /** find and update taxes */
