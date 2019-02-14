@@ -322,6 +322,10 @@ class ActiveCall extends \Eloquent {
 
         $TimezonesID = Timezones::getTimeZoneByConnectTime($ActiveCall->ConnectTime);
 
+        if(!empty($ActiveCall->DisconnectTime)) {
+            $TimezonesID = Timezones::getTimeZoneByConnectAndDisconnectTime($ActiveCall->ConnectTime,$ActiveCall->DisconnectTime);
+        }
+
         $CallType = $ActiveCall->CallType;
 
         if($AccountServicePackageID > 0 && $PackageRateTableID > 0){
