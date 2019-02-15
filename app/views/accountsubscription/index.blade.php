@@ -64,14 +64,16 @@
                     <th width="3%"></th>
                     <th width="5%">No</th>
                     <th width="5%">Subscription</th>
-                    <th width="20%">Invoice Description</th>
+                    <th width="15%">Invoice Description</th>
                     <th width="5%">Qty</th>
                     <th width="10%">Start Date</th>
                     <th width="10%">End Date</th>
                     <th width="5%">Activation Fee</th>
+                    <th width="4%">Currency</th>
                     <th width="5%">Daily Fee</th>
                     <th width="5%">Weekly Fee</th>
                     <th width="10%">Monthly Fee</th>
+                    <th width="4%">Currency</th>
                     <th width="10%">Quarterly Fee</th>
                     <th width="10%">Yearly Fee</th>
                     <th width="20%">Action</th>
@@ -138,7 +140,14 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["AID","SequenceNo", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","Status","DiscountAmount","DiscountType","AnnuallyFee","QuarterlyFee","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
+            var list_fields  = ["AID","SequenceNo", "Name", "InvoiceDescription", "Qty",
+                "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee", "OneOffCurrency",
+                "tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
+                "tblBillingSubscription.MonthlyFee", "RecurringCurrency",
+                "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
+                "AccountSubscriptionID","SubscriptionID","ExemptTax","Status","DiscountAmount",
+                "DiscountType","OneOffCurrencyID","RecurringCurrencyID","AnnuallyFee","QuarterlyFee",
+                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee"];
 
             public_vars.$body = $("body");
             var $search = {};
@@ -192,12 +201,14 @@
                         {  "bSortable": true },  // 4 StartDate
                         {  "bSortable": true },  // 5 EndDate
                         {  "bSortable": true },  // 6 ActivationFee
-                        {  "bSortable": true },  // 7 DailyFee
-                        {  "bSortable": true },  // 8 WeeklyFee
-                        {  "bSortable": true },  // 9 MonthlyFee
-                        {  "bSortable": true },  // 10 QuarterlyFee
-                        {  "bSortable": true },  // 11 AnnuallyFee
-                        {                        // 12 Action
+                        {  "bSortable": true },  // 7 ActivationFee
+                        {  "bSortable": true },  // 8 DailyFee
+                        {  "bSortable": true },  // 9 WeeklyFee
+                        {  "bSortable": true },  // 10 MonthlyFee
+                        {  "bSortable": true },  // 11 MonthlyFee
+                        {  "bSortable": true },  // 12 QuarterlyFee
+                        {  "bSortable": true },  // 13 AnnuallyFee
+                        {                        // 14 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
                                  action = '<div class = "hiddenRowData" >';
@@ -247,6 +258,8 @@
                         $('#subscription-form').trigger("reset");
                         $('#modal-subscription h4').html('Add Subscription');
                         $("#subscription-form [name=SubscriptionID]").select2().select2('val',"");
+                        $("#subscription-form [name=OneOffCurrencyID]").select2().select2('val',"");
+                        $("#subscription-form [name=RecurringCurrencyID]").select2().select2('val',"");
 
                         $('#subscription-form').attr("action",subscription_add_url);
                         $('#modal-subscription').modal('show');
@@ -339,7 +352,11 @@
                             $("#subscription-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             if(list_fields[i] == 'SubscriptionID'){
                                 $("#subscription-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
-                            }else if(list_fields[i] == 'ExemptTax'){
+                            } else if(list_fields[i] == 'OneOffCurrencyID' || list_fields[i] == 'RecurringCurrencyID'){
+                                var CurrencyID = cur_obj.find("input[name='"+list_fields[i]+"']").val();
+                                if(CurrencyID == 0) CurrencyID = '';
+                                $("#subscription-form [name='"+list_fields[i]+"']").select2().select2('val', CurrencyID);
+                            } else if(list_fields[i] == 'ExemptTax'){
                                 if(cur_obj.find("input[name='ExemptTax']").val() == 1 ){
                                     $('[name="ExemptTax"]').prop('checked',true);
                                 }else{
@@ -583,6 +600,7 @@
                     $('[name="AllSubscriptionDiscountPlanID"]').attr("value", temparr);
                     $('[name="BulkInboundDiscountPlans"]').select2().select2('val','');
                     $('[name="BulkOutboundDiscountPlans"]').select2().select2('val','');
+                    $('[name="BulkOutboundDiscountPlans"]').select2().select2('val','');
                     $('#modal-bulkedit_discountplan').modal('show');
                 }
                 else
@@ -732,9 +750,9 @@
                         var timePicker = 0;
 //                           var obj = JSON.parse(JSON.stringify(response))
                         var obj = jQuery.parseJSON(response);
-                        for (i = 0; i <= obj.length; ++i)
+                        /*for (i = 0; i <= obj.length; ++i)
                         {
-                            console.log(obj[i].FieldDomType);
+                            //console.log(obj[i].FieldDomType);
 
                             if(obj[i].FieldDomType =="numericePerMin" || obj[i].FieldDomType =="text" )
                             {
@@ -778,7 +796,7 @@
                             }else if( obj[i].FieldDomType =="file"){
                                 $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
                             }
-                        }
+                        }*/
 
                     },
                     error: function (request, status, error) {
@@ -908,6 +926,14 @@
                          <div class="row">
                              <div class="col-md-12">
                                  <div class="form-group">
+                                     <label for="field-521" class="control-label">Currency</label>
+                                     {{ Form::select('RecurringCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="row">
+                             <div class="col-md-12">
+                                 <div class="form-group">
                                      <label for="WeeklyFee" class="control-label">Weekly Fee</label>
                                      <input type="text" name="WeeklyFee" id="WeeklyFee" class="form-control" value="" />
                                  </div>
@@ -933,6 +959,14 @@
                                 </div>
                             </div>
                         </div>
+                         <div class="row">
+                             <div class="col-md-12">
+                                 <div class="form-group">
+                                     <label for="field-5221" class="control-label">Currency</label>
+                                     {{ Form::select('OneOffCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
+                                 </div>
+                             </div>
+                         </div>
                         <!-- -->
                         <div class="row">
                             <div class="col-md-12">
