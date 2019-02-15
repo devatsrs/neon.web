@@ -84,14 +84,17 @@ class AccountsApiController extends ApiController {
 		try {
 		$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
 		$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
-		$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
+		$data['Number'] = isset($accountData['Number']) ? $accountData['Number'] : '';
+		$data['Status'] = isset($accountData['Status']) ? $accountData['Status'] : '';
+
 
 
 		$rules = array(
 			'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
 			'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
 			'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
-			'NumberPurchased'=>'required',
+			'Number'=>'required',
+			'Status'=>'required',
 
 		);
 
@@ -125,26 +128,38 @@ class AccountsApiController extends ApiController {
 		}
 
 		$CompanyID = $Account->CompanyId;
-		$NumberPurchased=json_decode(json_encode($data['NumberPurchased']),true);
-		Log::info('UpdateNumberStatus:$NumberPurchasedRef .' . count($NumberPurchased));
-		if (!isset($NumberPurchased["Status"])) {
-			return Response::json(["ErrorMessage" => Codes::$Code1043[1]],Codes::$Code1043[0]);
-		}
 
-			if ($NumberPurchased['Status'] == '' || ($NumberPurchased['Status'] != 0 && $NumberPurchased['Status'] != 1)) {
+//		if (!isset($NumberPurchased["Status"])) {
+//			return Response::json(["ErrorMessage" => Codes::$Code1043[1]],Codes::$Code1043[0]);
+//		}
+
+			if ($accountData['Status'] == '' || ($accountData['Status'] != 0 && $accountData['Status'] != 1)) {
 				return Response::json(["ErrorMessage"=>Codes::$Code1044[1]],Codes::$Code1044[0]);
 			}
 
-		$CLIRateTable = CLIRateTable::where(array('CompanyID' => $CompanyID, 'CLI' => $NumberPurchased["Number"],
-			'AccountID' => $Account->AccountID))->first();
-		if (!$CLIRateTable){
-			return Response::json(["ErrorMessage" => Codes::$Code1041[1]],Codes::$Code1041[0]);
-		}else if ($CLIRateTable["Status"] == 1 && $NumberPurchased["Status"] == 1) {
-			return Response::json(["ErrorMessage" => Codes::$Code1042[1]],Codes::$Code1042[0]);
-		}else {
-			$CLIRateTableFields["Status"] = $NumberPurchased['Status'];
-			$CLIRateTable->update($CLIRateTableFields);
-		}
+
+			if ($accountData["Status"] == 0){
+				$CLIRateTable = CLIRateTable::where(array('CompanyID' => $CompanyID, 'CLI' => $accountData["Number"],
+					'AccountID' => $Account->AccountID,'Status' => 1))->first();
+				if (!$CLIRateTable) {
+					return Response::json(["ErrorMessage" => Codes::$Code1041[1]], Codes::$Code1041[0]);
+				}
+				$CLIRateTableFields["Status"] = $accountData['Status'];
+				$CLIRateTable->update($CLIRateTableFields);
+			}else {
+				$CLIRateTableCount = CLIRateTable::where(array('CompanyID' => $CompanyID, 'CLI' => $accountData["Number"],
+					'AccountID' => $Account->AccountID,'Status' => 0))->count();
+				if ($CLIRateTableCount > 1) {
+					return Response::json(["ErrorMessage" => Codes::$Code1045[1]], Codes::$Code1045[0]);
+				}
+				$CLIRateTable = CLIRateTable::where(array('CompanyID' => $CompanyID, 'CLI' => $accountData["Number"],
+					'AccountID' => $Account->AccountID,'Status' => 0))->first();
+				$CLIRateTableFields["Status"] = $accountData['Status'];
+				$CLIRateTable->update($CLIRateTableFields);
+			}
+
+
+
 
 		}catch(Exception $ex) {
 			Log::info('Exception in UpdateNumberStatus.' . $ex->getTraceAsString());
@@ -204,15 +219,16 @@ class AccountsApiController extends ApiController {
 			Log::info('UpdateNumberPackage:Data.' . json_encode($accountData));
 			$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
 			$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
-			$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
+			$data['Number'] = isset($accountData['Number']) ? $accountData['Number'] : '';
 			$data['AccountDynamicField'] = isset($accountData['AccountDynamicField']) ? $accountData['AccountDynamicField'] : '';
-
+			$data['Package'] = isset($accountData['Package']) ? $accountData['Package'] : '';
 
 			$rules = array(
 				'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
 				'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
 				'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
-				'NumberPurchased'=>'required',
+				'Number'=>'required',
+				'Package'=>'required',
 
 			);
 
@@ -253,15 +269,15 @@ class AccountsApiController extends ApiController {
 
 
 
-			$NumberPurchased=json_decode(json_encode($data['NumberPurchased']),true);
+			$NumberPurchased=json_decode(json_encode($data['Package']),true);
 
 			Log::info('UpdateNumberPackage:$NumberPurchasedRef .' . count($NumberPurchased));
 
 			$NumberPurchaseds = [];
 
-				Log::info('UpdateNumberPackage:$NumberPurchasedRef .' . $NumberPurchased["Number"]);
-			$CLIRateTable = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$NumberPurchased["Number"],
-				'AccountID'=>$Account->AccountID))->first();
+
+			$CLIRateTable = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$data["Number"],
+				'AccountID'=>$Account->AccountID,'Status'=>1))->first();
 				if(!$CLIRateTable){
 					return Response::json(array("ErrorMessage" => Codes::$Code1041[1]),Codes::$Code1041[0]);
 				}
@@ -634,7 +650,7 @@ class AccountsApiController extends ApiController {
 				$NumberPurchased = $NumberPurchasedRef[$i];
 				Log::info('CreateAccountService:$NumberPurchasedRef .' . $NumberPurchased["Number"]);
 				if(CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$NumberPurchased["Number"],
-					'AccountID'=>$Account->AccountID))->count()){
+					'AccountID'=>$Account->AccountID,'Status'=>1))->count()){
 					//$AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$data['NumberPurchased']))->pluck('AccountID');
 					//$message .= $data['NumberPurchased'].' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
 					//$message = 'Following CLI already exists.<br>'.$message;
@@ -1059,28 +1075,9 @@ class AccountsApiController extends ApiController {
 
 		$AccountSubscriptionQueryDB = AccountSubscription::create($AccountSubscription);
 
-		Log::info('$DynamicFieldIDs.' . count($DynamicFieldIDs) . ' ' . $AccountSubscriptionDB["SubscriptionID"]);
 
-		if (count($DynamicFieldIDs) >0 ) {
-			$DynamicSubscrioptionFields = DynamicFieldsValue::where('ParentID', $AccountSubscriptionDB["SubscriptionID"])
-				->whereIn('DynamicFieldsID', $DynamicFieldIDs);
-			Log::info('update $DynamicFieldIDs.' . $DynamicSubscrioptionFields->toSql());
-			$DynamicSubscrioptionFields = $DynamicSubscrioptionFields->get();
-			Log::info('update $DynamicFieldIDs.' . count($DynamicSubscrioptionFields));
 
-			if (count($DynamicSubscrioptionFields) > 0) {
-				AccountSubsDynamicFields::where(array('AccountSubscriptionID' => $AccountSubscriptionQueryDB["AccountSubscriptionID"]))->delete();
-			}
-			$AccountSubsDynamicFields = [];
-			foreach ($DynamicSubscrioptionFields as $DynamicSubscrioptionField) {
-				$AccountSubsDynamicFields["AccountSubscriptionID"] = $AccountSubscriptionQueryDB["AccountSubscriptionID"];
-				$AccountSubsDynamicFields["AccountID"] = $Account->AccountID;
-				$AccountSubsDynamicFields["DynamicFieldsID"] = $DynamicSubscrioptionField["DynamicFieldsID"];
-				$AccountSubsDynamicFields["FieldValue"] = $DynamicSubscrioptionField["FieldValue"];
-				$AccountSubsDynamicFields["FieldOrder"] = $DynamicSubscrioptionField["FieldOrder"];
-				AccountSubsDynamicFields::insert($AccountSubsDynamicFields);
-			}
-		}
+
 	}
 
 	public function createAccountSubscriptionFromRateTable($Account,$AccountSubscriptionDB,
