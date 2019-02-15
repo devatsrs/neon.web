@@ -65,6 +65,7 @@
                     <th width="5%">Price</th>
                     <th width="10%">Date</th>
                     <th width="2%">Tax Amount</th>
+                    <th width="5%">Currency</th>
                     <th width="5%">Created Date</th>
                     <th width="15%">Created By</th>
                     <th width="20%">Action</th>
@@ -96,7 +97,7 @@
 
     jQuery(document).ready(function ($) {
        var data_table_char;
-       var list_fields  = ["Name","Description", "Qty" ,"Price","Date","TaxAmount","created_at","CreatedBy","AccountOneOffChargeID","ProductID","TaxRateID","TaxRateID2","DiscountAmount","DiscountType"];
+       var list_fields  = ["Name","Description", "Qty" ,"Price","Date","TaxAmount","Currency","created_at","CreatedBy","AccountOneOffChargeID","ProductID","TaxRateID","TaxRateID2","DiscountAmount","DiscountType","CurrencyID"];
 
         var getProductInfo_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/{id}/ajax_getproductinfo";
        var oneofcharge_add_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/store";
@@ -147,8 +148,9 @@
                     }
                 },
                 {"bSortable": true},  // 5 Tax Amount
-                {"bSortable": true},  // 6 Created at
-                {"bSortable": true},  // 7 CreatedBy
+                {"bSortable": true},  // 6 Currency
+                {"bSortable": true},  // 7 Created at
+                {"bSortable": true},  // 8 CreatedBy
                 {                        // 9 Action
                     "bSortable": false,
                     mRender: function (id, type, full) {
@@ -195,7 +197,7 @@
             data_table_char.fnFilter('', 0);
             return false;
         });
-                
+
         $('#oneofcharge_submit').trigger('click');
         //inst.myMethod('I am a method');
         $('#add-oneofcharge').click(function(ev){
@@ -205,6 +207,7 @@
                 $("#oneofcharge-form [name=ProductID]").select2().select2('val',"");
                 $("#oneofcharge-form [name='TaxRateID']").val(0).trigger("change");
 				$("#oneofcharge-form [name='TaxRateID2']").val(0).trigger("change");
+                $("#oneofcharge-form [name=CurrencyID]").select2().select2('val',"");
                 $('.tax').removeClass('hidden');
 
                 $('#oneofcharge-form').attr("action",oneofcharge_add_url);
@@ -225,6 +228,10 @@
                         $("#oneofcharge-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                     }else if(list_fields[i] == 'TaxRateID2'){
                         $("#oneofcharge-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                    }else if(list_fields[i] == 'CurrencyID'){
+                        var CurrencyID = cur_obj.find("input[name='"+list_fields[i]+"']").val();
+                        if(CurrencyID == 0) CurrencyID = '';
+                        $("#oneofcharge-form [name='"+list_fields[i]+"']").val(CurrencyID).trigger("change");
                     }
                 }
                 $('#modal-oneofcharge').modal('show');
@@ -243,7 +250,7 @@
        $("#oneofcharge-form").submit(function(e){
            e.preventDefault();
            var _url  = $(this).attr("action");
-           
+
 		   /*tax1 start*/
 		   var option = $("#oneofcharge-form [name='TaxRateID'] option:selected");
            var Status = option.attr('data-status');
@@ -256,8 +263,8 @@
                TaxAmount1 = (TotalPrice * Amount)/100;
            }
 		   /*tax1 end*/
-		   
-		   
+
+
 		    /*tax2 start*/
 		   var option2 = $("#oneofcharge-form [name='TaxRateID2'] option:selected");
            var Status2 = option2.attr('data-status');
@@ -270,9 +277,9 @@
                TaxAmount2 = (TotalPrice2 * Amount2)/100;
            }
 		   /*tax2 end*/
-		   
+
 		    var tax_final  = 	parseFloat(TaxAmount1+TaxAmount2);
-		   
+
            $('#oneofcharge-form [name="TaxAmount"]').val(tax_final.toFixed(parseInt(decimal_places)));
            //submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
            $.ajax({
@@ -303,23 +310,23 @@
 
            //data_table_char.fnFilter('', 0);
        });
-	   
+
 	   $("#oneofcharge-form [name='TaxRateID']").change(function(e) {
          check_same_tax();
     });
-	
-	$("#oneofcharge-form [name='TaxRateID2']").change(function(e) {		
+
+	$("#oneofcharge-form [name='TaxRateID2']").change(function(e) {
          check_same_tax();
     });
-	
+
 	function check_same_tax(){
 		var tax1val = $("#oneofcharge-form [name='TaxRateID']").val();
-		var tax2val = $("#oneofcharge-form [name='TaxRateID2']").val(); 
+		var tax2val = $("#oneofcharge-form [name='TaxRateID2']").val();
 		if(tax1val > 0 &&  (tax1val == tax2val)){
 			toastr.error($("#oneofcharge-form [name='TaxRateID'] option:selected").text()+" already applied", "Error", toastr_opts);
 		}
-	}   
-	   
+	}
+
        $('#oneofcharge-form [name="ProductID"]').change(function(e){
            id = $(this).val();
            getProductinfo(id);
@@ -392,27 +399,35 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">Description</label>
-                            <input type="text" name="Description" class="form-control" value="" />
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Description</label>
+                                <input type="text" name="Description" class="form-control" value="" />
+                            </div>
                         </div>
-                    </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">Qty</label>
-                            <input type="text" name="Qty" class="form-control Qty" value="1" data-min="1" />
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Qty</label>
+                                <input type="text" name="Qty" class="form-control Qty" value="1" data-min="1" />
+                            </div>
                         </div>
-                    </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">Date</label>
-                            <input type="text" name="Date" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Date</label>
+                                <input type="text" name="Date" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
+                            </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-521" class="control-label">Currency</label>
+                                {{ Form::select('CurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
@@ -443,7 +458,7 @@
                         </div>
                     </div>
                     </div>
-                    
+
                     <div class="row tax">
                         <div class="col-md-12">
                         <div class="form-group">
