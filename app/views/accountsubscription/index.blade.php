@@ -926,7 +926,7 @@
                          <div class="row">
                              <div class="col-md-12">
                                  <div class="form-group">
-                                     <label for="field-521" class="control-label">Currency</label>
+                                     <label for="field-521" class="control-label">Recurring Fee Currency</label>
                                      {{ Form::select('RecurringCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
                                  </div>
                              </div>
@@ -962,7 +962,7 @@
                          <div class="row">
                              <div class="col-md-12">
                                  <div class="form-group">
-                                     <label for="field-5221" class="control-label">Currency</label>
+                                     <label for="field-5221" class="control-label">Activation Fee Currency</label>
                                      {{ Form::select('OneOffCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
                                  </div>
                              </div>
