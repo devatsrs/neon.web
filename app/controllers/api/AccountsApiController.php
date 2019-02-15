@@ -306,7 +306,11 @@ class AccountsApiController extends ApiController {
 				$DynamicFieldIDs = $DynamicFieldIDs .$DynamicFieldsExist["DynamicFieldsID"] . ",";
 			}
 			Log::info('update $DynamicFieldIDs.' . $DynamicFieldIDs);
-			$DynamicFieldIDs = explode(',', $DynamicFieldIDs);
+			if ($DynamicFieldIDs != '') {
+				$DynamicFieldIDs = explode(',', $DynamicFieldIDs);
+			}else {
+				$DynamicFieldIDs = [];
+			}
 
 				Log::info('NumberPurchased CLI and Package Description' . print_r($NumberPurchased,true));
 			$SubscriptionSequence = 0;
