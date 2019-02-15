@@ -1821,7 +1821,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('startRecording', 'ActiveCallApiController@startRecording');
 	Route::post('startCall', 'ActiveCallApiController@startCall');
 	Route::post('endCall', 'ActiveCallApiController@endCall');
-	Route::post('insertCall', 'ActiveCallApiController@insertCall');
+	Route::post('ImportCDR', 'ActiveCallApiController@ImportCDR');
 	Route::post('blockCall', 'ActiveCallApiController@blockCall');
 	Route::post('BlockCalls/list', 'ActiveCallApiController@getBlockCalls');
 	Route::get('emailTemplate/list', 'EmailTemplateApiController@getList');
@@ -1833,6 +1833,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/updateAccount', 'AccountsApiController@updateAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
+	Route::post('account/UpdateNumberStatus', 'AccountsApiController@UpdateNumberStatus');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
 

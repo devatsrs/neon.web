@@ -87,10 +87,11 @@
             <tr>
                 <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
                 <th width="15%">CLI</th>
-                <th width="20%">CLI Rate Table</th>
+                <th width="18%">CLI Rate Table</th>
                 <th width="15%">Package</th>
-                <th width="20%">Package Rate Table</th>
+                <th width="18%">Package Rate Table</th>
                 <th width="12%">City/Tariff</th>
+                <th width="5%">Status</th>
                 <th width="20%">Action</th>
             </tr>
             </thead>

@@ -255,8 +255,8 @@ class ActiveCall extends \Eloquent {
         $CLDPrefix = 'Other';
         $CompanyGatewayID = 0;
         $GatewayAccountPKID = 0;
-        $Cost = 0;
-        $Duration = 0;
+        $Cost = $ActiveCall->Cost;
+        $Duration = $ActiveCall->Duration;
         $AccountServiceID = 0;
         $RateTablePKGRateID = 0;
         $CallRecordingDuration = 0;
@@ -320,10 +320,10 @@ class ActiveCall extends \Eloquent {
         */
 
 
-        $TimezonesID = Timezones::getTimeZoneByConnectTime($ActiveCall->ConnectTime);
-
         if(!empty($ActiveCall->DisconnectTime)) {
             $TimezonesID = Timezones::getTimeZoneByConnectAndDisconnectTime($ActiveCall->ConnectTime,$ActiveCall->DisconnectTime);
+        } else {
+            $TimezonesID = Timezones::getTimeZoneByConnectTime($ActiveCall->ConnectTime);
         }
 
         $CallType = $ActiveCall->CallType;
