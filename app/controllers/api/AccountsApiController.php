@@ -63,6 +63,93 @@ class AccountsApiController extends ApiController {
 	}
 
 
+	public function UpdateNumberStatus()
+	{
+		Log::info('UpdateNumberStatus:Update CLI Status.');
+		$CompanyID = User::get_companyID();
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			//$post_vars = Input::all();
+			$accountData=json_decode(json_encode($post_vars),true);
+			$countValues = count($accountData);
+			if ($countValues == 0) {
+				Log::info('Exception in UpdateNumberStatus.Invalid JSON String');
+				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+			}
+		}catch(Exception $ex) {
+			Log::info('Exception in UpdateNumberStatus.Invalid JSON String' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+		}
+
+		try {
+		$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
+		$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
+		$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
+
+
+		$rules = array(
+			'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
+			'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
+			'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
+			'NumberPurchased'=>'required',
+
+		);
+
+
+		$validator = Validator::make($data, $rules);
+
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+		}
+
+		if (!empty($accountData['AccountDynamicField'])) {
+			$AccountIDRef = '';
+			$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if (empty($AccountIDRef)) {
+				return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
+			}
+			$data['AccountID'] = $AccountIDRef;
+		}
+
+		if (!empty($data['AccountNo'])) {
+			$Account = Account::where(array('Number' => $data['AccountNo'],'CompanyId' => $CompanyID))->first();
+		}else {
+			$Account = Account::find($data['AccountID']);
+		}
+		if (!$Account) {
+			return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
+		}
+
+		$CompanyID = $Account->CompanyId;
+		$NumberPurchased=json_decode(json_encode($data['NumberPurchased']),true);
+		Log::info('UpdateNumberStatus:$NumberPurchasedRef .' . count($NumberPurchased));
+		if (!isset($NumberPurchased["Status"]) || empty($NumberPurchased["Status"])) {
+			return Response::json(["ErrorMessage" => Codes::$Code1043[1]],Codes::$Code1043[0]);
+		}
+
+		$CLIRateTable = CLIRateTable::where(array('CompanyID' => $CompanyID, 'CLI' => $NumberPurchased["Number"],
+			'AccountID' => $Account->AccountID));
+		if (empty($CLIRateTable)){
+			return Response::json(["ErrorMessage" => Codes::$Code1041[1]],Codes::$Code1041[0]);
+		}else if ($CLIRateTable->Status == 1 && $NumberPurchased["Status"] == 1) {
+			return Response::json(["ErrorMessage" => Codes::$Code1042[1]],Codes::$Code1042[0]);
+		}else {
+			$CLIRateTableFields["Status"] = 1;
+			$CLIRateTable->update($CLIRateTableFields);
+		}
+
+		}catch(Exception $ex) {
+			Log::info('Exception in UpdateNumberStatus.' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>Codes::$Code500[1]],Codes::$Code500[0]);
+		}
+
+	}
+
+
 	public function createAccountService()
 	{
 		// <!--"PackageSubscriptionID":"13" -->

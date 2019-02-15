@@ -65,5 +65,8 @@ class Codes
     public static $Code1038 =["402","Please specified the Number Subscription Start Date"];
     public static $Code1039 =["402","Please specified the Number Subscription End Date"];
     public static $Code1040 =["402","Please specified the Package Subscription Start Date"];
+    public static $Code1041 =["402","Please provide the valid CLI number"];
+    public static $Code1042 =["402","Please CLI status against the account is already active"];
+    public static $Code1043 =["402","Please provide the status value"];
 
 }
