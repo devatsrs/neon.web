@@ -1137,6 +1137,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/{id}/delete', 'InvoicesController@delete');
 	Route::any('/invoice/{id}/view', 'InvoicesController@view');
 	Route::any('/invoice/{id}/update', 'InvoicesController@update');
+	Route::any('/invoice/{id}/ubl_invoice', 'InvoicesController@ublInvoice');
 	//Route::any('/invoice/{id}/print_preview', 'InvoicesController@print_preview'); Not in use
 	Route::any('/invoice/{id}/invoice_preview', 'InvoicesController@invoice_preview'); //Customer View
 	//Route::any('/invoice/{id}/print', 'InvoicesController@pdf_view');

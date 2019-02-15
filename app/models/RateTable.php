@@ -59,18 +59,48 @@ class RateTable extends \Eloquent
     }
     public static function checkRateTableBand($RateTableId){
         return RateTable::where(["RateTableId" => $RateTableId,'RateGeneratorID'=>0])->count();
-	}
+    }
     public static function getRateTableList($data=array()){
         $data['CompanyID']=User::get_companyID();
         $data['Status'] = 1;
-        $row = RateTable::where($data)->lists("RateTableName", "RateTableId");
+
+        $types = [];
+        $appliedTos = [];
+        if(isset($data['types']) && !empty($data['types'])) {
+            $types = $data['types'];
+            unset($data['types']);
+        }
+
+        if(isset($data['applied_tos']) && !empty($data['applied_tos'])) {
+            $appliedTos = $data['applied_tos'];
+            unset($data['applied_tos']);
+        }
+
+        $notVendor = false;
+        if(isset($data['NotVendor'])){
+            $notVendor = true;
+            unset($data['NotVendor']);
+        }
+
+        $row = RateTable::where($data);
+
+        if(!empty($types))
+            $row->whereIn("Type", $types);
+
+        if(!empty($appliedTos))
+            $row->whereIn("AppliedTo", $appliedTos);
+
+        if($notVendor == true)
+            $row->where("AppliedTo", "!=", self::APPLIED_TO_VENDOR);
+
+        $row = $row->lists("RateTableName", "RateTableId");
         $row = array(""=> "Select")+$row;
         return $row;
     }
-	
-	public static function getRateTables($data=array()){		
-		$compantID = User::get_companyID();
-        $where = ['CompanyID'=>$compantID];      
+
+    public static function getRateTables($data=array()){
+        $compantID = User::get_companyID();
+        $where = ['CompanyID'=>$compantID];
         $RateTables = RateTable::select(['RateTableName','RateTableId'])->where($where)->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
         if(!empty($RateTables)){
             $RateTables = [''=>'Select'] + $RateTables;
