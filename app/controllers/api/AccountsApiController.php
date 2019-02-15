@@ -1055,24 +1055,25 @@ class AccountsApiController extends ApiController {
 
 		$AccountSubscriptionQueryDB = AccountSubscription::create($AccountSubscription);
 
+		if (count($DynamicFieldIDs) >0 ) {
+			$DynamicSubscrioptionFields = DynamicFieldsValue::where('ParentID', $AccountSubscriptionDB["SubscriptionID"])
+				->whereIn('DynamicFieldsID', $DynamicFieldIDs);
+			Log::info('update $DynamicFieldIDs.' . $DynamicSubscrioptionFields->toSql());
+			$DynamicSubscrioptionFields = $DynamicSubscrioptionFields->get();
+			Log::info('update $DynamicFieldIDs.' . count($DynamicSubscrioptionFields));
 
-		$DynamicSubscrioptionFields=  DynamicFieldsValue::where('ParentID', $AccountSubscriptionDB["SubscriptionID"])
-			->whereIn('DynamicFieldsID',$DynamicFieldIDs);
-		Log::info('update $DynamicFieldIDs.' . $DynamicSubscrioptionFields->toSql());
-		$DynamicSubscrioptionFields = $DynamicSubscrioptionFields->get();
-		Log::info('update $DynamicFieldIDs.' . count($DynamicSubscrioptionFields));
-
-		if (count($DynamicSubscrioptionFields) > 0) {
-			AccountSubsDynamicFields::where(array('AccountSubscriptionID' => $AccountSubscriptionQueryDB["AccountSubscriptionID"]))->delete();
-		}
-		$AccountSubsDynamicFields = [];
-		foreach ($DynamicSubscrioptionFields as $DynamicSubscrioptionField) {
-			$AccountSubsDynamicFields["AccountSubscriptionID"] = $AccountSubscriptionQueryDB["AccountSubscriptionID"];
-			$AccountSubsDynamicFields["AccountID"] = $Account->AccountID;
-			$AccountSubsDynamicFields["DynamicFieldsID"] = $DynamicSubscrioptionField["DynamicFieldsID"];
-			$AccountSubsDynamicFields["FieldValue"] = $DynamicSubscrioptionField["FieldValue"];
-			$AccountSubsDynamicFields["FieldOrder"] = $DynamicSubscrioptionField["FieldOrder"];
-			AccountSubsDynamicFields::insert($AccountSubsDynamicFields);
+			if (count($DynamicSubscrioptionFields) > 0) {
+				AccountSubsDynamicFields::where(array('AccountSubscriptionID' => $AccountSubscriptionQueryDB["AccountSubscriptionID"]))->delete();
+			}
+			$AccountSubsDynamicFields = [];
+			foreach ($DynamicSubscrioptionFields as $DynamicSubscrioptionField) {
+				$AccountSubsDynamicFields["AccountSubscriptionID"] = $AccountSubscriptionQueryDB["AccountSubscriptionID"];
+				$AccountSubsDynamicFields["AccountID"] = $Account->AccountID;
+				$AccountSubsDynamicFields["DynamicFieldsID"] = $DynamicSubscrioptionField["DynamicFieldsID"];
+				$AccountSubsDynamicFields["FieldValue"] = $DynamicSubscrioptionField["FieldValue"];
+				$AccountSubsDynamicFields["FieldOrder"] = $DynamicSubscrioptionField["FieldOrder"];
+				AccountSubsDynamicFields::insert($AccountSubsDynamicFields);
+			}
 		}
 	}
 
