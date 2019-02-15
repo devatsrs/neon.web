@@ -2205,15 +2205,20 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         } else if (!empty($data['CLIRateTableID'])) {
             $oldCLI = CLIRateTable::findOrFail($data['CLIRateTableID']);
 
-            // If old Cli not equal to  new cli
-            if($oldCLI->CLI != $data['CLI']){
-                // if this cli already exist in table
-                $check = CLIRateTable::where(['CompanyID'=>$CompanyID, 'AccountID'=>$data['AccountID'], 'CLI'=>$data['CLI'], 'Status'=>1])->count();
-                if($check){
-                    $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'AccountID'=>$data['AccountID'],'CLI'=>$data['CLI'],'Status'=>1))->pluck('AccountID');
-                    $message = 'Following CLI already exists.<br>'. $data['CLI'] . ' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
-                    return Response::json(array("status" => "error", "message" => $message));
-                }
+            // if this cli already exist in table
+            $check = false;
+            if($UpdateData['Status'] == 1 || $data['CLI'] != $oldCLI->CLI)
+                $check = CLIRateTable::where([
+                    'CompanyID' =>  $CompanyID,
+                    'AccountID' =>  $data['AccountID'],
+                    'CLI'       =>  $data['CLI'],
+                    'Status'    =>  1
+                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->count();
+
+            if($check){
+                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'AccountID'=>$data['AccountID'],'CLI'=>$data['CLI'],'Status'=>1))->pluck('AccountID');
+                $message = 'Following CLI '. $data['CLI'] . ' already exist with active status against '.Account::getCompanyNameByID($AccountID).'.<br>';
+                return Response::json(array("status" => "error", "message" => $message));
             }
 
             $oldCLI->update($UpdateData);

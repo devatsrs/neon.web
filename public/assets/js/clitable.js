@@ -71,6 +71,18 @@ jQuery(document).ready(function ($) {
                 {"bSortable": true},
                 {"bSortable": true},
                 {"bSortable": true},
+                {  "bSortable": false,
+                    mRender: function ( id, type, full ) {
+                        var action , edit_ , show_ , delete_;
+                        //console.log(id);
+                        if(full[9] == 1){
+                            action='<i class="entypo-check" style="font-size:22px;color:green"></i>';
+                        }else{
+                            action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
+                        }
+                        return action;
+                    }
+                },  //0  Status', '', '', '
                 {                        // 10 Action
                     "bSortable": false,
                     mRender: function (id, type, full) {
