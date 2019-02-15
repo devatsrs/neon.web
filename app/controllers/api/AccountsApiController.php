@@ -1398,7 +1398,7 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "Stripe ACH")) {
+			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH")) {
 				if ($data['PaymentMethod'] == "Stripe") {
 						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
 						if ($CardValidationResponse["status"] == "failed") {
@@ -1408,7 +1408,7 @@ class AccountsApiController extends ApiController {
 					if (!in_array($BankPaymentDetails['CardType'], $CardType)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1036[1]],Codes::$Code1036[0]);
 					}
-				}else if ($data['PaymentMethod'] == "Stripe ACH") {
+				}else if ($data['PaymentMethod'] == "StripeACH") {
 					$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
 					if ($validator->fails()) {
 						$errors = "";
@@ -1657,7 +1657,7 @@ class AccountsApiController extends ApiController {
 							$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
 							$BillingSetting['billing_class'] = $BillingSetting['billing_class'] .'-'. $data['PaymentMethod'];
 							Log::info("PaymentMethod " . $BillingSetting['billing_class'] . ' ' . $CompanyID);
-							$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])->where('CompanyID', '=', $CompanyID);
+							$BillingClassSql = BillingClass::whereRaw('LOWER(Name) = lower('. $BillingSetting['billing_class'] . ')')->where('CompanyID', '=', $CompanyID);
 							$BillingClass = $BillingClassSql->first();
 							if (!isset($BillingClass)) {
 								return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
@@ -1740,7 +1740,7 @@ class AccountsApiController extends ApiController {
 				AccountBalanceThreshold::create($AccountBalanceThreshold);
 				$account->update($data);
 
-				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "Stripe ACH")) {
+				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH")) {
 					$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
 					$BankPaymentDetails['CompanyID'] = $CompanyID;
 					if (!empty($BankPaymentDetails['CardNumber'])) {
