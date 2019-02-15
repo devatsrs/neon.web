@@ -153,9 +153,11 @@
             @if(is_FastPay($CompanyID))
             <li> <a class="create" id="fastpay-export" href="javascript:;"> FastPay Export </a> </li>
             @endif
-            @if($IngenicoExport->Value == 1)
+            @if(!empty($IngenicoExport->Value))
+             @if($IngenicoExport->Value == 1)
                 <li> <a class="create" id="ingenico-export" href="javascript:;"> Ingenico Export </a> </li>
-                @endif
+              @endif 
+            @endif
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
