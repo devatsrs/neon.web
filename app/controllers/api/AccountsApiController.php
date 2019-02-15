@@ -250,9 +250,7 @@ class AccountsApiController extends ApiController {
 					$NumberPurchased["PackageID"] = $PackagedataRecord["PackageId"];
 					$NumberPurchased["PackageRateTableID"] = $PackagedataRecord["RateTableId"];
 				}
-				if (empty($NumberPurchased["Status"])) {
-					$NumberPurchased["Status"] = 1;
-				}
+				$NumberPurchased["Status"] = 1;
 
 				if (count($NumberPurchaseds) == 0) {
 					$NumberPurchaseds[count($NumberPurchaseds)] = $NumberPurchased;
@@ -779,7 +777,7 @@ class AccountsApiController extends ApiController {
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
 			$data['Language']= isset($accountData['LanguageIso2']) ? $accountData['LanguageIso2'] : '';
-			$ResellerOwner = empty($accountData['AccounrResellerID']) ? 0 : $accountData['AccounrResellerID'];
+			$ResellerOwner = empty($accountData['AccountResellerID']) ? 0 : $accountData['AccountResellerID'];
 
 			$data['AccountType'] = 1;
 			$data['IsVendor'] = isset($accountData['IsVendor']);
