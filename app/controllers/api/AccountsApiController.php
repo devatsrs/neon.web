@@ -1055,6 +1055,8 @@ class AccountsApiController extends ApiController {
 
 		$AccountSubscriptionQueryDB = AccountSubscription::create($AccountSubscription);
 
+		Log::info('$DynamicFieldIDs.' . count($DynamicFieldIDs) . ' ' . $AccountSubscriptionDB["SubscriptionID"]);
+
 		if (count($DynamicFieldIDs) >0 ) {
 			$DynamicSubscrioptionFields = DynamicFieldsValue::where('ParentID', $AccountSubscriptionDB["SubscriptionID"])
 				->whereIn('DynamicFieldsID', $DynamicFieldIDs);
