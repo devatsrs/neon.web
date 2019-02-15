@@ -1,7 +1,7 @@
 <?php
 
 class AccountService extends \Eloquent {
-	protected $fillable = [];
+    protected $fillable = [];
     protected $connection = "sqlsrv";
     protected $table = "tblAccountService";
     protected $primaryKey = "AccountServiceID";
@@ -61,6 +61,33 @@ class AccountService extends \Eloquent {
         return $row;
 
     }
+
+
+
+    public static function getAccountServiceIDLists($AccountID){
+        $row = array();
+        $select = ["tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.AccountServiceID"];
+        $services = DB::table('tblAccountService')
+            ->join('tblService', function ($join) use($AccountID) {
+                $join->on('tblAccountService.ServiceID', '=', 'tblService.ServiceID')
+                    ->where('tblAccountService.AccountID', '=', $AccountID)
+                    ->where('tblAccountService.Status', '=', 1)
+                    ->where('tblService.Status', '=', 1);
+            })
+            ->select($select)
+            ->get();
+
+        //echo count($services);
+        foreach ($services as $ser){
+            $row[$ser->AccountServiceID] = $ser->ServiceTitle . "({$ser->ServiceName})";
+        }
+
+        if(count($services) > 0){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+
+    }
     /**
      * $SourceAccountID is Source Account
      * $AccountIDs is Destination accounts
@@ -91,194 +118,194 @@ class AccountService extends \Eloquent {
 
                 foreach ($AccountServiceIDs as $AccountServiceID) {
 
-                        /* Account Service start */
-                        $AccountService = AccountService::where(['AccountID' => $SourceAccountID, 'AccountServiceID' => $AccountServiceID])->first();
-                        $ServiceID = $AccountService->ServiceID;
+                    /* Account Service start */
+                    $AccountService = AccountService::where(['AccountID' => $SourceAccountID, 'AccountServiceID' => $AccountServiceID])->first();
+                    $ServiceID = $AccountService->ServiceID;
 
-                        $accountser = array();
-                        $accountser['AccountID'] = $AccountID;
-                        $accountser['ServiceID'] = $ServiceID;
-                        $accountser['CompanyID'] = $AccountService->CompanyID;
-                        $accountser['Status'] = $AccountService->Status;
-                        if (!empty($data['ServiceTitle'])) {
-                            $accountser['ServiceTitle'] = $AccountService->ServiceTitle;
+                    $accountser = array();
+                    $accountser['AccountID'] = $AccountID;
+                    $accountser['ServiceID'] = $ServiceID;
+                    $accountser['CompanyID'] = $AccountService->CompanyID;
+                    $accountser['Status'] = $AccountService->Status;
+                    if (!empty($data['ServiceTitle'])) {
+                        $accountser['ServiceTitle'] = $AccountService->ServiceTitle;
+                    }
+                    if (!empty($data['ServiceDescription'])) {
+                        $accountser['ServiceDescription'] = $AccountService->ServiceDescription;
+                    }
+                    $accountser['ServiceTitleShow'] = $AccountService->ServiceTitleShow;
+
+                    if ($NewAccountService = AccountService::create($accountser)) {
+                        $NewAccountServiceID = $NewAccountService->AccountServiceID;
+                        /* Account Service end */
+
+
+                        /**
+                         * Start Account Contract Clone
+                         */
+                        if (!empty($data['Contract'])) {
+                            $accountContract = AccountServiceContract::where('AccountServiceID', $AccountServiceID)->first();
+                            if($accountContract != false){
+                                $accountCon['AccountServiceID']  = $NewAccountServiceID;
+                                $accountCon['ContractStartDate'] = $accountContract->ContractStartDate;
+                                $accountCon['ContractEndDate']   = $accountContract->ContractEndDate;
+                                $accountCon['Duration']          = $accountContract->Duration;
+                                $accountCon['ContractReason']    = $accountContract->ContractReason;
+                                $accountCon['AutoRenewal']       = $accountContract->AutoRenewal;
+                                $accountCon['ContractTerm']      = $accountContract->ContractTerm;
+                                AccountServiceContract::create($accountCon);
+                            }
                         }
-                        if (!empty($data['ServiceDescription'])) {
-                            $accountser['ServiceDescription'] = $AccountService->ServiceDescription;
+
+                        /**
+                         * End Account Contract Clone
+                         */
+
+
+
+                        /* Account Subscription start */
+
+                        if (!empty($data['Subscription'])) {
+                            $AccountSubscriptions = AccountSubscription::where(['AccountID' => $SourceAccountID, 'AccountServiceID' => $AccountServiceID])->get();
+                            if (!empty($AccountSubscriptions)) {
+                                foreach ($AccountSubscriptions as $AccountSubscription) {
+                                    $accountsub = array();
+                                    $AccountSubscription = json_decode(json_encode($AccountSubscription), true);
+                                    $accountsub = $AccountSubscription;
+
+                                    $accountsub['AccountID'] = $AccountID;
+                                    $accountsub['ServiceID'] = $ServiceID;
+                                    $accountsub['AccountServiceID'] = $NewAccountServiceID;
+                                    unset($accountsub['AccountSubscriptionID']);
+                                    unset($accountsub['created_at']);
+                                    unset($accountsub['updated_at']);
+                                    $accountsub["created_at"] = date('Y-m-d H:i:s');
+                                    $accountsub["updated_at"] = date('Y-m-d H:i:s');
+                                    $AllAccountSubscriptions[] = $accountsub;
+                                }
+                            }
                         }
-                        $accountser['ServiceTitleShow'] = $AccountService->ServiceTitleShow;
 
-                        if ($NewAccountService = AccountService::create($accountser)) {
-                            $NewAccountServiceID = $NewAccountService->AccountServiceID;
-                            /* Account Service end */
+                        /* Account Subscription end */
 
+                        /* Account Addtional Charges start */
+                        if (!empty($data['Additional'])) {
+                            $AccountOneoffcharges = AccountOneOffCharge::where(['AccountID' => $SourceAccountID, 'AccountServiceID' => $AccountServiceID])->get();
+                            if (!empty($AccountOneoffcharges)) {
+                                foreach ($AccountOneoffcharges as $AccountOneoffcharge) {
+                                    $accountadditional = array();
+                                    $AccountOneoffcharge = json_decode(json_encode($AccountOneoffcharge), true);
+                                    $accountadditional = $AccountOneoffcharge;
 
-                            /**
-                             * Start Account Contract Clone
-                             */
-                            if (!empty($data['Contract'])) {
-                                $accountContract = AccountServiceContract::where('AccountServiceID', $AccountServiceID)->first();
-                                if($accountContract != false){
-                                    $accountCon['AccountServiceID']  = $NewAccountServiceID;
-                                    $accountCon['ContractStartDate'] = $accountContract->ContractStartDate;
-                                    $accountCon['ContractEndDate']   = $accountContract->ContractEndDate;
-                                    $accountCon['Duration']          = $accountContract->Duration;
-                                    $accountCon['ContractReason']    = $accountContract->ContractReason;
-                                    $accountCon['AutoRenewal']       = $accountContract->AutoRenewal;
-                                    $accountCon['ContractTerm']      = $accountContract->ContractTerm;
-                                    AccountServiceContract::create($accountCon);
+                                    $accountadditional['AccountID'] = $AccountID;
+                                    $accountadditional['ServiceID'] = $ServiceID;
+                                    $accountadditional['AccountServiceID'] = $NewAccountServiceID;
+                                    unset($accountadditional['AccountOneOffChargeID']);
+                                    unset($accountadditional['created_at']);
+                                    unset($accountadditional['updated_at']);
+                                    $accountadditional["created_at"] = date('Y-m-d H:i:s');
+                                    $accountadditional["updated_at"] = date('Y-m-d H:i:s');
+                                    $AllAccountOneoffCharges[] = $accountadditional;
                                 }
                             }
+                        }
 
-                            /**
-                             * End Account Contract Clone
-                             */
+                        /* Account Addtional Charges end */
 
+                        /* Account tarif start */
+                        if (!empty($data['Tariff'])) {
+                            $AccountTariffs = AccountTariff::where(['AccountID' => $SourceAccountID, 'AccountServiceID' => $AccountServiceID])->get();
+                            if (!empty($AccountTariffs)) {
+                                foreach ($AccountTariffs as $AccountTariff) {
+                                    $accounttar = array();
+                                    $AccountTariff = json_decode(json_encode($AccountTariff), true);
+                                    $accounttar = $AccountTariff;
 
-
-                            /* Account Subscription start */
-
-                            if (!empty($data['Subscription'])) {
-                                $AccountSubscriptions = AccountSubscription::where(['AccountID' => $SourceAccountID, 'AccountServiceID' => $AccountServiceID])->get();
-                                if (!empty($AccountSubscriptions)) {
-                                    foreach ($AccountSubscriptions as $AccountSubscription) {
-                                        $accountsub = array();
-                                        $AccountSubscription = json_decode(json_encode($AccountSubscription), true);
-                                        $accountsub = $AccountSubscription;
-
-                                        $accountsub['AccountID'] = $AccountID;
-                                        $accountsub['ServiceID'] = $ServiceID;
-                                        $accountsub['AccountServiceID'] = $NewAccountServiceID;
-                                        unset($accountsub['AccountSubscriptionID']);
-                                        unset($accountsub['created_at']);
-                                        unset($accountsub['updated_at']);
-                                        $accountsub["created_at"] = date('Y-m-d H:i:s');
-                                        $accountsub["updated_at"] = date('Y-m-d H:i:s');
-                                        $AllAccountSubscriptions[] = $accountsub;
-                                    }
+                                    $accounttar['AccountID'] = $AccountID;
+                                    $accounttar['ServiceID'] = $ServiceID;
+                                    $accounttar['AccountServiceID'] = $NewAccountServiceID;
+                                    unset($accounttar['AccountTariffID']);
+                                    unset($accounttar['created_at']);
+                                    unset($accounttar['updated_at']);
+                                    $accounttar["created_at"] = date('Y-m-d H:i:s');
+                                    $accounttar["updated_at"] = date('Y-m-d H:i:s');
+                                    $AllAccountTariffs[] = $accounttar;
                                 }
                             }
+                        }
 
-                            /* Account Subscription end */
+                        /* Account tarif end */
 
-                            /* Account Addtional Charges start */
-                            if (!empty($data['Additional'])) {
-                                $AccountOneoffcharges = AccountOneOffCharge::where(['AccountID' => $SourceAccountID, 'AccountServiceID' => $AccountServiceID])->get();
-                                if (!empty($AccountOneoffcharges)) {
-                                    foreach ($AccountOneoffcharges as $AccountOneoffcharge) {
-                                        $accountadditional = array();
-                                        $AccountOneoffcharge = json_decode(json_encode($AccountOneoffcharge), true);
-                                        $accountadditional = $AccountOneoffcharge;
+                        /* Account Billing start */
 
-                                        $accountadditional['AccountID'] = $AccountID;
-                                        $accountadditional['ServiceID'] = $ServiceID;
-                                        $accountadditional['AccountServiceID'] = $NewAccountServiceID;
-                                        unset($accountadditional['AccountOneOffChargeID']);
-                                        unset($accountadditional['created_at']);
-                                        unset($accountadditional['updated_at']);
-                                        $accountadditional["created_at"] = date('Y-m-d H:i:s');
-                                        $accountadditional["updated_at"] = date('Y-m-d H:i:s');
-                                        $AllAccountOneoffCharges[] = $accountadditional;
-                                    }
+                        $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), 0);
+
+                        /** @ToDO */
+                        if (!empty($data['Billing'])) {
+                            $AccountBillings = AccountBilling::where(['AccountID' => $SourceAccountID, 'AccountServiceID' => $AccountServiceID])->first();
+                            if (!empty($AccountBillings)) {
+                                $AccountBillings = json_decode(json_encode($AccountBillings), true);
+
+                                if (!empty($AccountBillings['BillingStartDate']) || !empty($AccountBillings['BillingCycleType']) || !empty($AccountBillings['BillingCycleValue']) || !empty($AccountBillings['BillingClassID'])) {
+                                    AccountBilling::insertUpdateBilling($AccountID, $AccountBillings, $ServiceID);
+                                    AccountBilling::storeFirstTimeInvoicePeriod($AccountID, $ServiceID);
+                                    $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), $ServiceID);
                                 }
+
                             }
+                        }
 
-                            /* Account Addtional Charges end */
+                        /* Account Billing End */
 
-                            /* Account tarif start */
-                            if (!empty($data['Tariff'])) {
-                                $AccountTariffs = AccountTariff::where(['AccountID' => $SourceAccountID, 'AccountServiceID' => $AccountServiceID])->get();
-                                if (!empty($AccountTariffs)) {
-                                    foreach ($AccountTariffs as $AccountTariff) {
-                                        $accounttar = array();
-                                        $AccountTariff = json_decode(json_encode($AccountTariff), true);
-                                        $accounttar = $AccountTariff;
 
-                                        $accounttar['AccountID'] = $AccountID;
-                                        $accounttar['ServiceID'] = $ServiceID;
-                                        $accounttar['AccountServiceID'] = $NewAccountServiceID;
-                                        unset($accounttar['AccountTariffID']);
-                                        unset($accounttar['created_at']);
-                                        unset($accounttar['updated_at']);
-                                        $accounttar["created_at"] = date('Y-m-d H:i:s');
-                                        $accounttar["updated_at"] = date('Y-m-d H:i:s');
-                                        $AllAccountTariffs[] = $accounttar;
-                                    }
-                                }
+                        /* discount plan start */
+                        if (!empty($data['DiscountPlan'])) {
+                            if (!empty($AccountPeriod)) {
+                                $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                                $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                                $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                                $AccountSubscriptionID = 0;
+                                $AccountName = '';
+                                $AccountCLI = '';
+                                $SubscriptionDiscountPlanID = 0;
+
+                                $DiscountPlanID = AccountDiscountPlan::where(array('AccountID' => $SourceAccountID, 'Type' => AccountDiscountPlan::OUTBOUND, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'AccountSubscriptionID' => $AccountSubscriptionID, 'AccountName' => $AccountName, 'AccountCLI' => $AccountCLI, 'SubscriptionDiscountPlanID' => $SubscriptionDiscountPlanID))->pluck('DiscountPlanID');
+                                $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID' => $SourceAccountID, 'Type' => AccountDiscountPlan::INBOUND, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'AccountSubscriptionID' => $AccountSubscriptionID, 'AccountName' => $AccountName, 'AccountCLI' => $AccountCLI, 'SubscriptionDiscountPlanID' => $SubscriptionDiscountPlanID))->pluck('DiscountPlanID');
+
+                                $OutboundDiscountPlan = empty($DiscountPlanID) ? '' : $DiscountPlanID;
+                                $InboundDiscountPlan = empty($InboundDiscountPlanID) ? '' : $InboundDiscountPlanID;
+                                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $NewAccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $NewAccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
                             }
+                        }
 
-                            /* Account tarif end */
+                        /* discount plan end */
 
-                            /* Account Billing start */
+                        if (!empty($data['RoutingProfile'])) {
+                            $RoutingProfileToCustomer =	RoutingProfileToCustomer::where(["AccountID"=>$SourceAccountID,"AccountServiceID"=>$AccountServiceID])->first();
+                            if(!empty($RoutingProfileToCustomer)){
+                                $accountroutingprofile = array();
+                                $RoutingProfileToCustomer = json_decode(json_encode($RoutingProfileToCustomer), true);
+                                $accountroutingprofile = $RoutingProfileToCustomer;
 
-                            $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), 0);
-
-                            /** @ToDO */
-                            if (!empty($data['Billing'])) {
-                                $AccountBillings = AccountBilling::where(['AccountID' => $SourceAccountID, 'AccountServiceID' => $AccountServiceID])->first();
-                                if (!empty($AccountBillings)) {
-                                    $AccountBillings = json_decode(json_encode($AccountBillings), true);
-
-                                    if (!empty($AccountBillings['BillingStartDate']) || !empty($AccountBillings['BillingCycleType']) || !empty($AccountBillings['BillingCycleValue']) || !empty($AccountBillings['BillingClassID'])) {
-                                        AccountBilling::insertUpdateBilling($AccountID, $AccountBillings, $ServiceID);
-                                        AccountBilling::storeFirstTimeInvoicePeriod($AccountID, $ServiceID);
-                                        $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), $ServiceID);
-                                    }
-
-                                }
+                                $accountroutingprofile['AccountID'] = $AccountID;
+                                $accountroutingprofile['ServiceID'] = $ServiceID;
+                                $accountroutingprofile['AccountServiceID'] = $NewAccountServiceID;
+                                unset($accountroutingprofile['RoutingProfileToCustomerID']);
+                                unset($accountroutingprofile['created_at']);
+                                unset($accountroutingprofile['updated_at']);
+                                $accountroutingprofile["created_at"] = date('Y-m-d H:i:s');
+                                $accountroutingprofile["updated_at"] = date('Y-m-d H:i:s');
+                                $AllAccountRoutingProfile[] = $accountroutingprofile;
                             }
-
-                            /* Account Billing End */
-
-
-                            /* discount plan start */
-                            if (!empty($data['DiscountPlan'])) {
-                                if (!empty($AccountPeriod)) {
-                                    $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
-                                    $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
-                                    $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                                    $AccountSubscriptionID = 0;
-                                    $AccountName = '';
-                                    $AccountCLI = '';
-                                    $SubscriptionDiscountPlanID = 0;
-
-                                    $DiscountPlanID = AccountDiscountPlan::where(array('AccountID' => $SourceAccountID, 'Type' => AccountDiscountPlan::OUTBOUND, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'AccountSubscriptionID' => $AccountSubscriptionID, 'AccountName' => $AccountName, 'AccountCLI' => $AccountCLI, 'SubscriptionDiscountPlanID' => $SubscriptionDiscountPlanID))->pluck('DiscountPlanID');
-                                    $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID' => $SourceAccountID, 'Type' => AccountDiscountPlan::INBOUND, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'AccountSubscriptionID' => $AccountSubscriptionID, 'AccountName' => $AccountName, 'AccountCLI' => $AccountCLI, 'SubscriptionDiscountPlanID' => $SubscriptionDiscountPlanID))->pluck('DiscountPlanID');
-
-                                    $OutboundDiscountPlan = empty($DiscountPlanID) ? '' : $DiscountPlanID;
-                                    $InboundDiscountPlan = empty($InboundDiscountPlanID) ? '' : $InboundDiscountPlanID;
-                                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $NewAccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
-                                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $NewAccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
-                                }
-                            }
-
-                            /* discount plan end */
-
-                            if (!empty($data['RoutingProfile'])) {
-                                $RoutingProfileToCustomer =	RoutingProfileToCustomer::where(["AccountID"=>$SourceAccountID,"AccountServiceID"=>$AccountServiceID])->first();
-                                if(!empty($RoutingProfileToCustomer)){
-                                    $accountroutingprofile = array();
-                                    $RoutingProfileToCustomer = json_decode(json_encode($RoutingProfileToCustomer), true);
-                                    $accountroutingprofile = $RoutingProfileToCustomer;
-
-                                    $accountroutingprofile['AccountID'] = $AccountID;
-                                    $accountroutingprofile['ServiceID'] = $ServiceID;
-                                    $accountroutingprofile['AccountServiceID'] = $NewAccountServiceID;
-                                    unset($accountroutingprofile['RoutingProfileToCustomerID']);
-                                    unset($accountroutingprofile['created_at']);
-                                    unset($accountroutingprofile['updated_at']);
-                                    $accountroutingprofile["created_at"] = date('Y-m-d H:i:s');
-                                    $accountroutingprofile["updated_at"] = date('Y-m-d H:i:s');
-                                    $AllAccountRoutingProfile[] = $accountroutingprofile;
-                                }
-                            }
-                        }//Account service over
+                        }
+                    }//Account service over
 
 
                 } // over service loop
 
             }// over accounts loop
-            
+
 
 
             if (!empty($data['Subscription'])) {

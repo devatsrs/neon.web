@@ -22,7 +22,7 @@
         </li>
         <li><a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}">Edit Account({{$account->AccountName}})</a></li>
         <li>
-            <a><span>{{accountservice_dropbox($account->AccountID,$ServiceID)}}</span></a>
+            <a><span>{{accountservice_dropbox_new($account->AccountID,$AccountServiceID)}}</span></a>
         </li>
         <li class="active">
             <strong>Account Service</strong>
