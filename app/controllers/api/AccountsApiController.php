@@ -4,6 +4,21 @@ use app\controllers\api\Codes;
 
 class AccountsApiController extends ApiController {
 
+	public static $API_PaymentMethod = array(''=>'' ,
+		self::AuthorizeNet => 'AuthorizeNet',
+		self::AuthorizeNetEcheck=>'AuthorizeNetEcheck',
+		self::FideliPay=>'FideliPay',
+		self::Paypal=>'Paypal',
+		self::PeleCard=>'PeleCard',
+		self::SagePay=>'SagePay',
+		self::SagePayDirectDebit=>'SagePayDirectDebit',
+		self::Stripe=>'Stripe',
+		self::StripeACH=>'StripeACH',
+		self::FastPay=>'FastPay',
+		self::MerchantWarrior=>'MerchantWarrior',
+		self::WireTransfer=>'Wire Transfer',
+		self::Other=>'Other',
+	);
 
 	public function validEmail() {
 		$data = Input::all();
@@ -1338,7 +1353,7 @@ class AccountsApiController extends ApiController {
 
 			//stripe = credit stipeAch = bank
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
-				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(PaymentGateway::$paymentgateway_name)) {
+				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$API_PaymentMethod)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
 
 				}
@@ -1376,8 +1391,8 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 2 || $data['PaymentMethod'] == 3)) {
-				if ($data['PaymentMethod'] == 2) {
+			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 8 || $data['PaymentMethod'] == 9)) {
+				if ($data['PaymentMethod'] == 8) {
 						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
 						if ($CardValidationResponse["status"] == "failed") {
 							return Response::json(["ErrorMessage" => $CardValidationResponse["message"]],Codes::$Code402[0]);
@@ -1386,7 +1401,7 @@ class AccountsApiController extends ApiController {
 					if (!in_array($BankPaymentDetails['CardType'], $CardType)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1036[1]],Codes::$Code1036[0]);
 					}
-				}else if ($data['PaymentMethod'] == 3) {
+				}else if ($data['PaymentMethod'] == 9) {
 					$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
 					if ($validator->fails()) {
 						$errors = "";
@@ -1634,7 +1649,7 @@ class AccountsApiController extends ApiController {
 						if (isset($data['PaymentMethod'])) {
 							$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
 							$BillingSetting['billing_class'] = $BillingSetting['billing_class'] .'-'.
-																PaymentGateway::$paymentgateway_name[$data['PaymentMethod']];
+																AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
 							Log::info("PaymentMethod " . $BillingSetting['billing_class'] . ' ' . $CompanyID);
 							$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])->where('CompanyID', '=', $CompanyID);
 							$BillingClass = $BillingClassSql->first();
@@ -1684,7 +1699,10 @@ class AccountsApiController extends ApiController {
 			}
 
 			DB::beginTransaction();
+			$PaymentMethodId = $data['PaymentMethod'];
+			$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
 			if ($account = Account::create($data)) {
+				$data['PaymentMethod'] = $PaymentMethodId;
 				if (trim($data['Number']) == '') {
 					CompanySetting::setKeyVal('LastAccountNo', $account->Number);
 				}
@@ -1715,7 +1733,7 @@ class AccountsApiController extends ApiController {
 				AccountBalanceThreshold::create($AccountBalanceThreshold);
 				$account->update($data);
 
-				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 2 || $data['PaymentMethod'] == 3)) {
+				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 8 || $data['PaymentMethod'] == 9)) {
 					$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
 					$BankPaymentDetails['CompanyID'] = $CompanyID;
 					if (!empty($BankPaymentDetails['CardNumber'])) {
@@ -2241,7 +2259,7 @@ class AccountsApiController extends ApiController {
 	public function getPaymentMethodList()
 	{
 		Log::info('getPaymentMethodList for Account.');
-		return Response::json(PaymentGateway::$paymentgateway_name,Codes::$Code200[0]);
+		return Response::json(AccountsApiController::$API_PaymentMethod,Codes::$Code200[0]);
 
 	}
 
