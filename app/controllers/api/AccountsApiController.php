@@ -1655,8 +1655,7 @@ class AccountsApiController extends ApiController {
 					}else {
 						if (isset($data['PaymentMethod'])) {
 							$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
-							$BillingSetting['billing_class'] = $BillingSetting['billing_class'] .'-'.
-																AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
+							$BillingSetting['billing_class'] = $BillingSetting['billing_class'] .'-'. $data['PaymentMethod'];
 							Log::info("PaymentMethod " . $BillingSetting['billing_class'] . ' ' . $CompanyID);
 							$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])->where('CompanyID', '=', $CompanyID);
 							$BillingClass = $BillingClassSql->first();
