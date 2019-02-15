@@ -1627,7 +1627,7 @@ class AccountsApiController extends ApiController {
 							return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
 						}
 					}else {
-						if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 2 || $data['PaymentMethod'] == 3)) {
+						if (isset($data['PaymentMethod'])) {
 							$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
 							$BillingSetting['billing_class'] = $BillingSetting['billing_class'] .'-'.
 																PaymentGateway::$paymentgateway_name[$data['PaymentMethod']];
