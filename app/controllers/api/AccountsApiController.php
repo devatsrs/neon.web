@@ -4,20 +4,20 @@ use app\controllers\api\Codes;
 
 class AccountsApiController extends ApiController {
 
-	public static $API_PaymentMethod = array(''=>'' ,
-		self::AuthorizeNet => 'AuthorizeNet',
-		self::AuthorizeNetEcheck=>'AuthorizeNetEcheck',
-		self::FideliPay=>'FideliPay',
-		self::Paypal=>'Paypal',
-		self::PeleCard=>'PeleCard',
-		self::SagePay=>'SagePay',
-		self::SagePayDirectDebit=>'SagePayDirectDebit',
-		self::Stripe=>'Stripe',
-		self::StripeACH=>'StripeACH',
-		self::FastPay=>'FastPay',
-		self::MerchantWarrior=>'MerchantWarrior',
-		self::WireTransfer=>'Wire Transfer',
-		self::Other=>'Other',
+	public static $API_PaymentMethod = array('0'=>'' ,
+		'1' => 'AuthorizeNet',
+		'2'=>'AuthorizeNetEcheck',
+		'3'=>'FideliPay',
+		'4'=>'Paypal',
+		'5'=>'PeleCard',
+		'6'=>'SagePay',
+		'7'=>'SagePayDirectDebit',
+		'8'=>'Stripe',
+		'9'=>'StripeACH',
+		'10'=>'FastPay',
+		'11'=>'MerchantWarrior',
+		'12'=>'Wire Transfer',
+		'13'=>'Other',
 	);
 
 	public function validEmail() {
@@ -1218,6 +1218,7 @@ class AccountsApiController extends ApiController {
 		$accountData = [];
 		try {
 
+
 			try {
 				$post_vars = json_decode(file_get_contents("php://input"));
 				//$post_vars = Input::all();
@@ -1232,6 +1233,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
 			}
 
+			
 
 			//$post_vars = Input::all();
 
