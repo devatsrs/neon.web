@@ -98,6 +98,9 @@ class ActiveCallApiController extends ApiController {
                     $ActiveCallData['VendorCLIPrefix'] = empty($data['VendorCLIPrefix']) ? 'Other' : $data['VendorCLIPrefix'];
                     $ActiveCallData['VendorCLDPrefix'] = empty($data['VendorCLDPrefix']) ? 'Other' : $data['VendorCLDPrefix'];
                     $ActiveCallData['CallRecording'] = 0;
+                    $ActiveCallData['Cost'] = 0;
+                    $ActiveCallData['Duration'] = 0;
+                    $ActiveCallData['billed_duration'] = 0;
 
 
 
@@ -454,79 +457,70 @@ class ActiveCallApiController extends ApiController {
                 return Response::json(array("ErrorMessage" => "Call with this UUID already exists."),Codes::$Code410[0]);
             }
             try{
-                //check Balance
-                //$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $AccountID);
-                $AccountBalance = AccountBalance::getBalanceAmount($AccountID);
-                log::info('Account Balance '.$AccountBalance);
-                if($AccountBalance > 0){
-                    if($data['CallType']==0){
-                        $data['CallType']='Inbound';
-                    }
-                    if($data['CallType']==1){
-                        $data['CallType']='Outbound';
-                    }
-                    $ActiveCallData=array();
-                    $ActiveCallData['AccountID']=$AccountID;
-                    $ActiveCallData['CompanyID']=$CompanyID;
-                    $ActiveCallData['created_at']=date('Y-m-d H:i:s');
-                    $ActiveCallData['created_by']="API";
+                if($data['CallType']==0){
+                    $data['CallType']='Inbound';
+                }
+                if($data['CallType']==1){
+                    $data['CallType']='Outbound';
+                }
+                $ActiveCallData=array();
+                $ActiveCallData['AccountID']=$AccountID;
+                $ActiveCallData['CompanyID']=$CompanyID;
+                $ActiveCallData['created_at']=date('Y-m-d H:i:s');
+                $ActiveCallData['created_by']="API";
 
-                    $ActiveCallData['ConnectTime']=$data['ConnectTime'];
-                    $ActiveCallData['DisconnectTime']=$data['DisconnectTime'];
-                    $ActiveCallData['Duration']=$data['Duration'];
-                    $ActiveCallData['CLI']=$data['CLI'];
-                    $ActiveCallData['CLD']=$data['CLD'];
-                    $ActiveCallData['CallType']=$data['CallType'];
-                    $ActiveCallData['UUID']=$data['UUID'];
-                    $ActiveCallData['VendorID']=empty($data['VendorID']) ? 0 : $data['VendorID'];
-                    $ActiveCallData['VendorConnectionName']=empty($data['VendorConnectionName']) ? '' : $data['VendorConnectionName'];
-                    $ActiveCallData['OriginType']=empty($data['OriginType']) ? '' : $data['OriginType'];
-                    $ActiveCallData['OriginProvider']=empty($data['OriginProvider']) ? '' : $data['OriginProvider'];
-                    $ActiveCallData['VendorRate'] = empty($data['VendorRate']) ? 0 : $data['VendorRate'];
-                    $ActiveCallData['VendorCLIPrefix'] = empty($data['VendorCLIPrefix']) ? 'Other' : $data['VendorCLIPrefix'];
-                    $ActiveCallData['VendorCLDPrefix'] = empty($data['VendorCLDPrefix']) ? 'Other' : $data['VendorCLDPrefix'];
+                $ActiveCallData['ConnectTime']=$data['ConnectTime'];
+                $ActiveCallData['DisconnectTime']=$data['DisconnectTime'];
+                $ActiveCallData['Duration']=$data['Duration'];
+                $ActiveCallData['CLI']=$data['CLI'];
+                $ActiveCallData['CLD']=$data['CLD'];
+                $ActiveCallData['CallType']=$data['CallType'];
+                $ActiveCallData['UUID']=$data['UUID'];
+                $ActiveCallData['VendorID']=empty($data['VendorID']) ? 0 : $data['VendorID'];
+                $ActiveCallData['VendorConnectionName']=empty($data['VendorConnectionName']) ? '' : $data['VendorConnectionName'];
+                $ActiveCallData['OriginType']=empty($data['OriginType']) ? '' : $data['OriginType'];
+                $ActiveCallData['OriginProvider']=empty($data['OriginProvider']) ? '' : $data['OriginProvider'];
+                $ActiveCallData['VendorRate'] = empty($data['VendorRate']) ? 0 : $data['VendorRate'];
+                $ActiveCallData['VendorCLIPrefix'] = empty($data['VendorCLIPrefix']) ? 'Other' : $data['VendorCLIPrefix'];
+                $ActiveCallData['VendorCLDPrefix'] = empty($data['VendorCLDPrefix']) ? 'Other' : $data['VendorCLDPrefix'];
 
-                    // if call recording is on and call recording start time is available
-                    if (!empty($data['CallRecording']) && $data['CallRecording'] == 1 && !empty($data['CallRecordingStartTime'])) {
-                        $CallRecordingDuration = strtotime($data['DisconnectTime']) - strtotime($data['CallRecordingStartTime']);
-                        $ActiveCallData['CallRecordingStartTime'] = $data['CallRecordingStartTime'];
-                        $ActiveCallData['CallRecordingEndTime'] = $data['DisconnectTime'];
-                        $ActiveCallData['CallRecordingDuration'] = $CallRecordingDuration;
-                        $ActiveCallData['CallRecording'] = 1;
-                    } else {
-                        $ActiveCallData['CallRecording'] = 0;
-                    }
+                // if call recording is on and call recording start time is available
+                if (!empty($data['CallRecording']) && $data['CallRecording'] == 1 && !empty($data['CallRecordingStartTime'])) {
+                    $CallRecordingDuration = strtotime($data['DisconnectTime']) - strtotime($data['CallRecordingStartTime']);
+                    $ActiveCallData['CallRecordingStartTime'] = $data['CallRecordingStartTime'];
+                    $ActiveCallData['CallRecordingEndTime'] = $data['DisconnectTime'];
+                    $ActiveCallData['CallRecordingDuration'] = $CallRecordingDuration;
+                    $ActiveCallData['CallRecording'] = 1;
+                } else {
+                    $ActiveCallData['CallRecording'] = 0;
+                }
 
-                    DB::connection('sqlsrvroutingengine')->beginTransaction();
-                    DB::connection('sqlsrv2')->beginTransaction();
+                DB::connection('sqlsrvroutingengine')->beginTransaction();
+                DB::connection('sqlsrv2')->beginTransaction();
 
-                    if ($ActiveCall = ActiveCall::create($ActiveCallData)) {
-                        $ActiveCallID = $ActiveCall->ActiveCallID;
-                        $Response = ActiveCall::updateActiveCall($ActiveCallID);
-                        log::info(print_r($Response,true));
-                        if(isset($Response['Status']) && $Response['Status']=='Success'){
-                            log::info('update call cost');
+                if ($ActiveCall = ActiveCall::create($ActiveCallData)) {
+                    $ActiveCallID = $ActiveCall->ActiveCallID;
+                    $Response = ActiveCall::updateActiveCall($ActiveCallID);
+                    log::info(print_r($Response,true));
+                    if(isset($Response['Status']) && $Response['Status']=='Success'){
+                        log::info('update call cost');
 
-                            ActiveCall::getActiveCallCost($ActiveCallID);
-                            ActiveCall::insertActiveCallCDR($ActiveCallID);
-                            ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
+                        ActiveCall::getActiveCallCost($ActiveCallID);
+                        ActiveCall::insertActiveCallCDR($ActiveCallID);
+                        ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
 
-                            DB::connection('sqlsrvroutingengine')->commit();
-                            DB::connection('sqlsrv2')->commit();
+                        DB::connection('sqlsrvroutingengine')->commit();
+                        DB::connection('sqlsrv2')->commit();
 
-                            return Response::json(array(["ActiveCallID"=>$ActiveCall->ActiveCallID]),Codes::$Code200[0]);
-                        }else{
-                            log::info('delete call');
-                            ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
-                            return Response::json(array("ErrorMessage" => $Response['Message']),Codes::$Code402[0]);
-                        }
-
+                        return Response::json(array(["ActiveCallID"=>$ActiveCall->ActiveCallID]),Codes::$Code200[0]);
                     }else{
-                        return Response::json(array("ErrorMessage" => "Problem Inserting Call."),Codes::$Code500[0]);
+                        log::info('delete call');
+                        ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
+                        return Response::json(array("ErrorMessage" => $Response['Message']),Codes::$Code402[0]);
                     }
 
                 }else{
-                    return Response::json(array("ErrorMessage" => "Account has not sufficient balance."),Codes::$Code402[0]);
+                    return Response::json(array("ErrorMessage" => "Problem Inserting Call."),Codes::$Code500[0]);
                 }
 
             }catch(Exception $e){
