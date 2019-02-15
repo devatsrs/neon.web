@@ -1341,6 +1341,8 @@ class AccountsApiController extends ApiController {
 			$data['AccountType'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
 			$data['PaymentMethod'] = isset($accountData['PaymentMethodID']) ? $accountData['PaymentMethodID'] : '' ;
+
+
 			$BankPaymentDetails['AccountNumber'] = isset($accountData['AccountNumber']) ? $accountData['AccountNumber'] : '' ;
 			$BankPaymentDetails['RoutingNumber'] = isset($accountData['RoutingNumber']) ? $accountData['RoutingNumber'] : '' ;
 			$BankPaymentDetails['AccountHolderType'] = isset($accountData['AccountHolderType']) ? $accountData['AccountHolderType'] : '' ;//company,individual
@@ -1361,6 +1363,9 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
+			if (!empty($data['PaymentMethod'])) {
+				$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
+			}
 
 			$AccountPaymentAutomation['AutoTopup']= isset($accountData['AutoTopup']) ? $accountData['AutoTopup'] :'';
 			$AccountPaymentAutomation['MinThreshold']= isset($accountData['MinThreshold']) ? $accountData['MinThreshold'] : '';
@@ -1393,8 +1398,8 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 8 || $data['PaymentMethod'] == 9)) {
-				if ($data['PaymentMethod'] == 8) {
+			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "Stripe ACH")) {
+				if ($data['PaymentMethod'] == "Stripe") {
 						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
 						if ($CardValidationResponse["status"] == "failed") {
 							return Response::json(["ErrorMessage" => $CardValidationResponse["message"]],Codes::$Code402[0]);
@@ -1403,7 +1408,7 @@ class AccountsApiController extends ApiController {
 					if (!in_array($BankPaymentDetails['CardType'], $CardType)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1036[1]],Codes::$Code1036[0]);
 					}
-				}else if ($data['PaymentMethod'] == 9) {
+				}else if ($data['PaymentMethod'] == "Stripe ACH") {
 					$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
 					if ($validator->fails()) {
 						$errors = "";
@@ -1701,15 +1706,9 @@ class AccountsApiController extends ApiController {
 			}
 
 			DB::beginTransaction();
-			$PaymentMethodId = $data['PaymentMethod'];
-			$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
-			Log::info('create Account ' . $data['PaymentMethod']);
+
 			if ($account = Account::create($data)) {
-				$data['PaymentMethod'] = $PaymentMethodId;
-				$AccountPaymentDetails=array();
-				$AccountPaymentDetails['AccountID'] = $account->AccountID;
-				$AccountPaymentDetails['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
-				$account->update($AccountPaymentDetails);
+
 
 
 				if (trim($data['Number']) == '') {
@@ -1742,7 +1741,7 @@ class AccountsApiController extends ApiController {
 				AccountBalanceThreshold::create($AccountBalanceThreshold);
 				$account->update($data);
 
-				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 8 || $data['PaymentMethod'] == 9)) {
+				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "Stripe ACH")) {
 					$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
 					$BankPaymentDetails['CompanyID'] = $CompanyID;
 					if (!empty($BankPaymentDetails['CardNumber'])) {
