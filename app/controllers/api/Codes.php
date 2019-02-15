@@ -69,5 +69,6 @@ class Codes
     public static $Code1042 =["402","CLI status against the account is already active"];
     public static $Code1043 =["402","Please provide the status value"];
     public static $Code1044 =["402","The value of Status must be between 0 or 1"];
+    public static $Code1045 =["402","More then one inactive CLI found"];
 
 }
