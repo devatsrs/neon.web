@@ -403,8 +403,8 @@ class ActiveCallApiController extends ApiController {
      * @Response
      * ActiveCallID
      */
-    // insert completed call
-    public function insertCall(){
+    // import completed call
+    public function ImportCDR(){
         $post_vars = json_decode(file_get_contents("php://input"));
         $data=json_decode(json_encode($post_vars),true);
 
@@ -463,6 +463,7 @@ class ActiveCallApiController extends ApiController {
                 if($data['CallType']==1){
                     $data['CallType']='Outbound';
                 }
+                $duration = $data['Duration'];
                 $ActiveCallData=array();
                 $ActiveCallData['AccountID']=$AccountID;
                 $ActiveCallData['CompanyID']=$CompanyID;
@@ -471,7 +472,7 @@ class ActiveCallApiController extends ApiController {
 
                 $ActiveCallData['ConnectTime']=$data['ConnectTime'];
                 $ActiveCallData['DisconnectTime']=$data['DisconnectTime'];
-                $ActiveCallData['Duration']=$data['Duration'];
+                $ActiveCallData['Duration']=$duration;
                 $ActiveCallData['CLI']=$data['CLI'];
                 $ActiveCallData['CLD']=$data['CLD'];
                 $ActiveCallData['CallType']=$data['CallType'];
@@ -512,7 +513,7 @@ class ActiveCallApiController extends ApiController {
                         DB::connection('sqlsrvroutingengine')->commit();
                         DB::connection('sqlsrv2')->commit();
 
-                        return Response::json(array(["ActiveCallID"=>$ActiveCall->ActiveCallID]),Codes::$Code200[0]);
+                        return Response::json(Codes::$Code200[0]);
                     }else{
                         log::info('delete call');
                         ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
