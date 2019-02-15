@@ -62,5 +62,8 @@ class Codes
     public static $Code1035 =["402","Please provide the valid Reseller ID"];
     public static $Code1036 =["402","Please provide the valid card type"];
     public static $Code1037 =["402","Please provide the valid Account Holder type"];
+    public static $Code1038 =["402","Please specified the Number Subscription Start Date"];
+    public static $Code1039 =["402","Please specified the Number Subscription End Date"];
+    public static $Code1040 =["402","Please specified the Package Subscription Start Date"];
 
 }

@@ -252,6 +252,24 @@ class AccountsApiController extends ApiController {
 				}
 				$NumberPurchased["Status"] = 1;
 
+				if (!isset($NumberPurchased['NumberSubscriptionStartDate']) || empty($NumberPurchased['NumberSubscriptionStartDate'])) {
+					return Response::json(["ErrorMessage"=>Codes::$Code1038[1]],Codes::$Code1038[0]);
+				}
+				if (isset($NumberPurchased['NumberSubscriptionEndDate']) && !empty($NumberPurchased['NumberSubscriptionEndDate'])) {
+					if ($NumberPurchased['NumberSubscriptionStartDate'] > $NumberPurchased['NumberSubscriptionEndDate']) {
+						return Response::json(["ErrorMessage" => Codes::$Code1002[1]], Codes::$Code1002[0]);
+					}
+				}
+
+				if (!isset($NumberPurchased['PackageSubscriptionStartDate']) || empty($NumberPurchased['PackageSubscriptionStartDate'])) {
+					return Response::json(["ErrorMessage"=>Codes::$Code1040[1]],Codes::$Code1040[0]);
+				}
+				if (isset($NumberPurchased['PackageSubscriptionEndDate'])&& !empty($NumberPurchased['PackageSubscriptionEndDate'])) {
+					if ($NumberPurchased['PackageSubscriptionStartDate'] > $NumberPurchased['PackageSubscriptionEndDate']) {
+						return Response::json(["ErrorMessage" => Codes::$Code1002[1]], Codes::$Code1002[0]);
+					}
+				}
+
 				//if (count($NumberPurchaseds) == 0) {
 				//	$NumberPurchaseds[count($NumberPurchaseds)] = $NumberPurchased;
 				//}else {
@@ -409,7 +427,7 @@ class AccountsApiController extends ApiController {
 				$outbounddata['Type'] = AccountTariff::OUTBOUND;
 			}
 
-			if(!empty($InboundRateTableReference)){
+			/*if(!empty($InboundRateTableReference)){
 				//$count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $inbounddata['ServiceID'], 'Type' => AccountTariff::INBOUND))->count();
 				//if(!empty($count) && $count>0){
 				//	AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $inbounddata['ServiceID'], 'Type' => AccountTariff::INBOUND))
@@ -418,7 +436,7 @@ class AccountsApiController extends ApiController {
 					$inbounddata['created_at'] = $date;
 					AccountTariff::create($inbounddata);
 				//}
-			}
+			}*/
 
 			if(!empty($ServiceTemaplateReference->OutboundRateTableId)){
 				//$count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $outbounddata['ServiceID'], 'Type' => AccountTariff::OUTBOUND))->count();
@@ -480,7 +498,8 @@ class AccountsApiController extends ApiController {
 			}*/
 
 			$SubscriptionSequence = 0;
-			$AccountSubscriptionLast = AccountSubscription::where(array('AccountID' => $Account->AccountID))
+			$AccountSubscriptionLast = AccountSubscription::where(array('AccountID' => $Account->AccountID,
+												'AccountServiceID'=> $AccountService->AccountServiceID))
 										->orderByRaw('SequenceNo desc')
 										->first();
 			if (isset($AccountSubscriptionLast)) {
@@ -541,12 +560,13 @@ class AccountsApiController extends ApiController {
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.RateTableId" => $InboundRateTableReference]);
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.ApprovedStatus" => 1]);
 						$RateTableDIDRates = $RateTableDIDRates->whereRaw("tblRateTableDIDRate.EffectiveDate <= NOW()");
+						$RateTableDIDRates = $RateTableDIDRates->whereRaw("tblRateTableDIDRate.MonthlyCost is not null");
 						Log::info('$RateTableDIDRates CLI.' . $RateTableDIDRates->toSql());
 						$RateTableDIDRates = $RateTableDIDRates->get();
 						//$RateTableDIDRates = RateTableDIDRate::where(array('CityTariff' => $ServiceTemaplateReference->city_tariff))->get();
 						foreach ($RateTableDIDRates as $RateTableDIDRate) {
 							$this->createAccountSubscriptionFromRateTable($Account, $AccountSubscriptionDB,
-								$NumberPurchased["StartDate"],$NumberPurchased["EndDate"] ,$ServiceTemaplateReference, $AccountService,
+								$NumberPurchased["NumberSubscriptionStartDate"],$NumberPurchased["NumberSubscriptionEndDate"] ,$ServiceTemaplateReference, $AccountService,
 								$DefaultSubscriptionID, $DynamicFieldIDs,
 								$RateTableDIDRate, $NumberPurchased["InvoiceNoDescription"],++$SubscriptionSequence);
 						}
@@ -564,12 +584,13 @@ class AccountsApiController extends ApiController {
 						$RateTablePKGRates = $RateTablePKGRates->where(["tblRateTablePKGRate.RateTableId" => $PackagedataRecord["RateTableId"]]);
 						$RateTablePKGRates = $RateTablePKGRates->where(["tblRateTablePKGRate.ApprovedStatus" => 1]);
 						$RateTablePKGRates = $RateTablePKGRates->whereRaw("tblRateTablePKGRate.EffectiveDate <= NOW()");
+						$RateTablePKGRates = $RateTablePKGRates->whereRaw("tblRateTablePKGRate.MonthlyCost is not null");
 						Log::info('Package $RateTablePkgRates.' . $RateTablePKGRates->toSql());
 						$RateTablePKGRates = $RateTablePKGRates->get();
 						//$RateTableDIDRates = RateTableDIDRate::where(array('CityTariff' => $ServiceTemaplateReference->city_tariff))->get();
 						foreach ($RateTablePKGRates as $RateTablePKGRate) {
 							$this->createAccountSubscriptionFromRateTable($Account, $AccountSubscriptionDB,
-								$NumberPurchased["StartDate"],$NumberPurchased["EndDate"], $ServiceTemaplateReference, $AccountService,
+								$NumberPurchased["PackageSubscriptionStartDate"],$NumberPurchased["PackageSubscriptionEndDate"], $ServiceTemaplateReference, $AccountService,
 								$DefaultSubscriptionPackageID, $DynamicFieldIDs,
 								$RateTablePKGRate, $NumberPurchased["InvoicePackageDescription"],++$SubscriptionSequence);
 						}
