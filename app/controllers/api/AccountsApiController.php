@@ -1706,6 +1706,12 @@ class AccountsApiController extends ApiController {
 			Log::info('create Account ' . $data['PaymentMethod']);
 			if ($account = Account::create($data)) {
 				$data['PaymentMethod'] = $PaymentMethodId;
+				$AccountPaymentDetails=array();
+				$AccountPaymentDetails['AccountID'] = $account->AccountID;
+				$AccountPaymentDetails['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
+				$account->update($AccountPaymentDetails);
+
+
 				if (trim($data['Number']) == '') {
 					CompanySetting::setKeyVal('LastAccountNo', $account->Number);
 				}
