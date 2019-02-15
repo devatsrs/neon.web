@@ -127,18 +127,22 @@ class AccountsApiController extends ApiController {
 		$CompanyID = $Account->CompanyId;
 		$NumberPurchased=json_decode(json_encode($data['NumberPurchased']),true);
 		Log::info('UpdateNumberStatus:$NumberPurchasedRef .' . count($NumberPurchased));
-		if (!isset($NumberPurchased["Status"]) || empty($NumberPurchased["Status"])) {
+		if (!isset($NumberPurchased["Status"])) {
 			return Response::json(["ErrorMessage" => Codes::$Code1043[1]],Codes::$Code1043[0]);
 		}
 
+			if ($NumberPurchased['Status'] == '' || ($NumberPurchased['Status'] != 0 && $NumberPurchased['Status'] != 1)) {
+				return Response::json(["ErrorMessage"=>Codes::$Code1044[1]],Codes::$Code1044[0]);
+			}
+
 		$CLIRateTable = CLIRateTable::where(array('CompanyID' => $CompanyID, 'CLI' => $NumberPurchased["Number"],
-			'AccountID' => $Account->AccountID));
-		if (empty($CLIRateTable)){
+			'AccountID' => $Account->AccountID))->first();
+		if (!$CLIRateTable){
 			return Response::json(["ErrorMessage" => Codes::$Code1041[1]],Codes::$Code1041[0]);
-		}else if ($CLIRateTable->Status == 1 && $NumberPurchased["Status"] == 1) {
+		}else if ($CLIRateTable["Status"] == 1 && $NumberPurchased["Status"] == 1) {
 			return Response::json(["ErrorMessage" => Codes::$Code1042[1]],Codes::$Code1042[0]);
 		}else {
-			$CLIRateTableFields["Status"] = 1;
+			$CLIRateTableFields["Status"] = $NumberPurchased['Status'];
 			$CLIRateTable->update($CLIRateTableFields);
 		}
 
@@ -149,7 +153,317 @@ class AccountsApiController extends ApiController {
 
 	}
 
+	public function UpdateNumberPackage()
+	{
+		// <!--"PackageSubscriptionID":"13" -->
+		Log::info('UpdateNumberPackage:Update Number Package.');
+		$message = '';
+		$post_vars = '';
+		$accountData = '';
+		$DefaultSubscriptionID = '';
+		$DefaultSubscriptionPackageID = '';
+		$ServiceTitle = '';
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			//$post_vars = Input::all();
+			$accountData=json_decode(json_encode($post_vars),true);
+			$countValues = count($accountData);
+			if ($countValues == 0) {
+				Log::info('Exception in UpdateNumberPackage.Invalid JSON String');
+				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+			}
+		}catch(Exception $ex) {
+			Log::info('Exception in UpdateNumberPackage.Invalid JSON String' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+		}
 
+
+
+
+		//$post_vars = Input::all();
+
+		$CompanyID = User::get_companyID();
+		$DefaultSubscriptionID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_ID'])->pluck('Value');
+		$DefaultSubscriptionPackageID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_PACKAGE_ID'])->pluck('Value');
+		Log::info('UpdateNumberPackage:Add Product Service.' . '$DefaultSubscriptionID:' . $DefaultSubscriptionID .
+			' ' . '$DefaultSubscriptionPackageID' . ' ' . $DefaultSubscriptionPackageID);
+		$CreatedBy = User::get_user_full_name();
+		$date = date('Y-m-d H:i:s');
+		$InboundRateTableReference = '';
+		$AccountService = '';
+		$AccountServiceContract = [];
+		$AccountSubscription = [];
+		$AccountSubscriptionDB = '';
+		$AccountReferenceObj = '';
+		$DynamicFieldsExist = '';
+		$DynamicSubscrioptionFields = '';
+		$PackagedataRecord = '';
+		try {
+
+
+			Log::info('UpdateNumberPackage:Data.' . json_encode($accountData));
+			$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
+			$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
+			$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
+			$data['AccountDynamicField'] = isset($accountData['AccountDynamicField']) ? $accountData['AccountDynamicField'] : '';
+
+
+			$rules = array(
+				'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
+				'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
+				'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
+				'NumberPurchased'=>'required',
+
+			);
+
+
+			$validator = Validator::make($data, $rules);
+
+			if ($validator->fails()) {
+				$errors = "";
+				foreach ($validator->messages()->all() as $error) {
+					$errors .= $error . "<br>";
+				}
+				return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+			}
+
+			if (!empty($accountData['AccountDynamicField'])) {
+				$AccountIDRef = '';
+				$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+				if (empty($AccountIDRef)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
+				}
+				$data['AccountID'] = $AccountIDRef;
+			}
+
+			if (!empty($data['AccountNo'])) {
+				$Account = Account::where(array('Number' => $data['AccountNo'],'CompanyId' => $CompanyID))->first();
+			}else {
+				$Account = Account::find($data['AccountID']);
+			}
+			if (!$Account) {
+				return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
+			}
+
+			$CompanyID = $Account->CompanyId;
+
+
+
+
+
+
+
+			$NumberPurchased=json_decode(json_encode($data['NumberPurchased']),true);
+
+			Log::info('UpdateNumberPackage:$NumberPurchasedRef .' . count($NumberPurchased));
+
+			$NumberPurchaseds = [];
+
+				Log::info('UpdateNumberPackage:$NumberPurchasedRef .' . $NumberPurchased["Number"]);
+			$CLIRateTable = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$NumberPurchased["Number"],
+				'AccountID'=>$Account->AccountID))->first();
+				if(!$CLIRateTable){
+					return Response::json(array("ErrorMessage" => Codes::$Code1041[1]),Codes::$Code1041[0]);
+				}
+
+				if (!empty($NumberPurchased['PackageSubcriptionDynamicField'])) {
+					$PackagedataRecord =  Package::findPackageByDynamicField($NumberPurchased['PackageSubcriptionDynamicField']);
+					if (empty($PackagedataRecord)) {
+						return Response::json(["ErrorMessage" => Codes::$Code1031[1]], Codes::$Code1031[0]);
+					}
+					$PackagedataRecord = Package::where(array('PackageId' => $PackagedataRecord,'CompanyID' => $CompanyID))->first();
+
+					if (!isset($PackagedataRecord) || $PackagedataRecord == '') {
+						return Response::json(["ErrorMessage" => Codes::$Code1031[1]], Codes::$Code1031[0]);
+					}
+					//$PackagedataRecord = Package::find($PackagedataRecord);
+					$NumberPurchased["PackageID"] = $PackagedataRecord["PackageId"];
+					$NumberPurchased["PackageRateTableID"] = $PackagedataRecord["RateTableId"];
+				}
+
+
+
+
+				if (!isset($NumberPurchased['PackageSubscriptionStartDate']) || empty($NumberPurchased['PackageSubscriptionStartDate'])) {
+					return Response::json(["ErrorMessage"=>Codes::$Code1040[1]],Codes::$Code1040[0]);
+				}
+				if (isset($NumberPurchased['PackageSubscriptionEndDate'])&& !empty($NumberPurchased['PackageSubscriptionEndDate'])) {
+					if ($NumberPurchased['PackageSubscriptionStartDate'] > $NumberPurchased['PackageSubscriptionEndDate']) {
+						return Response::json(["ErrorMessage" => Codes::$Code1002[1]], Codes::$Code1002[0]);
+					}
+				}
+
+			$CLIRateTableFields["PackageID"] = $NumberPurchased["PackageID"];
+			$CLIRateTableFields["PackageRateTableID"] = $NumberPurchased["PackageRateTableID"];
+			$CLIRateTable->update($CLIRateTableFields);
+
+			$AccountService = AccountService::where(array('AccountServiceID' => $CLIRateTable->AccountServiceID))->first();
+
+
+			$DynamicFieldIDs = '';
+			$DynamicFieldsExists=  DynamicFields::where('Type', 'subscription')->get();
+			foreach ($DynamicFieldsExists as $DynamicFieldsExist) {
+				$DynamicFieldIDs = $DynamicFieldIDs .$DynamicFieldsExist["DynamicFieldsID"] . ",";
+			}
+			Log::info('update $DynamicFieldIDs.' . $DynamicFieldIDs);
+			$DynamicFieldIDs = explode(',', $DynamicFieldIDs);
+
+				Log::info('NumberPurchased CLI and Package Description' . print_r($NumberPurchased,true));
+			$SubscriptionSequence = 0;
+			$AccountSubscriptionLast = AccountSubscription::where(array('AccountID' => $Account->AccountID,
+				'AccountServiceID'=> $AccountService->AccountServiceID))
+				->orderByRaw('SequenceNo desc')
+				->first();
+			if (isset($AccountSubscriptionLast)) {
+				$SubscriptionSequence = $AccountSubscriptionLast["SequenceNo"];
+			}
+			if (!empty($DefaultSubscriptionPackageID)) {
+
+
+
+						$RateTablePKGRates = RateTablePKGRate::
+						Join('tblRate', 'tblRateTablePKGRate.RateID', '=', 'tblRate.RateID')
+							->select(['tblRateTablePKGRate.OneOffCost', 'tblRateTablePKGRate.MonthlyCost',
+								'tblRateTablePKGRate.OneOffCostCurrency','tblRateTablePKGRate.MonthlyCostCurrency']);
+						$RateTablePKGRates = $RateTablePKGRates->where(["tblRate.Code" => $PackagedataRecord["Name"]]);
+						$RateTablePKGRates = $RateTablePKGRates->where(["tblRateTablePKGRate.RateTableId" => $PackagedataRecord["RateTableId"]]);
+						$RateTablePKGRates = $RateTablePKGRates->where(["tblRateTablePKGRate.ApprovedStatus" => 1]);
+						$RateTablePKGRates = $RateTablePKGRates->whereRaw("tblRateTablePKGRate.EffectiveDate <= NOW()");
+						$RateTablePKGRates = $RateTablePKGRates->whereRaw("tblRateTablePKGRate.MonthlyCost is not null");
+						Log::info('Package $RateTablePkgRates.' . $RateTablePKGRates->toSql());
+						$RateTablePKGRates = $RateTablePKGRates->get();
+						//$RateTableDIDRates = RateTableDIDRate::where(array('CityTariff' => $ServiceTemaplateReference->city_tariff))->get();
+						foreach ($RateTablePKGRates as $RateTablePKGRate) {
+							$this->createAccountSubscriptionForChangePackage($Account, $AccountSubscriptionDB,
+								$NumberPurchased["PackageSubscriptionStartDate"],$NumberPurchased["PackageSubscriptionEndDate"],
+								$AccountService,
+								$DefaultSubscriptionPackageID, $DynamicFieldIDs,
+								$RateTablePKGRate, $NumberPurchased["InvoicePackageDescription"],++$SubscriptionSequence);
+						}
+					}
+
+
+			return Response::json(json_decode('{}'),Codes::$Code200[0]);
+
+
+		} catch (Exception $ex) {
+			Log::info('UpdateNumberPackage:Exception.' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
+		}
+	}
+
+	public function UpdateNumber()
+	{
+		// <!--"PackageSubscriptionID":"13" -->
+		Log::info('UpdateNumber:Update Number.');
+		$message = '';
+		$post_vars = '';
+		$accountData = '';
+		$DefaultSubscriptionID = '';
+		$DefaultSubscriptionPackageID = '';
+		$ServiceTitle = '';
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			//$post_vars = Input::all();
+			$accountData=json_decode(json_encode($post_vars),true);
+			$countValues = count($accountData);
+			if ($countValues == 0) {
+				Log::info('Exception in UpdateNumber.Invalid JSON String');
+				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+			}
+		}catch(Exception $ex) {
+			Log::info('Exception in UpdateNumber.Invalid JSON String' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+		}
+
+
+
+
+		//$post_vars = Input::all();
+
+		$CompanyID = User::get_companyID();
+		$DefaultSubscriptionID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_ID'])->pluck('Value');
+		$DefaultSubscriptionPackageID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_PACKAGE_ID'])->pluck('Value');
+		Log::info('UpdateNumber:Add Product Service.' . '$DefaultSubscriptionID:' . $DefaultSubscriptionID .
+			' ' . '$DefaultSubscriptionPackageID' . ' ' . $DefaultSubscriptionPackageID);
+		$CreatedBy = User::get_user_full_name();
+		$date = date('Y-m-d H:i:s');
+
+		try {
+
+
+			Log::info('UpdateNumberPackage:Data.' . json_encode($accountData));
+			$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
+			$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
+			$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
+			$data['AccountDynamicField'] = isset($accountData['AccountDynamicField']) ? $accountData['AccountDynamicField'] : '';
+
+
+			$rules = array(
+				'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
+				'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
+				'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
+				'NumberPurchased'=>'required',
+
+			);
+
+
+			$validator = Validator::make($data, $rules);
+
+			if ($validator->fails()) {
+				$errors = "";
+				foreach ($validator->messages()->all() as $error) {
+					$errors .= $error . "<br>";
+				}
+				return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+			}
+
+			if (!empty($accountData['AccountDynamicField'])) {
+				$AccountIDRef = '';
+				$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+				if (empty($AccountIDRef)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
+				}
+				$data['AccountID'] = $AccountIDRef;
+			}
+
+			if (!empty($data['AccountNo'])) {
+				$Account = Account::where(array('Number' => $data['AccountNo'],'CompanyId' => $CompanyID))->first();
+			}else {
+				$Account = Account::find($data['AccountID']);
+			}
+			if (!$Account) {
+				return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
+			}
+
+			$CompanyID = $Account->CompanyId;
+
+
+			$NumberPurchased=json_decode(json_encode($data['NumberPurchased']),true);
+
+			Log::info('UpdateNumberPackage:$NumberPurchasedRef .' . count($NumberPurchased));
+
+			$NumberPurchaseds = [];
+
+			Log::info('UpdateNumber:$NumberPurchasedRef .' . $NumberPurchased["NumberPurchasedHave"]);
+			$CLIRateTable = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$NumberPurchased["NumberPurchasedHave"],
+				'AccountID'=>$Account->AccountID))->first();
+			if(!$CLIRateTable){
+				return Response::json(array("ErrorMessage" => Codes::$Code1041[1]),Codes::$Code1041[0]);
+			}
+
+
+			$CLIRateTableFields["CLI"] = $NumberPurchased["NewNumber"];
+			$CLIRateTable->update($CLIRateTableFields);
+
+			return Response::json(json_decode('{}'),Codes::$Code200[0]);
+
+
+		} catch (Exception $ex) {
+			Log::info('UpdateNumber:Exception.' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
+		}
+	}
 	public function createAccountService()
 	{
 		// <!--"PackageSubscriptionID":"13" -->
@@ -301,7 +615,7 @@ class AccountsApiController extends ApiController {
 
 
 
-				//unset($AccountSubscription['PackageSubscription']);
+			//unset($AccountSubscription['PackageSubscription']);
 
 
 
@@ -360,7 +674,7 @@ class AccountsApiController extends ApiController {
 				//if (count($NumberPurchaseds) == 0) {
 				//	$NumberPurchaseds[count($NumberPurchaseds)] = $NumberPurchased;
 				//}else {
-					$NumberPurchaseds[count($NumberPurchaseds)] = $NumberPurchased;
+				$NumberPurchaseds[count($NumberPurchaseds)] = $NumberPurchased;
 				//}
 
 
@@ -399,48 +713,48 @@ class AccountsApiController extends ApiController {
 
 			if (!empty($ServiceTemaplateReference->ServiceId)) {
 
-					/*$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
-					if (isset($AccountService) && $AccountService != '') {
-						Log::info('AccountServiceID Update');
-						AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))
-							->update(array(
-								'ServiceID' => $ServiceTemaplateReference->ServiceId,
-								'ServiceTitle'=> $ServiceTitle,
-								'updated_at' => $date));
-						$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
-					} else {*/
-						Log::info('AccountServiceID Create');
-						$servicedata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
-						$servicedata['AccountID'] = $Account->AccountID;
-						$servicedata['CompanyID'] = $CompanyID;
-						$servicedata["ServiceTitle"] = $ServiceTitle;
-						$AccountService = AccountService::create($servicedata);
-					//}
-					Log::info('AccountServiceID ' . $AccountService->AccountServiceID);
+				/*$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
+                if (isset($AccountService) && $AccountService != '') {
+                    Log::info('AccountServiceID Update');
+                    AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))
+                        ->update(array(
+                            'ServiceID' => $ServiceTemaplateReference->ServiceId,
+                            'ServiceTitle'=> $ServiceTitle,
+                            'updated_at' => $date));
+                    $AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
+                } else {*/
+				Log::info('AccountServiceID Create');
+				$servicedata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
+				$servicedata['AccountID'] = $Account->AccountID;
+				$servicedata['CompanyID'] = $CompanyID;
+				$servicedata["ServiceTitle"] = $ServiceTitle;
+				$AccountService = AccountService::create($servicedata);
+				//}
+				Log::info('AccountServiceID ' . $AccountService->AccountServiceID);
 
-					/*$AccountServiceContractExisting = AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))->first();
-					if (isset($AccountServiceContractExisting) && $AccountServiceContractExisting != '') {
+				/*$AccountServiceContractExisting = AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))->first();
+                if (isset($AccountServiceContractExisting) && $AccountServiceContractExisting != '') {
 
 
-						$AccountServiceContract["AccountServiceID"] = $AccountService->AccountServiceID;
-						$AccountServiceContract["Duration"] = empty($AccountServiceContract['ContractDuration']) ? $ServiceTemaplateReference->ContractDuration : $AccountServiceContract['ContractDuration'];
-						$AccountServiceContract["ContractReason"] = empty($AccountServiceContract['ContractReason']) ? $ServiceTemaplateReference->CancellationFee : $AccountServiceContract['ContractReason'];
-						$AccountServiceContract["AutoRenewal"] = empty($AccountServiceContract["AutoRenewal"]) ? $ServiceTemaplateReference->AutomaticRenewal : $AccountServiceContract["AutoRenewal"];
-						$AccountServiceContract["ContractTerm"] = empty($AccountServiceContract["ContractTerm"]) ? $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["ContractTerm"];
-						$AccountServiceContract["updated_at"] = $date;
-						//Log::info('AccountServiceID update records ' . $AccountServiceContract["FixedFee"] . ' ' . $AccountServiceContract["FixedFee"]);
-						AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))
-							->update($AccountServiceContract);
-					} else {*/
-						Log::info('AccountServiceID new' . $AccountService->AccountServiceID);
-						$AccountServiceContract["AccountServiceID"] = $AccountService->AccountServiceID;
-						$AccountServiceContract["Duration"] = empty($AccountServiceContract['ContractDuration']) ? $ServiceTemaplateReference->ContractDuration : $AccountServiceContract['ContractDuration'];
-						$AccountServiceContract["ContractReason"] = empty($AccountServiceContract['ContractReason']) ? $ServiceTemaplateReference->CancellationFee : $AccountServiceContract['ContractReason'];
-						$AccountServiceContract["AutoRenewal"] = empty($AccountServiceContract["AutoRenewal"]) ? $ServiceTemaplateReference->AutomaticRenewal : $AccountServiceContract["AutoRenewal"];
-						$AccountServiceContract["ContractTerm"] = empty($AccountServiceContract["ContractTerm"]) ? $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["ContractTerm"];
-						Log::info('AccountServiceContract Done' . print_r($AccountServiceContract, true));
-						AccountServiceContract::create($AccountServiceContract);
-						Log::info('AccountServiceContract Done');
+                    $AccountServiceContract["AccountServiceID"] = $AccountService->AccountServiceID;
+                    $AccountServiceContract["Duration"] = empty($AccountServiceContract['ContractDuration']) ? $ServiceTemaplateReference->ContractDuration : $AccountServiceContract['ContractDuration'];
+                    $AccountServiceContract["ContractReason"] = empty($AccountServiceContract['ContractReason']) ? $ServiceTemaplateReference->CancellationFee : $AccountServiceContract['ContractReason'];
+                    $AccountServiceContract["AutoRenewal"] = empty($AccountServiceContract["AutoRenewal"]) ? $ServiceTemaplateReference->AutomaticRenewal : $AccountServiceContract["AutoRenewal"];
+                    $AccountServiceContract["ContractTerm"] = empty($AccountServiceContract["ContractTerm"]) ? $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["ContractTerm"];
+                    $AccountServiceContract["updated_at"] = $date;
+                    //Log::info('AccountServiceID update records ' . $AccountServiceContract["FixedFee"] . ' ' . $AccountServiceContract["FixedFee"]);
+                    AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))
+                        ->update($AccountServiceContract);
+                } else {*/
+				Log::info('AccountServiceID new' . $AccountService->AccountServiceID);
+				$AccountServiceContract["AccountServiceID"] = $AccountService->AccountServiceID;
+				$AccountServiceContract["Duration"] = empty($AccountServiceContract['ContractDuration']) ? $ServiceTemaplateReference->ContractDuration : $AccountServiceContract['ContractDuration'];
+				$AccountServiceContract["ContractReason"] = empty($AccountServiceContract['ContractReason']) ? $ServiceTemaplateReference->CancellationFee : $AccountServiceContract['ContractReason'];
+				$AccountServiceContract["AutoRenewal"] = empty($AccountServiceContract["AutoRenewal"]) ? $ServiceTemaplateReference->AutomaticRenewal : $AccountServiceContract["AutoRenewal"];
+				$AccountServiceContract["ContractTerm"] = empty($AccountServiceContract["ContractTerm"]) ? $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["ContractTerm"];
+				Log::info('AccountServiceContract Done' . print_r($AccountServiceContract, true));
+				AccountServiceContract::create($AccountServiceContract);
+				Log::info('AccountServiceContract Done');
 				//	}
 
 			}
@@ -448,10 +762,10 @@ class AccountsApiController extends ApiController {
 			$OutboundDiscountPlan = $ServiceTemaplateReference->OutboundDiscountPlanId;
 			$InboundDiscountPlan = $ServiceTemaplateReference->InboundDiscountPlanId;
 
-				$AccountSubscriptionID = 0;
-				$AccountName = '';
-				$AccountCLI = '';
-				$SubscriptionDiscountPlanID = 0;
+			$AccountSubscriptionID = 0;
+			$AccountName = '';
+			$AccountCLI = '';
+			$SubscriptionDiscountPlanID = 0;
 			if (!empty($OutboundDiscountPlan)) {
 				$AccountDiscountPlan['AccountID'] = $Account->AccountID;
 				$AccountDiscountPlan['DiscountPlanID'] = $OutboundDiscountPlan;
@@ -464,7 +778,7 @@ class AccountsApiController extends ApiController {
 				$AccountDiscountPlan['AccountServiceID'] = $AccountService->AccountServiceID;
 				//$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))->count();
 				//if ($AccountDiscountPlanExists == 0) {
-					AccountDiscountPlan::create($AccountDiscountPlan);
+				AccountDiscountPlan::create($AccountDiscountPlan);
 				//} else {
 				//	AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))
 				//		->update($AccountDiscountPlan);
@@ -484,7 +798,7 @@ class AccountsApiController extends ApiController {
 				$AccountDiscountPlan['AccountServiceID'] = $AccountService->AccountServiceID;
 				//$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::INBOUND))->count();
 				//if ($AccountDiscountPlanExists == 0) {
-					AccountDiscountPlan::create($AccountDiscountPlan);
+				AccountDiscountPlan::create($AccountDiscountPlan);
 				//}else {
 				//	AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))
 				//		->update($AccountDiscountPlan);
@@ -531,8 +845,8 @@ class AccountsApiController extends ApiController {
 				//	AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $outbounddata['ServiceID'], 'Type' => AccountTariff::OUTBOUND))
 				//		->update(array('RateTableID' => $ServiceTemaplateReference->OutboundRateTableId, 'updated_at' => $date));
 				//}else{
-					$outbounddata['created_at'] = $date;
-					AccountTariff::create($outbounddata);
+				$outbounddata['created_at'] = $date;
+				AccountTariff::create($outbounddata);
 				//}
 			}
 
@@ -547,20 +861,20 @@ class AccountsApiController extends ApiController {
 				//if(AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>$ServiceTemaplateReference->ServiceId))->count()){
 				//	AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>$ServiceTemaplateReference->ServiceId))->update($AccountAuthenticate);
 				//}else{
-					$AccountAuthenticate['AccountID'] = $Account->AccountID;
-					$AccountAuthenticate['CompanyID'] = $CompanyID;
-					$AccountAuthenticate['ServiceID'] = $ServiceTemaplateReference->ServiceId;
-					AccountAuthenticate::insert($AccountAuthenticate);
-			//	}
+				$AccountAuthenticate['AccountID'] = $Account->AccountID;
+				$AccountAuthenticate['CompanyID'] = $CompanyID;
+				$AccountAuthenticate['ServiceID'] = $ServiceTemaplateReference->ServiceId;
+				AccountAuthenticate::insert($AccountAuthenticate);
+				//	}
 
 			}else{
-			//	if(AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>0))->count()){
-			//		AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>0))->update($AccountAuthenticate);
-			//	}else{
-					$AccountAuthenticate['AccountID'] = $Account->AccountID;
-					$AccountAuthenticate['CompanyID'] = $CompanyID;
-					AccountAuthenticate::insert($AccountAuthenticate);
-			//	}
+				//	if(AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>0))->count()){
+				//		AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>0))->update($AccountAuthenticate);
+				//	}else{
+				$AccountAuthenticate['AccountID'] = $Account->AccountID;
+				$AccountAuthenticate['CompanyID'] = $CompanyID;
+				AccountAuthenticate::insert($AccountAuthenticate);
+				//	}
 			}
 
 			$cliRateTableID = 0;
@@ -586,9 +900,9 @@ class AccountsApiController extends ApiController {
 
 			$SubscriptionSequence = 0;
 			$AccountSubscriptionLast = AccountSubscription::where(array('AccountID' => $Account->AccountID,
-												'AccountServiceID'=> $AccountService->AccountServiceID))
-										->orderByRaw('SequenceNo desc')
-										->first();
+				'AccountServiceID'=> $AccountService->AccountServiceID))
+				->orderByRaw('SequenceNo desc')
+				->first();
 			if (isset($AccountSubscriptionLast)) {
 				$SubscriptionSequence = $AccountSubscriptionLast["SequenceNo"];
 			}
@@ -641,7 +955,7 @@ class AccountsApiController extends ApiController {
 						$RateTableDIDRates = RateTableDIDRate::
 						Join('tblRate', 'tblRateTableDIDRate.RateID', '=', 'tblRate.RateID')
 							->select(['tblRateTableDIDRate.OneOffCost', 'tblRateTableDIDRate.MonthlyCost',
-							'tblRateTableDIDRate.OneOffCostCurrency','tblRateTableDIDRate.MonthlyCostCurrency']);
+								'tblRateTableDIDRate.OneOffCostCurrency','tblRateTableDIDRate.MonthlyCostCurrency']);
 						$RateTableDIDRates = $RateTableDIDRates->whereRaw('\'' . $NumberPurchased["Number"] . '\'' . ' like  CONCAT(tblRate.Code,"%")');
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.CityTariff" => $ServiceTemaplateReference->city_tariff]);
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.RateTableId" => $InboundRateTableReference]);
@@ -703,6 +1017,64 @@ class AccountsApiController extends ApiController {
 		}
 	}
 
+
+
+	public function createAccountSubscriptionForChangePackage($Account,$AccountSubscriptionDB,
+														   $startDate,$endDate,$AccountService,$SubscriptionId,
+														   $DynamicFieldIDs,$RateTableDIDRate,$InvoiceLineDescriptionAPI,$SubscriptionSequence) {
+
+
+		//Log::info('$InvoiceLineDescriptionAPI .' . $InvoiceLineDescriptionAPI);
+		$monthly = $RateTableDIDRate["MonthlyCost"];
+		$InvoiceLineDescription = empty($InvoiceLineDescriptionAPI) ? $AccountSubscriptionDB["InvoiceLineDescription"] : $InvoiceLineDescriptionAPI;
+		//Log::info('$InvoiceLineDescriptionAPI .' . $InvoiceLineDescription);
+		$AccountSubscription["AccountID"] = $Account->AccountID;
+		$AccountSubscription["SubscriptionID"] = $SubscriptionId;
+		$AccountSubscription["InvoiceDescription"] = $InvoiceLineDescription;
+		$AccountSubscription["Qty"] = 1;
+		$AccountSubscription["StartDate"] = $startDate;
+		if (!empty($endDate)) {
+			$AccountSubscription["EndDate"] = $endDate;
+		}
+		//$AccountSubscription["ExemptTax"] =  $AccountSubscriptionDB[];
+		$AccountSubscription["ActivationFee"] = $RateTableDIDRate["OneOffCost"];
+		$AccountSubscription["AnnuallyFee"] = $monthly * 12;
+		$AccountSubscription["QuarterlyFee"] = $monthly * 3;
+		$AccountSubscription["MonthlyFee"] = $monthly;
+		$AccountSubscription["WeeklyFee"] = $monthly / 30 * 7;
+		$AccountSubscription["DailyFee"] = $monthly / 30;
+		$AccountSubscription["SequenceNo"] =  $SubscriptionSequence;
+		$AccountSubscription["ServiceID"] = $AccountService->ServiceID;
+		$AccountSubscription["Status"] = 1;
+		$AccountSubscription["AccountServiceID"] = $AccountService->AccountServiceID;
+		$AccountSubscription["OneOffCurrencyID"] = $RateTableDIDRate->OneOffCostCurrency;
+		$AccountSubscription["RecurringCurrencyID"] = $RateTableDIDRate->MonthlyCostCurrency;
+
+		//$AccountSubscription["DiscountAmount"] =  $AccountSubscriptionDB[];
+		//$AccountSubscription["DiscountType"] =  $AccountSubscriptionDB[];
+
+		$AccountSubscriptionQueryDB = AccountSubscription::create($AccountSubscription);
+
+
+		$DynamicSubscrioptionFields=  DynamicFieldsValue::where('ParentID', $AccountSubscriptionDB["SubscriptionID"])
+			->whereIn('DynamicFieldsID',$DynamicFieldIDs);
+		Log::info('update $DynamicFieldIDs.' . $DynamicSubscrioptionFields->toSql());
+		$DynamicSubscrioptionFields = $DynamicSubscrioptionFields->get();
+		Log::info('update $DynamicFieldIDs.' . count($DynamicSubscrioptionFields));
+
+		if (count($DynamicSubscrioptionFields) > 0) {
+			AccountSubsDynamicFields::where(array('AccountSubscriptionID' => $AccountSubscriptionQueryDB["AccountSubscriptionID"]))->delete();
+		}
+		$AccountSubsDynamicFields = [];
+		foreach ($DynamicSubscrioptionFields as $DynamicSubscrioptionField) {
+			$AccountSubsDynamicFields["AccountSubscriptionID"] = $AccountSubscriptionQueryDB["AccountSubscriptionID"];
+			$AccountSubsDynamicFields["AccountID"] = $Account->AccountID;
+			$AccountSubsDynamicFields["DynamicFieldsID"] = $DynamicSubscrioptionField["DynamicFieldsID"];
+			$AccountSubsDynamicFields["FieldValue"] = $DynamicSubscrioptionField["FieldValue"];
+			$AccountSubsDynamicFields["FieldOrder"] = $DynamicSubscrioptionField["FieldOrder"];
+			AccountSubsDynamicFields::insert($AccountSubsDynamicFields);
+		}
+	}
 
 	public function createAccountSubscriptionFromRateTable($Account,$AccountSubscriptionDB,
 											  $startDate,$endDate,$ServiceTemaplateReference,$AccountService,$SubscriptionId,

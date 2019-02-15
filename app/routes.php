@@ -1834,6 +1834,8 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
 	Route::post('account/UpdateNumberStatus', 'AccountsApiController@UpdateNumberStatus');
+	Route::post('account/UpdateNumberPackage', 'AccountsApiController@UpdateNumberPackage');
+	Route::post('account/UpdateNumber', 'AccountsApiController@UpdateNumber');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
 
