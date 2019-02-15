@@ -15,7 +15,10 @@ class AccountServiceController extends \BaseController {
         $decimal_places = get_round_decimal_places($id);
         $products = Product::getProductDropdownList($CompanyID);
         $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
-        $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
+        $rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::DID, RateGenerator::VoiceCall],
+            'NotVendor' => true,
+        ]);
         $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
         $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceID)->first();
         $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID',$AccountServiceID)->first();
