@@ -1655,11 +1655,11 @@ class AccountsApiController extends ApiController {
 					}else {
 						if (isset($data['PaymentMethod'])) {
 							$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
-							$BillingSetting['billing_class'] = $BillingSetting['billing_class'] .'-'. $data['PaymentMethod'];
-							Log::info("PaymentMethod " . $BillingSetting['billing_class'] . ' ' . $CompanyID);
-							$BillingClassSql = BillingClass::whereRaw('LOWER(Name) = lower('. $BillingSetting['billing_class'] . ')')
+							$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $data['PaymentMethod']);
+							Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $CompanyID);
+							$BillingClassSql = BillingClass::whereRaw('lower(name) = '. "'". $BillingSetting['billing_class'] . "'")
 								->where('CompanyID', '=', $CompanyID);
-							Log::info("$BillingClassSql Query " . $BillingClassSql->toSql());
+
 							$BillingClass = $BillingClassSql->first();
 							if (!isset($BillingClass)) {
 								return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
