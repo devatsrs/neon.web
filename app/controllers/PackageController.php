@@ -53,7 +53,7 @@ class PackageController extends BaseController {
 
             $CompanyID = User::get_companyID();
             $data['CompanyID'] = $CompanyID;
-            Package::$rules['Name'] = 'required|unique:tblPackage,Name';
+            Package::$rules["Name"] = 'required|unique:tblPackage,Name,NULL,PackageId,CompanyID,'.$CompanyID;
 
             $validator = Validator::make($data, Package::$rules);
 
@@ -74,7 +74,7 @@ class PackageController extends BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $Package = Package::where("CompanyID", $CompanyID)->find($id);
-        Package::$rules["Name"] = 'required|unique:tblPackage,Name,'.$id.',PackageId';
+        Package::$rules["Name"] = 'required|unique:tblPackage,Name,'.$id.',PackageId,CompanyID,'.$CompanyID;
 
 
         $validator = Validator::make($data, Package::$rules);
