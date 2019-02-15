@@ -1233,7 +1233,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
 			}
 
-			
+
 
 			//$post_vars = Input::all();
 
@@ -1703,6 +1703,7 @@ class AccountsApiController extends ApiController {
 			DB::beginTransaction();
 			$PaymentMethodId = $data['PaymentMethod'];
 			$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
+			Log::info('create Account ' . $data['PaymentMethod']);
 			if ($account = Account::create($data)) {
 				$data['PaymentMethod'] = $PaymentMethodId;
 				if (trim($data['Number']) == '') {
