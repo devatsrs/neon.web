@@ -312,7 +312,21 @@ var dropdown_text =  {
     contractexpireoptions: {
         AccountName: "AccountName",
         Email: "Email",
-        ServiceName : "ServiceName"
+        ServiceName : "ServiceName",
+        DaysOfExpiry : "DaysOfExpiry",
+        FirstName:"FirstName",
+        AccountName:"AccountName",
+        LastName:"LastName",
+        Email:"Email",
+        Address1:"Address1",
+        Address2:"Address2",
+        Address3:"Address3",
+        City:"City",
+        State:"State",
+        PostCode:"PostCode",
+        Country:"Country",
+        CompanyName:"CompanyName",
+        Signature:"Signature",
     }
 };
 
@@ -476,14 +490,63 @@ var neon_summernote_dropdown_tpl = {
         "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractoptions.AccountName + "</a></li>" +
         "<li><a data-value='{{ServiceTitle}}'>" + dropdown_text.contractoptions.ServiceTitle + "</a></li>" +
         "<li><a data-value='{{ServiceName}}'>" + dropdown_text.contractoptions.ServiceName + "</a></li>" +
-        "<li><a data-value='{{Email}}'>" + dropdown_text.contractoptions.Email + "</a></li>"
+        "<li><a data-value='{{Email}}'>" + dropdown_text.contractoptions.Email + "</a></li>" +
+        "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractexpireoptions.AccountName + "</a></li>" +
+        "<li><a data-value='{{FirstName}}'>" + dropdown_text.contractexpireoptions.FirstName + "</a></li>" +
+        "<li><a data-value='{{LastName}}'>" + dropdown_text.contractexpireoptions.LastName + "</a></li>" +
+        "<li><a data-value='{{Email}}'>" + dropdown_text.contractexpireoptions.Email + "</a></li>" +
+        "<li><a data-value='{{Address1}}'>" + dropdown_text.contractexpireoptions.Address1 + "</a></li>" +
+        "<li><a data-value='{{Address2}}'>" + dropdown_text.contractexpireoptions.Address2 + "</a></li>" +
+        "<li><a data-value='{{Address3}}'>" + dropdown_text.contractexpireoptions.Address3 + "</a></li>" +
+        "<li><a data-value='{{City}}'>" + dropdown_text.contractexpireoptions.City + "</a></li>" +
+        "<li><a data-value='{{State}}'>" + dropdown_text.contractexpireoptions.State + "</a></li>" +
+        "<li><a data-value='{{PostCode}}'>" + dropdown_text.contractexpireoptions.PostCode + "</a></li>" +
+        "<li><a data-value='{{Country}}'>" + dropdown_text.contractexpireoptions.Country + "</a></li>" +
+        "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+        "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
+        "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
+        "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
+        "<li><a data-value='{{CompanyAddress2}}'>" + dropdown_text.Company.Address2 + "</a></li>" +
+        "<li><a data-value='{{CompanyAddress3}}'>" + dropdown_text.Company.Address3 + "</a></li>" +
+        "<li><a data-value='{{CompanyCity}}'>" + dropdown_text.Company.City + "</a></li>" +
+        "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
+        "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
+        "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>"
 },
     "contractexpireoptions": function () {
 
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
-            "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractoptions.AccountName + "</a></li>" +
-            "<li><a data-value='{{ServiceName}}'>" + dropdown_text.contractoptions.ServiceName + "</a></li>" +
-            "<li><a data-value='{{Email}}'>" + dropdown_text.contractoptions.Email + "</a></li>"
+            "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractexpireoptions.AccountName + "</a></li>" +
+            "<li><a data-value='{{ServiceName}}'>" + dropdown_text.contractexpireoptions.ServiceName + "</a></li>" +
+            "<li><a data-value='{{DaysOfExpiry}}'>" + dropdown_text.contractexpireoptions.DaysOfExpiry + "</a></li>" +
+            "<li><a data-value='{{Email}}'>" + dropdown_text.contractexpireoptions.Email + "</a></li>" +
+            "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+            "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractexpireoptions.AccountName + "</a></li>" +
+            "<li><a data-value='{{FirstName}}'>" + dropdown_text.contractexpireoptions.FirstName + "</a></li>" +
+            "<li><a data-value='{{LastName}}'>" + dropdown_text.contractexpireoptions.LastName + "</a></li>" +
+            "<li><a data-value='{{Email}}'>" + dropdown_text.contractexpireoptions.Email + "</a></li>" +
+            "<li><a data-value='{{Address1}}'>" + dropdown_text.contractexpireoptions.Address1 + "</a></li>" +
+            "<li><a data-value='{{Address2}}'>" + dropdown_text.contractexpireoptions.Address2 + "</a></li>" +
+            "<li><a data-value='{{Address3}}'>" + dropdown_text.contractexpireoptions.Address3 + "</a></li>" +
+            "<li><a data-value='{{City}}'>" + dropdown_text.contractexpireoptions.City + "</a></li>" +
+            "<li><a data-value='{{State}}'>" + dropdown_text.contractexpireoptions.State + "</a></li>" +
+            "<li><a data-value='{{PostCode}}'>" + dropdown_text.contractexpireoptions.PostCode + "</a></li>" +
+            "<li><a data-value='{{Country}}'>" + dropdown_text.contractexpireoptions.Country + "</a></li>" +
+            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
+            "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress2}}'>" + dropdown_text.Company.Address2 + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress3}}'>" + dropdown_text.Company.Address3 + "</a></li>" +
+            "<li><a data-value='{{CompanyCity}}'>" + dropdown_text.Company.City + "</a></li>" +
+            "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
+            "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
+            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
+            "<li class='unclick'><a ><b>Others</b></a></li>" +
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.invoiceoptions.Signature + "</a></li>" ;
+
+
     },
     "outpaymentoptions": function () {
 

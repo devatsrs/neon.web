@@ -112,6 +112,7 @@ $("#call-billing-form [name='AlertType']").change(function(){
         $("#call-billing-form .ReminderEmail").html('Send Copy To');
         $("#call-billing-form [name='CallAlert[EmailToAccount]']").parents('.col-md-6').removeClass('hidden');
         $("#call-billing-form [name='CallAlert[AccountIDs]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[ContractAlertDays]']").parents('.row').removeClass('hidden');
     }
 });
 });

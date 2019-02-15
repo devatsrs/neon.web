@@ -205,6 +205,10 @@ function accountservice_dropbox($AccountID,$ServiceID){
     $all_accsevices = accountservice::getAccountServiceIDList($AccountID);
     return Form::select('accountservice', $all_accsevices, $ServiceID ,array("id"=>"drp_accountservice_jump" ,"class"=>"selectboxit1 form-control1"));
 }
+function accountservice_dropbox_new($AccountID,$AccountServiceID){
+    $all_accsevices = accountservice::getAccountServiceIDLists($AccountID);
+    return Form::select('accountservice', $all_accsevices, $AccountServiceID ,array("id"=>"drp_accountservice_jump" ,"class"=>"selectboxit1 form-control1"));
+}
 function basecodedeck_dropbox($id=0,$data=array()){
     $all_basecodedecks = BaseCodeDeck::getCodedeckIDList();
     return Form::select('basecodedeck', $all_basecodedecks, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
