@@ -25,7 +25,7 @@ class Codes
     public static $Code1000 =["402","Invalid Account"];
     public static $Code1001 =["402","Please specified the Service End Date"];
     public static $Code1002 =["402","End Date should be greater then start date"];
-    public static $Code1003 =["402","The value of ContractType must be between 1 and 4"];
+    public static $Code1003 =["402","The value of ContractType must be between 1 and 5"];
     public static $Code1004 =["402","The value of AutoRenewal must be between 0 or 1"];
     public static $Code1005 =["402","Please provide the correct account subscription"];
     public static $Code1006 =["402","Please provide the valid dynamic field"];
@@ -62,5 +62,12 @@ class Codes
     public static $Code1035 =["402","Please provide the valid Reseller ID"];
     public static $Code1036 =["402","Please provide the valid card type"];
     public static $Code1037 =["402","Please provide the valid Account Holder type"];
+    public static $Code1038 =["402","Please specified the Number Subscription Start Date"];
+    public static $Code1039 =["402","Please specified the Number Subscription End Date"];
+    public static $Code1040 =["402","Please specified the Package Subscription Start Date"];
+    public static $Code1041 =["402","Please provide the valid CLI number"];
+    public static $Code1042 =["402","Please CLI status against the account is already active"];
+    public static $Code1043 =["402","Please provide the status value"];
+    public static $Code1044 =["402","The value of Status must be between 0 or 1"];
 
 }

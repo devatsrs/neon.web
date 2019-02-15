@@ -1137,6 +1137,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/{id}/delete', 'InvoicesController@delete');
 	Route::any('/invoice/{id}/view', 'InvoicesController@view');
 	Route::any('/invoice/{id}/update', 'InvoicesController@update');
+	Route::any('/invoice/{id}/ubl_invoice', 'InvoicesController@ublInvoice');
 	//Route::any('/invoice/{id}/print_preview', 'InvoicesController@print_preview'); Not in use
 	Route::any('/invoice/{id}/invoice_preview', 'InvoicesController@invoice_preview'); //Customer View
 	//Route::any('/invoice/{id}/print', 'InvoicesController@pdf_view');
@@ -1820,6 +1821,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('startRecording', 'ActiveCallApiController@startRecording');
 	Route::post('startCall', 'ActiveCallApiController@startCall');
 	Route::post('endCall', 'ActiveCallApiController@endCall');
+	Route::post('ImportCDR', 'ActiveCallApiController@ImportCDR');
 	Route::post('blockCall', 'ActiveCallApiController@blockCall');
 	Route::post('BlockCalls/list', 'ActiveCallApiController@getBlockCalls');
 	Route::get('emailTemplate/list', 'EmailTemplateApiController@getList');
@@ -1831,6 +1833,9 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/updateAccount', 'AccountsApiController@updateAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
+	Route::post('account/UpdateNumberStatus', 'AccountsApiController@UpdateNumberStatus');
+	Route::post('account/UpdateNumberPackage', 'AccountsApiController@UpdateNumberPackage');
+	Route::post('account/UpdateNumber', 'AccountsApiController@UpdateNumber');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
 

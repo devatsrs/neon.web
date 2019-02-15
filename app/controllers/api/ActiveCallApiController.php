@@ -98,6 +98,9 @@ class ActiveCallApiController extends ApiController {
                     $ActiveCallData['VendorCLIPrefix'] = empty($data['VendorCLIPrefix']) ? 'Other' : $data['VendorCLIPrefix'];
                     $ActiveCallData['VendorCLDPrefix'] = empty($data['VendorCLDPrefix']) ? 'Other' : $data['VendorCLDPrefix'];
                     $ActiveCallData['CallRecording'] = 0;
+                    $ActiveCallData['Cost'] = 0;
+                    $ActiveCallData['Duration'] = 0;
+                    $ActiveCallData['billed_duration'] = 0;
 
 
 
@@ -392,5 +395,147 @@ class ActiveCallApiController extends ApiController {
     }
 
 
+    /**
+     * @Param mixed
+     * AccountID/AccountNo
+     * ConnectTime,CLI,CLD,CallType,UUID,VendorID,VendorConnectionName,VendorRate,VendorCLIPrefix,VendorCLDPrefix
+     * OriginType : MOBILE, FIXED ,  OriginProvider: Sunrise, Swisscom
+     * @Response
+     * ActiveCallID
+     */
+    // import completed call
+    public function ImportCDR(){
+        $post_vars = json_decode(file_get_contents("php://input"));
+        $data=json_decode(json_encode($post_vars),true);
+
+        $CompanyID=0;
+        $AccountID=0;
+
+        if(!empty($data['AccountID'])) {
+            $AccountID = $data['AccountID'];
+        }else if(!empty($data['AccountNo'])){
+            $AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+        }else if(!empty($data['AccountDynamicField'])){
+            $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+        }else{
+            return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code402[0]);
+        }
+
+        $Account=Account::where(["AccountID" => $AccountID]);
+        if($Account->count() > 0){
+            $Account = $Account->first();
+            $CompanyID = $Account->CompanyId;
+            $AccountID = $Account->AccountID;
+        }
+
+        //Validation
+        $rules = array(
+            'ConnectTime' => 'required',
+            'DisconnectTime' => 'required',
+            'Duration' => 'required',
+            'CLI' => 'required',
+            'CLD' => 'required',
+            'CallType' => 'required',
+            'UUID' => 'required',
+            //'VendorID' => 'required'
+        );
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        if(!empty($data['VendorID'])){
+            $VendorAccount=Account::where(["AccountID" => $data['VendorID']])->first();
+            if(empty($VendorAccount)){
+                return Response::json(["ErrorMessage"=>"Vendor Account Not Found"],Codes::$Code402[0]);
+            }
+        }
+
+        if(!empty($AccountID) && !empty($CompanyID)){
+            $IsCallexists=UsageDetail::where('UUID',$data['UUID'])->count();
+            if($IsCallexists > 0){
+                return Response::json(array("ErrorMessage" => "Call with this UUID already exists."),Codes::$Code410[0]);
+            }
+            try{
+                if($data['CallType']==0){
+                    $data['CallType']='Inbound';
+                }
+                if($data['CallType']==1){
+                    $data['CallType']='Outbound';
+                }
+                $duration = $data['Duration'];
+                $ActiveCallData=array();
+                $ActiveCallData['AccountID']=$AccountID;
+                $ActiveCallData['CompanyID']=$CompanyID;
+                $ActiveCallData['created_at']=date('Y-m-d H:i:s');
+                $ActiveCallData['created_by']="API";
+
+                $ActiveCallData['ConnectTime']=$data['ConnectTime'];
+                $ActiveCallData['DisconnectTime']=$data['DisconnectTime'];
+                $ActiveCallData['Duration']=$duration;
+                $ActiveCallData['CLI']=$data['CLI'];
+                $ActiveCallData['CLD']=$data['CLD'];
+                $ActiveCallData['CallType']=$data['CallType'];
+                $ActiveCallData['UUID']=$data['UUID'];
+                $ActiveCallData['VendorID']=empty($data['VendorID']) ? 0 : $data['VendorID'];
+                $ActiveCallData['VendorConnectionName']=empty($data['VendorConnectionName']) ? '' : $data['VendorConnectionName'];
+                $ActiveCallData['OriginType']=empty($data['OriginType']) ? '' : $data['OriginType'];
+                $ActiveCallData['OriginProvider']=empty($data['OriginProvider']) ? '' : $data['OriginProvider'];
+                $ActiveCallData['VendorRate'] = empty($data['VendorRate']) ? 0 : $data['VendorRate'];
+                $ActiveCallData['VendorCLIPrefix'] = empty($data['VendorCLIPrefix']) ? 'Other' : $data['VendorCLIPrefix'];
+                $ActiveCallData['VendorCLDPrefix'] = empty($data['VendorCLDPrefix']) ? 'Other' : $data['VendorCLDPrefix'];
+
+                // if call recording is on and call recording start time is available
+                if (!empty($data['CallRecording']) && $data['CallRecording'] == 1 && !empty($data['CallRecordingStartTime'])) {
+                    $CallRecordingDuration = strtotime($data['DisconnectTime']) - strtotime($data['CallRecordingStartTime']);
+                    $ActiveCallData['CallRecordingStartTime'] = $data['CallRecordingStartTime'];
+                    $ActiveCallData['CallRecordingEndTime'] = $data['DisconnectTime'];
+                    $ActiveCallData['CallRecordingDuration'] = $CallRecordingDuration;
+                    $ActiveCallData['CallRecording'] = 1;
+                } else {
+                    $ActiveCallData['CallRecording'] = 0;
+                }
+
+                DB::connection('sqlsrvroutingengine')->beginTransaction();
+                DB::connection('sqlsrv2')->beginTransaction();
+
+                if ($ActiveCall = ActiveCall::create($ActiveCallData)) {
+                    $ActiveCallID = $ActiveCall->ActiveCallID;
+                    $Response = ActiveCall::updateActiveCall($ActiveCallID);
+                    log::info(print_r($Response,true));
+                    if(isset($Response['Status']) && $Response['Status']=='Success'){
+                        log::info('update call cost');
+
+                        ActiveCall::getActiveCallCost($ActiveCallID);
+                        ActiveCall::insertActiveCallCDR($ActiveCallID);
+                        ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
+
+                        DB::connection('sqlsrvroutingengine')->commit();
+                        DB::connection('sqlsrv2')->commit();
+
+                        return Response::json(Codes::$Code200[0]);
+                    }else{
+                        log::info('delete call');
+                        ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
+                        return Response::json(array("ErrorMessage" => $Response['Message']),Codes::$Code402[0]);
+                    }
+
+                }else{
+                    return Response::json(array("ErrorMessage" => "Problem Inserting Call."),Codes::$Code500[0]);
+                }
+
+            }catch(Exception $e){
+                DB::connection('sqlsrvroutingengine')->rollback();
+                DB::connection('sqlsrv2')->rollback();
+                Log::info($e->getTraceAsString());
+                $reseponse = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+                return Response::json($reseponse,Codes::$Code500[0]);
+            }
+
+        }else{
+            return Response::json(["ErrorMessage"=>"Account or Company Not Found"],Codes::$Code402[0]);
+        }
+
+    }
 
 }

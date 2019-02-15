@@ -125,4 +125,87 @@ class Timezones extends \Eloquent {
         return $TimezonesID;
     }
 
+    public static function getTimeZoneByConnectAndDisconnectTime($ConnectTime,$DisconnectTime){
+        $TimeZones = Timezones::where(['Status'=>1])->orderBY('TimezonesID')->get();
+        $TimeZoneCount = count(($TimeZones));
+        if($TimeZoneCount>1){
+            foreach($TimeZones as $TimeZone){
+                $count=0;
+                if(!empty($TimeZone->FromTime) && !empty($TimeZone->ToTime)){
+                    // check on time
+                    $cdate      = date('Y-m-d',strtotime($ConnectTime));
+                    $dcdate     = date('Y-m-d',strtotime($DisconnectTime));
+                    $cFromTime  = $cdate.' '.$TimeZone->FromTime.':00';
+                    $cToTime    = $cdate.' '.$TimeZone->ToTime.':00';
+                    $dcFromTime = $dcdate.' '.$TimeZone->FromTime.':00';
+                    $dcToTime   = $dcdate.' '.$TimeZone->ToTime.':00';
+
+                    if($TimeZone->ApplyIF == 'start' && strtotime($ConnectTime) >= strtotime($cFromTime) && strtotime($ConnectTime) <= strtotime($cToTime)) {
+                        $count++;
+                    } else if($TimeZone->ApplyIF == 'end' && strtotime($DisconnectTime) >= strtotime($dcFromTime) && strtotime($DisconnectTime) <= strtotime($dcToTime)) {
+                        $count++;
+                    } else if($TimeZone->ApplyIF == 'both' && (strtotime($ConnectTime) >= strtotime($cFromTime) && strtotime($ConnectTime) <= strtotime($cToTime)) && (strtotime($DisconnectTime) >= strtotime($dcFromTime) && strtotime($DisconnectTime) <= strtotime($dcToTime))) {
+                        $count++;
+                    }
+                } else {
+                    $count++;
+                }
+                if(!empty($TimeZone->Months)){
+                    $Months = explode(',',$TimeZone->Months);
+                    $cm  = date('m', strtotime($ConnectTime));
+                    $dcm = date('m', strtotime($DisconnectTime));
+
+                    if($TimeZone->ApplyIF == 'start' && in_array($cm,$Months)) {
+                        $count++;
+                    } else if($TimeZone->ApplyIF == 'end' && in_array($dcm,$Months)) {
+                        $count++;
+                    } else if($TimeZone->ApplyIF == 'both' && in_array($cm,$Months) && in_array($dcm,$Months)) {
+                        $count++;
+                    }
+                } else {
+                    $count++;
+                }
+                if(!empty($TimeZone->DaysOfMonth)){
+                    $DaysOfMonth = explode(',',$TimeZone->DaysOfMonth);
+                    $cd  = date('d',strtotime($ConnectTime));
+                    $dcd = date('d',strtotime($DisconnectTime));
+
+                    if($TimeZone->ApplyIF == 'start' && in_array($cd,$DaysOfMonth)) {
+                        $count++;
+                    } else if($TimeZone->ApplyIF == 'end' && in_array($dcd,$DaysOfMonth)) {
+                        $count++;
+                    } else if($TimeZone->ApplyIF == 'both' && in_array($cd,$DaysOfMonth) && in_array($dcd,$DaysOfMonth)) {
+                        $count++;
+                    }
+                } else {
+                    $count++;
+                }
+                if(!empty($TimeZone->DaysOfWeek)){
+                    $DaysOfWeek = explode(',',$TimeZone->DaysOfWeek);
+                    $cday  = date("l",strtotime($ConnectTime));
+                    $dcday = date("l",strtotime($DisconnectTime));
+
+                    $cweekdays  = $cday=='Sunday' ? 1 : date("N",strtotime($ConnectTime)) + 1;
+                    $dcweekdays = $dcday=='Sunday' ? 1 : date("N",strtotime($DisconnectTime)) + 1;
+
+                    if($TimeZone->ApplyIF == 'start' && in_array($cweekdays,$DaysOfWeek)) {
+                        $count++;
+                    } else if($TimeZone->ApplyIF == 'end' && in_array($dcweekdays,$DaysOfWeek)) {
+                        $count++;
+                    } else if($TimeZone->ApplyIF == 'both' && in_array($cweekdays,$DaysOfWeek) && in_array($dcweekdays,$DaysOfWeek)) {
+                        $count++;
+                    }
+                } else {
+                    $count++;
+                }
+                if($count==4){
+                    return $TimeZone->TimezonesID;
+                }
+            }
+        }
+
+        $TimezonesID = Timezones::where(['Status'=>1,'Title'=>'Default'])->pluck('TimezonesID');
+        return $TimezonesID;
+    }
+
 }

@@ -1,7 +1,7 @@
 var update_new_url;
 var postdata;
 jQuery(document).ready(function ($) {
-    var cli_list_fields = ["CLI", "RateTableID", "CLIRateTableID"];
+    var cli_list_fields = ["CLIRateTableID", "CLI", "CLI Rate Table", 'Package', 'Package Rate Table', 'CityTariff', 'RateTableID', 'PackageID', 'PackageRateTableID', 'Status'];
     public_vars.$body = $("body");
     var $searchcli = {};
     var clitable_add_url = baseurl + "/clitable/store";
@@ -68,24 +68,30 @@ jQuery(document).ready(function ($) {
                 },
                 {"bSortable": true},  // 0 Sequence NO
                 {"bSortable": true},  // 1  Name
-                {
-                    "bSortable": false, //service
-                    mRender: function (id, type, full) {
-                        return id;
+                {"bSortable": true},
+                {"bSortable": true},
+                {"bSortable": true},
+                {  "bSortable": false,
+                    mRender: function ( id, type, full ) {
+                        var action , edit_ , show_ , delete_;
+                        //console.log(id);
+                        if(full[9] == 1){
+                            action='<i class="entypo-check" style="font-size:22px;color:green"></i>';
+                        }else{
+                            action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
+                        }
+                        return action;
                     }
-
-                },  // 1  Name
-                {
-                    "bSortable": true
-                },
+                },  //0  Status', '', '', '
                 {                        // 10 Action
                     "bSortable": false,
                     mRender: function (id, type, full) {
                         action = '<div class = "hiddenRowData" >';
                         for (var i = 0; i < cli_list_fields.length; i++) {
-                            action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"       value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                            action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
                         }
                         action += '</div>';
+                        action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                         action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
                         return action;
                     }
@@ -109,7 +115,6 @@ jQuery(document).ready(function ($) {
                 default_row_selected('table-clitable','selectall','selectallbutton');
                 select_all_top('selectallbutton','table-clitable','selectall');
             }
-
         });
         setTimeout(function () {
             $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
@@ -134,21 +139,59 @@ jQuery(document).ready(function ($) {
         $('#clitable-form').trigger("reset");
         $('#modal-clitable h4').html('Add CLI');
         $("#clitable-form [name=RateTableID]").select2().select2('val', "");
-
+        $("#clitable-form [name=PackageID]").select2().select2('val', "");
+        $("#clitable-form [name=PackageRateTableID]").select2().select2('val', "");
         $('#clitable-form').attr("action", clitable_add_url);
-        $('#clitable-form').find('.edit_hide').show()
+        $('#clitable-form .edit_hide').show().find(".cli-field").attr("name", "CLI");
+        $('#clitable-form .edit_show').hide().find(".cli-field").attr("name", "");
         $('#modal-clitable').modal('show');
     });
+
+    $('table tbody').on('click', '.edit-clitable', function (ev) {
+        ev.preventDefault();
+
+        var fields = $(this).prev(".hiddenRowData");
+        $('#clitable-form').trigger("reset");
+        $('#modal-clitable h4').html('Edit CLI RateTable');
+
+        var CLI = fields.find("[name='CLI']").val();
+        var RateTableID = fields.find("[name='RateTableID']").val();
+        var CityTariff = fields.find("[name='CityTariff']").val();
+        var Status = fields.find("[name='Status']").val();
+        var PackageID = fields.find("[name='PackageID']").val();
+        var PackageRateTableID = fields.find("[name='PackageRateTableID']").val();
+        var CLIRateTableID = fields.find("[name='CLIRateTableID']").val();
+
+        RateTableID = RateTableID == 0 ? '' : RateTableID;
+        PackageID = PackageID == 0 ? '' : PackageID;
+        PackageRateTableID = PackageRateTableID == 0 ? '' : PackageRateTableID;
+
+        $('#clitable-form .edit_hide').hide().find(".cli-field").attr("name", "");
+        $('#clitable-form .edit_show').show().find(".cli-field").attr("name", "CLI");
+        $("#clitable-form .edit_show [name=CLI]").val(CLI);
+        $("#clitable-form [name=RateTableID]").select2().select2('val', RateTableID);
+        $("#clitable-form [name=CityTariff]").val(CityTariff);
+        $("#clitable-form [name=Status]").prop("checked", Status == 1).trigger("change");
+        $("#clitable-form [name=PackageID]").select2().select2('val', PackageID);
+        $("#clitable-form [name=PackageRateTableID]").select2().select2('val', PackageRateTableID);
+        $('#clitable-form input[name=CLIRateTableID]').val(CLIRateTableID);
+        $('#clitable-form input[name=CLIRateTableIDs]').val("");
+        $('#clitable-form input[name=criteria]').val("");
+        $('#clitable-form').attr("action", clitable_update_url);
+        $('#modal-clitable').modal('show');
+    });
+
     $('table tbody').on('click', '.delete-clitable', function (ev) {
         ev.preventDefault();
-        $(this).button('loading')
+        $(this).button('loading');
         result = confirm("Are you Sure?");
         if (result) {
             var delete_url = $(this).attr("href");
             var AuthRule = $('#clitable-form').find('input[name=AuthRule]').val();
             var AccountID = $('#clitable-form').find('input[name=AccountID]').val();
             delete_cli(delete_url,"AuthRule="+AuthRule+'&AccountID='+AccountID+'&ServiceID='+ServiceID)
-        }
+        } else
+            $(this).button('reset');
         return false;
     });
 
@@ -156,8 +199,8 @@ jQuery(document).ready(function ($) {
         e.preventDefault();
         var _url = $(this).attr("action");
         submit_ajax_datatable(_url, $(this).serialize(), 0, data_table_clitable);
-
     });
+
     $("#bulk-delete-cli").click(function (ev) {
         var criteria = '';
         if ($('#selectallbutton').is(':checked')) {
@@ -194,6 +237,8 @@ jQuery(document).ready(function ($) {
         $('#clitable-form').trigger("reset");
         $('#modal-clitable h4').html('Update CLI');
         $("#clitable-form [name=RateTableID]").select2().select2('val', "");
+        $("#clitable-form [name=PackageID]").select2().select2('val', "");
+        $("#clitable-form [name=PackageRateTableID]").select2().select2('val', "");
         $('#clitable-form').find('input[name=CLIRateTableIDs]').val(CLIRateTableIDs);
         $('#clitable-form').find('input[name=criteria]').val(criteria);
         $('#clitable-form').attr("action", clitable_update_url);

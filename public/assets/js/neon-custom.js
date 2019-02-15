@@ -3186,7 +3186,9 @@ function bytesToSize(filesize) {
 }
 
 function table_row_select(table,selectallbutton) {
-    $('#' + table + ' tbody').on('click', 'tr', function () {
+    $('#' + table + ' tbody').on('click', 'tr', function (e) {
+        if($(e.target).is("a") || $(e.target).is("a i")) return false;
+
         var checked = '';
         if ($('#' + selectallbutton).is(':checked')) {
             checked = 'checked=checked disabled';
