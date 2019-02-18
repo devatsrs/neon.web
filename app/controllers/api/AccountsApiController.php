@@ -532,7 +532,16 @@ class AccountsApiController extends ApiController {
 
 			$NumberPurchased=json_decode(json_encode($data['NumberPurchased']),true);
 
-			Log::info('UpdateNumberPackage:$NumberPurchasedRef .' . count($NumberPurchased));
+			Log::info('Update Number :$NumberPurchasedRef .' . count($NumberPurchased));
+
+			if (!isset($NumberPurchased['NumberSubscriptionStartDate']) || empty($NumberPurchased['NumberSubscriptionStartDate'])) {
+				return Response::json(["ErrorMessage"=>Codes::$Code1038[1]],Codes::$Code1038[0]);
+			}
+			if (isset($NumberPurchased['NumberSubscriptionEndDate']) && !empty($NumberPurchased['NumberSubscriptionEndDate'])) {
+				if ($NumberPurchased['NumberSubscriptionStartDate'] > $NumberPurchased['NumberSubscriptionEndDate']) {
+					return Response::json(["ErrorMessage" => Codes::$Code1002[1]], Codes::$Code1002[0]);
+				}
+			}
 
 			$NumberPurchaseds = [];
 
@@ -920,6 +929,7 @@ class AccountsApiController extends ApiController {
 			$AccountCLI = '';
 			$SubscriptionDiscountPlanID = 0;
 			if (!empty($OutboundDiscountPlan)) {
+				$AccountDiscountPlanSearch = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type' => AccountDiscountPlan::OUTBOUND))->first();
 				$AccountDiscountPlan['AccountID'] = $Account->AccountID;
 				$AccountDiscountPlan['DiscountPlanID'] = $OutboundDiscountPlan;
 				$AccountDiscountPlan['Type'] = AccountDiscountPlan::OUTBOUND;
@@ -931,7 +941,12 @@ class AccountsApiController extends ApiController {
 				$AccountDiscountPlan['AccountServiceID'] = $AccountService->AccountServiceID;
 				//$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))->count();
 				//if ($AccountDiscountPlanExists == 0) {
-				AccountDiscountPlan::create($AccountDiscountPlan);
+				Log::info('Account Discount Plan ' . print_r($AccountDiscountPlan,true));
+				if (isset($AccountDiscountPlanSearch)) {
+					$AccountDiscountPlanSearch->update($AccountDiscountPlan);
+				}else {
+					AccountDiscountPlan::create($AccountDiscountPlan);
+				}
 				//} else {
 				//	AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))
 				//		->update($AccountDiscountPlan);
@@ -939,7 +954,7 @@ class AccountsApiController extends ApiController {
 			}
 
 			if (!empty($InboundDiscountPlan)) {
-				$AccountInboudDiscountPlan = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))->count();
+				$AccountInboudDiscountPlan = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))->first();
 				$AccountDiscountPlan['AccountID'] = $Account->AccountID;
 				$AccountDiscountPlan['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 				$AccountDiscountPlan['AccountSubscriptionID'] = $AccountSubscriptionID;
@@ -951,7 +966,12 @@ class AccountsApiController extends ApiController {
 				$AccountDiscountPlan['AccountServiceID'] = $AccountService->AccountServiceID;
 				//$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::INBOUND))->count();
 				//if ($AccountDiscountPlanExists == 0) {
-				AccountDiscountPlan::create($AccountDiscountPlan);
+				if (isset($AccountInboudDiscountPlan)) {
+					$AccountInboudDiscountPlan->update($AccountDiscountPlan);
+				}else {
+					AccountDiscountPlan::create($AccountDiscountPlan);
+				}
+
 				//}else {
 				//	AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))
 				//		->update($AccountDiscountPlan);
