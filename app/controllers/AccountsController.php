@@ -2010,6 +2010,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function clitable_ajax_datagrid($id){
         $CompanyID = User::get_companyID();
+        $logFile = $CompanyID . '-testing-cli.log';
+        Log::useDailyFiles(storage_path().'/logs/'.$logFile);
         $data = Input::all();
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblCLIRateTable.RateTableID')
