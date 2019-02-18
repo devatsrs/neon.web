@@ -1000,4 +1000,19 @@ class Account extends \Eloquent {
         return $Type;
     }
 
+    public static function getAccountTypeForSubscriptions($AccountID){
+        $account = Account::find($AccountID);
+        $Type="";
+        if(!empty($account)){
+            if($account->IsReseller == 1){
+                $Type=1;
+            }else if($account->IsCustomer == 1){
+                $Type=0;
+            }else if($account->IsVendor == 1){
+                $Type=3;
+            }
+        }
+        return $Type;
+    }
+
 }

@@ -324,6 +324,7 @@ class AccountsApiController extends ApiController {
 					}
 				}
 
+			DB::beginTransaction();
 			$CLIRateTableFields["PackageID"] = $NumberPurchased["PackageID"];
 			$CLIRateTableFields["PackageRateTableID"] = $NumberPurchased["PackageRateTableID"];
 			$CLIRateTable->update($CLIRateTableFields);
@@ -377,11 +378,12 @@ class AccountsApiController extends ApiController {
 						}
 					}
 
-
+			DB::commit();
 			return Response::json(json_decode('{}'),Codes::$Code200[0]);
 
 
 		} catch (Exception $ex) {
+			DB::rollback();
 			Log::info('UpdateNumberPackage:Exception.' . $ex->getTraceAsString());
 			return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
 		}
@@ -557,6 +559,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => Codes::$Code1005[1]], Codes::$Code1005[0]);
 			}
 
+			DB::beginTransaction();
 			$VendorIDDIDRateList = '';
 			if (!empty($DefaultSubscriptionID) && !empty($InboundRateTableReference)) {
 				$RateTableDIDRates = RateTableDIDRate::
@@ -589,11 +592,12 @@ class AccountsApiController extends ApiController {
 			$CLIRateTable->update($CLIRateTableFields);
 
 
-
+			DB::commit();
 			return Response::json(json_decode('{}'),Codes::$Code200[0]);
 
 
 		} catch (Exception $ex) {
+			DB::rollback();
 			Log::info('UpdateNumber:Exception.' . $ex->getTraceAsString());
 			return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
 		}
@@ -859,6 +863,7 @@ class AccountsApiController extends ApiController {
 			Log::info('update $DynamicFieldIDs.' . $DynamicFieldIDs);
 			$DynamicFieldIDs = explode(',', $DynamicFieldIDs);
 
+			DB::beginTransaction();
 			if (!empty($ServiceTemaplateReference->ServiceId)) {
 
 				/*$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
@@ -1046,6 +1051,7 @@ class AccountsApiController extends ApiController {
 				}
 			}*/
 
+
 			$SubscriptionSequence = 0;
 			$AccountSubscriptionLast = AccountSubscription::where(array('AccountID' => $Account->AccountID,
 				'AccountServiceID'=> $AccountService->AccountServiceID))
@@ -1066,6 +1072,7 @@ class AccountsApiController extends ApiController {
 				}
 			}
 			$VendorIDDIDRateList = '';
+
 			if (count($NumberPurchaseds) > 0) {
 				$AccountSubscriptionDB = BillingSubscription::where(array('SubscriptionID' => $DefaultSubscriptionID))->first();
 				//Log::info('update $DynamicFieldIDs12.' . $AccountSubscriptionDB);
@@ -1161,12 +1168,13 @@ class AccountsApiController extends ApiController {
 
 
 
-
+			DB::commit();
 
 			return Response::json(json_decode('{}'),Codes::$Code200[0]);
 
 
 		} catch (Exception $ex) {
+			DB::rollback();
 			Log::info('createAccountService:Exception.' . $ex->getTraceAsString());
 			return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
 		}
