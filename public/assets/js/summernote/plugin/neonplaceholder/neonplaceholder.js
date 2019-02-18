@@ -310,10 +310,11 @@ var dropdown_text =  {
 
     },
     contractexpireoptions: {
-        AccountName: "AccountName",
         Email: "Email",
         ServiceName : "ServiceName",
         DaysOfExpiry : "DaysOfExpiry",
+        ContractStartDate : "ContractStartDate",
+        ContractEndDate : "ContractEndDate",
         FirstName:"FirstName",
         AccountName:"AccountName",
         LastName:"LastName",
@@ -486,11 +487,11 @@ var neon_summernote_dropdown_tpl = {
     },
     "contractoptions": function () {
 
-    return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
-        "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractoptions.AccountName + "</a></li>" +
+    return "<li class='unclick'><a ><b>Contract Fields</b></a></li>" +
         "<li><a data-value='{{ServiceTitle}}'>" + dropdown_text.contractoptions.ServiceTitle + "</a></li>" +
         "<li><a data-value='{{ServiceName}}'>" + dropdown_text.contractoptions.ServiceName + "</a></li>" +
-        "<li><a data-value='{{Email}}'>" + dropdown_text.contractoptions.Email + "</a></li>" +
+        "<li><a data-value='{{ContractStartDate}}'>" + dropdown_text.contractexpireoptions.ContractStartDate + "</a></li>" +
+        "<li><a data-value='{{ContractEndDate}}'>" + dropdown_text.contractexpireoptions.ContractEndDate + "</a></li>" +
         "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
         "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractexpireoptions.AccountName + "</a></li>" +
         "<li><a data-value='{{FirstName}}'>" + dropdown_text.contractexpireoptions.FirstName + "</a></li>" +
@@ -516,11 +517,13 @@ var neon_summernote_dropdown_tpl = {
 },
     "contractexpireoptions": function () {
 
-        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
-            "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractexpireoptions.AccountName + "</a></li>" +
+        return "<li class='unclick'><a ><b>Contract Fields</b></a></li>" +
             "<li><a data-value='{{ServiceName}}'>" + dropdown_text.contractexpireoptions.ServiceName + "</a></li>" +
+            "<li><a data-value='{{ServiceTitle}}'>" + dropdown_text.contractoptions.ServiceTitle + "</a></li>" +
             "<li><a data-value='{{DaysOfExpiry}}'>" + dropdown_text.contractexpireoptions.DaysOfExpiry + "</a></li>" +
-            "<li><a data-value='{{Email}}'>" + dropdown_text.contractexpireoptions.Email + "</a></li>" +
+            "<li><a data-value='{{ContractStartDate}}'>" + dropdown_text.contractexpireoptions.ContractStartDate + "</a></li>" +
+            "<li><a data-value='{{ContractEndDate}}'>" + dropdown_text.contractexpireoptions.ContractEndDate + "</a></li>" +
+
             "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractexpireoptions.AccountName + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.contractexpireoptions.FirstName + "</a></li>" +
