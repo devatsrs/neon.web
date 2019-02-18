@@ -1,7 +1,7 @@
 var update_new_url;
 var postdata;
 jQuery(document).ready(function ($) {
-    var cli_list_fields = ["CLIRateTableID", "CLI", "CLI Rate Table", 'Package', 'Package Rate Table', 'CityTariff', 'RateTableID', 'PackageID', 'PackageRateTableID', 'Status'];
+    var cli_list_fields = ["CLIRateTableID", "CLI", "CLI Rate Table", 'Package', 'Package Rate Table', 'CityTariff', 'RateTableID', 'PackageID', 'PackageRateTableID', 'Prefix', 'Status'];
     public_vars.$body = $("body");
     var $searchcli = {};
     var clitable_add_url = baseurl + "/clitable/store";
@@ -71,11 +71,17 @@ jQuery(document).ready(function ($) {
                 {"bSortable": true},
                 {"bSortable": true},
                 {"bSortable": true},
-                {  "bSortable": false,
+                {   //Prefix
+                    "bSortable": true,
+                    mRender: function ( id, type, full ) {
+                        return full[9] == 0 ? '' : full[9];
+                    }
+                },
+                {  "bSortable": false, //Status
                     mRender: function ( id, type, full ) {
                         var action , edit_ , show_ , delete_;
                         //console.log(id);
-                        if(full[9] == 1){
+                        if(full[10] == 1){
                             action='<i class="entypo-check" style="font-size:22px;color:green"></i>';
                         }else{
                             action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
@@ -157,6 +163,7 @@ jQuery(document).ready(function ($) {
         var CLI = fields.find("[name='CLI']").val();
         var RateTableID = fields.find("[name='RateTableID']").val();
         var CityTariff = fields.find("[name='CityTariff']").val();
+        var Prefix = fields.find("[name='Prefix']").val();
         var Status = fields.find("[name='Status']").val();
         var PackageID = fields.find("[name='PackageID']").val();
         var PackageRateTableID = fields.find("[name='PackageRateTableID']").val();
@@ -165,12 +172,14 @@ jQuery(document).ready(function ($) {
         RateTableID = RateTableID == 0 ? '' : RateTableID;
         PackageID = PackageID == 0 ? '' : PackageID;
         PackageRateTableID = PackageRateTableID == 0 ? '' : PackageRateTableID;
+        Prefix = Prefix == 0 ? '' : Prefix;
 
         $('#clitable-form .edit_hide').hide().find(".cli-field").attr("name", "");
         $('#clitable-form .edit_show').show().find(".cli-field").attr("name", "CLI");
         $("#clitable-form .edit_show [name=CLI]").val(CLI);
         $("#clitable-form [name=RateTableID]").select2().select2('val', RateTableID);
         $("#clitable-form [name=CityTariff]").val(CityTariff);
+        $("#clitable-form [name=Prefix]").val(Prefix);
         $("#clitable-form [name=Status]").prop("checked", Status == 1).trigger("change");
         $("#clitable-form [name=PackageID]").select2().select2('val', PackageID);
         $("#clitable-form [name=PackageRateTableID]").select2().select2('val', PackageRateTableID);

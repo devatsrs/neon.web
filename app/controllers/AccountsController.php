@@ -2016,7 +2016,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             ->leftJoin('tblRateTable as prt','prt.RateTableId','=','tblCLIRateTable.PackageRateTableID')
             ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
             ->leftJoin('tblPackage','tblPackage.PackageId','=','tblCLIRateTable.PackageID')
-            ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName','CityTariff', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID', 'tblCLIRateTable.Status'])
+            ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName','CityTariff', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.Status'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
@@ -2073,6 +2073,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $rate_tables['AccountID'] = $data['AccountID'];
                 $rate_tables['CompanyID'] = $CompanyID;
                 $rate_tables['CityTariff'] = !empty($data['CityTariff'])?$data['CityTariff']:'';
+                $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
                 $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
                 if(!empty($data['ServiceID'])) {
                     $rate_tables['ServiceID'] = $data['ServiceID'];
@@ -2185,7 +2186,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
         $UpdateData=array();
         $UpdateData['CityTariff']   = !empty($data['CityTariff'])?$data['CityTariff']:'';
-        $UpdateData['RateTableID']  = $data['RateTableID'];
+        $UpdateData['Prefix']       = !empty($data['Prefix'])?$data['Prefix']:'';
+        $UpdateData['RateTableID']  = @$data['RateTableID'];
         $UpdateData['CLI']          = $data['CLI'];
         $UpdateData['PackageID']    = $data['PackageID'];
         $UpdateData['PackageRateTableID'] = $data['PackageRateTableID'];
