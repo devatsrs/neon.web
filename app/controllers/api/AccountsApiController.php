@@ -534,6 +534,15 @@ class AccountsApiController extends ApiController {
 
 			Log::info('UpdateNumberPackage:$NumberPurchasedRef .' . count($NumberPurchased));
 
+			if (!isset($NumberPurchased['NumberSubscriptionStartDate']) || empty($NumberPurchased['NumberSubscriptionStartDate'])) {
+				return Response::json(["ErrorMessage"=>Codes::$Code1038[1]],Codes::$Code1038[0]);
+			}
+			if (isset($NumberPurchased['NumberSubscriptionEndDate']) && !empty($NumberPurchased['NumberSubscriptionEndDate'])) {
+				if ($NumberPurchased['NumberSubscriptionStartDate'] > $NumberPurchased['NumberSubscriptionEndDate']) {
+					return Response::json(["ErrorMessage" => Codes::$Code1002[1]], Codes::$Code1002[0]);
+				}
+			}
+
 			$NumberPurchaseds = [];
 
 			Log::info('UpdateNumber:$NumberPurchasedRef .' . $data['OldNumber']);
