@@ -17,6 +17,9 @@ class AccountOneOffChargeController extends \BaseController {
             "tblAccountOneOffCharge.TaxRateID2", "tblAccountOneOffCharge.DiscountAmount",
             "tblAccountOneOffCharge.DiscountType", "tblAccountOneOffCharge.CurrencyID"];
 
+        $logFile = 'bilal-testing-cli-'. date("Y-m-d") .  '.log';
+        Log::useDailyFiles(storage_path().'/logs/'.$logFile);
+
         $accountOneOffCharge = AccountOneOffCharge::join('tblProduct', 'tblAccountOneOffCharge.ProductID', '=', 'tblProduct.ProductID')
         ->leftJoin('speakintelligentRM.tblCurrency as CurrencyTbl', 'tblAccountOneOffCharge.CurrencyID', '=', 'CurrencyTbl.CurrencyID')
             ->where("tblAccountOneOffCharge.AccountID",$id);
