@@ -368,7 +368,7 @@ class ServicesTemplateController extends BaseController {
                             }
                         }
 
-                        return  Response::json(array("status" => "success", "message" => "Service Template Successfully Created",'LastID'=>$ServiceTemplate->ServiceTemplateId,'newcreated'=>$ServiceTemplate));
+                        return  Response::json(array("status" => "success", "message" => "Product Successfully Created",'LastID'=>$ServiceTemplate->ServiceTemplateId,'newcreated'=>$ServiceTemplate));
                     } else {
                         return  Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
                     }
