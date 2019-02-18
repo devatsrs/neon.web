@@ -4,6 +4,21 @@ use app\controllers\api\Codes;
 
 class AccountsApiController extends ApiController {
 
+	public static $API_PaymentMethod = array('0'=>'' ,
+		'1' => 'AuthorizeNet',
+		'2'=>'AuthorizeNetEcheck',
+		'3'=>'FideliPay',
+		'4'=>'Paypal',
+		'5'=>'PeleCard',
+		'6'=>'SagePay',
+		'7'=>'SagePayDirectDebit',
+		'8'=>'Stripe',
+		'9'=>'StripeACH',
+		'10'=>'FastPay',
+		'11'=>'MerchantWarrior',
+		'12'=>'Wire Transfer',
+		'13'=>'Other',
+	);
 
 	public function validEmail() {
 		$data = Input::all();
@@ -84,14 +99,17 @@ class AccountsApiController extends ApiController {
 		try {
 		$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
 		$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
-		$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
+		$data['Number'] = isset($accountData['Number']) ? $accountData['Number'] : '';
+		$data['Status'] = isset($accountData['Status']) ? $accountData['Status'] : '';
+
 
 
 		$rules = array(
 			'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
 			'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
 			'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
-			'NumberPurchased'=>'required',
+			'Number'=>'required',
+			'Status'=>'required',
 
 		);
 
@@ -125,26 +143,38 @@ class AccountsApiController extends ApiController {
 		}
 
 		$CompanyID = $Account->CompanyId;
-		$NumberPurchased=json_decode(json_encode($data['NumberPurchased']),true);
-		Log::info('UpdateNumberStatus:$NumberPurchasedRef .' . count($NumberPurchased));
-		if (!isset($NumberPurchased["Status"])) {
-			return Response::json(["ErrorMessage" => Codes::$Code1043[1]],Codes::$Code1043[0]);
-		}
 
-			if ($NumberPurchased['Status'] == '' || ($NumberPurchased['Status'] != 0 && $NumberPurchased['Status'] != 1)) {
+//		if (!isset($NumberPurchased["Status"])) {
+//			return Response::json(["ErrorMessage" => Codes::$Code1043[1]],Codes::$Code1043[0]);
+//		}
+
+			if ($accountData['Status'] == '' || ($accountData['Status'] != 0 && $accountData['Status'] != 1)) {
 				return Response::json(["ErrorMessage"=>Codes::$Code1044[1]],Codes::$Code1044[0]);
 			}
 
-		$CLIRateTable = CLIRateTable::where(array('CompanyID' => $CompanyID, 'CLI' => $NumberPurchased["Number"],
-			'AccountID' => $Account->AccountID))->first();
-		if (!$CLIRateTable){
-			return Response::json(["ErrorMessage" => Codes::$Code1041[1]],Codes::$Code1041[0]);
-		}else if ($CLIRateTable["Status"] == 1 && $NumberPurchased["Status"] == 1) {
-			return Response::json(["ErrorMessage" => Codes::$Code1042[1]],Codes::$Code1042[0]);
-		}else {
-			$CLIRateTableFields["Status"] = $NumberPurchased['Status'];
-			$CLIRateTable->update($CLIRateTableFields);
-		}
+
+			if ($accountData["Status"] == 0){
+				$CLIRateTable = CLIRateTable::where(array('CompanyID' => $CompanyID, 'CLI' => $accountData["Number"],
+					'AccountID' => $Account->AccountID,'Status' => 1))->first();
+				if (!$CLIRateTable) {
+					return Response::json(["ErrorMessage" => Codes::$Code1041[1]], Codes::$Code1041[0]);
+				}
+				$CLIRateTableFields["Status"] = $accountData['Status'];
+				$CLIRateTable->update($CLIRateTableFields);
+			}else {
+				$CLIRateTableCount = CLIRateTable::where(array('CompanyID' => $CompanyID, 'CLI' => $accountData["Number"],
+					'AccountID' => $Account->AccountID,'Status' => 0))->count();
+				if ($CLIRateTableCount > 1) {
+					return Response::json(["ErrorMessage" => Codes::$Code1045[1]], Codes::$Code1045[0]);
+				}
+				$CLIRateTable = CLIRateTable::where(array('CompanyID' => $CompanyID, 'CLI' => $accountData["Number"],
+					'AccountID' => $Account->AccountID,'Status' => 0))->first();
+				$CLIRateTableFields["Status"] = $accountData['Status'];
+				$CLIRateTable->update($CLIRateTableFields);
+			}
+
+
+
 
 		}catch(Exception $ex) {
 			Log::info('Exception in UpdateNumberStatus.' . $ex->getTraceAsString());
@@ -204,15 +234,16 @@ class AccountsApiController extends ApiController {
 			Log::info('UpdateNumberPackage:Data.' . json_encode($accountData));
 			$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
 			$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
-			$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
+			$data['Number'] = isset($accountData['Number']) ? $accountData['Number'] : '';
 			$data['AccountDynamicField'] = isset($accountData['AccountDynamicField']) ? $accountData['AccountDynamicField'] : '';
-
+			$data['Package'] = isset($accountData['Package']) ? $accountData['Package'] : '';
 
 			$rules = array(
 				'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
 				'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
 				'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
-				'NumberPurchased'=>'required',
+				'Number'=>'required',
+				'Package'=>'required',
 
 			);
 
@@ -253,15 +284,15 @@ class AccountsApiController extends ApiController {
 
 
 
-			$NumberPurchased=json_decode(json_encode($data['NumberPurchased']),true);
+			$NumberPurchased=json_decode(json_encode($data['Package']),true);
 
 			Log::info('UpdateNumberPackage:$NumberPurchasedRef .' . count($NumberPurchased));
 
 			$NumberPurchaseds = [];
 
-				Log::info('UpdateNumberPackage:$NumberPurchasedRef .' . $NumberPurchased["Number"]);
-			$CLIRateTable = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$NumberPurchased["Number"],
-				'AccountID'=>$Account->AccountID))->first();
+
+			$CLIRateTable = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$data["Number"],
+				'AccountID'=>$Account->AccountID,'Status'=>1))->first();
 				if(!$CLIRateTable){
 					return Response::json(array("ErrorMessage" => Codes::$Code1041[1]),Codes::$Code1041[0]);
 				}
@@ -306,7 +337,11 @@ class AccountsApiController extends ApiController {
 				$DynamicFieldIDs = $DynamicFieldIDs .$DynamicFieldsExist["DynamicFieldsID"] . ",";
 			}
 			Log::info('update $DynamicFieldIDs.' . $DynamicFieldIDs);
-			$DynamicFieldIDs = explode(',', $DynamicFieldIDs);
+			if ($DynamicFieldIDs != '') {
+				$DynamicFieldIDs = explode(',', $DynamicFieldIDs);
+			}else {
+				$DynamicFieldIDs = [];
+			}
 
 				Log::info('NumberPurchased CLI and Package Description' . print_r($NumberPurchased,true));
 			$SubscriptionSequence = 0;
@@ -610,6 +645,20 @@ class AccountsApiController extends ApiController {
 				return Response::json(array("ErrorMessage" => Codes::$Code1021[1]),Codes::$Code1021[0]);
 			}
 
+			$ProductCountryPrefix = '';
+			$ProductCountry = Country::where(array('Country' => $ServiceTemaplateReference->country))->first();
+			if (!isset($ProductCountry) || $ProductCountry == '') {
+				return Response::json(array("ErrorMessage" => Codes::$Code1046[1]),Codes::$Code1046[0]);
+			}
+
+			if (substr($ServiceTemaplateReference->prefixName,0,1) == "0") {
+				$ProductCountryPrefix = $ProductCountry->Prefix . substr($ServiceTemaplateReference->prefixName,1,strlen($ServiceTemaplateReference->prefixName));
+			} else {
+				$ProductCountryPrefix = $ProductCountry->Prefix .  empty($ServiceTemaplateReference->prefixName) ? "" : $ServiceTemaplateReference->prefixName;
+			}
+
+
+
 			//$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
 
 
@@ -630,7 +679,7 @@ class AccountsApiController extends ApiController {
 				$NumberPurchased = $NumberPurchasedRef[$i];
 				Log::info('CreateAccountService:$NumberPurchasedRef .' . $NumberPurchased["Number"]);
 				if(CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$NumberPurchased["Number"],
-					'AccountID'=>$Account->AccountID))->count()){
+					'AccountID'=>$Account->AccountID,'Status'=>1))->count()){
 					//$AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$data['NumberPurchased']))->pluck('AccountID');
 					//$message .= $data['NumberPurchased'].' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
 					//$message = 'Following CLI already exists.<br>'.$message;
@@ -684,7 +733,7 @@ class AccountsApiController extends ApiController {
 
 
 
-			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId);
+			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId . ' ' . $ProductCountryPrefix);
 
 
 			if (!empty($data['InboundTariffCategoryID'])) {
@@ -917,7 +966,7 @@ class AccountsApiController extends ApiController {
 						$AccountSubscriptionTemplate["SubscriptionId"],$DynamicFieldIDs,++$SubscriptionSequence);
 				}
 			}
-
+			$VendorIDDIDRateList = '';
 			if (count($NumberPurchaseds) > 0) {
 				$AccountSubscriptionDB = BillingSubscription::where(array('SubscriptionID' => $DefaultSubscriptionID))->first();
 				//Log::info('update $DynamicFieldIDs12.' . $AccountSubscriptionDB);
@@ -927,6 +976,7 @@ class AccountsApiController extends ApiController {
 
 				for ($i = 0; $i < count($NumberPurchaseds); $i++) {
 					$NumberPurchased = $NumberPurchaseds[$i];
+					$VendorIDDIDRateList = '';
 					Log::info('CreateAccountService:$NumberPurchasedRef .' . print_r($NumberPurchased,true));
 					$rate_tables['CLI'] = $NumberPurchased["Number"];
 					if (!empty($InboundRateTableReference)) {
@@ -948,15 +998,16 @@ class AccountsApiController extends ApiController {
 					if (!empty($ServiceTemaplateReference->ServiceId)) {
 						$rate_tables['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 					}
-					CLIRateTable::insert($rate_tables);
+					$rate_tables['DIDCategoryID'] = $data['InboundTariffCategoryID'];
+
 
 
 					if (!empty($DefaultSubscriptionID) && !empty($InboundRateTableReference)) {
 						$RateTableDIDRates = RateTableDIDRate::
 						Join('tblRate', 'tblRateTableDIDRate.RateID', '=', 'tblRate.RateID')
 							->select(['tblRateTableDIDRate.OneOffCost', 'tblRateTableDIDRate.MonthlyCost',
-								'tblRateTableDIDRate.OneOffCostCurrency','tblRateTableDIDRate.MonthlyCostCurrency']);
-						$RateTableDIDRates = $RateTableDIDRates->whereRaw('\'' . $NumberPurchased["Number"] . '\'' . ' like  CONCAT(tblRate.Code,"%")');
+								'tblRateTableDIDRate.OneOffCostCurrency','tblRateTableDIDRate.MonthlyCostCurrency','tblRateTableDIDRate.VendorID']);
+						$RateTableDIDRates = $RateTableDIDRates->whereRaw('\'' . $ProductCountryPrefix . '\'' . ' like  CONCAT(tblRate.Code,"%")');
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.CityTariff" => $ServiceTemaplateReference->city_tariff]);
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.RateTableId" => $InboundRateTableReference]);
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.ApprovedStatus" => 1]);
@@ -970,8 +1021,12 @@ class AccountsApiController extends ApiController {
 								$NumberPurchased["NumberSubscriptionStartDate"],$NumberPurchased["NumberSubscriptionEndDate"] ,$ServiceTemaplateReference, $AccountService,
 								$DefaultSubscriptionID, $DynamicFieldIDs,
 								$RateTableDIDRate, $NumberPurchased["InvoiceNoDescription"],++$SubscriptionSequence);
+							$VendorIDDIDRateList = $RateTableDIDRate["MonthlyCost"];
 						}
 					}
+
+					$rate_tables['VendorID'] = $VendorIDDIDRateList;
+					CLIRateTable::insert($rate_tables);
 
 					if (!empty($DefaultSubscriptionPackageID)) {
 
@@ -1056,24 +1111,8 @@ class AccountsApiController extends ApiController {
 		$AccountSubscriptionQueryDB = AccountSubscription::create($AccountSubscription);
 
 
-		$DynamicSubscrioptionFields=  DynamicFieldsValue::where('ParentID', $AccountSubscriptionDB["SubscriptionID"])
-			->whereIn('DynamicFieldsID',$DynamicFieldIDs);
-		Log::info('update $DynamicFieldIDs.' . $DynamicSubscrioptionFields->toSql());
-		$DynamicSubscrioptionFields = $DynamicSubscrioptionFields->get();
-		Log::info('update $DynamicFieldIDs.' . count($DynamicSubscrioptionFields));
 
-		if (count($DynamicSubscrioptionFields) > 0) {
-			AccountSubsDynamicFields::where(array('AccountSubscriptionID' => $AccountSubscriptionQueryDB["AccountSubscriptionID"]))->delete();
-		}
-		$AccountSubsDynamicFields = [];
-		foreach ($DynamicSubscrioptionFields as $DynamicSubscrioptionField) {
-			$AccountSubsDynamicFields["AccountSubscriptionID"] = $AccountSubscriptionQueryDB["AccountSubscriptionID"];
-			$AccountSubsDynamicFields["AccountID"] = $Account->AccountID;
-			$AccountSubsDynamicFields["DynamicFieldsID"] = $DynamicSubscrioptionField["DynamicFieldsID"];
-			$AccountSubsDynamicFields["FieldValue"] = $DynamicSubscrioptionField["FieldValue"];
-			$AccountSubsDynamicFields["FieldOrder"] = $DynamicSubscrioptionField["FieldOrder"];
-			AccountSubsDynamicFields::insert($AccountSubsDynamicFields);
-		}
+
 	}
 
 	public function createAccountSubscriptionFromRateTable($Account,$AccountSubscriptionDB,
@@ -1199,6 +1238,7 @@ class AccountsApiController extends ApiController {
 		$accountData = [];
 		try {
 
+
 			try {
 				$post_vars = json_decode(file_get_contents("php://input"));
 				//$post_vars = Input::all();
@@ -1212,6 +1252,7 @@ class AccountsApiController extends ApiController {
 				Log::info('Exception in Routing API.Invalid JSON' . $ex->getTraceAsString());
 				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
 			}
+
 
 
 			//$post_vars = Input::all();
@@ -1320,6 +1361,8 @@ class AccountsApiController extends ApiController {
 			$data['AccountType'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
 			$data['PaymentMethod'] = isset($accountData['PaymentMethodID']) ? $accountData['PaymentMethodID'] : '' ;
+
+
 			$BankPaymentDetails['AccountNumber'] = isset($accountData['AccountNumber']) ? $accountData['AccountNumber'] : '' ;
 			$BankPaymentDetails['RoutingNumber'] = isset($accountData['RoutingNumber']) ? $accountData['RoutingNumber'] : '' ;
 			$BankPaymentDetails['AccountHolderType'] = isset($accountData['AccountHolderType']) ? $accountData['AccountHolderType'] : '' ;//company,individual
@@ -1334,12 +1377,15 @@ class AccountsApiController extends ApiController {
 
 			//stripe = credit stipeAch = bank
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
-				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(PaymentGateway::$paymentgateway_name)) {
+				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$API_PaymentMethod)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
 
 				}
 			}
 
+			if (!empty($data['PaymentMethod'])) {
+				$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
+			}
 
 			$AccountPaymentAutomation['AutoTopup']= isset($accountData['AutoTopup']) ? $accountData['AutoTopup'] :'';
 			$AccountPaymentAutomation['MinThreshold']= isset($accountData['MinThreshold']) ? $accountData['MinThreshold'] : '';
@@ -1372,8 +1418,8 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 2 || $data['PaymentMethod'] == 3)) {
-				if ($data['PaymentMethod'] == 2) {
+			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH")) {
+				if ($data['PaymentMethod'] == "Stripe") {
 						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
 						if ($CardValidationResponse["status"] == "failed") {
 							return Response::json(["ErrorMessage" => $CardValidationResponse["message"]],Codes::$Code402[0]);
@@ -1382,7 +1428,7 @@ class AccountsApiController extends ApiController {
 					if (!in_array($BankPaymentDetails['CardType'], $CardType)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1036[1]],Codes::$Code1036[0]);
 					}
-				}else if ($data['PaymentMethod'] == 3) {
+				}else if ($data['PaymentMethod'] == "StripeACH") {
 					$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
 					if ($validator->fails()) {
 						$errors = "";
@@ -1627,12 +1673,13 @@ class AccountsApiController extends ApiController {
 							return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
 						}
 					}else {
-						if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 2 || $data['PaymentMethod'] == 3)) {
+						if (isset($data['PaymentMethod'])) {
 							$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
-							$BillingSetting['billing_class'] = $BillingSetting['billing_class'] .'-'.
-																PaymentGateway::$paymentgateway_name[$data['PaymentMethod']];
-							Log::info("PaymentMethod " . $BillingSetting['billing_class'] . ' ' . $CompanyID);
-							$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])->where('CompanyID', '=', $CompanyID);
+							$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $data['PaymentMethod']);
+							Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $CompanyID);
+							$BillingClassSql = BillingClass::whereRaw('lower(name) = '. "'". $BillingSetting['billing_class'] . "'")
+								->where('CompanyID', '=', $CompanyID);
+
 							$BillingClass = $BillingClassSql->first();
 							if (!isset($BillingClass)) {
 								return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
@@ -1680,7 +1727,11 @@ class AccountsApiController extends ApiController {
 			}
 
 			DB::beginTransaction();
+
 			if ($account = Account::create($data)) {
+
+
+
 				if (trim($data['Number']) == '') {
 					CompanySetting::setKeyVal('LastAccountNo', $account->Number);
 				}
@@ -1711,7 +1762,7 @@ class AccountsApiController extends ApiController {
 				AccountBalanceThreshold::create($AccountBalanceThreshold);
 				$account->update($data);
 
-				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == 2 || $data['PaymentMethod'] == 3)) {
+				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH")) {
 					$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
 					$BankPaymentDetails['CompanyID'] = $CompanyID;
 					if (!empty($BankPaymentDetails['CardNumber'])) {
@@ -2237,7 +2288,7 @@ class AccountsApiController extends ApiController {
 	public function getPaymentMethodList()
 	{
 		Log::info('getPaymentMethodList for Account.');
-		return Response::json(PaymentGateway::$paymentgateway_name,Codes::$Code200[0]);
+		return Response::json(AccountsApiController::$API_PaymentMethod,Codes::$Code200[0]);
 
 	}
 
