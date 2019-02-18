@@ -97,7 +97,7 @@
                                 <label for="field-5" class="control-label ReminderDays">Days Before Subscription Renewal
                                     <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="How many Days before renewal send reminders" data-original-title="Reminder Days" class="label label-info popover-primary">?</span>
                                 </label>
-                                <input name="CallAlert[ContractAlertDays]" type="number" class="form-control" min="0"/>
+                                <input name="CallAlert[ReminderDays]" type="number" class="form-control" min="0"/>
                             </div>
                         </div>
                     </div>
@@ -105,9 +105,9 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label ReminderDays">Days Before Expiry
-                                    <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="How many Days before renewal send reminders" data-original-title="Reminder Days" class="label label-info popover-primary">?</span>
+                                    <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="How many Days before expire send reminders" data-original-title="Reminder Days" class="label label-info popover-primary">?</span>
                                 </label>
-                                <input name="ContractAlert[ReminderDays]" type="number" class="form-control" min="0"/>
+                                <input name="CallAlert[ContractAlertDays]" type="number" class="form-control" min="0"/>
                             </div>
                         </div>
                     </div>
