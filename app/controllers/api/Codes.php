@@ -70,5 +70,6 @@ class Codes
     public static $Code1043 =["402","Please provide the status value"];
     public static $Code1044 =["402","The value of Status must be between 0 or 1"];
     public static $Code1045 =["402","More then one inactive CLI found"];
+    public static $Code1046 =["402","Country is not set against the product"];
 
 }

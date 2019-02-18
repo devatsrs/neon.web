@@ -645,6 +645,20 @@ class AccountsApiController extends ApiController {
 				return Response::json(array("ErrorMessage" => Codes::$Code1021[1]),Codes::$Code1021[0]);
 			}
 
+			$ProductCountryPrefix = '';
+			$ProductCountry = Country::where(array('Country' => $ServiceTemaplateReference->country))->first();
+			if (!isset($ProductCountry) || $ProductCountry == '') {
+				return Response::json(array("ErrorMessage" => Codes::$Code1046[1]),Codes::$Code1046[0]);
+			}
+
+			if (substr($ServiceTemaplateReference->prefixName,0,1) == "0") {
+				$ProductCountryPrefix = $ProductCountry->Prefix . substr($ServiceTemaplateReference->prefixName,1,strlen($ServiceTemaplateReference->prefixName));
+			} else {
+				$ProductCountryPrefix = $ProductCountry->Prefix .  empty($ServiceTemaplateReference->prefixName) ? "" : $ServiceTemaplateReference->prefixName;
+			}
+
+
+
 			//$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
 
 
@@ -719,7 +733,7 @@ class AccountsApiController extends ApiController {
 
 
 
-			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId);
+			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId . ' ' . $ProductCountryPrefix);
 
 
 			if (!empty($data['InboundTariffCategoryID'])) {
@@ -952,7 +966,7 @@ class AccountsApiController extends ApiController {
 						$AccountSubscriptionTemplate["SubscriptionId"],$DynamicFieldIDs,++$SubscriptionSequence);
 				}
 			}
-
+			$VendorIDDIDRateList = '';
 			if (count($NumberPurchaseds) > 0) {
 				$AccountSubscriptionDB = BillingSubscription::where(array('SubscriptionID' => $DefaultSubscriptionID))->first();
 				//Log::info('update $DynamicFieldIDs12.' . $AccountSubscriptionDB);
@@ -962,6 +976,7 @@ class AccountsApiController extends ApiController {
 
 				for ($i = 0; $i < count($NumberPurchaseds); $i++) {
 					$NumberPurchased = $NumberPurchaseds[$i];
+					$VendorIDDIDRateList = '';
 					Log::info('CreateAccountService:$NumberPurchasedRef .' . print_r($NumberPurchased,true));
 					$rate_tables['CLI'] = $NumberPurchased["Number"];
 					if (!empty($InboundRateTableReference)) {
@@ -983,15 +998,16 @@ class AccountsApiController extends ApiController {
 					if (!empty($ServiceTemaplateReference->ServiceId)) {
 						$rate_tables['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 					}
-					CLIRateTable::insert($rate_tables);
+					$rate_tables['DIDCategoryID'] = $data['InboundTariffCategoryID'];
+
 
 
 					if (!empty($DefaultSubscriptionID) && !empty($InboundRateTableReference)) {
 						$RateTableDIDRates = RateTableDIDRate::
 						Join('tblRate', 'tblRateTableDIDRate.RateID', '=', 'tblRate.RateID')
 							->select(['tblRateTableDIDRate.OneOffCost', 'tblRateTableDIDRate.MonthlyCost',
-								'tblRateTableDIDRate.OneOffCostCurrency','tblRateTableDIDRate.MonthlyCostCurrency']);
-						$RateTableDIDRates = $RateTableDIDRates->whereRaw('\'' . $NumberPurchased["Number"] . '\'' . ' like  CONCAT(tblRate.Code,"%")');
+								'tblRateTableDIDRate.OneOffCostCurrency','tblRateTableDIDRate.MonthlyCostCurrency','tblRateTableDIDRate.VendorID']);
+						$RateTableDIDRates = $RateTableDIDRates->whereRaw('\'' . $ProductCountryPrefix . '\'' . ' like  CONCAT(tblRate.Code,"%")');
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.CityTariff" => $ServiceTemaplateReference->city_tariff]);
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.RateTableId" => $InboundRateTableReference]);
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.ApprovedStatus" => 1]);
@@ -1005,8 +1021,12 @@ class AccountsApiController extends ApiController {
 								$NumberPurchased["NumberSubscriptionStartDate"],$NumberPurchased["NumberSubscriptionEndDate"] ,$ServiceTemaplateReference, $AccountService,
 								$DefaultSubscriptionID, $DynamicFieldIDs,
 								$RateTableDIDRate, $NumberPurchased["InvoiceNoDescription"],++$SubscriptionSequence);
+							$VendorIDDIDRateList = $RateTableDIDRate["MonthlyCost"];
 						}
 					}
+
+					$rate_tables['VendorID'] = $VendorIDDIDRateList;
+					CLIRateTable::insert($rate_tables);
 
 					if (!empty($DefaultSubscriptionPackageID)) {
 
