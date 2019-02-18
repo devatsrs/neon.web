@@ -532,7 +532,7 @@ class AccountsApiController extends ApiController {
 
 			$NumberPurchased=json_decode(json_encode($data['NumberPurchased']),true);
 
-			Log::info('UpdateNumberPackage:$NumberPurchasedRef .' . count($NumberPurchased));
+			Log::info('Update Number :$NumberPurchasedRef .' . count($NumberPurchased));
 
 			if (!isset($NumberPurchased['NumberSubscriptionStartDate']) || empty($NumberPurchased['NumberSubscriptionStartDate'])) {
 				return Response::json(["ErrorMessage"=>Codes::$Code1038[1]],Codes::$Code1038[0]);
