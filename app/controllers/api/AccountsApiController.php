@@ -2455,15 +2455,17 @@ class AccountsApiController extends ApiController {
 			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH")) {
 				$AccountPayoutSql = '';
 				if ($data['PaymentMethod'] == "Stripe") {
-					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'card']);
+					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'card'])->first();
 				} else if ($data['PaymentMethod'] == "StripeACH") {
-					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'bank']);
+					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'bank'])->first();
 				}
-
-				$AccountPayoutSql = $AccountPayoutSql->first();
+				//Log::info('$AccountPayoutSql SQL ' . $AccountPayoutSql->toSql());
+				//$AccountPayoutSql = $AccountPayoutSql->first();
 				if (isset($AccountPayoutSql)) {
+					Log::info('$AccountPayoutSql SQL ' .  $AccountPayoutSql['AccountPayoutID']);
 					$AccountPayout['Status'] = 0;
 					$AccountPayoutSql->update($AccountPayout);
+					Log::info('$AccountPayoutSql SQL ' );
 				}
 				$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
 				$BankPaymentDetails['CompanyID'] = $CompanyID;
