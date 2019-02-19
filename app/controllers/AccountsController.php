@@ -949,6 +949,9 @@ class AccountsController extends \BaseController {
             'country'=>$data['Country'],
             'phoneNumber'=>$account['Mobile']);
         unset($data['table-4_length']);
+        unset($data['table-subscription_length']);
+        unset($data['table-additionalcharge_length']);
+        unset($data['table-service_length']);
         unset($data['cardID']);
         //unset($data['DiscountPlanID']);
         //unset($data['InboundDiscountPlanID']);
