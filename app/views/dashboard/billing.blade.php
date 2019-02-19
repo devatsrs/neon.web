@@ -389,14 +389,14 @@
                                     {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
 
                                 </div>
+                                <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
+                                <div class="col-md-2">
+                                    <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="daterange form-control">
+                                </div>
                                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Type</label>
                                 <div class="col-md-3">
                                     {{Form::select('emailType',$emailType,'',array("class"=>"select2"))}}
 
-                                </div>
-                                <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
-                                <div class="col-md-2">
-                                    <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="daterange form-control">
                                 </div>
                                 <div class="col-md-1">
                                     <button type="submit" id="submit_paymentreminder" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
