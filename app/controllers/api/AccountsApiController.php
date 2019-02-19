@@ -2675,6 +2675,7 @@ class AccountsApiController extends ApiController {
 						$ChargeData['AccountID'] 	= $AccountID;
 						$ChargeData['ProductID'] 	= $ProductID;
 						$ChargeData['Price'] 		= $product->Amount;
+						$ChargeData['Description']	= $product->Description;
 						$ChargeData['Qty'] 			= 1;
 						$ChargeData['Date'] 		= $CurrentDate;
 						$ChargeData['CreatedBy'] 	= $CreatedBy;
@@ -2722,6 +2723,7 @@ class AccountsApiController extends ApiController {
 						$ChargeData['created_at'] 		= $CurrentDate;
 						$ChargeData['OneOffCurrencyID'] = $CurrencyID;
 						$ChargeData['RecurringCurrencyID'] = $CurrencyID;
+						$ChargeData['InvoiceDescription']  = $recurring->InvoiceLineDescription;
 						$ChargeData['DailyFee'] 		= $recurring->DailyFee;
 						$ChargeData['WeeklyFee'] 		= $recurring->WeeklyFee;
 						$ChargeData['MonthlyFee'] 		= $recurring->MonthlyFee;
@@ -2730,7 +2732,7 @@ class AccountsApiController extends ApiController {
 
 						if (AccountRecurring::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
-							return Response::json(Codes::$Code200[0]);
+							return Response::json([],Codes::$Code200[0]);
 						} else {
 							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
 						}
