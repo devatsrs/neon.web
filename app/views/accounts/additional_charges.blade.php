@@ -197,39 +197,39 @@
         //inst.myMethod('I am a method');
         $('#add-additionalcharge').click(function(ev){
             ev.preventDefault();
-            $('#additional-form').trigger("reset");
-            $('#modal-additional h4').html('Add Additional Charge');
-            $("#additional-form [name=ProductID]").select2().select2('val',"");
-            $("#additional-form [name='TaxRateID']").val(0).trigger("change");
-            $("#additional-form [name='TaxRateID2']").val(0).trigger("change");
-            $("#additional-form [name=CurrencyID]").select2().select2('val',"");
+            $('#oneofcharge-form').trigger("reset");
+            $('#modal-oneofcharge h4').html('Add Additional Charge');
+            $("#oneofcharge-form [name=ProductID]").select2().select2('val',"");
+            $("#oneofcharge-form [name='TaxRateID']").val(0).trigger("change");
+            $("#oneofcharge-form [name='TaxRateID2']").val(0).trigger("change");
+            $("#oneofcharge-form [name=CurrencyID]").select2().select2('val',"");
             $('.tax').removeClass('hidden');
 
-            $('#additional-form').attr("action",additional_add_url);
-            $('#modal-additional').modal('show');
+            $('#oneofcharge-form').attr("action",additional_add_url);
+            $('#modal-oneofcharge').modal('show');
         });
         $('table tbody').on('click', '.edit-additionalcharge', function (ev) {
             ev.preventDefault();
-            $('#additional-form').trigger("reset");
+            $('#oneofcharge-form').trigger("reset");
             var edit_url  = $(this).attr("href");
-            $('#additional-form').attr("action",edit_url);
-            $('#modal-additional h4').html('Edit Additional Charge');
+            $('#oneofcharge-form').attr("action",edit_url);
+            $('#modal-oneofcharge h4').html('Edit Additional Charge');
             var cur_obj = $(this).prev("div.hiddenRowData");
             for(var i = 0 ; i< list_fields.length; i++){
-                $("#additional-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                $("#oneofcharge-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                 if(list_fields[i] == 'ProductID'){
-                    $("#additional-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                    $("#oneofcharge-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
                 }else if(list_fields[i] == 'TaxRateID'){
-                    $("#additional-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                    $("#oneofcharge-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                 }else if(list_fields[i] == 'TaxRateID2'){
-                    $("#additional-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                    $("#oneofcharge-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                 }else if(list_fields[i] == 'CurrencyID'){
                     var CurrencyID = cur_obj.find("input[name='"+list_fields[i]+"']").val();
                     if(CurrencyID == 0) CurrencyID = '';
-                    $("#additional-form [name='"+list_fields[i]+"']").val(CurrencyID).trigger("change");
+                    $("#oneofcharge-form [name='"+list_fields[i]+"']").val(CurrencyID).trigger("change");
                 }
             }
-            $('#modal-additional').modal('show');
+            $('#modal-oneofcharge').modal('show');
         });
         $('table tbody').on('click', '.delete-additionalcharge', function (ev) {
             ev.preventDefault();
@@ -242,15 +242,15 @@
             return false;
         });
 
-        $("#additional-form").submit(function(e){
+        $("#oneofcharge-form").submit(function(e){
             e.preventDefault();
             var _url  = $(this).attr("action");
             /*tax1 start*/
-            var option = $("#additional-form [name='TaxRateID'] option:selected");
+            var option = $("#oneofcharge-form [name='TaxRateID'] option:selected");
             var Status = option.attr('data-status');
             var Amount = option.attr('data-amount');
             var TaxAmount1 = 0;
-            var TotalPrice = parseFloat($('#additional-form [name="Price"]').val().replace(/,/g,'')) * parseInt($('#additional-form [name="Qty"]').val());
+            var TotalPrice = parseFloat($('#oneofcharge-form [name="Price"]').val().replace(/,/g,'')) * parseInt($('#oneofcharge-form [name="Qty"]').val());
             if (Status == 1) {
                 TaxAmount1 = parseFloat(Amount);
             } else {
@@ -260,11 +260,11 @@
 
 
             /*tax2 start*/
-            var option2 = $("#additional-form [name='TaxRateID2'] option:selected");
+            var option2 = $("#oneofcharge-form [name='TaxRateID2'] option:selected");
             var Status2 = option2.attr('data-status');
             var Amount2 = option2.attr('data-amount');
             var TaxAmount2 = 0;
-            var TotalPrice2 = parseFloat($('#additional-form [name="Price"]').val().replace(/,/g,'')) * parseInt($('#additional-form [name="Qty"]').val());
+            var TotalPrice2 = parseFloat($('#oneofcharge-form [name="Price"]').val().replace(/,/g,'')) * parseInt($('#oneofcharge-form [name="Qty"]').val());
             if (Status2 == 1) {
                 TaxAmount2 = parseFloat(Amount2);
             } else {
@@ -274,7 +274,7 @@
 
             var tax_final  = 	parseFloat(TaxAmount1+TaxAmount2);
 
-            $('#additional-form [name="TaxAmount"]').val(tax_final.toFixed(parseInt(decimal_places)));
+            $('#oneofcharge-form [name="TaxAmount"]').val(tax_final.toFixed(parseInt(decimal_places)));
             //submit_ajax_datatable(_url,$(this).serialize(),0,data_table_charge);
 
             var _data = $(this).serialize();
@@ -308,23 +308,23 @@
             //data_table_charge.fnFilter('', 0);
         });
 
-        $("#additional-form [name='TaxRateID']").change(function(e) {
+        $("#oneofcharge-form [name='TaxRateID']").change(function(e) {
             check_same_tax();
         });
 
-        $("#additional-form [name='TaxRateID2']").change(function(e) {
+        $("#oneofcharge-form [name='TaxRateID2']").change(function(e) {
             check_same_tax();
         });
 
         function check_same_tax(){
-            var tax1val = $("#additional-form [name='TaxRateID']").val();
-            var tax2val = $("#additional-form [name='TaxRateID2']").val();
+            var tax1val = $("#oneofcharge-form [name='TaxRateID']").val();
+            var tax2val = $("#oneofcharge-form [name='TaxRateID2']").val();
             if(tax1val > 0 &&  (tax1val == tax2val)){
-                toastr.error($("#additional-form [name='TaxRateID'] option:selected").text()+" already applied", "Error", toastr_opts);
+                toastr.error($("#oneofcharge-form [name='TaxRateID'] option:selected").text()+" already applied", "Error", toastr_opts);
             }
         }
 
-        $('#additional-form [name="ProductID"]').change(function(e){
+        $('#oneofcharge-form [name="ProductID"]').change(function(e){
             id = $(this).val();
             getProductinfo(id);
         });
@@ -337,8 +337,8 @@
                     type: 'POST',
                     dataType: 'json',
                     success: function (response) {
-                        $('#additional-form').find('[name="Description"]').val(response.Description);
-                        $('#additional-form').find('[name="Price"]').val(response.Amount);
+                        $('#oneofcharge-form').find('[name="Description"]').val(response.Description);
+                        $('#oneofcharge-form').find('[name="Price"]').val(response.Amount);
                     },
                     //Options to tell jQuery not to process data or worry about content-type.
                     cache: false
@@ -346,8 +346,8 @@
             }
         }
         function TotalPrice(){
-            var total = $('#additional-form').find('[name="productPrice"]').val() * $('#additional-form').find('[name="Qty"]').val();
-            $('#additional-form').find('[name="Price"]').val(total);
+            var total = $('#oneofcharge-form').find('[name="productPrice"]').val() * $('#oneofcharge-form').find('[name="Qty"]').val();
+            $('#oneofcharge-form').find('[name="Price"]').val(total);
         }
 
         $(document).on("keypress",".Qty",function (event) {
@@ -371,139 +371,5 @@
 <!--@include('includes.ajax_data_grid')-->
 @section('footer_ext')
     @parent
-
-    <div class="modal fade in" id="modal-additional">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="additional-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Additional Charges</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Additional Charge charge</label>
-                                    {{Form::select('ProductID',$products,'',array("class"=>"select2 product_dropdown"))}}
-                                    <input type="hidden" name="AccountAdditionalChargeID" />
-                                    <input type="hidden" name="TaxAmount" />
-                                    <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
-                                  </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Description</label>
-                                    <input type="text" name="Description" class="form-control" value="" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Qty</label>
-                                    <input type="text" name="Qty" class="form-control Qty" value="1" data-min="1" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Date</label>
-                                    <input type="text" name="Date" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-521" class="control-label">Currency</label>
-                                    {{ Form::select('CurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Price</label>
-                                    <input type="text" name="Price" class="form-control" value="0"   />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row tax">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Tax 1</label>
-                                    {{Form::SelectExt(
-                                                [
-                                                "name"=>"TaxRateID",
-                                                "data"=>$taxes,
-                                                "selected"=>'',
-                                                "value_key"=>"TaxRateID",
-                                                "title_key"=>"Title",
-                                                "data-title1"=>"data-amount",
-                                                "data-value1"=>"Amount",
-                                                "data-title2"=>"data-status",
-                                                "data-value2"=>"FlatStatus",
-                                                "class" =>"select2 small TaxRateID",
-                                                ]
-                                        )}}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row tax">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Tax 2</label>
-                                    {{Form::SelectExt(
-                                                [
-                                                "name"=>"TaxRateID2",
-                                                "data"=>$taxes,
-                                                "selected"=>'',
-                                                "value_key"=>"TaxRateID",
-                                                "title_key"=>"Title",
-                                                "data-title1"=>"data-amount",
-                                                "data-value1"=>"Amount",
-                                                "data-title2"=>"data-status",
-                                                "data-value2"=>"FlatStatus",
-                                                "class" =>"select2 small TaxRateID2",
-                                                ]
-                                        )}}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Discount</label>
-                                    <input type="text" name="DiscountAmount" class="form-control" value=""  />
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Discount Type</label>
-                                    {{ Form::select('DiscountType', array('Flat' => 'Flat', 'Percentage' => 'Percentage') ,'', array("class"=>"form-control") ) }}
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    @include('accountoneoffcharge.additional_charge_modals')
 @stop
