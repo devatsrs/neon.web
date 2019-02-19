@@ -2280,10 +2280,11 @@ class AccountsApiController extends ApiController {
 				$data['BillingAddress3'] = $accountData['BillingAddress3'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingPostCode']) && !empty($accountData['BillingPostCode'])) {
+
+			/*if (isset($accountData['BillingPostCode']) && !empty($accountData['BillingPostCode'])) {
 				$data['BillingPostCode'] = $accountData['BillingPostCode'];
 				$data['DifferentBillingAddress'] = 1;
-			}
+			}*/
 			if (isset($accountData['BillingCity']) && !empty($accountData['BillingCity'])) {
 				$data['BillingCity'] = $accountData['BillingCity'];
 				$data['DifferentBillingAddress'] = 1;
