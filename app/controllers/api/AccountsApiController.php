@@ -1426,7 +1426,7 @@ class AccountsApiController extends ApiController {
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
 			$data['Language']= isset($accountData['LanguageIso2']) ? $accountData['LanguageIso2'] : '';
-			$ResellerOwner = empty($accountData['AccountResellerID']) ? 0 : $accountData['AccountResellerID'];
+
 
 			$data['AccountType'] = 1;
 			$data['IsVendor'] = isset($accountData['IsVendor']);
@@ -1443,9 +1443,25 @@ class AccountsApiController extends ApiController {
 				$data['DifferentBillingAddress'] = 1;
 			}
 
+			$ResellerOwner = '';
+			if (!empty($accountData['AccountResellerDynamicField'])) {
+				$AccountIDRef = '';
+				$AccountIDRef = Account::findAccountBySIAccountRef($accountData['AccountResellerDynamicField']);
+				if (empty($AccountIDRef)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1035[1]],Codes::$Code1035[0]);
+				}
+				$ResellerOwner = $AccountIDRef;
+			}
+
+			if (!empty($ResellerOwner)) {
+				$Account = Account::find($ResellerOwner);
+				if (!$Account || $Account['IsReseller'] != 1) {
+					return Response::json(["ErrorMessage" => Codes::$Code1035[1]], Codes::$Code1035[0]);
+				}
+			}
 
 			if(!empty($ResellerOwner) &&  $ResellerOwner>0){
-				$Reseller = Reseller::getResellerDetails($ResellerOwner);
+				$Reseller = Reseller::where('AccountID',$ResellerOwner)->first();
 				if (!isset($Reseller)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1035[1]],Codes::$Code1035[0]);
 				}
@@ -2341,7 +2357,10 @@ class AccountsApiController extends ApiController {
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
 				for ($i =0; $i <count($AccountReferenceArr);$i++) {
 					$AccountReference = $AccountReferenceArr[$i];
-					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+						'Type'=>'account','Status'=>1])
+						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
+						->pluck('DynamicFieldsID');
 					if(empty($DynamicFieldsID)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1006[1]],Codes::$Code1006[0]);
 					}
@@ -2374,7 +2393,10 @@ class AccountsApiController extends ApiController {
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
 				for ($i =0; $i <count($AccountReferenceArr);$i++) {
 					$AccountReference = $AccountReferenceArr[$i];
-					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+						'Type'=>'account','Status'=>1])
+						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
+						->pluck('DynamicFieldsID');
 					$DynamicFieldsValue = DynamicFieldsValue::where(['ParentID'=>$accountInfo->AccountID,'DynamicFieldsID'=>$DynamicFieldsID])->first();
 					$DynamicFields['ParentID'] = $accountInfo->AccountID;
 					$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
