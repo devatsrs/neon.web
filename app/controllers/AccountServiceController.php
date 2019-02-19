@@ -182,11 +182,11 @@ class AccountServiceController extends \BaseController {
         ->leftjoin('tblAccountServiceContract', 'tblAccountService.AccountServiceID', '=', 'tblAccountServiceContract.AccountServiceID')
         ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
         ->leftjoin('tblPackage', 'tblPackage.PackageId', '=' , 'tblCLIRateTable.PackageID' )
-        ->select(["tblAccountService.AccountServiceID","tblService.ServiceName",DB::raw("(select GROUP_CONCAT(`tblCLIRateTable`.`CLI`) as cli
+        ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
          from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"),"tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate", "tblAccountService.Status"])
         ->where("tblAccountService.AccountID",$id);
 
-        //\Log::debug($services->toSql());
+        //Log::debug($services->toSql());
 
         if(!empty($data['ServiceName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');

@@ -20,10 +20,26 @@ public function main() {
     /** Used in Account Service Edit Page */
     public function ajax_datagrid($id){
         $data = Input::all();        
-        $id=$data['account_id'];
-        $select = ["tblAccountSubscription.AccountSubscriptionID as AID","tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax","tblAccountSubscription.Status","tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType"];
+        $id = $data['account_id'];
+        $select = [
+            "tblAccountSubscription.AccountSubscriptionID as AID",
+            "tblAccountSubscription.SequenceNo","tblBillingSubscription.Name",
+            "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",
+            DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),
+            "tblAccountSubscription.ActivationFee","CurrencyTbl1.Code as OneOffCurrency",
+            "tblAccountSubscription.DailyFee", "tblAccountSubscription.WeeklyFee",
+            "tblAccountSubscription.MonthlyFee","CurrencyTbl2.Code as RecurringCurrency",
+            "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
+            "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
+            "tblAccountSubscription.ExemptTax","tblAccountSubscription.Status",
+            "tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType",
+            "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID"
+        ];
 
-        $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);        
+        $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);
+
+        $subscriptions->leftJoin('speakintelligentRM.tblCurrency as CurrencyTbl1', 'tblAccountSubscription.OneOffCurrencyID', '=', 'CurrencyTbl1.CurrencyID');
+        $subscriptions->leftJoin('speakintelligentRM.tblCurrency as CurrencyTbl2', 'tblAccountSubscription.RecurringCurrencyID', '=', 'CurrencyTbl2.CurrencyID');
         if(!empty($data['SubscriptionName'])){
             $subscriptions->where('tblBillingSubscription.Name','Like','%'.trim($data['SubscriptionName']).'%');
         }
@@ -141,10 +157,10 @@ public function main() {
             $data['SequenceNo'] = $SequenceNo;
         }
 
-        Log::info('Trach Line...1' . count($data['dynamicFileds']));
 
         if(isset($data['dynamicFileds']))
         {
+            Log::info('Trach Line...1' . count($data['dynamicFileds']));
             $dynamicData['dynamicFileds'] = $data['dynamicFileds'];
             unset($data['dynamicFileds']);
         }
@@ -182,8 +198,8 @@ public function main() {
         $DynamicFields = [];
 
         if ($AccountSubscription = AccountSubscription::create($data)) {
-            $data['DynamicFields'] = $dynamicData['dynamicFileds'];
-            Log::info('Trach Line...2' . count($data['DynamicFields']));
+            //$data['DynamicFields'] = $dynamicData['dynamicFileds'];
+            //Log::info('Trach Line...2' . count($data['DynamicFields']));
             $dynamiceFields['AccountID']  = $data['AccountID'];
 
             if(isset($data['DynamicFields'])) {
@@ -200,11 +216,8 @@ public function main() {
                     $DynamicFields[$j]['created_at'] = date('Y-m-d H:i:s.000');
                     $DynamicFields[$j]['created_by'] = User::get_user_full_name();
                     $j++;
-
-
                 }
             }
-
 
             if(isset($DynamicFields) && count($DynamicFields)>0) {
                 for($k=0; $k<count($DynamicFields); $k++) {
@@ -398,7 +411,7 @@ public function main() {
                         }
                 }
 
-                return Response::json(array("status" => "success", "message" => "Subscription Successfully Created", 'LastID' => $AccountSubscription->AccountSubscriptionID));
+                return Response::json(array("status" => "success", "message" => "Subscription Successfully Updated", 'LastID' => $AccountSubscription->AccountSubscriptionID));
             }catch(Exception $ex){
                 Log::info('Trach Line...' . $ex->getTraceAsString());
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:" . $ex->getMessage()));
@@ -767,8 +780,6 @@ public function main() {
         $SubscriptionID         = $data['SubscriptionID'];
         $AccountSubscriptionID  = $data['AccountSubscriptionID'];
 
-
-
         $AccountSubscription = AccountSubscription::select('AccountID')
                                                         ->where('SubscriptionID',$SubscriptionID)
                                                         ->where('AccountID', $AccountSubscriptionID)
@@ -776,8 +787,6 @@ public function main() {
 
             if( isset($AccountSubscription->AccountID) && !empty($AccountSubscription->AccountID))
             {
-
-
                 $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
                     $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
                 })->select('tblDynamicFields.FieldName' , 'tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue','tblDynamicFieldsValue.DynamicFieldsID')
@@ -787,16 +796,12 @@ public function main() {
                     ->get();
 
             }else {
-
-
                 $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function ($join) {
                     $join->on('tblDynamicFieldsValue.DynamicFieldsID', '=', 'tblDynamicFields.DynamicFieldsID');
                 })->select('tblDynamicFields.FieldName', 'tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue', 'tblDynamicFieldsValue.DynamicFieldsID')
                     ->where('tblDynamicFields.Type', '=', 'subscription')
                     ->groupBy('tblDynamicFields.DynamicFieldsID')
                     ->get();
-
-
             }
 
         return $GetDynamiceAll;
@@ -810,9 +815,6 @@ public function main() {
        $AccountID              = (string)$data['AccountID'];
 
       try{
-
-
-
             $AccountSubsDynamicFields = AccountSubsDynamicFields::join('speakintelligentRM.tblDynamicFields as db2','tblAccountSubsDynamicFields.DynamicFieldsID','=','db2.DynamicFieldsID')
             ->select('tblAccountSubsDynamicFields.AccountSubscriptionID', 'tblAccountSubsDynamicFields.AccountID', 'tblAccountSubsDynamicFields.DynamicFieldsID', 'tblAccountSubsDynamicFields.FieldValue', 'db2.FieldName', 'db2.FieldDomType')
             ->where('tblAccountSubsDynamicFields.AccountSubscriptionID','=',$AccountSubscriptionID)
