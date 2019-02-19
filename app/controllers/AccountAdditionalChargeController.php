@@ -1,51 +1,43 @@
 <?php
 
-class AccountOneOffChargeController extends \BaseController {
-
+class AccountAdditionalChargeController extends \BaseController {
 
 
     public function ajax_datagrid($id){
         $data = Input::all();
         $id=$data['account_id'];
         $select = [
-            "tblProduct.Name", "tblAccountOneOffCharge.Description",
-            "tblAccountOneOffCharge.Qty" , "tblAccountOneOffCharge.Price",
-            "tblAccountOneOffCharge.Date", "tblAccountOneOffCharge.TaxAmount",
-            "CurrencyTbl.Code as Currency", "tblAccountOneOffCharge.created_at",
-            "tblAccountOneOffCharge.CreatedBy", "tblAccountOneOffCharge.AccountOneOffChargeID",
-            "tblProduct.ProductID", "tblAccountOneOffCharge.TaxRateID",
-            "tblAccountOneOffCharge.TaxRateID2", "tblAccountOneOffCharge.DiscountAmount",
-            "tblAccountOneOffCharge.DiscountType", "tblAccountOneOffCharge.CurrencyID"];
+            "tblProduct.Name", "tblAccountAdditionalCharge.Description",
+            "tblAccountAdditionalCharge.Qty" , "tblAccountAdditionalCharge.Price",
+            "tblAccountAdditionalCharge.Date", "tblAccountAdditionalCharge.TaxAmount",
+            "CurrencyTbl.Code as Currency", "tblAccountAdditionalCharge.created_at",
+            "tblAccountAdditionalCharge.CreatedBy", "tblAccountAdditionalCharge.AccountAdditionalChargeID",
+            "tblProduct.ProductID", "tblAccountAdditionalCharge.TaxRateID",
+            "tblAccountAdditionalCharge.TaxRateID2", "tblAccountAdditionalCharge.DiscountAmount",
+            "tblAccountAdditionalCharge.DiscountType", "tblAccountAdditionalCharge.CurrencyID"];
 
-
-        $accountOneOffCharge = AccountOneOffCharge::join('tblProduct', 'tblAccountOneOffCharge.ProductID', '=', 'tblProduct.ProductID')
-        ->leftJoin('speakintelligentRM.tblCurrency as CurrencyTbl', 'tblAccountOneOffCharge.CurrencyID', '=', 'CurrencyTbl.CurrencyID')
-            ->where("tblAccountOneOffCharge.AccountID",$id);
-        if(!empty($data['OneOfCharge_ProductID'])){
-            $accountOneOffCharge->where('tblAccountOneOffCharge.ProductID','=',$data['OneOfCharge_ProductID']);
+        $AccountAdditionalCharge = AccountAdditionalCharge::join('tblProduct', 'tblAccountAdditionalCharge.ProductID', '=', 'tblProduct.ProductID')
+        ->leftJoin('speakintelligentRM.tblCurrency as CurrencyTbl', 'tblAccountAdditionalCharge.CurrencyID', '=', 'CurrencyTbl.CurrencyID')
+            ->where("tblAccountAdditionalCharge.AccountID",$id);
+        if(!empty($data['Additional_ProductID'])){
+            $AccountAdditionalCharge->where('tblAccountAdditionalCharge.ProductID','=',$data['Additional_ProductID']);
         }
         if(!empty($data['ServiceID'])){
-            $accountOneOffCharge->where('tblAccountOneOffCharge.ServiceID','=',$data['ServiceID']);
+            $AccountAdditionalCharge->where('tblAccountAdditionalCharge.ServiceID','=',$data['ServiceID']);
         }else{
-            $accountOneOffCharge->where('tblAccountOneOffCharge.ServiceID','=',0);
+            $AccountAdditionalCharge->where('tblAccountAdditionalCharge.ServiceID','=',0);
         }
-        if(!empty($data['AccountServiceID'])){
-            $accountOneOffCharge->where('tblAccountOneOffCharge.AccountServiceID','=',$data['AccountServiceID']);
-        }else{
-            $accountOneOffCharge->where('tblAccountOneOffCharge.AccountServiceID','=',0);
-        }
-        if(!empty($data['OneOfCharge_Description']))
-        {            
-            $accountOneOffCharge->where('tblAccountOneOffCharge.Description','Like','%'.trim($data['OneOfCharge_Description']).'%');
-        }        
-        if(!empty($data['OneOfCharge_Date']))
+        if(!empty($data['Additional_Description']))
         {
-            $accountOneOffCharge->where('tblAccountOneOffCharge.Date','=',$data['OneOfCharge_Date']);   
-         
+            $AccountAdditionalCharge->where('tblAccountAdditionalCharge.Description','Like','%'.trim($data['Additional_Description']).'%');
+        }        
+        if(!empty($data['Additional_Date']))
+        {
+            $AccountAdditionalCharge->where('tblAccountAdditionalCharge.Date','=',$data['Additional_Date']);
         }
-        $accountOneOffCharge->select($select);
+        $AccountAdditionalCharge->select($select);
 
-        return Datatables::of($accountOneOffCharge)->make();
+        return Datatables::of($AccountAdditionalCharge)->make();
     }
 
 	/**
@@ -70,6 +62,7 @@ class AccountOneOffChargeController extends \BaseController {
             'Qty'         => 'required',
             'Price'       => 'required|numeric'
         );
+
         $validator = Validator::make($data, $rules);
         $validator->setPresenceVerifier($verifier);
 
@@ -80,7 +73,7 @@ class AccountOneOffChargeController extends \BaseController {
         unset($data['AccountoneofchargeID']);
         $data['Price'] = str_replace(',','',$data['Price']);
 
-        if ($AccountOneOffCharge = AccountOneOffCharge::create($data)) {
+        if ($AccountOneOffCharge = AccountAdditionalCharge::create($data)) {
             //stock History Calculation
             $StockHistory=array();
             $temparray=array();
@@ -112,13 +105,13 @@ class AccountOneOffChargeController extends \BaseController {
         }
 	}
 
-	public function update($AccountID,$AccountOneOffChargeID)
+	public function update($AccountID,$AccountAdditionalChargeID)
 	{
-        if( $AccountID  > 0  && $AccountOneOffChargeID > 0 ) {
+        if( $AccountID  > 0  && $AccountAdditionalChargeID > 0 ) {
             $data = Input::all();
-            $AccountOneOffChargeID = $data['AccountOneOffChargeID'];
-            $AccountOneOffCharge = AccountOneOffCharge::find($AccountOneOffChargeID);
-            $oldQty=intval($AccountOneOffCharge['Qty']);
+            $AccountAdditionalChargeID = $data['AccountAdditionalChargeID'];
+            $AccountAdditionalCharge = AccountAdditionalCharge::find($AccountAdditionalChargeID);
+            $oldQty=intval($AccountAdditionalCharge['Qty']);
             $data["AccountID"] = $AccountID;
             $data["ModifiedBy"] = User::get_user_full_name();
 
@@ -126,11 +119,11 @@ class AccountOneOffChargeController extends \BaseController {
             $verifier->setConnection('sqlsrv2');
 
             $rules = array(
-                'AccountID'         =>      'required',
-                'ProductID'    =>  'required',
-                'Date'               =>'required',
-                'Qty'               =>'required',
-                'Price'               =>'required|numeric'
+                'AccountID'   => 'required',
+                'ProductID'   => 'required',
+                'Date'        =>'required',
+                'Qty'         =>'required',
+                'Price'       =>'required|numeric'
             );
             $validator = Validator::make($data, $rules);
             $validator->setPresenceVerifier($verifier);
@@ -139,10 +132,10 @@ class AccountOneOffChargeController extends \BaseController {
                 return json_validator_response($validator);
             }
             unset($data['productPrice']);
-            unset($data['AccountOneOffChargeID']);
+            unset($data['AccountAdditionalChargeID']);
             $data['Price'] = str_replace(',','',$data['Price']);
 
-            if ($AccountOneOffCharge->update($data)) {
+            if ($AccountAdditionalCharge->update($data)) {
                 //stock History Calculation
                 $StockHistory=array();
                 $temparray=array();
@@ -177,16 +170,16 @@ class AccountOneOffChargeController extends \BaseController {
 	}
 
 
-	public function delete($AccountID,$AccountOneOffChargeID)
+	public function delete($AccountID,$AccountAdditionalChargeID)
 	{
-        if( intval($AccountOneOffChargeID) > 0){
+        if( intval($AccountAdditionalChargeID) > 0){
             try{
-                $AccountOneOffCharge = AccountOneOffCharge::find($AccountOneOffChargeID);
+                $AccountAdditionalCharge = AccountAdditionalCharge::find($AccountAdditionalChargeID);
                 //StockHistory Calculation
                 $StockHistory=array();
                 $temparray=array();
-                $ProductID=$AccountOneOffCharge->ProductID;
-                $Qty=intval($AccountOneOffCharge->Qty);
+                $ProductID=$AccountAdditionalCharge->ProductID;
+                $Qty=intval($AccountAdditionalCharge->Qty);
                 if($ProductID > 0 && $Qty > 0){
                     $companyID = User::get_companyID();
                     $reason='delete_prodstock';
@@ -204,7 +197,7 @@ class AccountOneOffChargeController extends \BaseController {
                     $historyData=stockHistoryUpdateCalculations($StockHistory);
 
                 }
-                $result = $AccountOneOffCharge->delete();
+                $result = $AccountAdditionalCharge->delete();
                 if ($result) {
                     return Response::json(array("status" => "success", "message" => "Additional charge Successfully Deleted"));
                 } else {
