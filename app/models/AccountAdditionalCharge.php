@@ -7,4 +7,13 @@ class AccountAdditionalCharge extends \Eloquent {
     protected $primaryKey = "AccountAdditionalChargeID";
     protected $guarded = array('AccountAdditionalChargeID');
 
+    public static $rules = array(
+        'AccountID'         =>      'required',
+    );
+
+    public static function  checkForeignKeyById($id){
+        if($id>0){
+            return false;
+        }
+    }
 }

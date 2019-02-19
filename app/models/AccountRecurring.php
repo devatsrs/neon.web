@@ -58,4 +58,16 @@ class AccountRecurring extends \Eloquent {
 
         return $result;
     }
+
+    public static $rules = array(
+        'AccountID'      => 'required',
+        'SubscriptionID' => 'required',
+        'StartDate'      => 'required'
+    );
+
+    public static function  checkForeignKeyById($id){
+        if($id>0){
+            return false;
+        }
+    }
 }
