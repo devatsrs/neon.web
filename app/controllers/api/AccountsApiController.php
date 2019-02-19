@@ -2701,6 +2701,7 @@ class AccountsApiController extends ApiController {
 							$recurring_data['InvoiceLineDescription'] 	= $data['Description'];
 							$recurring_data['CreatedBy'] 				= $CreatedBy;
 							$recurring_data['created_at'] 				= $CurrentDate;
+							$recurring_data['Advance'] 					= 1;
 
 							$Costs = AccountRecurring::calculateCost('MonthlyFee', $data['Amount']);
 
