@@ -44,13 +44,13 @@
                     </p>
                 </div>
                 <div class="form-group">
-                    <label class="control-label"  >Reseller</label><br/>
+                    <label class="control-label"  >Partner</label><br/>
                     <p class="make-switch switch-small">
                         <input id="Reseller_on_off" name="reseller_on_off" type="checkbox" value="1">
                     </p>
                 </div>
                 <div class="form-group">
-                    <label class="control-label" for="field-1">Account Reseller</label>
+                    <label class="control-label" for="field-1">Account Partner</label>
                     {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
@@ -1459,7 +1459,7 @@
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox"  name="ResellerCheck">
-                            <span>Reseller</span></label><br>
+                            <span>Partner</span></label><br>
                         <p class="make-switch switch-small">
                             <input id="BulkResellerChange" name="Reseller_on_off" type="checkbox" value="1">
                         </p>
@@ -1469,7 +1469,7 @@
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox"  name="ResellerOwnerAddCheck">
-                            <span>Account Reseller</span></label><br>
+                            <span>Account Partner</span></label><br>
                             {{Form::select('ResellerOwner', $reseller_owners, '' ,array("id"=>"ResellerOwner_id","class"=>"select2 small form-control1"));}}
                     </div>
                 </div>
