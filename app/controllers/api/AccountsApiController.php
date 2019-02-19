@@ -2473,5 +2473,153 @@ class AccountsApiController extends ApiController {
 		}
 	}
 
-	
+
+	// add Additional charges
+	public function CreateCharge(){
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
+		$CompanyID=0;
+		$AccountID=0;
+
+		if(!empty($data['AccountID'])) {
+			$AccountID = $data['AccountID'];
+		}else if(!empty($data['AccountNo'])){
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code402[0]);
+		}
+
+		$Account=Account::where(["AccountID" => $AccountID]);
+		if($Account->count() > 0){
+			$Account = $Account->first();
+			$CompanyID = $Account->CompanyId;
+			$AccountID = $Account->AccountID;
+		}
+
+		//Validation
+		$rules = array(
+			'ChargeCode' 	=> 'required',
+			'Description' 	=> 'required',
+			'ChargeType' 	=> 'required|in:0,1',
+			'Currency' 		=> 'required',
+			'Amount' 		=> 'required'
+		);
+		$validator = Validator::make($data, $rules);
+		if ($validator->fails()) {
+			return json_validator_response($validator);
+		}
+		$CurrentDate = date('Y-m-d H:i:s');
+		$CreatedBy 	 = 'API';
+
+		try {
+			DB::connection('sqlsrv2')->beginTransaction();
+
+			if (!empty($AccountID) && !empty($CompanyID)) {
+				$CurrencyID = Currency::where(["CompanyId" => $CompanyID, "Symbol" => $data['Currency']])->pluck('CurrencyID');
+				if (!empty($CurrencyID)) {
+					// if One-Off Cost
+					if($data['ChargeType'] == 0) {
+						$product = Product::where(["CompanyId" => $CompanyID, "Code" => $data['ChargeCode']])->where("Active", 1);
+						if ($product->count() > 0) {
+							$product = $product->first();
+							if ($product->Active != 1) {
+								$product->Active = 1;
+								$product->save();
+							}
+						} else {
+							// add product
+							$product_data['CompanyId'] 		= $CompanyID;
+							//$product_data['CurrencyID'] 	= $CurrencyID;
+							$product_data['Name'] 			= $data['ChargeCode'];
+							$product_data['Code'] 			= $data['ChargeCode'];
+							$product_data['Description'] 	= $data['Description'];
+							$product_data['Amount'] 		= $data['Amount'];
+							$product_data['Active'] 		= 1;
+							$product_data['CreatedBy'] 		= $CreatedBy;
+							$product_data['created_at'] 	= $CurrentDate;
+
+							$product = Product::create($product_data);
+						}
+						$ProductID = $product->ProductID;
+
+						$ChargeData['AccountID'] 	= $AccountID;
+						$ChargeData['ProductID'] 	= $ProductID;
+						$ChargeData['Price'] 		= $product->Amount;
+						$ChargeData['Qty'] 			= 1;
+						$ChargeData['Date'] 		= $CurrentDate;
+						$ChargeData['CreatedBy'] 	= $CreatedBy;
+						$ChargeData['created_at'] 	= $CurrentDate;
+						$ChargeData['CurrencyID'] 	= $CurrencyID;
+
+						if (AccountAdditionalCharge::create($ChargeData)) {
+							DB::connection('sqlsrv2')->commit();
+							return Response::json(Codes::$Code200[0]);
+						} else {
+							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
+						}
+					} else {
+						// add subscription/recurring
+						$recurring = BillingSubscription::where(["CompanyId" => $CompanyID, "Name" => $data['ChargeCode']]);
+						if ($recurring->count() > 0) {
+							$recurring = $recurring->first();
+						} else {
+							$recurring_data['CompanyId'] 				= $CompanyID;
+							$recurring_data['CurrencyID'] 				= $CurrencyID;
+							$recurring_data['Name'] 					= $data['ChargeCode'];
+							$recurring_data['Description'] 				= $data['ChargeCode'];
+							$recurring_data['InvoiceLineDescription'] 	= $data['Description'];
+							$recurring_data['CreatedBy'] 				= $CreatedBy;
+							$recurring_data['created_at'] 				= $CurrentDate;
+
+							$Costs = AccountRecurring::calculateCost('MonthlyFee', $data['Amount']);
+
+							$recurring_data['DailyFee'] 				= $Costs['DailyFee'];
+							$recurring_data['WeeklyFee'] 				= $Costs['WeeklyFee'];
+							$recurring_data['MonthlyFee'] 				= $Costs['MonthlyFee'];
+							$recurring_data['QuarterlyFee'] 			= $Costs['QuarterlyFee'];
+							$recurring_data['AnnuallyFee'] 				= $Costs['AnnuallyFee'];
+
+							$recurring = BillingSubscription::create($recurring_data);
+						}
+						$AccountRecurringID = $recurring->SubscriptionID;
+
+						$ChargeData['AccountID'] 		= $AccountID;
+						$ChargeData['SubscriptionID'] 	= $AccountRecurringID;
+						$ChargeData['StartDate'] 		= $CurrentDate;
+						$ChargeData['EndDate'] 			= !empty($data['EndDate']) ? date('Y-m-d', strtotime($data['EndDate'])) : NULL;
+						$ChargeData['Qty'] 				= 1;
+						$ChargeData['CreatedBy'] 		= $CreatedBy;
+						$ChargeData['created_at'] 		= $CurrentDate;
+						$ChargeData['OneOffCurrencyID'] = $CurrencyID;
+						$ChargeData['RecurringCurrencyID'] = $CurrencyID;
+						$ChargeData['DailyFee'] 		= $recurring->DailyFee;
+						$ChargeData['WeeklyFee'] 		= $recurring->WeeklyFee;
+						$ChargeData['MonthlyFee'] 		= $recurring->MonthlyFee;
+						$ChargeData['QuarterlyFee'] 	= $recurring->QuarterlyFee;
+						$ChargeData['AnnuallyFee'] 		= $recurring->AnnuallyFee;
+
+						if (AccountRecurring::create($ChargeData)) {
+							DB::connection('sqlsrv2')->commit();
+							return Response::json(Codes::$Code200[0]);
+						} else {
+							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
+						}
+					}
+				} else {
+					return Response::json(["ErrorMessage" => "Currency Not Found"], Codes::$Code402[0]);
+				}
+			} else {
+				return Response::json(["ErrorMessage" => "Account or Company Not Found"], Codes::$Code402[0]);
+			}
+		} catch (Exception $e) {
+			DB::connection('sqlsrv2')->rollback();
+			Log::info($e->getTraceAsString());
+			$reseponse = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+			return Response::json($reseponse, Codes::$Code500[0]);
+		}
+	}
+
 }
