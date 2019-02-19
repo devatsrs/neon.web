@@ -26,8 +26,8 @@ class RateGenerator extends \Eloquent {
                                         "CollectionCostAmount"=>"Collection cost - amount",
                                         "CollectionCostPercentage"=>"Collection cost - percentage",
                                         "RegistrationCostPerNumber"=>"Registration cost - per number",
-                                        "OneOffCostPerCountry"=>"One-Off cost - Per country",
-                                        "MonthlyCostPerCountry"=>"Monthly cost - Per country",
+                                        //"OneOffCostPerCountry"=>"One-Off cost - Per country",
+                                        //"MonthlyCostPerCountry"=>"Monthly cost - Per country",
 
                                     );
 

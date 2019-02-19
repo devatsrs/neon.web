@@ -15,7 +15,10 @@ class AccountServiceController extends \BaseController {
         $decimal_places = get_round_decimal_places($id);
         $products = Product::getProductDropdownList($CompanyID);
         $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
-        $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
+        $rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::DID, RateGenerator::VoiceCall],
+            'NotVendor' => true,
+        ]);
         $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
         $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceID)->first();
         $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID',$AccountServiceID)->first();
@@ -179,11 +182,11 @@ class AccountServiceController extends \BaseController {
         ->leftjoin('tblAccountServiceContract', 'tblAccountService.AccountServiceID', '=', 'tblAccountServiceContract.AccountServiceID')
         ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
         ->leftjoin('tblPackage', 'tblPackage.PackageId', '=' , 'tblCLIRateTable.PackageID' )
-        ->select(["tblAccountService.AccountServiceID","tblService.ServiceName",DB::raw("(select GROUP_CONCAT(`tblCLIRateTable`.`CLI`) as cli
+        ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
          from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"),"tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate", "tblAccountService.Status"])
         ->where("tblAccountService.AccountID",$id);
 
-        //\Log::debug($services->toSql());
+        //Log::debug($services->toSql());
 
         if(!empty($data['ServiceName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
