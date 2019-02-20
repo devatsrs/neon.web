@@ -369,7 +369,7 @@
         </div>
     </div>
     @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('PaymentRemindersWidget','View'))--}}
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('PaymentRemindersWidget','View'))
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-primary panel-table">

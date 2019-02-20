@@ -53,7 +53,7 @@
 <h3>Partner</h3>
 <p class="text-right">
 @if(User::checkCategoryPermission('Reseller','Add'))
-    <a href="#" id="add-reseller" data-action="showAddModal" data-type="reseller" data-modal="add-new-modal-reseller" class="btn btn-primary">
+    <a href="#" id="add-reseller" data-action="showAddModal" data-type="Partner" data-modal="add-new-modal-reseller" class="btn btn-primary">
         <i class="entypo-plus"></i>
         Add New
     </a>
@@ -358,7 +358,7 @@
             $("#add-new-reseller-form [name='AccountID']").attr("disabled","disabled");
             //hide copy data when edit
             $('#copy_data').hide();
-            $('#add-new-modal-reseller h4').html('Edit Reseller');
+            $('#add-new-modal-reseller h4').html('Edit Partner');
             setTimeout(function(){
                 $('#add-new-modal-reseller').modal('show');
             },10);
