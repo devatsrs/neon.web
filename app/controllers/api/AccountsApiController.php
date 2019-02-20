@@ -1100,6 +1100,7 @@ class AccountsApiController extends ApiController {
 
 					$rate_tables['Prefix'] = $ProductCountryPrefix;
 					$rate_tables['VendorID'] = $VendorIDDIDRateList;
+					$rate_tables['NoType'] = $ServiceTemaplateReference->accessType;
 					CLIRateTable::insert($rate_tables);
 
 					if (!empty($DefaultSubscriptionPackageID)) {
