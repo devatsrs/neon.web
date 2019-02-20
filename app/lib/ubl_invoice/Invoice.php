@@ -33,6 +33,11 @@ class Invoice implements XmlSerializable{
     /**
      * @var \DateTime
      */
+    private $dueDate;
+
+    /**
+     * @var \DateTime
+     */
     private $startDate;
     /**
      * @var \DateTime
@@ -165,6 +170,11 @@ class Invoice implements XmlSerializable{
             $res = array_slice($res, 0, 6, true) + $dates + array_slice($res, 6, count($res) - 1, true) ;
         }
 
+        if ($this->dueDate != null) {
+            $dates = [$cbc . 'DueDate' => $this->dueDate->format('Y-m-d')];
+            $res = array_slice($res, 0, 3, true) + $dates + array_slice($res, 3, count($res) - 1, true) ;
+        }
+
         $writer->write($res);
         if ($this->allowanceCharges != null) {
             foreach ($this->allowanceCharges as $invoiceLine) {
@@ -246,6 +256,23 @@ class Invoice implements XmlSerializable{
      */
     public function setIssueDate($issueDate) {
         $this->issueDate = $issueDate;
+        return $this;
+    }
+
+
+    /**
+     * @return \DateTime
+     */
+    public function getDueDate() {
+        return $this->dueDate;
+    }
+
+    /**
+     * @param \DateTime $dueDate
+     * @return Invoice
+     */
+    public function setDueDate($dueDate) {
+        $this->dueDate = $dueDate;
         return $this;
     }
 

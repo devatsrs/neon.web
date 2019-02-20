@@ -15,7 +15,7 @@ use Sabre\Xml\XmlSerializable;
 class Price implements XmlSerializable {
     private $priceAmount;
     private $baseQuantity;
-    private $unitCode = 'MON';
+    private $unitCode = 'A9';
 
     /**
      * @return mixed
