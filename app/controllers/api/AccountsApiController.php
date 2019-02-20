@@ -673,7 +673,7 @@ class AccountsApiController extends ApiController {
 			$AccountServiceContract['AutoRenewal'] = isset($accountData['AutoRenewal']) ? $accountData['AutoRenewal'] : '';
 			$AccountServiceContract['ContractTerm'] = isset($accountData['ContractType']) ? $accountData['ContractType'] : '';
 			$ServiceTitle = isset($accountData['ServiceTitle']) ? $accountData['ServiceTitle'] : '';
-			
+
 			if (!empty($AccountServiceContract['ContractStartDate']) && empty($AccountServiceContract['ContractEndDate'])) {
 				return Response::json(["ErrorMessage"=>Codes::$Code1001[1]],Codes::$Code1001[0]);
 			}
@@ -914,13 +914,15 @@ class AccountsApiController extends ApiController {
 
 					$OutboundDiscountPlan = $ServiceTemaplateReference->OutboundDiscountPlanId;
 					$InboundDiscountPlan = $ServiceTemaplateReference->InboundDiscountPlanId;
+					Log::info('ServiceTemaplateReference OutboundDiscountPlan and InboundDiscountPlan' .
+						$ServiceTemaplateReference->ServiceTemplateId . ' ' . $OutboundDiscountPlan . ' ' . $InboundDiscountPlan);
 
 					$AccountSubscriptionID = 0;
 					$AccountName = '';
 					$AccountCLI = '';
 					$SubscriptionDiscountPlanID = 0;
 					if (!empty($OutboundDiscountPlan)) {
-						$AccountDiscountPlanSearch = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type' => AccountDiscountPlan::OUTBOUND))->first();
+					//	$AccountDiscountPlanSearch = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type' => AccountDiscountPlan::OUTBOUND))->first();
 						$AccountDiscountPlan['AccountID'] = $Account->AccountID;
 						$AccountDiscountPlan['DiscountPlanID'] = $OutboundDiscountPlan;
 						$AccountDiscountPlan['Type'] = AccountDiscountPlan::OUTBOUND;
@@ -933,11 +935,11 @@ class AccountsApiController extends ApiController {
 						//$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))->count();
 						//if ($AccountDiscountPlanExists == 0) {
 						Log::info('Account Discount Plan ' . print_r($AccountDiscountPlan,true));
-						if (isset($AccountDiscountPlanSearch)) {
-							$AccountDiscountPlanSearch->update($AccountDiscountPlan);
-						}else {
+						//if (isset($AccountDiscountPlanSearch)) {
+						//	$AccountDiscountPlanSearch->update($AccountDiscountPlan);
+						//}else {
 							AccountDiscountPlan::create($AccountDiscountPlan);
-						}
+						//}
 						//} else {
 						//	AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))
 						//		->update($AccountDiscountPlan);
@@ -945,7 +947,7 @@ class AccountsApiController extends ApiController {
 					}
 
 					if (!empty($InboundDiscountPlan)) {
-						$AccountInboudDiscountPlan = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))->first();
+						//$AccountInboudDiscountPlan = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))->first();
 						$AccountDiscountPlan['AccountID'] = $Account->AccountID;
 						$AccountDiscountPlan['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 						$AccountDiscountPlan['AccountSubscriptionID'] = $AccountSubscriptionID;
@@ -957,11 +959,11 @@ class AccountsApiController extends ApiController {
 						$AccountDiscountPlan['AccountServiceID'] = $AccountService->AccountServiceID;
 						//$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::INBOUND))->count();
 						//if ($AccountDiscountPlanExists == 0) {
-						if (isset($AccountInboudDiscountPlan)) {
-							$AccountInboudDiscountPlan->update($AccountDiscountPlan);
-						}else {
+						//if (isset($AccountInboudDiscountPlan)) {
+						//	$AccountInboudDiscountPlan->update($AccountDiscountPlan);
+						//}else {
 							AccountDiscountPlan::create($AccountDiscountPlan);
-						}
+						//}
 
 						//}else {
 						//	AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))
