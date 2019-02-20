@@ -94,7 +94,7 @@
         </li>
         <li>
 
-            <a href="{{URL::to('lcr')}}">LCR</a>
+            <a href="{{URL::to('lcr')}}">Compare Vendor Rate</a>
         </li>
         <li class="active">
             <strong>Access</strong>

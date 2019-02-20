@@ -313,14 +313,16 @@ class BillingDashboard extends \BaseController {
         if (User::is('AccountManager')) {
             $userID = User::get_userID();
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
-            ->select(["tblAccount.AccountName","AccountEmailLog.EmailType", "AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to') AND  ( tblAccount.Owner = ".    $userID. " OR tblAccount.AccountType = 0 ) ");
+            ->select(["AccountEmailLog.EmailType","tblAccount.AccountName","AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to') AND  ( tblAccount.Owner = ".    $userID. " OR tblAccount.AccountType = 0 ) ");
         }else{
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
-                ->select(["tblAccount.AccountName","AccountEmailLog.EmailType", "AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ");
+                ->select(["AccountEmailLog.EmailType","tblAccount.AccountName", "AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ");
         }
         if(!empty($data['emailType'])){
             $emailType = $data['emailType'];
             $AccountEmaillog = $AccountEmaillog->where('AccountEmailLog.EmailType',$emailType);
+        }else{
+            $AccountEmaillog = $AccountEmaillog->whereIn('AccountEmailLog.EmailType',[1,2]);
         }
         //( AccountEmailLog.EmailType IN (4,3) ) AND
         return Datatables::of($AccountEmaillog)->make();

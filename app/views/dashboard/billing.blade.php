@@ -391,7 +391,7 @@
                                 </div>
                                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
                                 <div class="col-md-2">
-                                    <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="daterange form-control">
+                                    <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
                                 </div>
                                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Type</label>
                                 <div class="col-md-3">
@@ -409,8 +409,8 @@
                     <table class="table table-bordered datatable" id="PaymentReminders-4">
                         <thead>
                         <tr>
+                            <th>Type</th>
                             <th>Account</th>
-                            <th>Notification Type</th>
                             <th>Date Sent</th>
                             <th>Email From</th>
                             <th>Email To</th>
@@ -454,7 +454,6 @@
           </div>
     </div>
     @endif
-    
     <script type="text/javascript">
     jQuery(document).ready(function ($) {
         $("#submit_paymentreminder").click(function(e) {
@@ -492,7 +491,6 @@
                     },
                 "aoColumns":
                  [
-                    { "bSortable": true }, //0 AccountName
                     {  "bSortable": true,
                         mRender: function ( id, type, full ) {
                              var action , edit_ , show_ , delete_;
@@ -527,6 +525,7 @@
                            return action; 
                         } 
                     }, //1 EmailType
+                     { "bSortable": true }, //0 AccountName
                     { "bSortable": true }, //2 CreatedBy
                     { "bSortable": true }, //3 Emailfrom
                     { "bSortable": true }, //3 EmailTo
