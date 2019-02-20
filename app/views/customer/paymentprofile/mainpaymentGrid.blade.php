@@ -21,3 +21,9 @@
 		@include('customer.paymentprofile.sagepaydirectdebitGrid')
 	@endif
 @endif
+@if( $account->PaymentMethod == 'Ingenico')
+	
+		@include('customer.paymentprofile.ingenicogrid')
+	
+@endif
+

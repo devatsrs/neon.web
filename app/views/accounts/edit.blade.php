@@ -971,12 +971,17 @@
                                 <label for="minimal-radio-2-11">Wire Transfer</label>
                             </li>
                             <li>
+                                <input type="radio" class="icheck-11 ingenico" id="minimal-radio-14-11" name="PaymentMethod" value="Ingenico" @if( $account->PaymentMethod == 'Ingenico' ) checked="" @endif />
+                                <label for="minimal-radio-14-11">Ingenico</label>
+                            </li>
+                            <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
                                 <label for="minimal-radio-5-11">Other</label>
                             </li>
+                            
                         </ul>
                     </div>
-                    <div class="col-md-9">
+                    <div class="col-md-9" id="loadGrid">
                         @include('customer.paymentprofile.mainpaymentGrid')
                     </div>
                 </div>
@@ -1462,6 +1467,34 @@
         });
         $('#DifferentBillingAddress').trigger('change');
     });
+
+var cardvalue = '{{AccountsPaymentProfileController::getCardValue($account->AccountID)}}';
+if(cardvalue.lenght == 0 ){cardvalue = 0;}
+var htmlgrid = '<div class="panel panel-primary" data-collapsed="0"><div class="panel-heading"><div class="panel-title">Ingenico Payment Profile</div><div class="panel-options"><a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a></div></div><div class="panel-body"><div class="form-group row"><div class="col-sm-2"><label class="control-label">Card Token</label></div><div class="col-sm-6"><input type="text" value="'+cardvalue+'" id="ingenico_card" class="form-control"></div><div class="col-sm-2"><button type="button" class="btn btn-primary" id="ingenicoadd">Update Card</button></div><div class="col-sm-2 control-label"><div id="ingenicostatus"></div></div></div></div></div>';
+
+$("input.ingenico").unbind('click').click(function(){
+$("div#loadGrid").empty();
+$("div#loadGrid").html(htmlgrid);
+
+$("#ingenicoadd").unbind("click").click(function(e){
+    e.preventDefault();
+    
+ var value = $("input#ingenico_card").val();
+ var accountId = '{{$account->AccountID}}';
+ var companyId = '{{$account->CompanyId}}';
+ var method = 'Ingenico';
+ if(value.length == 0){
+    alert('please enter card detail');
+    return false;
+ }$(this).text('loading..');
+ $.post("{{url('/paymentprofile/ingenicoadd')}}", {method:method,value:value, accountId:accountId,companyId:companyId}, function(data){
+    $("#ingenicostatus").html(data);
+ });
+ $(this).text('Update Card');
+});
+
+});
+
 </script>
 
 <!--@include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => ('accounts/update/'.$account->AccountID)))-->
