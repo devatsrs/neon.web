@@ -23,7 +23,8 @@
 		"cartalyst/stripe-laravel": "1.0.*",
 		"chumper/zipper": "0.5.x",
 		"calcinai/xero-php": "1.5.*",
-		"stripe/stripe-php": "^6.28"
+		"stripe/stripe-php": "^6.28",
+		"sabre/xml": "1.5.*"
 	},
 	"require-dev": {
 		"maatwebsite/excel": "~1.3.0",
