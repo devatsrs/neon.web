@@ -138,6 +138,7 @@ class DashboardController extends BaseController {
         $StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
         $StartDateDefault1 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 week'));
         $DateEndDefault  	= 	date('Y-m-d');
+        $emailType = array(""=> "Select") + AccountEmailLog::$type;
         $monthfilter = 'Weekly';
         if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
             $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());
@@ -155,7 +156,7 @@ class DashboardController extends BaseController {
             $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
         }
         $accounts = Account::getAccountIDList();
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets','StartDateDefault1','GetDashboardPR','GetDashboardPL','accounts'));
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets','StartDateDefault1','GetDashboardPR','GetDashboardPL','accounts','emailType'));
 
     }
     public function monitor_dashboard(){

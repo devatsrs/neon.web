@@ -366,7 +366,7 @@
             }
         }
         $(function () {
-            $('.datepicker').datepicker({
+            $('.datepicker[name="DOB"]').datepicker({
                 endDate: '-5y'
             });
             $("input[name='PayoutType']").on("change", function (e) {

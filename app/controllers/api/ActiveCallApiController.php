@@ -513,7 +513,7 @@ class ActiveCallApiController extends ApiController {
                         DB::connection('sqlsrvroutingengine')->commit();
                         DB::connection('sqlsrv2')->commit();
 
-                        return Response::json(Codes::$Code200[0]);
+                        return Response::json([],Codes::$Code200[0]);
                     }else{
                         log::info('delete call');
                         ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();

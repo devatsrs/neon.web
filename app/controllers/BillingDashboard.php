@@ -293,6 +293,8 @@ class BillingDashboard extends \BaseController {
 
         $companyID = User::get_companyID();
         $data = Input::all();
+
+        //dd($data);
         if($data['Duedate']!=''){
             $Closingdate		=	explode(' - ',$data['Duedate']);
             $Startdate			=   $Closingdate[0];
@@ -303,6 +305,7 @@ class BillingDashboard extends \BaseController {
             $from = $data['Duedate'];
             $to=0;
         }
+
         $countQryString="";
         if(!empty($data['accountID'])){
             $countQryString = ' (tblAccount.AccountID='.$data['accountID'].') AND ';
@@ -314,6 +317,10 @@ class BillingDashboard extends \BaseController {
         }else{
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
                 ->select(["tblAccount.AccountName","AccountEmailLog.EmailType", "AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ");
+        }
+        if(!empty($data['emailType'])){
+            $emailType = $data['emailType'];
+            $AccountEmaillog = $AccountEmaillog->where('AccountEmailLog.EmailType',$emailType);
         }
         //( AccountEmailLog.EmailType IN (4,3) ) AND
         return Datatables::of($AccountEmaillog)->make();

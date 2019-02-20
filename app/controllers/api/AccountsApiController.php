@@ -1521,7 +1521,7 @@ class AccountsApiController extends ApiController {
 
 			//stripe = credit stipeAch = bank
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
-				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$API_PaymentMethod)) {
+				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] >= count(AccountsApiController::$API_PaymentMethod)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
 
 				}
@@ -2154,6 +2154,7 @@ class AccountsApiController extends ApiController {
 		$post_vars = '';
 		$accountData = [];
 		$BillingClass = [];
+		$BankPaymentDetails = [];
 		try {
 
 			try {
@@ -2279,6 +2280,7 @@ class AccountsApiController extends ApiController {
 				$data['BillingAddress3'] = $accountData['BillingAddress3'];
 				$data['DifferentBillingAddress'] = 1;
 			}
+
 			if (isset($accountData['BillingPostCode']) && !empty($accountData['BillingPostCode'])) {
 				$data['BillingPostCode'] = $accountData['BillingPostCode'];
 				$data['DifferentBillingAddress'] = 1;
@@ -2381,6 +2383,61 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
+			if (isset($accountData['PaymentMethodID']) && !empty($accountData['PaymentMethodID'])) {
+				$data['PaymentMethod'] = $accountData['PaymentMethodID'];
+
+				if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
+					if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] >= count(AccountsApiController::$API_PaymentMethod)) {
+						return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
+
+					}
+				}
+
+
+
+
+
+				$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
+
+				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH")) {
+					if ($data['PaymentMethod'] == "Stripe") {
+						$BankPaymentDetails['CardNumber'] = isset($accountData['CardNumber']) ? $accountData['CardNumber'] : '' ;
+						$BankPaymentDetails['CardType'] = isset($accountData['CardType']) ? $accountData['CardType'] : '' ;//Discover,MasterCard,Visa
+						$BankPaymentDetails['ExpirationMonth'] = isset($accountData['ExpirationMonth']) ? $accountData['ExpirationMonth'] : '' ;
+						$BankPaymentDetails['ExpirationYear'] = isset($accountData['ExpirationYear']) ? $accountData['ExpirationYear'] : '' ;
+						$BankPaymentDetails['NameOnCard'] = isset($accountData['NameOnCard']) ? $accountData['NameOnCard'] : '' ;
+						$BankPaymentDetails['CVVNumber'] = isset($accountData['CVVNumber']) ? $accountData['CVVNumber'] : '' ;
+						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
+						if ($CardValidationResponse["status"] == "failed") {
+							return Response::json(["ErrorMessage" => $CardValidationResponse["message"]],Codes::$Code402[0]);
+						}
+						$CardType = array("Discover", "MasterCard", "Visa");
+						if (!in_array($BankPaymentDetails['CardType'], $CardType)) {
+							return Response::json(["ErrorMessage" => Codes::$Code1036[1]],Codes::$Code1036[0]);
+						}
+					}else if ($data['PaymentMethod'] == "StripeACH") {
+						$BankPaymentDetails['AccountNumber'] = isset($accountData['AccountNumber']) ? $accountData['AccountNumber'] : '' ;
+						$BankPaymentDetails['RoutingNumber'] = isset($accountData['RoutingNumber']) ? $accountData['RoutingNumber'] : '' ;
+						$BankPaymentDetails['AccountHolderType'] = isset($accountData['AccountHolderType']) ? $accountData['AccountHolderType'] : '' ;//company,individual
+						$BankPaymentDetails['AccountHolderName'] = isset($accountData['AccountHolderName']) ? $accountData['AccountHolderName'] : '' ;
+						$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
+						if ($validator->fails()) {
+							$errors = "";
+							foreach ($validator->messages()->all() as $error) {
+								$errors .= $error . "<br>";
+							}
+							return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+
+						}
+						$AccountHolderType = array("individual","company");
+						if (!in_array($BankPaymentDetails['AccountHolderType'], $AccountHolderType)) {
+							return Response::json(["ErrorMessage" => Codes::$Code1037[1]],Codes::$Code1037[0]);
+						}
+					}
+
+
+				}
+			}
 
 			DB::beginTransaction();
 
@@ -2394,6 +2451,50 @@ class AccountsApiController extends ApiController {
 				}
 
 			}
+
+			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH")) {
+				$AccountPayoutSql = '';
+				if ($data['PaymentMethod'] == "Stripe") {
+					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'card','Status' => '1'])->first();
+				} else if ($data['PaymentMethod'] == "StripeACH") {
+					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'bank','Status' => '1'])->first();
+				}
+				//Log::info('$AccountPayoutSql SQL ' . $AccountPayoutSql->toSql());
+				//$AccountPayoutSql = $AccountPayoutSql->first();
+				if (isset($AccountPayoutSql)) {
+					Log::info('$AccountPayoutSql SQL ' .  $AccountPayoutSql['AccountPayoutID']);
+					$AccountPayout['Status'] = 0;
+					$AccountPayoutSql->update($AccountPayout);
+					Log::info('$AccountPayoutSql SQL ' );
+				}
+				$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
+				$BankPaymentDetails['CompanyID'] = $CompanyID;
+				if (!empty($BankPaymentDetails['CardNumber'])) {
+					$BankPaymentDetails['PayoutType'] = "card";
+					$BankPaymentDetails['Title'] = $BankPaymentDetails['NameOnCard'];
+				}else {
+					$BankPaymentDetails['Title'] = $BankPaymentDetails['AccountHolderName'];
+					$BankPaymentDetails['PayoutType'] = "bank";
+				}
+				$BankPaymentDetails['AccountID'] = $accountInfo->AccountID;
+
+				$BankPaymentDetails['CustomerAccountName'] = $accountInfo->AccountName;
+
+				$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($BankPaymentDetails['PaymentGatewayID']);
+				$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
+				$AccountResponse = $PaymentIntegration->createAccount($BankPaymentDetails);
+				Log::info('$Account Payment Response2 ' . $AccountResponse->getContent());
+				$AccountResponse = $AccountResponse->getContent();
+				$AccountResponse = json_decode($AccountResponse);
+				$AccountResponse = json_decode(json_encode($AccountResponse), true);
+				$AccountResponse=json_decode(json_encode($AccountResponse),true);
+				if ($AccountResponse["status"] == 'failed') {
+					DB::rollback();
+					return Response::json(["ErrorMessage" => $AccountResponse["message"]],Codes::$Code1033[0]);
+				}
+
+			}
+
 			if (isset($accountData['AccountDynamicFieldValues'])) {
 				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
@@ -2576,6 +2677,7 @@ class AccountsApiController extends ApiController {
 						$ChargeData['AccountID'] 	= $AccountID;
 						$ChargeData['ProductID'] 	= $ProductID;
 						$ChargeData['Price'] 		= $product->Amount;
+						$ChargeData['Description']	= $product->Description;
 						$ChargeData['Qty'] 			= 1;
 						$ChargeData['Date'] 		= $CurrentDate;
 						$ChargeData['CreatedBy'] 	= $CreatedBy;
@@ -2601,6 +2703,7 @@ class AccountsApiController extends ApiController {
 							$recurring_data['InvoiceLineDescription'] 	= $data['Description'];
 							$recurring_data['CreatedBy'] 				= $CreatedBy;
 							$recurring_data['created_at'] 				= $CurrentDate;
+							$recurring_data['Advance'] 					= 1;
 
 							$Costs = AccountRecurring::calculateCost('MonthlyFee', $data['Amount']);
 
@@ -2623,6 +2726,7 @@ class AccountsApiController extends ApiController {
 						$ChargeData['created_at'] 		= $CurrentDate;
 						$ChargeData['OneOffCurrencyID'] = $CurrencyID;
 						$ChargeData['RecurringCurrencyID'] = $CurrencyID;
+						$ChargeData['InvoiceDescription']  = $recurring->InvoiceLineDescription;
 						$ChargeData['DailyFee'] 		= $recurring->DailyFee;
 						$ChargeData['WeeklyFee'] 		= $recurring->WeeklyFee;
 						$ChargeData['MonthlyFee'] 		= $recurring->MonthlyFee;
@@ -2631,7 +2735,7 @@ class AccountsApiController extends ApiController {
 
 						if (AccountRecurring::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
-							return Response::json(Codes::$Code200[0]);
+							return Response::json([],Codes::$Code200[0]);
 						} else {
 							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
 						}

@@ -47,10 +47,10 @@
         <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li class="active">
-        <strong>Reseller</strong>
+        <strong>Partner</strong>
     </li>
 </ol>
-<h3>Resellers</h3>
+<h3>Partner</h3>
 <p class="text-right">
 @if(User::checkCategoryPermission('Reseller','Add'))
     <a href="#" id="add-reseller" data-action="showAddModal" data-type="reseller" data-modal="add-new-modal-reseller" class="btn btn-primary">
@@ -67,7 +67,7 @@
     <thead>
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-        <th>Reseller Account</th>
+        <th>Partner Account</th>
         <th>UserName</th>
         <th>Number Of Account</th>
         <th>Actions</th>
