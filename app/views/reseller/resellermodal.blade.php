@@ -70,7 +70,7 @@
                 <form id="add-new-reseller-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New Reseller</h4>
+                        <h4 class="modal-title">Add New Partner</h4>
                     </div>
                     <div class="modal-body">
                         <div class="panel panel-primary" data-collapsed="0">
@@ -88,7 +88,7 @@
                                 <div class="row">
                                     <div class="col-md-6  margin-top">
                                         <div class="form-group">
-                                            <label for="field-1" class="col-sm-4 control-label">Reseller Account:</label>
+                                            <label for="field-1" class="col-sm-4 control-label">Partner Account:</label>
                                             <div class="col-sm-8">
                                                 {{ Form::select('AccountID', Account::getAccountList(['IsReseller'=>'1']), '', array("class"=>"select2","data-allow-clear"=>"true")) }}
                                                 <input type="hidden" name="ResellerID" >
@@ -200,7 +200,7 @@
                 <form id="selected-reseller-copy-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Reseller Data</h4>
+                        <h4 class="modal-title">Partner Data</h4>
                     </div>
                     <div class="modal-body">
                         <div class="panel panel-primary" data-collapsed="0" id="copy_data">

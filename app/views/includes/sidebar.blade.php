@@ -61,7 +61,7 @@
       @endif
     @endif
     @if(User::checkCategoryPermission('Reseller','View'))
-    <li> <a href="{{URL::to('/reseller')}}">  <i class="entypo-users"></i><span>Reseller</span> </a> </li>
+    <li> <a href="{{URL::to('/reseller')}}">  <i class="entypo-users"></i><span>Partner</span> </a> </li>
     @endif
          <!--tickets start -->
     @if(Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','View'))
@@ -107,7 +107,7 @@
         <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('LCR','All'))
-        <li> <a href="{{URL::to('/lcr')}}">  <span>LCR List</span> </a> </li>
+        <li> <a href="{{URL::to('/lcr')}}">  <span>Compare Vendor Rate</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('RateGenerator','View'))
         <li> <a href="{{URL::to('/rategenerators')}}">  <span>Rate Generator</span> </a> </li>

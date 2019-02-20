@@ -2455,9 +2455,9 @@ class AccountsApiController extends ApiController {
 			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH")) {
 				$AccountPayoutSql = '';
 				if ($data['PaymentMethod'] == "Stripe") {
-					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'card'])->first();
+					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'card','Status' => '1'])->first();
 				} else if ($data['PaymentMethod'] == "StripeACH") {
-					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'bank'])->first();
+					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'bank','Status' => '1'])->first();
 				}
 				//Log::info('$AccountPayoutSql SQL ' . $AccountPayoutSql->toSql());
 				//$AccountPayoutSql = $AccountPayoutSql->first();

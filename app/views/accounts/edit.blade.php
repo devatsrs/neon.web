@@ -161,14 +161,14 @@
                 @if(is_reseller())
                 @else
                 <div class="form-group">
-                    <label class="col-md-2 control-label">Reseller</label>
+                    <label class="col-md-2 control-label">Partner</label>
                     <div class="col-md-4">
                         <div class="make-switch switch-small" id="desablereseller">
                             <input type="checkbox" @if($account->IsReseller == 1 )checked="" @endif name="IsReseller" value="1">
                         </div>
                     </div>
 
-                    <label class="col-md-2 control-label">Account Reseller</label>
+                    <label class="col-md-2 control-label">Account Partner</label>
                     <div class="col-md-4" id="disableresellerowner">
                       {{Form::select('ResellerOwner',$reseller_owners,(isset($accountreseller)?$accountreseller:'') ,array("class"=>"select2"))}}
                     </div>

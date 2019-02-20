@@ -19,5 +19,26 @@ class AccountEmailLog extends \Eloquent {
     const ReportEmail = 11;
     const BalanceWarning = 12;
     const AccountBalanceEmailReminder = 13;
+    const ContractExpire = 14;
+    const ContractManage = 15;
+
+
+    public static $type = [ AccountEmailLog::InvoicePaymentReminder=>'Invoice Payment Reminder',
+        AccountEmailLog::LowBalanceReminder=>'Low Balance Reminder',
+        AccountEmailLog::QosACDAlert=>'Qos ACD Alert',
+        AccountEmailLog::QosASRAlert=>'Qos ASR Alert',
+        AccountEmailLog::CallDurationAlert=>'Call Duration Alert',
+        AccountEmailLog::CallCostAlert=>'Call Cost Alert',
+        AccountEmailLog::CallOfficeAlert=>'Call Office Alert',
+        AccountEmailLog::CallBlackListAlert=>'Call Black List Alert',
+        AccountEmailLog::VendorBalanceReport=>'Vendor Balance Report',
+        AccountEmailLog::TicketEmail=>'Ticket Email',
+        AccountEmailLog::ReportEmail=>'Report Email',
+        AccountEmailLog::BalanceWarning=>'Balance Warning',
+        AccountEmailLog::AccountBalanceEmailReminder=>'Account Balance Email Reminder',
+        AccountEmailLog::ContractExpire=>'Contract Expire',
+        AccountEmailLog::ContractManage=>'Contract Manage'
+
+    ];
 
 }
