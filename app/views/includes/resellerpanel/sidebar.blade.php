@@ -36,7 +36,7 @@
         <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
             <ul>
                 <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
-                <li> <a href="{{URL::to('/lcr')}}">  <span>LCR List</span> </a> </li>
+                <li> <a href="{{URL::to('/lcr')}}">  <span>Compare Vendor Rate</span> </a> </li>
                 <li> <a href="{{URL::to('/rategenerators')}}">  <span>Rate Generator</span> </a> </li>
                 <li> <a href="{{URL::to('/rate_compare')}}">  <span>Rate Analysis</span> </a> </li>
                 <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li>

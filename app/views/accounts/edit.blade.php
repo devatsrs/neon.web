@@ -161,14 +161,14 @@
                 @if(is_reseller())
                 @else
                 <div class="form-group">
-                    <label class="col-md-2 control-label">Reseller</label>
+                    <label class="col-md-2 control-label">Partner</label>
                     <div class="col-md-4">
                         <div class="make-switch switch-small" id="desablereseller">
                             <input type="checkbox" @if($account->IsReseller == 1 )checked="" @endif name="IsReseller" value="1">
                         </div>
                     </div>
 
-                    <label class="col-md-2 control-label">Account Reseller</label>
+                    <label class="col-md-2 control-label">Account Partner</label>
                     <div class="col-md-4" id="disableresellerowner">
                       {{Form::select('ResellerOwner',$reseller_owners,(isset($accountreseller)?$accountreseller:'') ,array("class"=>"select2"))}}
                     </div>
@@ -883,6 +883,12 @@
             @include('accountdiscountplan.index')
         @endif
         @if(User::checkCategoryPermission('AccountService','View'))
+            @include('accounts.subscriptions')
+        @endif
+        @if(User::checkCategoryPermission('AccountService','View'))
+            @include('accounts.additional_charges')
+        @endif
+        @if(User::checkCategoryPermission('AccountService','View'))
             @include('accountservices.index')
         @endif
         <div class="panel panel-primary" data-collapsed="0">
@@ -1103,6 +1109,10 @@
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('select').attr("disabled", "disabled");
+            $('#additional_filter').find('input').attr("disabled", "disabled");
+            $('#additional_filter').find('select').attr("disabled", "disabled");
+            $('#subscription_filter').find('input').attr("disabled", "disabled");
+            $('#subscription_filter').find('select').attr("disabled", "disabled");
 
             url= baseurl + '/accounts/update/{{$account->AccountID}}';
             var data =$('#account-from').serialize();
@@ -1113,6 +1123,10 @@
               $('#subscription_filter').find('input').removeAttr("disabled");
               $('#oneofcharge_filter').find('input').removeAttr("disabled");
               $('#oneofcharge_filter').find('select').removeAttr("disabled");
+              $('#additional_filter').find('input').removeAttr("disabled");
+              $('#additional_filter').find('select').removeAttr("disabled");
+              $('#subscription_filter').find('input').removeAttr("disabled");
+              $('#subscription_filter').find('select').removeAttr("disabled");
 
               if(response.status =='success'){
                      toastr.success(response.message, "Success", toastr_opts);

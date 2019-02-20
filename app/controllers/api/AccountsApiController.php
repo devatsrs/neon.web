@@ -1426,7 +1426,7 @@ class AccountsApiController extends ApiController {
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
 			$data['Language']= isset($accountData['LanguageIso2']) ? $accountData['LanguageIso2'] : '';
-			$ResellerOwner = empty($accountData['AccountResellerID']) ? 0 : $accountData['AccountResellerID'];
+
 
 			$data['AccountType'] = 1;
 			$data['IsVendor'] = isset($accountData['IsVendor']);
@@ -1443,9 +1443,25 @@ class AccountsApiController extends ApiController {
 				$data['DifferentBillingAddress'] = 1;
 			}
 
+			$ResellerOwner = '';
+			if (!empty($accountData['AccountResellerDynamicField'])) {
+				$AccountIDRef = '';
+				$AccountIDRef = Account::findAccountBySIAccountRef($accountData['AccountResellerDynamicField']);
+				if (empty($AccountIDRef)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1035[1]],Codes::$Code1035[0]);
+				}
+				$ResellerOwner = $AccountIDRef;
+			}
+
+			if (!empty($ResellerOwner)) {
+				$Account = Account::find($ResellerOwner);
+				if (!$Account || $Account['IsReseller'] != 1) {
+					return Response::json(["ErrorMessage" => Codes::$Code1035[1]], Codes::$Code1035[0]);
+				}
+			}
 
 			if(!empty($ResellerOwner) &&  $ResellerOwner>0){
-				$Reseller = Reseller::getResellerDetails($ResellerOwner);
+				$Reseller = Reseller::where('AccountID',$ResellerOwner)->first();
 				if (!isset($Reseller)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1035[1]],Codes::$Code1035[0]);
 				}
@@ -1505,7 +1521,7 @@ class AccountsApiController extends ApiController {
 
 			//stripe = credit stipeAch = bank
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
-				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$API_PaymentMethod)) {
+				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] >= count(AccountsApiController::$API_PaymentMethod)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
 
 				}
@@ -1662,7 +1678,10 @@ class AccountsApiController extends ApiController {
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicField']),true);
 				for ($i =0; $i <count($AccountReferenceArr);$i++) {
 					$AccountReference = $AccountReferenceArr[$i];
-					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+						'Type'=>'account','Status'=>1])
+						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
+						->pluck('DynamicFieldsID');
 					if(empty($DynamicFieldsID)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1006[1]],Codes::$Code1006[0]);
 					}
@@ -1924,7 +1943,10 @@ class AccountsApiController extends ApiController {
 					$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicField']),true);
 					for ($i =0; $i <count($AccountReferenceArr);$i++) {
 						$AccountReference = $AccountReferenceArr[$i];
-						$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+						$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+							'Type'=>'account','Status'=>1])
+							->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
+							->pluck('DynamicFieldsID');
 							$DynamicFields['ParentID'] = $account->AccountID;
 							$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
 							$DynamicFields['CompanyID'] = $CompanyID;
@@ -2132,6 +2154,7 @@ class AccountsApiController extends ApiController {
 		$post_vars = '';
 		$accountData = [];
 		$BillingClass = [];
+		$BankPaymentDetails = [];
 		try {
 
 			try {
@@ -2257,6 +2280,7 @@ class AccountsApiController extends ApiController {
 				$data['BillingAddress3'] = $accountData['BillingAddress3'];
 				$data['DifferentBillingAddress'] = 1;
 			}
+
 			if (isset($accountData['BillingPostCode']) && !empty($accountData['BillingPostCode'])) {
 				$data['BillingPostCode'] = $accountData['BillingPostCode'];
 				$data['DifferentBillingAddress'] = 1;
@@ -2341,7 +2365,10 @@ class AccountsApiController extends ApiController {
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
 				for ($i =0; $i <count($AccountReferenceArr);$i++) {
 					$AccountReference = $AccountReferenceArr[$i];
-					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+						'Type'=>'account','Status'=>1])
+						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
+						->pluck('DynamicFieldsID');
 					if(empty($DynamicFieldsID)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1006[1]],Codes::$Code1006[0]);
 					}
@@ -2356,6 +2383,61 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
+			if (isset($accountData['PaymentMethodID']) && !empty($accountData['PaymentMethodID'])) {
+				$data['PaymentMethod'] = $accountData['PaymentMethodID'];
+
+				if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
+					if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] >= count(AccountsApiController::$API_PaymentMethod)) {
+						return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
+
+					}
+				}
+
+
+
+
+
+				$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
+
+				if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH")) {
+					if ($data['PaymentMethod'] == "Stripe") {
+						$BankPaymentDetails['CardNumber'] = isset($accountData['CardNumber']) ? $accountData['CardNumber'] : '' ;
+						$BankPaymentDetails['CardType'] = isset($accountData['CardType']) ? $accountData['CardType'] : '' ;//Discover,MasterCard,Visa
+						$BankPaymentDetails['ExpirationMonth'] = isset($accountData['ExpirationMonth']) ? $accountData['ExpirationMonth'] : '' ;
+						$BankPaymentDetails['ExpirationYear'] = isset($accountData['ExpirationYear']) ? $accountData['ExpirationYear'] : '' ;
+						$BankPaymentDetails['NameOnCard'] = isset($accountData['NameOnCard']) ? $accountData['NameOnCard'] : '' ;
+						$BankPaymentDetails['CVVNumber'] = isset($accountData['CVVNumber']) ? $accountData['CVVNumber'] : '' ;
+						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
+						if ($CardValidationResponse["status"] == "failed") {
+							return Response::json(["ErrorMessage" => $CardValidationResponse["message"]],Codes::$Code402[0]);
+						}
+						$CardType = array("Discover", "MasterCard", "Visa");
+						if (!in_array($BankPaymentDetails['CardType'], $CardType)) {
+							return Response::json(["ErrorMessage" => Codes::$Code1036[1]],Codes::$Code1036[0]);
+						}
+					}else if ($data['PaymentMethod'] == "StripeACH") {
+						$BankPaymentDetails['AccountNumber'] = isset($accountData['AccountNumber']) ? $accountData['AccountNumber'] : '' ;
+						$BankPaymentDetails['RoutingNumber'] = isset($accountData['RoutingNumber']) ? $accountData['RoutingNumber'] : '' ;
+						$BankPaymentDetails['AccountHolderType'] = isset($accountData['AccountHolderType']) ? $accountData['AccountHolderType'] : '' ;//company,individual
+						$BankPaymentDetails['AccountHolderName'] = isset($accountData['AccountHolderName']) ? $accountData['AccountHolderName'] : '' ;
+						$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
+						if ($validator->fails()) {
+							$errors = "";
+							foreach ($validator->messages()->all() as $error) {
+								$errors .= $error . "<br>";
+							}
+							return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+
+						}
+						$AccountHolderType = array("individual","company");
+						if (!in_array($BankPaymentDetails['AccountHolderType'], $AccountHolderType)) {
+							return Response::json(["ErrorMessage" => Codes::$Code1037[1]],Codes::$Code1037[0]);
+						}
+					}
+
+
+				}
+			}
 
 			DB::beginTransaction();
 
@@ -2369,12 +2451,59 @@ class AccountsApiController extends ApiController {
 				}
 
 			}
+
+			if (isset($data['PaymentMethod']) && ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH")) {
+				$AccountPayoutSql = '';
+				if ($data['PaymentMethod'] == "Stripe") {
+					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'card','Status' => '1'])->first();
+				} else if ($data['PaymentMethod'] == "StripeACH") {
+					$AccountPayoutSql = AccountPayout::where(['AccountID' => $accountInfo->AccountID,'Type' => 'bank','Status' => '1'])->first();
+				}
+				//Log::info('$AccountPayoutSql SQL ' . $AccountPayoutSql->toSql());
+				//$AccountPayoutSql = $AccountPayoutSql->first();
+				if (isset($AccountPayoutSql)) {
+					Log::info('$AccountPayoutSql SQL ' .  $AccountPayoutSql['AccountPayoutID']);
+					$AccountPayout['Status'] = 0;
+					$AccountPayoutSql->update($AccountPayout);
+					Log::info('$AccountPayoutSql SQL ' );
+				}
+				$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
+				$BankPaymentDetails['CompanyID'] = $CompanyID;
+				if (!empty($BankPaymentDetails['CardNumber'])) {
+					$BankPaymentDetails['PayoutType'] = "card";
+					$BankPaymentDetails['Title'] = $BankPaymentDetails['NameOnCard'];
+				}else {
+					$BankPaymentDetails['Title'] = $BankPaymentDetails['AccountHolderName'];
+					$BankPaymentDetails['PayoutType'] = "bank";
+				}
+				$BankPaymentDetails['AccountID'] = $accountInfo->AccountID;
+
+				$BankPaymentDetails['CustomerAccountName'] = $accountInfo->AccountName;
+
+				$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($BankPaymentDetails['PaymentGatewayID']);
+				$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
+				$AccountResponse = $PaymentIntegration->createAccount($BankPaymentDetails);
+				Log::info('$Account Payment Response2 ' . $AccountResponse->getContent());
+				$AccountResponse = $AccountResponse->getContent();
+				$AccountResponse = json_decode($AccountResponse);
+				$AccountResponse = json_decode(json_encode($AccountResponse), true);
+				$AccountResponse=json_decode(json_encode($AccountResponse),true);
+				if ($AccountResponse["status"] == 'failed') {
+					DB::rollback();
+					return Response::json(["ErrorMessage" => $AccountResponse["message"]],Codes::$Code1033[0]);
+				}
+
+			}
+
 			if (isset($accountData['AccountDynamicFieldValues'])) {
 				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
 				for ($i =0; $i <count($AccountReferenceArr);$i++) {
 					$AccountReference = $AccountReferenceArr[$i];
-					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldName'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+						'Type'=>'account','Status'=>1])
+						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
+						->pluck('DynamicFieldsID');
 					$DynamicFieldsValue = DynamicFieldsValue::where(['ParentID'=>$accountInfo->AccountID,'DynamicFieldsID'=>$DynamicFieldsID])->first();
 					$DynamicFields['ParentID'] = $accountInfo->AccountID;
 					$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
@@ -2473,5 +2602,156 @@ class AccountsApiController extends ApiController {
 		}
 	}
 
-	
+
+	// add Additional charges
+	public function CreateCharge(){
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
+		$CompanyID=0;
+		$AccountID=0;
+
+		if(!empty($data['AccountID'])) {
+			$AccountID = $data['AccountID'];
+		}else if(!empty($data['AccountNo'])){
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code402[0]);
+		}
+
+		$Account=Account::where(["AccountID" => $AccountID]);
+		if($Account->count() > 0){
+			$Account = $Account->first();
+			$CompanyID = $Account->CompanyId;
+			$AccountID = $Account->AccountID;
+		}
+
+		//Validation
+		$rules = array(
+			'ChargeCode' 	=> 'required',
+			'Description' 	=> 'required',
+			'ChargeType' 	=> 'required|in:0,1',
+			'Currency' 		=> 'required',
+			'Amount' 		=> 'required'
+		);
+		$validator = Validator::make($data, $rules);
+		if ($validator->fails()) {
+			return json_validator_response($validator);
+		}
+		$CurrentDate = date('Y-m-d H:i:s');
+		$CreatedBy 	 = 'API';
+
+		try {
+			DB::connection('sqlsrv2')->beginTransaction();
+
+			if (!empty($AccountID) && !empty($CompanyID)) {
+				$CurrencyID = Currency::where(["CompanyId" => $CompanyID, "Symbol" => $data['Currency']])->pluck('CurrencyID');
+				if (!empty($CurrencyID)) {
+					// if One-Off Cost
+					if($data['ChargeType'] == 0) {
+						$product = Product::where(["CompanyId" => $CompanyID, "Code" => $data['ChargeCode']])->where("Active", 1);
+						if ($product->count() > 0) {
+							$product = $product->first();
+							if ($product->Active != 1) {
+								$product->Active = 1;
+								$product->save();
+							}
+						} else {
+							// add product
+							$product_data['CompanyId'] 		= $CompanyID;
+							//$product_data['CurrencyID'] 	= $CurrencyID;
+							$product_data['Name'] 			= $data['ChargeCode'];
+							$product_data['Code'] 			= $data['ChargeCode'];
+							$product_data['Description'] 	= $data['Description'];
+							$product_data['Amount'] 		= $data['Amount'];
+							$product_data['Active'] 		= 1;
+							$product_data['CreatedBy'] 		= $CreatedBy;
+							$product_data['created_at'] 	= $CurrentDate;
+
+							$product = Product::create($product_data);
+						}
+						$ProductID = $product->ProductID;
+
+						$ChargeData['AccountID'] 	= $AccountID;
+						$ChargeData['ProductID'] 	= $ProductID;
+						$ChargeData['Price'] 		= $product->Amount;
+						$ChargeData['Description']	= $product->Description;
+						$ChargeData['Qty'] 			= 1;
+						$ChargeData['Date'] 		= $CurrentDate;
+						$ChargeData['CreatedBy'] 	= $CreatedBy;
+						$ChargeData['created_at'] 	= $CurrentDate;
+						$ChargeData['CurrencyID'] 	= $CurrencyID;
+
+						if (AccountAdditionalCharge::create($ChargeData)) {
+							DB::connection('sqlsrv2')->commit();
+							return Response::json(Codes::$Code200[0]);
+						} else {
+							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
+						}
+					} else {
+						// add subscription/recurring
+						$recurring = BillingSubscription::where(["CompanyId" => $CompanyID, "Name" => $data['ChargeCode']]);
+						if ($recurring->count() > 0) {
+							$recurring = $recurring->first();
+						} else {
+							$recurring_data['CompanyId'] 				= $CompanyID;
+							$recurring_data['CurrencyID'] 				= $CurrencyID;
+							$recurring_data['Name'] 					= $data['ChargeCode'];
+							$recurring_data['Description'] 				= $data['ChargeCode'];
+							$recurring_data['InvoiceLineDescription'] 	= $data['Description'];
+							$recurring_data['CreatedBy'] 				= $CreatedBy;
+							$recurring_data['created_at'] 				= $CurrentDate;
+							$recurring_data['Advance'] 					= 1;
+
+							$Costs = AccountRecurring::calculateCost('MonthlyFee', $data['Amount']);
+
+							$recurring_data['DailyFee'] 				= $Costs['DailyFee'];
+							$recurring_data['WeeklyFee'] 				= $Costs['WeeklyFee'];
+							$recurring_data['MonthlyFee'] 				= $Costs['MonthlyFee'];
+							$recurring_data['QuarterlyFee'] 			= $Costs['QuarterlyFee'];
+							$recurring_data['AnnuallyFee'] 				= $Costs['AnnuallyFee'];
+
+							$recurring = BillingSubscription::create($recurring_data);
+						}
+						$AccountRecurringID = $recurring->SubscriptionID;
+
+						$ChargeData['AccountID'] 		= $AccountID;
+						$ChargeData['SubscriptionID'] 	= $AccountRecurringID;
+						$ChargeData['StartDate'] 		= $CurrentDate;
+						$ChargeData['EndDate'] 			= !empty($data['EndDate']) ? date('Y-m-d', strtotime($data['EndDate'])) : NULL;
+						$ChargeData['Qty'] 				= 1;
+						$ChargeData['CreatedBy'] 		= $CreatedBy;
+						$ChargeData['created_at'] 		= $CurrentDate;
+						$ChargeData['OneOffCurrencyID'] = $CurrencyID;
+						$ChargeData['RecurringCurrencyID'] = $CurrencyID;
+						$ChargeData['InvoiceDescription']  = $recurring->InvoiceLineDescription;
+						$ChargeData['DailyFee'] 		= $recurring->DailyFee;
+						$ChargeData['WeeklyFee'] 		= $recurring->WeeklyFee;
+						$ChargeData['MonthlyFee'] 		= $recurring->MonthlyFee;
+						$ChargeData['QuarterlyFee'] 	= $recurring->QuarterlyFee;
+						$ChargeData['AnnuallyFee'] 		= $recurring->AnnuallyFee;
+
+						if (AccountRecurring::create($ChargeData)) {
+							DB::connection('sqlsrv2')->commit();
+							return Response::json([],Codes::$Code200[0]);
+						} else {
+							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
+						}
+					}
+				} else {
+					return Response::json(["ErrorMessage" => "Currency Not Found"], Codes::$Code402[0]);
+				}
+			} else {
+				return Response::json(["ErrorMessage" => "Account or Company Not Found"], Codes::$Code402[0]);
+			}
+		} catch (Exception $e) {
+			DB::connection('sqlsrv2')->rollback();
+			Log::info($e->getTraceAsString());
+			$reseponse = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+			return Response::json($reseponse, Codes::$Code500[0]);
+		}
+	}
+
 }
