@@ -3,7 +3,7 @@
     <div class="panel-options"><a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a></div></div><div class="panel-body">
         <div class="form-group row">
             <div class="col-sm-2"><label class="control-label">Card Token</label></div>
-            <div class="col-sm-6"><input type="text" id="ingenico_card" value="{{ AccountsPaymentProfileController::getCardValue($account->AccountID)}}" class="form-control"></div>
+            <div class="col-sm-6"><input type="text" id="ingenico_card" value="" class="form-control"></div>
             <div class="col-sm-2"><button type="button" class="btn btn-primary" id="ingenicoadd">Update Card</button></div>
             <div class="col-sm-2 control-label"><div id="ingenicostatus"></div></div></div></div></div>
 
