@@ -124,6 +124,7 @@ CREATE DEFINER=`neon-user`@`78.129.239.99` PROCEDURE `prc_GetDIDLCR`(
 			CollectionCostAmount double(18,4),
 			CollectionCostPercentage double(18,4),
 			RegistrationCostPerNumber double(18,4),
+			Total1 double(18,4),
 			Total double(18,4)
 		);
 
@@ -150,6 +151,7 @@ CREATE DEFINER=`neon-user`@`78.129.239.99` PROCEDURE `prc_GetDIDLCR`(
 			CollectionCostAmount double(18,4),
 			CollectionCostPercentage double(18,4),
 			RegistrationCostPerNumber double(18,4),
+			Total1 double(18,4),
 			Total double(18,4)
 		);
 
@@ -327,6 +329,7 @@ Chargeback,
 CollectionCostAmount,
 CollectionCostPercentage,
 RegistrationCostPerNumber,
+Total1,
 Total
 )
 
@@ -633,7 +636,7 @@ Cost per month +
 (Collection Cost amount *Minutes)
 */
 
-	(
+	@Total1 := (
 
 		(	IFNULL(@MonthlyCost,0) 				)				+
 		(IFNULL(@CostPerMinute,0) * (select minutes from tmp_timezone_minutes tm where tm.TimezonesID = t.TimezonesID ))	+
@@ -641,13 +644,16 @@ Cost per month +
 		(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
 		(IFNULL(@OutpaymentPerMinute,0) *  (select minutes from tmp_timezone_minutes_2 tm2 where tm2.TimezonesID = t.TimezonesID ))	+
 		(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
-		(IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
+		-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
 		(IFNULL(@CollectionCostAmount,0) * (select minutes from tmp_timezone_minutes_3 tm3 where tm3.TimezonesID = t.TimezonesID ) )
 
 
 	)
+		as Total1,
+	@Total := (
+		@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * @CollectionCostPercentage)  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+	) as Total
 
-		as Total
 
 
 
@@ -706,6 +712,7 @@ insert into tmp_table_with_origination
 	CollectionCostAmount,
 	CollectionCostPercentage,
 	RegistrationCostPerNumber,
+	Total1,
 	Total
 )
 	select
@@ -1013,17 +1020,21 @@ insert into tmp_table_with_origination
 
 
 		-- @v_MinutesFromMobileOrigination used here instead of timezone or default minutes
-		(
+		@Total1 := (
 			(	IFNULL(@MonthlyCost,0) 				)				+
 			(IFNULL(@CostPerMinute,0) * @v_MinutesFromMobileOrigination)	+
 			(IFNULL(@CostPerCall,0) * @p_Calls)		+
 			(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
 			(IFNULL(@OutpaymentPerMinute,0) * 	@v_MinutesFromMobileOrigination)	+
 			(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
-			(IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
+			-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
 			(IFNULL(@CollectionCostAmount,0) * @v_MinutesFromMobileOrigination)
 
 
+		) as Total1,
+
+		@Total := (
+			@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * @CollectionCostPercentage)  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
 		) as Total
 
 
@@ -1253,7 +1264,7 @@ insert into tmp_component_output_ (	TimezoneTitle,			Component,			ComponentValue
 		inner join tmp_vendor_position on tmp_table1_.VendorID  = tmp_vendor_position.VendorID ;
 
 insert into tmp_component_output_ (	TimezoneTitle,			Component,			ComponentValue,			VendorName , 	Total, vPosition)
-	select TimezoneTitle,	concat('CollectionCostPercentage' , ' ', IF(TimezoneTitle = 'Default','',TimezoneTitle)  , IF(OriginationCode is null ,'', concat(' From ',OriginationCode))) as Component,			IF(CollectionCostPercentage=0,NULL,CollectionCostPercentage),			VendorName, Total, vPosition
+	select TimezoneTitle,	concat('CollectionCostPercentage' , ' ', IF(TimezoneTitle = 'Default','',TimezoneTitle)  , IF(OriginationCode is null ,'', concat(' From ',OriginationCode))) as Component,			IF(CollectionCostPercentage=0,NULL,concat(CollectionCostPercentage,'%')),			VendorName, Total, vPosition
 	from tmp_table1_
 		inner join tmp_vendor_position on tmp_table1_.VendorID  = tmp_vendor_position.VendorID ;
 
@@ -1298,7 +1309,8 @@ SET @v_VendorName = (SELECT VendorName FROM tmp_vendors WHERE ID = @v_pointer_);
 
 SET @ColumnName = concat('', @v_VendorName ,'');
 
-SET @stm1 = CONCAT('ALTER   TABLE `tmp_final_result` ADD COLUMN `', @ColumnName , '` double(16,4) NULL DEFAULT NULL');
+-- SET @stm1 = CONCAT('ALTER   TABLE `tmp_final_result` ADD COLUMN `', @ColumnName , '` double(16,4) NULL DEFAULT NULL');
+SET @stm1 = CONCAT('ALTER   TABLE `tmp_final_result` ADD COLUMN `', @ColumnName , '` varchar(50) NULL DEFAULT NULL');
 
 PREPARE stmt1 FROM @stm1;
 EXECUTE stmt1;
@@ -1375,7 +1387,7 @@ DELIMITER ;
 -- Dumping structure for procedure speakintelligentRM.prc_GetLCR
 DROP PROCEDURE IF EXISTS `prc_GetLCR`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
+CREATE PROCEDURE `prc_GetLCR`(
 	IN `p_companyid` INT,
 	IN `p_trunkID` INT,
 	IN `p_TimezonesID` VARCHAR(50),

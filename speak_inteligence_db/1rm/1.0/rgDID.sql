@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- Host:                         188.92.57.86
--- Server version:               5.7.24 - MySQL Community Server (GPL)
--- Server OS:                    Linux
+-- Host:                         192.168.1.25
+-- Server version:               5.7.23-log - MySQL Community Server (GPL)
+-- Server OS:                    Win64
 -- HeidiSQL Version:             9.5.0.5196
 -- --------------------------------------------------------
 
@@ -12,9 +12,9 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 -- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTableDID
-DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTableDID`;
+drop procedure if exists prc_WSGenerateRateTableDID;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_WSGenerateRateTableDID`(
+CREATE  PROCEDURE `prc_WSGenerateRateTableDID`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
@@ -112,6 +112,7 @@ GenerateRateTable:BEGIN
 				RegistrationCostPerNumberCurrency int,
 
 
+				Total1 double(18,4),
 				Total double(18,4)
 			);
 
@@ -158,6 +159,7 @@ GenerateRateTable:BEGIN
 
 
 
+				Total1 double(18,4),
 				Total double(18,4)
 			);
 
@@ -531,7 +533,9 @@ GenerateRateTable:BEGIN
 																CollectionCostAmountCurrency,
 																RegistrationCostPerNumberCurrency,
 
+																Total1,
 																Total
+
 																)
 
 	select
@@ -873,7 +877,8 @@ GenerateRateTable:BEGIN
 								(Collection Cost *Caller Rate )+
 								(Collection Cost amount *Minutes)
 								*/
-								(
+
+								@Total1 := (
 
 									(	IFNULL(@MonthlyCost,0) 				)				+
 									(IFNULL(@CostPerMinute,0) * (select minutes from tmp_timezone_minutes tm where tm.TimezonesID = t.TimezonesID ))	+
@@ -881,11 +886,17 @@ GenerateRateTable:BEGIN
 									(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
 									(IFNULL(@OutpaymentPerMinute,0) *  (select minutes from tmp_timezone_minutes_2 tm2 where tm2.TimezonesID = t.TimezonesID ))	+
 									(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
-									(IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
+									-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
 									(IFNULL(@CollectionCostAmount,0) * (select minutes from tmp_timezone_minutes_3 tm3 where tm3.TimezonesID = t.TimezonesID ) )
 
 
-								) as Total
+								)
+								 as Total1,
+								@Total := (
+								@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * @CollectionCostPercentage)  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+									) as Total
+
+
 
 				from tblRateTableDIDRate  drtr
 				inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId -- and rt.DIDCategoryID = 2
@@ -963,6 +974,7 @@ GenerateRateTable:BEGIN
 																CollectionCostAmountCurrency,
 																RegistrationCostPerNumberCurrency,
 
+																Total1,
 																Total
 																)
 
@@ -1306,18 +1318,24 @@ GenerateRateTable:BEGIN
 								(Collection Cost *Caller Rate )+
 								(Collection Cost amount *Minutes)
 								*/
-								(
+
+
+							 @Total1 := (
 									(	IFNULL(@MonthlyCost,0) 				)				+
 									(IFNULL(@CostPerMinute,0) * @v_MinutesFromMobileOrigination)	+
 									(IFNULL(@CostPerCall,0) * @p_Calls)		+
 									(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
 									(IFNULL(@OutpaymentPerMinute,0) * 	@v_MinutesFromMobileOrigination)	+
 									(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
-									(IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
+									-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
 									(IFNULL(@CollectionCostAmount,0) * @v_MinutesFromMobileOrigination)
 
 
-								) as Total
+								) as Total1,
+
+								@Total := (
+								@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * @CollectionCostPercentage)  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+									) as Total
 
 
 				from tblRateTableDIDRate  drtr
