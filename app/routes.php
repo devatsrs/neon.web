@@ -289,7 +289,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/prepaidunbilledreport/{id}', 'AccountsController@prepaidunbilledreport');
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 	Route::any('accounts/getNextBillingDate', 'AccountsController@getNextBillingDate');
-
+    Route::post('paymentprofile/ingenicoadd','AccountsPaymentProfileController@AddIngenico');
 	//Account Subscription
 	Route::any('account_subscription', 'AccountSubscriptionController@main');
 	Route::any('account_subscription/ajax_datagrid_page', 'AccountSubscriptionController@ajax_datagrid_page');
@@ -1141,6 +1141,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice','InvoicesController@index');
 	Route::any('/invoice/create', 'InvoicesController@create');
 	Route::any('/invoice/store', 'InvoicesController@store');
+	Route::any('/invoice/store_inv_in', 'InvoicesController@store_inv_in');
 	Route::any('/invoice/bulk_send_invoice_mail', 'InvoicesController@bulk_send_invoice_mail');
 	Route::any('/invoice/bulk_print_invoice', 'InvoicesController@bulk_print_invoice');
     Route::any('/invoice/invoice_regen', 'InvoicesController@invoice_regen');
@@ -1148,6 +1149,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/{id}/delete', 'InvoicesController@delete');
 	Route::any('/invoice/{id}/view', 'InvoicesController@view');
 	Route::any('/invoice/{id}/update', 'InvoicesController@update');
+	Route::any('/invoice/{id}/updatein', 'InvoicesController@updateIn');
+	Route::any('/invoice/{id}/edit_inv_in', 'InvoicesController@edit_inv_in');
+	//Route::any('/invoice/{id}/update_inv_in_new', 'InvoicesController@update_inv_in_new');
 	Route::any('/invoice/{id}/ubl_invoice', 'InvoicesController@ublInvoice');
 	//Route::any('/invoice/{id}/print_preview', 'InvoicesController@print_preview'); Not in use
 	Route::any('/invoice/{id}/invoice_preview', 'InvoicesController@invoice_preview'); //Customer View
@@ -1170,8 +1174,8 @@ Route::group(array('before' => 'auth'), function () {
 
 	
 	Route::any('/invoice/bulk_invoice', 'InvoicesController@bulk_invoice');
-	Route::any('/invoice/add_invoice_in', 'InvoicesController@add_invoice_in');
-	Route::any('/invoice/update_invoice_in/{id}', 'InvoicesController@update_invoice_in');
+	//Route::any('/invoice/add_invoice_in', 'InvoicesController@add_invoice_in');
+	//Route::any('/invoice/update_invoice_in/{id}', 'InvoicesController@update_invoice_in');
 	Route::any('/invoice/download_doc_file/{id}', 'InvoicesController@download_doc_file');
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
 	
@@ -1187,6 +1191,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/invoice_sagepayexport', 'InvoicesController@invoice_sagepayexport');
 	Route::any('/invoice/invoice_xeropost', 'InvoicesController@invoice_xeropost');
 	Route::any('/invoice/invoice_fastpayexport', 'InvoicesController@invoice_fastpayexport');
+	Route::any('/invoice/create_invoice_in','InvoicesController@add_inv_in');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');

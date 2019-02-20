@@ -1327,6 +1327,8 @@ class AccountsController extends \BaseController {
         //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Updated');;
     }
 
+    
+
     /**
      * Add notes to account
      * */

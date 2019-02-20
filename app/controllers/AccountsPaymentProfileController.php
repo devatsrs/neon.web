@@ -60,4 +60,44 @@ class AccountsPaymentProfileController extends \BaseController {
         }
         return array("status" => "failed", "message" => 'Account not found');
     }
+      
+
+      public static function getCardValue($id)
+      {
+        $Account = Account::find($id);
+    //     if(!empty($Account->PaymentMethod)) {
+    //     $PaymentGatewayID = PaymentGateway::where(['title' => $Account->PaymentMethod,'Status' =>1])->first();
+    //     $data = AccountPaymentProfile::where(['AccountID' => $id, 'PaymentGatewayID' => $PaymentGatewayID->PaymentGatewayID, 'Status' => 1])->first();
+    //     $json = json_decode($data->Options);
+    //     return $json->CardID;
+    // } else { return '0';
+    //   }
+    }
+
+    public function AddIngenico()
+    {
+        $data = Input::all();
+        $value = $data['value'];
+        $accountId = $data['accountId'];
+        $companyId = $data['companyId'];
+        $method = $data['method'];
+        $PaymentGatewayID = 0;
+        $Account = Account::find($accountId);
+        $options = [
+          'CardID' => $value
+        ];
+        if($Account->PaymentMethod == $method) {
+            AccountPaymentProfile::where('AccountID',$accountId)->update(['isDefault' =>0]);
+            $isDefault = 1;} else {$isDefault = 0;}
+        $PaymentGatewayID = PaymentGateway::where(['title' => $Account->PaymentMethod,'Status' =>1])->first();
+        AccountPaymentProfile::updateOrCreate([
+        'CompanyID' => $companyId, 'AccountID' => $accountId, 'PaymentGatewayID' => $PaymentGatewayID->PaymentGatewayID
+        ],[
+            'Options' => json_encode($options), 'Status' => 1, 'isDefault' => $isDefault
+        ]);
+
+          return '<span style="background-color:green;color:white;padding:5px;"><i class"entypo-check"></i> Updated</span>';
+
+        
+    }
 }
