@@ -42,6 +42,12 @@ ALTER TABLE `tblAccountDiscountPlan`
 ALTER TABLE `tblCLIRateTable`
 	ADD COLUMN `AccountServiceID` INT(11) NULL DEFAULT '0' AFTER `ServiceID`;	
 
+ALTER TABLE `tblServiceBilling`
+	ADD COLUMN `AccountServiceID` INT(11) NULL DEFAULT '0' AFTER `ServiceID`;
+
+ALTER TABLE `tblAccountBalanceSubscriptionLog`
+	ADD COLUMN `AccountServiceID` INT(11) NULL DEFAULT '0' AFTER `ServiceID`;
+
 CREATE TABLE IF NOT EXISTS `tblServiceBilling` (
 	`ServiceBillingID` INT(11) NOT NULL AUTO_INCREMENT,
 	`AccountID` INT(11) NOT NULL DEFAULT '0',
