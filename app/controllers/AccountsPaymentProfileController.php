@@ -65,13 +65,13 @@ class AccountsPaymentProfileController extends \BaseController {
       public static function getCardValue($id)
       {
         $Account = Account::find($id);
-        if(!empty($Account->PaymentMethod)) {
-        $PaymentGatewayID = PaymentGateway::where(['title' => $Account->PaymentMethod,'Status' =>1])->first();
-        $data = AccountPaymentProfile::where(['AccountID' => $id, 'PaymentGatewayID' => $PaymentGatewayID->PaymentGatewayID, 'Status' => 1])->first();
-        $json = json_decode($data->Options);
-        return $json->CardID;
-    } else { return '0';
-      }
+    //     if(!empty($Account->PaymentMethod)) {
+    //     $PaymentGatewayID = PaymentGateway::where(['title' => $Account->PaymentMethod,'Status' =>1])->first();
+    //     $data = AccountPaymentProfile::where(['AccountID' => $id, 'PaymentGatewayID' => $PaymentGatewayID->PaymentGatewayID, 'Status' => 1])->first();
+    //     $json = json_decode($data->Options);
+    //     return $json->CardID;
+    // } else { return '0';
+    //   }
     }
 
     public function AddIngenico()
