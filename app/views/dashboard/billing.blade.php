@@ -472,7 +472,7 @@
                 "bProcessing":true,
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/billing_dashboard/paymentreminders_ajax_datagrid",
-                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+                 "iDisplayLength":10,
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "sPaginationType": "bootstrap",
                 "oTableTools": {},
