@@ -81,7 +81,7 @@
   <tbody>
   </tbody>
 </table>
-<div class="clearfix"></div>
+<div class="clear"></div>
 <script type="text/javascript">
             /**
             * JQuery Plugin for dataTable
@@ -1322,7 +1322,6 @@ function OnEditCallSubsDynamicFields(AccountID,AccountSubscriptionID)
       </div>
     </div>
   </div>
-</div>
 
 <div class="modal fade in" id="modal-edit-subscription">
   <div class="modal-dialog modal-lg">
