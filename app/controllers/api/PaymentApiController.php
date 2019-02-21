@@ -312,6 +312,38 @@ class PaymentApiController extends ApiController {
 
 						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
 
+
+						if (!empty($InvoiceGenerate['LastInvoiceID'])) {
+							$InvoiceID = $InvoiceGenerate["LastInvoiceID"];
+							$Invoice = Invoice::find($InvoiceID);
+							$Company = Company::find($Invoice->CompanyID);
+							$Message = "Customer Invoice Successfully Created. Please view the report from the link send to you " ;
+							$Subject = "Customer Invoice";
+							$Account=Account::find($Invoice->AccountID);
+							$data['EmailTo'] 		= 	$Account->BillingEmail;
+							$singleemail = $Account->BillingEmail;
+							$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+							$body					=	EmailsTemplates::ReplaceEmail($singleemail,$Message);
+							$body = $body . $data['InvoiceURL'];
+							$data['Subject']		=	$Subject;
+							$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
+
+							$invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
+
+
+							if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+							{
+								$data['EmailFrom']	=	$postdata['email_from'];
+							}else{
+								$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
+							}
+
+
+							$status 				= 	$this->sendInvoiceMail($body,$data,0);
+							Log::info('depositFund:. Email Send');
+
+						}
+
 						if(!empty($PaymentID) && !empty($InvoiceGenerate['LastInvoiceID'])){
 							$FullInvoiceNumber = Invoice::where(['InvoiceID'=>$InvoiceGenerate['LastInvoiceID']])->pluck('FullInvoiceNumber');
 							$UpdateData=array();
@@ -346,55 +378,7 @@ class PaymentApiController extends ApiController {
 		}
 	}
 
-	public function depositFund1()
-	{
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data = json_decode(json_encode($post_vars), true);
-		$BillingClassID=AccountBilling::getBillingClassID($data['AccountID']);
-		if(empty($BillingClassID)){
-			return Response::json(["ErrorMessage"=>"BillingClassID Not set on this Account."],Codes::$Code402[0]);
-		}
-
-		$InvoiceGenerate=self::GenerateInvoice($data['AccountID'],$data['amount'],$BillingClassID);
-		Log::info('depositFund1:.' . print_r($InvoiceGenerate,true));
-		if ($InvoiceGenerate["status"] == "success") {
-			$InvoiceID = $InvoiceGenerate["LastInvoiceID"];
-			$Invoice = Invoice::find($InvoiceID);
-			$Company = Company::find($Invoice->CompanyID);
-			$Message = "Customer Invoice Successfully Created";
-			$Subject = "Customer Invoice";
-			$Account=Account::find($Invoice->AccountID);
-			$data['EmailTo'] 		= 	$Account->BillingEmail;
-			$singleemail = $Account->BillingEmail;
-			$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-			$body					=	EmailsTemplates::ReplaceEmail($singleemail,$Message);
-			$body = $body .'<BR>' .$data['InvoiceURL'];
-			$data['Subject']		=	$Subject;
-			$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
-
-			$invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
-			Log::info('depositFund1:.$invoicePdfSend' . $invoicePdfSend);
-			/*if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
-				Log::info('depositFund1:.$invoicePdfSend1');
-				$data['AttachmentPaths']= array([
-					"filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
-					"filepath"=>$Invoice->PDF
-				]);
-			}*/
-			if(isset($postdata['email_from']) && !empty($postdata['email_from']))
-			{
-				$data['EmailFrom']	=	$postdata['email_from'];
-			}else{
-				$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
-				$data['EmailFrom'] = 'aamar.nazir.codedesk@gmail.com';
-			}
-
-			Log::info('depositFund1:.1' . print_r($data,true));
-			Log::info('depositFund1:.2' . $body);
-			$status 				= 	$this->sendInvoiceMail($body,$data,0);
-			Log::info('depositFund1:.3' . print_r($status,true));
-		}
-	}
+	
 	function sendInvoiceMail($view,$data,$type=1)
 	{
 
