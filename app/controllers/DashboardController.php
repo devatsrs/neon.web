@@ -138,7 +138,7 @@ class DashboardController extends BaseController {
         $StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
         $StartDateDefault1 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 week'));
         $DateEndDefault  	= 	date('Y-m-d');
-        $emailType = array(""=> "Select") + AccountEmailLog::$type;
+        $emailType = array(""=> "Select") + AccountEmailLog::$type2;
         $monthfilter = 'Weekly';
         if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
             $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());

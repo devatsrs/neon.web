@@ -40,5 +40,9 @@ class AccountEmailLog extends \Eloquent {
         AccountEmailLog::ContractManage=>'Contract Manage'
 
     ];
+    public static $type2 = [
+        AccountEmailLog::LowBalanceReminder=>'Low Balance',
+        AccountEmailLog::InvoicePaymentReminder=>'Payment Reminders',
+    ];
 
 }
