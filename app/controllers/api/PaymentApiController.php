@@ -346,6 +346,52 @@ class PaymentApiController extends ApiController {
 		}
 	}
 
+	public function depositFund1()
+	{
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data = json_decode(json_encode($post_vars), true);
+		$BillingClassID=AccountBilling::getBillingClassID($data['AccountID']);
+		if(empty($BillingClassID)){
+			return Response::json(["ErrorMessage"=>"BillingClassID Not set on this Account."],Codes::$Code402[0]);
+		}
+
+		$InvoiceGenerate=self::GenerateInvoice($data['AccountID'],$data['amount'],$BillingClassID);
+		Log::info('depositFund1:.' . print_r($InvoiceGenerate,true));
+		if ($InvoiceGenerate["status"] == "success") {
+			$InvoiceID = $InvoiceGenerate["LastInvoiceID"];
+			$Invoice = Invoice::find($InvoiceID);
+			$Company = Company::find($Invoice->CompanyID);
+			$Message = "Customer Invoice Successfully Created";
+			$Subject = "Customer Invoice";
+			$Account=Account::find($Invoice->AccountID);
+			$data['EmailTo'] 		= 	$Account->BillingEmail;
+			$singleemail = $Account->BillingEmail;
+			$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+			$body					=	EmailsTemplates::ReplaceEmail($singleemail,$Message);
+			$data['Subject']		=	$Subject;
+			$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
+
+			$invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
+			if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
+				$data['AttachmentPaths']= array([
+					"filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+					"filepath"=>$Invoice->PDF
+				]);
+			}
+			if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+			{
+				$data['EmailFrom']	=	$postdata['email_from'];
+			}else{
+				$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
+				$data['EmailFrom'] = 'aamar.nazir.codedesk@gmail.com';
+			}
+
+			Log::info('depositFund1:.1' . print_r($data,true));
+			Log::info('depositFund1:.2' . $body);
+			$status 				= 	$this->sendInvoiceMail($body,$data,0);
+			Log::info('depositFund1:.3' . $status);
+		}
+	}
 	public static function PaymentLog($Account,$PaymentResponse,$data){
 		if(!empty($PaymentResponse)){
 			$PaymentInsertData=array();
