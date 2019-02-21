@@ -295,7 +295,8 @@ class PaymentApiController extends ApiController {
 					$PaymentResponse = $PaymentIntegration->paymentWithApiProfile($PaymentData);
 					$PaymentResponse['response_code'] = 1;
 					$PaymentResponse['transaction_notes'] = 'notes';
-					$PaymentResponse['transaction_notes'] = '12343';
+					$PaymentResponse['transaction_notes'] = strtotime(date('Y-m-d')).'12343';
+					$PaymentResponse['PaymentMethod'] = $PaymentMethod;
 					Log::info("$PaymentGatewayID = ".print_r($PaymentResponse,true));
 
 					if(!empty($PaymentResponse['response_code']) && $PaymentResponse['response_code']==1){
