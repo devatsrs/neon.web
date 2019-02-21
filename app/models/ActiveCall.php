@@ -534,6 +534,7 @@ class ActiveCall extends \Eloquent {
         $detaildata['CallRecordingStartTime'] = $ActiveCall->CallRecordingStartTime;
         $detaildata['OriginType'] = $ActiveCall->OriginType;
         $detaildata['OriginProvider'] = $ActiveCall->OriginProvider;
+        $detaildata['TimezonesID'] = $ActiveCall->TimezonesID;
         $detaildata['PackageTimezonesID'] = $ActiveCall->PackageTimezonesID;
         $detaildata['CityTariff'] = $ActiveCall->CityTariff;
         $detaildata['NoType'] = $ActiveCall->NoType;
