@@ -389,7 +389,7 @@ class PaymentApiController extends ApiController {
 			Log::info('depositFund1:.1' . print_r($data,true));
 			Log::info('depositFund1:.2' . $body);
 			$status 				= 	$this->sendInvoiceMail($body,$data,0);
-			Log::info('depositFund1:.3' . $status);
+			Log::info('depositFund1:.3' . print_r($status,true));
 		}
 	}
 	function sendInvoiceMail($view,$data,$type=1)
