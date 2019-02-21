@@ -739,7 +739,28 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
 			}
 
+
 			$CompanyID = $Account->CompanyId;
+			$DefaultSubscriptionIDSave = $DefaultSubscriptionID;
+			$DefaultSubscriptionPackageIDSave = $DefaultSubscriptionPackageID;
+			$DefaultSubscriptionID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_ID'])->pluck('Value');
+			$DefaultSubscriptionPackageID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_PACKAGE_ID'])->pluck('Value');
+			if (empty($DefaultSubscriptionID)) {
+				$CompanyConfigurationSave['CompanyID'] = $CompanyID;
+				$CompanyConfigurationSave['Key'] = 'DEFAULT_SUBSCRIPTION_ID';
+				$CompanyConfigurationSave['Value'] = $DefaultSubscriptionIDSave;
+				CompanyConfiguration::create($CompanyConfigurationSave);
+				$DefaultSubscriptionID = $DefaultSubscriptionIDSave;
+			}
+
+			if (empty($DefaultSubscriptionPackageID)) {
+				$CompanyConfigurationSave['CompanyID'] = $CompanyID;
+				$CompanyConfigurationSave['Key'] = 'DEFAULT_SUBSCRIPTION_PACKAGE_ID';
+				$CompanyConfigurationSave['Value'] = $DefaultSubscriptionPackageIDSave;
+				CompanyConfiguration::create($CompanyConfigurationSave);
+				$DefaultSubscriptionPackageID = $DefaultSubscriptionPackageIDSave;
+			}
+
 			$ServiceTemaplateReference = '';
 			$ProductCountryPrefix = '';
 
