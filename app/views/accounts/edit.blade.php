@@ -883,10 +883,10 @@
             @include('accountdiscountplan.index')
         @endif
         @if(User::checkCategoryPermission('AccountService','View'))
-            @include('accounts.subscriptions')
+            @include('accountsubscription.index')
         @endif
         @if(User::checkCategoryPermission('AccountService','View'))
-            @include('accounts.additional_charges')
+            @include('accountoneoffcharge.index')
         @endif
         @if(User::checkCategoryPermission('AccountService','View'))
             @include('accountservices.index')
@@ -978,7 +978,7 @@
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
                                 <label for="minimal-radio-5-11">Other</label>
                             </li>
-                            
+
                         </ul>
                     </div>
                     <div class="col-md-9" id="loadGrid">
@@ -1114,8 +1114,6 @@
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('select').attr("disabled", "disabled");
-            $('#additional_filter').find('input').attr("disabled", "disabled");
-            $('#additional_filter').find('select').attr("disabled", "disabled");
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#subscription_filter').find('select').attr("disabled", "disabled");
 
@@ -1128,8 +1126,6 @@
               $('#subscription_filter').find('input').removeAttr("disabled");
               $('#oneofcharge_filter').find('input').removeAttr("disabled");
               $('#oneofcharge_filter').find('select').removeAttr("disabled");
-              $('#additional_filter').find('input').removeAttr("disabled");
-              $('#additional_filter').find('select').removeAttr("disabled");
               $('#subscription_filter').find('input').removeAttr("disabled");
               $('#subscription_filter').find('select').removeAttr("disabled");
 
@@ -1478,7 +1474,7 @@ $("div#loadGrid").html(htmlgrid);
 
 $("#ingenicoadd").unbind("click").click(function(e){
     e.preventDefault();
-    
+
  var value = $("input#ingenico_card").val();
  var accountId = '{{$account->AccountID}}';
  var companyId = '{{$account->CompanyId}}';
