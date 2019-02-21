@@ -62,16 +62,17 @@ class AccountsPaymentProfileController extends \BaseController {
     }
       
 
-      public static function getCardValue($id)
+      public static function getCardValue($id, $method)
       {
         $Account = Account::find($id);
-    //     if(!empty($Account->PaymentMethod)) {
-    //     $PaymentGatewayID = PaymentGateway::where(['title' => $Account->PaymentMethod,'Status' =>1])->first();
-    //     $data = AccountPaymentProfile::where(['AccountID' => $id, 'PaymentGatewayID' => $PaymentGatewayID->PaymentGatewayID, 'Status' => 1])->first();
-    //     $json = json_decode($data->Options);
-    //     return $json->CardID;
-    // } else { return '0';
-    //   }
+        $PaymentGatewayID = PaymentGateway::where(['title' => $method ,'Status' =>1])->first();
+        if(!empty($PaymentGatewayID->PaymentGatewayID)) 
+            {$PaymentGatewayID = $PaymentGatewayID->PaymentGatewayID; } 
+        else {$PaymentGatewayID = 0;}
+        $data = AccountPaymentProfile::where(['AccountID' => $id, 'PaymentGatewayID' => $PaymentGatewayID, 'Status' => 1])->first();
+        if(!empty($data->Options)) {
+        $json = json_decode($data->Options);
+        return $json->CardID; } else {return '0';}
     }
 
     public function AddIngenico()
@@ -86,12 +87,14 @@ class AccountsPaymentProfileController extends \BaseController {
         $options = [
           'CardID' => $value
         ];
+
         if($Account->PaymentMethod == $method) {
             AccountPaymentProfile::where('AccountID',$accountId)->update(['isDefault' =>0]);
             $isDefault = 1;} else {$isDefault = 0;}
-        $PaymentGatewayID = PaymentGateway::where(['title' => $Account->PaymentMethod,'Status' =>1])->first();
+        $PaymentGatewayID = PaymentGateway::where(['title' => $method,'Status' =>1])->first();
+        if(!empty($PaymentGatewayID->PaymentGatewayID)){$payGID = $PaymentGatewayID->PaymentGatewayID;} else {$payGID = 0; }
         AccountPaymentProfile::updateOrCreate([
-        'CompanyID' => $companyId, 'AccountID' => $accountId, 'PaymentGatewayID' => $PaymentGatewayID->PaymentGatewayID
+        'CompanyID' => $companyId, 'AccountID' => $accountId, 'PaymentGatewayID' => $payGID
         ],[
             'Options' => json_encode($options), 'Status' => 1, 'isDefault' => $isDefault
         ]);
