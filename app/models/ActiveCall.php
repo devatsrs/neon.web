@@ -274,6 +274,7 @@ class ActiveCall extends \Eloquent {
         $CLI=$ActiveCall->CLI;
         $CLD=$ActiveCall->CLD;
         $CityTariff = '';
+        $NoType = '';
 
         /**
          * CLI Authentication compulsory for api
@@ -291,6 +292,7 @@ class ActiveCall extends \Eloquent {
             $AccountServicePackageID =  empty($CLIRateTable->PackageID)?0:$CLIRateTable->PackageID;
             $PackageRateTableID =  empty($CLIRateTable->PackageRateTableID)?0:$CLIRateTable->PackageRateTableID;
             $AreaPrefix = empty($CLIRateTable->Prefix)?'':$CLIRateTable->Prefix;
+            $NoType = empty($CLIRateTable->NoType)?'':$CLIRateTable->NoType;
         }
 
         log::info('Account Service ID '.$AccountServiceID);
@@ -329,9 +331,12 @@ class ActiveCall extends \Eloquent {
         }
 
         $CallType = $ActiveCall->CallType;
-
+        $PackageTimezonesID = 0;
         if($AccountServicePackageID > 0 && $PackageRateTableID > 0){
             $RateTablePKGRateID = ActiveCall::getRateTablePKGRateID($CompanyID,$PackageRateTableID,$TimezonesID,$AccountServicePackageID);
+            if(!empty($RateTablePKGRateID)){
+                $PackageTimezonesID = DB::table('tblRateTablePKGRate')->where(['RateTablePKGRateID'=>$RateTablePKGRateID])->pluck('TimezonesID');
+            }
         }
 
         /** find and update taxes */
@@ -393,6 +398,9 @@ class ActiveCall extends \Eloquent {
             $UpdateData['CallRecordingDuration'] = $CallRecordingDuration;
             $UpdateData['AccountServicePackageID'] = $AccountServicePackageID;
             $UpdateData['TaxRateIDs'] = $TaxRateIDs;
+            $UpdateData['PackageTimezonesID'] = $PackageTimezonesID;
+            $UpdateData['CityTariff'] = $CityTariff;
+            $UpdateData['NoType'] = $NoType;
             $UpdateData['updated_at'] = date('Y-m-d H:i:s');
             $ActiveCall->update($UpdateData);
         }
@@ -458,6 +466,9 @@ class ActiveCall extends \Eloquent {
             $UpdateData['CallRecordingDuration'] = $CallRecordingDuration;
             $UpdateData['AccountServicePackageID'] = $AccountServicePackageID;
             $UpdateData['TaxRateIDs'] = $TaxRateIDs;
+            $UpdateData['PackageTimezonesID'] = $PackageTimezonesID;
+            $UpdateData['CityTariff'] = $CityTariff;
+            $UpdateData['NoType'] = $NoType;
             $UpdateData['updated_at'] = date('Y-m-d H:i:s');
             $ActiveCall->update($UpdateData);
 
@@ -523,6 +534,9 @@ class ActiveCall extends \Eloquent {
         $detaildata['CallRecordingStartTime'] = $ActiveCall->CallRecordingStartTime;
         $detaildata['OriginType'] = $ActiveCall->OriginType;
         $detaildata['OriginProvider'] = $ActiveCall->OriginProvider;
+        $detaildata['PackageTimezonesID'] = $ActiveCall->PackageTimezonesID;
+        $detaildata['CityTariff'] = $ActiveCall->CityTariff;
+        $detaildata['NoType'] = $ActiveCall->NoType;
 
         $is_inbound=0;
         if($ActiveCall->CallType=='Inbound'){
