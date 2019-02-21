@@ -1,5 +1,14 @@
 <?php
 
+use App\UblInvoice\LegalMonetaryTotal;
+use App\UblInvoice\TaxSubTotal;
+use App\UblInvoice\Party;
+use App\UblInvoice\InvoiceLine;
+use App\UblInvoice\TaxScheme;
+use App\UblInvoice\TaxTotal;
+use App\UblInvoice\TaxCategory;
+use App\UblInvoice\AdditionalDocumentReference;
+
 class InvoicesController extends \BaseController {
 
 	public function ajax_datagrid_total() 
@@ -150,8 +159,12 @@ class InvoicesController extends \BaseController {
         $check_quickbook = $Quickbook->check_quickbook($CompanyID);
         $check_quickbook_desktop = $Quickbook->check_quickbook_desktop($CompanyID);
 		$bulk_type = 'invoices';
+        
+        $IngenicoExport = CompanyConfiguration::where(['Key' => 'INGENICO_EXPORT_BUTTON', 'CompanyID' => $CompanyID])->first();
+        
+
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID','IngenicoExport'));
 
     }
 
@@ -2282,6 +2295,68 @@ class InvoicesController extends \BaseController {
 
     }
 
+    //for ingenico Export
+
+    public function get_GUID($AccID)
+        {
+            $id = AccountPaymentProfile::where(['AccountID' => $AccID, 'isDefault' => 1])->first();
+            $json_data = json_decode($id->Options);
+            $card = '';
+            if(!empty($json_data->CardID))
+                {
+                    $card = $json_data->CardID;
+                    
+                } 
+                if(!empty($json_data->PaymentProfileID)) {
+                    $card = $json_data->PaymentProfileID;
+                }
+                return $card;
+        }
+        ///=====
+
+    public function IngenicoExport()
+    {
+         $data =Input::all();
+         
+         $companyID = User::get_companyID();
+        
+
+    $invoices = '';
+    $ids = explode(',',$data['InvoiceIDs']);
+    //$columns = array('Naam', 'Maand', 'Betaaldatum', 'Data');
+        $file = fopen('php://output', 'w');
+        $n=0;
+        foreach($ids as $invid) {
+            $invoices = Invoice::where(['InvoiceID' => $invid])->first();
+            if($invoices->accdetail->PaymentMethod == 'Stripe' && $invoices->InvoiceType == 1){
+                fwrite($file, 
+                number_format($invoices->GrandTotal, 0).','.
+                $invoices->currency->Code.',,,,'.
+                $invoices->AccountID.',,,,,,,,,,,'. 
+                $this->get_GUID($invoices->AccountID).',,,,,,,,,,,,,,,,,,'.'9'."\r\n"
+                //date('d/m/Y', strtotime($invoices->IssueDate.'+'.$invoices->BillingClass->PaymentDueInDays.' days'))
+            );
+
+                /*date('d-m-Y', strtotime($invoices->IssueDate)).', '. 
+                 .', '. 
+            ', '..' ,'..', '.$invoices->FullInvoiceNumber.', '.);*/
+            $invoices = '';
+            $n++;
+         } 
+        }
+        if($n >= 1) {
+            fclose($file);
+       header('Content-Type: text/plain', true);
+      // header('Content-type: application/octet-stream');
+       header('Content-Disposition: attachment; filename=Export-'.date('His').'.txt');
+        } else { 
+
+            return \Redirect::to('/invoice')->with('errormsg', 'Criteria does not matched');
+
+        }
+
+    }
+
     public function invoice_fastpayexport(){
         $data = Input::all();
 
@@ -3776,6 +3851,168 @@ class InvoicesController extends \BaseController {
                 }
             }
         }
+    }
+
+    /**
+     * @param $invoiceID
+     * @return $this
+     */
+    public function ublInvoice($invoiceID){
+        $InvoiceData = Invoice::where('InvoiceType', Invoice::INVOICE_OUT)->findOrFail($invoiceID);
+        $CompanyID = $InvoiceData->CompanyID;
+        $BillingClassID = $InvoiceData->BillingClassID;
+        $BillingClass = BillingClass::findOrFail($BillingClassID);
+        $InvoiceDetails = InvoiceDetail::where(["InvoiceID" => $invoiceID])->get();
+        $CompanyData = Company::findOrFail($CompanyID);
+        $CompanyAddr = Company::getCompanyAddress($CompanyID);
+        $Account = Account::where(["AccountID" => $InvoiceData->AccountID])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
+        $AccountAddress = Account::getAddress($Account);
+        $CurrencyID = !empty($InvoiceData->CurrencyID) ? $InvoiceData->CurrencyID : $Account->CurrencyId;
+        $Currency = Currency::find($CurrencyID);
+        $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
+
+        $generator = new \App\UblInvoice\Generator();
+        $legalMonetaryTotal = new LegalMonetaryTotal();
+
+// company address
+        $companyAddress = new \App\UblInvoice\Address();
+        if(!empty($CompanyAddr))
+            $companyAddress->setStreetName($CompanyAddr);
+
+        if (!empty($CompanyData->City))
+            $companyAddress->setCityName($CompanyData->City);
+
+        if (!empty($CompanyData->PostCode))
+            $companyAddress->setPostalZone($CompanyData->PostCode);
+
+        if (!empty($CompanyData->Country)) {
+            $countryCode = Country::getCountryCodeByName($CompanyData->Country);
+            $country = new \App\UblInvoice\Country();
+            $country->setIdentificationCode($countryCode);
+            $companyAddress->setCountry($country);
+        }
+// company
+        $company  = new Party();
+        $company->setName($CompanyData->CompanyName);
+        //$company->setPhysicalLocation($caddress);
+        $company->setPostalAddress($companyAddress);
+
+// client address
+        $clientAddress = new \App\UblInvoice\Address();
+
+        if(!empty($AccountAddress))
+            $clientAddress->setStreetName($AccountAddress);
+
+        if (!empty($Account->City))
+            $clientAddress->setCityName($Account->City);
+
+        if (!empty($Account->PostCode))
+            $clientAddress->setPostalZone($Account->PostCode);
+        if (!empty($Account->Country)) {
+            $countryCode = Country::getCountryCodeByName($Account->Country);
+            $country = new \App\UblInvoice\Country();
+            $country->setIdentificationCode($countryCode);
+            $clientAddress->setCountry($country);
+        }
+
+// client
+        $client = new Party();
+        $client->setName($Account->AccountName);
+        $client->setPostalAddress($clientAddress);
+        $invoiceLines = [];
+        $unitCode = 'A9';
+        foreach($InvoiceDetails as $InvoiceDetail) {
+            //product
+            $product = Product::find($InvoiceDetail->ProductID);
+            if ($product != false) {
+                $item = new \App\UblInvoice\Item();
+                $item->setName($product->Name);
+                $item->setDescription($product->Description);
+                $item->setSellersItemIdentification($product->ProductID);
+            }
+
+            //price
+            $price = new \App\UblInvoice\Price();
+            $price->setBaseQuantity($InvoiceDetail->Qty);
+            $price->setUnitCode($unitCode);
+            $price->setPriceAmount($InvoiceDetail->Price);
+
+            //line
+            $invoiceLine = new InvoiceLine();
+            $invoiceLine->setId($InvoiceDetail->ProductID);
+            if ($product != false)
+                $invoiceLine->setItem($item);
+
+            $invoiceLine->setPrice($price);
+            $invoiceLine->setUnitCode($unitCode);
+            $invoiceLine->setInvoicedQuantity($InvoiceDetail->Qty);
+            $invoiceLine->setLineExtensionAmount($InvoiceDetail->Price);
+            $invoiceLine->setTaxTotal($InvoiceDetail->TaxAmount);
+            $invoiceLines[] = $invoiceLine;
+        }
+
+// taxe TVA
+        $TaxScheme    = new TaxScheme();
+        $TaxScheme->setId(0);
+        $taxCategory = new TaxCategory();
+        $tax = $BillingClass->TaxRateID != "" ? explode(",",$BillingClass->TaxRateID) : "";
+        $tax = !empty($tax) ? TaxRate::find($tax[0]) : false;
+        $tax = $tax != false ? $tax->Title : "";
+        $taxPercentage = number_format(((float)$InvoiceData->TotalTax / (float)$InvoiceData->GrandTotal) * 100, 2);
+        $taxCategory->setId($BillingClass->TaxRateID);
+        $taxCategory->setName($tax);
+        $taxCategory->setPercent($taxPercentage);
+        $taxCategory->setTaxScheme($TaxScheme);
+// taxes
+        $taxTotal    = new TaxTotal();
+        $taxSubTotal = new TaxSubTotal();
+        $taxSubTotal->setTaxableAmount($InvoiceData->SubTotal);
+        $taxSubTotal->setTaxAmount($InvoiceData->TotalTax);
+        $taxSubTotal->setTaxCategory($taxCategory);
+        $taxTotal->addTaxSubTotal($taxSubTotal);
+        $taxTotal->setTaxAmount($taxSubTotal->getTaxAmount());
+
+        $issueDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $InvoiceData->IssueDate);
+        $dueDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $InvoiceData->IssueDate)->addDays($BillingClass->PaymentDueInDays);
+
+// invoice
+        $invoice = new \App\UblInvoice\Invoice();
+        $invoice->setId($InvoiceData->FullInvoiceNumber);
+        $invoice->setIssueDate($issueDate);
+        $invoice->setStartDate($issueDate);
+        $invoice->setEndDate($issueDate);
+        $invoice->setDueDate($dueDate);
+        $invoice->setCurrencyCode($CurrencyCode);
+        $invoice->setNote($InvoiceData->Note);
+        $invoice->setTerms("Expect payment within {$BillingClass->PaymentDueInDays} days.");
+        $invoice->setInvoiceTypeCode($InvoiceData->InvoiceType);
+        $invoice->setAccountingSupplierParty($company);
+        $invoice->setAccountingCustomerParty($client);
+        $invoice->setInvoiceLines($invoiceLines);
+        $legalMonetaryTotal->setTaxExclusiveAmount($InvoiceData->SubTotal);
+        $legalMonetaryTotal->setLineExtensionAmount($InvoiceData->SubTotal);
+        $legalMonetaryTotal->setTaxInclusiveAmount($InvoiceData->GrandTotal);
+        $legalMonetaryTotal->setPayableAmount($InvoiceData->GrandTotal);
+        $legalMonetaryTotal->setAllowanceTotalAmount($InvoiceData->TotalDiscount);
+        $invoice->setLegalMonetaryTotal($legalMonetaryTotal);
+        $invoice->setTaxTotal($taxTotal);
+
+        if($InvoiceData->PDF != "") {
+            $additionalDocument = new AdditionalDocumentReference();
+            $additionalDocument->setAttachment(AmazonS3::preSignedUrl($InvoiceData->PDF));
+            $additionalDocument->setDocumentType("Invoice");
+            $additionalDocument->setId("01");
+            $invoice->setAdditionalDocumentReference($additionalDocument);
+        }
+
+        /*$validator = new \Greenter\Ubl\UblValidator();
+        if ($validator->isValid($generator->invoice($invoice, $CurrencyCode))) {
+            echo 'Success!!!';
+        } else {
+            echo $validator->getError();
+        }*/
+        return \Illuminate\Support\Facades\Response::make($generator->invoice($invoice, $CurrencyCode))
+            ->header('Content-Type', 'text/xml');
     }
 
 }

@@ -383,15 +383,22 @@
                 <div class="form_Sales panel-body white-bg">
                     <form novalidate class="form-horizontal form-groups-bordered"  id="PaymentRemindersForm">
                         <div class="form-group form-group-border-none">
-                            <div class="col-sm-10">
+                            <div class="col-md-12">
                                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Account</label>
-                                <div class="col-sm-4"> 
+                                <div class="col-md-3">
                                     {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
-                                    
+
                                 </div>
                                 <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
-                                <div class="col-sm-6"> 
+                                <div class="col-md-2">
                                     <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
+                                </div>
+                                <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Type</label>
+                                <div class="col-md-3">
+                                    {{Form::select('emailType',$emailType,'',array("class"=>"select2"))}}
+
+                                </div>
+                                <div class="col-md-1">
                                     <button type="submit" id="submit_paymentreminder" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
                                 </div>
                             </div>
@@ -402,8 +409,8 @@
                     <table class="table table-bordered datatable" id="PaymentReminders-4">
                         <thead>
                         <tr>
+                            <th>Type</th>
                             <th>Account</th>
-                            <th>Notification Type</th>
                             <th>Date Sent</th>
                             <th>Email From</th>
                             <th>Email To</th>
@@ -454,35 +461,37 @@
             e.preventDefault();
              accountID = $('#PaymentRemindersForm').find('[name="accountID"]').val();
              Duedate = $('#PaymentRemindersForm').find('[name="Duedate"]').val();
+            emailType = $('#PaymentRemindersForm').find('[name="emailType"]').val();
+
             data_tables.fnFilter('', 0);
         })
         var accountID = $('#PaymentRemindersForm').find('[name="accountID"]').val();
         var Duedate = $('#PaymentRemindersForm').find('[name="Duedate"]').val();
+        var emailType = $('#PaymentRemindersForm').find('[name="emailType"]').val();
          //$('#submit_paymentreminder').trigger('click');
          data_tables = $("#PaymentReminders-4").dataTable({
                 "bProcessing":true,
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/billing_dashboard/paymentreminders_ajax_datagrid",
-                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+                 "iDisplayLength":10,
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "sPaginationType": "bootstrap",
                 "oTableTools": {},
                 "aaSorting"   : [[4, 'desc']],
                 "fnServerParams": function (aoData) {
                         aoData.push(
-                                {"name": "accountID", "value": accountID},{"name": "Duedate", "value": Duedate},
+                                {"name": "accountID", "value": accountID},{"name": "Duedate", "value": Duedate},{"name": "emailType", "value": emailType}
 
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
-                                {"name": "Name", "value": accountID},{"name": "Duedate", "value": Duedate},
+                                {"name": "Name", "value": accountID},{"name": "Duedate", "value": Duedate},{"name": "emailType", "value": emailType},
                                 {"name": "Export", "value": 1}
                         );
 
                     },
                 "aoColumns":
                  [
-                    { "bSortable": true }, //0 AccountName
                     {  "bSortable": true,
                         mRender: function ( id, type, full ) {
                              var action , edit_ , show_ , delete_;
@@ -517,6 +526,7 @@
                            return action; 
                         } 
                     }, //1 EmailType
+                     { "bSortable": true }, //0 AccountName
                     { "bSortable": true }, //2 CreatedBy
                     { "bSortable": true }, //3 Emailfrom
                     { "bSortable": true }, //3 EmailTo

@@ -782,16 +782,26 @@
                                         </div>
                                         <table class="cancelRadio" width="100%">
                                             <tr>
+                                                <td style="width: 50%">
+                                                    <label class="panel-heading" for='r19'>
+                                                        <input type='radio' id='r19' name='CancellationCharges' data-value="5" value='5' required />
+                                                        No Fee
+                                                    </label>
+                                                </td>
+                                                <td style="width: 50%">
+                                                    <label class="panel-heading" for='r12'>
+                                                        <input type='radio' id='r12' name='CancellationCharges' data-value="2" value='2' required />
+                                                        Remaining Term Of Contract
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table class="cancelRadio" width="100%">
+                                            <tr>
                                                 <td>
                                                     <label class="panel-heading" for='r11'>
                                                         <input type='radio' id='r11' name='CancellationCharges' data-value="1" checked value='1' required />
                                                         Fixed Fee
-                                                    </label>
-                                                </td>
-                                                <td>
-                                                    <label class="panel-heading" for='r12'>
-                                                        <input type='radio' id='r12' name='CancellationCharges' data-value="2" value='2' required />
-                                                        Remaining Term Of Contract
                                                     </label>
                                                 </td>
                                                 <td>
@@ -803,7 +813,7 @@
                                                 <td>
                                                     <label for='r14' class="panel-heading">
                                                         <input type='radio' id='r14' name='CancellationCharges' data-value="4" value='4' required />
-                                                        Remaining Term Of Contract
+                                                         Fixed Fee + Remaining Term Of Contract
                                                     </label>
                                                 </td>
                                             </tr>

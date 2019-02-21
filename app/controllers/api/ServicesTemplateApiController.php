@@ -8,6 +8,7 @@ class ServicesTemplateApiController extends ApiController
     public function storeServiceTempalteData()
     {
         Log::info('storeServiceTempalteData:Service Template Controller.');
+        $CompanyID = User::get_companyID();
         try {
             $post_vars = json_decode(file_get_contents("php://input"));
             //$post_vars = Input::all();
@@ -167,7 +168,7 @@ class ServicesTemplateApiController extends ApiController
                 $ServiceTemplateData['CancellationCharges'] = isset($post_vars->ContractType) ? $post_vars->ContractType : '';
                 $ServiceTemplateData['AutomaticRenewal'] = isset($post_vars->AutoRenewal) ? $post_vars->AutoRenewal : '1';
                 $ServiceTemplateData['CancellationFee'] = isset($post_vars->ContractFeeValue) ? $post_vars->ContractFeeValue : '';
-
+                $ServiceTemplateData['CompanyID'] = $CompanyID;
 
                 if ($ServiceTemplate = ServiceTemplate::create($ServiceTemplateData)) {
 

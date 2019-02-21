@@ -949,6 +949,9 @@ class AccountsController extends \BaseController {
             'country'=>$data['Country'],
             'phoneNumber'=>$account['Mobile']);
         unset($data['table-4_length']);
+        unset($data['table-subscription_length']);
+        unset($data['table-additionalcharge_length']);
+        unset($data['table-service_length']);
         unset($data['cardID']);
         //unset($data['DiscountPlanID']);
         //unset($data['InboundDiscountPlanID']);
@@ -1323,6 +1326,8 @@ class AccountsController extends \BaseController {
         }
         //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Updated');;
     }
+
+    
 
     /**
      * Add notes to account
@@ -2012,9 +2017,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = User::get_companyID();
         $data = Input::all();
         $rate_tables = CLIRateTable::
-        leftJoin('tblRateTable','tblRateTable.RateTableId','=','tblCLIRateTable.RateTableID')
-        ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
-            ->select(['CLIRateTableID','CLI','tblRateTable.RateTableName','CLIRateTableID','tblService.ServiceName','CityTariff'])
+        leftJoin('tblRateTable as rt','rt.RateTableId','=','tblCLIRateTable.RateTableID')
+            ->leftJoin('tblRateTable as prt','prt.RateTableId','=','tblCLIRateTable.PackageRateTableID')
+            ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
+            ->leftJoin('tblPackage','tblPackage.PackageId','=','tblCLIRateTable.PackageID')
+            ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName','CityTariff', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.Status'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
@@ -2038,8 +2045,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $message = '';
 
         $rules['CLI'] = 'required';
+        $rules['PackageID'] = 'required_with:PackageRateTableID';
+        $rules['PackageRateTableID'] = 'required_with:PackageID';
 
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, $rules, [
+            'PackageID.required_with' => "Package is required.",
+            'PackageRateTableID.required_with' => "Package Rate Table is required."
+        ]);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -2047,25 +2059,34 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $clis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['CLI']),function($var){return trim($var)!='';});
 
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
-
+        $insertArr = [];
         foreach($clis as $cli){
-
-            if(CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$cli))->count()){
-                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$cli))->pluck('AccountID');
+            $check = CLIRateTable::where([
+                'CompanyID'=>$CompanyID,
+                'AccountID'=>$data['AccountID'],
+                'CLI'=>$cli,
+                'Status'=>1
+            ])->count();
+            if($check){
+                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'AccountID'=>$data['AccountID'],'CLI'=>$cli,'Status'=>1))->pluck('AccountID');
                 $message .= $cli.' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
-            }else{
+            } else {
                 $rate_tables['CLI'] = $cli;
                 $rate_tables['RateTableID'] = $data['RateTableID'];
+                $rate_tables['PackageID'] = $data['PackageID'];
+                $rate_tables['PackageRateTableID'] = $data['PackageRateTableID'];
                 $rate_tables['AccountID'] = $data['AccountID'];
                 $rate_tables['CompanyID'] = $CompanyID;
                 $rate_tables['CityTariff'] = !empty($data['CityTariff'])?$data['CityTariff']:'';
+                $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
+                $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
                 if(!empty($data['ServiceID'])) {
                     $rate_tables['ServiceID'] = $data['ServiceID'];
                 }
                 if(!empty($data['AccountServiceID'])) {
                     $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
                 }
-                CLIRateTable::insert($rate_tables);
+                $insertArr[] = $rate_tables;
             }
         }
 
@@ -2073,6 +2094,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $message = 'Following CLI already exists.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
         }else{
+            CLIRateTable::insert($insertArr);
             return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));
         }
 
@@ -2141,6 +2163,20 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function clitable_update(){
         $data = Input::all();
+
+        $rules['CLI'] = 'required';
+        $rules['PackageID'] = 'required_with:PackageRateTableID';
+        $rules['PackageRateTableID'] = 'required_with:PackageID';
+
+        $validator = Validator::make($data, $rules, [
+            'PackageID.required_with' => "Package is required.",
+            'PackageRateTableID.required_with' => "Package Rate Table is required."
+        ]);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
         $CompanyID = User::get_companyID();
         if(!empty($data['ServiceID'])){
             $ServiceID = $data['ServiceID'];
@@ -2154,24 +2190,50 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
         $UpdateData=array();
-        $UpdateData['CityTariff']=!empty($data['CityTariff'])?$data['CityTariff']:'';
-        $UpdateData['RateTableID']=$data['RateTableID'];
+        $UpdateData['CityTariff']   = !empty($data['CityTariff'])?$data['CityTariff']:'';
+        $UpdateData['Prefix']       = !empty($data['Prefix'])?$data['Prefix']:'';
+        $UpdateData['RateTableID']  = @$data['RateTableID'];
+        $UpdateData['CLI']          = $data['CLI'];
+        $UpdateData['PackageID']    = $data['PackageID'];
+        $UpdateData['PackageRateTableID'] = $data['PackageRateTableID'];
+        $UpdateData['Status']       = isset($data['Status']) ? 1 : 0;
+
         if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
             $query = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"');
-                //$query->where(array('ServiceID' => $ServiceID));
-                $query->where(array('AccountID' => $data['AccountID']));
-                $query->update($UpdateData);
+            //$query->where(array('ServiceID' => $ServiceID));
+            $query->where(array('AccountID' => $data['AccountID']));
+            $query->update($UpdateData);
         } else if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
             $query = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs);
-           // $query->where(array('ServiceID' => $ServiceID));
+            // $query->where(array('ServiceID' => $ServiceID));
             $query->update($UpdateData);
+        } else if (!empty($data['CLIRateTableID'])) {
+            $oldCLI = CLIRateTable::findOrFail($data['CLIRateTableID']);
+
+            // if this cli already exist in table
+            $check = false;
+            if($UpdateData['Status'] == 1 || $data['CLI'] != $oldCLI->CLI)
+                $check = CLIRateTable::where([
+                    'CompanyID' =>  $CompanyID,
+                    'AccountID' =>  $data['AccountID'],
+                    'CLI'       =>  $data['CLI'],
+                    'Status'    =>  1
+                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->count();
+
+            if($check){
+                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'AccountID'=>$data['AccountID'],'CLI'=>$data['CLI'],'Status'=>1))->pluck('AccountID');
+                $message = 'Following CLI '. $data['CLI'] . ' already exist with active status against '.Account::getCompanyNameByID($AccountID).'.<br>';
+                return Response::json(array("status" => "error", "message" => $message));
+            }
+
+            $oldCLI->update($UpdateData);
         }
         return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
     }
-	
-	public function BulkAction(){
+
+    public function BulkAction(){
         $data = Input::all();
         $update_billing=0;
         $accountbillngdata=0;

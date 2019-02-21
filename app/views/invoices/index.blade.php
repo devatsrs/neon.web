@@ -153,6 +153,11 @@
             @if(is_FastPay($CompanyID))
             <li> <a class="create" id="fastpay-export" href="javascript:;"> FastPay Export </a> </li>
             @endif
+            @if(!empty($IngenicoExport->Value))
+             @if($IngenicoExport->Value == 1)
+                <li> <a class="create" id="ingenico-export" href="javascript:;"> Ingenico Export </a> </li>
+              @endif 
+            @endif
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
@@ -190,12 +195,14 @@
     </table>
   </div>
 </div>
+
 <script type="text/javascript">
         var $searchFilter = {};
         var checked = '';
         var update_new_url;
         var postdata;
 	    var editor_options 	  =  		{};
+
         jQuery(document).ready(function ($) {
 
             $('#filter-button-toggle').show();
@@ -203,6 +210,7 @@
             public_vars.$body = $("body");
             //show_loading_bar(40);
             var invoicestatus = {{$invoice_status_json}};
+
             var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
             var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate', 'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
@@ -459,6 +467,8 @@
                         }
                     }
                     //onDelete Click
+
+
                     FnDeleteInvoiceTemplate = function (e) {
                         result = confirm("Are you Sure?");
                         if (result) {
@@ -502,7 +512,7 @@
 
             });
 
-            $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+            //$("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
 
             $("#invoice_filter").submit(function (e) {
                 e.preventDefault();
@@ -1348,6 +1358,39 @@
                 }, 1000);
             });
 
+            $('#ingenico-export').click(function (e) {
+                var MarkPaid = '0';
+                if (confirm('Do You Want to Export?')) {
+                    MarkPaid = '1';
+                }
+                else {return false;}
+                
+                var InvoiceIDs = [];
+                var i = 0;
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    //console.log($(this).val());
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs == '') {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                    InvoiceIDs = '';
+                }
+                var url = baseurl + '/invoice/ingenicoExport';
+                var data = '?InvoiceIDs=' + InvoiceIDs;
+
+                window.location.href = url + data;
+                setTimeout(function () {
+                    data_table.fnFilter('', 0);
+                }, 1000);
+            });
+
+
             $(document).on("click", ".available", function () {
                 if ($(this).hasClass('prev')) {
                     return false;
@@ -2162,4 +2205,7 @@
     </div>
   </div>
 </div>
+@if(!empty(\Session::get('errormsg')))
+<script> alert("Criteria does not matched");</script>
+@endif
 @stop

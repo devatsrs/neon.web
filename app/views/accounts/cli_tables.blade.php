@@ -8,14 +8,12 @@
         <div class="panel-title">
             CLI
         </div>
-
         <div class="panel-options">
             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
         </div>
     </div>
-
     <div class="panel-body">
-        <div id="clitable_filter" method="get" action="#" >
+        <div id="clitable_filter" method="get" action="#">
             <div class="panel panel-primary panel-collapse" data-collapsed="1">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -69,7 +67,7 @@
                                 </li>
                             @endif
                             @if( User::checkCategoryPermission('AuthenticationRule','Add'))
-                                <li>
+                                <li class="hidden">
                                     <a class="generate_rate create" id="changeSelectedCLI" href="javascript:;">
                                         <i class="entypo-pencil"></i>
                                         Change RateTable
@@ -86,11 +84,14 @@
             <thead>
             <tr>
                 <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                <th width="30%">CLI</th>
-                <th width="35%">Rate Table</th>
-                <th width="20%">Service</th>
-                <th width="20%">City/Tariff</th>
-                <th width="30%">Action</th>
+                <th width="15%">CLI</th>
+                <th width="15%">CLI Rate Table</th>
+                <th width="15%">Package</th>
+                <th width="15%">Package Rate Table</th>
+                <th width="12%">City/Tariff</th>
+                <th width="5%">Prefix</th>
+                <th width="5%">Status</th>
+                <th width="20%">Action</th>
             </tr>
             </thead>
             <tbody>
@@ -100,9 +101,9 @@
     </div>
 </div>
 <script type="text/javascript">
-var AccountID = '{{$account->AccountID}}';
-var ServiceID='{{$ServiceID}}';
-var AccountServiceID='{{$AccountServiceID}}';
+    var AccountID = '{{$account->AccountID}}';
+    var ServiceID='{{$ServiceID}}';
+    var AccountServiceID='{{$AccountServiceID}}';
 </script>
 <script src="{{ URL::asset('assets/js/clitable.js') }}"></script>
 @section('footer_ext')
@@ -120,18 +121,24 @@ var AccountServiceID='{{$AccountServiceID}}';
                         <div class="row edit_hide">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">CLI</label>
-                                    <textarea name="CLI" class="form-control autogrow"></textarea>
+                                    <label for="field-3215" class="control-label">CLI</label>
+                                    <textarea name="CLI" class="form-control cli-field autogrow"></textarea>
                                     *Adding multiple CLIs ,Add one CLI in each line.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row edit_show">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-3216" class="control-label">CLI</label>
+                                    <input name="CLI" class="form-control cli-field">
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">RateTable
-                                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span></label>
-                                    </label>
+                                    <label for="field-225" class="control-label">CLI RateTable</label>
                                     {{ Form::select('RateTableID', $rate_table , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
@@ -140,11 +147,45 @@ var AccountServiceID='{{$AccountServiceID}}';
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">City/Tariff
-                                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span></label>
+                                    <label for="field-115" class="control-label">City/Tariff
+                                        <span class="label hidden label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span>
                                     </label>
                                     <input type="text" name="CityTariff" value="" class="form-control" id="field-5" placeholder="">
                                 </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-115" class="control-label">Prefix</label>
+                                    <input type="text" name="Prefix" value="" class="form-control" id="field-5" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-215" class="control-label">Package</label>
+                                    {{ Form::select('PackageID', $Packages , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-125" class="control-label">Package RateTable</label>
+                                    {{ Form::select('PackageRateTableID', $RateTable , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Status</label>
+                            </div>
+                            <div class="col-md-12">
+                                <p class="make-switch switch-small">
+                                    <input name="Status" checked type="checkbox" value="1" >
+                                </p>
                             </div>
                         </div>
                     </div>

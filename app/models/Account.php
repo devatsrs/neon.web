@@ -399,6 +399,14 @@ class Account extends \Eloquent {
         $Address .= !empty($Account->Country) ? $Account->Country : '';
         return $Address;
     }
+    public static function getAddress($Account){
+        $Address = "";
+        $Address .= !empty($Account->Address1) ? $Account->Address1 . ', ' : '';
+        $Address .= !empty($Account->Address2) ? $Account->Address2 . ', ' : '';
+        $Address .= !empty($Account->Address3) ? $Account->Address3 : '';
+        $Address = trim($Address, ', ');
+        return $Address;
+    }
 
     public static function validate_cli($cli=0){
         $status=0;
@@ -988,6 +996,21 @@ class Account extends \Eloquent {
                 $Type=RateTable::APPLIED_TO_CUSTOMER;
             }else if($account->IsVendor == 1){
                 $Type=RateTable::APPLIED_TO_VENDOR;
+            }
+        }
+        return $Type;
+    }
+
+    public static function getAccountTypeForSubscriptions($AccountID){
+        $account = Account::find($AccountID);
+        $Type="";
+        if(!empty($account)){
+            if($account->IsReseller == 1){
+                $Type=1;
+            }else if($account->IsCustomer == 1){
+                $Type=0;
+            }else if($account->IsVendor == 1){
+                $Type=3;
             }
         }
         return $Type;

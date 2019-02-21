@@ -422,6 +422,8 @@ class StripeBilling {
 				\Stripe\Stripe::setApiKey($this->stripe_secret_key);
 
 				$stripeAccountInfo = $this->setStripeAccountInfo($data, $account);
+				//Log::info("$stripeAccountInfo Account Info" . print_r($stripeAccountInfo,true));
+
 				$stripeAccount = \Stripe\Account::create($stripeAccountInfo);
 
 				if (!empty($stripeAccount['id']) && $stripeAccount['id'] != '') {

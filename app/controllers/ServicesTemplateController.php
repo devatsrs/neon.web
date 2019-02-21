@@ -239,7 +239,7 @@ class ServicesTemplateController extends BaseController {
                     ServiceTemplate::$rules['CancellationCharges'] = 'required|numeric';
 
                     $niceNames = ['CancellationFee' => 'Cancellation Fee'];
-                    if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2) {
+                    if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2 && $data['CancellationCharges'] != 5) {
                         ServiceTemplate::$rules['CancellationFee'] = 'required|numeric';
                         if($data['CancellationCharges'] == 3){
                             $niceNames = ['CancellationFee' => "Cancellation Fee Percentage"];
@@ -368,7 +368,7 @@ class ServicesTemplateController extends BaseController {
                             }
                         }
 
-                        return  Response::json(array("status" => "success", "message" => "Service Template Successfully Created",'LastID'=>$ServiceTemplate->ServiceTemplateId,'newcreated'=>$ServiceTemplate));
+                        return  Response::json(array("status" => "success", "message" => "Product Successfully Created",'LastID'=>$ServiceTemplate->ServiceTemplateId,'newcreated'=>$ServiceTemplate));
                     } else {
                         return  Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
                     }
@@ -500,7 +500,7 @@ class ServicesTemplateController extends BaseController {
             ServiceTemplate::$updateRules['CancellationCharges'] = 'required|numeric';
 
             $niceNames = ['CancellationFee' => 'Cancellation Fee'];
-            if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2) {
+            if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2 && $data['CancellationCharges'] != 5) {
                 ServiceTemplate::$updateRules['CancellationFee'] = 'required|numeric';
                 if($data['CancellationCharges'] == 3){
                     $niceNames = ['CancellationFee' => "Cancellation Fee Percentage"];

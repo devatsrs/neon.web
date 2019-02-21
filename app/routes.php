@@ -289,7 +289,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/prepaidunbilledreport/{id}', 'AccountsController@prepaidunbilledreport');
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 	Route::any('accounts/getNextBillingDate', 'AccountsController@getNextBillingDate');
-
+    Route::post('paymentprofile/ingenicoadd','AccountsPaymentProfileController@AddIngenico');
 	//Account Subscription
 	Route::any('account_subscription', 'AccountSubscriptionController@main');
 	Route::any('account_subscription/ajax_datagrid_page', 'AccountSubscriptionController@ajax_datagrid_page');
@@ -317,7 +317,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/{id}/subscription/bulkupdate_discountplan', 'AccountSubscriptionController@bulkupdate_discountplan');
 	Route::any('accounts/{id}/subscription/bulkdelete_discountplan', 'AccountSubscriptionController@bulkdelete_discountplan');
 
-
 	//Account One of charge
     Route::any('accounts/{id}/oneofcharge/ajax_datagrid', 'AccountOneOffChargeController@ajax_datagrid');
     Route::any('accounts/{id}/oneofcharge/store', 'AccountOneOffChargeController@store');
@@ -332,6 +331,18 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/{activity_id}/update', 'AccountActivityController@update')->where('activity_id', '(.[09]*)+');
     Route::any('accounts/{id}/activities/{activity_id}/delete', 'AccountActivityController@delete')->where('activity_id', '(.[09]*)+');
 	
+	// Account Subscription
+	Route::any('accounts/{id}/recurring/ajax_datagrid', 'AccountRecurringController@ajax_datagrid');
+	Route::any('accounts/{id}/recurring/store', 'AccountRecurringController@store');
+	Route::any('accounts/{id}/recurring/{subscription_id}/update', 'AccountRecurringController@update')->where('subscription_id', '(.[09]*)+');
+	Route::any('accounts/{id}/recurring/{subscription_id}/delete', 'AccountRecurringController@delete')->where('subscription_id', '(.[09]*)+');
+
+	//Account Additional Charge
+	Route::any('accounts/{id}/additionalcharge/ajax_datagrid', 'AccountAdditionalChargeController@ajax_datagrid');
+	Route::any('accounts/{id}/additionalcharge/store', 'AccountAdditionalChargeController@store');
+	Route::any('accounts/{id}/additionalcharge/{additional_id}/update', 'AccountAdditionalChargeController@update')->where('additional_id', '(.[09]*)+');
+	Route::any('accounts/{id}/additionalcharge/{additional_id}/delete', 'AccountAdditionalChargeController@delete')->where('additional_id', '(.[09]*)+');
+	Route::any('accounts/{id}/additionalcharge/{additional_product_id}/ajax_getproductinfo', 'AccountAdditionalChargeController@ajax_getProductInfo')->where('additional_product_id', '(.[09]*)+');
 
     //Account email log
     Route::any('accounts/{id}/activities/ajax_datagrid_email_log', 'AccountActivityController@ajax_datagrid_email_log');
@@ -1127,9 +1138,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/bulk_allocate_creditnote_payment', 'CreditNotesController@bulk_allocate_creditnote_payment');
 
 	//Invoice
-	Route::any('/invoice', 'InvoicesController@index');
+	Route::any('/invoice','InvoicesController@index');
 	Route::any('/invoice/create', 'InvoicesController@create');
 	Route::any('/invoice/store', 'InvoicesController@store');
+	Route::any('/invoice/store_inv_in', 'InvoicesController@store_inv_in');
 	Route::any('/invoice/bulk_send_invoice_mail', 'InvoicesController@bulk_send_invoice_mail');
 	Route::any('/invoice/bulk_print_invoice', 'InvoicesController@bulk_print_invoice');
     Route::any('/invoice/invoice_regen', 'InvoicesController@invoice_regen');
@@ -1137,6 +1149,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/{id}/delete', 'InvoicesController@delete');
 	Route::any('/invoice/{id}/view', 'InvoicesController@view');
 	Route::any('/invoice/{id}/update', 'InvoicesController@update');
+	Route::any('/invoice/{id}/updatein', 'InvoicesController@updateIn');
+	Route::any('/invoice/{id}/edit_inv_in', 'InvoicesController@edit_inv_in');
+	//Route::any('/invoice/{id}/update_inv_in_new', 'InvoicesController@update_inv_in_new');
+	Route::any('/invoice/{id}/ubl_invoice', 'InvoicesController@ublInvoice');
 	//Route::any('/invoice/{id}/print_preview', 'InvoicesController@print_preview'); Not in use
 	Route::any('/invoice/{id}/invoice_preview', 'InvoicesController@invoice_preview'); //Customer View
 	//Route::any('/invoice/{id}/print', 'InvoicesController@pdf_view');
@@ -1158,10 +1174,11 @@ Route::group(array('before' => 'auth'), function () {
 
 	
 	Route::any('/invoice/bulk_invoice', 'InvoicesController@bulk_invoice');
-	Route::any('/invoice/add_invoice_in', 'InvoicesController@add_invoice_in');
-	Route::any('/invoice/update_invoice_in/{id}', 'InvoicesController@update_invoice_in');
+	//Route::any('/invoice/add_invoice_in', 'InvoicesController@add_invoice_in');
+	//Route::any('/invoice/update_invoice_in/{id}', 'InvoicesController@update_invoice_in');
 	Route::any('/invoice/download_doc_file/{id}', 'InvoicesController@download_doc_file');
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
+	
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
@@ -1174,6 +1191,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/invoice_sagepayexport', 'InvoicesController@invoice_sagepayexport');
 	Route::any('/invoice/invoice_xeropost', 'InvoicesController@invoice_xeropost');
 	Route::any('/invoice/invoice_fastpayexport', 'InvoicesController@invoice_fastpayexport');
+	Route::any('/invoice/create_invoice_in','InvoicesController@add_inv_in');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');
@@ -1536,6 +1554,8 @@ Route::group(array('before' => 'auth'), function () {
 
 	//accountservice	
 	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
+	Route::any('accountservices/create-new/{id}', 'AccountServiceController@CreateNew');
+	Route::post('accountservices/insertservice', 'AccountServiceController@InsertService');
 	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
 	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
 	Route::any('accountservices/{id}/exports/{type}', 'AccountServiceController@exports');
@@ -1715,6 +1735,7 @@ Route::group(array('before' => 'guest'), function () {
 	}
 	exit;
     });*/
+    Route::any('/invoice/ingenicoExport', 'InvoicesController@IngenicoExport');
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
 	Route::any('/invoice/{id}/invoice_chart', 'InvoicesController@invoice_management_chart'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');
@@ -1816,6 +1837,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('startRecording', 'ActiveCallApiController@startRecording');
 	Route::post('startCall', 'ActiveCallApiController@startCall');
 	Route::post('endCall', 'ActiveCallApiController@endCall');
+	Route::post('ImportCDR', 'ActiveCallApiController@ImportCDR');
 	Route::post('blockCall', 'ActiveCallApiController@blockCall');
 	Route::post('BlockCalls/list', 'ActiveCallApiController@getBlockCalls');
 	Route::get('emailTemplate/list', 'EmailTemplateApiController@getList');
@@ -1827,6 +1849,10 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/updateAccount', 'AccountsApiController@updateAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
+	Route::post('account/UpdateNumberStatus', 'AccountsApiController@UpdateNumberStatus');
+	Route::post('account/UpdateNumberPackage', 'AccountsApiController@UpdateNumberPackage');
+	Route::post('account/UpdateNumber', 'AccountsApiController@UpdateNumber');
+	Route::post('account/CreateCharge', 'AccountsApiController@CreateCharge');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
 
