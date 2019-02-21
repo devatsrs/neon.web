@@ -875,6 +875,9 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        Log::info('depositFund1:.update . ' . PATHINFO_BASENAME);
+        Log::info('depositFund1:.update . ' . pathinfo("1/6863/Invoices/2019/02/21/Invoice--201902211240-wt-000-3216-21-02-2019-122139.pdf", PATHINFO_BASENAME));
+
 
         if($ResellerOwner>0){
             $Reseller = Reseller::getResellerDetails($ResellerOwner);
