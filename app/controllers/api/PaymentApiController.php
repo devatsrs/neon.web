@@ -281,7 +281,7 @@ class PaymentApiController extends ApiController {
 			$PaymentMethod=$Account->PaymentMethod;
 			if (!empty($PaymentMethod) && ($PaymentMethod=='Stripe' || $PaymentMethod=='AuthorizeNet' || $PaymentMethod=='StripeACH')) {
 				$PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentMethod);
-
+				Log::info("$PaymentGatewayID = ".$PaymentGatewayID);
 				$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
 				$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
 				$CustomerProfile = AccountPaymentProfile::getActiveProfile($Account->AccountID, $PaymentGatewayID);
@@ -293,7 +293,7 @@ class PaymentApiController extends ApiController {
 					$PaymentData['CreatedBy']="API";
 
 					$PaymentResponse = $PaymentIntegration->paymentWithApiProfile($PaymentData);
-
+					Log::info("$PaymentGatewayID = ".print_r($PaymentResponse,true));
 
 					if(!empty($PaymentResponse['response_code']) && $PaymentResponse['response_code']==1){
 						$ReturnData=array();
@@ -378,7 +378,7 @@ class PaymentApiController extends ApiController {
 		}
 	}
 
-	
+
 	function sendInvoiceMail($view,$data,$type=1)
 	{
 
