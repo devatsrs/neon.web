@@ -392,6 +392,23 @@ class PaymentApiController extends ApiController {
 			Log::info('depositFund1:.3' . $status);
 		}
 	}
+	function sendInvoiceMail($view,$data,$type=1)
+	{
+
+		$status = array('status' => 0, 'message' => 'Something wrong with sending mail.');
+		if (isset($data['email_from'])) {
+			$data['EmailFrom'] = $data['email_from'];
+		}
+		if (is_array($data['EmailTo'])) {
+			$status = sendMail($view, $data, $type);
+		} else {
+			if (!empty($data['EmailTo'])) {
+				$data['EmailTo'] = trim($data['EmailTo']);
+				$status = sendMail($view, $data, 0);
+			}
+		}
+		return $status;
+	}
 	public static function PaymentLog($Account,$PaymentResponse,$data){
 		if(!empty($PaymentResponse)){
 			$PaymentInsertData=array();
