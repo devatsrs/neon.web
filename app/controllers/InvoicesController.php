@@ -3858,7 +3858,7 @@ class InvoicesController extends \BaseController {
      * @return $this
      */
     public function ublInvoice($invoiceID){
-        $InvoiceData = Invoice::findOrFail($invoiceID);
+        $InvoiceData = Invoice::where('InvoiceType', Invoice::INVOICE_OUT)->findOrFail($invoiceID);
         $CompanyID = $InvoiceData->CompanyID;
         $BillingClassID = $InvoiceData->BillingClassID;
         $BillingClass = BillingClass::findOrFail($BillingClassID);
@@ -3866,14 +3866,13 @@ class InvoicesController extends \BaseController {
         $CompanyData = Company::findOrFail($CompanyID);
         $CompanyAddr = Company::getCompanyAddress($CompanyID);
         $Account = Account::where(["AccountID" => $InvoiceData->AccountID])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
-        $AccountAddress = Account::getAddress($InvoiceData->AccountID);
+        $AccountAddress = Account::getAddress($Account);
         $CurrencyID = !empty($InvoiceData->CurrencyID) ? $InvoiceData->CurrencyID : $Account->CurrencyId;
         $Currency = Currency::find($CurrencyID);
         $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
 
         $generator = new \App\UblInvoice\Generator();
         $legalMonetaryTotal = new LegalMonetaryTotal();
-
 
 // company address
         $companyAddress = new \App\UblInvoice\Address();
@@ -3921,6 +3920,7 @@ class InvoicesController extends \BaseController {
         $client->setName($Account->AccountName);
         $client->setPostalAddress($clientAddress);
         $invoiceLines = [];
+        $unitCode = 'A9';
         foreach($InvoiceDetails as $InvoiceDetail) {
             //product
             $product = Product::find($InvoiceDetail->ProductID);
@@ -3934,7 +3934,7 @@ class InvoicesController extends \BaseController {
             //price
             $price = new \App\UblInvoice\Price();
             $price->setBaseQuantity($InvoiceDetail->Qty);
-            $price->setUnitCode('Unit');
+            $price->setUnitCode($unitCode);
             $price->setPriceAmount($InvoiceDetail->Price);
 
             //line
@@ -3944,8 +3944,10 @@ class InvoicesController extends \BaseController {
                 $invoiceLine->setItem($item);
 
             $invoiceLine->setPrice($price);
+            $invoiceLine->setUnitCode($unitCode);
             $invoiceLine->setInvoicedQuantity($InvoiceDetail->Qty);
-            $invoiceLine->setTaxTotal($InvoiceData->TotalTax);
+            $invoiceLine->setLineExtensionAmount($InvoiceDetail->Price);
+            $invoiceLine->setTaxTotal($InvoiceDetail->TaxAmount);
             $invoiceLines[] = $invoiceLine;
         }
 
@@ -3957,7 +3959,7 @@ class InvoicesController extends \BaseController {
         $tax = !empty($tax) ? TaxRate::find($tax[0]) : false;
         $tax = $tax != false ? $tax->Title : "";
         $taxPercentage = number_format(((float)$InvoiceData->TotalTax / (float)$InvoiceData->GrandTotal) * 100, 2);
-        $taxCategory->setId(0);
+        $taxCategory->setId($BillingClass->TaxRateID);
         $taxCategory->setName($tax);
         $taxCategory->setPercent($taxPercentage);
         $taxCategory->setTaxScheme($TaxScheme);
@@ -3978,10 +3980,11 @@ class InvoicesController extends \BaseController {
         $invoice->setId($InvoiceData->FullInvoiceNumber);
         $invoice->setIssueDate($issueDate);
         $invoice->setStartDate($issueDate);
-        $invoice->setEndDate($dueDate);
+        $invoice->setEndDate($issueDate);
+        $invoice->setDueDate($dueDate);
         $invoice->setCurrencyCode($CurrencyCode);
         $invoice->setNote($InvoiceData->Note);
-        $invoice->setTerms(strip_tags($InvoiceData->Terms));
+        $invoice->setTerms("Expect payment within {$BillingClass->PaymentDueInDays} days.");
         $invoice->setInvoiceTypeCode($InvoiceData->InvoiceType);
         $invoice->setAccountingSupplierParty($company);
         $invoice->setAccountingCustomerParty($client);
