@@ -1320,6 +1320,24 @@ class AccountsController extends \BaseController {
                         }
                     }
                 }
+
+                if ($data['PaymentMethod'] == 'Ingenico') 
+                {
+                    $method = $data['PaymentMethod'];
+                    $value = $data['Ingenico'];
+                    $options = [
+                    'CardID' => $value
+                     ];
+                     $isDefault = 1;
+
+        $PaymentGatewayID = PaymentGateway::where(['title' => $method,'Status' =>1])->first();
+        if(!empty($PaymentGatewayID->PaymentGatewayID)){$payGID = $PaymentGatewayID->PaymentGatewayID;} else {$payGID = 0; }
+        AccountPaymentProfile::updateOrCreate([
+        'CompanyID' => $companyID, 'AccountID' => $id, 'PaymentGatewayID' => $payGID
+        ],[
+            'Options' => json_encode($options), 'Status' => 1, 'isDefault' => $isDefault
+        ]);
+                }
             }
 
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
