@@ -1468,7 +1468,7 @@
         $('#DifferentBillingAddress').trigger('change');
     });
 
-var cardvalue = 0;//'{{AccountsPaymentProfileController::getCardValue($account->AccountID)}}';
+var cardvalue = '{{AccountsPaymentProfileController::getCardValue($account->AccountID,"Ingenico")}}';
 if(cardvalue.lenght == 0 ){cardvalue = 0;}
 var htmlgrid = '<div class="panel panel-primary" data-collapsed="0"><div class="panel-heading"><div class="panel-title">Ingenico Payment Profile</div><div class="panel-options"><a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a></div></div><div class="panel-body"><div class="form-group row"><div class="col-sm-2"><label class="control-label">Card Token</label></div><div class="col-sm-6"><input type="text" value="'+cardvalue+'" id="ingenico_card" class="form-control"></div><div class="col-sm-2"><button type="button" class="btn btn-primary" id="ingenicoadd">Update Card</button></div><div class="col-sm-2 control-label"><div id="ingenicostatus"></div></div></div></div></div>';
 
@@ -1486,11 +1486,10 @@ $("#ingenicoadd").unbind("click").click(function(e){
  if(value.length == 0){
     alert('please enter card detail');
     return false;
- }$(this).text('loading..');
+ }
  $.post("{{url('/paymentprofile/ingenicoadd')}}", {method:method,value:value, accountId:accountId,companyId:companyId}, function(data){
     $("#ingenicostatus").html(data);
  });
- $(this).text('Update Card');
 });
 
 });

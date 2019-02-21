@@ -3,14 +3,13 @@
     <div class="panel-options"><a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a></div></div><div class="panel-body">
         <div class="form-group row">
             <div class="col-sm-2"><label class="control-label">Card Token</label></div>
-            <div class="col-sm-6"><input type="text" id="ingenico_card" value="" class="form-control"></div>
+            <div class="col-sm-6"><input type="text" id="ingenico_card" value="{{ AccountsPaymentProfileController::getCardValue($account->AccountID, 'Ingenico')}}" class="form-control"></div>
             <div class="col-sm-2"><button type="button" class="btn btn-primary" id="ingenicoadd">Update Card</button></div>
             <div class="col-sm-2 control-label"><div id="ingenicostatus"></div></div></div></div></div>
 
             <script>
-                $("#ingenicoadd").unbind("click").click(function(e){
-    e.preventDefault();
-    
+$("button#ingenicoadd").unbind("click").click(function(){
+
  var value = $("input#ingenico_card").val();
  var accountId = '{{$account->AccountID}}';
  var companyId = '{{$account->CompanyId}}';
@@ -18,12 +17,13 @@
  if(value.length == 0){
     alert('please enter card detail');
     return false;
- }$(this).text('loading..');
+ }
  $.post("{{url('/paymentprofile/ingenicoadd')}}", {method:method,value:value, accountId:accountId,companyId:companyId}, function(data){
     $("#ingenicostatus").html(data);
 
 
  });
- $(this).text('Update Card');
+
+ 
 });
             </script>
