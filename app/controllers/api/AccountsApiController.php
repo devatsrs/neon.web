@@ -1906,7 +1906,7 @@ class AccountsApiController extends ApiController {
 						$options = [
 							'CardID' => $PaymentProfile['CardToken']
 						];
-						if($Account->PaymentMethod == $data['PaymentMethod']) {
+						if($account->PaymentMethod == $data['PaymentMethod']) {
 							AccountPaymentProfile::where('AccountID',$account->AccountID)->update(['isDefault' =>0]);
 							$isDefault = 1;
 						} else {
