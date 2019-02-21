@@ -288,30 +288,18 @@
                 }
 
                 if(typeof $searchFilter.EffectiveDate  == 'undefined' || $searchFilter.EffectiveDate == '' ){
-                    setTimeout(function(){
-                        $('.btn').button('reset');
-                    },10);
                     toastr.error("Please Select a Effective Date", "Error", toastr_opts);
                     return false;
                 }
                 if(typeof $searchFilter.ProductID  == 'undefined' || $searchFilter.ProductID == '' ){
-                    setTimeout(function(){
-                        $('.btn').button('reset');
-                    },10);
                     toastr.error("Please Select a Product", "Error", toastr_opts);
                     return false;
                 }
                 if((typeof $searchFilter.Currency  == 'undefined' || $searchFilter.Currency == '' ) ){
-                    setTimeout(function(){
-                        $('.btn').button('reset');
-                    },10);
                     toastr.error("Please Select Currency", "Error", toastr_opts);
                     return false;
                 }
                 if(typeof $searchFilter.DIDCategoryID  == 'undefined' || $searchFilter.DIDCategoryID == '' ){
-                    setTimeout(function(){
-                        $('.btn').button('reset');
-                    },10);
                     toastr.error("Please Select a Category", "Error", toastr_opts);
                     return false;
                 }

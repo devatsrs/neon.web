@@ -3858,7 +3858,7 @@ class InvoicesController extends \BaseController {
      * @return $this
      */
     public function ublInvoice($invoiceID){
-        $InvoiceData = Invoice::findOrFail($invoiceID);
+        $InvoiceData = Invoice::where('InvoiceType', Invoice::INVOICE_OUT)->findOrFail($invoiceID);
         $CompanyID = $InvoiceData->CompanyID;
         $BillingClassID = $InvoiceData->BillingClassID;
         $BillingClass = BillingClass::findOrFail($BillingClassID);
@@ -3979,6 +3979,8 @@ class InvoicesController extends \BaseController {
         $invoice = new \App\UblInvoice\Invoice();
         $invoice->setId($InvoiceData->FullInvoiceNumber);
         $invoice->setIssueDate($issueDate);
+        $invoice->setStartDate($issueDate);
+        $invoice->setEndDate($issueDate);
         $invoice->setDueDate($dueDate);
         $invoice->setCurrencyCode($CurrencyCode);
         $invoice->setNote($InvoiceData->Note);

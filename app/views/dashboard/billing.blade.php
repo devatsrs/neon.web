@@ -454,6 +454,7 @@
           </div>
     </div>
     @endif
+    
     <script type="text/javascript">
     jQuery(document).ready(function ($) {
         $("#submit_paymentreminder").click(function(e) {

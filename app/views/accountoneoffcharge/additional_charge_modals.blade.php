@@ -13,11 +13,11 @@
                                 <label for="field-5" class="control-label">One of charge</label>
                                 {{Form::select('ProductID',$products,'',array("class"=>"select2 product_dropdown"))}}
                                 @if(isset($AccountService))
-                                    <input type="hidden" name="AccountOneOffChargeID" />
                                     <input type="hidden" name="AccountServiceID" value="{{$AccountService->AccountServiceID}}">
                                 @else
-                                    <input type="hidden" name="AccountAdditionalChargeID" />
+                                    <input type="hidden" name="AccountServiceID" value="0" />
                                 @endif
+                                <input type="hidden" name="AccountOneOffChargeID" />
                                 <input type="hidden" name="TaxAmount" />
                                 <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
                             </div>

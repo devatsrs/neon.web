@@ -90,7 +90,10 @@
     var data_table_char;
     var account_id='{{$account->AccountID}}';
     var ServiceID='{{$ServiceID}}';
-    var AccountServiceID='{{$AccountService->AccountServiceID}}';
+    var AccountServiceID=0;
+    @if(isset($AccountService))
+        AccountServiceID='{{$AccountService->AccountServiceID}}';
+    @endif
     var update_new_url;
     var postdata;
     var $search = {};
