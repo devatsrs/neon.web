@@ -331,19 +331,6 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/{activity_id}/update', 'AccountActivityController@update')->where('activity_id', '(.[09]*)+');
     Route::any('accounts/{id}/activities/{activity_id}/delete', 'AccountActivityController@delete')->where('activity_id', '(.[09]*)+');
 	
-	// Account Subscription
-	Route::any('accounts/{id}/recurring/ajax_datagrid', 'AccountRecurringController@ajax_datagrid');
-	Route::any('accounts/{id}/recurring/store', 'AccountRecurringController@store');
-	Route::any('accounts/{id}/recurring/{subscription_id}/update', 'AccountRecurringController@update')->where('subscription_id', '(.[09]*)+');
-	Route::any('accounts/{id}/recurring/{subscription_id}/delete', 'AccountRecurringController@delete')->where('subscription_id', '(.[09]*)+');
-
-	//Account Additional Charge
-	Route::any('accounts/{id}/additionalcharge/ajax_datagrid', 'AccountAdditionalChargeController@ajax_datagrid');
-	Route::any('accounts/{id}/additionalcharge/store', 'AccountAdditionalChargeController@store');
-	Route::any('accounts/{id}/additionalcharge/{additional_id}/update', 'AccountAdditionalChargeController@update')->where('additional_id', '(.[09]*)+');
-	Route::any('accounts/{id}/additionalcharge/{additional_id}/delete', 'AccountAdditionalChargeController@delete')->where('additional_id', '(.[09]*)+');
-	Route::any('accounts/{id}/additionalcharge/{additional_product_id}/ajax_getproductinfo', 'AccountAdditionalChargeController@ajax_getProductInfo')->where('additional_product_id', '(.[09]*)+');
-
     //Account email log
     Route::any('accounts/{id}/activities/ajax_datagrid_email_log', 'AccountActivityController@ajax_datagrid_email_log');
     Route::any('accounts/{id}/activities/sendemail', 'AccountActivityController@sendMail');
