@@ -368,6 +368,7 @@ class PaymentApiController extends ApiController {
 			$singleemail = $Account->BillingEmail;
 			$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
 			$body					=	EmailsTemplates::ReplaceEmail($singleemail,$Message);
+			$body = $body .'<BR>' .$data['InvoiceURL'];
 			$data['Subject']		=	$Subject;
 			$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
 
