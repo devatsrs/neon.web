@@ -1160,6 +1160,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/{id}/ajax_getEmailTemplate', 'InvoicesController@ajax_getEmailTemplate');
 	Route::any('/invoice/{id}/invoice_email', 'InvoicesController@invoice_email');
 	Route::any('/invoice/invoice_change_Status', 'InvoicesController@invoice_change_Status');
+	Route::any('/invoice/invoice_in_delete', 'InvoicesController@invoice_delete_in');
 	Route::any('/invoice/{id}/download_usage', 'InvoicesController@downloadUsageFile');
     Route::any('/invoice_log/{id}', 'TransactionLogController@log');
     Route::any('/invoice_log/ajax_datagrid/{id}/{type}', 'TransactionLogController@ajax_datagrid');

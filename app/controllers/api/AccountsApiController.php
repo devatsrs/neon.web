@@ -2711,7 +2711,7 @@ class AccountsApiController extends ApiController {
 						$ChargeData['created_at'] 	= $CurrentDate;
 						$ChargeData['CurrencyID'] 	= $CurrencyID;
 
-						if (AccountAdditionalCharge::create($ChargeData)) {
+						if (AccountOneOffCharge::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
 							return Response::json(Codes::$Code200[0]);
 						} else {
@@ -2732,7 +2732,7 @@ class AccountsApiController extends ApiController {
 							$recurring_data['created_at'] 				= $CurrentDate;
 							$recurring_data['Advance'] 					= 1;
 
-							$Costs = AccountRecurring::calculateCost('MonthlyFee', $data['Amount']);
+							$Costs = AccountSubscription::calculateCost('MonthlyFee', $data['Amount']);
 
 							$recurring_data['DailyFee'] 				= $Costs['DailyFee'];
 							$recurring_data['WeeklyFee'] 				= $Costs['WeeklyFee'];
@@ -2760,7 +2760,7 @@ class AccountsApiController extends ApiController {
 						$ChargeData['QuarterlyFee'] 	= $recurring->QuarterlyFee;
 						$ChargeData['AnnuallyFee'] 		= $recurring->AnnuallyFee;
 
-						if (AccountRecurring::create($ChargeData)) {
+						if (AccountSubscription::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
 							return Response::json([],Codes::$Code200[0]);
 						} else {
