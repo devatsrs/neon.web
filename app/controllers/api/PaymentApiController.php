@@ -372,12 +372,14 @@ class PaymentApiController extends ApiController {
 			$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
 
 			$invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
-			if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
+			Log::info('depositFund1:.$invoicePdfSend' . $invoicePdfSend);
+			/*if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
+				Log::info('depositFund1:.$invoicePdfSend1');
 				$data['AttachmentPaths']= array([
 					"filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
 					"filepath"=>$Invoice->PDF
 				]);
-			}
+			}*/
 			if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 			{
 				$data['EmailFrom']	=	$postdata['email_from'];
