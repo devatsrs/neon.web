@@ -819,4 +819,8 @@ class Invoice extends \Eloquent {
     {
         return $this->hasOne(Currency::class, 'CurrencyId', 'CurrencyID');
     }
+    public function Dispute()
+    {
+        return $this->hasOne(Dispute::class, 'InvoiceNo', 'InvoiceNumber');
+    }
 }
