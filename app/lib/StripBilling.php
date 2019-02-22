@@ -482,6 +482,165 @@ class StripeBilling {
 		return Response::json($response);
 	}
 
+	public function getTestingToken($data)
+	{
+		$CustomerID = $data['AccountID'];
+		$CompanyID = $data['CompanyID'];
+		$PaymentGatewayID = $data['PaymentGatewayID'];
+		$account = Account::where(array('AccountID' => $CustomerID))->first();
+		$isDefault = 1;
+		$count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+			->where(['CompanyID' => $CompanyID])
+			->where(['PaymentGatewayID' => $PaymentGatewayID])
+			->where(['isDefault' => 1])
+			->count();
+
+		if ($count > 0) $isDefault = 0;
+
+		$currency = Currency::where('CurrencyId', $account->CurrencyId)->first();
+		$currency = $currency != false ? 'usd' : strtolower($account->Code);
+		$response = array();
+		$token = array();
+		try {
+			if ($data['PayoutType'] == "bank") {
+				$country = Country::getCountryCodeByName($account->Country);
+				//$country = "US";
+				$tokenArr = [
+					'bank_account' => [
+						'country' => $country,
+						'currency' => $currency,
+						'routing_number' => $data['RoutingNumber'],
+						'account_number' => $data['AccountNumber'],
+						'account_holder_name' => $data['AccountHolderName'],
+						'account_holder_type' => $data['AccountHolderType']
+					]
+				];
+			} else {
+				$tokenArr = [
+					'card' => [
+						'number' => $data['CardNumber'],
+						'exp_month' => $data['ExpirationMonth'],
+						'cvc' => $data['CVVNumber'],
+						'exp_year' => $data['ExpirationYear'],
+						'name' => $data['NameOnCard'],
+						'currency' => $currency
+					]
+				];
+			}
+
+
+			Log::info('StripBiling ' . $this->stripe_secret_key);
+			Log::info('StripBiling ' . $this->stripe_publishable_key);
+			Log::info('StripBiling ' . print_r($tokenArr, true));
+			$token = Stripe::tokens()->create($tokenArr);
+			Log::info(print_r($token, true));
+			return $token;
+
+		} catch (Exception $e) {
+			Log::error($e);
+			$response['status'] = 'failed';
+			$response['message'] = $e->getMessage();
+		}
+	}
+	/**
+	 * @param $data
+	 * @return array
+	 */
+	public function createAccountWithToken($data){
+		$CustomerID = $data['AccountID'];
+		$CompanyID = $data['CompanyID'];
+		$PaymentGatewayID=$data['PaymentGatewayID'];
+		$account = Account::where(array('AccountID' => $CustomerID))->first();
+		$isDefault = 1;
+		$count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+			->where(['CompanyID' => $CompanyID])
+			->where(['PaymentGatewayID' => $PaymentGatewayID])
+			->where(['isDefault' => 1])
+			->count();
+
+		if($count>0) $isDefault = 0;
+
+		$currency = Currency::where('CurrencyId', $account->CurrencyId)->first();
+		$currency = $currency != false ? 'usd' : strtolower($account->Code);
+		$response = array();
+		$token = array();
+		try{
+			$token['id'] = $data["CardToken"];
+			Log::info(print_r($token,true));
+
+		} catch (Exception $e) {
+			Log::error($e);
+			$response['status'] = 'failed';
+			$response['message'] = $e->getMessage();
+		}
+
+		if(!empty($token) && $token['id'] != ''){
+
+
+
+			try {
+				\Stripe\Stripe::setApiKey($this->stripe_secret_key);
+
+				$stripeAccountInfo = $this->setStripeAccountInfo($data, $account);
+				//Log::info("$stripeAccountInfo Account Info" . print_r($stripeAccountInfo,true));
+
+				$stripeAccount = \Stripe\Account::create($stripeAccountInfo);
+
+				if (!empty($stripeAccount['id']) && $stripeAccount['id'] != '') {
+
+					$account = \Stripe\Account::retrieve($stripeAccount['id']);
+					$external = $account->external_accounts->create([
+						"external_account" => $token['id']
+					]);
+
+					if (!empty($external['id']) && $external['id'] != '') {
+						$option = array('PayoutAccountID' => $stripeAccount['id']);
+						if($data['PayoutType'] == "bank")
+							$option['BankID'] = $external['id'];
+						else
+							$option['CardID'] = $external['id'];
+
+						$CustomerAccountName = '';
+						try {
+							$CustomerAccountName = Customer::get_accountName();
+						}catch (Exception $e) {
+							$CustomerAccountName = $data['CustomerAccountName'];
+						}
+						$AccountDetails = array(
+							'Title' 	=> $data['Title'],
+							'Status' 	=> 1,
+							'isDefault' => $isDefault,
+							'Options' 	=> json_encode($option),
+							'Type'		=> $data['PayoutType'],
+							'created_by'=> $CustomerAccountName,
+							'CompanyID' => $CompanyID,
+							'AccountID' => $CustomerID,
+							'PaymentGatewayID' => $PaymentGatewayID
+						);
+
+						if (AccountPayout::create($AccountDetails)) {
+							$response = array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYOUT_ACCOUNT_SUCCESSFULLY_CREATED"));
+						} else {
+							$response = array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_SAVING_PAYOUT_ACCOUNT"));
+						}
+
+					} else {
+						$response['status'] = 'failed';
+						$response['message'] = cus_lang("PAYMENT_MSG_PROBLEM_CREATING_PAYOUT_ACCOUNT");
+					}
+				} else {
+					$response['status'] = 'failed';
+					$response['message'] = cus_lang("PAYMENT_MSG_PROBLEM_ADDING_PAYOUT_CARD");
+				}
+			} catch (Exception $e) {
+				Log::error($e);
+				$response['status'] = 'failed';
+				$response['message'] = $e->getMessage();
+			}
+		}
+
+		return Response::json($response);
+	}
 	/**
 	 * @param $data
 	 * @param $account
