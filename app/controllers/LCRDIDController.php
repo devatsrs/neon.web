@@ -71,7 +71,10 @@ class LCRDIDController extends \BaseController {
         $CurrencyID = Company::where("CompanyID",User::get_companyID())->pluck("CurrencyId");
         $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
         $Timezones = Timezones::getTimezonesIDList();
-        $products = ServiceTemplate::lists("Name", "ServiceTemplateId");
+        $products = ServiceTemplate::where("CompanyID",User::get_companyID())->lists("Name", "ServiceTemplateId");
+        
+        $Package = Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
+        
         $RateTypes = RateType::getRateTypeDropDownList();
         $data=array();
         $data['IsVendor']=1;

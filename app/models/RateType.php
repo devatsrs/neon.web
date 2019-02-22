@@ -14,7 +14,7 @@ class RateType extends \Eloquent {
 
     public static function getRateTypeDropDownList(){
         $row=array();
-        $row = RateType::where('Active',1)->orderby('RateTypeID','desc')->lists('Title', 'RateTypeID');
+        $row = RateType::where('Active',1)->orderby('RateTypeID','asc')->lists('Title', 'RateTypeID');
         return $row;
     }
 

@@ -279,7 +279,25 @@ class AccountsApiController extends ApiController {
 
 			$CompanyID = $Account->CompanyId;
 
+			$DefaultSubscriptionIDSave = $DefaultSubscriptionID;
+			$DefaultSubscriptionPackageIDSave = $DefaultSubscriptionPackageID;
+			$DefaultSubscriptionID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_ID'])->pluck('Value');
+			$DefaultSubscriptionPackageID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_PACKAGE_ID'])->pluck('Value');
+			if (empty($DefaultSubscriptionID)) {
+				$CompanyConfigurationSave['CompanyID'] = $CompanyID;
+				$CompanyConfigurationSave['Key'] = 'DEFAULT_SUBSCRIPTION_ID';
+				$CompanyConfigurationSave['Value'] = $DefaultSubscriptionIDSave;
+				CompanyConfiguration::create($CompanyConfigurationSave);
+				$DefaultSubscriptionID = $DefaultSubscriptionIDSave;
+			}
 
+			if (empty($DefaultSubscriptionPackageID)) {
+				$CompanyConfigurationSave['CompanyID'] = $CompanyID;
+				$CompanyConfigurationSave['Key'] = 'DEFAULT_SUBSCRIPTION_PACKAGE_ID';
+				$CompanyConfigurationSave['Value'] = $DefaultSubscriptionPackageIDSave;
+				CompanyConfiguration::create($CompanyConfigurationSave);
+				$DefaultSubscriptionPackageID = $DefaultSubscriptionPackageIDSave;
+			}
 
 
 
@@ -479,6 +497,27 @@ class AccountsApiController extends ApiController {
 			}
 
 			$CompanyID = $Account->CompanyId;
+
+			$DefaultSubscriptionIDSave = $DefaultSubscriptionID;
+			$DefaultSubscriptionPackageIDSave = $DefaultSubscriptionPackageID;
+			$DefaultSubscriptionID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_ID'])->pluck('Value');
+			$DefaultSubscriptionPackageID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_PACKAGE_ID'])->pluck('Value');
+			if (empty($DefaultSubscriptionID)) {
+				$CompanyConfigurationSave['CompanyID'] = $CompanyID;
+				$CompanyConfigurationSave['Key'] = 'DEFAULT_SUBSCRIPTION_ID';
+				$CompanyConfigurationSave['Value'] = $DefaultSubscriptionIDSave;
+				CompanyConfiguration::create($CompanyConfigurationSave);
+				$DefaultSubscriptionID = $DefaultSubscriptionIDSave;
+			}
+
+			if (empty($DefaultSubscriptionPackageID)) {
+				$CompanyConfigurationSave['CompanyID'] = $CompanyID;
+				$CompanyConfigurationSave['Key'] = 'DEFAULT_SUBSCRIPTION_PACKAGE_ID';
+				$CompanyConfigurationSave['Value'] = $DefaultSubscriptionPackageIDSave;
+				CompanyConfiguration::create($CompanyConfigurationSave);
+				$DefaultSubscriptionPackageID = $DefaultSubscriptionPackageIDSave;
+			}
+
 
 			$ServiceTemaplateReference = ServiceTemplate::findServiceTemplateByDynamicField($data['ProductDynamicField']);
 			if (empty($ServiceTemaplateReference)) {
@@ -739,7 +778,28 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
 			}
 
+
 			$CompanyID = $Account->CompanyId;
+			$DefaultSubscriptionIDSave = $DefaultSubscriptionID;
+			$DefaultSubscriptionPackageIDSave = $DefaultSubscriptionPackageID;
+			$DefaultSubscriptionID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_ID'])->pluck('Value');
+			$DefaultSubscriptionPackageID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_PACKAGE_ID'])->pluck('Value');
+			if (empty($DefaultSubscriptionID)) {
+				$CompanyConfigurationSave['CompanyID'] = $CompanyID;
+				$CompanyConfigurationSave['Key'] = 'DEFAULT_SUBSCRIPTION_ID';
+				$CompanyConfigurationSave['Value'] = $DefaultSubscriptionIDSave;
+				CompanyConfiguration::create($CompanyConfigurationSave);
+				$DefaultSubscriptionID = $DefaultSubscriptionIDSave;
+			}
+
+			if (empty($DefaultSubscriptionPackageID)) {
+				$CompanyConfigurationSave['CompanyID'] = $CompanyID;
+				$CompanyConfigurationSave['Key'] = 'DEFAULT_SUBSCRIPTION_PACKAGE_ID';
+				$CompanyConfigurationSave['Value'] = $DefaultSubscriptionPackageIDSave;
+				CompanyConfiguration::create($CompanyConfigurationSave);
+				$DefaultSubscriptionPackageID = $DefaultSubscriptionPackageIDSave;
+			}
+
 			$ServiceTemaplateReference = '';
 			$ProductCountryPrefix = '';
 
@@ -2711,7 +2771,7 @@ class AccountsApiController extends ApiController {
 						$ChargeData['created_at'] 	= $CurrentDate;
 						$ChargeData['CurrencyID'] 	= $CurrencyID;
 
-						if (AccountAdditionalCharge::create($ChargeData)) {
+						if (AccountOneOffCharge::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
 							return Response::json(Codes::$Code200[0]);
 						} else {
@@ -2732,7 +2792,7 @@ class AccountsApiController extends ApiController {
 							$recurring_data['created_at'] 				= $CurrentDate;
 							$recurring_data['Advance'] 					= 1;
 
-							$Costs = AccountRecurring::calculateCost('MonthlyFee', $data['Amount']);
+							$Costs = AccountSubscription::calculateCost('MonthlyFee', $data['Amount']);
 
 							$recurring_data['DailyFee'] 				= $Costs['DailyFee'];
 							$recurring_data['WeeklyFee'] 				= $Costs['WeeklyFee'];
@@ -2760,7 +2820,7 @@ class AccountsApiController extends ApiController {
 						$ChargeData['QuarterlyFee'] 	= $recurring->QuarterlyFee;
 						$ChargeData['AnnuallyFee'] 		= $recurring->AnnuallyFee;
 
-						if (AccountRecurring::create($ChargeData)) {
+						if (AccountSubscription::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
 							return Response::json([],Codes::$Code200[0]);
 						} else {
