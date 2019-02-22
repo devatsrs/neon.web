@@ -3793,7 +3793,7 @@ public function store_inv_in(){
 
                 } else {
 
-                    $filename='invoice' . date("dmYHis") . '.zip';
+                    $filename='ubl-invoice' . date("dmYHis") . '.zip';
                     $local_zip_file = $UPLOAD_PATH . $filename;
 
                     Zipper::make($local_zip_file)->add($zipfiles)->close();
@@ -3807,6 +3807,65 @@ public function store_inv_in(){
                 }
 
             }
+        }
+        else {
+            return Response::json(array("status" => "error", "message" => "Please Select Invoice"));
+        }
+        exit;
+    }
+
+    public function bulk_print_ubl_invoice(){
+        $zipfiles = array();
+        $data = Input::all();
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+
+        $invoiceIds=array_map('intval', explode(',', $data['InvoiceIDs']));
+
+        if(!empty($invoiceIds)) {
+
+            $Invoices = Invoice::find($invoiceIds);
+            $CompanyID = User::get_companyID();
+            $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID). "/";
+            $isAmazon = is_amazon($CompanyID);
+            foreach ($Invoices as $invoice) {
+                if (!empty($invoice->UblInvoice)) {
+                    $path = AmazonS3::preSignedUrl($invoice->UblInvoice, $CompanyID);
+
+                    if (file_exists($path)) {
+                        $zipfiles[$invoice->InvoiceID] = $path;
+                    } else if ($isAmazon == true) {
+
+                        $filepath = $UPLOAD_PATH . basename($invoice->UblInvoice);
+                        $content = @file_get_contents($path);
+                        if ($content != false) {
+                            file_put_contents($filepath, $content);
+                            $zipfiles[$invoice->InvoiceID] = $filepath;
+                        }
+                    }
+                }
+            }
+
+            if (!empty($zipfiles)) {
+                    $filename='ubl-invoice' . date("dmYHis") . '.zip';
+                    $local_zip_file = $UPLOAD_PATH . $filename;
+
+                    Zipper::make($local_zip_file)->add($zipfiles)->close();
+
+                    if (file_exists($local_zip_file)) {
+                        return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => "", "filePath" => base64_encode($filename)));
+                    }
+                    else {
+                        return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
+                    }
+                }
         }
         else {
             return Response::json(array("status" => "error", "message" => "Please Select Invoice"));
