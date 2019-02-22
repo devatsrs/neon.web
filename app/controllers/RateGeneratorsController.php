@@ -70,7 +70,10 @@ class RateGeneratorsController extends \BaseController {
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "PackageId");
         $Categories = DidCategory::getCategoryDropdownIDList();
-        $Products = ServiceTemplate::lists("Name", "ServiceTemplateId");
+        
+        $Products = ServiceTemplate::where([
+                "CompanyID" => User::get_companyID()
+            ])->lists("Name", "ServiceTemplateId");
         return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones'));
     }
 
@@ -375,7 +378,9 @@ class RateGeneratorsController extends \BaseController {
             $trunks = Trunk::getTrunkDropdownIDList();
             $companyID = User::get_companyID();
             $Categories = DidCategory::getCategoryDropdownIDList();
-            $Products = ServiceTemplate::lists("Name", "ServiceTemplateId");
+            $Products = ServiceTemplate::where([
+                "CompanyID" => User::get_companyID()
+            ])->lists("Name", "ServiceTemplateId");
 
             $rategenerators = RateGenerator::where([
                 "RateGeneratorId" => $id,
