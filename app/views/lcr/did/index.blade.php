@@ -82,6 +82,7 @@
                 </div>
                 <div class="form-group">
                     <br/>
+                    <input type="hidden" name="lcr_type" id="lcr_type" value="" >
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
                         Search
@@ -145,12 +146,14 @@
             var packbtnval=$('.packageoption').text();
             $('.packageoption').click(function(){
                 if($('.packageoption').text()=='Package'){
+                   $('#lcr_type').val('Y');
                    $('.didbutton').html(packbtnval+' <span class="caret"></span>');
                    $('.packageoption').html(accbtnval); 
                    $('.packagediv').show();
                    $('.productdiv').hide();
                    $('.productcategory').hide();
                 }else{
+                    $('#lcr_type').val('N');
                    $('.didbutton').html(accbtnval+' <span class="caret"></span>');
                     $('.packageoption').html(packbtnval); 
                     $('.packagediv').hide();
@@ -299,9 +302,12 @@
                     toastr.error("Please Select Currency", "Error", toastr_opts);
                     return false;
                 }
+                if($('#lcr_type').val()=='Y'){
+                }else{
                 if(typeof $searchFilter.DIDCategoryID  == 'undefined' || $searchFilter.DIDCategoryID == '' ){
                     toastr.error("Please Select a Category", "Error", toastr_opts);
                     return false;
+                }
                 }
 
                 data_table = $("#table").dataTable({
