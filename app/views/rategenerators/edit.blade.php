@@ -105,7 +105,7 @@
                             </div>
                         </div>
 
-                        @if($rategenerator->SelectType != 2)
+                        @if($rategenerator->SelectType == 1  || $rategenerator->SelectType == 3)
                             <div class="form-group NonDID-Div">
                                 <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
                                 <div class="col-sm-4">
@@ -147,7 +147,7 @@
                         </div>
                         {{--<input type="hidden" name="GroupBy" value="Code">--}}
 
-                        @if($rategenerator->SelectType != 2)
+                        @if($rategenerator->SelectType == 1)
                             <div class="form-group NonDID-Div">
                                 <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
                                 <div class="col-sm-4">
@@ -188,13 +188,26 @@
                             </div>
                         @endif
 
-                        @if($rategenerator->SelectType == 2)
+                        @if($rategenerator->SelectType == 2 || $rategenerator->SelectType == 3)
+                            
+                            @if($rategenerator->SelectType == 2)
                             <div class="form-group DID-Div">
                                 <label for="field-1" class="col-sm-2 control-label">Product</label>
                                 <div class="col-sm-10">
                                     {{ Form::select('ProductID', $Products, $rategenerators->ProductID, array("class"=>"select2")) }}
                                 </div>
                             </div>
+                            @endif
+                        
+                        @if($rategenerator->SelectType == 3)
+                        <div class="form-group Package-Div" >
+                            <label for="field-1" class="col-sm-2 control-label">Package</label>
+                            <div class="col-sm-10">
+                                {{ Form::select('PackageID', $Package, $rategenerators->PackageID, array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        @endif
+                        
                             <div class="form-group DID-Div">
                                 <label for="DateFrom" class="col-sm-2 control-label">Date From</label>
                                 <div class="col-sm-4">
@@ -394,7 +407,7 @@
                         </div>
                     </div>
                 </div>
-                @if($rategenerator->SelectType == 2)
+                @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
                     <div class="panel panel-primary" data-collapsed="0" id="Calculated-Rate">
                         <div class="panel-heading">
                             <div class="panel-title">
@@ -531,7 +544,7 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                 <tr>
-                                    @if($rategenerator->SelectType == 2)
+                                    @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
                                         <th width="25%">Component</th>
                                         <th width="15%">Origination</th>
                                         <th width="15%">Time of Day</th>
@@ -547,7 +560,7 @@
                                 <tbody id="sortable">
                                 @foreach($rategenerator_rules as $rategenerator_rule)
                                     <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
-                                        @if($rategenerator->SelectType == 2)
+                                        @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
                                             <td>
                                                 {{ @RateGenerator::$Component[$rategenerator_rule->Component] }}
                                             </td>
