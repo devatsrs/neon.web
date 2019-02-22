@@ -941,14 +941,14 @@ public function store_inv_in(){
                                 $Invoice->update(["PDF" => $pdf_path]);
                             }
 
-                            /*$ubl_path = Invoice::generate_ubl_invoice($Invoice->InvoiceID);
+                            $ubl_path = Invoice::generate_ubl_invoice($Invoice->InvoiceID);
                             if (empty($ubl_path)) {
                                 $error['message'] = 'Failed to generate Invoice UBL File.';
                                 $error['status'] = 'failure';
                                 return $error;
                             } else {
                                 $Invoice->update(["UblInvoice" => $ubl_path]);
-                            }*/
+                            }
                             //StockHistory Maintain
                             $MultiProductSumQtyArr=array();
                             $OldProductsarr=sumofQtyIfSameProduct($OldProductsarr);
