@@ -1940,9 +1940,9 @@ class AccountsApiController extends ApiController {
 						$BankPaymentDetails['CompanyID'] = $CompanyID;
 						if (!empty($BankPaymentDetails['CardNumber'])) {
 							$BankPaymentDetails['PayoutType'] = "card";
-							$BankPaymentDetails['Title'] = $BankPaymentDetails['NameOnCard'];
+							$BankPaymentDetails['Title'] = isset($BankPaymentDetails['NameOnCard']) ? $BankPaymentDetails['NameOnCard'] : 'CardTitle';
 						} else {
-							$BankPaymentDetails['Title'] = $BankPaymentDetails['AccountHolderName'];
+							$BankPaymentDetails['Title'] = isset($BankPaymentDetails['AccountHolderName']) ? $BankPaymentDetails['AccountHolderName'] : 'AccountTitle';
 							$BankPaymentDetails['PayoutType'] = "bank";
 						}
 						$BankPaymentDetails['AccountID'] = $account->AccountID;
@@ -2632,9 +2632,9 @@ class AccountsApiController extends ApiController {
 					$BankPaymentDetails['CompanyID'] = $CompanyID;
 					if (!empty($BankPaymentDetails['CardNumber'])) {
 						$BankPaymentDetails['PayoutType'] = "card";
-						$BankPaymentDetails['Title'] = $BankPaymentDetails['NameOnCard'];
+						$BankPaymentDetails['Title'] =isset($BankPaymentDetails['NameOnCard']) ? $BankPaymentDetails['NameOnCard'] : 'CardTitle';
 					} else {
-						$BankPaymentDetails['Title'] = $BankPaymentDetails['AccountHolderName'];
+						$BankPaymentDetails['Title'] =isset($BankPaymentDetails['AccountHolderName']) ? $BankPaymentDetails['AccountHolderName'] : 'AccountTitle';
 						$BankPaymentDetails['PayoutType'] = "bank";
 					}
 					$BankPaymentDetails['AccountID'] = $accountInfo->AccountID;
