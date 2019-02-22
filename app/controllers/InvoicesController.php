@@ -4384,4 +4384,11 @@ public function store_inv_in(){
 
         return View::make('invoices.create_inv_in',compact('accounts','products','taxes','BillingClass','DynamicFields','itemtypes'));
     }
+
+
+    public function ublInvoice($invoiceID){
+        $Invoice = Invoice::find($invoiceID);
+        $Account = Account::find($Invoice->AccountID);
+        return Response::make(Invoice::ublInvoice($Invoice, $Account))->header('Content-Type', 'text/xml');
+    }
 }
