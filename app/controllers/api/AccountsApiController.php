@@ -1574,7 +1574,8 @@ class AccountsApiController extends ApiController {
 
 			if (isset($data['PaymentMethod'])) {
 				if ($data['PaymentMethod'] == "Stripe" || $data['PaymentMethod'] == "StripeACH") {
-					if ($data['PaymentMethod'] == "Stripe") {
+					$BankPaymentDetails['CardToken'] = isset($accountData['CardToken']) ? $accountData['CardToken'] : '' ;
+					if ($data['PaymentMethod'] == "Stripe" && empty($BankPaymentDetails['CardToken'])) {
 						$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
 						if ($CardValidationResponse["status"] == "failed") {
 							return Response::json(["ErrorMessage" => $CardValidationResponse["message"]], Codes::$Code402[0]);
@@ -1583,7 +1584,7 @@ class AccountsApiController extends ApiController {
 						if (!in_array($BankPaymentDetails['CardType'], $CardType)) {
 							return Response::json(["ErrorMessage" => Codes::$Code1036[1]], Codes::$Code1036[0]);
 						}
-					} else if ($data['PaymentMethod'] == "StripeACH") {
+					} else if ($data['PaymentMethod'] == "StripeACH" && empty($BankPaymentDetails['CardToken'])) {
 						$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
 						if ($validator->fails()) {
 							$errors = "";
@@ -1939,9 +1940,9 @@ class AccountsApiController extends ApiController {
 						$BankPaymentDetails['CompanyID'] = $CompanyID;
 						if (!empty($BankPaymentDetails['CardNumber'])) {
 							$BankPaymentDetails['PayoutType'] = "card";
-							$BankPaymentDetails['Title'] = $BankPaymentDetails['NameOnCard'];
+							$BankPaymentDetails['Title'] = isset($BankPaymentDetails['NameOnCard']) ? $BankPaymentDetails['NameOnCard'] : 'CardTitle';
 						} else {
-							$BankPaymentDetails['Title'] = $BankPaymentDetails['AccountHolderName'];
+							$BankPaymentDetails['Title'] = isset($BankPaymentDetails['AccountHolderName']) ? $BankPaymentDetails['AccountHolderName'] : 'AccountTitle';
 							$BankPaymentDetails['PayoutType'] = "bank";
 						}
 						$BankPaymentDetails['AccountID'] = $account->AccountID;
@@ -1950,7 +1951,11 @@ class AccountsApiController extends ApiController {
 
 						$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($BankPaymentDetails['PaymentGatewayID']);
 						$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
-						$AccountResponse = $PaymentIntegration->createAccount($BankPaymentDetails);
+						if ( empty($BankPaymentDetails['CardToken'])) {
+							$AccountResponse = $PaymentIntegration->createAccount($BankPaymentDetails);
+						}else {
+							$AccountResponse = $PaymentIntegration->createAccountWithToken($BankPaymentDetails);
+						}
 						Log::info('$Account Payment Response2 ' . $AccountResponse->getContent());
 						$AccountResponse = $AccountResponse->getContent();
 						$AccountResponse = json_decode($AccountResponse);
@@ -2198,6 +2203,95 @@ class AccountsApiController extends ApiController {
 		//return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Created');
 	}
 
+		public function getPaymentToken() {
+			Log::info('createAccount:Create new Account.');
+			$post_vars = '';
+			$accountData = [];
+			$BillingClass = [];
+			$BankPaymentDetails = [];
+			$PaymentProfile = [];
+
+
+				try {
+					$post_vars = json_decode(file_get_contents("php://input"));
+					//$post_vars = Input::all();
+					$accountData=json_decode(json_encode($post_vars),true);
+					$countValues = count($accountData);
+					if ($countValues == 0) {
+						Log::info('Exception in updateAccount API.Invalid JSON');
+						return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+					}
+				}catch(Exception $ex) {
+					Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+					return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+				}
+
+			$accountInfo = Account::where(["AccountID" => $accountData["AccountID"]])->first();
+
+
+		if (empty($accountInfo)) {
+			return Response::json(["ErrorMessage"=>Codes::$Code1000[1]],Codes::$Code1000[0]);
+		}
+	$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$accountData['PaymentMethodID']];
+
+	if (isset($data['PaymentMethod']) ) {
+	if ($data['PaymentMethod'] == "Stripe") {
+		$BankPaymentDetails['CardNumber'] = isset($accountData['CardNumber']) ? $accountData['CardNumber'] : '' ;
+		$BankPaymentDetails['CardType'] = isset($accountData['CardType']) ? $accountData['CardType'] : '' ;//Discover,MasterCard,Visa
+		$BankPaymentDetails['ExpirationMonth'] = isset($accountData['ExpirationMonth']) ? $accountData['ExpirationMonth'] : '' ;
+		$BankPaymentDetails['ExpirationYear'] = isset($accountData['ExpirationYear']) ? $accountData['ExpirationYear'] : '' ;
+		$BankPaymentDetails['NameOnCard'] = isset($accountData['NameOnCard']) ? $accountData['NameOnCard'] : '' ;
+		$BankPaymentDetails['CVVNumber'] = isset($accountData['CVVNumber']) ? $accountData['CVVNumber'] : '' ;
+		$CardValidationResponse = AccountPayout::cardValidation($BankPaymentDetails);
+		if ($CardValidationResponse["status"] == "failed") {
+		return Response::json(["ErrorMessage" => $CardValidationResponse["message"]],Codes::$Code402[0]);
+		}
+		$CardType = array("Discover", "MasterCard", "Visa");
+		if (!in_array($BankPaymentDetails['CardType'], $CardType)) {
+			return Response::json(["ErrorMessage" => Codes::$Code1036[1]],Codes::$Code1036[0]);
+		}
+	}else if ($data['PaymentMethod'] == "StripeACH") {
+		$BankPaymentDetails['AccountNumber'] = isset($accountData['AccountNumber']) ? $accountData['AccountNumber'] : '' ;
+		$BankPaymentDetails['RoutingNumber'] = isset($accountData['RoutingNumber']) ? $accountData['RoutingNumber'] : '' ;
+		$BankPaymentDetails['AccountHolderType'] = isset($accountData['AccountHolderType']) ? $accountData['AccountHolderType'] : '' ;//company,individual
+		$BankPaymentDetails['AccountHolderName'] = isset($accountData['AccountHolderName']) ? $accountData['AccountHolderName'] : '' ;
+		$validator = Validator::make($BankPaymentDetails, AccountPayout::$AccountPayoutBankRules);
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+
+		}
+		$AccountHolderType = array("individual","company");
+		if (!in_array($BankPaymentDetails['AccountHolderType'], $AccountHolderType)) {
+			return Response::json(["ErrorMessage" => Codes::$Code1037[1]],Codes::$Code1037[0]);
+		}
+
+
+	}
+
+		$CompanyID = $accountInfo->CompanyId;
+		$BankPaymentDetails['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");
+		$BankPaymentDetails['CompanyID'] = $CompanyID;
+		if (!empty($BankPaymentDetails['CardNumber'])) {
+			$BankPaymentDetails['PayoutType'] = "card";
+			$BankPaymentDetails['Title'] = $BankPaymentDetails['NameOnCard'];
+		} else {
+			$BankPaymentDetails['Title'] = $BankPaymentDetails['AccountHolderName'];
+			$BankPaymentDetails['PayoutType'] = "bank";
+		}
+		$BankPaymentDetails['AccountID'] = $accountInfo->AccountID;
+
+		$BankPaymentDetails['CustomerAccountName'] = $accountInfo->AccountName;
+
+
+		$StripeBilling = new StripeBilling($CompanyID);
+		$AccountResponse = $StripeBilling->getTestingToken($BankPaymentDetails);
+		return Response::json(["ErrorMessage" => $AccountResponse],Codes::$Code1037[0]);
+	}
+		}
 	public function updateAccount() {
 		Log::info('createAccount:Create new Account.');
 		$post_vars = '';
@@ -2450,7 +2544,10 @@ class AccountsApiController extends ApiController {
 				$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
 
 				if (isset($data['PaymentMethod']) ) {
-					if ($data['PaymentMethod'] == "Stripe") {
+					$BankPaymentDetails['CardToken'] = isset($accountData['CardToken']) ? $accountData['CardToken'] : '' ;
+
+					if ($data['PaymentMethod'] == "Stripe" && empty($BankPaymentDetails['CardToken'] )) {
+
 						$BankPaymentDetails['CardNumber'] = isset($accountData['CardNumber']) ? $accountData['CardNumber'] : '' ;
 						$BankPaymentDetails['CardType'] = isset($accountData['CardType']) ? $accountData['CardType'] : '' ;//Discover,MasterCard,Visa
 						$BankPaymentDetails['ExpirationMonth'] = isset($accountData['ExpirationMonth']) ? $accountData['ExpirationMonth'] : '' ;
@@ -2465,7 +2562,7 @@ class AccountsApiController extends ApiController {
 						if (!in_array($BankPaymentDetails['CardType'], $CardType)) {
 							return Response::json(["ErrorMessage" => Codes::$Code1036[1]],Codes::$Code1036[0]);
 						}
-					}else if ($data['PaymentMethod'] == "StripeACH") {
+					}else if ($data['PaymentMethod'] == "StripeACH" && empty($BankPaymentDetails['CardToken'] )) {
 						$BankPaymentDetails['AccountNumber'] = isset($accountData['AccountNumber']) ? $accountData['AccountNumber'] : '' ;
 						$BankPaymentDetails['RoutingNumber'] = isset($accountData['RoutingNumber']) ? $accountData['RoutingNumber'] : '' ;
 						$BankPaymentDetails['AccountHolderType'] = isset($accountData['AccountHolderType']) ? $accountData['AccountHolderType'] : '' ;//company,individual
@@ -2535,9 +2632,9 @@ class AccountsApiController extends ApiController {
 					$BankPaymentDetails['CompanyID'] = $CompanyID;
 					if (!empty($BankPaymentDetails['CardNumber'])) {
 						$BankPaymentDetails['PayoutType'] = "card";
-						$BankPaymentDetails['Title'] = $BankPaymentDetails['NameOnCard'];
+						$BankPaymentDetails['Title'] =isset($BankPaymentDetails['NameOnCard']) ? $BankPaymentDetails['NameOnCard'] : 'CardTitle';
 					} else {
-						$BankPaymentDetails['Title'] = $BankPaymentDetails['AccountHolderName'];
+						$BankPaymentDetails['Title'] =isset($BankPaymentDetails['AccountHolderName']) ? $BankPaymentDetails['AccountHolderName'] : 'AccountTitle';
 						$BankPaymentDetails['PayoutType'] = "bank";
 					}
 					$BankPaymentDetails['AccountID'] = $accountInfo->AccountID;
@@ -2546,7 +2643,11 @@ class AccountsApiController extends ApiController {
 
 					$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($BankPaymentDetails['PaymentGatewayID']);
 					$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
-					$AccountResponse = $PaymentIntegration->createAccount($BankPaymentDetails);
+					if (empty($BankPaymentDetails['CardToken'])) {
+						$AccountResponse = $PaymentIntegration->createAccount($BankPaymentDetails);
+					}else {
+						$AccountResponse = $PaymentIntegration->createAccountWithToken($BankPaymentDetails);
+					}
 					Log::info('$Account Payment Response2 ' . $AccountResponse->getContent());
 					$AccountResponse = $AccountResponse->getContent();
 					$AccountResponse = json_decode($AccountResponse);
