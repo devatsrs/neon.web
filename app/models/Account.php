@@ -401,9 +401,9 @@ class Account extends \Eloquent {
     }
     public static function getAddress($Account){
         $Address = "";
-        $Address .= !empty($Account->Address1) ? $Account->Address1 . ', ' : '';
-        $Address .= !empty($Account->Address2) ? $Account->Address2 . ', ' : '';
-        $Address .= !empty($Account->Address3) ? $Account->Address3 : '';
+        $Address .= !empty($Account->BillingAddress1) ? $Account->BillingAddress1 . ', ' : '';
+        $Address .= !empty($Account->BillingAddress2) ? $Account->BillingAddress2 . ', ' : '';
+        $Address .= !empty($Account->BillingAddress3) ? $Account->BillingAddress3 : '';
         $Address = trim($Address, ', ');
         return $Address;
     }
