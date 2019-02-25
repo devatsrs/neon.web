@@ -1388,6 +1388,8 @@
                     }
                 });
                 if (InvoiceIDs == '') {
+                  alert('Select atlease one invoice');
+                  return false;
                     criteria = JSON.stringify($searchFilter);
                 }
                 if ($('#selectallbutton').is(':checked')) {
