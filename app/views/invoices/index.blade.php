@@ -118,7 +118,7 @@
             @endif
 
             <li> <a class="quickbookpost create" id="print_invoice" href="javascript:;"> Download Invoice </a> </li>
-            <li> <a class="quickbookpost create" id="print_ubl_invoice" href="javascript:;"> Download UBL Invoice </a> </li>
+            <li> <a class="quickbookpost create" id="print_ubl_invoice" href="javascript:;"> Download UBL </a> </li>
 
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;"> Change Status </a> </li>

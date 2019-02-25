@@ -747,6 +747,7 @@ public function store_inv_in(){
      * Store Invoice
      */
     public function update($id){
+        Log::useFiles(storage_path() . '/logs/z_ubl-invoice-' . date('Y-m-d') . '.log');
         $data = Input::all();
         unset($data['BarCode']);
         if(!empty($data) && $id > 0){
