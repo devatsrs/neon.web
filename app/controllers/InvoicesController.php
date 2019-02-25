@@ -747,7 +747,7 @@ public function store_inv_in(){
      * Store Invoice
      */
     public function update($id){
-        Log::useFiles(storage_path() . '/logs/z_ubl-invoice-' . date('Y-m-d') . '.log');
+        Log::useFiles(storage_path() . '/logs/z_test-invoice-' . date('Y-m-d') . '.log');
         $data = Input::all();
         unset($data['BarCode']);
         if(!empty($data) && $id > 0){
@@ -942,14 +942,14 @@ public function store_inv_in(){
                                 $Invoice->update(["PDF" => $pdf_path]);
                             }
 
-                            /*$ubl_path = Invoice::generate_ubl_invoice($Invoice->InvoiceID);
+                            $ubl_path = Invoice::generate_ubl_invoice($Invoice->InvoiceID);
                             if (empty($ubl_path)) {
                                 $error['message'] = 'Failed to generate Invoice UBL File.';
                                 $error['status'] = 'failure';
                                 return $error;
                             } else {
                                 $Invoice->update(["UblInvoice" => $ubl_path]);
-                            }*/
+                            }
                             //StockHistory Maintain
                             $MultiProductSumQtyArr=array();
                             $OldProductsarr=sumofQtyIfSameProduct($OldProductsarr);
