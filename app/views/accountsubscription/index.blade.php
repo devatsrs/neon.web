@@ -15,42 +15,42 @@
     <div class="panel-body">
 
          <div id="subscription_filter" method="get" action="#" >
-                                <div class="panel panel-primary panel-collapse" data-collapsed="1">
-                                    <div class="panel-heading">
-                                        <div class="panel-title">
-                                            Filter
-                                        </div>
-                                        <div class="panel-options">
-                                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="panel-body" style="display: none;">
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-1 control-label">Name</label>
-                                            <div class="col-sm-2">
-                                                <input type="text" name="SubscriptionName" class="form-control" value="" />
-                                            </div>
-                                            <label for="field-1" class="col-sm-1 control-label">Invoice Description</label>
-                                            <div class="col-sm-2">
-                                                <input type="text" name="SubscriptionInvoiceDescription" class="form-control" value="" />
-                                            </div>
-                                            <label for="field-1" class="col-sm-1 control-label">Active</label>
-                                            <div class="col-sm-2">
-                                                <p class="make-switch switch-small">
-                                                    <input id="SubscriptionActive" name="SubscriptionActive" type="checkbox" value="1" checked="checked" >
-                                                </p>
-                                            </div>
-											<div class="col-sm-3">
-												<p style="text-align: right">
-												<button class="btn btn-primary btn-sm btn-icon icon-left" id="subscription_submit">
-													<i class="entypo-search"></i>
-													Search
-												</button>
-												</p>
-											</div>
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="panel panel-primary panel-collapse" data-collapsed="1">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Filter
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body" style="display: none;">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-1 control-label">Name</label>
+                        <div class="col-sm-2">
+                            <input type="text" name="SubscriptionName" class="form-control" value="" />
+                        </div>
+                        <label for="field-1" class="col-sm-1 control-label">Invoice Description</label>
+                        <div class="col-sm-2">
+                            <input type="text" name="SubscriptionInvoiceDescription" class="form-control" value="" />
+                        </div>
+                        <label for="field-1" class="col-sm-1 control-label">Active</label>
+                        <div class="col-sm-2">
+                            <p class="make-switch switch-small">
+                                <input id="SubscriptionActive" name="SubscriptionActive" type="checkbox" value="1" checked="checked" >
+                            </p>
+                        </div>
+                        <div class="col-sm-3">
+                            <p style="text-align: right">
+                            <button class="btn btn-primary btn-sm btn-icon icon-left" id="subscription_submit">
+                                <i class="entypo-search"></i>
+                                Search
+                            </button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="text-right">
             <a  id="add-subscription" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
@@ -93,7 +93,10 @@
             var data_table_subscription;
             var account_id='{{$account->AccountID}}';
             var ServiceID='{{$ServiceID}}';
-            var AccountServiceID='{{$AccountService->AccountServiceID}}';
+            var AccountServiceID=0;
+            @if(isset($AccountService))
+                AccountServiceID='{{$AccountService->AccountServiceID}}';
+            @endif
             var update_new_url;
             var postdata;
 
@@ -190,9 +193,13 @@
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
                         {  "bSortable": false,
-                            mRender: function(id, type, full) {
-                                return '<div class="details-control subscription_'+full[0]+'" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
-                            }
+                            @if(isset($AccountService))
+                                mRender: function(id, type, full) {
+                                    return '<div class="details-control subscription_'+full[0]+'" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
+                                },
+                            @else
+                                "bVisible": false
+                            @endif
                         },
                         {  "bSortable": true },  // 0 Sequence NO
                         {  "bSortable": true },  // 1 Subscription Name
@@ -829,8 +836,6 @@
             </script>
     </div>
 </div>
-
-
 
 @section('footer_ext')
 @parent

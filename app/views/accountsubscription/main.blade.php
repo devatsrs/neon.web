@@ -58,27 +58,30 @@
 <table id="table-subscription" class="table table-bordered datatable">
   <thead>
     <tr>
-      <th width="3%"></th>
+      <th width="2%"></th>
       <th width="5%">No</th>
       <th width="5%">Account</th>
       <th width="5%">Service</th>
       <th width="5%">Subscription</th>
-      <th  width="5%">Invoice Description</th>
+      <th width="5%">Invoice Description</th>
       <th width="5%">Qty</th>
-      <th width="10%">Start Date</th>
+      <th width="5%">Start Date</th>
       <th width="10%">End Date</th>
       <th width="5%">Activation Fee</th>
+      <th width="2%">Currency</th>
       <th width="5%">Daily Fee</th>
       <th width="5%">Weekly Fee</th>
-      <th width="10%">Monthly Fee</th>
+      <th width="5%">Monthly Fee</th>
+      <th width="2%">Currency</th>
       <th width="10%">Quarterly Fee</th>
       <th width="10%">Yearly Fee</th>
-      <th width="20%">Action</th>
+      <th width="10%">Action</th>
     </tr>
   </thead>
   <tbody>
   </tbody>
 </table>
+<div class="clear"></div>
 <script type="text/javascript">
             /**
             * JQuery Plugin for dataTable
@@ -135,7 +138,17 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["AID","SequenceNo","AccountName","ServiceName", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","AccountID",'ServiceID','Status','tblBillingSubscription.DiscountAmount','tblBillingSubscription.DiscountType'];
+            var list_fields = [
+                "AID","SequenceNo","AccountName","ServiceName", "Name",
+                "InvoiceDescription", "Qty", "StartDate", "EndDate" ,
+                "tblBillingSubscription.ActivationFee", "OneOffCurrency",
+                "tblBillingSubscription.DailyFee", "tblBillingSubscription.WeeklyFee",
+                "tblBillingSubscription.MonthlyFee", "RecurringCurrency",
+                "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
+                "AccountSubscriptionID", "SubscriptionID","ExemptTax","AccountID",'ServiceID',
+                'Status','tblBillingSubscription.DiscountAmount','tblBillingSubscription.DiscountType',
+                'OneOffCurrencyID', 'RecurringCurrencyID'
+            ];
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/account_subscription/{id}/store";            
@@ -153,6 +166,7 @@
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
+                    responsive: true,
             "sAjaxSource": subscription_datagrid_url,
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -181,12 +195,14 @@
                         {  "bSortable": true },  // 4 StartDate
                         {  "bSortable": true },  // 5 EndDate
                         {  "bSortable": true },  // 6 ActivationFee
-                        {  "bSortable": true },  // 7 DailyFee
-                        {  "bSortable": true },  // 8 WeeklyFee
-                        {  "bSortable": true },  // 9 MonthlyFee
-                        {  "bSortable": true },  // 10 QuarterlyFee
-                        {  "bSortable": true },  // 11 AnnuallyFee
-                        {                        // 12 Action
+                        {  "bSortable": true },  // 7 OneOffCurrency
+                        {  "bSortable": true },  // 8 DailyFee
+                        {  "bSortable": true },  // 9 WeeklyFee
+                        {  "bSortable": true },  // 10 MonthlyFee
+                        {  "bSortable": true },  // 11 RecurringCurrency
+                        {  "bSortable": true },  // 12 QuarterlyFee
+                        {  "bSortable": true },  // 13 AnnuallyFee
+                        {                        // 14 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
 								var edit_account = 0;
@@ -258,6 +274,8 @@
 						$('#AccountID_add_change').val($('#filter_AccountID').val()); 
 						$('#ServiceID_add_change').change();
 						$('#SubscriptionID_add_change').change();
+                        $("#subscription-form [name=OneOffCurrencyID]").select2().select2('val',"");
+                        $("#subscription-form [name=RecurringCurrencyID]").select2().select2('val',"");
 						$('#AccountID_add_change').change();
 						//$('.dropdown1').change();						
                         $('#modal-subscription').modal('show');
@@ -348,6 +366,10 @@
                             $("#subscription-form-edit [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             if(list_fields[i] == 'SubscriptionID'){
                                 $("#subscription-form-edit [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                            } else if(list_fields[i] == 'OneOffCurrencyID' || list_fields[i] == 'RecurringCurrencyID'){
+                                var CurrencyID = cur_obj.find("input[name='"+list_fields[i]+"']").val();
+                                if(CurrencyID == 0) CurrencyID = '';
+                                $("#subscription-form-edit [name='"+list_fields[i]+"']").select2().select2('val', CurrencyID);
                             }else if(list_fields[i] == 'ExemptTax'){
                                 if(cur_obj.find("input[name='ExemptTax']").val() == 1 ){
                                     $('[name="ExemptTax"]').prop('checked',true);
@@ -696,7 +718,7 @@
                 //fetch discount plans click on '+' sign
                 $('#table-subscription tbody').on('click', 'td div.details-control', function () {
                     var tr = $(this).closest('tr');
-                    var row = data_table.row(tr);
+                    var row = data_table_subscription.row(tr);
 
                     if (row.child.isShown()) {
                         $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
@@ -1182,6 +1204,18 @@ function OnEditCallSubsDynamicFields(AccountID,AccountSubscriptionID)
 
                   <div class="col-md-12">
                       <div class="form-group">
+                          <label for="MonthlyFee" class="control-label">Monthly Fee</label>
+                          <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="field-521" class="control-label">Recurring Fee Currency</label>
+                          {{ Form::select('RecurringCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <div class="form-group">
                           <label for="AnnuallyFee" class="control-label">Yearly Fee</label>
                           <input type="text" name="AnnuallyFee" class="form-control"   maxlength="10" id="AnnuallyFee" placeholder="" value="" />
                       </div>
@@ -1207,12 +1241,6 @@ function OnEditCallSubsDynamicFields(AccountID,AccountSubscriptionID)
               <div class="col-sm-6">
                     <div class="col-md-12">
                       <div class="form-group">
-                        <label for="MonthlyFee" class="control-label">Monthly Fee</label>
-                        <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
-                      </div>
-                    </div>
-                    <div class="col-md-12">
-                      <div class="form-group">
                         <label for="WeeklyFee" class="control-label">Weekly Fee</label>
                         <input type="text" name="WeeklyFee" id="WeeklyFee" class="form-control" value="" />
                       </div>
@@ -1229,6 +1257,12 @@ function OnEditCallSubsDynamicFields(AccountID,AccountSubscriptionID)
                         <input type="text" name="ActivationFee" id="ActivationFee" class="form-control" value="" />
                       </div>
                     </div>
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="field-5221" class="control-label">Activation Fee Currency</label>
+                          {{ Form::select('OneOffCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
+                      </div>
+                  </div>
                   <!-- -->
                     <div class="col-md-12">
                       <div class="form-group">
@@ -1288,7 +1322,6 @@ function OnEditCallSubsDynamicFields(AccountID,AccountSubscriptionID)
       </div>
     </div>
   </div>
-</div>
 
 <div class="modal fade in" id="modal-edit-subscription">
   <div class="modal-dialog modal-lg">
@@ -1340,6 +1373,23 @@ function OnEditCallSubsDynamicFields(AccountID,AccountSubscriptionID)
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
+                                <label for="MonthlyFee" class="control-label">Monthly Fee</label>
+                                <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-521" class="control-label">Recurring Fee Currency</label>
+                                {{ Form::select('RecurringCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
                                 <label for="AnnuallyFee" class="control-label">Yearly Fee</label>
                                 <input type="text" name="AnnuallyFee" class="form-control"   maxlength="10" id="AnnuallyFee" placeholder="" value="" />
                             </div>
@@ -1353,15 +1403,6 @@ function OnEditCallSubsDynamicFields(AccountID,AccountSubscriptionID)
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="MonthlyFee" class="control-label">Monthly Fee</label>
-                               <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
-                            </div>
-                        </div>
-                    </div>
-
 
                        <div class="row">
                            <div class="col-md-12">
@@ -1398,6 +1439,14 @@ function OnEditCallSubsDynamicFields(AccountID,AccountSubscriptionID)
                             <div class="form-group">
                                 <label for="ActivationFee" class="control-label">Activation Fee</label>
                                 <input type="text" name="ActivationFee" id="ActivationFee" class="form-control" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5221" class="control-label">Activation Fee Currency</label>
+                                {{ Form::select('OneOffCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
                             </div>
                         </div>
                     </div>

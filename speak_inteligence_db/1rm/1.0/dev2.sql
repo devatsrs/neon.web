@@ -15,6 +15,8 @@ ALTER TABLE `tblRateTableRateArchive`
 
 INSERT INTO `tblCompanySetting` (`CompanyID`, `Key`, `Value`) VALUES (1, 'UseVendorCurrencyInRateGenerator', '1');
 
+ALTER TABLE `tblUsageDetails`
+	ADD COLUMN `TimezonesID` INT NULL AFTER `disconnect_time`;
 -- --------------------------------------------------------
 -- Host:                         192.168.1.25
 -- Server version:               5.7.23-log - MySQL Community Server (GPL)

@@ -202,7 +202,8 @@
                     <input type="hidden" name="AccountSubscriptionID" value="{{  $AccountSubscriptionID }}">
                     <input type="hidden" name="AccountServiceID" value="{{$AccountService->AccountServiceID}}">
                 @else
-                    <input type="hidden" name="AccountRecurringID" value="">
+                    <input type="hidden" name="AccountSubscriptionID" value="0">
+                    <input type="hidden" name="AccountServiceID" value="0">
                 @endif
                 <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
                 <div class="modal-footer">

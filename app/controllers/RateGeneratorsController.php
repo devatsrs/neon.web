@@ -64,10 +64,17 @@ class RateGeneratorsController extends \BaseController {
         $currencylist = Currency::getCurrencyDropdownIDList();
         $Timezones = Timezones::getTimezonesIDList();
         $AllTypes =  RateType::getRateTypeDropDownList();
-        unset($AllTypes[3]);
+        
+        $Package = Package::where([
+                "status" => 1,
+                "CompanyID" => User::get_companyID()
+            ])->lists("Name", "PackageId");
         $Categories = DidCategory::getCategoryDropdownIDList();
-        $Products = ServiceTemplate::lists("Name", "ServiceTemplateId");
-        return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Categories','codedecklist','currencylist','trunk_keys','Timezones'));
+        
+        $Products = ServiceTemplate::where([
+                "CompanyID" => User::get_companyID()
+            ])->lists("Name", "ServiceTemplateId");
+        return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones'));
     }
 
     public function store() {
@@ -83,18 +90,22 @@ class RateGeneratorsController extends \BaseController {
         $getRateNumberString = @$data['getRateIDs'];
         $SelectType = $data['SelectType'];
 
-        if($SelectType != 2) {
+        if($SelectType == 3 || $SelectType == 1) {
             $rules = array(
                 'CompanyID' => 'required',
                 'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,' . $data['CompanyID'],
                 'Timezones' => 'required',
-                'codedeckid' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
                 'LessThenRate' => 'numeric',
                 'ChargeRate' => 'numeric',
                 'percentageRate' => 'numeric',
             );
+            
+            if($SelectType == 1){
+                $rules['codedeckid']='required';
+            }
+            
         } else {
             $rules = array(
                 'CompanyID'         => 'required',
@@ -148,6 +159,7 @@ class RateGeneratorsController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "ChargeRate is required if given LessThenRate."));
             }
         }
+        
         $data ['CreatedBy'] = User::get_user_full_name();
         try {
 
@@ -251,6 +263,7 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['RateLessThen-1']);
                 unset($data['ChangeRateTo-1']);
                 unset($data['getRateIDs']);
+               
             } else {
                 unset($data['getIDs']);
                 unset($data['Component-1']);
@@ -268,7 +281,9 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['ChangeRateTo-1']);
                 unset($data['getRateIDs']);
             }
-
+            if ($SelectType == 2 || $SelectType == 1) {
+                 unset($data['PackageID']);
+            }
             unset($data['AllComponent']);
 
             $rateg = RateGenerator::create($data);
@@ -363,7 +378,9 @@ class RateGeneratorsController extends \BaseController {
             $trunks = Trunk::getTrunkDropdownIDList();
             $companyID = User::get_companyID();
             $Categories = DidCategory::getCategoryDropdownIDList();
-            $Products = ServiceTemplate::lists("Name", "ServiceTemplateId");
+            $Products = ServiceTemplate::where([
+                "CompanyID" => User::get_companyID()
+            ])->lists("Name", "ServiceTemplateId");
 
             $rategenerators = RateGenerator::where([
                 "RateGeneratorId" => $id,
@@ -386,10 +403,13 @@ class RateGeneratorsController extends \BaseController {
             $Timezones = Timezones::getTimezonesIDList();
 
             $AllTypes =  RateType::getRateTypeDropDownList();
-            unset($AllTypes[3]);
-
+            //unset($AllTypes[3]);
+$Package = Package::where([
+                "status" => 1,
+                "CompanyID" => User::get_companyID()
+            ])->lists("Name", "PackageId");
             // Debugbar::info($rategenerator_rules);
-            return View::make('rategenerators.edit', compact('id', 'Products', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
+            return View::make('rategenerators.edit', compact('id', 'Products','Package', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
         }
     }
 
@@ -428,18 +448,21 @@ class RateGeneratorsController extends \BaseController {
             $SelectType = $Type->SelectType;
         }
 
-        if($SelectType != 2) {
+        
+        if($SelectType == 1 || $SelectType == 3) {
             $rules = array(
                 'CompanyID' => 'required',
                 'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
-                'Timezones' => 'required',
-                'codedeckid' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
                 'LessThenRate' => 'numeric',
                 'ChargeRate' => 'numeric',
                 'percentageRate' => 'numeric',
             );
+            if($SelectType == 1){
+                $rules['codedeckid']='required';
+                $rules['Timezones']='required';
+            }
         } else {
             $rules = array(
                 'CompanyID'         => 'required',
@@ -458,7 +481,9 @@ class RateGeneratorsController extends \BaseController {
                 'percentageRate'    => 'numeric',
             );
         }
-
+        if ($SelectType == 2 || $SelectType == 1) {
+                unset($data['PackageID']);
+           }
         if($SelectType == 1) {
             $rules['TrunkID']='required';
             $rules['RatePosition']='required|numeric';

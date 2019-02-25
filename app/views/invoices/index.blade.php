@@ -91,7 +91,7 @@
                   <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
-                      <li> <a id="invoice-in" href="javascript:;"> Received</a> </li>
+                      <li> <a href="{{url('/invoice/create_invoice_in')}}"> Received</a> </li>
                   </ul>
               </div>
           @endif
@@ -118,6 +118,7 @@
             @endif
 
             <li> <a class="quickbookpost create" id="print_invoice" href="javascript:;"> Download Invoice </a> </li>
+            <li> <a class="quickbookpost create" id="print_ubl_invoice" href="javascript:;"> Download UBL </a> </li>
 
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;"> Change Status </a> </li>
@@ -183,10 +184,10 @@
           <th width="13%">Period</th>
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
-          <th width="10%">Status</th>
+          <th width="5%">Status</th>
           <th width="5%">Available Credit Notes</th>
           <th width="10%">Due Date</th>
-          {{--<th width="10%">Due Days</th>--}}
+            <th width="15%">Payment Reminder</th>
           <th width="20%">Action</th>
         </tr>
       </thead>
@@ -212,6 +213,7 @@
             var invoicestatus = {{$invoice_status_json}};
 
             var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
+            var Invoice_Delete_Url = "{{ URL::to('invoice/invoice_in_delete')}}";
             var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate', 'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
@@ -344,6 +346,22 @@
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {
+                            if(full[20] != null){
+                                var output =  '<span title="Last Date Sent">' + full[20] +'</span>' + " - " +'('+ '<span title="No of reminders ">' + full[19]+'</span>'+')';
+
+                            }else{
+                                var output = '('+ '<span title="No of reminders ">' + full[19]+'</span>'+')';
+
+                            }
+
+                            return output;
+                        }
+
+
+                    },
+                    {
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
                             var action, edit_, show_, delete_, view_url, edit_url, download_url, invoice_preview, invoice_log;
                             id = full[10];
                             action = '<div class = "hiddenRowData" >';
@@ -366,7 +384,10 @@
                                     action += '<div class="btn-group">';
                                     action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                     action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
-                                    action += ' <li><a class="edit-invoice-in icon-left"><i class="entypo-pencil"></i>Edit </a></li>';
+                                    action += ' <li><a href="{{url("/invoice/'+full[10]+'/edit_inv_in")}}" class="icon-left"><i class="entypo-pencil"></i>Edit </a></li>';
+                                  
+                                    action += '<li><a data-invoicestatus="deleteinv" data-invoiceid="' + id + '" href="' + Invoice_Delete_Url + '" class="changestatus" ><i class="entypo-trash"></i> Delete</a></li>';
+                                  
                                     //action += ' <li><a class="view-invoice-in icon-left"><i class="entypo-pencil"></i>Print </a></li>';
                                     action += '</ul>';
                                     action += '</div>';
@@ -571,6 +592,7 @@
             $('#invoice-in').click(function (ev) {
                 ev.preventDefault();
                 $('#add-invoice_in_template-form').trigger("reset");
+                $('#InvoiceTable').trigger("reset");
                 $('#modal-invoice-in h4').html('Add Invoice');
                 $("#add-invoice_in_template-form [name='AccountID']").select2().select2('val', '');
                 $("#add-invoice_in_template-form [name='InvoiceID']").val('');
@@ -918,6 +940,7 @@
                 var InvoiceStatus = $(this).find("select[name='InvoiceStatus']").val();
 
                 if (InvoiceStatus != '') {
+                  alert(InvoiceStatus);
                     if (InvoiceStatus == '{{Invoice::CANCEL}}') {
                         var CancelReason = $(this).find("input[name='CancelReason']").val().trim();
                         if (CancelReason != '') {
@@ -972,6 +995,11 @@
                     $("#invoice-status-cancel").modal('show', {backdrop: 'static'});
                     return;
                 }
+                if (self.attr('data-invoicestatus') == 'deleteinv') {
+                     
+                     //alert($(this).attr("href"));
+                }
+
                 $(this).button('loading');
                 $.ajax({
                     url: $(this).attr("href"),
@@ -1011,7 +1039,7 @@
                 submit_ajax(_url, post_data);
 				
             });
-            $("#print_invoice").click(function (ev) {
+            $("#print_invoice, #print_ubl_invoice").click(function (ev) {
                 var criteria = '';
                 if ($('#selectallbutton').is(':checked')) {
                     criteria = JSON.stringify($searchFilter);
@@ -1025,14 +1053,15 @@
                         InvoiceIDs[i++] = InvoiceID;
                     }
                 });
-                console.log(InvoiceIDs);
 
                 if (InvoiceIDs.length) {
                     if (!confirm('Are you sure you want to download selected invoices?')) {
                         return;
                     }
+                    var invoice_url = $(this).attr('id') == "print_ubl_invoice" ? baseurl + '/invoice/bulk_print_ubl_invoice' : baseurl + '/invoice/bulk_print_invoice';
+
                     $.ajax({
-                        url: baseurl + '/invoice/bulk_print_invoice',
+                        url: invoice_url,
                         data: 'InvoiceIDs=' + InvoiceIDs + '&criteria=' + criteria,
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
@@ -1045,7 +1074,7 @@
                                 }else if(response.invoiceId){
                                     document.location =baseurl + "/invoice/download_invoice/"+response.invoiceId;
                                 }else{
-                                    toastr.error("Something Worng Please try again.", "Error", toastr_opts);
+                                    toastr.error("Something Wrong Please try again.", "Error", toastr_opts);
                                 }
 
                             } else {
@@ -1375,6 +1404,8 @@
                     }
                 });
                 if (InvoiceIDs == '') {
+                  alert('Select atlease one invoice');
+                  return false;
                     criteria = JSON.stringify($searchFilter);
                 }
                 if ($('#selectallbutton').is(':checked')) {
@@ -1659,7 +1690,29 @@
                 }
             });
 
+            //===================== row cloning
+
+var decimal_places = 2;
+var invoice_id = '';
+var invoice_tax_html = '<button title="Delete Tax" type="button" id="removeRow" class="btn btn-danger btn-xs invoice_tax_remove ">X</button></td><td><div class="col-md-8">{{addslashes(Form::SelectExt(["name"=>"InvoiceTaxes[field][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small InvoiceTaxesFld"]))}}</div><div class="col-md-4">{{Form::text("InvoiceTaxes[value][]","",array("class"=>"form-control InvoiceTaxesValue","readonly"=>"readonly"))}}</div></td>';
+
+var add_row_html = '<tr class="itemrow hidden"><td><input type="checkbox" id="bremove"></td><td>{{addslashes(Form::SelectControl('item_and_Subscription',0,'',0,'InvoiceDetail[ProductID][]',0))}}</td><td>{{Form::textarea('InvoiceDetail[Description][]','',array("class"=>"form-control invoice_estimate_textarea autogrow descriptions","rows"=>1))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty"))}}</td>'
+add_row_html += '<td class="text-center hidden">{{Form::text('InvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
+
+add_row_html += '<td>{{addslashes(Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID"]))}}</td>';
+add_row_html += '<td>{{addslashes(Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID2][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID2"]))}}</td>';
+   
+     add_row_html += '<td class="hidden">{{Form::text('InvoiceDetail[TaxAmount][]',"0",array("class"=>"form-control  TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>';
+     add_row_html += '<td>{{Form::text('InvoiceDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}';
+     add_row_html += '{{Form::hidden('InvoiceDetail[ProductType][]',Product::ITEM,array("class"=>"ProductType"))}}</td></tr>';
+
+$('#rowContainer').append(add_row_html);
+
+
+
+
         });
+
 
     </script>
 <style>
@@ -1679,11 +1732,14 @@
             padding: 15px 10px;
         }
     </style>
+@include('invoices.script_add_edit_popup')
 @include('accounts.bulk_email')
 @include('invoices.manualmodal')
+
 @stop
 @section('footer_ext')
     @parent 
+
 <!-- Job Modal  (Ajax Modal)-->
 <div class="modal fade custom-width" id="print-modal-invoice">
   <div class="modal-dialog" style="width: 60%;">
@@ -1702,6 +1758,7 @@
     </div>
   </div>
 </div>
+<div id="rowContainer"></div>
 <div class="modal fade custom-width" id="modal-invoice-in">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -1716,6 +1773,11 @@
             <div class="col-sm-4"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
               <input type="hidden" name="InvoiceID">
             </div>
+            <label class="col-sm-2 control-label" for="field-1">Issue Date</label>
+            <div class="col-sm-4">
+              <input type="text" name="IssueDate" class="form-control datepicker"
+                                       data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}"/>
+            </div>
           </div>
           <div class="form-group">
             <label class="col-sm-2 control-label" for="field-1">Start Date</label>
@@ -1728,8 +1790,6 @@
                                        data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown"
                                        class="form-control timepicker">
             </div>
-          </div>
-          <div class="form-group">
             <label class="col-sm-2 control-label" for="field-1">End Date</label>
             <div class="col-sm-2">
               <input type="text" name="EndDate" class="form-control datepicker"
@@ -1741,41 +1801,38 @@
                                        class="form-control timepicker">
             </div>
           </div>
+          
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Issue Date</label>
+            <label class="col-sm-2 control-label" for="field-1">Description</label>
             <div class="col-sm-4">
-              <input type="text" name="IssueDate" class="form-control datepicker"
-                                       data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}"/>
+              <input type="text" name="Description" class="form-control" value=""/>
+              <input type="hidden" name="InvoiceDetailID" class="form-control" value=""/>
             </div>
-          </div>
-          <div class="form-group">
             <label class="col-sm-2 control-label" for="field-1">Invoice Number</label>
             <div class="col-sm-4">
               <input type="text" name="InvoiceNumber" class="form-control" value=""/>
             </div>
           </div>
+          
           <div class="form-group">
             <label class="col-sm-2 control-label" for="field-1">Grand Total<span
                                         id="currency"></span></label>
             <div class="col-sm-4">
               <input type="text" name="GrandTotal" class="form-control" value=""/>
             </div>
-          </div>
-          <div class="form-group">
             <label class="col-sm-2 control-label" for="field-1">Total Seconds</label>
             <div class="col-sm-4">
               <input type="text" name="TotalMinutes" class="form-control" value=""/>
             </div>
           </div>
+          
           <div class="form-group">
             <label class="col-sm-2 control-label" for="field-1">Dispute Amount</label>
-            <div class="col-sm-4">
+            <div class="col-sm-2">
               <input type="text" name="DisputeAmount" class="form-control" value=""/>
             </div>
-          </div>
-          <div class="form-group ">
-            <label class="col-sm-2 control-label" for="field-1">Reconcile</label>
-            <div class="col-sm-4">
+             <label class="col-sm-2 control-label" for="field-1">Reconcile</label>
+            <div class="col-sm-2">
               <table class="reconcile_table table table-bordered datatable  hidden">
                 <thead>
                 <th></th>
@@ -1822,18 +1879,9 @@
               {{--
               <input type="hidden" name="MinutesDifferencePer">
               --}} </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Description</label>
-            <div class="col-sm-4">
-              <input type="text" name="Description" class="form-control" value=""/>
-              <input type="hidden" name="InvoiceDetailID" class="form-control" value=""/>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Attachment(.pdf, .jpg, .png,
+              <label class="col-sm-2 control-label" for="field-1">Attachment(.pdf, .jpg, .png,
               .gif)</label>
-            <div class="col-sm-4">
+            <div class="col-sm-2">
               <input id="Attachment" name="Attachment" type="file"
                                        class="form-control file2 inline btn btn-primary"
                                        data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse"/>
@@ -1842,6 +1890,78 @@
             </div>
             <div class="col-sm-1 download"> </div>
           </div>
+          <div class="form-group">
+        <div class="col-sm-12">
+          <div class="dataTables_wrapper">
+            <table id="InvoiceTable" class="table table-bordered" style="margin-bottom: 0">
+              <thead>
+                <tr>
+                  <th  width="10%" ><button type="button" id="add-row" class="btn btn-primary btn-xs ">+</button> <button type="button" id="removerow" class="btn btn-danger btn-xs">-</button></th>
+                  <th  width="14%">Item/Subscription</th>
+                  <th width="15%">Description</th>
+                  <th width="10%">Unit Price</th>
+                  <th width="10%">Quantity</th>
+                  <th width="10%">Tax 1</th>
+                  <th width="10%">Tax 2</th>
+                  <th class="hidden" width="10%">Total Tax</th>
+                  <th width="10%">Line Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!--@if(!empty($InvoiceDetail))
+                                    @foreach($InvoiceDetail as $ProductRow)
+                                        <tr>
+                                            <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
+                                            <td>{{Form::SelectControl('item_and_Subscription',0,['Type'=>$ProductRow->ProductType,'ID'=>$ProductRow->ProductID],0,'InvoiceDetail[ProductID][]')}}</td>
+                                            <td>{{Form::textarea('InvoiceDetail[Description][]',$ProductRow->Description,array("class"=>"form-control autogrow invoice_estimate_textarea descriptions","rows"=>1))}}</td>
+                                            <td class="text-center">{{Form::text('InvoiceDetail[Price][]', number_format($ProductRow->Price,$RoundChargesAmount),array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
+                                            <td class="text-center">{{Form::text('InvoiceDetail[Qty][]',$ProductRow->Qty,array("class"=>"form-control Qty"))}}</td>
+                                            <td class="text-center hidden">{{Form::text('InvoiceDetail[Discount][]',number_format($ProductRow->Discount,$RoundChargesAmount),array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>
+
+                                            <td class="text-center">{{Form::text('InvoiceDetail[DiscountAmount][]', number_format($ProductRow->DiscountAmount,$RoundChargesAmount),array("class"=>"form-control DiscountAmount","data-min"=>"1", "data-mask"=>"fdecimal"))}}
+                                                {{Form::Select("InvoiceDetail[DiscountType][]",array("Percentage"=>"%","Flat"=>"Flat"),$ProductRow->DiscountType,array("class"=>"select2 small DiscountType"))}}</td>
+                                            <td>{{Form::SelectExt(
+                                                  [
+                                                  "name"=>"InvoiceDetail[TaxRateID][]",
+                                                  "data"=>$taxes,
+                                                  "selected"=>$ProductRow->TaxRateID,
+                                                  "value_key"=>"TaxRateID",
+                                                  "title_key"=>"Title",
+                                                  "data-title1"=>"data-amount",
+                                                  "data-value1"=>"Amount",
+                                                  "data-title2"=>"data-flatstatus",
+                                                  "data-value2"=>"FlatStatus",
+                                                  "class" =>"select2 small Taxentity TaxRateID",
+                                                  ])}}
+                                            </td>
+                                            <td>{{Form::SelectExt(
+                                                  [
+                                                  "name"=>"InvoiceDetail[TaxRateID2][]",
+                                                  "data"=>$taxes,
+                                                  "selected"=>$ProductRow->TaxRateID2,
+                                                  "value_key"=>"TaxRateID",
+                                                  "title_key"=>"Title",
+                                                  "data-title1"=>"data-amount",
+                                                  "data-value1"=>"Amount",
+                                                  "data-title2"=>"data-flatstatus",
+                                                  "data-value2"=>"FlatStatus",
+                                                  "class" =>"select2 small Taxentity TaxRateID2",
+                                                  ]
+                                                  )}}
+                                            </td>
+                                            <td class="hidden">{{Form::text('InvoiceDetail[TaxAmount][]',number_format($ProductRow->TaxAmount,$RoundChargesAmount),array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
+                                            <td>{{Form::text('InvoiceDetail[LineTotal][]',number_format($ProductRow->LineTotal,$RoundChargesAmount),array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}
+                                                {{Form::hidden('InvoiceDetail[InvoiceDetailID][]',$ProductRow->InvoiceDetailID,array("class"=>"InvoiceDetailID"))}}
+                                                {{Form::hidden('InvoiceDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}} </td>
+                                        </tr>
+                                    @endforeach
+                                @endif-->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+          
         </div>
         <div class="modal-footer">
           <button id="saveinvoice" class="btn btn-primary btn-sm btn-icon icon-left" type="submit"
