@@ -56,7 +56,6 @@
             var formData = new FormData($('#{{$formID}}')[0]);
            // redirect = ($(this).attr("data-redirect")=='undefined')?'':$(this).attr("data-redirect");
 
-
             $.ajax({
                 url: baseurl+form_action,  //Server script to process data
                 type: 'POST',

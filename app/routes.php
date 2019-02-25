@@ -331,19 +331,6 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/{activity_id}/update', 'AccountActivityController@update')->where('activity_id', '(.[09]*)+');
     Route::any('accounts/{id}/activities/{activity_id}/delete', 'AccountActivityController@delete')->where('activity_id', '(.[09]*)+');
 	
-	// Account Subscription
-	Route::any('accounts/{id}/recurring/ajax_datagrid', 'AccountRecurringController@ajax_datagrid');
-	Route::any('accounts/{id}/recurring/store', 'AccountRecurringController@store');
-	Route::any('accounts/{id}/recurring/{subscription_id}/update', 'AccountRecurringController@update')->where('subscription_id', '(.[09]*)+');
-	Route::any('accounts/{id}/recurring/{subscription_id}/delete', 'AccountRecurringController@delete')->where('subscription_id', '(.[09]*)+');
-
-	//Account Additional Charge
-	Route::any('accounts/{id}/additionalcharge/ajax_datagrid', 'AccountAdditionalChargeController@ajax_datagrid');
-	Route::any('accounts/{id}/additionalcharge/store', 'AccountAdditionalChargeController@store');
-	Route::any('accounts/{id}/additionalcharge/{additional_id}/update', 'AccountAdditionalChargeController@update')->where('additional_id', '(.[09]*)+');
-	Route::any('accounts/{id}/additionalcharge/{additional_id}/delete', 'AccountAdditionalChargeController@delete')->where('additional_id', '(.[09]*)+');
-	Route::any('accounts/{id}/additionalcharge/{additional_product_id}/ajax_getproductinfo', 'AccountAdditionalChargeController@ajax_getProductInfo')->where('additional_product_id', '(.[09]*)+');
-
     //Account email log
     Route::any('accounts/{id}/activities/ajax_datagrid_email_log', 'AccountActivityController@ajax_datagrid_email_log');
     Route::any('accounts/{id}/activities/sendemail', 'AccountActivityController@sendMail');
@@ -1144,6 +1131,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/store_inv_in', 'InvoicesController@store_inv_in');
 	Route::any('/invoice/bulk_send_invoice_mail', 'InvoicesController@bulk_send_invoice_mail');
 	Route::any('/invoice/bulk_print_invoice', 'InvoicesController@bulk_print_invoice');
+	Route::any('/invoice/bulk_print_ubl_invoice', 'InvoicesController@bulk_print_ubl_invoice');
     Route::any('/invoice/invoice_regen', 'InvoicesController@invoice_regen');
 	Route::any('/invoice/{id}/edit', 'InvoicesController@edit');
 	Route::any('/invoice/{id}/delete', 'InvoicesController@delete');
@@ -1160,6 +1148,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/{id}/ajax_getEmailTemplate', 'InvoicesController@ajax_getEmailTemplate');
 	Route::any('/invoice/{id}/invoice_email', 'InvoicesController@invoice_email');
 	Route::any('/invoice/invoice_change_Status', 'InvoicesController@invoice_change_Status');
+	Route::any('/invoice/invoice_in_delete', 'InvoicesController@invoice_delete_in');
 	Route::any('/invoice/{id}/download_usage', 'InvoicesController@downloadUsageFile');
     Route::any('/invoice_log/{id}', 'TransactionLogController@log');
     Route::any('/invoice_log/ajax_datagrid/{id}/{type}', 'TransactionLogController@ajax_datagrid');
@@ -1834,6 +1823,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('LowBalanceNotification/delete', 'BillingClassApiController@delLowBalanceNotification');
 	Route::post('account/requestFund/', 'PaymentApiController@requestFund');
 	Route::post('account/depositFund/', 'PaymentApiController@depositFund');
+
 	Route::post('startRecording', 'ActiveCallApiController@startRecording');
 	Route::post('startCall', 'ActiveCallApiController@startCall');
 	Route::post('endCall', 'ActiveCallApiController@endCall');
@@ -1845,6 +1835,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('country/list', 'CountryApiController@getList');
 	Route::get('language/list', 'LanguageApiController@getList');
 
+	Route::post('account/getPaymentToken', 'AccountsApiController@getPaymentToken');
 	Route::post('account/createAccount', 'AccountsApiController@createAccount');
 	Route::post('account/updateAccount', 'AccountsApiController@updateAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');

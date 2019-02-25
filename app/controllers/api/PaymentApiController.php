@@ -281,7 +281,7 @@ class PaymentApiController extends ApiController {
 			$PaymentMethod=$Account->PaymentMethod;
 			if (!empty($PaymentMethod) && ($PaymentMethod=='Stripe' || $PaymentMethod=='AuthorizeNet' || $PaymentMethod=='StripeACH')) {
 				$PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentMethod);
-
+				Log::info("$PaymentGatewayID = ".$PaymentGatewayID);
 				$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
 				$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
 				$CustomerProfile = AccountPaymentProfile::getActiveProfile($Account->AccountID, $PaymentGatewayID);
@@ -311,6 +311,38 @@ class PaymentApiController extends ApiController {
 						$PaymentID=self::PaymentLog($Account,$InsertPayment,$data);
 
 						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
+
+
+						if (!empty($InvoiceGenerate['LastInvoiceID'])) {
+							$InvoiceID = $InvoiceGenerate["LastInvoiceID"];
+							$Invoice = Invoice::find($InvoiceID);
+							$Company = Company::find($Invoice->CompanyID);
+							$Message = "Customer Invoice Successfully Created. Please view the invoice from the link send to you " ;
+							$Subject = "Customer Invoice";
+							$Account=Account::find($Invoice->AccountID);
+							$data['EmailTo'] 		= 	$Account->BillingEmail;
+							$singleemail = $Account->BillingEmail;
+							$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+							$body					=	EmailsTemplates::ReplaceEmail($singleemail,$Message);
+							$body = $body . $data['InvoiceURL'];
+							$data['Subject']		=	$Subject;
+							$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
+
+							$invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
+
+
+							if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+							{
+								$data['EmailFrom']	=	$postdata['email_from'];
+							}else{
+								$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
+							}
+
+
+							$status 				= 	$this->sendInvoiceMail($body,$data,0);
+							Log::info('depositFund:. Email Send');
+
+						}
 
 						if(!empty($PaymentID) && !empty($InvoiceGenerate['LastInvoiceID'])){
 							$FullInvoiceNumber = Invoice::where(['InvoiceID'=>$InvoiceGenerate['LastInvoiceID']])->pluck('FullInvoiceNumber');
@@ -346,6 +378,24 @@ class PaymentApiController extends ApiController {
 		}
 	}
 
+
+	function sendInvoiceMail($view,$data,$type=1)
+	{
+
+		$status = array('status' => 0, 'message' => 'Something wrong with sending mail.');
+		if (isset($data['email_from'])) {
+			$data['EmailFrom'] = $data['email_from'];
+		}
+		if (is_array($data['EmailTo'])) {
+			$status = sendMail($view, $data, $type);
+		} else {
+			if (!empty($data['EmailTo'])) {
+				$data['EmailTo'] = trim($data['EmailTo']);
+				$status = sendMail($view, $data, 0);
+			}
+		}
+		return $status;
+	}
 	public static function PaymentLog($Account,$PaymentResponse,$data){
 		if(!empty($PaymentResponse)){
 			$PaymentInsertData=array();

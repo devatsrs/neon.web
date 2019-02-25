@@ -883,10 +883,10 @@
             @include('accountdiscountplan.index')
         @endif
         @if(User::checkCategoryPermission('AccountService','View'))
-            @include('accounts.subscriptions')
+            @include('accountsubscription.index')
         @endif
         @if(User::checkCategoryPermission('AccountService','View'))
-            @include('accounts.additional_charges')
+            @include('accountoneoffcharge.index')
         @endif
         @if(User::checkCategoryPermission('AccountService','View'))
             @include('accountservices.index')
@@ -978,7 +978,7 @@
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
                                 <label for="minimal-radio-5-11">Other</label>
                             </li>
-                            
+
                         </ul>
                     </div>
                     <div class="col-md-9" id="loadGrid">
@@ -1114,8 +1114,6 @@
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('select').attr("disabled", "disabled");
-            $('#additional_filter').find('input').attr("disabled", "disabled");
-            $('#additional_filter').find('select').attr("disabled", "disabled");
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#subscription_filter').find('select').attr("disabled", "disabled");
 
@@ -1128,8 +1126,6 @@
               $('#subscription_filter').find('input').removeAttr("disabled");
               $('#oneofcharge_filter').find('input').removeAttr("disabled");
               $('#oneofcharge_filter').find('select').removeAttr("disabled");
-              $('#additional_filter').find('input').removeAttr("disabled");
-              $('#additional_filter').find('select').removeAttr("disabled");
               $('#subscription_filter').find('input').removeAttr("disabled");
               $('#subscription_filter').find('select').removeAttr("disabled");
 
@@ -1468,9 +1464,9 @@
         $('#DifferentBillingAddress').trigger('change');
     });
 
-var cardvalue = 0;//'{{AccountsPaymentProfileController::getCardValue($account->AccountID)}}';
+var cardvalue = '{{AccountsPaymentProfileController::getCardValue($account->AccountID,"Ingenico")}}';
 if(cardvalue.lenght == 0 ){cardvalue = 0;}
-var htmlgrid = '<div class="panel panel-primary" data-collapsed="0"><div class="panel-heading"><div class="panel-title">Ingenico Payment Profile</div><div class="panel-options"><a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a></div></div><div class="panel-body"><div class="form-group row"><div class="col-sm-2"><label class="control-label">Card Token</label></div><div class="col-sm-6"><input type="text" value="'+cardvalue+'" id="ingenico_card" class="form-control"></div><div class="col-sm-2"><button type="button" class="btn btn-primary" id="ingenicoadd">Update Card</button></div><div class="col-sm-2 control-label"><div id="ingenicostatus"></div></div></div></div></div>';
+var htmlgrid = '<div class="panel panel-primary" data-collapsed="0"><div class="panel-heading"><div class="panel-title">Ingenico Payment Profile</div><div class="panel-options"><a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a></div></div><div class="panel-body"><div class="form-group row"><div class="col-sm-2"><label class="control-label">Card Token</label></div><div class="col-sm-6"><input type="text" name="Ingenico" value="'+cardvalue+'" id="ingenico_card" class="form-control"></div></div></div></div>';
 
 $("input.ingenico").unbind('click').click(function(){
 $("div#loadGrid").empty();
@@ -1478,7 +1474,7 @@ $("div#loadGrid").html(htmlgrid);
 
 $("#ingenicoadd").unbind("click").click(function(e){
     e.preventDefault();
-    
+
  var value = $("input#ingenico_card").val();
  var accountId = '{{$account->AccountID}}';
  var companyId = '{{$account->CompanyId}}';
@@ -1486,11 +1482,10 @@ $("#ingenicoadd").unbind("click").click(function(e){
  if(value.length == 0){
     alert('please enter card detail');
     return false;
- }$(this).text('loading..');
+ }
  $.post("{{url('/paymentprofile/ingenicoadd')}}", {method:method,value:value, accountId:accountId,companyId:companyId}, function(data){
     $("#ingenicostatus").html(data);
  });
- $(this).text('Update Card');
 });
 
 });

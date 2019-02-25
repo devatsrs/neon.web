@@ -13,9 +13,10 @@
                     <div class="SelectedEffectiveDate_Class">
 
                         <div class="input-group-btn">
-                            <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false" style="width:100%">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_DID)}}<span class="caret"></span></button>
+                            <button type="button" class="btn btn-primary dropdown-toggle pull-right didbutton" data-toggle="dropdown" aria-expanded="false" style="width:100%">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_DID)}} <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; width:100% ">
                                 <li> <a  href="{{URL::to('lcr')}}"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_VOICECALL)}}</a></li>
+                                <li> <a  href="javascript:;" class="packageoption"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_PACKAGE)}}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -24,9 +25,13 @@
                     <label for="field-1" class="control-label">Date</label>
                     {{Form::text('EffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-startdate"=>date('Y-m-d'), "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
                 </div>
-                <div class="form-group">
+                <div class="form-group productdiv">
                     <label class="control-label">Product</label>
                     {{ Form::select('ProductID', $products, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group packagediv" style="display:none;">
+                    <label class="control-label">Package</label>
+                    {{ Form::select('PackageID', $Package, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Currency</label>
@@ -36,7 +41,7 @@
                     <label for="field-1" class="control-label">Show Positions</label>
                     {{ Form::select('LCRPosition', LCR::$position, $LCRPosition , array("class"=>"select2")) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group productcategory">
                     <label for="field-1" class="control-label">Category</label>
                     {{Form::select('DIDCategoryID', $Categories, '',array("class"=>"select2"))}}
                 </div>
@@ -77,6 +82,7 @@
                 </div>
                 <div class="form-group">
                     <br/>
+                    <input type="hidden" name="lcr_type" id="lcr_type" value="" >
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
                         Search
@@ -130,11 +136,34 @@
     </table>
 
     <script type="text/javascript">
-
+        
+        
         var $searchFilter = {};
         var data_table;
+       
         jQuery(document).ready(function($) {
-
+            var accbtnval=$('.didbutton').text();
+            var packbtnval=$('.packageoption').text();
+            $('.packageoption').click(function(){
+                if($('.packageoption').text()=='Package'){
+                   $('#lcr_type').val('Y');
+                   $('.didbutton').html(packbtnval+' <span class="caret"></span>');
+                   $('.packageoption').html(accbtnval); 
+                   $('.packagediv').show();
+                   $('.productdiv').hide();
+                   $('.productcategory').hide();
+                }else{
+                    $('#lcr_type').val('N');
+                   $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+                    $('.packageoption').html(packbtnval); 
+                    $('.packagediv').hide();
+                   $('.productdiv').show();
+                   $('.productcategory').show();
+                }
+                
+            });
+            
+                
             $('#filter-button-toggle').show();
 
             //var data_table;
@@ -262,32 +291,23 @@
                 }
 
                 if(typeof $searchFilter.EffectiveDate  == 'undefined' || $searchFilter.EffectiveDate == '' ){
-                    setTimeout(function(){
-                        $('.btn').button('reset');
-                    },10);
                     toastr.error("Please Select a Effective Date", "Error", toastr_opts);
                     return false;
                 }
                 if(typeof $searchFilter.ProductID  == 'undefined' || $searchFilter.ProductID == '' ){
-                    setTimeout(function(){
-                        $('.btn').button('reset');
-                    },10);
                     toastr.error("Please Select a Product", "Error", toastr_opts);
                     return false;
                 }
                 if((typeof $searchFilter.Currency  == 'undefined' || $searchFilter.Currency == '' ) ){
-                    setTimeout(function(){
-                        $('.btn').button('reset');
-                    },10);
                     toastr.error("Please Select Currency", "Error", toastr_opts);
                     return false;
                 }
+                if($('#lcr_type').val()=='Y'){
+                }else{
                 if(typeof $searchFilter.DIDCategoryID  == 'undefined' || $searchFilter.DIDCategoryID == '' ){
-                    setTimeout(function(){
-                        $('.btn').button('reset');
-                    },10);
                     toastr.error("Please Select a Category", "Error", toastr_opts);
                     return false;
+                }
                 }
 
                 data_table = $("#table").dataTable({

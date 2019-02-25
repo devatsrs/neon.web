@@ -36,6 +36,9 @@ class PaymentIntegration {
 	public function createAccount($data){
 		return $this->request->createAccount($data);
 	}
+	public function createAccountWithToken($data){
+		return $this->request->createAccountWithToken($data);
+	}
 
 	public function deleteAccount($data){
 		return $this->request->deleteAccount($data);

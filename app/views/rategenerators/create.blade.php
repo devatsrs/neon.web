@@ -163,6 +163,13 @@
                                 {{ Form::select('ProductID', $Products, null, array("class"=>"select2")) }}
                             </div>
                         </div>
+                        
+                        <div class="form-group Package-Div" style="display:none;">
+                            <label for="field-1" class="col-sm-2 control-label">Package</label>
+                            <div class="col-sm-10">
+                                {{ Form::select('PackageID', $Package, null, array("class"=>"select2")) }}
+                            </div>
+                        </div>
                         <div class="form-group DID-Div">
                             <label for="DateFrom" class="col-sm-2 control-label">Date From</label>
                             <div class="col-sm-4">
@@ -462,7 +469,7 @@
             $("#DIDCategoryDiv").show();
             $("#Merge-components").show();
             $(".DID-Div").show();
-            $(".NonDID-Div").hide();
+            $(".NonDID-Div").hide();$(".Package-Div").hide();
 
         }else if(TypeValue == 1){
             $("#rate-ostion-trunk-div").show();
@@ -472,10 +479,21 @@
             $("#DIDCategoryDiv").hide();
             $("#hide-components").hide();
             $(".DID-Div").hide();
-            $(".NonDID-Div").show();
+            $(".NonDID-Div").show();$(".Package-Div").hide();
+        }else if(TypeValue == 3){
+            
+            $(".DID-Div").hide();
+            $(".NonDID-Div").hide();
+            $(".Package-Div").show();
+            $("#rate-ostion-trunk-div").hide();
+            $("#rate-aveg-div").hide();
+            $("#group-preference-div").hide();
+            $("#DIDCategoryDiv").hide();
+            $("#Merge-components").show();
+            
         } else {
             $(".DID-Div").hide();
-            $(".NonDID-Div").show();
+            $(".NonDID-Div").show();$(".Package-Div").hide();
         }
 
         $("#rategenerator-from [name='SelectType']").on('change', function() {
@@ -490,7 +508,7 @@
                 $("#DIDCategoryDiv").show();
                 $("#hide-components").show();
                 $(".DID-Div").show();
-                $(".NonDID-Div").hide();
+                $(".NonDID-Div").hide();$(".Package-Div").hide();
 
 
             }else if(TypeValue == 1){
@@ -501,9 +519,20 @@
                 $("#hide-components").hide();
                 $("#DIDCategoryDiv").hide();
                 $(".DID-Div").hide();
-                $(".NonDID-Div").show();
-            } else {
+                $(".NonDID-Div").show();$(".Package-Div").hide();
+            }else if(TypeValue == 3){
+            
                 $(".DID-Div").hide();
+                $(".NonDID-Div").hide();
+                $(".Package-Div").show();
+                $("#rate-ostion-trunk-div").hide();
+                $("#rate-aveg-div").hide();
+                $("#group-preference-div").hide();
+                $("#DIDCategoryDiv").hide();
+                $("#Merge-components").show();
+            
+            } else {
+                $(".DID-Div").hide();$(".Package-Div").hide();
                 $(".NonDID-Div").show();
             }
 
