@@ -84,7 +84,6 @@ class Invoice extends \Eloquent {
     }
 
     public static  function generate_pdf($InvoiceID){
-        Log::useFiles(storage_path() . '/logs/z_pdf-invoice-' . date('Y-m-d') . '.log');
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
 
@@ -228,7 +227,6 @@ class Invoice extends \Eloquent {
 
 
     public static  function generate_ubl_invoice($InvoiceID){
-        Log::useFiles(storage_path() . '/logs/z_ubl-invoice-' . date('Y-m-d') . '.log');
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
             $Account = Account::find($Invoice->AccountID);
@@ -260,7 +258,6 @@ class Invoice extends \Eloquent {
     }
 
     public static function ublInvoice($InvoiceData, $Account){
-        Log::useFiles(storage_path() . '/logs/z_ubl-invoice-' . date('Y-m-d') . '.log');
         $CompanyID = $InvoiceData->CompanyID;
         $BillingClassID = $InvoiceData->BillingClassID;
         $BillingClass = BillingClass::findOrFail($BillingClassID);
