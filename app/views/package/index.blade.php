@@ -323,6 +323,7 @@
 
                 $("#add-new-package-form [name='Name']").val(PackageName);
                 $("#add-new-package-form [name='PackageId']").val($(this).attr('data-id'));
+                $("#add-new-package-form [name='RateTableId']").val(RateTableId).trigger("change");
                 $("#add-new-package-form [name='CurrencyId']").val(CurrencyId).trigger("change");
                 $("#add-new-package-form [name='status']").val(Status).prop('checked', Status == 1);
                 $('#add-new-modal-package h4').html('Edit Package');
