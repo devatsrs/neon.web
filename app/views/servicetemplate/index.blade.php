@@ -391,7 +391,6 @@
             $("#add-new-service-form [name='AutomaticRenewal']").prop(':checked', AutomaticRenewal == 1).trigger('change');
             loadValuesBasedOnCurrency(CurrencyID,true,ServiceId,OutboundDiscountPlanID,InboundDiscountPlanID,OutboundTariffId);
             editSelectedTemplateSubscription(CurrencyID,id);
-            alert(OutboundTariffId);
             $("#add-new-service-form [name='ServiceId']").select2().select2('val',ServiceId);
             $("#add-new-service-form [name='CompanyGatewayID']").select2().select2('val',CompanyGatewayID);
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));
