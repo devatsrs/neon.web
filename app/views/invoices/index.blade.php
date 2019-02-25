@@ -118,6 +118,7 @@
             @endif
 
             <li> <a class="quickbookpost create" id="print_invoice" href="javascript:;"> Download Invoice </a> </li>
+            <li> <a class="quickbookpost create" id="print_ubl_invoice" href="javascript:;"> Download UBL Invoice </a> </li>
 
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;"> Change Status </a> </li>
@@ -1022,7 +1023,7 @@
                 submit_ajax(_url, post_data);
 				
             });
-            $("#print_invoice").click(function (ev) {
+            $("#print_invoice, #print_ubl_invoice").click(function (ev) {
                 var criteria = '';
                 if ($('#selectallbutton').is(':checked')) {
                     criteria = JSON.stringify($searchFilter);
@@ -1036,14 +1037,15 @@
                         InvoiceIDs[i++] = InvoiceID;
                     }
                 });
-                console.log(InvoiceIDs);
 
                 if (InvoiceIDs.length) {
                     if (!confirm('Are you sure you want to download selected invoices?')) {
                         return;
                     }
+                    var invoice_url = $(this).attr('id') == "print_ubl_invoice" ? baseurl + '/invoice/bulk_print_ubl_invoice' : baseurl + '/invoice/bulk_print_invoice';
+
                     $.ajax({
-                        url: baseurl + '/invoice/bulk_print_invoice',
+                        url: invoice_url,
                         data: 'InvoiceIDs=' + InvoiceIDs + '&criteria=' + criteria,
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
@@ -1056,7 +1058,7 @@
                                 }else if(response.invoiceId){
                                     document.location =baseurl + "/invoice/download_invoice/"+response.invoiceId;
                                 }else{
-                                    toastr.error("Something Worng Please try again.", "Error", toastr_opts);
+                                    toastr.error("Something Wrong Please try again.", "Error", toastr_opts);
                                 }
 
                             } else {
