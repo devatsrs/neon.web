@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- Host:                         192.168.1.25
--- Server version:               5.7.23-log - MySQL Community Server (GPL)
--- Server OS:                    Win64
+-- Host:                         188.227.186.98
+-- Server version:               5.7.18 - MySQL Community Server (GPL)
+-- Server OS:                    Linux
 -- HeidiSQL Version:             9.5.0.5196
 -- --------------------------------------------------------
 
@@ -10,11 +10,12 @@
 /*!50503 SET NAMES utf8mb4 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+use speakintelligentRM;
 
 -- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTableDID
-drop procedure if exists prc_WSGenerateRateTableDID;
+DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTableDID`;
 DELIMITER //
-CREATE  PROCEDURE `prc_WSGenerateRateTableDID`(
+CREATE PROCEDURE `prc_WSGenerateRateTableDID`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
@@ -279,6 +280,13 @@ GenerateRateTable:BEGIN
 				primary key (ID)
 			);
 
+			DROP TEMPORARY TABLE IF EXISTS tmp_origination_minutes;
+			CREATE TEMPORARY TABLE tmp_origination_minutes (
+				OriginationCode varchar(50),
+				minutes int
+			);
+
+
 			DROP TEMPORARY TABLE IF EXISTS tmp_timezone_minutes;
 			CREATE TEMPORARY TABLE tmp_timezone_minutes (
 				TimezonesID int,
@@ -433,25 +441,94 @@ GenerateRateTable:BEGIN
 			SET @p_Minutes	 							 = @v_Minutes;
 			SET @v_PeakTimeZoneID	 				 = @v_TimezonesID;
 			SET @p_PeakTimeZonePercentage	 		 = @v_TimezonesPercentage;		-- peak percentage
-			SET @p_MobileOrigination				 = @v_Origination ; -- 'Mobile';	--
 			SET @p_MobileOriginationPercentage	 = @v_OriginationPercentage ;	-- mobile percentage
 
 
-			-- Helper calculations...
 
-			SET @v_PeakTimeZoneMinutes				 =  ( (@p_Minutes/ 100) * @p_PeakTimeZonePercentage ) 	; -- Peak minutes:
-			SET @v_OffpeakTimeZoneMinutes		 	 =  (@p_Minutes -  @v_PeakTimeZoneMinutes)	; -- off Peak minutes;
-			SET @v_MinutesFromMobileOrigination  =  ( (@p_Minutes/ 100) * @p_MobileOriginationPercentage ) 	; -- Minutes from mobile:
+			IF @p_Calls = 0 AND @p_Minutes = 0 THEN
 
-			SET @v_CallerRate = 1; -- temp set as 1
---			SET @p_ServiceTemplateID  = @v_ProductID_;
-			-- SET @p_DIDCategoryID  		= @v_DIDCategoryID_;
 
-		-- set @p_CurrencyID = @v_CompanyId_;
 
-		-- SET @p_StartDate	= p_StartDate;
-		-- SET @p_EndDate		= p_EndDate;
+				select count(UsageDetailID)  into @p_Calls
 
+				from speakintelligentCDR.tblUsageDetails  d
+
+				inner join speakintelligentCDR.tblUsageHeader h on d.UsageHeaderID = h.UsageHeaderID
+
+				where CompanyID = @v_CompanyId_ AND StartDate >= @v_StartDate_ AND StartDate <= @v_EndDate_ and d.is_inbound = 1;
+
+
+
+				insert into tmp_timezone_minutes (TimezonesID, minutes)
+
+				select TimezonesID  , (sum(billed_duration) / 60) as minutes
+
+				from speakintelligentCDR.tblUsageDetails  d
+
+				inner join speakintelligentCDR.tblUsageHeader h on d.UsageHeaderID = h.UsageHeaderID
+
+				where CompanyID = @v_CompanyId_ AND StartDate >= @v_StartDate_ AND StartDate <= @v_EndDate_ and d.is_inbound = 1 and TimezonesID is not null
+
+				group by TimezonesID;
+
+
+				insert into tmp_origination_minutes ( OriginationCode, minutes )
+
+				select CLIPrefix  , (sum(billed_duration) / 60) as minutes
+
+				from speakintelligentCDR.tblUsageDetails  d
+
+				inner join speakintelligentCDR.tblUsageHeader h on d.UsageHeaderID = h.UsageHeaderID
+
+				where CompanyID = @v_CompanyId_ AND StartDate >= @v_StartDate_ AND StartDate <= @v_EndDate_ and d.is_inbound = 1 and CLIPrefix is not null
+
+				group by CLIPrefix;
+
+
+			ELSE
+
+
+
+				-- Helper calculations...
+				SET @p_MobileOrigination				 = @v_Origination ; -- 'Mobile';	--
+				SET @v_PeakTimeZoneMinutes				 =  ( (@p_Minutes/ 100) * @p_PeakTimeZonePercentage ) 	; -- Peak minutes:
+				SET @v_MinutesFromMobileOrigination  =  ( (@p_Minutes/ 100) * @p_MobileOriginationPercentage ) 	; -- Minutes from mobile:
+
+
+				 -- ///////////////////////////////////////////////////// Timezone minutes logic
+				insert into tmp_timezones (TimezonesID) select TimezonesID from 	tblTimezones;
+
+				insert into tmp_timezone_minutes (TimezonesID, minutes) select @v_TimezonesID, @v_PeakTimeZoneMinutes as minutes;
+
+				SET @v_RemainingTimezones = (select count(*) from tmp_timezones where TimezonesID != @v_TimezonesID);
+				SET @v_RemainingMinutes = (@p_Minutes - @v_PeakTimeZoneMinutes) / @v_RemainingTimezones ;
+
+				SET @v_pointer_ = 1;
+				SET @v_rowCount_ = ( SELECT COUNT(*) FROM tmp_timezones );
+
+				WHILE @v_pointer_ <= @v_rowCount_
+				DO
+
+						SET @v_NewTimezonesID = (SELECT TimezonesID FROM tmp_timezones WHERE ID = @v_pointer_ AND TimezonesID != @v_TimezonesID );
+
+						if @v_NewTimezonesID > 0  THEN
+
+							insert into tmp_timezone_minutes (TimezonesID, minutes)  select @v_NewTimezonesID, @v_RemainingMinutes as minutes;
+
+						END IF ;
+
+					SET @v_pointer_ = @v_pointer_ + 1;
+
+				END WHILE;
+
+
+
+
+				insert into tmp_origination_minutes ( OriginationCode, minutes )
+				select @p_MobileOrigination  , @v_MinutesFromMobileOrigination ;
+
+
+		END IF;
 
 		SET @v_days =    TIMESTAMPDIFF(DAY, (SELECT @v_StartDate_), (SELECT @v_EndDate_)) + 1 ;
 		SET @v_period1 =      IF(MONTH((SELECT @v_StartDate_)) = MONTH((SELECT @v_EndDate_)), 0, (TIMESTAMPDIFF(DAY, (SELECT @v_StartDate_), LAST_DAY((SELECT @v_StartDate_)) + INTERVAL 1 DAY)) / DAY(LAST_DAY((SELECT @v_StartDate_))));
@@ -460,36 +537,9 @@ GenerateRateTable:BEGIN
 		SET @v_months =     (SELECT @v_period1) + (SELECT @v_period2) + (SELECT @v_period3);
 
 
-
-
-		 -- ///////////////////////////////////////////////////// Timezone minutes logic
-		insert into tmp_timezones (TimezonesID) select TimezonesID from 	tblTimezones;
-
-		insert into tmp_timezone_minutes (TimezonesID, minutes) select @v_TimezonesID, @v_PeakTimeZoneMinutes as minutes;
-
-		SET @v_RemainingTimezones = (select count(*) from tmp_timezones where TimezonesID != @v_TimezonesID);
-		SET @v_RemainingMinutes = (@p_Minutes - @v_PeakTimeZoneMinutes) / @v_RemainingTimezones ;
-
-		SET @v_pointer_ = 1;
-		SET @v_rowCount_ = ( SELECT COUNT(*) FROM tmp_timezones );
-
-		WHILE @v_pointer_ <= @v_rowCount_
-		DO
-
-				SET @v_NewTimezonesID = (SELECT TimezonesID FROM tmp_timezones WHERE ID = @v_pointer_ AND TimezonesID != @v_TimezonesID );
-
-				if @v_NewTimezonesID > 0  THEN
-
-					insert into tmp_timezone_minutes (TimezonesID, minutes)  select @v_NewTimezonesID, @v_RemainingMinutes as minutes;
-
-				END IF ;
-
-			SET @v_pointer_ = @v_pointer_ + 1;
-
-		END WHILE;
-
 		insert into tmp_timezone_minutes_2 (TimezonesID, minutes) select TimezonesID, minutes from tmp_timezone_minutes;
 		insert into tmp_timezone_minutes_3 (TimezonesID, minutes) select TimezonesID, minutes from tmp_timezone_minutes;
+
 
 		-- ///////////////////////////////////////////////////// Timezone minutes logic
 
@@ -883,7 +933,7 @@ GenerateRateTable:BEGIN
 									(	IFNULL(@MonthlyCost,0) 				)				+
 									(IFNULL(@CostPerMinute,0) * (select minutes from tmp_timezone_minutes tm where tm.TimezonesID = t.TimezonesID ))	+
 									(IFNULL(@CostPerCall,0) * @p_Calls)		+
-									(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
+									(IFNULL(@SurchargePerCall,0) * IFNULL(tom.minutes,0)) +
 									(IFNULL(@OutpaymentPerMinute,0) *  (select minutes from tmp_timezone_minutes_2 tm2 where tm2.TimezonesID = t.TimezonesID ))	+
 									(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
 									-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
@@ -893,7 +943,7 @@ GenerateRateTable:BEGIN
 								)
 								 as Total1,
 								@Total := (
-								@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * @CollectionCostPercentage)  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+								@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = @v_CompanyId_ AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
 									) as Total
 
 
@@ -909,6 +959,8 @@ GenerateRateTable:BEGIN
 			--	 and  c.Country = st.country  AND r.Code = st.prefixName  -- for testing only
 				and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )  --		for live only
 				inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
+				left join tmp_origination_minutes tom  on r2.Code = tom.OriginationCode
+
 				where
 
 				rt.CompanyId =  @v_CompanyId_
@@ -1322,19 +1374,19 @@ GenerateRateTable:BEGIN
 
 							 @Total1 := (
 									(	IFNULL(@MonthlyCost,0) 				)				+
-									(IFNULL(@CostPerMinute,0) * @v_MinutesFromMobileOrigination)	+
+									(IFNULL(@CostPerMinute,0) * IFNULL(tom.minutes,0))	+
 									(IFNULL(@CostPerCall,0) * @p_Calls)		+
-									(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
-									(IFNULL(@OutpaymentPerMinute,0) * 	@v_MinutesFromMobileOrigination)	+
+									(IFNULL(@SurchargePerCall,0) * IFNULL(tom.minutes,0)) +
+									(IFNULL(@OutpaymentPerMinute,0) * 	IFNULL(tom.minutes,0))	+
 									(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
 									-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
-									(IFNULL(@CollectionCostAmount,0) * @v_MinutesFromMobileOrigination)
+									(IFNULL(@CollectionCostAmount,0) * IFNULL(tom.minutes,0))
 
 
 								) as Total1,
 
 								@Total := (
-								@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * @CollectionCostPercentage)  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+								@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = @v_CompanyId_ AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
 									) as Total
 
 
@@ -1347,8 +1399,9 @@ GenerateRateTable:BEGIN
 		 		inner join tblCountry c on c.CountryID = r.CountryID
 				inner join tblServiceTemplate st on st.ServiceTemplateId = @v_ProductID_
 			--	 and  c.Country = st.country  AND r.Code = st.prefixName  -- for testing only
-				and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) and  r2.Code = @p_MobileOrigination --		for live only
+				and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) -- and  r2.Code = @p_MobileOrigination --		for live only
 				inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
+				inner join tmp_origination_minutes tom  on r2.Code = tom.OriginationCode
 				where
 
 				rt.CompanyId =  @v_CompanyId_
@@ -1627,19 +1680,20 @@ GenerateRateTable:BEGIN
 					CityTariff,
 					VendorName,
 					EndDate,
-					OneOffCost,
-					MonthlyCost,
-					CostPerCall,
-					CostPerMinute,
-					SurchargePerCall,
-					SurchargePerMinute,
-					OutpaymentPerCall,
-					OutpaymentPerMinute,
-					Surcharges,
-					Chargeback,
-					CollectionCostAmount,
-					CollectionCostPercentage,
-					RegistrationCostPerNumber,
+
+					IFNULL(OneOffCost,0),
+					IFNULL(MonthlyCost,0),
+					IFNULL(CostPerCall,0),
+					IFNULL(CostPerMinute,0),
+					IFNULL(SurchargePerCall,0),
+					IFNULL(SurchargePerMinute,0),
+					IFNULL(OutpaymentPerCall,0),
+					IFNULL(OutpaymentPerMinute,0),
+					IFNULL(Surcharges,0),
+					IFNULL(Chargeback,0),
+					IFNULL(CollectionCostAmount,0),
+					IFNULL(CollectionCostPercentage,0),
+					IFNULL(RegistrationCostPerNumber,0),
 
 					OneOffCostCurrency,
 					MonthlyCostCurrency,
