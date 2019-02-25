@@ -1621,6 +1621,7 @@ public function store_inv_in(){
     //Generate Item Based Invoice PDF - not using
     public function generate_pdf($id){   
         if($id>0) {
+            Log::useFiles(storage_path() . '/logs/z_pdf-invoice-' . date('Y-m-d') . '.log');
             $Invoice = Invoice::find($id);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
             $Account = Account::find($Invoice->AccountID);
