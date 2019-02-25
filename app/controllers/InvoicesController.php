@@ -942,14 +942,14 @@ public function store_inv_in(){
                                 $Invoice->update(["PDF" => $pdf_path]);
                             }
 
-                            $ubl_path = Invoice::generate_ubl_invoice($Invoice->InvoiceID);
+                            /*$ubl_path = Invoice::generate_ubl_invoice($Invoice->InvoiceID);
                             if (empty($ubl_path)) {
                                 $error['message'] = 'Failed to generate Invoice UBL File.';
                                 $error['status'] = 'failure';
                                 return $error;
                             } else {
                                 $Invoice->update(["UblInvoice" => $ubl_path]);
-                            }
+                            }*/
                             //StockHistory Maintain
                             $MultiProductSumQtyArr=array();
                             $OldProductsarr=sumofQtyIfSameProduct($OldProductsarr);
@@ -1621,7 +1621,6 @@ public function store_inv_in(){
     //Generate Item Based Invoice PDF - not using
     public function generate_pdf($id){   
         if($id>0) {
-            Log::useFiles(storage_path() . '/logs/z_pdf-invoice-' . date('Y-m-d') . '.log');
             $Invoice = Invoice::find($id);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
             $Account = Account::find($Invoice->AccountID);
