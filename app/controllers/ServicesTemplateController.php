@@ -1220,6 +1220,7 @@ class ServicesTemplateController extends BaseController {
 
                             if (!isset($alreadyExistServices)){
                                 $updateFields1 = [];
+                                $updateFields1['ServiceTemplateID'] = $data['ServiceTemplateId'];
                                 $updateFields1['RateTableId'] = $data['RateTableId'];
                                 $updateFields1['DIDCategoryId'] = $data['DIDCategoryId'];
                                 ServiceTemapleInboundTariff::create($updateFields1);
@@ -1227,6 +1228,7 @@ class ServicesTemplateController extends BaseController {
 
                             }else {
                                 $updateFields1 = [];
+                                $updateFields1['ServiceTemplateID'] = $data['ServiceTemplateId'];
                                 $updateFields1['RateTableId'] = $data['RateTableId'];
                                 ServiceTemapleInboundTariff::where('ServiceTemapleInboundTariffId', $alreadyExistServices->ServiceTemapleInboundTariffId)
                                     ->update($updateFields1);
@@ -1245,11 +1247,13 @@ class ServicesTemplateController extends BaseController {
                             if (!isset($alreadyExistServices))
                             {
                                 $updateFields1 = [];
+                                $updateFields1['ServiceTemplateID'] = $data['ServiceTemplateId'];
                                 $updateFields1['RateTableId'] = $data['RateTableId'];
                                 ServiceTemapleInboundTariff::create($updateFields1);
 
                             }else{
                                 $updateFields1 = [];
+                                $updateFields1['ServiceTemplateID'] = $data['ServiceTemplateId'];
                                 $updateFields1['RateTableId'] = $data['RateTableId'];
                                 ServiceTemapleInboundTariff::where('ServiceTemapleInboundTariffId', $alreadyExistServices->ServiceTemapleInboundTariffId)
                                     ->update($updateFields1);
