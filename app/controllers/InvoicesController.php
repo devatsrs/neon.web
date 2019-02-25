@@ -747,7 +747,7 @@ public function store_inv_in(){
      * Store Invoice
      */
     public function update($id){
-        Log::useFiles(storage_path() . '/logs/z_ubl-invoice-' . date('Y-m-d') . '.log');
+        Log::useFiles(storage_path() . '/logs/z_test-invoice-' . date('Y-m-d') . '.log');
         $data = Input::all();
         unset($data['BarCode']);
         if(!empty($data) && $id > 0){
@@ -1621,7 +1621,6 @@ public function store_inv_in(){
     //Generate Item Based Invoice PDF - not using
     public function generate_pdf($id){   
         if($id>0) {
-            Log::useFiles(storage_path() . '/logs/z_pdf-invoice-' . date('Y-m-d') . '.log');
             $Invoice = Invoice::find($id);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
             $Account = Account::find($Invoice->AccountID);
