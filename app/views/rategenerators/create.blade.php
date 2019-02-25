@@ -488,8 +488,9 @@
             $("#rate-ostion-trunk-div").hide();
             $("#rate-aveg-div").hide();
             $("#group-preference-div").hide();
-            $("#DIDCategoryDiv").show();
+            $("#DIDCategoryDiv").hide();
             $("#Merge-components").show();
+            
         } else {
             $(".DID-Div").hide();
             $(".NonDID-Div").show();$(".Package-Div").hide();
@@ -527,7 +528,7 @@
                 $("#rate-ostion-trunk-div").hide();
                 $("#rate-aveg-div").hide();
                 $("#group-preference-div").hide();
-                $("#DIDCategoryDiv").show();
+                $("#DIDCategoryDiv").hide();
                 $("#Merge-components").show();
             
             } else {
