@@ -26,8 +26,20 @@
                     {{Form::text('EffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-startdate"=>date('Y-m-d'), "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
                 </div>
                 <div class="form-group productdiv">
-                    <label class="control-label">Product</label>
-                    {{ Form::select('ProductID', $products, '', array("class"=>"select2")) }}
+                    <label class="control-label">Country</label>
+                    {{ Form::select('Country', $country, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group productdiv">
+                    <label class="control-label">Access Type</label>
+                    {{ Form::select('AccessType', $AccessType, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group productdiv">
+                    <label class="control-label">Prefix</label>
+                    {{ Form::select('Prefix', $Prefix, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group productdiv">
+                    <label class="control-label">City/Tariff</label>
+                    {{ Form::select('CityTariff', $CityTariff, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group packagediv" style="display:none;">
                     <label class="control-label">Package</label>
