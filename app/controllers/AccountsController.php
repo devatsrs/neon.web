@@ -844,9 +844,9 @@ class AccountsController extends \BaseController {
         $ResellerCount = Reseller::where(['AccountID'=>$id,'Status'=>1])->count();
 
         $dynamicfields = Account::getDynamicfields('account',$id);
-        Log::info("Count for Dynamic fields for Account ." . $id . ' ' . count($dynamicfields));
+        //Log::info("Count for Dynamic fields for Account ." . $id . ' ' . count($dynamicfields));
         $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
-        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        $reseller_owners = Reseller::getDropdownIDList($companyID);
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
@@ -2319,7 +2319,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 		if(isset($data['BillingCheck'])){
             $billing_on_off = isset($data['billing_on_off'])?1:0;
-            \Illuminate\Support\Facades\Log::info('billing -- '.$billing_on_off);
+            //\Illuminate\Support\Facades\Log::info('billing -- '.$billing_on_off);
             if(!empty($billing_on_off)){
                 Account::$billingrules['BillingClassID'] = 'required';
                 Account::$billingrules['BillingType'] = 'required';
@@ -2414,9 +2414,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $criteria = json_decode($data['BulkActionCriteria'], true);
             $BulkselectedIDs = $this->getAccountsByCriteria($criteria);
             $selectedIDs = array_filter(explode(',',$BulkselectedIDs));
-            \Illuminate\Support\Facades\Log::info('--criteria-- '.$BulkselectedIDs);
+            //\Illuminate\Support\Facades\Log::info('--criteria-- '.$BulkselectedIDs);
         }else{
-            \Illuminate\Support\Facades\Log::info('--ids-- '.$data['BulkselectedIDs']);
+            //\Illuminate\Support\Facades\Log::info('--ids-- '.$data['BulkselectedIDs']);
             $selectedIDs = array_filter(explode(',',$data['BulkselectedIDs']));
         }
 
@@ -2429,18 +2429,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
                 $ResellerCompanyID = Account::where("AccountID",$id)->pluck('CompanyId');
                 $CompanyID = User::get_companyID();
-                \Illuminate\Support\Facades\Log::info("reseller companyID".$CompanyID);
+                //\Illuminate\Support\Facades\Log::info("reseller companyID".$CompanyID);
                 /*if current companyid and account companyid is differnt that means it reseller account*/
                 if($ResellerCompanyID!=$CompanyID){
-                    \Illuminate\Support\Facades\Log::info("reseller account");
+                    //\Illuminate\Support\Facades\Log::info("reseller account");
                     unset($update['IsReseller']);
                     unset($update['Billing']);
                     $billing_on_off=0;
                     $update_billing=0;
                 }else{
                     if($ResellerAccountOwnerUpdate==1 && $ResellerCount==0) {
-                        log::info('IsReseller is on');
-                        log::info('ResellerOwner '.$ResellerOwner);
+                        //log::info('IsReseller is on');
+                        //log::info('ResellerOwner '.$ResellerOwner);
                         $Reseller = Reseller::getResellerDetails($ResellerOwner);
                         $NewResellerCompanyID = $Reseller->ChildCompanyID;
                         $ResellerUser = User::where('CompanyID', $NewResellerCompanyID)->first();
@@ -2451,8 +2451,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     }
                 }
 
-                \Illuminate\Support\Facades\Log::info('Account id -- '.$id);
-                \Illuminate\Support\Facades\Log::info(print_r($update,true));
+                //\Illuminate\Support\Facades\Log::info('Account id -- '.$id);
+                //\Illuminate\Support\Facades\Log::info(print_r($update,true));
 				DB::beginTransaction();
                 $upcurrencyaccount = Account::find($id);
                 if(empty($upcurrencyaccount->CurrencyId) && isset($currencyupdate['CurrencyId'])){
@@ -2477,7 +2477,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $invoice_count = Account::getInvoiceCount($id);
                 //new billing
                 if(isset($data['BillingCheck']) && !empty($billing_on_off)) {
-                    \Illuminate\Support\Facades\Log::info('--update billing--');
+                    //\Illuminate\Support\Facades\Log::info('--update billing--');
                     $count = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->count();
                     if($count==0){
                         //billing section start
@@ -2494,9 +2494,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                             AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                         }
                     }else{
-                        \Illuminate\Support\Facades\Log::info('-- AllReady Billing set. No Billing Change--');
+                        //\Illuminate\Support\Facades\Log::info('-- AllReady Billing set. No Billing Change--');
                     }
-                    \Illuminate\Support\Facades\Log::info('--update billing over--');
+                    //\Illuminate\Support\Facades\Log::info('--update billing over--');
                 }
 
                 if(!empty($update_billing) && $update_billing==1){
@@ -2504,7 +2504,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     $billing_on_off = isset($data['billing_on_off'])?1:0;
                     $AccBilling = Account::where(['AccountID'=>$id])->pluck('Billing');
                     //if billing than update account
-                    log::info('Update Billing '.$count.' - '.$update_billing.' - '.$billing_on_off.' - '.$AccBilling);
+                    //log::info('Update Billing '.$count.' - '.$update_billing.' - '.$billing_on_off.' - '.$AccBilling);
                     if($count>0 && ($billing_on_off==1 || $AccBilling==1)){
                         //AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         if(!empty($accountbillngdata) && $accountbillngdata==1){
@@ -2539,14 +2539,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                                     AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                                 }
                             }else{
-                                \Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change.count 0 --');
+                                //\Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change.count 0 --');
                             }
 
                         }else{
                             AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         }
                     }else{
-                        \Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change--');
+                        //\Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change--');
                     }
 
                 }
@@ -2586,7 +2586,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $excel_data  = DB::select($query);
         $excel_datas = json_decode(json_encode($excel_data),true);
 
-        \Illuminate\Support\Facades\Log::info(print_r($excel_data,true));
+        //\Illuminate\Support\Facades\Log::info(print_r($excel_data,true));
 
         $selectedIDs='';
         foreach($excel_datas as $exceldata){
