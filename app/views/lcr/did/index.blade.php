@@ -27,15 +27,15 @@
                 </div>
                 <div class="form-group productdiv">
                     <label class="control-label">Country</label>
-                    {{ Form::select('Country', $country, '', array("class"=>"select2")) }}
+                    {{ Form::select('CountryID', $country, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group productdiv">
                     <label class="control-label">Access Type</label>
-                    {{ Form::select('AccessType', $AccessType, '', array("class"=>"select2")) }}
+                    {{ Form::select('AccessType', $AccessType, -1, array("class"=>"select2")) }}
                 </div>
                 <div class="form-group productdiv">
                     <label class="control-label">Prefix</label>
-                    {{ Form::select('Prefix', $Prefix, '', array("class"=>"select2")) }}
+                    {{ Form::select('Prefix', $Prefix, -1, array("class"=>"select2")) }}
                 </div>
                 <div class="form-group productdiv">
                     <label class="control-label">City/Tariff</label>
@@ -201,7 +201,10 @@
             $("#did-search-form").submit(function(e) {
                 e.preventDefault();
                 $searchFilter.EffectiveDate             = $("#did-search-form input[name='EffectiveDate']").val();
-                $searchFilter.ProductID                  = $("#did-search-form select[name='ProductID']").val();
+                $searchFilter.Country                   = $("#did-search-form select[name='CountryID']").val();
+                $searchFilter.AccessType                = $("#did-search-form select[name='AccessType']").val();
+                $searchFilter.Prefix                    = $("#did-search-form select[name='Prefix']").val();
+                $searchFilter.CityTariff                    = $("#did-search-form select[name='CityTariff']").val();
                 $searchFilter.Currency                   = $("#did-search-form select[name='Currency']").val();
                 $searchFilter.LCRPosition                 = $("#did-search-form select[name='LCRPosition']").val();
                 $searchFilter.DIDCategoryID              = $("#did-search-form select[name='DIDCategoryID']").val();
@@ -306,8 +309,16 @@
                     toastr.error("Please Select a Effective Date", "Error", toastr_opts);
                     return false;
                 }
-                if(typeof $searchFilter.ProductID  == 'undefined' || $searchFilter.ProductID == '' ){
-                    toastr.error("Please Select a Product", "Error", toastr_opts);
+                if(typeof $searchFilter.Country  == 'undefined' || $searchFilter.Country == '' ){
+                    toastr.error("Please Select a Country", "Error", toastr_opts);
+                    return false;
+                }
+                if(typeof $searchFilter.AccessType  == 'undefined' || $searchFilter.AccessType == '' ){
+                    toastr.error("Please Select a Access Type", "Error", toastr_opts);
+                    return false;
+                }
+                if(typeof $searchFilter.Prefix  == 'undefined' || $searchFilter.Prefix == '' ){
+                    toastr.error("Please Select a Prefix", "Error", toastr_opts);
                     return false;
                 }
                 if((typeof $searchFilter.Currency  == 'undefined' || $searchFilter.Currency == '' ) ){
@@ -330,8 +341,11 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
-                                {"name": "ProductID","value": $searchFilter.ProductID},
                                 {"name": "Currency","value": $searchFilter.Currency},
+                                {"name": "CountryID","value": $searchFilter.Country},
+                                {"name": "AccessType","value": $searchFilter.AccessType},
+                                {"name": "Prefix","value": $searchFilter.Prefix},
+                                {"name": "CityTariff","value": $searchFilter.CityTariff},
                                 {"name": "LCRPosition","value": $searchFilter.LCRPosition},
                                 {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},
                                 {"name": "Calls","value": $searchFilter.Calls},
@@ -346,7 +360,10 @@
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
-                                {"name": "ProductID","value": $searchFilter.ProductID},
+                                {"name": "CountryID","value": $searchFilter.Country},
+                                {"name": "AccessType","value": $searchFilter.AccessType},
+                                {"name": "Prefix","value": $searchFilter.Prefix},
+                                {"name": "CityTariff","value": $searchFilter.CityTariff},
                                 {"name": "Currency","value": $searchFilter.Currency},
                                 {"name": "LCRPosition","value": $searchFilter.LCRPosition},
                                 {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},

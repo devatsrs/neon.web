@@ -4,6 +4,7 @@ class LCRDIDController extends \BaseController {
 
     public function search_ajax_datagrid($type) {
 
+
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
@@ -27,7 +28,7 @@ class LCRDIDController extends \BaseController {
 
         //$data['ProductID'] = 1; // 1 for local testing , 27825 for staging testing else "Geo number Argentina; Prefix:011"
 
-        $query = "call prc_GetDIDLCR(".$companyID.", ".$data['ProductID']." ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+        $query = "call prc_GetDIDLCR(".$companyID.", ".$data['CountryID'].", '".$data['AccessType']."', '".$data['CityTariff']."', '".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
@@ -50,7 +51,6 @@ class LCRDIDController extends \BaseController {
 
                 }
                 $query .=',0)';
-
         //echo $query;
         //exit;
         Log::info($query);
@@ -72,14 +72,20 @@ class LCRDIDController extends \BaseController {
         $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
         $Timezones = Timezones::getTimezonesIDList();
         $products = ServiceTemplate::where("CompanyID",User::get_companyID())->lists("Name", "ServiceTemplateId");
-        $country = ServiceTemplate::where("CompanyID",User::get_companyID())->orderBy('country')->lists("country", "country");
-        $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->orderBy('accessType')->lists("accessType", "accessType");
-        $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->orderBy('prefixName')->lists("prefixName", "prefixName");
-        $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+        $country = ServiceTemplate::Join('tblCountry', function($join) {
+            $join->on('tblServiceTemplate.country','=','tblCountry.country');
+            })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+            ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
-        $country = array("" => "Select") + $country;
-        $AccessType = array("" => "Select") + $AccessType;
-        $Prefix = array("" => "Select") + $Prefix;
+            //->orderBy('tblServiceTemplate.country');
+
+        $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
+        $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
+        $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+
+        $country = array(-1 => "All") + $country;
+        $AccessType = array(-1 => "All") + $AccessType;
+        $Prefix = array(-1 => "All") + $Prefix;
         $CityTariff = array("" => "Select") + $CityTariff;
         
         $Package = Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
