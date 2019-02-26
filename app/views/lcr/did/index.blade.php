@@ -31,11 +31,11 @@
                 </div>
                 <div class="form-group productdiv">
                     <label class="control-label">Access Type</label>
-                    {{ Form::select('AccessType', $AccessType, -1, array("class"=>"select2")) }}
+                    {{ Form::select('AccessType', $AccessType, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group productdiv">
                     <label class="control-label">Prefix</label>
-                    {{ Form::select('Prefix', $Prefix, -1, array("class"=>"select2")) }}
+                    {{ Form::select('Prefix', $Prefix, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group productdiv">
                     <label class="control-label">City/Tariff</label>

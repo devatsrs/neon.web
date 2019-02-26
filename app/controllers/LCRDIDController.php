@@ -25,7 +25,7 @@ class LCRDIDController extends \BaseController {
         }
 
 
-        
+
 
         //$data['ProductID'] = 1; // 1 for local testing , 27825 for staging testing else "Geo number Argentina; Prefix:011"
 
@@ -84,10 +84,10 @@ class LCRDIDController extends \BaseController {
         $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
         $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
 
-        $country = array(-1 => "All") + $country;
-        $AccessType = array(-1 => "All") + $AccessType;
-        $Prefix = array(-1 => "All") + $Prefix;
-        $CityTariff = array("" => "Select") + $CityTariff;
+        $country = array('' => 'Select',-1 => "All") + $country;
+        $AccessType =array('' => 'Select',-1 => "All") + $AccessType;
+        $Prefix = array('' => 'Select',-1 => "All") + $Prefix;
+        $CityTariff = array('' => 'Select',-1 => "All") + $CityTariff;
         
         $Package = Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
         
