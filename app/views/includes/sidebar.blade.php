@@ -226,6 +226,25 @@
         <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
         @endif
 
+
+          <?php
+            $ActiveCallPath='';
+
+          if(CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+            $ActiveCallPath=URL::to('/Vendor_ActiveCalls');
+          }
+          if(CompanyConfiguration::getValueConfigurationByKey('VOS_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+            $ActiveCallPath=URL::to('/VOS_ActiveCalls');
+          }
+          if(CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+            $ActiveCallPath=URL::to('/ActiveCalls');
+          }
+
+          ?>
+        @if((CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1' || CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1') && User::checkCategoryPermission('ActiveCall','View'))
+          <li> <a href="{{$ActiveCallPath}}">  <span>Active Calls</span> </a> </li>
+          @endif
+
         <!--<li>
 <a href="{{URL::to('/cdr_recal')}}">
   <i class="entypo-pencil"></i>
