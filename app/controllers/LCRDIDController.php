@@ -9,7 +9,7 @@ class LCRDIDController extends \BaseController {
         $data = Input::all();
         $data['ComponentAction']=empty($data['ComponentAction'])?'':$data['ComponentAction'];
         $data['DIDCategoryID']=empty($data['DIDCategoryID'])?0:$data['DIDCategoryID'];
-        $data['ProductID']=empty($data['ProductID'])?0:$data['ProductID'];
+        $data['CountryID']=empty($data['CountryID'])?0:$data['CountryID'];
 
         $data['Calls']=empty($data['Calls'])?0:$data['Calls'];
         $data['Minutes']=empty($data['Minutes'])?0:$data['Minutes'];
@@ -27,7 +27,7 @@ class LCRDIDController extends \BaseController {
 
         //$data['ProductID'] = 1; // 1 for local testing , 27825 for staging testing else "Geo number Argentina; Prefix:011"
 
-        $query = "call prc_GetDIDLCR(".$companyID.", ".$data['ProductID']." ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+        $query = "call prc_GetDIDLCR(".$companyID.", ".$data['CountryID']." ,'".$data['AccessType']."','".$data['CityTariff']."','".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
