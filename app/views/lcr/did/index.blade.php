@@ -219,6 +219,9 @@
                 $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
 
+                $searchFilter.PackageID                   = $("#did-search-form select[name='PackageID']").val();
+                $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
+                
                 var aoColumnDefs, aoColumnDefs;
                 if($searchFilter.LCRPosition=='5'){
 
@@ -342,6 +345,10 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
+                        
+                                {"name": "PackageID","value": $searchFilter.PackageID},
+                                {"name": "lcr_type","value": $searchFilter.lcr_type},
+                                
                                 {"name": "Currency","value": $searchFilter.Currency},
                                 {"name": "CountryID","value": $searchFilter.Country},
                                 {"name": "AccessType","value": $searchFilter.AccessType},
@@ -362,6 +369,10 @@
                         data_table_extra_params.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
                                 {"name": "CountryID","value": $searchFilter.Country},
+                                
+                                {"name": "PackageID","value": $searchFilter.PackageID},
+                                {"name": "lcr_type","value": $searchFilter.lcr_type},
+                                
                                 {"name": "AccessType","value": $searchFilter.AccessType},
                                 {"name": "Prefix","value": $searchFilter.Prefix},
                                 {"name": "CityTariff","value": $searchFilter.CityTariff},
