@@ -329,6 +329,7 @@ class ServicesTemplateController extends BaseController {
                         foreach ($CategoryTariffList as $index1 => $CategoryTariffValue) {
                             try {
                                 $ServiceTemapleInboundTariff['ServiceTemplateID'] = $ServiceTemplate->ServiceTemplateId;
+                                $ServiceTemapleInboundTariff['CompanyID'] = User::get_companyID();
                                 Log::info('$CategoryTariffValue1.' . $CategoryTariffValue);
                                 $DIDRateTableList = explode("-", $CategoryTariffValue);
                                 //Log::info('$CategoryTariffValue1.' . $DIDRateTableList);
@@ -555,6 +556,7 @@ class ServicesTemplateController extends BaseController {
                             $ServiceTemapleInboundTariff['DIDCategoryId'] = $DIDRateTableList[0];
                         }
                         $ServiceTemapleInboundTariff['RateTableId'] = $DIDRateTableList[1];
+                        $ServiceTemapleInboundTariff['CompanyID'] = User::get_companyID();
                         Log::info('$DIDRateTableList[0].' . $DIDRateTableList[0]);
                         Log::info('$DIDRateTableList[1].' . $DIDRateTableList[1]);
 
