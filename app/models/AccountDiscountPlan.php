@@ -9,7 +9,8 @@ class AccountDiscountPlan extends \Eloquent
     protected $primaryKey = "AccountDiscountPlanID";
 
     const OUTBOUND = 1;
-    const INBOUND = 2;
+    const INBOUND  = 2;
+    const PACKAGE  = 3;
 
 
     public static function checkForeignKeyById($id) {
