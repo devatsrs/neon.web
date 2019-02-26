@@ -12,7 +12,7 @@
             display: inline-block;
         }
     </style>
-    
+
     <ol class="breadcrumb bc-3">
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -34,7 +34,7 @@
     <p style="text-align: right;">
         @if( User::checkCategoryPermission('AuthenticationRule','View'))
             @if($account->IsCustomer==1 || $account->IsVendor==1)
-                
+
             @endif
         @endif
         <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="save_service">
@@ -53,7 +53,7 @@
             <form id="service-add-form" action="{{url('accountservices/insertservice')}}" method="post" class="form-horizontal form-groups-bordered">
                 <input type="hidden" name="accountid" value="{{$AccountID}}">
                 <input type="hidden" name="companyid" value="{{$CompanyID}}">
-               
+
                <div class="panel panel-primary " data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
@@ -105,7 +105,7 @@
                             </label>
                             <div class="col-md-4">
                                 <div class="make-switch switch-small">
-                                    <input type="checkbox" name="ServiceTitleShow"  id="serviceshowtitle" value="1">
+                                    <input type="checkbox" checked name="ServiceTitleShow" id="serviceshowtitle" value="1">
                                 </div>
                             </div>
 
@@ -125,16 +125,16 @@
                 <!-- Package Section End -->
 
                 <!-- Service subscription billing cycle end-->
-                
+
 
                         <!-- Account Option start -->
 
-                
+
                 <!-- account options end -->
             </form>
         </div>
     </div>
-    
+
     <style>
         #drp_accountservice_jump{
             border: 0px solid #fff;
@@ -154,7 +154,8 @@
     @parent
     <script>
         $("select#serviceid").change(function(){
-        $("form#service-add-form").submit();
+            if($(this).val() != "")
+                $("form#service-add-form").submit();
          /*var companyid = '{{$AccountID}}';
          var accountid = '{{$CompanyID}}';
 
@@ -167,6 +168,6 @@
 
          });*/
         });
-        
+
     </script>
 @stop

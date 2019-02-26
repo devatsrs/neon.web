@@ -196,6 +196,12 @@
                                             {{Form::select('accountgateway[]', CompanyGateway::getCompanyGatewayIdList(), '' ,array("class"=>"form-control select2",'multiple'))}}
                                         </div>
                                     @endif
+                                    @if($dynamicfield['FieldSlug']=='CustomerID')
+                                        <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" autocomplete="off"  name="CustomerID" id="field-1" value="{{$dynamicfield['FieldValue']}}" />
+                                        </div>
+                                    @endif
                                     @if($dynamicfield['FieldSlug']=='vendorname')
                                         <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
                                         <div class="col-md-4">
@@ -382,7 +388,7 @@
 
                     <div class="panel-options">
                         <div class="make-switch switch-small">
-                            <input type="checkbox" name="Billing" value="1">
+                            <input type="checkbox" checked name="Billing" value="1">
                         </div>
                         <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                     </div>
@@ -403,19 +409,19 @@
                     </div>
                     <div class="form-group">
 
-                        <label class="col-md-2 control-label">Billing Timezone*</label>
-                        <div class="col-md-4">
+                        <label class="col-md-2 hide control-label">Billing Timezone*</label>
+                        <div class="col-md-4 hide">
                             {{Form::select('BillingTimezone', $timezones, '' ,array("class"=>"form-control select2"))}}
                         </div>
                         <label class="col-md-2 control-label">Billing Start Date*</label>
                         <div class="col-md-2">
-                            {{Form::text('BillingStartDate','',array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                            {{Form::text('BillingStartDate',date("Y-m-d"),array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-md-2 control-label">Billing Cycle*</label>
                         <div class="col-md-4">
-                            {{Form::select('BillingCycleType', SortBillingType(1), '' ,array("class"=>"form-control select2"))}}
+                            {{Form::select('BillingCycleType', SortBillingType(1), 'monthly' ,array("class"=>"form-control select2"))}}
                         </div>
                         <div id="billing_cycle_weekly" class="billing_options" style="display: none">
                             <label class="col-md-2 control-label">Billing Cycle - Start of Day*</label>
@@ -450,7 +456,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group hide">
                         <label class="col-md-2 control-label">Next Invoice Date</label>
                         <div class="col-md-4">
                             {{Form::text('NextInvoiceDate', '',array('class'=>'form-control datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}

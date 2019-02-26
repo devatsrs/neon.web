@@ -24,7 +24,6 @@ class AccountServiceController extends \BaseController {
         $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID',$AccountServiceID)->first();
 
 
-
         $InboundTariffID = '';
         $OutboundTariffID = '';
 
@@ -128,17 +127,22 @@ class AccountServiceController extends \BaseController {
         $serviceid = Input::get('serviceid');
         $companyid = Input::get('companyid');
         $accountid = Input::get('accountid');
+        $serviceTitle = empty(Input::get('ServiceTitle')) ? '' : Input::get('ServiceTitle');
+        $serviceDescription = empty(Input::get('ServiceDescription')) ? '' : Input::get('ServiceDescription');
+        $serviceShowTitle = Input::get('ServiceTitleShow') == false ? 0 : 1;
+
         $add = new AccountService;
         $add->AccountID = $accountid;
         $add->ServiceID = $serviceid;
         $add->CompanyID = $companyid;
-        $add->Status  = 1;
+        $add->Status    = 1;
+        $add->ServiceTitle = $serviceTitle;
+        $add->ServiceDescription = $serviceDescription;
+        $add->ServiceTitleShow = $serviceShowTitle;
         if($add->save()){
             $lastid = $add->AccountServiceID;
             return \Redirect::to('accountservices/'.$accountid.'/edit/'.$lastid);
         }
-
-
     }
 
     // add account services
@@ -183,20 +187,20 @@ class AccountServiceController extends \BaseController {
         ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
         ->leftjoin('tblPackage', 'tblPackage.PackageId', '=' , 'tblCLIRateTable.PackageID' )
         ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
-         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"),"tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate", "tblAccountService.Status"])
+         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"), "tblAccountService.Status", "tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate"])
         ->where("tblAccountService.AccountID",$id);
 
         //Log::debug($services->toSql());
 
-        if(!empty($data['ServiceName'])){
-            $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
+        if(!empty($data['Number'])){
+            $services->where('tblCLIRateTable.CLI','Like','%'.trim($data['Number']).'%');
         }
         if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
             $services->where(function($query){
                 $query->where('tblAccountService.Status','=','1');
             });
 
-        }elseif(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'false'){
+        } elseif(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'false'){
             $services->where(function($query){
                 $query->where('tblAccountService.Status','=','0');
             });
