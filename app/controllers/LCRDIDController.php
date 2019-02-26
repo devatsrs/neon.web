@@ -72,6 +72,15 @@ class LCRDIDController extends \BaseController {
         $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
         $Timezones = Timezones::getTimezonesIDList();
         $products = ServiceTemplate::where("CompanyID",User::get_companyID())->lists("Name", "ServiceTemplateId");
+        $country = ServiceTemplate::where("CompanyID",User::get_companyID())->orderBy('country')->lists("country", "country");
+        $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->orderBy('accessType')->lists("accessType", "accessType");
+        $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->orderBy('prefixName')->lists("prefixName", "prefixName");
+        $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+
+        $country = array("" => "Select") + $country;
+        $AccessType = array("" => "Select") + $AccessType;
+        $Prefix = array("" => "Select") + $Prefix;
+        $CityTariff = array("" => "Select") + $CityTariff;
         
         $Package = Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
         
