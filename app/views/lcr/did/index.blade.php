@@ -198,6 +198,7 @@
             }
 
 
+
             $("#did-search-form").submit(function(e) {
                 e.preventDefault();
                 $searchFilter.EffectiveDate             = $("#did-search-form input[name='EffectiveDate']").val();
