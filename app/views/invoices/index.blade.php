@@ -118,6 +118,7 @@
             @endif
 
             <li> <a class="quickbookpost create" id="print_invoice" href="javascript:;"> Download Invoice </a> </li>
+            <li> <a class="quickbookpost create" id="print_ubl_invoice" href="javascript:;"> Download UBL </a> </li>
 
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;"> Change Status </a> </li>
@@ -183,10 +184,10 @@
           <th width="13%">Period</th>
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
-          <th width="10%">Status</th>
+          <th width="5%">Status</th>
           <th width="5%">Available Credit Notes</th>
           <th width="10%">Due Date</th>
-          {{--<th width="10%">Due Days</th>--}}
+            <th width="15%">Payment Reminder</th>
           <th width="20%">Action</th>
         </tr>
       </thead>
@@ -342,6 +343,22 @@
                         }
                     },  // 8 DueDate and DueDays
                     //{"bSortable": false},  // 9 DueDays
+                    {
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
+                            if(full[20] != null){
+                                var output =  '<span title="Last Date Sent">' + full[20] +'</span>' + " - " +'('+ '<span title="No of reminders ">' + full[19]+'</span>'+')';
+
+                            }else{
+                                var output = '('+ '<span title="No of reminders ">' + full[19]+'</span>'+')';
+
+                            }
+
+                            return output;
+                        }
+
+
+                    },
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {
@@ -1022,7 +1039,7 @@
                 submit_ajax(_url, post_data);
 				
             });
-            $("#print_invoice").click(function (ev) {
+            $("#print_invoice, #print_ubl_invoice").click(function (ev) {
                 var criteria = '';
                 if ($('#selectallbutton').is(':checked')) {
                     criteria = JSON.stringify($searchFilter);
@@ -1036,14 +1053,15 @@
                         InvoiceIDs[i++] = InvoiceID;
                     }
                 });
-                console.log(InvoiceIDs);
 
                 if (InvoiceIDs.length) {
                     if (!confirm('Are you sure you want to download selected invoices?')) {
                         return;
                     }
+                    var invoice_url = $(this).attr('id') == "print_ubl_invoice" ? baseurl + '/invoice/bulk_print_ubl_invoice' : baseurl + '/invoice/bulk_print_invoice';
+
                     $.ajax({
-                        url: baseurl + '/invoice/bulk_print_invoice',
+                        url: invoice_url,
                         data: 'InvoiceIDs=' + InvoiceIDs + '&criteria=' + criteria,
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
@@ -1056,7 +1074,7 @@
                                 }else if(response.invoiceId){
                                     document.location =baseurl + "/invoice/download_invoice/"+response.invoiceId;
                                 }else{
-                                    toastr.error("Something Worng Please try again.", "Error", toastr_opts);
+                                    toastr.error("Something Wrong Please try again.", "Error", toastr_opts);
                                 }
 
                             } else {
@@ -1386,6 +1404,8 @@
                     }
                 });
                 if (InvoiceIDs == '') {
+                  alert('Select atlease one invoice');
+                  return false;
                     criteria = JSON.stringify($searchFilter);
                 }
                 if ($('#selectallbutton').is(':checked')) {

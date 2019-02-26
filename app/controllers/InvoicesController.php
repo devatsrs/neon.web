@@ -1,14 +1,5 @@
 <?php
 
-use App\UblInvoice\LegalMonetaryTotal;
-use App\UblInvoice\TaxSubTotal;
-use App\UblInvoice\Party;
-use App\UblInvoice\InvoiceLine;
-use App\UblInvoice\TaxScheme;
-use App\UblInvoice\TaxTotal;
-use App\UblInvoice\TaxCategory;
-use App\UblInvoice\AdditionalDocumentReference;
-
 class InvoicesController extends \BaseController {
 
 	public function ajax_datagrid_total() 
@@ -291,8 +282,7 @@ public function edit_inv_in($id){
                 $isAutoInvoiceNumber = false;
 				$InvoiceData["InvoiceNumber"] =  $data["InvoiceNumber"];
             }
-			
-			
+
 			 if(isset($data['BillingClassID']) && $data['BillingClassID']>0){  
 				$InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
 				$InvoiceData["InvoiceNumber"] = $LastInvoiceNumber = ($isAutoInvoiceNumber)?InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID):$data["InvoiceNumber"];
@@ -310,19 +300,18 @@ public function edit_inv_in($id){
             $InvoiceData["TotalTax"] = str_replace(",","",$data["TotalTax"]);
 			$InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotalInvoice"]));
             //$InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
-            $InvoiceData["CurrencyID"] = $data["CurrencyID"];
-            $InvoiceData["InvoiceType"] = Invoice::INVOICE_OUT;
-            $InvoiceData["InvoiceStatus"] = Invoice::AWAITING;
-            $InvoiceData["ItemInvoice"] = Invoice::ITEM_INVOICE;
-            $InvoiceData["Note"] = $data["Note"];
+            $InvoiceData["CurrencyID"]      = $data["CurrencyID"];
+            $InvoiceData["InvoiceType"]     = Invoice::INVOICE_OUT;
+            $InvoiceData["InvoiceStatus"]   = Invoice::AWAITING;
+            $InvoiceData["ItemInvoice"]     = Invoice::ITEM_INVOICE;
+            $InvoiceData["Note"]  = $data["Note"];
             $InvoiceData["Terms"] = $data["Terms"];
-            $InvoiceData["FooterTerm"] = $data["FooterTerm"];
-            $InvoiceData["CreatedBy"] = $CreatedBy;
-			$InvoiceData['InvoiceTotal'] = str_replace(",","",$data["GrandTotal"]);
-			$InvoiceData['BillingClassID'] =$data["BillingClassID"];
+            $InvoiceData["FooterTerm"]     = $data["FooterTerm"];
+            $InvoiceData["CreatedBy"]      = $CreatedBy;
+			$InvoiceData['InvoiceTotal']   = str_replace(",","",$data["GrandTotal"]);
+			$InvoiceData['BillingClassID'] = $data["BillingClassID"];
 			
             //$InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
-			
             if(!isset($InvoiceTemplateID) || (int)$InvoiceTemplateID == 0){
                 return Response::json(array("status" => "failed", "message" => "Please enable billing."));
             }
@@ -493,6 +482,15 @@ public function edit_inv_in($id){
                         return $error;
                     } else {
                         $Invoice->update(["PDF" => $pdf_path]);
+                    }
+
+                    $ubl_path = Invoice::generate_ubl_invoice($Invoice->InvoiceID);
+                    if (empty($ubl_path)) {
+                        $error['message'] = 'Failed to generate Invoice UBL File.';
+                        $error['status'] = 'failure';
+                        return $error;
+                    } else {
+                        $Invoice->update(["UblInvoice" => $ubl_path]);
                     }
 
                     DB::connection('sqlsrv2')->commit();
@@ -749,6 +747,7 @@ public function store_inv_in(){
      * Store Invoice
      */
     public function update($id){
+        Log::useFiles(storage_path() . '/logs/z_test-invoice-' . date('Y-m-d') . '.log');
         $data = Input::all();
         unset($data['BarCode']);
         if(!empty($data) && $id > 0){
@@ -943,6 +942,14 @@ public function store_inv_in(){
                                 $Invoice->update(["PDF" => $pdf_path]);
                             }
 
+                            $ubl_path = Invoice::generate_ubl_invoice($Invoice->InvoiceID);
+                            if (empty($ubl_path)) {
+                                $error['message'] = 'Failed to generate Invoice UBL File.';
+                                $error['status'] = 'failure';
+                                return $error;
+                            } else {
+                                $Invoice->update(["UblInvoice" => $ubl_path]);
+                            }
                             //StockHistory Maintain
                             $MultiProductSumQtyArr=array();
                             $OldProductsarr=sumofQtyIfSameProduct($OldProductsarr);
@@ -1550,7 +1557,6 @@ public function store_inv_in(){
 
     // not in use
     public function pdf_view($id) {
-
 
         // check if Invoice has usege or Subscription then download PDF directly.
         $hasUsageInInvoice =  InvoiceDetail::where("InvoiceID",$id)
@@ -3788,7 +3794,7 @@ public function store_inv_in(){
 
                 } else {
 
-                    $filename='invoice' . date("dmYHis") . '.zip';
+                    $filename='ubl-invoice' . date("dmYHis") . '.zip';
                     $local_zip_file = $UPLOAD_PATH . $filename;
 
                     Zipper::make($local_zip_file)->add($zipfiles)->close();
@@ -3802,6 +3808,65 @@ public function store_inv_in(){
                 }
 
             }
+        }
+        else {
+            return Response::json(array("status" => "error", "message" => "Please Select Invoice"));
+        }
+        exit;
+    }
+
+    public function bulk_print_ubl_invoice(){
+        $zipfiles = array();
+        $data = Input::all();
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+
+        $invoiceIds=array_map('intval', explode(',', $data['InvoiceIDs']));
+
+        if(!empty($invoiceIds)) {
+
+            $Invoices = Invoice::find($invoiceIds);
+            $CompanyID = User::get_companyID();
+            $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID). "/";
+            $isAmazon = is_amazon($CompanyID);
+            foreach ($Invoices as $invoice) {
+                if (!empty($invoice->UblInvoice)) {
+                    $path = AmazonS3::preSignedUrl($invoice->UblInvoice, $CompanyID);
+
+                    if (file_exists($path)) {
+                        $zipfiles[$invoice->InvoiceID] = $path;
+                    } else if ($isAmazon == true) {
+
+                        $filepath = $UPLOAD_PATH . basename($invoice->UblInvoice);
+                        $content = @file_get_contents($path);
+                        if ($content != false) {
+                            file_put_contents($filepath, $content);
+                            $zipfiles[$invoice->InvoiceID] = $filepath;
+                        }
+                    }
+                }
+            }
+
+            if (!empty($zipfiles)) {
+                    $filename='ubl-invoice' . date("dmYHis") . '.zip';
+                    $local_zip_file = $UPLOAD_PATH . $filename;
+
+                    Zipper::make($local_zip_file)->add($zipfiles)->close();
+
+                    if (file_exists($local_zip_file)) {
+                        return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => "", "filePath" => base64_encode($filename)));
+                    }
+                    else {
+                        return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
+                    }
+                }
         }
         else {
             return Response::json(array("status" => "error", "message" => "Please Select Invoice"));
@@ -4321,162 +4386,10 @@ public function store_inv_in(){
         return View::make('invoices.create_inv_in',compact('accounts','products','taxes','BillingClass','DynamicFields','itemtypes'));
     }
 
+
     public function ublInvoice($invoiceID){
-        $InvoiceData = Invoice::findOrFail($invoiceID);
-        $CompanyID = $InvoiceData->CompanyID;
-        $BillingClassID = $InvoiceData->BillingClassID;
-        $BillingClass = BillingClass::findOrFail($BillingClassID);
-        $InvoiceDetails = InvoiceDetail::where(["InvoiceID" => $invoiceID])->get();
-        $CompanyData = Company::findOrFail($CompanyID);
-        $CompanyAddr = Company::getCompanyAddress($CompanyID);
-        $Account = Account::where(["AccountID" => $InvoiceData->AccountID])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
-        $AccountAddress = Account::getAddress($Account);
-        $CurrencyID = !empty($InvoiceData->CurrencyID) ? $InvoiceData->CurrencyID : $Account->CurrencyId;
-        $Currency = Currency::find($CurrencyID);
-        $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-
-        $generator = new \App\UblInvoice\Generator();
-        $legalMonetaryTotal = new LegalMonetaryTotal();
-
-// company address
-        $companyAddress = new \App\UblInvoice\Address();
-        if(!empty($CompanyAddr))
-            $companyAddress->setStreetName($CompanyAddr);
-
-        if (!empty($CompanyData->City))
-            $companyAddress->setCityName($CompanyData->City);
-
-        if (!empty($CompanyData->PostCode))
-            $companyAddress->setPostalZone($CompanyData->PostCode);
-
-        if (!empty($CompanyData->Country)) {
-            $countryCode = Country::getCountryCodeByName($CompanyData->Country);
-            $country = new \App\UblInvoice\Country();
-            $country->setIdentificationCode($countryCode);
-            $companyAddress->setCountry($country);
-        }
-// company
-        $company  = new Party();
-        $company->setName($CompanyData->CompanyName);
-        //$company->setPhysicalLocation($caddress);
-        $company->setPostalAddress($companyAddress);
-
-// client address
-        $clientAddress = new \App\UblInvoice\Address();
-
-        if(!empty($AccountAddress))
-            $clientAddress->setStreetName($AccountAddress);
-
-        if (!empty($Account->City))
-            $clientAddress->setCityName($Account->City);
-
-        if (!empty($Account->PostCode))
-            $clientAddress->setPostalZone($Account->PostCode);
-        if (!empty($Account->Country)) {
-            $countryCode = Country::getCountryCodeByName($Account->Country);
-            $country = new \App\UblInvoice\Country();
-            $country->setIdentificationCode($countryCode);
-            $clientAddress->setCountry($country);
-        }
-
-// client
-        $client = new Party();
-        $client->setName($Account->AccountName);
-        $client->setPostalAddress($clientAddress);
-        $invoiceLines = [];
-        $unitCode = 'A9';
-        foreach($InvoiceDetails as $InvoiceDetail) {
-            //product
-            $product = Product::find($InvoiceDetail->ProductID);
-            if ($product != false) {
-                $item = new \App\UblInvoice\Item();
-                $item->setName($product->Name);
-                $item->setDescription($product->Description);
-                $item->setSellersItemIdentification($product->ProductID);
-            }
-
-            //price
-            $price = new \App\UblInvoice\Price();
-            $price->setBaseQuantity($InvoiceDetail->Qty);
-            $price->setUnitCode($unitCode);
-            $price->setPriceAmount($InvoiceDetail->Price);
-
-            //line
-            $invoiceLine = new InvoiceLine();
-            $invoiceLine->setId($InvoiceDetail->ProductID);
-            if ($product != false)
-                $invoiceLine->setItem($item);
-
-            $invoiceLine->setPrice($price);
-            $invoiceLine->setUnitCode($unitCode);
-            $invoiceLine->setInvoicedQuantity($InvoiceDetail->Qty);
-            $invoiceLine->setLineExtensionAmount($InvoiceDetail->Price);
-            $invoiceLine->setTaxTotal($InvoiceDetail->TaxAmount);
-            $invoiceLines[] = $invoiceLine;
-        }
-
-// taxe TVA
-        $TaxScheme    = new TaxScheme();
-        $TaxScheme->setId(0);
-        $taxCategory = new TaxCategory();
-        $tax = $BillingClass->TaxRateID != "" ? explode(",",$BillingClass->TaxRateID) : "";
-        $tax = !empty($tax) ? TaxRate::find($tax[0]) : false;
-        $tax = $tax != false ? $tax->Title : "";
-        $taxPercentage = number_format(((float)$InvoiceData->TotalTax / (float)$InvoiceData->GrandTotal) * 100, 2);
-        $taxCategory->setId($BillingClass->TaxRateID);
-        $taxCategory->setName($tax);
-        $taxCategory->setPercent($taxPercentage);
-        $taxCategory->setTaxScheme($TaxScheme);
-// taxes
-        $taxTotal    = new TaxTotal();
-        $taxSubTotal = new TaxSubTotal();
-        $taxSubTotal->setTaxableAmount($InvoiceData->SubTotal);
-        $taxSubTotal->setTaxAmount($InvoiceData->TotalTax);
-        $taxSubTotal->setTaxCategory($taxCategory);
-        $taxTotal->addTaxSubTotal($taxSubTotal);
-        $taxTotal->setTaxAmount($taxSubTotal->getTaxAmount());
-
-        $issueDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $InvoiceData->IssueDate);
-        $dueDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $InvoiceData->IssueDate)->addDays($BillingClass->PaymentDueInDays);
-
-// invoice
-        $invoice = new \App\UblInvoice\Invoice();
-        $invoice->setId($InvoiceData->FullInvoiceNumber);
-        $invoice->setIssueDate($issueDate);
-        $invoice->setDueDate($dueDate);
-        $invoice->setCurrencyCode($CurrencyCode);
-        $invoice->setNote($InvoiceData->Note);
-        $invoice->setTerms("Expect payment within {$BillingClass->PaymentDueInDays} days.");
-        $invoice->setInvoiceTypeCode($InvoiceData->InvoiceType);
-        $invoice->setAccountingSupplierParty($company);
-        $invoice->setAccountingCustomerParty($client);
-        $invoice->setInvoiceLines($invoiceLines);
-        $legalMonetaryTotal->setTaxExclusiveAmount($InvoiceData->SubTotal);
-        $legalMonetaryTotal->setLineExtensionAmount($InvoiceData->SubTotal);
-        $legalMonetaryTotal->setTaxInclusiveAmount($InvoiceData->GrandTotal);
-        $legalMonetaryTotal->setPayableAmount($InvoiceData->GrandTotal);
-        $legalMonetaryTotal->setAllowanceTotalAmount($InvoiceData->TotalDiscount);
-        $invoice->setLegalMonetaryTotal($legalMonetaryTotal);
-        $invoice->setTaxTotal($taxTotal);
-
-        if($InvoiceData->PDF != "") {
-            $additionalDocument = new AdditionalDocumentReference();
-            $additionalDocument->setAttachment(AmazonS3::preSignedUrl($InvoiceData->PDF));
-            $additionalDocument->setDocumentType("Invoice");
-            $additionalDocument->setId("01");
-            $invoice->setAdditionalDocumentReference($additionalDocument);
-        }
-
-        /*$validator = new \Greenter\Ubl\UblValidator();
-        if ($validator->isValid($generator->invoice($invoice, $CurrencyCode))) {
-            echo 'Success!!!';
-        } else {
-            echo $validator->getError();
-        }*/
-        return \Illuminate\Support\Facades\Response::make($generator->invoice($invoice, $CurrencyCode))
-            ->header('Content-Type', 'text/xml');
-
-   
+        $Invoice = Invoice::find($invoiceID);
+        $Account = Account::find($Invoice->AccountID);
+        return Response::make(Invoice::ublInvoice($Invoice, $Account))->header('Content-Type', 'text/xml');
     }
-
 }

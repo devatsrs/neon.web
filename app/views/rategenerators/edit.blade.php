@@ -249,12 +249,14 @@
                                 </div>
                             </div>
                         @endif
+                        @if($rategenerator->SelectType == 1 || $rategenerator->SelectType == 2)
                         <div class="form-group" id="DIDCategoryDiv">
                             <label for="field-1" class="col-sm-2 control-label">Category</label>
                             <div class="col-sm-4">
                                 {{ Form::select('Category', $Categories, $rategenerators->DIDCategoryID , array("class"=>"select2")) }}
                             </div>
                         </div>
+                        @endif
                     </div>
                 </div>
 

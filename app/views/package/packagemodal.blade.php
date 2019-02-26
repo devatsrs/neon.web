@@ -46,16 +46,26 @@
                                     <input type="hidden" name="PackageId" >
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-1" class="control-label">Currency</label>
-                                    {{ Form::select('CurrencyId', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
-                                </div>
-                            </div>
+                            {{--<div class="col-md-12">--}}
+                                {{--<div class="form-group">--}}
+                                    {{--<label for="field-1" class="control-label">Currency</label>--}}
+                                    {{--{{ Form::select('CurrencyId', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}--}}
+                                {{--</div>--}}
+                            {{--</div>--}}
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-12" class="control-label">Rate Table</label>
-                                    {{ Form::select('RateTableId', [''=>"Select"],'', array("class"=>"select2 small")) }}
+                                    {{ Form::select('RateTableId', $rateTables,'', array("class"=>"select2 small")) }}
+                                </div>
+                            </div>
+                            <br>
+
+                            <div class="col-md-12">
+                                <label class="control-label">Status</label>
+                                <div class="panel-options">
+                                    <div class="make-switch switch-small" >
+                                        <input type="checkbox" name="status">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -85,33 +95,33 @@
             });
         });
 
-        function getRateTableByCurrency(){
-            var currency = $("#add-new-package-form [name='CurrencyId']").val();
+//        function getRateTableByCurrency(){
+//            var currency = $("#add-new-package-form [name='CurrencyId']").val();
+//
+//            currency = currency != "" ? currency : 0;
+//            $.ajax({
+//                url: baseurl + '/package/' + currency + '/get_currency_rate_table',
+//                type: 'POST',
+//                dataType: 'json',
+//                cache: false,
+//                success: function(response) {
+//                    var options = "";
+//                    $.each(response, function(x, y){
+//                        options += "<option value='"+ x + "'>"+y+"</option>";
+//                    });
+//                    var rateTableField = $("#add-new-package-form [name='RateTableId']");
+//                    rateTableField.html(options);
+//                    var editVal = $("#editRateTableId").val();
+//                    rateTableField.select2().select2('val', editVal);
+//                }
+//            });
+//        }
 
-            currency = currency != "" ? currency : 0;
-            $.ajax({
-                url: baseurl + '/package/' + currency + '/get_currency_rate_table',
-                type: 'POST',
-                dataType: 'json',
-                cache: false,
-                success: function(response) {
-                    var options = "";
-                    $.each(response, function(x, y){
-                        options += "<option value='"+ x + "'>"+y+"</option>";
-                    });
-                    var rateTableField = $("#add-new-package-form [name='RateTableId']");
-                    rateTableField.html(options);
-                    var editVal = $("#editRateTableId").val();
-                    rateTableField.select2().select2('val', editVal);
-                }
-            });
-        }
-
-        $(document).ready(function () {
-            $("#add-new-package-form [name='CurrencyId']").change(function () {
-                getRateTableByCurrency();
-            });
-
-        });
+//        $(document).ready(function () {
+//            $("#add-new-package-form [name='CurrencyId']").change(function () {
+//                getRateTableByCurrency();
+//            });
+//
+//        });
     </script>
 @stop

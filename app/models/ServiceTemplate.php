@@ -11,8 +11,6 @@ class ServiceTemplate extends \Eloquent
     public static $rules = array(
         'ServiceId' =>  'required',
         'Name' => 'required',
-        'CurrencyId' => 'required',
-
        // 'selectedSubscription' => 'required',
        // 'selectedcategotyTariff' => 'required',
     );

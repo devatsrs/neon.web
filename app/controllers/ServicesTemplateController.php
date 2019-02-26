@@ -13,7 +13,6 @@ class ServicesTemplateController extends BaseController {
     public function ajax_datagrid(){
 
        $data = Input::all();
-
        $companyID = User::get_companyID();
       // $data['ServiceStatus'] = $data['ServiceStatus']== 'true'?1:0;
 
@@ -35,8 +34,7 @@ class ServicesTemplateController extends BaseController {
         }
         $servicesTemplate = ServiceTemplate::
         leftJoin('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
-            ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
-            ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId','tblServiceTemplate.ContractDuration','tblServiceTemplate.AutomaticRenewal','tblServiceTemplate.CancellationCharges','tblServiceTemplate.CancellationFee'])
+            ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId','tblServiceTemplate.ContractDuration','tblServiceTemplate.AutomaticRenewal','tblServiceTemplate.CancellationCharges','tblServiceTemplate.CancellationFee'])
             ->where(["tblServiceTemplate.CompanyID" => $companyID])->orderBy($iSortCol_0, $sSortDir_0);
 
         Log::info('$servicesTemplate AJAX.$data[\'ServiceId\']' . $data['ServiceId']);
@@ -46,9 +44,6 @@ class ServicesTemplateController extends BaseController {
             Log::info('$servicesTemplate AJAX.$data[\'ServiceName\']' . 'set the value');
                    $servicesTemplate->where('tblServiceTemplate.Name','like','%'.$data['ServiceName'].'%');
         }
-        if($data['FilterCurrencyId'] != ''){
-                   $servicesTemplate->where(["tblServiceTemplate.CurrencyId" => $data['FilterCurrencyId']]);
-        }
         if($data['ServiceId'] != ''){
             $servicesTemplate->where(["tblServiceTemplate.ServiceId"=>$data['ServiceId']]);
         }
@@ -56,7 +51,7 @@ class ServicesTemplateController extends BaseController {
         Log::info('$servicesTemplate ajax_datagrid AJAX.' . $servicesTemplate->toSql());
 
 
-       
+       //dd($servicesTemplate);
        return Datatables::of($servicesTemplate)->make();
     }
     public function selectDataOnCurrency()
@@ -104,29 +99,19 @@ class ServicesTemplateController extends BaseController {
         $rateTable->where('Type','=', '1');
         $rateTable->where('AppliedTo','!=',2 );
 
-
-
-        if($data['selectedCurrency'] != ''){
-            $rateTable->where('CurrencyID','=', $data['selectedCurrency']);
-        }
         Log::info('$rate table query.' . $rateTable->toSql());
         $outboundtarifflist =  $rateTable->get();
 
 
         $BillingSubscription = BillingSubscription::select(['Name','SubscriptionID']);
-        if($data['selectedCurrency'] != ''){
-            $BillingSubscription->where('CurrencyID','=', $data['selectedCurrency']);
-        }
         Log::info('$billing subscription query.' . $BillingSubscription->toSql());
         $billingsubscriptionlist = $BillingSubscription->get();
 
         $categoryTariff = RateTable::leftjoin('tblDIDCategory', 'tblDIDCategory.DIDCategoryID', '=', 'tblRateTable.DIDCategoryID');
         $categoryTariff->select(['tblRateTable.RateTableName as RateTableName','tblRateTable.RateTableID as RateTableID']);
-            if ($data['selectedCurrency'] != '') {
-                $categoryTariff->where('CurrencyID', '=', $data['selectedCurrency']);
                 $categoryTariff->where('tblRateTable.Type', '=', '2');
                 $categoryTariff->where('tblRateTable.AppliedTo', '!=', 2);
-            }
+
             if (isset($data['selected_didCategory']) && $data['selected_didCategory'] != '') {
                 $categoryTariff->where('tblRateTable.DIDCategoryID', '=', $data['selected_didCategory']);
                 Log::info('data[selected_didCategory].' . $data['selected_didCategory']);
@@ -172,8 +157,15 @@ class ServicesTemplateController extends BaseController {
 
             $CompanyID  = User::get_companyID();
             $CategoryDropdownIDList = DIDCategory::getCategoryDropdownIDList($CompanyID);
+            $servicesTemplate = Service::lists('ServiceName','ServiceID');
+            $rateTable = RateTable::select(["RateTableName", "RateTableId"]);
+            $rateTable->where('Type','=', '1');
+            $rateTable->where('AppliedTo','!=',2 );
+            $outboundDiscountPlan = DiscountPlan::lists('Name','DiscountPlanID');
+            $inbounddiscountplan =   DiscountPlan::lists('Name','DiscountPlanID');
+            $BillingSubsForSrvTemplate = BillingSubscription::lists('Name','SubscriptionID');
 
-            return View::make('servicetemplate.index', compact('CategoryDropdownIDList'));
+            return View::make('servicetemplate.index', compact('CategoryDropdownIDList','servicesTemplate','rateTable','outboundDiscountPlan','inbounddiscountplan','BillingSubsForSrvTemplate'));
 
     }
 
@@ -316,7 +308,6 @@ class ServicesTemplateController extends BaseController {
                         $ServiceTemplateData['OutboundRateTableId'] = $data['OutboundRateTableId'];
                     }
 
-                    $ServiceTemplateData['CurrencyId']          = $data['CurrencyId'];
                     $ServiceTemplateData['AutomaticRenewal']    = $data['AutomaticRenewal'];
                     $ServiceTemplateData['CancellationCharges'] = $data['CancellationCharges'];
                     $ServiceTemplateData['CancellationFee']     = $CancellationFee;
@@ -338,6 +329,7 @@ class ServicesTemplateController extends BaseController {
                         foreach ($CategoryTariffList as $index1 => $CategoryTariffValue) {
                             try {
                                 $ServiceTemapleInboundTariff['ServiceTemplateID'] = $ServiceTemplate->ServiceTemplateId;
+                                $ServiceTemapleInboundTariff['CompanyID'] = User::get_companyID();
                                 Log::info('$CategoryTariffValue1.' . $CategoryTariffValue);
                                 $DIDRateTableList = explode("-", $CategoryTariffValue);
                                 //Log::info('$CategoryTariffValue1.' . $DIDRateTableList);
@@ -564,6 +556,7 @@ class ServicesTemplateController extends BaseController {
                             $ServiceTemapleInboundTariff['DIDCategoryId'] = $DIDRateTableList[0];
                         }
                         $ServiceTemapleInboundTariff['RateTableId'] = $DIDRateTableList[1];
+                        $ServiceTemapleInboundTariff['CompanyID'] = User::get_companyID();
                         Log::info('$DIDRateTableList[0].' . $DIDRateTableList[0]);
                         Log::info('$DIDRateTableList[1].' . $DIDRateTableList[1]);
 
@@ -677,16 +670,13 @@ class ServicesTemplateController extends BaseController {
        */
         $exportSelectedTemplate = ServiceTemplate::
         Join('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
-            ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
-            ->select(['tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code as Currency'])
+            //->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
+            ->select(['tblServiceTemplate.Name','tblService.ServiceName'])
             ->orderBy("tblServiceTemplate.Name", "ASC");
 
         if($data['ServiceName'] != ''){
             Log::info('$servicesTemplate AJAX.$data[\'ServiceName\']' . 'set the value');
             $exportSelectedTemplate->where('tblServiceTemplate.Name','like','%'.$data['ServiceName'].'%');
-        }
-        if($data['FilterCurrencyId'] != ''){
-            $exportSelectedTemplate->where(["tblServiceTemplate.CurrencyId" => $data['FilterCurrencyId']]);
         }
         if($data['ServiceId'] != ''){
             $exportSelectedTemplate->where(["tblServiceTemplate.ServiceId"=>$data['ServiceId']]);
@@ -1107,8 +1097,6 @@ class ServicesTemplateController extends BaseController {
 
     public function addBulkAction(){ // Add Bulk action if input empty then this will add already existing values...
         $data = Input::all();
-
-
         try{
 
         if(isset($data['Service']))
@@ -1119,7 +1107,7 @@ class ServicesTemplateController extends BaseController {
 
 
 
-        $data['CurrencyId']             = (isset($data['CurrencyIdBulkAction']) ? $data['CurrencyIdBulkAction'] : " ");
+        //$data['CurrencyId']             = (isset($data['CurrencyIdBulkAction']) ? $data['CurrencyIdBulkAction'] : " ");
         $data['ServiceId']              = (isset($data['ServiceIdBulkAction']) ? $data['ServiceIdBulkAction'] : " ");
         $data['OutboundRateTableId']    = (isset($data['OutboundRateTableIdBulkAction']) ? $data['OutboundRateTableIdBulkAction'] : " ");
         $data['OutboundDiscountPlanId'] = (isset($data['OutboundDiscountPlanIdBulkAction']) ? $data['OutboundDiscountPlanIdBulkAction'] : " ");
@@ -1141,6 +1129,7 @@ class ServicesTemplateController extends BaseController {
 
 
         if(isset($data['ServiceTemplateIdBulkAction'])) {
+
             $ServiceTemplateIdString = ((string)$data['ServiceTemplateIdBulkAction']);
             $ServiceTemplateIdArray = explode(',', $ServiceTemplateIdString);
 
@@ -1173,8 +1162,10 @@ class ServicesTemplateController extends BaseController {
             unset($data['OutboundDiscountPlan']);
             unset($data['InboundDiscountPlan']);
 
+
             $data['ServiceTemplateId'] = $data['ServiceTemplateIdBulkAction'];
             $data['RateTableId'] = (isset($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : null);
+
 
             $CategoryIdRateTableIdArray = ((string)$data['selectedcategotyTariffBulkAction']);
             $CategoryIdRateTableIdString = explode(',', $CategoryIdRateTableIdArray);
@@ -1188,7 +1179,8 @@ class ServicesTemplateController extends BaseController {
                 $ArrayCollection = $CategoryIdRateTableIdString[$i];
                 $getCollectionArray[] = explode("-", $ArrayCollection);
             }
-            unset($data['CurrencyId']);
+           ;
+           // unset($data['CurrencyId']);
             unset($data['ServiceId']);
             unset($data['OutboundRateTableId']);
             unset($data['OutboundDiscountPlanId']);
@@ -1202,6 +1194,7 @@ class ServicesTemplateController extends BaseController {
             $arrayTemplateID = explode(",", $data['ServiceTemplateId']);
 
 
+
             if (isset($data['InboundTariff'])) {
                 unset($data['InboundTariff']);
 
@@ -1213,8 +1206,10 @@ class ServicesTemplateController extends BaseController {
                         $data['DIDCategoryId'] = $getCollectionArray[$j][0];
                         $data['RateTableId'] = $getCollectionArray[$j][1];
 
+
                         if(isset($data['DIDCategoryId']) && !empty($data['DIDCategoryId']))
                         {
+
 
                             Log::info('$alreadyExistServices.' . $data['ServiceTemplateId'] . ' ' . $data['DIDCategoryId'] . ' ' . $data['RateTableId']);
 
@@ -1224,14 +1219,21 @@ class ServicesTemplateController extends BaseController {
 
                             //Log::info('$alreadyExistServices InboundTariffId.' . $alreadyExistServices->ServiceTemapleInboundTariffId);
 
-                            if (!isset($alreadyExistServices)){
 
-                                ServiceTemapleInboundTariff::create($data);
+                            if (!isset($alreadyExistServices)){
+                                $updateFields1 = [];
+                                $updateFields1['ServiceTemplateID'] = $data['ServiceTemplateId'];
+                                $updateFields1['RateTableId'] = $data['RateTableId'];
+                                $updateFields1['DIDCategoryId'] = $data['DIDCategoryId'];
+                                ServiceTemapleInboundTariff::create($updateFields1);
+
 
                             }else {
-                                $updateFields['RateTableId'] = $data['RateTableId'];
+                                $updateFields1 = [];
+                                $updateFields1['ServiceTemplateID'] = $data['ServiceTemplateId'];
+                                $updateFields1['RateTableId'] = $data['RateTableId'];
                                 ServiceTemapleInboundTariff::where('ServiceTemapleInboundTariffId', $alreadyExistServices->ServiceTemapleInboundTariffId)
-                                    ->update($updateFields);
+                                    ->update($updateFields1);
                             }
                         }else{
                             Log::info('$alreadyExistServices else.' . $data['ServiceTemplateId'] . ' ' . $data['DIDCategoryId'] . ' ' . $data['RateTableId']);
@@ -1246,14 +1248,20 @@ class ServicesTemplateController extends BaseController {
                             unset($data['DIDCategoryId']);
                             if (!isset($alreadyExistServices))
                             {
-                                ServiceTemapleInboundTariff::create($data);
+                                $updateFields1 = [];
+                                $updateFields1['ServiceTemplateID'] = $data['ServiceTemplateId'];
+                                $updateFields1['RateTableId'] = $data['RateTableId'];
+                                ServiceTemapleInboundTariff::create($updateFields1);
 
                             }else{
-                                $updateFields['RateTableId'] = $data['RateTableId'];
+                                $updateFields1 = [];
+                                $updateFields1['ServiceTemplateID'] = $data['ServiceTemplateId'];
+                                $updateFields1['RateTableId'] = $data['RateTableId'];
                                 ServiceTemapleInboundTariff::where('ServiceTemapleInboundTariffId', $alreadyExistServices->ServiceTemapleInboundTariffId)
-                                    ->update($updateFields);
+                                    ->update($updateFields1);
                             }
                         }
+
 
 
 
@@ -1265,6 +1273,8 @@ class ServicesTemplateController extends BaseController {
 
             return Response::json(array("status" => "success", "message" => "Bulk Actions updated"));
         }catch (Exception $ex){
+            Log::info($ex . count($ex));
+
             return Response::json(array("status" => "failed", "message" => "Failed to update Bulk Actions"));
         }
 
