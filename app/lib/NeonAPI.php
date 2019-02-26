@@ -46,23 +46,23 @@ class NeonAPI{
         );
         $curl->post(self::$api_url.$call_method, $request );
 
-        Log::info("request");
-        Log::info($request);
-        Log::info("api_url:".self::$api_url.$call_method);
+        //Log::info("request");
+        //Log::info($request);
+        //Log::info("api_url:".self::$api_url.$call_method);
 
         $response = json_decode($curl->response);
-        Log::info("Response");
-        Log::info(print_r($response,true));
+        //Log::info("Response");
+        //Log::info(print_r($response,true));
         if(isset($response->token)){
             self::setToken($response->token);
             return true;
         }else{
             Log::info("-----Not Loggedin on API-----");
-            Log::info($request);
-            Log::info(print_r($response,true));
-            Log::info("_ENV");
-            Log::info($_ENV);
-            Log::info("findEnvironmentVariable");
+            //Log::info($request);
+            //Log::info(print_r($response,true));
+            //Log::info("_ENV");
+            //Log::info($_ENV);
+            //Log::info("findEnvironmentVariable");
         }
         return false;
 
@@ -98,7 +98,7 @@ class NeonAPI{
 			$post_data['LoginType']= 'customer';	
 		}
 		
-		\Illuminate\Support\Facades\Log::info(self::$api_url . $call_method);
+		//\Illuminate\Support\Facades\Log::info(self::$api_url . $call_method);
         if($post === 'delete') {
             $curl->delete(self::$api_url . $call_method, $post_data);
         }else if($post === 'put') {
@@ -212,7 +212,7 @@ class NeonAPI{
                     $ReturnData['Roles']=$user->Roles;
                     $ReturnData['AccountingUser']=$user->Roles;
 
-                    Log::info(print_r($user,true));
+                    //Log::info(print_r($user,true));
                     User::find($user->UserID)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
                     return $ReturnData;
                 }else{
@@ -233,8 +233,8 @@ class NeonAPI{
         $license['LicenceHost'] = $request->getHttpHost();
         $license['LicenceIP'] = $request->getClientIp();
         $licenseCacheKey = 'LicenceApiResponse' . $license['LicenceKey'];
-        Log::info("getLicenceResponse");
-        Log::info($license);
+        //Log::info("getLicenceResponse");
+        //Log::info($license);
         if (!Cache::has($licenseCacheKey)) {
             $LicenceApiResponse = Company::ValidateApiLicenceKey($license);
             if (!empty($LicenceApiResponse)) {

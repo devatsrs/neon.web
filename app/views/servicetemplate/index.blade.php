@@ -17,11 +17,11 @@
                     <label for="field-1" class="control-label">Service</label>
                     {{ Form::select('ServiceId',Service::getDropdownIDList(),'', array("class"=>"select2 small")) }}
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">Currency</label><br/>
-                        {{ Form::select('FilterCurrencyId',Currency::getCurrencyDropdownIDList(),'', array("class"=>"select2 small")) }}
-                        <input id="ServiceRefresh" type="hidden" value="1">
-                </div>
+                {{--<div class="form-group">--}}
+                    {{--<label for="field-1" class="control-label">Currency</label><br/>--}}
+                        {{--{{ Form::select('FilterCurrencyId',Currency::getCurrencyDropdownIDList(),'', array("class"=>"select2 small")) }}--}}
+                        {{--<input id="ServiceRefresh" type="hidden" value="1">--}}
+                {{--</div>--}}
                 <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
@@ -73,7 +73,7 @@
         <th>Status</th>
         <th>Name</th>
         <th>Service Name</th>
-        <th>Currency</th>
+        {{--<th>Currency</th>--}}
         <th>Actions</th>
     </tr>
     </thead>
@@ -187,7 +187,7 @@
                 {"bSortable": true, "bVisible": false   }, //Status
                 { "bSortable": true }, //Name
                 { "bSortable": true }, //Type
-                { "bSortable": true }, //Gateway
+//                { "bSortable": true }, //Gateway
                 {
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
@@ -198,15 +198,15 @@
                         action = '<div class = "hiddenRowData"  >';
                         action += '<input type = "hidden"  name = "ServiceTemplateId" value = "' + (full[0] != null ? full[0] : 0) + '" / >';
                         action += '<input type = "hidden"  name = "ServiceId" value = "' + (full[1] != null ? full[1] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "OutboundTariffId" value = "' + (full[5] != null ? full[5] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "OutboundTariffId" value = "' + (full[4] != null ? full[4] : '') + '" / >';
                         action += '<input type = "hidden"  name = "ServiceName" value = "' + (full[2] != null ? full[2] : '') + '" / >';
                         action += '<input type = "hidden"  name = "CurrencyID" value = "' + (full[6] != null ? full[6] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "OutboundDiscountPlanID" value = "' + (full[8] != null ? full[8] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "InboundDiscountPlanID" value = "' + (full[7] != null ? full[7] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "ContractDuration" value = "' + (full[9] != null ? full[9] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "AutomaticRenewal" value = "' + (full[10] != null ? full[10] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "CancellationCharges" value = "' + (full[11] != null ? full[11] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "CancellationFee" value = "' + (full[12] != null ? full[12] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "OutboundDiscountPlanID" value = "' + (full[7] != null ? full[7] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "InboundDiscountPlanID" value = "' + (full[6] != null ? full[6] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "ContractDuration" value = "' + (full[8] != null ? full[8] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "AutomaticRenewal" value = "' + (full[9] != null ? full[9] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CancellationCharges" value = "' + (full[10] != null ? full[10] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CancellationFee" value = "' + (full[11] != null ? full[11] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Status" value = "" / ></div>';
                         <?php if(User::checkCategoryPermission('SubscriptionTemplate','Edit')){ ?>
                                 action += ' <a data-name = "'+full[1]+'" data-id="'+ full[0] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
@@ -388,12 +388,9 @@
             $("#add-new-service-form [name='ContractDuration']").val(ContractDuration);
             $("#add-new-service-form [name='CancellationFee']").val(CancellationFee);
             $("#add-new-service-form [name='CancellationCharges'][value='" + CancellationCharges+"']").prop("checked", true).trigger("change");
-            $("#add-new-service-form [name='AutomaticRenewal']").prop('checked', AutomaticRenewal == 1).trigger('change');
-            $("#add-new-service-form [name='CurrencyId']").select2().select2('val',CurrencyID);
-            $("#add-new-service-form [name='CurrencyId']").prop('disabled',true);//disabled="true"
+            $("#add-new-service-form [name='AutomaticRenewal']").prop(':checked', AutomaticRenewal == 1).trigger('change');
             loadValuesBasedOnCurrency(CurrencyID,true,ServiceId,OutboundDiscountPlanID,InboundDiscountPlanID,OutboundTariffId);
             editSelectedTemplateSubscription(CurrencyID,id);
-            //alert(ServiceId);
             $("#add-new-service-form [name='ServiceId']").select2().select2('val',ServiceId);
             $("#add-new-service-form [name='CompanyGatewayID']").select2().select2('val',CompanyGatewayID);
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));
@@ -451,36 +448,33 @@
             $("#InboundTariff").val("");
 
             if($("#service_filter [name='FilterCurrencyId']").val() != "" && checkBoxArray != "")
-                {
-                    $('#BulkServiceTemplateModelTitle').text('Bulk Action');
-                    var GetCurrencyId = $("#service_filter [name='FilterCurrencyId']").val();
-                    $("#CurrencyIdBulkAction").val(GetCurrencyId);
-                    $("#ServiceTemplateIdBulkAction").val(checkBoxArray);
-                    $("#add-new-BulkAction-modal-service input:checkbox").prop("checked",false);
-                    $("#OutboundRateTableIdBulkAction").prop("disabled",true);
-                    $("#OutboundDiscountPlanIdBulkAction").prop("disabled",true);
-                    $("#InboundDiscountPlanIdBulkAction").prop("disabled",true);
-                    $("#ServiceIdBulkAction").prop("disabled",true);
-                    $("#DidCategoryIDBulkAction").prop("disabled","disab");
-                    $("#DidCategoryTariffIDBulkAction").prop("disabled",true);
+            {
+                $('#BulkServiceTemplateModelTitle').text('Bulk Action');
+                var GetCurrencyId = $("#service_filter [name='FilterCurrencyId']").val();
+                $("#CurrencyIdBulkAction").val(GetCurrencyId);
+                $("#ServiceTemplateIdBulkAction").val(checkBoxArray);
+                $("#add-new-BulkAction-modal-service input:checkbox").prop("checked",false);
+                $("#OutboundRateTableIdBulkAction").prop("disabled",true);
+                $("#OutboundDiscountPlanIdBulkAction").prop("disabled",true);
+                $("#InboundDiscountPlanIdBulkAction").prop("disabled",true);
+                $("#ServiceIdBulkAction").prop("disabled",true);
+                $("#DidCategoryIDBulkAction").prop("disabled","disab");
+                $("#DidCategoryTariffIDBulkAction").prop("disabled",true);
 
-                    $( "#add-action-bulk-form").children('select').find('option:eq(0)').prop('selected', true);
-                    document.getElementById("selectedcategotyTariffBulkAction").value = "";
-                    document.getElementById("categoryTariffIDListBodyBulkAction").innerHTML = "";
-                    $( "#ServiceIdBulkAction").select2().select2('val',1);
+                $( "#add-action-bulk-form").children('select').find('option:eq(0)').prop('selected', true);
+                document.getElementById("selectedcategotyTariffBulkAction").value = "";
+                document.getElementById("categoryTariffIDListBodyBulkAction").innerHTML = "";
+                $( "#ServiceIdBulkAction").select2().select2('val',1);
 
 
 
-                }else{
+            }else{
 
-                   if(checkBoxArray == "")
-                       ShowToastr("error", "Please select any rows");
-                   else
-                        ShowToastr("error", "Please select Currency from filter");
+                if(checkBoxArray == "")
+                    ShowToastr("error", "Please select any rows");
+                return false;
 
-                    return false;
-
-                }
+            }
 
 
             var selected_company, data, url;
@@ -505,13 +499,9 @@
                     // $("#serviceBasedOnCurreny").html(data);
                 }, 'html');
 
-            }else{
-
-                ShowToastr("error", "Please select Currency from filter");
-
             }
 
-               $('#add-new-BulkAction-modal-service').modal('show', {backdrop: 'static'});
+            $('#add-new-BulkAction-modal-service').modal('show', {backdrop: 'static'});
 
         });
 

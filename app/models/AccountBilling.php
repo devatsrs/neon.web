@@ -32,12 +32,12 @@ class AccountBilling extends \Eloquent {
 
     public static function boot(){
         parent::boot();
-        log::info('AccountBilling Boot');
+        //log::info('AccountBilling Boot');
 
         static::created(function($obj)
         {
             if(!Auth::guest()) {
-                log::info('AccountBilling Create Boot');
+                //log::info('AccountBilling Create Boot');
                 $customer = Session::get('customer');
                 /* 0= user, 1=customer */
                 $UserType = 0;
@@ -55,7 +55,7 @@ class AccountBilling extends \Eloquent {
                     "UserType" => $UserType
                 ];
                 $detail = array();
-                log::info('--Account Billing create start--');
+                //log::info('--Account Billing create start--');
                 foreach ($obj->attributes as $index => $value) {
                     if (array_key_exists($index, AccountBilling::$defaultAccountAuditFields)) {
                         $data = ['OldValue' => '',
@@ -66,12 +66,12 @@ class AccountBilling extends \Eloquent {
                         $detail[] = $data;
                     }
                 }
-                Log::info('start');
-                Log::info(print_r($header, true));
-                Log::info(print_r($detail, true));
+                //Log::info('start');
+                //Log::info(print_r($header, true));
+                //Log::info(print_r($detail, true));
                 AuditHeader::add_AuditLog($header, $detail);
-                Log::info('end');
-                log::info('--Account Billing create end--');
+                //Log::info('end');
+                //log::info('--Account Billing create end--');
             }
 
         });
@@ -79,7 +79,7 @@ class AccountBilling extends \Eloquent {
 
         static::updated(function($obj) {
             if(!Auth::guest()) {
-                log::info('AccountBilling Update Boot');
+                //log::info('AccountBilling Update Boot');
                 $customer = Session::get('customer');
                 /* 0= user, 1=customer */
                 $UserType = 1;
@@ -97,7 +97,7 @@ class AccountBilling extends \Eloquent {
                     "UserType" => $UserType
                 ];
                 $detail = array();
-                log::info('--Account Billing update start--');
+                //log::info('--Account Billing update start--');
                 foreach ($obj->original as $index => $value) {
                     if (array_key_exists($index, AccountBilling::$defaultAccountAuditFields)) {
                         if ($obj->attributes[$index] != $value) {
@@ -110,12 +110,12 @@ class AccountBilling extends \Eloquent {
                         }
                     }
                 }
-                Log::info('start');
-                Log::info(print_r($header, true));
-                Log::info(print_r($detail, true));
+                //Log::info('start');
+                //Log::info(print_r($header, true));
+                //Log::info(print_r($detail, true));
                 AuditHeader::add_AuditLog($header, $detail);
-                Log::info('end');
-                log::info('--Account Billing update end--');
+                //Log::info('end');
+                //log::info('--Account Billing update end--');
             }
         });
     }

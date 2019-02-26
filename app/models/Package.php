@@ -10,7 +10,7 @@ class Package extends \Eloquent
 
     public static $rules = array(
         'Name' =>      'required|unique:tblPackage',
-        'CurrencyId' =>  'required',
+//        'CurrencyId' =>  'required',
         'RateTableId' => 'required',
     );
 

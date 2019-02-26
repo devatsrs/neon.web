@@ -71,7 +71,7 @@ class ActiveCallApiController extends ApiController {
                 //check Balance
                 //$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $AccountID);
                 $AccountBalance = AccountBalance::getBalanceAmount($AccountID);
-                log::info('Account Balance '.$AccountBalance);
+                //log::info('Account Balance '.$AccountBalance);
                 if($AccountBalance > 0){
                     if($data['CallType']==0){
                         $data['CallType']='Inbound';
@@ -110,9 +110,9 @@ class ActiveCallApiController extends ApiController {
                     if ($ActiveCall = ActiveCall::create($ActiveCallData)) {
                         $ActiveCallID = $ActiveCall->ActiveCallID;
                         $Response = ActiveCall::updateActiveCall($ActiveCallID);
-                        log::info(print_r($Response,true));
+                        //log::info(print_r($Response,true));
                         if(isset($Response['Status']) && $Response['Status']=='Success'){
-                            log::info('update call cost');
+                            //log::info('update call cost');
                             ActiveCall::getActiveCallCost($ActiveCallID);
 
                             DB::connection('sqlsrvroutingengine')->commit();
@@ -120,7 +120,7 @@ class ActiveCallApiController extends ApiController {
 
                             return Response::json(array(["ActiveCallID"=>$ActiveCall->ActiveCallID]),Codes::$Code200[0]);
                         }else{
-                            log::info('delete call');
+                            //log::info('delete call');
                             ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
                             return Response::json(array("ErrorMessage" => $Response['Message']),Codes::$Code402[0]);
                         }
@@ -502,9 +502,9 @@ class ActiveCallApiController extends ApiController {
                 if ($ActiveCall = ActiveCall::create($ActiveCallData)) {
                     $ActiveCallID = $ActiveCall->ActiveCallID;
                     $Response = ActiveCall::updateActiveCall($ActiveCallID);
-                    log::info(print_r($Response,true));
+                    //log::info(print_r($Response,true));
                     if(isset($Response['Status']) && $Response['Status']=='Success'){
-                        log::info('update call cost');
+                        //log::info('update call cost');
 
                         ActiveCall::getActiveCallCost($ActiveCallID);
                         ActiveCall::insertActiveCallCDR($ActiveCallID);
@@ -515,7 +515,7 @@ class ActiveCallApiController extends ApiController {
 
                         return Response::json([],Codes::$Code200[0]);
                     }else{
-                        log::info('delete call');
+                        //log::info('delete call');
                         ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
                         return Response::json(array("ErrorMessage" => $Response['Message']),Codes::$Code402[0]);
                     }

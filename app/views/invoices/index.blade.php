@@ -118,7 +118,7 @@
             @endif
 
             <li> <a class="quickbookpost create" id="print_invoice" href="javascript:;"> Download Invoice </a> </li>
-            <li> <a class="quickbookpost create" id="print_ubl_invoice" href="javascript:;"> Download UBL Invoice </a> </li>
+            <li> <a class="quickbookpost create" id="print_ubl_invoice" href="javascript:;"> Download UBL </a> </li>
 
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;"> Change Status </a> </li>
@@ -184,10 +184,10 @@
           <th width="13%">Period</th>
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
-          <th width="10%">Status</th>
+          <th width="5%">Status</th>
           <th width="5%">Available Credit Notes</th>
           <th width="10%">Due Date</th>
-          {{--<th width="10%">Due Days</th>--}}
+            <th width="15%">Payment Reminder</th>
           <th width="20%">Action</th>
         </tr>
       </thead>
@@ -343,6 +343,22 @@
                         }
                     },  // 8 DueDate and DueDays
                     //{"bSortable": false},  // 9 DueDays
+                    {
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
+                            if(full[20] != null){
+                                var output =  '<span title="Last Date Sent">' + full[20] +'</span>' + " - " +'('+ '<span title="No of reminders ">' + full[19]+'</span>'+')';
+
+                            }else{
+                                var output = '('+ '<span title="No of reminders ">' + full[19]+'</span>'+')';
+
+                            }
+
+                            return output;
+                        }
+
+
+                    },
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {
@@ -1388,6 +1404,8 @@
                     }
                 });
                 if (InvoiceIDs == '') {
+                  alert('Select atlease one invoice');
+                  return false;
                     criteria = JSON.stringify($searchFilter);
                 }
                 if ($('#selectallbutton').is(':checked')) {

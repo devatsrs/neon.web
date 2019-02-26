@@ -83,7 +83,7 @@ class Invoice extends \Eloquent {
 
     }
 
-    public static  function generate_pdf($InvoiceID){  
+    public static  function generate_pdf($InvoiceID){
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
 
@@ -238,7 +238,7 @@ class Invoice extends \Eloquent {
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$Invoice->AccountID) ;
             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH',$Account->CompanyId) . '/'. $amazonPath;
 
-            if (!file_exists($destination_dir)) {
+            if (!is_dir($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
 
