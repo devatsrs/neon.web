@@ -164,6 +164,8 @@
                    $('.packagediv').show();
                    $('.productdiv').hide();
                    $('.productcategory').hide();
+                    $('#Origination').hide();
+                    $('#OriginationPercentage').hide();
                 }else{
                     $('#lcr_type').val('N');
                    $('.didbutton').html(accbtnval+' <span class="caret"></span>');
@@ -171,6 +173,8 @@
                     $('.packagediv').hide();
                    $('.productdiv').show();
                    $('.productcategory').show();
+                    $('#Origination').show();
+                    $('#OriginationPercentage').show();
                 }
                 
             });
@@ -306,25 +310,27 @@
                     ];
                 }
 
-                if(typeof $searchFilter.EffectiveDate  == 'undefined' || $searchFilter.EffectiveDate == '' ){
+                if(typeof $searchFilter.EffectiveDate  == 'undefined'){
                     toastr.error("Please Select a Effective Date", "Error", toastr_opts);
                     return false;
                 }
-                if(typeof $searchFilter.Country  == 'undefined' || $searchFilter.Country == '' ){
-                    toastr.error("Please Select a Country", "Error", toastr_opts);
-                    return false;
-                }
-                if(typeof $searchFilter.AccessType  == 'undefined' || $searchFilter.AccessType == '' ){
-                    toastr.error("Please Select a Access Type", "Error", toastr_opts);
-                    return false;
-                }
-                if(typeof $searchFilter.Prefix  == 'undefined' || $searchFilter.Prefix == '' ){
-                    toastr.error("Please Select a Prefix", "Error", toastr_opts);
-                    return false;
-                }
-                if((typeof $searchFilter.Currency  == 'undefined' || $searchFilter.Currency == '' ) ){
+                if((typeof $searchFilter.Currency  == 'undefined' ) ){
                     toastr.error("Please Select Currency", "Error", toastr_opts);
                     return false;
+                }
+                if($('#lcr_type').val()=='Access'){
+                    if(typeof $searchFilter.Country  == 'undefined'){
+                        toastr.error("Please Select a Country", "Error", toastr_opts);
+                        return false;
+                    }
+                    if(typeof $searchFilter.AccessType  == 'undefined' || $searchFilter.AccessType == '' ){
+                        toastr.error("Please Select a Access Type", "Error", toastr_opts);
+                        return false;
+                    }
+                    if(typeof $searchFilter.Prefix  == 'undefined' || $searchFilter.Prefix == '' ){
+                        toastr.error("Please Select a Prefix", "Error", toastr_opts);
+                        return false;
+                    }
                 }
                 if($('#lcr_type').val()=='Y'){
                 }else{

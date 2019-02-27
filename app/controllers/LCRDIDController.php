@@ -29,7 +29,7 @@ class LCRDIDController extends \BaseController {
 
         //$data['ProductID'] = 1; // 1 for local testing , 27825 for staging testing else "Geo number Argentina; Prefix:011"
 
-        $query = "call prc_GetDIDLCR(".$companyID.", ".$data['CountryID'].", '".$data['AccessType']."', '".$data['CityTariff']."', '".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+        $query = "call prc_GetDIDLCR(".$companyID.", '".$data['CountryID']."', '".$data['AccessType']."', '".$data['CityTariff']."', '".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
@@ -52,10 +52,6 @@ class LCRDIDController extends \BaseController {
 
                 }
                 $query .=',0)';
-        //echo $query;
-        //exit;
-        Log::info($query);
-
         return DataTableSql::of($query)->make();
 
 
@@ -84,10 +80,10 @@ class LCRDIDController extends \BaseController {
         $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
         $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
 
-        $country = array('' => 'Select',-1 => "All") + $country;
-        $AccessType =array('' => 'Select',-1 => "All") + $AccessType;
-        $Prefix = array('' => 'Select',-1 => "All") + $Prefix;
-        $CityTariff = array('' => 'Select',-1 => "All") + $CityTariff;
+        $country = array('' => "All") + $country;
+        $AccessType =array('' => "All") + $AccessType;
+        $Prefix = array('' => "All") + $Prefix;
+        $CityTariff = array('' => 'Select') + $CityTariff;
         
         $Package = Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
         
@@ -326,7 +322,6 @@ class LCRDIDController extends \BaseController {
         $username = User::get_user_full_name();
 
         $query = "call prc_editpreference ('".$data["GroupBy"]."',".$preference.",".$data["RateTableRateID"].",".$Timezones.",'".$OriginationDescription."','".$description."','".$username."')";
-        \Illuminate\Support\Facades\Log::info($query);
         DB::select($query);
 
         try{
