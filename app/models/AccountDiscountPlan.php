@@ -10,7 +10,6 @@ class AccountDiscountPlan extends \Eloquent
 
     const OUTBOUND = 1;
     const INBOUND = 2;
-    const PACKAGE = 3;
 
 
     public static function checkForeignKeyById($id) {

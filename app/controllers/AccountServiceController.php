@@ -46,7 +46,6 @@ class AccountServiceController extends \BaseController {
 
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
-        $PackageDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::PACKAGE,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
 
         $ServiceTitle = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceTitle');
         $ServiceDescription = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceDescription');
@@ -72,14 +71,13 @@ class AccountServiceController extends \BaseController {
 
         $PackageId="";
         $RateTableID="";
-        $allservices = Service::where('Status', 1)->get();
 
         $AccountServicePackage = AccountServicePackage::where(['AccountID' => $AccountID, 'AccountServiceID' => $AccountServiceID])->first();
         if(!empty($AccountServicePackage) && count($AccountServicePackage) > 0){
             $PackageId=$AccountServicePackage->PackageId;
             $RateTableID=$AccountServicePackage->RateTableID;
         }
-        return View::make('accountservices.edit', compact('CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
+        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID'));
 
     }
 
@@ -130,17 +128,11 @@ class AccountServiceController extends \BaseController {
         $serviceid = Input::get('serviceid');
         $companyid = Input::get('companyid');
         $accountid = Input::get('accountid');
-        $serviceTitle = empty(Input::get('ServiceTitle')) ? '' : Input::get('ServiceTitle');
-        $serviceDescription = empty(Input::get('ServiceDescription')) ? '' : Input::get('ServiceDescription');
-        $serviceShowTitle = Input::get('ServiceTitleShow') == false ? 0 : 1;
         $add = new AccountService;
         $add->AccountID = $accountid;
         $add->ServiceID = $serviceid;
         $add->CompanyID = $companyid;
         $add->Status  = 1;
-        $add->ServiceTitle = $serviceTitle;
-        $add->ServiceDescription = $serviceDescription;
-        $add->ServiceTitleShow = $serviceShowTitle;
         if($add->save()){
             $lastid = $add->AccountServiceID;
             return \Redirect::to('accountservices/'.$accountid.'/edit/'.$lastid);
@@ -191,13 +183,13 @@ class AccountServiceController extends \BaseController {
         ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
         ->leftjoin('tblPackage', 'tblPackage.PackageId', '=' , 'tblCLIRateTable.PackageID' )
         ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
-         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"), "tblAccountService.Status", "tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate"])
+         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"),"tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate", "tblAccountService.Status"])
         ->where("tblAccountService.AccountID",$id);
 
         //Log::debug($services->toSql());
 
-        if(!empty($data['Number'])){
-            $services->where('tblCLIRateTable.CLI','Like','%'.trim($data['Number']).'%');
+        if(!empty($data['ServiceName'])){
+            $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
         }
         if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
             $services->where(function($query){

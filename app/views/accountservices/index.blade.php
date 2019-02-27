@@ -23,17 +23,17 @@
             <div class="panel panel-primary panel-collapse" data-collapsed="1">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Filter
+                            Filter
                     </div>
                     <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                     </div>
                 </div>
                 <div class="panel-body" style="display: none;">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Number</label>
+                        <label for="field-1" class="col-sm-1 control-label">Name</label>
                         <div class="col-sm-2">
-                            <input type="text" name="Number" class="form-control" value="" />
+                            <input type="text" name="ServiceName" class="form-control" value="" />
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">Active</label>
                         <div class="col-sm-2">
@@ -43,10 +43,10 @@
                         </div>
                         <div class="col-sm-6">
                             <p style="text-align: right">
-                                <button class="btn btn-primary btn-sm btn-icon icon-left" id="service_submit">
-                                    <i class="entypo-search"></i>
-                                    Search
-                                </button>
+                            <button class="btn btn-primary btn-sm btn-icon icon-left" id="service_submit">
+                                <i class="entypo-search"></i>
+                                Search
+                            </button>
                             </p>
                         </div>
                     </div>
@@ -102,7 +102,6 @@
                     <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
                     <th>Service Name</th>
                     <th>Number</th>
-                    <th>Status</th>
                     <th>Package</th>
                     <th>Start Date</th>
                     <th>End Date</th>
@@ -115,10 +114,10 @@
         </div>
         <script type="text/javascript">
             /**
-             * JQuery Plugin for dataTable
-             * */
-                //  var list_fields_activity  = ['ServiceName','InvoiceDescription','StartDate','EndDate'];
-            $("#service_filter").find('[name="Number"]').val('');
+            * JQuery Plugin for dataTable
+            * */
+          //  var list_fields_activity  = ['ServiceName','InvoiceDescription','StartDate','EndDate'];      
+            $("#service_filter").find('[name="ServiceName"]').val('');
             var data_table_service;
             var account_id='{{$account->AccountID}}';
             var update_new_url;
@@ -126,90 +125,81 @@
             var checked='';
 
             jQuery(document).ready(function ($) {
+				
+		    var list_fields  = ["ServiceID", "ServiceName"];
+            public_vars.$body = $("body");
+            var $searchService = {};
+            var service_edit_url = baseurl + "/accountservices/{{$account->AccountID}}/edit/{id}";
+            var service_delete_url = baseurl + "/accountservices/{{$account->AccountID}}/{id}/delete";
+            var service_datagrid_url = baseurl + "/accountservices/{{$account->AccountID}}/ajax_datagrid";
+            var service_export_url = baseurl + "/accountservices/{{$account->AccountID}}/exports";
+            var service_clone_url = baseurl + "/accountservices/{{$account->AccountID}}/clone";
 
-                var list_fields  = ["ServiceID", "ServiceName"];
-                public_vars.$body = $("body");
-                var $searchService = {};
-                var service_edit_url = baseurl + "/accountservices/{{$account->AccountID}}/edit/{id}";
-                var service_delete_url = baseurl + "/accountservices/{{$account->AccountID}}/{id}/delete";
-                var service_datagrid_url = baseurl + "/accountservices/{{$account->AccountID}}/ajax_datagrid";
-                var service_export_url = baseurl + "/accountservices/{{$account->AccountID}}/exports";
-                var service_clone_url = baseurl + "/accountservices/{{$account->AccountID}}/clone";
-
-                $("#service_submit").click(function(e) {
-                    e.preventDefault();
-
-                    $searchService.ServiceNumber = $("#service_filter").find('[name="Number"]').val();
+            $("#service_submit").click(function(e) {                
+                e.preventDefault();
+                 
+                    $searchService.ServiceName = $("#service_filter").find('[name="ServiceName"]').val();
                     $searchService.ServiceActive = $("#service_filter").find("[name='ServiceActive']").prop("checked");
-                    data_table_service = $("#table-service").dataTable({
-                        "bDestroy": true,
-                        "bProcessing":true,
-                        "bServerSide": true,
-                        "sAjaxSource": service_datagrid_url,
-                        "fnServerParams": function (aoData) {
-                            aoData.push({"name": "account_id", "value": account_id},
-                                    {"name": "Number", "value": $searchService.ServiceNumber},
-                                    {"name": "ServiceActive", "value": $searchService.ServiceActive});
+                        data_table_service = $("#table-service").dataTable({
+                            "bDestroy": true,
+                            "bProcessing":true,
+                            "bServerSide": true,
+                            "sAjaxSource": service_datagrid_url,
+                            "fnServerParams": function (aoData) {
+                                aoData.push({"name": "account_id", "value": account_id},
+                                        {"name": "ServiceName", "value": $searchService.ServiceName},
+                                        {"name": "ServiceActive", "value": $searchService.ServiceActive});
 
-                            data_table_extra_params.length = 0;
-                            data_table_extra_params.push({"name": "account_id", "value": account_id},
-                                    {"name": "Number", "value": $searchService.ServiceNumber},
-                                    {"name": "ServiceActive", "value": $searchService.ServiceActive},
-                                    {"name":"Export","value":1});
+                                data_table_extra_params.length = 0;
+                                data_table_extra_params.push({"name": "account_id", "value": account_id},
+                                        {"name": "ServiceName", "value": $searchService.ServiceName},
+                                        {"name": "ServiceActive", "value": $searchService.ServiceActive},
+                                        {"name":"Export","value":1});
 
-                        },
-                        "iDisplayLength": 10,
-                        "sPaginationType": "bootstrap",
-                        "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[0, 'asc']],
-                        "aoColumns": [
-                            {
-                                "bSortable": false, //Account
-                                mRender: function (id, type, full) {
-                                    var chackbox = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
-                                    if($('#Recall_on_off').prop("checked")){
-                                        chackbox='';
-                                    }
-                                    return chackbox;
-                                }
-                            }, //1   CurrencyDescription
-                            { "bSortable": true, "bVisible": false },  // 0 Service Name
-                            { "bSortable": false },  // 0 Service Name
-                            {// 1 Service Status
-                                "bSortable": false,
-                                mRender: function (id, type, full) {
-                                    if (full[3] == 1)
-                                        return '<i style="font-size:22px;color:green" class="entypo-check"></i>';
-                                    else
-                                        return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
-                                }
                             },
-                            { "bSortable": false },  // 1 Package
-                            { "bSortable": false },  // 2 Service ID
-                            {  "bSortable": false },
-                            //{  "bSortable": false }, // 3 Account Service ID
-                            {                        // 10 Action
-                                "bSortable": false,
-                                mRender: function ( id, type, full ) {
-                                    var Active_Card = baseurl + "/accountservices/{id}/changestatus/active";
-                                    var DeActive_Card = baseurl + "/accountservices/{id}/changestatus/deactive";
-                                    action = '';
-                                    <?php if(User::checkCategoryPermission('AccountService','Edit')) { ?>
-                                    if (full[3]=="1") {
-                                        action += ' <button href="' + DeActive_Card.replace("{id}",full[0]) + '" title=""  class="btn activeservice btn-danger btn-sm tooltip-primary" data-original-title="Deactivate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></button>';
-                                    } else {
-                                        action += ' <button href="' + Active_Card.replace("{id}",full[0]) + '" title="" class="btn deactiveservice btn-success btn-sm tooltip-primary" data-original-title="Activate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-check"></i></button>';
+                            "iDisplayLength": 10,
+                            "sPaginationType": "bootstrap",
+                            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                            "aaSorting": [[0, 'asc']],
+                            "aoColumns": [
+                                {
+                                    "bSortable": false, //Account
+                                    mRender: function (id, type, full) {
+                                        var chackbox = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
+                                        if($('#Recall_on_off').prop("checked")){
+                                            chackbox='';
+                                        }
+                                        return chackbox;
                                     }
-                                    action += ' <a href="' + service_edit_url.replace("{id}",full[0]) +'" class="edit-service btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
-                                    <?php } ?>
-                                            action += ' <a data-id=' +full[0] +' class="clone-service btn-default btn btn-sm tooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i></a>';
-                                    <?php if(User::checkCategoryPermission('AccountService','Delete')) { ?>
-                                            action += ' <a href="' + service_delete_url.replace("{id}",full[0]) +'" class="delete-service btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
-                                    <?php } ?>
-                                            return action;
-                                }
+                                }, //1   CurrencyDescription
+                                { "bSortable": true },  // 0 Service Name
+                                { "bSortable": false },  // 0 Service Name
+                               { "bSortable": false },  // 1 Service Status
+                                { "bSortable": false },  // 2 Service ID
+                                {  "bSortable": false },
+                                 //{  "bSortable": false }, // 3 Account Service ID
+                                {                        // 10 Action
+                           "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                var Active_Card = baseurl + "/accountservices/{id}/changestatus/active";
+                                var DeActive_Card = baseurl + "/accountservices/{id}/changestatus/deactive";
+                                 action = '';
+                                <?php if(User::checkCategoryPermission('AccountService','Edit')) { ?>
+                                 if (full[6]=="1") {
+                                    action += ' <button href="' + DeActive_Card.replace("{id}",full[0]) + '" title=""  class="btn activeservice btn-danger btn-sm tooltip-primary" data-original-title="Deactivate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></button>';
+                                 } else {
+                                    action += ' <button href="' + Active_Card.replace("{id}",full[0]) + '" title="" class="btn deactiveservice btn-success btn-sm tooltip-primary" data-original-title="Activate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-check"></i></button>';
+                                 }
+                                 action += ' <a href="' + service_edit_url.replace("{id}",full[0]) +'" class="edit-service btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
+                                <?php } ?>
+                                        action += ' <a data-id=' +full[0] +' class="clone-service btn-default btn btn-sm tooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i></a>';
+                                <?php if(User::checkCategoryPermission('AccountService','Delete')) { ?>
+                                    action += ' <a href="' + service_delete_url.replace("{id}",full[0]) +'" class="delete-service btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
+                                <?php } ?>
+                                 return action;
                             }
-                        ],
+                          }
+                         ],
                         "oTableTools": {
                             "aButtons": [
                                 {
@@ -227,9 +217,9 @@
                             ]
                         },
                         "fnDrawCallback": function() {
-                            $(".dataTables_wrapper select").select2({
-                                minimumResultsForSearch: -1
-                            });
+                           $(".dataTables_wrapper select").select2({
+                               minimumResultsForSearch: -1
+                           });
 
                             $("#table-service tbody input[type=checkbox]").each(function (i, el) {
                                 var $this = $(el),
@@ -285,44 +275,44 @@
                                 initCustomerGrid();
 
                             });
-                        }
+                         }
 
+                        });
+                        $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
                     });
-                    $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
-                });
 
 
                 $(document ).ready(function (){
-                    $('#service_submit').trigger('click');
+                        $('#service_submit').trigger('click');
                 });
                 //$('#service_submit').trigger('click');
                 //inst.myMethod('I am a method');
                 $('#add-services').click(function(ev){
-                    ev.preventDefault();
-                    $('#service-form').trigger("reset");
-                    $('#modal-services h4').html('Add services');
-                    $('#servicetable').find('tbody tr').each(function (i, el) {
-                        var self = $(this);
-                        if (self.hasClass('selected')) {
-                            $(this).find('input[type="checkbox"]').prop("checked", false);
-                            $(this).removeClass('selected');
-                        }
-                    });
-                    $('#modal-services').modal('show');
+                        ev.preventDefault();
+                        $('#service-form').trigger("reset");
+                        $('#modal-services h4').html('Add services');
+                        $('#servicetable').find('tbody tr').each(function (i, el) {
+                            var self = $(this);
+                            if (self.hasClass('selected')) {
+                                $(this).find('input[type="checkbox"]').prop("checked", false);
+                                $(this).removeClass('selected');
+                            }
+                        });
+                        $('#modal-services').modal('show');                        
                 });
-
+              
                 $('table tbody').on('click', '.delete-service', function (ev) {
-                    ev.preventDefault();
-                    result = confirm("Are you Sure?");
-                    if(result){
-                        $(this).button('loading');
-                        var delete_url  = $(this).attr("href");
-                        submit_ajax_datatable( delete_url,"",0,data_table_service);
-                        //data_table_service.fnFilter('', 0);
-                        //console.log('delete');
-                        // $('#service_submit').trigger('click');
-                    }
-                    return false;
+                        ev.preventDefault();
+                        result = confirm("Are you Sure?");
+                       if(result){
+                           $(this).button('loading');
+                           var delete_url  = $(this).attr("href");
+                           submit_ajax_datatable( delete_url,"",0,data_table_service);
+                            //data_table_service.fnFilter('', 0);
+                           //console.log('delete');
+                          // $('#service_submit').trigger('click');
+                       }
+                       return false;
                 });
 
 
@@ -411,15 +401,15 @@
                     return false;
                 });
 
-                $("#service-form").submit(function(e){
+               $("#service-form").submit(function(e){
 
-                    e.preventDefault();
-                    var _url  = $(this).attr("action");
-                    submit_ajax_datatable(_url,$(this).serialize(),0,data_table_service);
-                    data_table_service.fnFilter('', 0);
-                    //console.log('edit');
-                    // $('#service_submit').trigger('click');
-                });
+                   e.preventDefault();
+                   var _url  = $(this).attr("action");
+                   submit_ajax_datatable(_url,$(this).serialize(),0,data_table_service);
+                   data_table_service.fnFilter('', 0);
+                   //console.log('edit');
+                  // $('#service_submit').trigger('click');
+               });
 
                 $('.selectallservices').on('click', function () {
                     var self = $(this);
@@ -547,7 +537,8 @@
                                         mRender: function(id, type, full) {
                                             return '<div class="checkbox "><input type="checkbox" name="AccountID[]" value="' + id + '" class="rowcheckbox" ></div>';
                                         }
-                                    }
+                                    },
+                                    {}
                                 ],
 
                         "fnDrawCallback": function() {
@@ -573,149 +564,149 @@
             });
 
 
-        </script>
+            </script>
     </div>
 </div>
 
 
 
 @section('footer_ext')
-    @parent
+@parent
 
-    <div class="modal fade in" id="modal-services">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="services-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add Services</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <table id="servicetable" class="table table-bordered datatable">
-                                        <thead>
-                                        <tr>
-                                            <td width="10%">
-                                                <div class="checkbox">
-                                                    <input name="checkbox[]" class="selectallservices" type="checkbox">
-                                                </div>
-                                            </td>
-                                            <td width="90%">Service Name</td>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($services as $service)
-                                            <tr class="draggable">
-                                                <td>
-                                                    <div class="checkbox">
-                                                        <input name="ServiceID[]" value="{{$service->ServiceID}}" type="checkbox">
-                                                    </div>
-                                                </td>
-                                                <td>{{$service->ServiceName}}</td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
+<div class="modal fade in" id="modal-services">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="services-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add Services</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <table id="servicetable" class="table table-bordered datatable">
+                                    <thead>
+                                    <tr>
+                                        <td width="10%">
+                                            <div class="checkbox">
+                                                <input name="checkbox[]" class="selectallservices" type="checkbox">
+                                            </div>
+                                        </td>
+                                        <td width="90%">Service Name</td>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($services as $service)
+                                    <tr class="draggable">
+                                        <td>
+                                            <div class="checkbox">
+                                                <input name="ServiceID[]" value="{{$service->ServiceID}}" type="checkbox">
+                                            </div>
+                                        </td>
+                                        <td>{{$service->ServiceName}}</td>
+                                    </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
+                    </div>
 
-                    </div>
-                    <input type="hidden" name="AccountID" value="{{$account->AccountID}}">
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <input type="hidden" name="AccountID" value="{{$account->AccountID}}">
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <div class="modal fade in" id="modal-clone-services">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="cloneservices-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Clone Services</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <span style="font-size:15px;">Select Sections To Clones</span>
+<div class="modal fade in" id="modal-clone-services">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="cloneservices-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Clone Services</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span style="font-size:15px;">Select Sections To Clones</span>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-12">
 
-                                <div class="form-group">
-                                    <div class="checkbox ">
-                                        <label><input id="rd-1" name="ServiceTitle" checked="" value="1" type="checkbox">ServiceTitle</label>
+                            <div class="form-group">
+                                <div class="checkbox ">
+                                    <label><input id="rd-1" name="ServiceTitle" checked="" value="1" type="checkbox">ServiceTitle</label>
+                                    &nbsp;&nbsp;
+                                    <label><input id="rd-1" name="ServiceDescription" checked="" value="1" type="checkbox">ServiceDescription</label>
+                                    &nbsp;&nbsp;
+                                    <label><input id="rd-1" name="Subscription" checked="" value="1" type="checkbox">Subscription</label>
+                                    &nbsp;&nbsp;
+                                    <label><input id="rd-1" name="Additional" checked="" value="1" type="checkbox">Additional Charges</label>
+                                    &nbsp;&nbsp;
+                                    <label><input id="rd-1" name="Billing" checked="" value="1" type="checkbox">Billing</label>
+                                    &nbsp;&nbsp;
+                                    <label><input id="rd-1" name="Tariff" checked="" value="1" type="checkbox">Tariff</label>
+                                    @if(@$ROUTING_PROFILE == '1')
                                         &nbsp;&nbsp;
-                                        <label><input id="rd-1" name="ServiceDescription" checked="" value="1" type="checkbox">ServiceDescription</label>
-                                        &nbsp;&nbsp;
-                                        <label><input id="rd-1" name="Subscription" checked="" value="1" type="checkbox">Subscription</label>
-                                        &nbsp;&nbsp;
-                                        <label><input id="rd-1" name="Additional" checked="" value="1" type="checkbox">Additional Charges</label>
-                                        &nbsp;&nbsp;
-                                        <label><input id="rd-1" name="Billing" checked="" value="1" type="checkbox">Billing</label>
-                                        &nbsp;&nbsp;
-                                        <label><input id="rd-1" name="Tariff" checked="" value="1" type="checkbox">Tariff</label>
-                                        @if(@$ROUTING_PROFILE == '1')
-                                            &nbsp;&nbsp;
-                                            <label><input id="rd-1" name="RoutingProfile" checked="" value="1" type="checkbox">Routing Profile</label>
-                                        @endif
-                                    </div>
-                                    <div class="checkbox ">
-                                        <label><input id="rd-1" name="DiscountPlan" checked="" value="1" type="checkbox">Discount Plan</label>
-                                        <label><input id="rd-1" name="Contract" checked="" value="1" type="checkbox">Contract</label>
-                                    </div>
+                                        <label><input id="rd-1" name="RoutingProfile" checked="" value="1" type="checkbox">Routing Profile</label>
+                                    @endif
                                 </div>
-
-                            </div>
-                        </div>
-                        <div style="max-height: 500px; overflow-y: auto; overflow-x: hidden;">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <table class="table table-bordered datatable" id="cloneservicetable">
-                                            <thead>
-                                            <tr>
-                                                <th><input type="checkbox" class="selectallAccounts" name="checkbox[]" /></th>
-                                                <th>Account Name</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                <div class="checkbox ">
+                                    <label><input id="rd-1" name="DiscountPlan" checked="" value="1" type="checkbox">Discount Plan</label>
+                                    <label><input id="rd-1" name="Contract" checked="" value="1" type="checkbox">Contract</label>
                                 </div>
                             </div>
+
                         </div>
                     </div>
-                    <input type="hidden" name="ServiceAccountID" value="{{$account->AccountID}}">
-                    <input type="hidden" name="criteria">
-                    <input type="hidden" name="CloneID">
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
+                    <div style="max-height: 500px; overflow-y: auto; overflow-x: hidden;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <table class="table table-bordered datatable" id="cloneservicetable">
+                                    <thead>
+                                    <tr>
+                                        <th><input type="checkbox" class="selectallAccounts" name="checkbox[]" /></th>
+                                        <th>Account Name</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
+                    </div>
+                </div>
+                <input type="hidden" name="ServiceAccountID" value="{{$account->AccountID}}">
+                <input type="hidden" name="criteria">
+                <input type="hidden" name="CloneID">
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 @stop
