@@ -327,14 +327,13 @@ class RoutingApiController extends ApiController {
             $accountreseller = '';
             $post_vars = '';
             $routingData = [];
-            $startDate = date('Y-m-d H:i:s');
             try {
                 $post_vars = json_decode(file_get_contents("php://input"));
                 //$post_vars = Input::all();
                 $routingData = json_decode(json_encode($post_vars), true);
                 $countValues = count($routingData);
                 if ($countValues == 0) {
-                   // Log::info('Exception in Routing API.Invalid JSON');
+                    Log::info('Exception in Routing API.Invalid JSON');
                     return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
                 }
             }catch(Exception $ex) {
@@ -374,7 +373,7 @@ class RoutingApiController extends ApiController {
             }
 
 
-          //  Log::info('routingList:Get the routing list user company.' . $CompanyID);
+            Log::info('routingList:Get the routing list user company.' . $CompanyID);
             $profiles = '';
             $RoutingProfileId = array();
             $CustomerProfileAccountID = '';
@@ -398,7 +397,7 @@ class RoutingApiController extends ApiController {
                 $companyID = $accountInfo["CompanyId"];
                 $accountreseller = Reseller::where('ChildCompanyID', $companyID)->pluck('AccountID');
             }
-           // Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID . ' ReSeller Account ' . $accountreseller);
+            Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID . ' ReSeller Account ' . $accountreseller);
 
             $profiles = '';
 
@@ -412,7 +411,7 @@ class RoutingApiController extends ApiController {
             if (empty($checkDate)) {
                 return Response::json(["ErrorMessage"=>Codes::$Code1022[1]],Codes::$Code1022[0]);
             }
-           // Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
+            Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
 
 
             $removePlusSign = '';
@@ -430,17 +429,17 @@ class RoutingApiController extends ApiController {
                 ->where('SelectionCode', '<>', '')
                 ->orderByRaw('CONCAT(SelectionCode,"%") desc')
                 ->take(1);
-           // Log::info('routingList profiles case 1 query with RoutingProfileRate Query');
+            Log::info('routingList profiles case 1 query with RoutingProfileRate Query' . $lcrDetails->toSql());
             $lcrDetails = $lcrDetails->get();
 
-           // Log::info('routingList profiles case 1 query with RoutingProfileRate ' . count($lcrDetails));
+            Log::info('routingList profiles case 1 query with RoutingProfileRate ' . count($lcrDetails));
             if (count($lcrDetails) > 0) {
                 foreach ($lcrDetails as $lcrDetail) {
 
                 }
                 $RoutingProfileID = $lcrDetail->RoutingProfileId;
                 // $Prefix = $lcrDetail->selectionCode;
-             //   Log::info('routingList profiles case 1 query with RoutingProfileRate ' . $RoutingProfileID);
+                Log::info('routingList profiles case 1 query with RoutingProfileRate ' . $RoutingProfileID);
             } else {
                 $CustomerTrunks = CustomerTrunk::select(['AccountID', 'TrunkID', 'Prefix'])
                     ->where('UseInBilling', '=', 1)
@@ -448,7 +447,7 @@ class RoutingApiController extends ApiController {
                     ->whereRaw('\'' . $routingData["DestinationNo"] . '\'' . ' like  CONCAT(Prefix,"%")')
                     ->orderByRaw('CONCAT(Prefix,"%") desc')
                     ->take(1);
-               // Log::info('routingList profiles case 2 query with RoutingProfileRate ' );
+                Log::info('routingList profiles case 2 query with RoutingProfileRate ' . $CustomerTrunks->toSql());
                 $CustomerTrunks = $CustomerTrunks->get();
                 if (count($CustomerTrunks) > 0) {
                     foreach ($CustomerTrunks as $CustomerTrunk) {
@@ -458,7 +457,7 @@ class RoutingApiController extends ApiController {
                     where(["AccountID" => $CustomerTrunk->AccountID])
                         ->where(["TrunkID" => $CustomerTrunk->TrunkID])
                         ->pluck("RoutingProfileID");
-                  //  Log::info('routingList profiles case 2 query with RoutingProfileRate ' . $TrunkAccountProfiles);
+                    Log::info('routingList profiles case 2 query with RoutingProfileRate ' . $TrunkAccountProfiles);
                     if (!empty($TrunkAccountProfiles)) {
                         $RoutingProfileID = $TrunkAccountProfiles;
                         // $Prefix = $CustomerTrunk->Prefix;
@@ -467,7 +466,7 @@ class RoutingApiController extends ApiController {
                     $CLIRateTables = CLIRateTable::select(['AccountID', 'ServiceID', 'CLI'])
                         ->where('CLI', '=', $routingData["OriginationNo"])
                         ->where(["CompanyID" => $CompanyID]);;
-                   // Log::info('routingList profiles case 3 query with RoutingProfileRate ' );
+                    Log::info('routingList profiles case 3 query with RoutingProfileRate ' . $CLIRateTables->toSql());
                     $CLIRateTables = $CLIRateTables->get();
 
 
@@ -477,17 +476,17 @@ class RoutingApiController extends ApiController {
 
                         }
                         $VendorDetails = '';
-                      //  Log::info('routingList profiles case 3 query with RoutingProfileRate ' . $CLIRateTable->AccountID . ' ' . $CLIRateTable->ServiceID);
+                        Log::info('routingList profiles case 3 query with RoutingProfileRate ' . $CLIRateTable->AccountID . ' ' . $CLIRateTable->ServiceID);
                         $AccountProfiles = EngineRoutingProfileToCustomer::
                         where(["AccountID" => $CLIRateTable->AccountID])
                             ->where('ServiceID', '=', $CLIRateTable->ServiceID)->pluck("RoutingProfileID");
-                      //  Log::info('routingList profiles case 31 query with RoutingProfileRate ' . $AccountProfiles);
+                        Log::info('routingList profiles case 31 query with RoutingProfileRate ' . $AccountProfiles);
 
                         if (empty($AccountProfiles)) {
                             $AccountProfiles = EngineRoutingProfileToCustomer::
                             where(["AccountID" => $CLIRateTable->AccountID])
                                 ->pluck("RoutingProfileID");
-                            //Log::info('routingList profiles case 32 query with RoutingProfileRate ' . $AccountProfiles);
+                            Log::info('routingList profiles case 32 query with RoutingProfileRate ' . $AccountProfiles);
 
                         }
 
@@ -497,21 +496,21 @@ class RoutingApiController extends ApiController {
                             //$Prefix = $CLIRateTable->CLI;
                         }
                     } else {
-                       // Log::info('routingList profiles case 4 query with RoutingProfileRate ' . $CustomerProfileAccountID);
+                        Log::info('routingList profiles case 4 query with RoutingProfileRate ' . $CustomerProfileAccountID);
                         $AccountProfiles = EngineRoutingProfileToCustomer::
                         where(["AccountID" => $CustomerProfileAccountID])
                             ->pluck("RoutingProfileID");
-                      //  Log::info('routingList profiles case 41 query with RoutingProfileRate ' . $AccountProfiles);
+                        Log::info('routingList profiles case 41 query with RoutingProfileRate ' . $AccountProfiles);
                         if (!empty($AccountProfiles)) {
 
                             $RoutingProfileID = $AccountProfiles;
                             //$Prefix = $CLIRateTable->CLI;
                         }else {
-                          //  Log::info('routingList profiles case 5 query with RoutingProfileRate ' . $CustomerProfileAccountID);
+                            Log::info('routingList profiles case 5 query with RoutingProfileRate ' . $CustomerProfileAccountID);
                             $AccountProfiles = EngineRoutingProfileToCustomer::
                             where(["AccountID" => $accountreseller])
                                 ->pluck("RoutingProfileID");
-                          //  Log::info('routingList profiles case 51 query with RoutingProfileRate ' . $AccountProfiles);
+                            Log::info('routingList profiles case 51 query with RoutingProfileRate ' . $AccountProfiles);
                             if (!empty($AccountProfiles)) {
 
                                 $RoutingProfileID = $AccountProfiles;
@@ -522,18 +521,14 @@ class RoutingApiController extends ApiController {
                 }
             }
 
-         //   $endDate = date('Y-m-d H:i:s');
-          //  Log::info('Total Time in Seconds .' . strtotime($endDate) . ' ' . strtotime($startDate));
-         //   $diff = abs(strtotime($endDate) - strtotime($startDate));
-         //   Log::info('Total Time in Seconds .1' . $diff);
-
-           // Log::info('Filter Routing Profile List procedure $RoutingProfileIds' . $RoutingProfileID);
+            Log::info('Filter Routing Profile List procedure $RoutingProfileIds' . $RoutingProfileID);
             $DataAndTime = strtotime($routingData["DateAndTime"]);
             $dataTimeZone['CompanyID'] = $CompanyID;
             $dataTimeZone['connect_time'] = $routingData["DateAndTime"];
             $dataTimeZone['disconnect_time'] = $routingData["DateAndTime"];
             // $dataTimeZone['TimezonesID'] = '';
-            //Log::info('Filter Routing Profile List procedure $queryTimeZone' .  print_r($dataTimeZone, true));
+            Log::info('Filter Routing Profile List procedure $queryTimeZone' .
+                print_r($dataTimeZone, true));
             $GetTimeZone = GetTimeZone::create($dataTimeZone);
             $query = "CALL `prc_updateTempCDRTimeZones`('tblgetTimezone')";
             $queryResults = DB::connection('sqlsrv2')->select($query);
@@ -544,8 +539,9 @@ class RoutingApiController extends ApiController {
             if (empty($queryTimeZone)) {
                 $queryTimeZone = 1;
             }
-         //   Log::info('Filter Routing Profile List procedure $queryTimeZone' . $queryTimeZone);
-          //  Log::info('Filter Routing Profile List procedure $GetTimeZone' . print_r($GetTimeZone, true));
+            Log::info('Filter Routing Profile List procedure $queryTimeZone' . $queryTimeZone);
+            Log::info('Filter Routing Profile List procedure $GetTimeZone' .
+                print_r($GetTimeZone, true));
             GetTimeZone::where(array('getTimezoneID' => $GetTimeZone->getTimezoneID))->delete();
 
             /*
@@ -566,7 +562,7 @@ class RoutingApiController extends ApiController {
                 $syntax .= (!empty($syntax) ? ',' : '') . '?';
             }
             $syntax = 'CALL ' . $procName . '(' . $syntax . ');';
-           // Log::info('Filter Routing Profile List procedure $syntax123' . $syntax);
+            Log::info('Filter Routing Profile List procedure $syntax123' . $syntax);
 
             $pdo = DB::connection('speakIntelligentRoutingEngine')->getPdo();
             $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
@@ -576,19 +572,14 @@ class RoutingApiController extends ApiController {
                 $syntaxLog = $syntaxLog . "'" . $parameters[$i] . "'" . ',';
                 $stmt->bindValue((1 + $i), $parameters[$i]);
             }
-          //  Log::info('Filter Routing Profile List procedure bindvalue' . ($syntaxLog . ');'));
-          //  $startDate = date('Y-m-d H:i:s');
+            Log::info('Filter Routing Profile List procedure bindvalue' . ($syntaxLog . ');'));
             $exec = $stmt->execute();
-          //  $endDate = date('Y-m-d H:i:s');
-         //   Log::info('Total Time in Seconds .' . strtotime($endDate) . ' ' . strtotime($startDate));
-         //   $diff = abs(strtotime($endDate) - strtotime($startDate));
-        //    Log::info('Total Time in Seconds .1' . $diff);
             if (!$exec) return $pdo->errorInfo();
             $results[] = $stmt->fetchAll(\PDO::FETCH_OBJ);
             do {
                 try {
                     $results[] = $stmt->fetchAll(\PDO::FETCH_OBJ);
-                  //  Log::info('Filter Routing Profile List procedure Results' . count($results));
+                    Log::info('Filter Routing Profile List procedure Results' . count($results));
                     // foreach($results as $result) {
                     //    Log::info('Filter Routing Profile List procedure $syntax' . print_r($result,true));
                     // }
@@ -613,9 +604,9 @@ class RoutingApiController extends ApiController {
 
                 }
             } else if (count($results) == 3) {
-              //  Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
+                Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
                 $lcrDetails = $results[2];
-              //  Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
+                Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
                 foreach ($lcrDetails as $lcrDetail) {
                     try {
                         if (!empty($lcrDetail->Password)) {
@@ -630,7 +621,7 @@ class RoutingApiController extends ApiController {
             } else {
                 $lcrDetails = '';
             }
-           // Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
+            Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
 
             //$lcrDetails = $results;
             $routingDetails = array();
@@ -641,12 +632,8 @@ class RoutingApiController extends ApiController {
             $locationDetail = '';
 
 
-           // Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
+            Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
             $lcrDetails = json_decode(json_encode($lcrDetails), true);
-        //    $endDate = date('Y-m-d H:i:s');
-         //   Log::info('Total Time in Seconds .' . strtotime($endDate) . ' ' . strtotime($startDate));
-         //   $diff = abs(strtotime($endDate) - strtotime($startDate));
-          //  Log::info('Total Time in Seconds .' . $diff);
             return Response::json($lcrDetails,Codes::$Code200[0]);
         }catch(Exception $ex) {
             Log::info('Exception in Routing API.' . $ex->getTraceAsString());

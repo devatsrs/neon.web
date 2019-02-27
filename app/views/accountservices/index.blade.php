@@ -31,9 +31,9 @@
                 </div>
                 <div class="panel-body" style="display: none;">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Number</label>
+                        <label for="field-1" class="col-sm-1 control-label">Name</label>
                         <div class="col-sm-2">
-                            <input type="text" name="Number" class="form-control" value="" />
+                            <input type="text" name="ServiceName" class="form-control" value="" />
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">Active</label>
                         <div class="col-sm-2">
@@ -102,7 +102,6 @@
                     <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
                     <th>Service Name</th>
                     <th>Number</th>
-                    <th>Status</th>
                     <th>Package</th>
                     <th>Start Date</th>
                     <th>End Date</th>
@@ -118,7 +117,7 @@
             * JQuery Plugin for dataTable
             * */
           //  var list_fields_activity  = ['ServiceName','InvoiceDescription','StartDate','EndDate'];      
-            $("#service_filter").find('[name="Number"]').val('');
+            $("#service_filter").find('[name="ServiceName"]').val('');
             var data_table_service;
             var account_id='{{$account->AccountID}}';
             var update_new_url;
@@ -139,7 +138,7 @@
             $("#service_submit").click(function(e) {                
                 e.preventDefault();
                  
-                    $searchService.ServiceNumber = $("#service_filter").find('[name="Number"]').val();
+                    $searchService.ServiceName = $("#service_filter").find('[name="ServiceName"]').val();
                     $searchService.ServiceActive = $("#service_filter").find("[name='ServiceActive']").prop("checked");
                         data_table_service = $("#table-service").dataTable({
                             "bDestroy": true,
@@ -148,12 +147,12 @@
                             "sAjaxSource": service_datagrid_url,
                             "fnServerParams": function (aoData) {
                                 aoData.push({"name": "account_id", "value": account_id},
-                                        {"name": "Number", "value": $searchService.ServiceNumber},
+                                        {"name": "ServiceName", "value": $searchService.ServiceName},
                                         {"name": "ServiceActive", "value": $searchService.ServiceActive});
 
                                 data_table_extra_params.length = 0;
                                 data_table_extra_params.push({"name": "account_id", "value": account_id},
-                                        {"name": "Number", "value": $searchService.ServiceNumber},
+                                        {"name": "ServiceName", "value": $searchService.ServiceName},
                                         {"name": "ServiceActive", "value": $searchService.ServiceActive},
                                         {"name":"Export","value":1});
 
@@ -173,18 +172,9 @@
                                         return chackbox;
                                     }
                                 }, //1   CurrencyDescription
-                                { "bSortable": true, "bVisible": false },  // 0 Service Name
+                                { "bSortable": true },  // 0 Service Name
                                 { "bSortable": false },  // 0 Service Name
-                                {// 1 Service Status
-                                    "bSortable": false,
-                                    mRender: function (id, type, full) {
-                                        if (full[3] == 1)
-                                            return '<i style="font-size:22px;color:green" class="entypo-check"></i>';
-                                        else
-                                            return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
-                                    }
-                                },
-                               { "bSortable": false },  // 1 Package
+                               { "bSortable": false },  // 1 Service Status
                                 { "bSortable": false },  // 2 Service ID
                                 {  "bSortable": false },
                                  //{  "bSortable": false }, // 3 Account Service ID
@@ -195,7 +185,7 @@
                                 var DeActive_Card = baseurl + "/accountservices/{id}/changestatus/deactive";
                                  action = '';
                                 <?php if(User::checkCategoryPermission('AccountService','Edit')) { ?>
-                                 if (full[3]=="1") {
+                                 if (full[6]=="1") {
                                     action += ' <button href="' + DeActive_Card.replace("{id}",full[0]) + '" title=""  class="btn activeservice btn-danger btn-sm tooltip-primary" data-original-title="Deactivate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></button>';
                                  } else {
                                     action += ' <button href="' + Active_Card.replace("{id}",full[0]) + '" title="" class="btn deactiveservice btn-success btn-sm tooltip-primary" data-original-title="Activate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-check"></i></button>';
@@ -547,7 +537,8 @@
                                         mRender: function(id, type, full) {
                                             return '<div class="checkbox "><input type="checkbox" name="AccountID[]" value="' + id + '" class="rowcheckbox" ></div>';
                                         }
-                                    }
+                                    },
+                                    {}
                                 ],
 
                         "fnDrawCallback": function() {
