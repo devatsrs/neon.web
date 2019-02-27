@@ -64,7 +64,19 @@ class RateGeneratorsController extends \BaseController {
         $currencylist = Currency::getCurrencyDropdownIDList();
         $Timezones = Timezones::getTimezonesIDList();
         $AllTypes =  RateType::getRateTypeDropDownList();
-        
+        $country = ServiceTemplate::Join('tblCountry', function($join) {
+            $join->on('tblServiceTemplate.country','=','tblCountry.country');
+          })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+            ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+        $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
+        $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
+        $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+
+        $country = array('' => 'Select',-1 => "All") + $country;
+        $AccessType = array('' => 'Select',-1 => "All") + $AccessType;
+        $Prefix = array('' => 'Select',-1 => "All") + $Prefix;
+        $CityTariff = array('' => 'Select',-1 => "All") + $CityTariff;
+
         $Package = Package::where([
                 "status" => 1,
                 "CompanyID" => User::get_companyID()
@@ -74,7 +86,7 @@ class RateGeneratorsController extends \BaseController {
         $Products = ServiceTemplate::where([
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "ServiceTemplateId");
-        return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones'));
+        return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones','country','AccessType','Prefix','CityTariff'));
     }
 
     public function store() {
@@ -112,7 +124,9 @@ class RateGeneratorsController extends \BaseController {
                 'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
                 'CurrencyID'        => 'required',
                 'Policy'            => 'required',
-                'ProductID'         => 'required',
+                'Country'           => 'required',
+                'AccessType'        => 'required',
+                'Prefix'            => 'required',
                 'DateFrom'          => 'required|date|date_format:Y-m-d',
                 'DateTo'            => 'required|date|date_format:Y-m-d',
                 'Calls'             => 'numeric',
@@ -403,13 +417,26 @@ class RateGeneratorsController extends \BaseController {
             $Timezones = Timezones::getTimezonesIDList();
 
             $AllTypes =  RateType::getRateTypeDropDownList();
+            $country = ServiceTemplate::Join('tblCountry', function($join) {
+                $join->on('tblServiceTemplate.country','=','tblCountry.country');
+              })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+
+            $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
+            $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
+            $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+
+            $country = array('' => 'Select',-1 => "All") + $country;
+            $AccessType = array('' => 'Select',-1 => "All") + $AccessType;
+            $Prefix = array('' => 'Select',-1 => "All") + $Prefix;
+            $CityTariff = array('' => 'Select',-1 => "All") + $CityTariff;
             //unset($AllTypes[3]);
-$Package = Package::where([
+            $Package = Package::where([
                 "status" => 1,
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "PackageId");
             // Debugbar::info($rategenerator_rules);
-            return View::make('rategenerators.edit', compact('id', 'Products','Package', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
+            return View::make('rategenerators.edit', compact('id', 'Products','Package', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones','country','AccessType','Prefix','CityTariff'));
         }
     }
 
@@ -469,7 +496,9 @@ $Package = Package::where([
                 'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
                 'CurrencyID'        => 'required',
                 'Policy'            => 'required',
-                'ProductID'         => 'required',
+                'Country'           => 'required',
+                'AccessType'        => 'required',
+                'Prefix'            => 'required',
                 'DateFrom'          => 'required|date|date_format:Y-m-d',
                 'DateTo'            => 'required|date|date_format:Y-m-d',
                 'Calls'             => 'numeric',

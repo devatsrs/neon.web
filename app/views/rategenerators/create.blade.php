@@ -158,9 +158,23 @@
                             </div>
                         </div>
                         <div class="form-group DID-Div">
-                            <label for="field-1" class="col-sm-2 control-label">Product</label>
-                            <div class="col-sm-10">
-                                {{ Form::select('ProductID', $Products, null, array("class"=>"select2")) }}
+                            <label for="field-1" class="col-sm-2 control-label">Country</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('Country', $country, '', array("class"=>"select2")) }}
+                            </div>
+                            <label for="field-1" class="col-sm-2 control-label">Access Type</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('AccessType', $AccessType, '', array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        <div class="form-group DID-Div">
+                            <label for="field-1" class="col-sm-2 control-label">Prefix</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('Prefix', $Prefix, '', array("class"=>"select2")) }}
+                            </div>
+                            <label for="field-1" class="col-sm-2 control-label">City/Tariff</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('City_Tariff', $CityTariff, null, array("class"=>"select2")) }}
                             </div>
                         </div>
                         

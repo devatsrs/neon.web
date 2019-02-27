@@ -14,7 +14,7 @@
 -- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTable
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTable`;
 DELIMITER //
-CREATE  PROCEDURE `prc_WSGenerateRateTable`(
+CREATE PROCEDURE `prc_WSGenerateRateTable`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
@@ -28,6 +28,7 @@ CREATE  PROCEDURE `prc_WSGenerateRateTable`(
 	IN `p_IsMerge` INT,
 	IN `p_TakePrice` INT,
 	IN `p_MergeInto` INT
+
 
 
 
@@ -982,7 +983,7 @@ GenerateRateTable:BEGIN
 
 
 				INSERT INTO tmp_Rates2_ (OriginationCode,OriginationDescription,code,description,rate,rateN,ConnectionFee,AccountID,RateCurrency,ConnectionFeeCurrency)
-				select  OriginationCode,OriginationDescription,code,description,rate,rateN,ConnectionFee,AccountID,AccountID,RateCurrency,ConnectionFeeCurrency from tmp_Rates_;
+				select  OriginationCode,OriginationDescription,code,description,rate,rateN,ConnectionFee,AccountID,RateCurrency,ConnectionFeeCurrency from tmp_Rates_;
 
 
 
@@ -1529,16 +1530,16 @@ GenerateRateTable:BEGIN
 			)
 				SELECT DISTINCT
 					r.RateID,
-					RateId,
+					tblRate.RateId,
 					p_RateTableId,
 					v_TimezonesID,
-					Rate,
-					RateN,
+					rate.Rate,
+					rate.RateN,
 					p_EffectiveDate,
-					Rate,
-					Interval1,
-					IntervalN,
-					ConnectionFee,
+					rate.Rate,
+					tblRate.Interval1,
+					tblRate.IntervalN,
+					rate.ConnectionFee,
 					IFNULL(@v_RateApprovalProcess_,1) as ApprovedStatus,
 					rate.AccountID,
 					rate.RateCurrency,
