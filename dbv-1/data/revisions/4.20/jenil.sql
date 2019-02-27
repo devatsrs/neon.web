@@ -1,5 +1,5 @@
 /* Vos5000 Integration */
-USE NeonCDRDev;
+USE RMCDR3;
 DROP TABLE IF EXISTS `tblActiveCall`;
 CREATE TABLE IF NOT EXISTS `tblActiveCall` (
   `ActiveCallID` int(11) NOT NULL AUTO_INCREMENT,
@@ -113,11 +113,11 @@ BEGIN
 			s.ServiceName,
 			case when ac.CallType = '0' then 'Inbound' ELSE 'Outbound' END as CallType
     FROM tblActiveCall ac
-			INNER JOIN NeonRMDev.tblAccount acct
+			INNER JOIN Ratemanagement3.tblAccount acct
 				ON acct.AccountID=ac.AccountID
-			LEFT JOIN NeonRMDev.tblTrunk t
+			LEFT JOIN Ratemanagement3.tblTrunk t
 				ON t.TrunkID=ac.TrunkID	
-			LEFT JOIN NeonRMDev.tblService s
+			LEFT JOIN Ratemanagement3.tblService s
 				ON s.ServiceID=ac.ServiceID		
          where ac.CompanyID = p_CompanyID
          AND((p_AccountID = 0 OR ac.AccountID = p_AccountID))
@@ -159,11 +159,11 @@ BEGIN
 			SELECT
             COUNT(ac.ActiveCallID) AS totalcount
          FROM tblActiveCall ac
-			INNER JOIN NeonRMDev.tblAccount acct
+			INNER JOIN Ratemanagement3.tblAccount acct
 				ON acct.AccountID=ac.AccountID
-			LEFT JOIN NeonRMDev.tblTrunk t
+			LEFT JOIN Ratemanagement3.tblTrunk t
 				ON t.TrunkID=ac.TrunkID	
-			LEFT JOIN NeonRMDev.tblService s
+			LEFT JOIN Ratemanagement3.tblService s
 				ON s.ServiceID=ac.ServiceID		
          where ac.CompanyID = p_CompanyID
          AND((p_AccountID = 0 OR ac.AccountID = p_AccountID))
@@ -188,11 +188,11 @@ BEGIN
 				s.ServiceName,
 				case when ac.CallType = '1' then 'Inbound' ELSE 'Outbound' END as CallType
          FROM tblActiveCall ac
-			INNER JOIN NeonRMDev.tblAccount acct
+			INNER JOIN Ratemanagement3.tblAccount acct
 				ON acct.AccountID=ac.AccountID
-			LEFT JOIN NeonRMDev.tblTrunk t
+			LEFT JOIN Ratemanagement3.tblTrunk t
 				ON t.TrunkID=ac.TrunkID	
-			LEFT JOIN NeonRMDev.tblService s
+			LEFT JOIN Ratemanagement3.tblService s
 				ON s.ServiceID=ac.ServiceID		
          where ac.CompanyID = p_CompanyID
          AND((p_AccountID = 0 OR ac.AccountID = p_AccountID))
@@ -450,43 +450,44 @@ DELIMITER ;
 
 
 
-USE NeonRMDev;
+USE Ratemanagement3;
 
 
-INSERT INTO `tblcompanyconfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'SIDEBAR_ACTIVECALL_MENU', '1');
-INSERT INTO `tblcompanyconfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VENDOR_ACTIVECALL_BTN_LOADACTIVECALL', '1');
-INSERT INTO `tblcompanyconfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VENDOR_ACTIVECALL_MENU', '1');
-INSERT INTO `tblcompanyconfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VOS_ACTIVECALL_MENU', '1');
-INSERT INTO `tblcompanyconfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VOSACTIVECALL_BTN_LOADACTIVECALL', '1');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'SIDEBAR_ACTIVECALL_MENU', '1');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VENDOR_ACTIVECALL_BTN_LOADACTIVECALL', '1');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VENDOR_ACTIVECALL_MENU', '1');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VOS_ACTIVECALL_MENU', '1');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VOSACTIVECALL_BTN_LOADACTIVECALL', '1');
 
 
-INSERT INTO `tblgatewayconfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (14, 'API URL', 'APIURL', 1, '2017-06-09 00:00:00', 'RateManagementSystem', NULL, NULL);
+
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (14, 'API URL', 'APIURL', 1, '2017-06-09 00:00:00', 'RateManagementSystem', NULL, NULL);
 
 
 
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1373, 'ActiveCall.All', 1, 7);
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1374, 'ActiveCall.View', 1, 7);
 
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2692, 'ActiveCall.ajax_datagrid', 'ActiveCallController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-07 17:57:49.000', '2019-02-07 17:57:49.000', 1374);
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2691, 'ActiveCall.*', 'ActiveCallController.*', 1, 'Sumera Saeed', NULL, '2019-02-07 17:57:49.000', '2019-02-07 17:57:49.000', 1373);
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2690, 'ActiveCall.index', 'ActiveCallController.index', 1, 'Sumera Saeed', NULL, '2019-02-07 17:57:49.000', '2019-02-07 17:57:49.000', 1374);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ActiveCall.ajax_datagrid', 'ActiveCallController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-07 17:57:49.000', '2019-02-07 17:57:49.000', 1374);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ActiveCall.*', 'ActiveCallController.*', 1, 'Sumera Saeed', NULL, '2019-02-07 17:57:49.000', '2019-02-07 17:57:49.000', 1373);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ActiveCall.index', 'ActiveCallController.index', 1, 'Sumera Saeed', NULL, '2019-02-07 17:57:49.000', '2019-02-07 17:57:49.000', 1374);
 
 
-
-INSERT INTO `tblresourcecategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1378, 'VendorActiveCall.All', 1, 7);
-INSERT INTO `tblresourcecategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1377, 'VendorActiveCall.View', 1, 7);
-
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2713, 'VendorActiveCall.ajax_datagrid', 'VendorActiveCallController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-12 12:24:45.000', '2019-02-12 12:24:45.000', 1377);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2712, 'VendorActiveCall.*', 'VendorActiveCallController.*', 1, 'Sumera Saeed', NULL, '2019-02-12 12:24:45.000', '2019-02-12 12:24:45.000', 1378);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2711, 'VendorActiveCall.index', 'VendorActiveCallController.index', 1, 'Sumera Saeed', NULL, '2019-02-12 12:24:45.000', '2019-02-12 12:24:45.000', 1377);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1375, 'VendorActiveCall.View', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1376, 'VendorActiveCall.All', 1, 7);
 
 
-INSERT INTO `tblresourcecategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1380, 'VOSActiveCall.View', 1, 7);
-INSERT INTO `tblresourcecategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1379, 'VOSActiveCall.All', 1, 7);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2713, 'VendorActiveCall.ajax_datagrid', 'VendorActiveCallController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-12 12:24:45.000', '2019-02-12 12:24:45.000', 1375);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2712, 'VendorActiveCall.*', 'VendorActiveCallController.*', 1, 'Sumera Saeed', NULL, '2019-02-12 12:24:45.000', '2019-02-12 12:24:45.000', 1376);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2711, 'VendorActiveCall.index', 'VendorActiveCallController.index', 1, 'Sumera Saeed', NULL, '2019-02-12 12:24:45.000', '2019-02-12 12:24:45.000', 1375);
 
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2717, 'VOSActiveCall.ajax_datagrid', 'VOSActiveCallController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-12 19:08:27.000', '2019-02-12 19:08:27.000', 1380);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2716, 'VOSActiveCall.*', 'VOSActiveCallController.*', 1, 'Sumera Saeed', NULL, '2019-02-12 19:08:27.000', '2019-02-12 19:08:27.000', 1379);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2715, 'VOSActiveCall.index', 'VOSActiveCallController.index', 1, 'Sumera Saeed', NULL, '2019-02-12 19:08:27.000', '2019-02-12 19:08:27.000', 1380);
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1378, 'VOSActiveCall.View', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1377, 'VOSActiveCall.All', 1, 7);
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('VOSActiveCall.ajax_datagrid', 'VOSActiveCallController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-12 19:08:27.000', '2019-02-12 19:08:27.000', 1378);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('VOSActiveCall.*', 'VOSActiveCallController.*', 1, 'Sumera Saeed', NULL, '2019-02-12 19:08:27.000', '2019-02-12 19:08:27.000', 1377);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('VOSActiveCall.index', 'VOSActiveCallController.index', 1, 'Sumera Saeed', NULL, '2019-02-12 19:08:27.000', '2019-02-12 19:08:27.000', 1378);
 
 
 
@@ -551,7 +552,7 @@ INSERT INTO `tblCronJob` (`CompanyID`, `CronJobCommandID`, `Settings`, `Status`,
 
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 14, 'Import VOS Accounts', 'importvosaccounts', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2019-02-18 13:45:49', 'RateManagementSystem');
 
-INSERT INTO `tblcronjob` (`CompanyID`, `CronJobCommandID`, `Settings`, `Status`, `LastRunTime`, `NextRunTime`, `created_at`, `created_by`, `updated_at`, `updated_by`, `Active`, `JobTitle`, `DownloadActive`, `PID`, `EmailSendTime`, `CdrBehindEmailSendTime`, `CdrBehindDuration`, `ProcessID`, `MysqlPID`) VALUES (1, 604, '{"ThresholdTime":"","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["DAILY","SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":"31"}', 1, NULL, '2019-02-20 14:06:00', '2019-02-20 00:00:00', 'Sumera Saeed', '2019-02-20 14:05:22', NULL, 0, 'Import VOS Account', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `tblCronJob` (`CompanyID`, `CronJobCommandID`, `Settings`, `Status`, `LastRunTime`, `NextRunTime`, `created_at`, `created_by`, `updated_at`, `updated_by`, `Active`, `JobTitle`, `DownloadActive`, `PID`, `EmailSendTime`, `CdrBehindEmailSendTime`, `CdrBehindDuration`, `ProcessID`, `MysqlPID`) VALUES (1, 604, '{"ThresholdTime":"","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["DAILY","SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":"31"}', 1, NULL, '2019-02-20 14:06:00', '2019-02-20 00:00:00', 'Sumera Saeed', '2019-02-20 14:05:22', NULL, 0, 'Import VOS Account', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 
 
 
@@ -673,14 +674,13 @@ ALTER TABLE `tblAccount`
 	CHANGE COLUMN `Address1` `Address1` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `Description`;
 
 
-
 DROP PROCEDURE IF EXISTS `prc_VOSCreateAccountOnNeonIfNotExist`;
 DELIMITER //
 CREATE PROCEDURE `prc_VOSCreateAccountOnNeonIfNotExist`(
 	IN `p_CompanyID` INT	
 
 )
-test:BEGIN
+BEGIN
 
     DECLARE v_CustomerType int;
     DECLARE v_VendorType int;
@@ -957,7 +957,7 @@ test:BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 	
 END//
-DELIMITER ;	
+DELIMITER ;
 
 
 
@@ -1049,10 +1049,10 @@ BillingDashboardVOSAccountIPWidget
 
 */
 
-INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1382, 'BillingDashboardVOSAccountIPWidget.View', 1, 7);
-INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1381, 'BillingDashboardVOSAccountBalanceWidget.View', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1379, 'BillingDashboardVOSAccountIPWidget.View', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1380, 'BillingDashboardVOSAccountBalanceWidget.View', 1, 7);
 
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2720, 'BillingDashboard@VOSAccountBalance_ajax_datagrid', 'BillingDashboard.VOSAccountBalance_ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-26 16:00:13.000', '2019-02-26 16:00:13.000', 1381);
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2719, 'BillingDashboard@VOSIP_ajax_datagrid', 'BillingDashboard.VOSIP_ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-26 16:00:13.000', '2019-02-26 16:00:13.000', 1382);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'BillingDashboard@VOSAccountBalance_ajax_datagrid', 'BillingDashboard.VOSAccountBalance_ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-26 16:00:13.000', '2019-02-26 16:00:13.000', 1380);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'BillingDashboard@VOSIP_ajax_datagrid', 'BillingDashboard.VOSIP_ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-26 16:00:13.000', '2019-02-26 16:00:13.000', 1379);
 
 
