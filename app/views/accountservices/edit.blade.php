@@ -143,11 +143,11 @@
                         @endif
                         <div class="form-group">
                             <div class="col-md-12 text-right">
-                            @if(!$AccountService->CancelContractStatus)
-                                <a title="Cancel Contract" class="btn btn-danger btn-sm"  data-toggle="modal" data-target="#add-new-modal-accounts"> <i class="entypo-cancel"></i> </a>
-                            @else
-                                <a title="Renew Contract"  class="btn btn-info" id="renewal"> <i class="entypo-info"></i> </a>
-                            @endif
+                                @if(!$AccountService->CancelContractStatus)
+                                    <a title="Cancel Contract" class="btn btn-danger btn-sm"  data-toggle="modal" data-target="#add-new-modal-accounts"> <i class="entypo-cancel"></i> </a>
+                                @else
+                                    <a title="Renew Contract"  class="btn btn-info" id="renewal"> <i class="entypo-info"></i> </a>
+                                @endif
                                 <a title="History" class="btn btn-default btn-sm" data-toggle="modal" data-target="#history-modal" data-dismiss="modal" onclick="load_history()"> <i class="entypo-back-in-time"></i> </a>
                             </div>
                         </div>
@@ -208,27 +208,82 @@
                                 </div>
                                 <div id="table-4_processing" class="dataTables_processing process">Processing...</div>
                                 <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="panel-group cancelRadio" id="accordion">
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading" style="background-color:white;text-align: center;">
-                                                    <label for='r13'>
-                                                        <i></i>
-                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 3 ) checked  @endif  id='r13' name='ContractTerm' value='3' required />
-                                                        Fixed Fee
-                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"></a>
-                                                    </label>
-                                                </div>
-                                                <div id="collapseThree" class="panel-collapse collapse in">
-                                                    <div class="panel-body">
-                                                        <div class="form-group">
-                                                            <div class="panel-options">
-                                                                <div class="col-md-12">
-                                                                    <label class="control-label">Fixed Fee</label>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="panel-group cancelRadio" id="accordion">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading" style="background-color:white;text-align: center;">
+                                                        <label for='r13'>
+                                                            <i></i>
+                                                            <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 3 ) checked  @endif  id='r13' name='ContractTerm' value='3' required />
+                                                            Fixed Fee
+                                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"></a>
+                                                        </label>
+                                                    </div>
+                                                    <div id="collapseThree" class="panel-collapse collapse in">
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <div class="panel-options">
+                                                                    <div class="col-md-12">
+                                                                        <label class="control-label">Fixed Fee</label>
+                                                                    </div>
+                                                                    <div class="col-md-12">
+                                                                        <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 3 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFee">
+                                                                    </div>
                                                                 </div>
-                                                                <div class="col-md-12">
-                                                                    <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 3 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFee">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="panel-group cancelRadio" id="accordion">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading" style="background-color:white;text-align: center;">
+                                                        <label for='r14'>
+                                                            <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 4 ) checked  @endif id='r14' name='ContractTerm' value='4' required />
+                                                            Remaining Term Of Contract(%)
+                                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour"></a>
+                                                        </label>
+                                                    </div>
+                                                    <div id="collapseFour" class="panel-collapse collapse in">
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <div class="panel-options">
+                                                                    <div class="col-md-12">
+                                                                        <label class="control-label">Percentage</label>
+                                                                    </div>
+                                                                    <div class="col-md-12">
+                                                                        <input type="number" min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 4 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="Percentage">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="panel-group cancelRadio" id="accordion">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading" style="background-color:white;text-align: center;">
+                                                        <label for='r15'>
+                                                            <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 5 ) checked  @endif id='r15' name='ContractTerm' value='5' required />
+                                                            Fixed Fee + Remaining Term Of Contract
+                                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive"></a>
+                                                        </label>
+                                                    </div>
+                                                    <div id="collapseFive" class="panel-collapse collapse in">
+                                                        <div class="panel-body">
+                                                            <div class="form-group">
+                                                                <div class="panel-options">
+                                                                    <div class="col-md-12">
+                                                                        <label class="control-label">Fixed Fee</label>
+                                                                    </div>
+                                                                    <div class="col-md-12">
+                                                                        <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 5 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFeeContract">
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -237,199 +292,144 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="panel-group cancelRadio" id="accordion">
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading" style="background-color:white;text-align: center;">
-                                                    <label for='r14'>
-                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 4 ) checked  @endif id='r14' name='ContractTerm' value='4' required />
-                                                        Remaining Term Of Contract(%)
-                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour"></a>
-                                                    </label>
-                                                </div>
-                                                <div id="collapseFour" class="panel-collapse collapse in">
-                                                    <div class="panel-body">
-                                                        <div class="form-group">
-                                                            <div class="panel-options">
-                                                                <div class="col-md-12">
-                                                                    <label class="control-label">Percentage</label>
-                                                                </div>
-                                                                <div class="col-md-12">
-                                                                    <input type="number" min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 4 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="Percentage">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="panel-group cancelRadio" id="accordion">
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading" style="background-color:white;text-align: center;">
-                                                    <label for='r15'>
-                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 5 ) checked  @endif id='r15' name='ContractTerm' value='5' required />
-                                                        Fixed Fee + Remaining Term Of Contract
-                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive"></a>
-                                                    </label>
-                                                </div>
-                                                <div id="collapseFive" class="panel-collapse collapse in">
-                                                    <div class="panel-body">
-                                                        <div class="form-group">
-                                                            <div class="panel-options">
-                                                                <div class="col-md-12">
-                                                                    <label class="control-label">Fixed Fee</label>
-                                                                </div>
-                                                                <div class="col-md-12">
-                                                                    <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 5 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFeeContract">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    {{--<div class="row">--}}
+                                    {{--<div class="col-md-4"></div>--}}
+                                    {{----}}
+                                    {{--<div class="col-md-4"></div>--}}
+
+                                    {{--</div>--}}
                                 </div>
-                                {{--<div class="row">--}}
-                                    {{--<div class="col-md-4"></div>--}}
-                                   {{----}}
-                                    {{--<div class="col-md-4"></div>--}}
-
-                                {{--</div>--}}
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- Service Title For Invoice -->
-                <!-- Service subscription billing cycle start-->
+                    <!-- Service Title For Invoice -->
+                    <!-- Service subscription billing cycle start-->
 
-                <div class="panel panel-primary " data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Service Billing Cycle
+                    <div class="panel panel-primary " data-collapsed="0">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                Service Billing Cycle
+                            </div>
+                            <div class="panel-options">
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i> </a>
+                            </div>
                         </div>
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i> </a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <label for="field-1" class="col-md-2 control-label">
-                                Billing Cylce
-                            </label>
-                            <div class="col-md-4">
-                                {{Form::select('SubscriptionBillingCycleType',SortBillingType(3),$AccountService->SubscriptionBillingCycleType,array("class"=>"form-control select2"))}}
-                                <input type="hidden" name="SubscriptionBillingCycleValue" value="">
-                                <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="field-1" class="col-md-2 control-label">
+                                    Billing Cylce
+                                </label>
+                                <div class="col-md-4">
+                                    {{Form::select('SubscriptionBillingCycleType',SortBillingType(3),$AccountService->SubscriptionBillingCycleType,array("class"=>"form-control select2"))}}
+                                    <input type="hidden" name="SubscriptionBillingCycleValue" value="">
+                                    <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Package Section Start -->
+                    <!-- Package Section Start -->
 
-                <div class="panel panel-primary hidden" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Package
-                        </div>
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i> </a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <label for="field-1" class="col-md-2 control-label">
+                    <div class="panel panel-primary hidden" data-collapsed="0">
+                        <div class="panel-heading">
+                            <div class="panel-title">
                                 Package
-                            </label>
-                            <div class="col-md-4">
-                                {{ Form::select('PackageId', $Packages, $PackageId, array("class"=>"select2")) }}
                             </div>
-                            <label for="field-1" class="col-md-2 control-label">
-                                RateTable
-                            </label>
-                            <div class="col-md-4">
-                                {{ Form::select('RateTableID', $RateTable, $RateTableID, array("class"=>"select2")) }}
+                            <div class="panel-options">
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i> </a>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="field-1" class="col-md-2 control-label">
+                                    Package
+                                </label>
+                                <div class="col-md-4">
+                                    {{ Form::select('PackageId', $Packages, $PackageId, array("class"=>"select2")) }}
+                                </div>
+                                <label for="field-1" class="col-md-2 control-label">
+                                    RateTable
+                                </label>
+                                <div class="col-md-4">
+                                    {{ Form::select('RateTableID', $RateTable, $RateTableID, array("class"=>"select2")) }}
+                                </div>
+
                             </div>
 
-                        </div>
 
-
-                    </div>
-                </div>
-
-                <!-- Package Section End -->
-
-                <!-- Service subscription billing cycle end-->
-                @include('accountsubscription.index')
-                @include('accountoneoffcharge.index')
-                @include('accounts.cli_tables')
-
-                        <!-- Account Option start -->
-
-                <div class="panel panel-primary additional-optional-section-hide" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Additional Options
-                        </div>
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
 
-                    <div class="panel-body">
+                    <!-- Package Section End -->
 
-                        <!-- Account Tarrif start -->
-                        <div class="panel panel-primary tarrif-section-hide" data-collapsed="0">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                    Tariff
-                                </div>
+                    <!-- Service subscription billing cycle end-->
+                    @include('accountsubscription.index')
+                    @include('accountoneoffcharge.index')
+                    @include('accounts.cli_tables')
 
-                                <div class="panel-options">
-                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                </div>
+                            <!-- Account Option start -->
+
+                    <div class="panel panel-primary additional-optional-section-hide" data-collapsed="0">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                Additional Options
                             </div>
-
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <label for="field-1" class="col-md-2 control-label">Inbound Tariff</label>
-                                    <div class="col-md-4">
-                                        {{ Form::select('InboundTariffID', $rate_table , $InboundTariffID , array("class"=>"select2")) }}
-                                    </div>
-
-                                    <label class="col-md-2 control-label">Outbound Tariff</label>
-                                    <div class="col-md-4">
-                                        {{ Form::select('OutboundTariffID', $rate_table , $OutboundTariffID , array("class"=>"select2")) }}
-                                    </div>
-
-                                </div>
+                            <div class="panel-options">
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                             </div>
                         </div>
 
-                        <!-- Account Tarrif end -->
+                        <div class="panel-body">
 
-                        <?php
-                        $billing_disable = $hiden_class= '';
-                        /*if($invoice_count > 0){
-                            $billing_disable = 'disabled';
-                        }*/
-                        if(isset($AccountBilling->BillingCycleType)){
-                            $hiden_class= 'hidden';
-                            $billing_disable = 'disabled';
-                        }
-                        $Days = array( ""=>"Select",
-                                "monday"=>"Monday",
-                                "tuesday"=>"Tuesday",
-                                "wednesday"=>"Wednesday",
-                                "thursday"=>"Thursday",
-                                "friday"=>"Friday",
-                                "saturday"=>"Saturday",
-                                "sunday"=>"Sunday");
-                        ?>
-                                <!--
+                            <!-- Account Tarrif start -->
+                            <div class="panel panel-primary tarrif-section-hide" data-collapsed="0">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        Tariff
+                                    </div>
+
+                                    <div class="panel-options">
+                                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                    </div>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-md-2 control-label">Inbound Tariff</label>
+                                        <div class="col-md-4">
+                                            {{ Form::select('InboundTariffID', $rate_table , $InboundTariffID , array("class"=>"select2")) }}
+                                        </div>
+
+                                        <label class="col-md-2 control-label">Outbound Tariff</label>
+                                        <div class="col-md-4">
+                                            {{ Form::select('OutboundTariffID', $rate_table , $OutboundTariffID , array("class"=>"select2")) }}
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Account Tarrif end -->
+
+                            <?php
+                            $billing_disable = $hiden_class= '';
+                            /*if($invoice_count > 0){
+                                $billing_disable = 'disabled';
+                            }*/
+                            if(isset($AccountBilling->BillingCycleType)){
+                                $hiden_class= 'hidden';
+                                $billing_disable = 'disabled';
+                            }
+                            $Days = array( ""=>"Select",
+                                    "monday"=>"Monday",
+                                    "tuesday"=>"Tuesday",
+                                    "wednesday"=>"Wednesday",
+                                    "thursday"=>"Thursday",
+                                    "friday"=>"Friday",
+                                    "saturday"=>"Saturday",
+                                    "sunday"=>"Sunday");
+                            ?>
+                                    <!--
         <div class="panel panel-primary billing-section-hide"   data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
@@ -447,168 +447,168 @@
             <div class="panel-body billing-section">
                 <div class="form-group">
                     <?php
-                        $BillingStartDate = isset($AccountBilling->BillingStartDate)?$AccountBilling->BillingStartDate:'';
-                        if(!empty($BillingStartDate)){
-                            $BillingStartDate = date('Y-m-d',strtotime($BillingStartDate));
-                        }
-                        /*if(empty($BillingStartDate)){
-                            $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
-                        }*/
-                        ?>
-                                <label for="field-1" class="col-md-2 control-label">Billing Class</label>
-                                <div class="col-md-4">
-                                    {{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                            $BillingStartDate = isset($AccountBilling->BillingStartDate)?$AccountBilling->BillingStartDate:'';
+                            if(!empty($BillingStartDate)){
+                                $BillingStartDate = date('Y-m-d',strtotime($BillingStartDate));
+                            }
+                            /*if(empty($BillingStartDate)){
+                                $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
+                            }*/
+                            ?>
+                                    <label for="field-1" class="col-md-2 control-label">Billing Class</label>
+                                    <div class="col-md-4">
+                                        {{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                                    </div>
+                                    <label for="field-1" class="col-md-2 control-label">Billing Start Date</label>
+                                    <div class="col-md-4">
+                                        @if($hiden_class == '')
+                            {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
+                            @else
+                            {{Form::hidden('BillingStartDate', $BillingStartDate)}}
+                            {{$BillingStartDate}}
+                            @endif
+                                    </div>
                                 </div>
-                                <label for="field-1" class="col-md-2 control-label">Billing Start Date</label>
-                                <div class="col-md-4">
-                                    @if($hiden_class == '')
-                        {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
-                        @else
-                        {{Form::hidden('BillingStartDate', $BillingStartDate)}}
-                        {{$BillingStartDate}}
-                        @endif
-                                </div>
-                            </div>
-                            @if(!empty($AccountNextBilling))
-                        <?php
-                        if($AccountBilling->BillingCycleType == 'weekly'){
-                            $oldBillingCycleValue = $Days[$AccountBilling->BillingCycleValue];
-                        }else{
-                            $oldBillingCycleValue = $AccountBilling->BillingCycleValue;
-                        }
-                        ?>
-                                <div class="form-group">
-                                    <label for="field-1" class="col-md-2 control-label">Current Billing Cycle</label>
-                                    <div class="col-md-4">{{SortBillingType()[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
+                                @if(!empty($AccountNextBilling))
+                            <?php
+                            if($AccountBilling->BillingCycleType == 'weekly'){
+                                $oldBillingCycleValue = $Days[$AccountBilling->BillingCycleValue];
+                            }else{
+                                $oldBillingCycleValue = $AccountBilling->BillingCycleValue;
+                            }
+                            ?>
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-md-2 control-label">Current Billing Cycle</label>
+                                        <div class="col-md-4">{{SortBillingType()[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
                         <label for="field-1" class="col-md-2 control-label">New Billing Cycle Effective From</label>
                         <div class="col-md-4">{{$AccountNextBilling->LastInvoiceDate}}</div>
                     </div>
                 @endif
-                                <div class="form-group">
-                                    <label for="field-1" class="col-md-2 control-label">@if(!empty($AccountNextBilling)) New @endif Billing Cycle</label>
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-md-2 control-label">@if(!empty($AccountNextBilling)) New @endif Billing Cycle</label>
                     <div class="col-md-3">
                         <?php
-                        if(!empty($AccountNextBilling)){
-                            $BillingCycleType = $AccountNextBilling->BillingCycleType;
-                        }elseif(!empty($AccountBilling)){
-                            $BillingCycleType = $AccountBilling->BillingCycleType;
-                        }else{
-                            $BillingCycleType = '';
-                        }
-                        ?>
-                        @if($hiden_class != '' && isset($AccountBilling->BillingCycleType) )
-                                <div class="billing_edit_text"> {{SortBillingType()[$BillingCycleType]}} </div>
+                            if(!empty($AccountNextBilling)){
+                                $BillingCycleType = $AccountNextBilling->BillingCycleType;
+                            }elseif(!empty($AccountBilling)){
+                                $BillingCycleType = $AccountBilling->BillingCycleType;
+                            }else{
+                                $BillingCycleType = '';
+                            }
+                            ?>
+                            @if($hiden_class != '' && isset($AccountBilling->BillingCycleType) )
+                                    <div class="billing_edit_text"> {{SortBillingType()[$BillingCycleType]}} </div>
                         @endif
 
-                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>'form-control '.$hiden_class.' select2 '))}}
+                            {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>'form-control '.$hiden_class.' select2 '))}}
 
-                                </div>
-                                <div class="col-md-1">
-                                    @if($hiden_class != '')
-                                <button class="btn btn-sm btn-primary tooltip-primary" id="billing_edit" data-original-title="Edit Billing Cycle" title="" data-placement="top" data-toggle="tooltip">
-                                    <i class="entypo-pencil"></i>
-                                </button>
+                                    </div>
+                                    <div class="col-md-1">
+                                        @if($hiden_class != '')
+                                    <button class="btn btn-sm btn-primary tooltip-primary" id="billing_edit" data-original-title="Edit Billing Cycle" title="" data-placement="top" data-toggle="tooltip">
+                                        <i class="entypo-pencil"></i>
+                                    </button>
+                                @endif
+                                    </div>
+                                    <?php
+                            if(!empty($AccountNextBilling)){
+                                $BillingCycleValue = $AccountNextBilling->BillingCycleValue;
+                            }elseif(!empty($AccountBilling)){
+                                $BillingCycleValue = $AccountBilling->BillingCycleValue;
+                            }elseif(empty($AccountBilling)){
+                                $BillingCycleValue = '';
+                            }
+                            ?>
+                                    <div id="billing_cycle_weekly" class="billing_options" >
+                                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - Start of Day</label>
+                                        <div class="col-md-4">
+                                            @if($hiden_class != '' && $BillingCycleType =='weekly' )
+                                    <div class="billing_edit_text"> {{$Days[$BillingCycleValue]}} </div>
                             @endif
+
+                            {{Form::select('BillingCycleValue',$Days, ($BillingCycleType =='weekly'?$BillingCycleValue:'') ,array("class"=>"form-control select2"))}}
+
+                                    </div>
                                 </div>
-                                <?php
-                        if(!empty($AccountNextBilling)){
-                            $BillingCycleValue = $AccountNextBilling->BillingCycleValue;
-                        }elseif(!empty($AccountBilling)){
-                            $BillingCycleValue = $AccountBilling->BillingCycleValue;
-                        }elseif(empty($AccountBilling)){
-                            $BillingCycleValue = '';
-                        }
-                        ?>
-                                <div id="billing_cycle_weekly" class="billing_options" >
-                                    <label for="field-1" class="col-md-2 control-label">Billing Cycle - Start of Day</label>
+                                <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
+                                    <label for="field-1" class="col-md-2 control-label">Billing Cycle - for Days</label>
                                     <div class="col-md-4">
-                                        @if($hiden_class != '' && $BillingCycleType =='weekly' )
-                                <div class="billing_edit_text"> {{$Days[$BillingCycleValue]}} </div>
+                                        @if($hiden_class != '' && $BillingCycleType =='in_specific_days' )
+                                    <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
                             @endif
-
-                        {{Form::select('BillingCycleValue',$Days, ($BillingCycleType =='weekly'?$BillingCycleValue:'') ,array("class"=>"form-control select2"))}}
-
+                            {{Form::text('BillingCycleValue', ($BillingCycleType =='in_specific_days'?$BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
+                                    </div>
+                                </div>
+                                <div id="billing_cycle_subscription" class="billing_options" style="display: none">
+                                    <label for="field-1" class="col-md-2 control-label">Billing Cycle - Subscription Qty</label>
+                                    <div class="col-md-4">
+                                        @if($hiden_class != '' && $BillingCycleType =='subscription' )
+                                    <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
+                            @endif
+                            {{Form::text('BillingCycleValue', ($BillingCycleType =='subscription'?$BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
+                                    </div>
+                                </div>
+                                <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
+                                    <?php
+                            $BillingCycleValue=date('Y-m-d',strtotime($BillingCycleValue));
+                            ?>
+                                    <label for="field-1" class="col-md-2 control-label">Billing Cycle - Monthly Anniversary Date</label>
+                                    <div class="col-md-4">
+                                        @if($hiden_class != '' && $BillingCycleType =='monthly_anniversary' )
+                                    <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
+                            @endif
+                            {{Form::text('BillingCycleValue', ($BillingCycleType =='monthly_anniversary'?$BillingCycleValue:'') ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                                    </div>
                                 </div>
                             </div>
-                            <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                                <label for="field-1" class="col-md-2 control-label">Billing Cycle - for Days</label>
-                                <div class="col-md-4">
-                                    @if($hiden_class != '' && $BillingCycleType =='in_specific_days' )
-                                <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
-                            @endif
-                        {{Form::text('BillingCycleValue', ($BillingCycleType =='in_specific_days'?$BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
+                            @if($hiden_class != '')
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-md-2 control-label">Last Invoice Date</label>
+                                        <div class="col-md-4">
+                                            <?php
+                            $LastInvoiceDate = isset($AccountBilling->LastInvoiceDate)?$AccountBilling->LastInvoiceDate:'';
+                            ?>
+                            {{Form::hidden('LastInvoiceDate', $LastInvoiceDate)}}
+                            {{$LastInvoiceDate}}
+                                    </div>
+                                    <label for="field-1" class="col-md-2 control-label">Next Invoice Date</label>
+                                    <div class="col-md-3">
+                                        <?php
+                            $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:'';
+                            ?>
+                            @if($hiden_class != '' && isset($NextInvoiceDate) )
+                                    <div class="next_invoice_edit_text"> {{$NextInvoiceDate}} </div>
+                        @endif
+                            {{Form::text('NextInvoiceDate', $NextInvoiceDate,array('class'=>'form-control '.$hiden_class.' datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                                    </div>
+                                    <div class="col-md-1">
+                                        @if($hiden_class != '')
+                                    <button class="btn btn-sm btn-primary tooltip-primary" id="next_invoice_edit" data-original-title="Edit Next Invoice Date" title="" data-placement="top" data-toggle="tooltip">
+                                        <i class="entypo-pencil"></i>
+                                    </button>
+                                @endif
+                                    </div>
                                 </div>
-                            </div>
-                            <div id="billing_cycle_subscription" class="billing_options" style="display: none">
-                                <label for="field-1" class="col-md-2 control-label">Billing Cycle - Subscription Qty</label>
-                                <div class="col-md-4">
-                                    @if($hiden_class != '' && $BillingCycleType =='subscription' )
-                                <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
-                            @endif
-                        {{Form::text('BillingCycleValue', ($BillingCycleType =='subscription'?$BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
-                                </div>
-                            </div>
-                            <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                                <?php
-                        $BillingCycleValue=date('Y-m-d',strtotime($BillingCycleValue));
-                        ?>
-                                <label for="field-1" class="col-md-2 control-label">Billing Cycle - Monthly Anniversary Date</label>
-                                <div class="col-md-4">
-                                    @if($hiden_class != '' && $BillingCycleType =='monthly_anniversary' )
-                                <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
-                            @endif
-                        {{Form::text('BillingCycleValue', ($BillingCycleType =='monthly_anniversary'?$BillingCycleValue:'') ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
-                                </div>
-                            </div>
-                        </div>
-                        @if($hiden_class != '')
                                 <div class="form-group">
-                                    <label for="field-1" class="col-md-2 control-label">Last Invoice Date</label>
+                                    <label for="field-1" class="col-md-2 control-label">Last Charge Date</label>
                                     <div class="col-md-4">
                                         <?php
-                        $LastInvoiceDate = isset($AccountBilling->LastInvoiceDate)?$AccountBilling->LastInvoiceDate:'';
-                        ?>
-                        {{Form::hidden('LastInvoiceDate', $LastInvoiceDate)}}
-                        {{$LastInvoiceDate}}
-                                </div>
-                                <label for="field-1" class="col-md-2 control-label">Next Invoice Date</label>
-                                <div class="col-md-3">
-                                    <?php
-                        $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:'';
-                        ?>
-                        @if($hiden_class != '' && isset($NextInvoiceDate) )
-                                <div class="next_invoice_edit_text"> {{$NextInvoiceDate}} </div>
+                            $LastChargeDate = isset($AccountBilling->LastChargeDate)?$AccountBilling->LastChargeDate:'';
+                            ?>
+                            {{Form::hidden('LastChargeDate', $LastChargeDate)}}
+                            {{$LastChargeDate}}
+                                    </div>
+                                    <label for="field-1" class="col-md-2 control-label">Next Charge Date</label>
+                                    <div class="col-md-3">
+                                        <?php
+                            $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
+                            ?>
+                            @if($hiden_class != '' && isset($NextChargeDate) )
+                                    <div class="next_charged_edit_text"> {{$NextChargeDate}} </div>
                         @endif
-                        {{Form::text('NextInvoiceDate', $NextInvoiceDate,array('class'=>'form-control '.$hiden_class.' datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
-                                </div>
-                                <div class="col-md-1">
-                                    @if($hiden_class != '')
-                                <button class="btn btn-sm btn-primary tooltip-primary" id="next_invoice_edit" data-original-title="Edit Next Invoice Date" title="" data-placement="top" data-toggle="tooltip">
-                                    <i class="entypo-pencil"></i>
-                                </button>
-                            @endif
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="field-1" class="col-md-2 control-label">Last Charge Date</label>
-                                <div class="col-md-4">
-                                    <?php
-                        $LastChargeDate = isset($AccountBilling->LastChargeDate)?$AccountBilling->LastChargeDate:'';
-                        ?>
-                        {{Form::hidden('LastChargeDate', $LastChargeDate)}}
-                        {{$LastChargeDate}}
-                                </div>
-                                <label for="field-1" class="col-md-2 control-label">Next Charge Date</label>
-                                <div class="col-md-3">
-                                    <?php
-                        $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
-                        ?>
-                        @if($hiden_class != '' && isset($NextChargeDate) )
-                                <div class="next_charged_edit_text"> {{$NextChargeDate}} </div>
-                        @endif
-                        {{Form::text('NextChargeDate', $NextChargeDate,array('class'=>'form-control '.$hiden_class.' datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd"))}}
-                                </div>
-                                {{--
+                            {{Form::text('NextChargeDate', $NextChargeDate,array('class'=>'form-control '.$hiden_class.' datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                                    </div>
+                                    {{--
                     <div class="col-md-1">
                         @if($hiden_class != '')
                             <button class="btn btn-sm btn-primary tooltip-primary" id="next_charged_edit" data-original-title="Edit Next charged Date" title="" data-placement="top" data-toggle="tooltip">
@@ -617,38 +617,38 @@
                         @endif
                     </div>
                     --}}
-                                </div>
-                                @else
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label">Next Invoice Date</label>
+                                    </div>
+                                    @else
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label">Next Invoice Date</label>
+                                        <div class="col-md-3">
+                                            <?php
+                            $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:'';
+                            ?>
+                            {{Form::text('NextInvoiceDate', $NextInvoiceDate,array('class'=>'form-control '.$hiden_class.' datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                                    </div>
+                                    <label class="col-md-2 control-label">Next Charge Date
+                                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is period End Date. e.g. if Billing Cycle is monthly then Next Charge date will be last day of the month  i-e 30/04/2018" data-original-title="Next Charge Date">?</span>
+                                    </label>
                                     <div class="col-md-3">
                                         <?php
-                        $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:'';
-                        ?>
-                        {{Form::text('NextInvoiceDate', $NextInvoiceDate,array('class'=>'form-control '.$hiden_class.' datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                            $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
+                            ?>
+                            {{Form::text('NextChargeDate', $NextChargeDate,array('class'=>'form-control '.$hiden_class.' datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd",'disabled'))}}
+                                    </div>
                                 </div>
-                                <label class="col-md-2 control-label">Next Charge Date
-                                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is period End Date. e.g. if Billing Cycle is monthly then Next Charge date will be last day of the month  i-e 30/04/2018" data-original-title="Next Charge Date">?</span>
-                                </label>
-                                <div class="col-md-3">
-                                    <?php
-                        $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
-                        ?>
-                        {{Form::text('NextChargeDate', $NextChargeDate,array('class'=>'form-control '.$hiden_class.' datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd",'disabled'))}}
-                                </div>
-                            </div>
-                        @endif
+                            @endif
 
+                                    </div>
                                 </div>
-                            </div>
-                            -->
-                        @if(AccountBilling::where(array('AccountID'=>$AccountID,'BillingCycleType'=>'manual'))->count() == 0 || !empty($BillingCycleType))
-                            @include('accountdiscountplan.index')
-                        @endif
+                                -->
+                            @if(AccountBilling::where(array('AccountID'=>$AccountID,'BillingCycleType'=>'manual'))->count() == 0 || !empty($BillingCycleType))
+                                @include('accountdiscountplan.index')
+                            @endif
 
+                        </div>
                     </div>
-                </div>
-                <!-- account options end -->
+                    <!-- account options end -->
             </form>
         </div>
     </div>
