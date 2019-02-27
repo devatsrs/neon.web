@@ -273,7 +273,7 @@ class AccountsController extends \BaseController {
                 $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
             }
             if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-                return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
+                return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
             }
             $data['Status'] = isset($data['Status']) ? 1 : 0;
 
@@ -286,7 +286,7 @@ class AccountsController extends \BaseController {
         $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
-            Account::$rules['BillingTimezone'] = 'required';
+            //Account::$rules['BillingTimezone'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
             Account::$rules['BillingClassID'] = 'required';
             if(isset($data['BillingCycleValue'])){
@@ -307,6 +307,7 @@ class AccountsController extends \BaseController {
             }
 
             $validator = Validator::make($data, Account::$rules, Account::$messages);
+            $validator->setAttributeNames(['AccountName' => 'Company Name']);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -851,7 +852,8 @@ class AccountsController extends \BaseController {
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
-        
+        $PackageDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::PACKAGE,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
+
         //As per new question call the routing profile model for fetch the routing profile list.
         $routingprofile = RoutingProfiles::getRoutingProfile($companyID);
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
@@ -860,7 +862,7 @@ class AccountsController extends \BaseController {
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$companyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
 
-        return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
+        return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
     /**
@@ -963,7 +965,7 @@ class AccountsController extends \BaseController {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
         }
         if (strpbrk($data['AccountName'],'\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
+            return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
         }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
@@ -986,7 +988,7 @@ class AccountsController extends \BaseController {
 
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
-            Account::$rules['BillingTimezone'] = 'required';
+            //Account::$rules['BillingTimezone'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
             Account::$rules['BillingClassID'] = 'required';
             if(isset($data['BillingCycleValue'])){
@@ -1005,6 +1007,7 @@ class AccountsController extends \BaseController {
         }
         $validator = Validator::make($data, Account::$rules,Account::$messages);
 
+        $validator->setAttributeNames(['AccountName' => 'Company Name']);
         if ($validator->fails()) {
             return json_validator_response($validator);
             exit;
@@ -1268,6 +1271,7 @@ class AccountsController extends \BaseController {
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
                 $OutboundDiscountPlan = empty($data['DiscountPlanID']) ? '' : $data['DiscountPlanID'];
                 $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
+                $PackageDiscountPlan = empty($data['PackageDiscountPlanID']) ? '' : $data['PackageDiscountPlanID'];
                 if(!empty($AccountPeriod)) {
                     $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                     $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
@@ -1280,6 +1284,7 @@ class AccountsController extends \BaseController {
                     $AccountServiceID=0;
                     AccountDiscountPlan::addUpdateDiscountPlan($id, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                     AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                 }
             }
 
@@ -2069,6 +2074,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['PackageRateTableID'] = 'required_with:PackageID';
 
         $validator = Validator::make($data, $rules, [
+            'CLI.required' => "Number is required.",
             'PackageID.required_with' => "Package is required.",
             'PackageRateTableID.required_with' => "Package Rate Table is required."
         ]);
@@ -2093,8 +2099,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             } else {
                 $rate_tables['CLI'] = $cli;
                 $rate_tables['RateTableID'] = $data['RateTableID'];
-                $rate_tables['PackageID'] = $data['PackageID'];
-                $rate_tables['PackageRateTableID'] = $data['PackageRateTableID'];
+                $rate_tables['PackageID'] = @$data['PackageID'];
+                $rate_tables['PackageRateTableID'] = @$data['PackageRateTableID'];
                 $rate_tables['AccountID'] = $data['AccountID'];
                 $rate_tables['CompanyID'] = $CompanyID;
                 $rate_tables['CityTariff'] = !empty($data['CityTariff'])?$data['CityTariff']:'';
@@ -2189,6 +2195,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['PackageRateTableID'] = 'required_with:PackageID';
 
         $validator = Validator::make($data, $rules, [
+            'CLI.required' => "Number is required.",
             'PackageID.required_with' => "Package is required.",
             'PackageRateTableID.required_with' => "Package Rate Table is required."
         ]);
