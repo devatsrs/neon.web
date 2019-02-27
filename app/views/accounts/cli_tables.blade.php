@@ -6,7 +6,7 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            CLI
+            Number
         </div>
         <div class="panel-options">
             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -25,7 +25,7 @@
                 </div>
                 <div class="panel-body" style="display: none;">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">CLI</label>
+                        <label for="field-1" class="col-sm-1 control-label">Number</label>
                         <div class="col-sm-2">
                             <input type="text" name="CLIName" class="form-control" value="" />
                         </div>
@@ -84,8 +84,8 @@
             <thead>
             <tr>
                 <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                <th width="15%">CLI</th>
-                <th width="15%">CLI Rate Table</th>
+                <th width="15%">Number</th>
+                <th width="15%">Number Rate Table</th>
                 <th width="15%">Package</th>
                 <th width="15%">Package Rate Table</th>
                 <th width="12%">City/Tariff</th>
@@ -115,22 +115,22 @@
                 <form id="clitable-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">CLI</h4>
+                        <h4 class="modal-title">Number</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row edit_hide">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-3215" class="control-label">CLI</label>
+                                    <label for="field-3215" class="control-label">Number</label>
                                     <textarea name="CLI" class="form-control cli-field autogrow"></textarea>
-                                    *Adding multiple CLIs ,Add one CLI in each line.
+                                    *Adding multiple Numbers ,Add one Number in each line.
                                 </div>
                             </div>
                         </div>
                         <div class="row edit_show">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-3216" class="control-label">CLI</label>
+                                    <label for="field-3216" class="control-label">Number</label>
                                     <input name="CLI" class="form-control cli-field">
                                 </div>
                             </div>
@@ -138,7 +138,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">CLI RateTable</label>
+                                    <label for="field-225" class="control-label">Number RateTable</label>
                                     {{ Form::select('RateTableID', $rate_table , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
@@ -216,7 +216,7 @@
                 <form role="form" id="form-confirm-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Delete CLI</h4>
+                        <h4 class="modal-title">Delete Number</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -228,7 +228,7 @@
                                     </div>
                                     <div class="col-sm-3"></div>
                                     <div class="col-sm-3"></div>
-                                    <div class="col-sm-9">This is the date when you deleted CLI against this account from the switch</div>
+                                    <div class="col-sm-9">This is the date when you deleted Number against this account from the switch</div>
                                 </div>
                             </div>
                         </div>

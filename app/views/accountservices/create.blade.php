@@ -105,7 +105,7 @@
                             </label>
                             <div class="col-md-4">
                                 <div class="make-switch switch-small">
-                                    <input type="checkbox" name="ServiceTitleShow"  id="serviceshowtitle" value="1">
+                                    <input type="checkbox" name="ServiceTitleShow" checked id="serviceshowtitle" value="1">
                                 </div>
                             </div>
 
