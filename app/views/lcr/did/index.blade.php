@@ -164,6 +164,8 @@
                    $('.packagediv').show();
                    $('.productdiv').hide();
                    $('.productcategory').hide();
+                    $('#Origination').hide();
+                    $('#OriginationPercentage').hide();
                 }else{
                     $('#lcr_type').val('N');
                    $('.didbutton').html(accbtnval+' <span class="caret"></span>');
@@ -171,6 +173,8 @@
                     $('.packagediv').hide();
                    $('.productdiv').show();
                    $('.productcategory').show();
+                    $('#Origination').show();
+                    $('#OriginationPercentage').show();
                 }
                 
             });
@@ -219,9 +223,6 @@
                 $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
 
-                $searchFilter.PackageID                   = $("#did-search-form select[name='PackageID']").val();
-                $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
-                
                 var aoColumnDefs, aoColumnDefs;
                 if($searchFilter.LCRPosition=='5'){
 
@@ -309,25 +310,27 @@
                     ];
                 }
 
-                if(typeof $searchFilter.EffectiveDate  == 'undefined' || $searchFilter.EffectiveDate == '' ){
+                if(typeof $searchFilter.EffectiveDate  == 'undefined'){
                     toastr.error("Please Select a Effective Date", "Error", toastr_opts);
                     return false;
                 }
-                if(typeof $searchFilter.Country  == 'undefined' || $searchFilter.Country == '' ){
-                    toastr.error("Please Select a Country", "Error", toastr_opts);
-                    return false;
-                }
-                if(typeof $searchFilter.AccessType  == 'undefined' || $searchFilter.AccessType == '' ){
-                    toastr.error("Please Select a Access Type", "Error", toastr_opts);
-                    return false;
-                }
-                if(typeof $searchFilter.Prefix  == 'undefined' || $searchFilter.Prefix == '' ){
-                    toastr.error("Please Select a Prefix", "Error", toastr_opts);
-                    return false;
-                }
-                if((typeof $searchFilter.Currency  == 'undefined' || $searchFilter.Currency == '' ) ){
+                if((typeof $searchFilter.Currency  == 'undefined' ) ){
                     toastr.error("Please Select Currency", "Error", toastr_opts);
                     return false;
+                }
+                if($('#lcr_type').val()=='Access'){
+                    if(typeof $searchFilter.Country  == 'undefined'){
+                        toastr.error("Please Select a Country", "Error", toastr_opts);
+                        return false;
+                    }
+                    if(typeof $searchFilter.AccessType  == 'undefined' || $searchFilter.AccessType == '' ){
+                        toastr.error("Please Select a Access Type", "Error", toastr_opts);
+                        return false;
+                    }
+                    if(typeof $searchFilter.Prefix  == 'undefined' || $searchFilter.Prefix == '' ){
+                        toastr.error("Please Select a Prefix", "Error", toastr_opts);
+                        return false;
+                    }
                 }
                 if($('#lcr_type').val()=='Y'){
                 }else{
@@ -345,10 +348,6 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
-                        
-                                {"name": "PackageID","value": $searchFilter.PackageID},
-                                {"name": "lcr_type","value": $searchFilter.lcr_type},
-                                
                                 {"name": "Currency","value": $searchFilter.Currency},
                                 {"name": "CountryID","value": $searchFilter.Country},
                                 {"name": "AccessType","value": $searchFilter.AccessType},
@@ -369,10 +368,6 @@
                         data_table_extra_params.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
                                 {"name": "CountryID","value": $searchFilter.Country},
-                                
-                                {"name": "PackageID","value": $searchFilter.PackageID},
-                                {"name": "lcr_type","value": $searchFilter.lcr_type},
-                                
                                 {"name": "AccessType","value": $searchFilter.AccessType},
                                 {"name": "Prefix","value": $searchFilter.Prefix},
                                 {"name": "CityTariff","value": $searchFilter.CityTariff},
