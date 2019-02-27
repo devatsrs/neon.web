@@ -109,7 +109,9 @@ class VOSActiveCallController extends \BaseController {
 
             }else{
                 //return $Res;
-                $Message[]=$Res;
+                Log::info("==== infoCurrentCalls Not Found====");
+                Log::info(print_r($Res,true));
+                return Response::json(['status'=>'failed','message'=>"Something went wrong."]);
             }
         }
 
