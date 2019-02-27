@@ -169,7 +169,7 @@
                             }
                             action += '</div>';
                             var Status = full[2];
-                            @if(User::checkCategoryPermission('Report','Update'))
+                            @if(User::checkCategoryPermission('Report','Edit'))
                                 action += ' <a href="' + report_schedule_url.replace("{id}", id) + '" class="schedule_report btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                 action += ' <a href="' + report_history_url+'?ReportScheduleID=' +id+'" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-time"></i>&nbsp;</a>';
                             @endif
@@ -179,7 +179,7 @@
                                 action += ' <a href="' + report_delete_url.replace("{id}", id) + '" class="delete-report btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                             //}
                             @endif
-                            @if(User::checkCategoryPermission('Report','Update'))
+                            @if(User::checkCategoryPermission('Report','Edit'))
                                 if(full[3]) {
                                     if (Status == 1) {
                                         action += '&nbsp;<button data-id="' + id + '" data-status="' + Status + '" class="change_schedule btn btn-red btn-sm" type="button" title="Scheduling InActive" data-placement="left" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';

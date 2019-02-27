@@ -51,10 +51,18 @@
                 <div class="panel-body">
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Account Balance</label>
-                        <div class="desc col-sm-4 ">
+                        <div class="desc col-sm-2 ">
                             <input type="text" class="form-control" readonly name="AccountBalance" value="{{$SOA_Amount}}">
                         </div>
+                        @if($BillingType==AccountApproval::BILLINGTYPE_PREPAID)
+                        <div  class="col-sm-1">
+                            <button id="prepaid_billed_report" class="btn btn-primary btn-sm btn-icon icon-left prepaid_billed_report" data-id="{{$account->AccountID}}" data-loading-text="Loading...">
+                                <i class="fa fa-eye"></i>View Report
+                            </button>
+                        </div>
+                        @endif
                     </div>
+                    @if($BillingType==AccountApproval::BILLINGTYPE_POSTPAID)
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Customer Unbilled Amount</label>
                         <div class="desc col-sm-2">
@@ -77,12 +85,14 @@
                             <input type="text" class="form-control" readonly name="AccountExposure" value="{{$BalanceAmount}}">
                         </div>
                     </div>
+
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Available Credit Limit</label>
                         <div class="desc col-sm-4 ">
                             <input type="text" class="form-control" readonly name="AccountBalance" value="{{($PermanentCredit - $BalanceAmount)<0?0:($PermanentCredit - $BalanceAmount)}}">
                         </div>
                     </div>
+                    @endif
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Credit Limit</label>
                         <div class="desc col-sm-4 ">

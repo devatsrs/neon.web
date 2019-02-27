@@ -217,6 +217,11 @@ function invoicetemplate_dropbox($id=0,$data=array()){
     $all_invoicetemplates = InvoiceTemplate::getInvoiceTemplateList();
     return Form::select('invoicetemplate', $all_invoicetemplates, $id ,array("id"=>"drp_invoicetemplate_jump" ,"class"=>"selectboxit1 form-control1"));
 }
+function sippygatewaylist_dropbox($id=0){
+    $CompanyID = User::get_companyID();
+    $SippyGatewayList = CompanyGateway::where(['Status'=>1,'CompanyID'=>$CompanyID])->whereIN("GatewayID",[6,15])->lists('Title', 'CompanyGatewayID');
+    return Form::select('CompanyGatewayID', $SippyGatewayList, $id ,array("id"=>"CompanyGatewayID" ,"class"=>"selectboxit1 form-control1"));
+}
 
 function sendMail($view,$data,$ViewType=1){
     
@@ -1087,8 +1092,11 @@ function formatSmallDate($date,$dateformat='d-m-y') {
 function SortBillingType($account=0){
     ksort(Company::$BillingCycleType);
     ksort(Company::$BillingCycleType2);
+    ksort(Company::$BillingCycleType3);
     if($account == 0) {
         return Company::$BillingCycleType;
+    }elseif($account == 3){
+        return Company::$BillingCycleType3;
     }else{
         return Company::$BillingCycleType2;
     }

@@ -85,6 +85,31 @@
                 </div>
             </div>
             <!-- Service Title For Invoice -->
+            <!-- Service subscription billing cycle start-->
+
+            <div class="panel panel-primary " data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Service Billing Cycle
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i> </a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="field-1" class="col-md-2 control-label">
+                            Billing Cylce
+                        </label>
+                        <div class="col-md-4">
+                            {{Form::select('SubscriptionBillingCycleType',SortBillingType(3),$AccountService->SubscriptionBillingCycleType,array("class"=>"form-control select2"))}}
+                            <input type="hidden" name="SubscriptionBillingCycleValue" value="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service subscription billing cycle end-->
 
             @include('accountsubscription.index')
             @include('accountoneoffcharge.index')
@@ -152,6 +177,7 @@
                 "saturday"=>"Saturday",
                 "sunday"=>"Sunday");
         ?>
+        <!--
         <div class="panel panel-primary billing-section-hide"   data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
@@ -363,6 +389,7 @@
 
             </div>
         </div>
+        -->
                     @if(AccountBilling::where(array('AccountID'=>$AccountID,'BillingCycleType'=>'manual'))->count() == 0 || !empty($BillingCycleType))
         @include('accountdiscountplan.index')
                         @endif

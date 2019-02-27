@@ -104,7 +104,7 @@ var postdata;
                 }, //2   Status
                 {                       //3
                    "bSortable": true,
-                    mRender: function ( id, type, full ) {						
+                    mRender: function ( id, type, full ) {
                     var GatewayID = full[3]>0?full[3]:'';
                         var action ='';
                          action = '<div class = "hiddenRowData" >';
@@ -148,7 +148,7 @@ var postdata;
             }, "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
 				if(selectedID!='' && selectedID!='0' && iTotal==0){
 					$('#add-new-config').click();
-				}	
+				}
   },
            "fnDrawCallback": function() {
                    //onDelete Click
@@ -201,6 +201,7 @@ var postdata;
     $('#add-new-config').click(function(ev){
         ev.preventDefault();
         $('#CDRMapping').addClass('hidden');
+        $('#VendorCDRMapping').addClass('hidden');
         $('#add-new-config-form').trigger("reset");
         $("#add-new-config-form [name='CompanyGatewayID']").val('');
         $("#add-new-config-form [name='BillingTimeZone']").select2().select2('val','');
@@ -221,6 +222,7 @@ var postdata;
         ev.preventDefault();
         ev.stopPropagation();
         $('#CDRMapping').addClass('hidden');
+        $('#VendorCDRMapping').addClass('hidden');
         $('#add-new-config-form').trigger("reset");
         var prevrow = $(this).prev("div.hiddenRowData");
         $("#add-new-config-form [name='CompanyGatewayID']").val(prevrow.find("input[name='CompanyGatewayID']").val())
@@ -240,10 +242,23 @@ var postdata;
         if(GatewayName == 'FTP'){
             $('#CDRMapping').removeClass('hidden');
         }
+        if(GatewayName == 'FTPVENDOR'){
+            $('#VendorCDRMapping').removeClass('hidden');
+        }
+
+        // if SippySFTP or SippySQL then
+        if(GatewayID == 6 || GatewayID == 15) {
+            var CompanyGatewayID = $("#add-new-config-form [name='CompanyGatewayID']").val();
+            var mapping_button = '<a class="btn btn-primary pull-left btn-sm btn-icon icon-right" id="btn-destinationset" href="'+baseurl+'/sippy_rate_push/'+CompanyGatewayID+'/destinationsetmapping" style="align"><i class="fa fa-external-link"></i>Destination Sets Mapping</a>';
+            $('#add-new-modal-config .modal-footer').prepend(mapping_button);
+        }
 
         $('#add-new-modal-config h4').html('Edit Gateway');
         $('#add-new-modal-config').modal('show');
     });
+    $('#add-new-modal-config').on('hidden.bs.modal', function () {
+        $('#btn-destinationset').remove();
+    })
     $('[name="Status_name"]').change(function(e){
         if($(this).prop('checked')){
             $("#add-new-config-form [name='Status']").val(1);
@@ -254,7 +269,7 @@ var postdata;
     });
     $('#add-new-config-form').submit(function(e){
         e.preventDefault();
-        var CompanyGatewayID = $("#add-new-config-form [name='CompanyGatewayID']").val()
+        var CompanyGatewayID = $("#add-new-config-form [name='CompanyGatewayID']").val();
         if( typeof CompanyGatewayID != 'undefined' && CompanyGatewayID != ''){
             update_new_url = baseurl + '/gateway/update/'+CompanyGatewayID;
         }else{
@@ -307,14 +322,14 @@ var postdata;
                     $('#ajax_config_html').html('');
                 }
             });
-			
+
 		 $("#gateway_form").submit(function(e){
             e.preventDefault();
             $searchFilter.Gateway = $("#gateway_form [name='Gateway']").val();
             data_table.fnFilter('', 0);
             return false;
         });
-		
+
 		function getQueryVariable(variable) {
   var query = window.location.search.substring(1);
   var vars = query.split("&");
@@ -323,7 +338,7 @@ var postdata;
     if (pair[0] == variable) {
       return pair[1];
     }
-  } 
+  }
   alert('Query Variable ' + variable + ' not found');
 }
 
@@ -461,6 +476,13 @@ var postdata;
             openInNewTab(url);
         });
 
+        $('#vendorcdrtemplatelink').click(function(e){
+            e.preventDefault();
+            var CompanyGatewayID = $('#add-new-config-form [name="CompanyGatewayID"]').val();
+            var url = "{{URL::to('vendor_cdr_template/gateway')}}/"+CompanyGatewayID;
+            openInNewTab(url);
+        });
+
         function initializeSelect2(){
             $("#ajax_config_html .select2").each(function(i, el) {
                 buildselect2(el);
@@ -594,6 +616,14 @@ var postdata;
                         </a>
                     </div>
                 </div>
+                    <div id="VendorCDRMapping" class="row hidden">
+                        <label for="field-5" class="control-label col-md-3">Vendor CDR Mapping</label>
+                        <div class="clear col-md-3">
+                            <a id="vendorcdrtemplatelink" href="#" target="_blank" class="btn btn-primary btn-sm btn-icon icon-left">
+                                <i class="entypo-link"></i>Vendor CDR Mapping
+                            </a>
+                        </div>
+                    </div>
                 <div class="row"><br></div>
                 <div class="modal-footer">
                     <input type="hidden" name="CompanyGatewayID" value="">

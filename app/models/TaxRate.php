@@ -150,7 +150,7 @@ class TaxRate extends \Eloquent {
     }
 
     public static function getInvoiceTaxRateByProductDetail($invoiceID){
-        $InvoiceDetail=InvoiceDetail::where('InvoiceID',$invoiceID)->select('InvoiceDetailID','TaxRateID','TaxRateID2','Price')->get();
+        $InvoiceDetail=InvoiceDetail::where('InvoiceID',$invoiceID)->select('InvoiceDetailID','TaxRateID','TaxRateID2','Price','LineTotal')->get();
         $Result = array();
         foreach($InvoiceDetail as $data) {
             if (!empty($data->TaxRateID)) {
@@ -160,7 +160,7 @@ class TaxRate extends \Eloquent {
                 $TaxRate['Title'] = TaxRate::getTaxName($data->TaxRateID);
                 $TaxRate['created_at'] = date("Y-m-d H:i:s");
                 $TaxRate['InvoiceID'] = $invoiceID;
-                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID, $data->Price);
+                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID, $data->LineTotal);
                 $Result[] = $TaxRate;
             }
             if (!empty($data->TaxRateID2)) {
@@ -170,7 +170,7 @@ class TaxRate extends \Eloquent {
                 $TaxRate['Title'] = TaxRate::getTaxName($data->TaxRateID2);
                 $TaxRate['created_at'] = date("Y-m-d H:i:s");
                 $TaxRate['InvoiceID'] = $invoiceID;
-                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID2, $data->Price);
+                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID2, $data->LineTotal);
                 $Result[] = $TaxRate;
             }
         }
