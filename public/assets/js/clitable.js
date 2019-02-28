@@ -170,6 +170,7 @@ jQuery(document).ready(function ($) {
         var RateTableID = fields.find("[name='RateTableID']").val();
         var CityTariff = fields.find("[name='CityTariff']").val();
         var Prefix = fields.find("[name='Prefix']").val();
+        var Type = fields.find("[name='Type']").val();
         var Status = fields.find("[name='Status']").val();
         var PackageID = fields.find("[name='PackageID']").val();
         var PackageRateTableID = fields.find("[name='PackageRateTableID']").val();
@@ -178,7 +179,6 @@ jQuery(document).ready(function ($) {
         RateTableID = RateTableID == 0 ? '' : RateTableID;
         PackageID = PackageID == 0 ? '' : PackageID;
         PackageRateTableID = PackageRateTableID == 0 ? '' : PackageRateTableID;
-        Prefix = Prefix == 0 ? '' : Prefix;
 
         $('#clitable-form .edit_hide').hide().find(".cli-field").attr("name", "");
         $('#clitable-form .edit_show').show().find(".cli-field").attr("name", "CLI");
@@ -186,6 +186,7 @@ jQuery(document).ready(function ($) {
         $("#clitable-form [name=RateTableID]").select2().select2('val', RateTableID);
         $("#clitable-form [name=CityTariff]").val(CityTariff);
         $("#clitable-form [name=Prefix]").val(Prefix);
+        $("#clitable-form [name=Type]").val(Type);
         $("#clitable-form [name=Status]").prop("checked", Status == 1).trigger("change");
         $("#clitable-form [name=PackageID]").select2().select2('val', PackageID);
         $("#clitable-form [name=PackageRateTableID]").select2().select2('val', PackageRateTableID);
