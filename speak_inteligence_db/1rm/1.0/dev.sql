@@ -11,13 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-
+use speakintelligentRM;
+-- Dumping structure for procedure speakintelligentRM.prc_GetDIDLCR
 DROP PROCEDURE IF EXISTS `prc_GetDIDLCR`;
 DELIMITER //
 CREATE PROCEDURE `prc_GetDIDLCR`(
 	IN `p_companyid` INT,
 	IN `p_CountryID` varchar(100),
-	IN `p_Type` varchar(100),
+	IN `p_AccessType` varchar(100),
 	IN `p_CityTariff` varchar(100),
 	IN `p_Prefix` varchar(100),
 	IN `p_CurrencyID` INT,
@@ -33,7 +34,6 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_isExport` INT
-
 
 
 
@@ -268,7 +268,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 		SET @p_DIDCategoryID  		= p_DIDCategoryID;
 
 		SET @p_CountryID = p_CountryID;
-		SET @p_Type = p_Type;
+		SET @p_AccessType = p_AccessType;
 		SET @p_CityTariff = p_CityTariff;
 		SET @p_Prefix = TRIM(LEADING '0' FROM p_Prefix);
 
@@ -289,7 +289,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 
 						AND (@p_CountryID = '' OR  c.CountryID = @p_CountryID )
 
-						AND (@p_Type = '' OR d.NoType = @p_Type)
+						AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
 
 						AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
 
@@ -311,7 +311,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 
 							AND (@p_CountryID = '' OR  c.CountryID = @p_CountryID )
 
-							AND (@p_Type = '' OR d.NoType = @p_Type)
+							AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
 
 							AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
 
@@ -334,7 +334,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 
 							AND (@p_CountryID = '' OR  c.CountryID = @p_CountryID )
 
-							AND (@p_Type = '' OR d.NoType = @p_Type)
+							AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
 
 							AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
 
@@ -1452,7 +1452,7 @@ DEALLOCATE PREPARE stm2;
 
 set @Total = (select round(sum(Total),4) from tmp_component_output_ where Component = 'zCost' and VendorName = @ColumnName) ;
 
-SET @stm3 = CONCAT('update tmp_final_result set  `', @ColumnName , '` = ', ROUND(@Total,4) , ' where Component = "zCost"');
+SET @stm3 = CONCAT('update tmp_final_result set  `', @ColumnName , '` = ', @Total , ' where Component = "zCost"');
 
 PREPARE stm3 FROM @stm3;
 EXECUTE stm3;
