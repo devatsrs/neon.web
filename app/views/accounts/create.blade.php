@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="panel-body">
-                    <div class="form-group">
+                    <div class="form-group hide">
                         <label class="col-md-2 control-label">Account Owner</label>
                         <div class="col-md-4">
                             {{Form::select('Owner',$account_owners,User::get_userID(),array("class"=>"select2", 'id' => "OwnerField"))}}
@@ -178,8 +178,8 @@
                             {{Form::select('VerificationStatus', Account::$doc_status,Account::NOT_VERIFIED,array("class"=>"select2 small"))}}
                              <input type="hidden" class="form-control"  name="VerificationStatus" value="{{Account::NOT_VERIFIED}}">
                         </div>
-                        <label class="col-md-2 control-label">Nominal Code</label>
-                        <div class="col-md-4">
+                        <label class="col-md-2 control-label hide">Nominal Code</label>
+                        <div class="col-md-4 hide">
                             <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" placeholder="" value="{{Input::old('NominalAnalysisNominalAccountNumber')}}" />
                         </div>
                     </div>
@@ -556,9 +556,6 @@
             $("#account-from").submit();
         });
 
-        $(window).load(function() {
-            $("#OwnerField").select2("open");
-        });
         $('select[name="BillingCycleType"]').on( "change",function(e){
             var selection = $(this).val();
             $(".billing_options input, .billing_options select").attr("disabled", "disabled");// This is to avoid not posting same name hidden elements

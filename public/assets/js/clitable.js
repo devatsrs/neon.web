@@ -1,7 +1,7 @@
 var update_new_url;
 var postdata;
 jQuery(document).ready(function ($) {
-    var cli_list_fields = ["CLIRateTableID", "CLI", "CLI Rate Table", 'Package', 'Package Rate Table', 'CityTariff', 'RateTableID', 'PackageID', 'PackageRateTableID', 'Prefix', 'Status'];
+    var cli_list_fields = ["CLIRateTableID", "CLI", "CLI Rate Table", 'Package', 'Package Rate Table', 'Type', 'Prefix', 'CityTariff', 'Status', 'RateTableID', 'PackageID', 'PackageRateTableID'];
     public_vars.$body = $("body");
     var $searchcli = {};
     var clitable_add_url = baseurl + "/clitable/store";
@@ -11,6 +11,7 @@ jQuery(document).ready(function ($) {
     $("#clitable_submit").click(function (e) {
         e.preventDefault();
         $searchcli.CLIName = $("#clitable_filter").find('[name="CLIName"]').val();
+        $searchcli.CLIStatus = $("#clitable_filter").find('[name="CLIStatus"]').is(":checked") ? 1 : 0;
         data_table_clitable = $("#table-clitable").dataTable({
             "bDestroy": true,
             "bProcessing": true,
@@ -32,6 +33,10 @@ jQuery(document).ready(function ($) {
                     {
                         "name": "CLIName",
                         "value": $searchcli.CLIName
+                    },
+                    {
+                        "name": "CLIStatus",
+                        "value": $searchcli.CLIStatus
                     }
                 );
 
@@ -51,6 +56,10 @@ jQuery(document).ready(function ($) {
                     {
                         "name": "CLIName",
                         "value": $searchcli.CLIName
+                    },
+                    {
+                        "name": "CLIStatus",
+                        "value": $searchcli.CLIStatus
                     }
                 );
 
@@ -66,22 +75,19 @@ jQuery(document).ready(function ($) {
                         return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                     }
                 },
-                {"bSortable": true},  // 0 Sequence NO
-                {"bSortable": true},  // 1  Name
-                {"bSortable": true},
-                {"bSortable": true},
-                {"bSortable": true},
-                {   //Prefix
-                    "bSortable": true,
+                {"bSortable": true},    // 1 Number
+                {"bSortable": true},    // 2 Number Rate Table
+                {"bSortable": true},    // 3 Package
+                {"bSortable": true},    // 4 Package Rate Table
+                {"bSortable": true},    // 5 Type
+                {"bSortable": true},    // 6 Prefix
+                {"bSortable": true},    // 7 City Tariff
+                {  "bSortable": false,  //Status
                     mRender: function ( id, type, full ) {
-                        return full[9] == 0 ? '' : full[9];
-                    }
-                },
-                {  "bSortable": false, //Status
-                    mRender: function ( id, type, full ) {
+                        console.log(full);
                         var action , edit_ , show_ , delete_;
                         //console.log(id);
-                        if(full[10] == 1){
+                        if(full[8] == 1){
                             action='<i class="entypo-check" style="font-size:22px;color:green"></i>';
                         }else{
                             action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
@@ -143,7 +149,7 @@ jQuery(document).ready(function ($) {
     $('#add-clitable').click(function (ev) {
         ev.preventDefault();
         $('#clitable-form').trigger("reset");
-        $('#modal-clitable h4').html('Add CLI');
+        $('#modal-clitable h4').html('Add Number');
         $("#clitable-form [name=RateTableID]").select2().select2('val', "");
         $("#clitable-form [name=PackageID]").select2().select2('val', "");
         $("#clitable-form [name=PackageRateTableID]").select2().select2('val', "");
@@ -158,7 +164,7 @@ jQuery(document).ready(function ($) {
 
         var fields = $(this).prev(".hiddenRowData");
         $('#clitable-form').trigger("reset");
-        $('#modal-clitable h4').html('Edit CLI RateTable');
+        $('#modal-clitable h4').html('Edit Number RateTable');
 
         var CLI = fields.find("[name='CLI']").val();
         var RateTableID = fields.find("[name='RateTableID']").val();
@@ -216,7 +222,7 @@ jQuery(document).ready(function ($) {
             criteria = JSON.stringify($searchcli);
         }
         var CLIRateTableIDs = [];
-        if (!confirm('Are you sure you want to delete selected CLI?')) {
+        if (!confirm('Are you sure you want to delete selected Number?')) {
             return;
         }
         $('#table-clitable tr .rowcheckbox:checked').each(function (i, el) {
@@ -244,7 +250,7 @@ jQuery(document).ready(function ($) {
             }
         });
         $('#clitable-form').trigger("reset");
-        $('#modal-clitable h4').html('Update CLI');
+        $('#modal-clitable h4').html('Update Number');
         $("#clitable-form [name=RateTableID]").select2().select2('val', "");
         $("#clitable-form [name=PackageID]").select2().select2('val', "");
         $("#clitable-form [name=PackageRateTableID]").select2().select2('val', "");

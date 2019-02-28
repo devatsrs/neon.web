@@ -82,7 +82,7 @@
                     </div>
 
                     <div class="panel-body">
-                        <div class="form-group">
+                        <div class="form-group hide">
                             <label class="col-md-2 control-label">Account Owner</label>
                             <div class="col-md-4">
                                 {{Form::select('Owner',$account_owners,$account->Owner,array("class"=>"select2", "autofocus"=>"true"))}}
@@ -228,8 +228,8 @@
                             <div class="col-md-4">
                                 {{Account::$doc_status[$account->VerificationStatus]}}
                             </div>
-                            <label for="NominalAnalysisNominalAccountNumber" class="col-md-2 control-label">Nominal Code</label>
-                            <div class="col-md-4">
+                            <label for="NominalAnalysisNominalAccountNumber" class="col-md-2 control-label hide">Nominal Code</label>
+                            <div class="col-md-4 hide">
                                 <input type="text" class="form-control" autocomplete="off"  name="NominalAnalysisNominalAccountNumber" id="NominalAnalysisNominalAccountNumber" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
                             </div>
 
