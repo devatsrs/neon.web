@@ -2,7 +2,7 @@
 
     <div class="panel-heading">
         <div class="panel-title">
-            Discount
+            Discount Plan
         </div>
 
         <div class="panel-options">
@@ -12,7 +12,7 @@
 
     <div class="panel-body">
         <div class="form-group">
-            <label for="field-1" class="col-sm-1 control-label">Access Discount Plan</label>
+            <label for="field-1" class="col-sm-1 control-label">Access</label>
             <div class="col-sm-2">
                 {{Form::select('InboundDiscountPlanID',$DiscountPlan, $InboundDiscountPlanID,array('class'=>'form-control select2'))}}
             </div>
@@ -21,7 +21,7 @@
                     <i class="fa fa-eye"></i>
                 </button>
             </div>
-            <label for="field-1" class="col-sm-1 control-label">Package Discount Plan</label>
+            <label for="field-1" class="col-sm-1 control-label">Package</label>
             <div class="col-sm-2">
                 {{Form::select('PackageDiscountPlanID',$DiscountPlan, $PackageDiscountPlanID,array('class'=>'form-control select2'))}}
             </div>
@@ -30,7 +30,7 @@
                     <i class="fa fa-eye"></i>
                 </button>
             </div>
-            <label for="field-1" class="col-sm-1 control-label">Termination Discount Plan</label>
+            <label for="field-1" class="col-sm-1 control-label">Termination</label>
             <div class="col-sm-2">
                 {{Form::select('DiscountPlanID',$DiscountPlan, $DiscountPlanID,array('class'=>'form-control select2'))}}
             </div>

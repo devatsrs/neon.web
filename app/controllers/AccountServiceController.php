@@ -335,6 +335,7 @@ class AccountServiceController extends \BaseController {
 
             $OutboundDiscountPlan = empty($data['DiscountPlanID']) ? '' : $data['DiscountPlanID'];
             $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
+            $PackageDiscountPlan = empty($data['PackageDiscountPlanID']) ? '' : $data['PackageDiscountPlanID'];
 
             //billing
             //$invoice_count = Account::getInvoiceCount($AccountID);
@@ -377,6 +378,7 @@ class AccountServiceController extends \BaseController {
                 $SubscriptionDiscountPlanID = 0;
                 AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
                 AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff, $ServiceID, $AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
             }
 
 

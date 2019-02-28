@@ -183,11 +183,11 @@ Route::filter("role", function ()  {
 
 Route::filter('auth.api', function(){
     if(!Auth::check() && !Request::is('api/login') && !Request::is('api/logout')){
-        $LicenceApiResponse = Company::getLicenceResponse();
+       // $LicenceApiResponse = Company::getLicenceResponse();
 
-        if(!$LicenceApiResponse["Status"]){
+       /* if(!$LicenceApiResponse["Status"]){
             return Response::json($LicenceApiResponse);
-        }
+        }*/
         $Request = [];
         if(isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {
             $Request["EmailAddress"] = $_SERVER["PHP_AUTH_USER"];
