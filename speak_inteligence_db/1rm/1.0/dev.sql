@@ -1452,7 +1452,7 @@ DEALLOCATE PREPARE stm2;
 
 set @Total = (select round(sum(Total),4) from tmp_component_output_ where Component = 'zCost' and VendorName = @ColumnName) ;
 
-SET @stm3 = CONCAT('update tmp_final_result set  `', @ColumnName , '` = ', @Total , ' where Component = "zCost"');
+SET @stm3 = CONCAT('update tmp_final_result set  `', @ColumnName , '` = ', ROUND(@Total,4) , ' where Component = "zCost"');
 
 PREPARE stm3 FROM @stm3;
 EXECUTE stm3;
