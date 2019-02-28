@@ -760,8 +760,8 @@ from tblRateTableDIDRate  drtr
 	inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 	left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 	inner join tblCountry c on c.CountryID = r.CountryID
-	inner join tblServiceTemplate st on
-																		 ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
+	inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
+																		AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
 																		 AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff AND st.city_tariff  =  drtr.CityTariff )
 																		 AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
 
@@ -1143,8 +1143,8 @@ insert into tmp_table_with_origination
 		inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 		inner join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		inner join tblCountry c on c.CountryID = r.CountryID
-		inner join tblServiceTemplate st on
-																			 ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
+		inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
+																			AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
 																			 AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff AND st.city_tariff  =  drtr.CityTariff )
 																			 AND ( @p_Prefix = '' OR ( r.Code  = concat(c.Prefix ,@p_Prefix) AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) ) )
 
