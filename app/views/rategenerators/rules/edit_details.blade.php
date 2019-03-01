@@ -55,7 +55,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="field-5" class="control-label">City.Tarrif</label>
+                        <label for="field-5" class="control-label">City/Tariff</label>
                         {{ Form::select('CityTariff', $CityTariff, @$rategenerator_rule['CityTariff'], array("class"=>"select2")) }}                    </div>
                 </div>
             </div>

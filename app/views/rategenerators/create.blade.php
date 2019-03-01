@@ -250,22 +250,22 @@
                             <table id="servicetableSubBox" class="table table-bordered datatable">
                                 <thead>
                                 <tr>
-                                    <th width="100px">Component</th>
-                                    <th width="100px">Origination</th>
-                                    <th width="100px">Time of Day</th>
-                                    <th width="100px">Action</th>
-                                    <th width="100px">Merge To</th>
-                                    <th width="100px">To Origination</th>
-                                    <th width="100px">To Time of Day</th>
-                                    <th width="100px">From Country</th>
-                                    <th width="100px">To Country</th>
-                                    <th width="100px">From Access Type</th>
-                                    <th width="100px">To Access Type</th>
-                                    <th width="100px">From Prefix</th>
-                                    <th width="100px">To Prefix</th>
-                                    <th width="100px">From City/Tariff</th>
-                                    <th width="100px">To City/Tariff</th>
-                                    <th width="100px">Add</th>
+                                    <th style="width:200px !important;">Component</th>
+                                    <th style="width:200px !important;">Origination</th>
+                                    <th style="width:200px !important;">Time of Day</th>
+                                    <th style="width:200px !important;">Action</th>
+                                    <th style="width:200px !important;">Merge To</th>
+                                    <th style="width:200px !important;">To Origination</th>
+                                    <th style="width:200px !important;">To Time of Day</th>
+                                    <th style="width:250px !important;">From Country</th>
+                                    <th style="width:250px !important;">From Type</th>
+                                    <th style="width:250px !important;">From Prefix</th>
+                                    <th style="width:250px !important;">From City/Tariff</th>
+                                    <th style="width:250px !important;">To Country</th>
+                                    <th style="width:250px !important;">To Type</th>
+                                    <th style="width:250px !important;">To Prefix</th>
+                                    <th style="width:250px !important;">To City/Tariff</th>
+                                    <th style="width:100px !important;">Add</th>
                                 </tr>
                                 </thead>
                                 <tbody id="tbody">
@@ -297,23 +297,22 @@
                                         {{ Form::select('FCountry-1', $country, '', array("class"=>"select2")) }}
                                     </td>
                                     <td>
-                                        {{ Form::select('TCountry-1', $country, '', array("class"=>"select2")) }}
-                                    </td>
-                                    <td>
                                         {{ Form::select('FAccessType-1', $AccessType, '', array("class"=>"select2")) }}
                                     </td>
-                                    <td>
-                                        {{ Form::select('TAccessType-1', $AccessType, '', array("class"=>"select2")) }}
-                                    </td>
-
                                     <td>
                                         {{ Form::select('FPrefix-1', $Prefix, '', array("class"=>"select2")) }}
                                     </td>
                                     <td>
-                                        {{ Form::select('TPrefix-1', $Prefix, '', array("class"=>"select2")) }}
+                                        {{ Form::select('FCity_Tariff-1', $CityTariff, null, array("class"=>"select2")) }}
                                     </td>
                                     <td>
-                                        {{ Form::select('FCity_Tariff-1', $CityTariff, null, array("class"=>"select2")) }}
+                                        {{ Form::select('TCountry-1', $country, '', array("class"=>"select2")) }}
+                                    </td>
+                                    <td>
+                                        {{ Form::select('TAccessType-1', $AccessType, '', array("class"=>"select2")) }}
+                                    </td>
+                                    <td>
+                                        {{ Form::select('TPrefix-1', $Prefix, '', array("class"=>"select2")) }}
                                     </td>
                                     <td>
                                         {{ Form::select('TCity_Tariff-1', $CityTariff, null, array("class"=>"select2")) }}
@@ -345,22 +344,22 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <div class="col-md-12" style=" overflow: auto;">
+                        <div class="" style=" overflow: auto;">
                             <br/>
                             <input type="hidden" id="getRateIDs" name="getRateIDs" value=""/>
                             <table id="ratetableSubBox" class="table table-bordered datatable">
                                 <thead>
                                 <tr>
-                                    <th width="25%">Component</th>
-                                    <th width="15%">Origination</th>
-                                    <th width="15%">Time of Day</th>
-                                    <th width="17.5%">Calculated Rate</th>
-                                    <th width="17.5%">Change Rate To</th>
-                                    <th width="100px">Country</th>
-                                    <th width="100px">Access Type</th>
-                                    <th width="100px">Prefix</th>
-                                    <th width="100px">City/Tariff</th>
-                                    <th width="10%">Add</th>
+                                    <th style="width:200px !important;">Component</th>
+                                    <th style="width:200px !important;">Origination</th>
+                                    <th style="width:200px !important;">Time of Day</th>
+                                    <th style="width:250px !important;">Country</th>
+                                    <th style="width:250px !important;">Type</th>
+                                    <th style="width:250px !important;">Prefix</th>
+                                    <th style="width:250px !important;">City/Tariff</th>
+                                    <th style="width:200px !important;">Calculated Rate</th>
+                                    <th style="width:200px !important;">Change Rate To</th>
+                                    <th style="width:100px !important;">Add</th>
                                 </tr>
                                 </thead>
                                 <tbody id="ratetbody">
@@ -375,12 +374,6 @@
                                         {{ Form::select('RateTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                                     </td>
                                     <td>
-                                        <input type="number" min="0" class="form-control" name="RateLessThen-1"/>
-                                    </td>
-                                    <td>
-                                        <input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>
-                                    </td>
-                                    <td>
                                         {{ Form::select('Country1-1', $country, '', array("class"=>"select2")) }}
                                     </td>
                                     <td>
@@ -391,6 +384,12 @@
                                     </td>
                                     <td>
                                         {{ Form::select('City_Tariff1-1', $CityTariff, null, array("class"=>"select2")) }}
+                                    </td>
+                                    <td>
+                                        <input type="number" min="0" class="form-control" name="RateLessThen-1"/>
+                                    </td>
+                                    <td>
+                                        <input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>
                                     </td>
                                     <td>
                                         <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
@@ -415,8 +414,17 @@
         .IsMerge {
             display: none;
         }
+        #servicetableSubBox {
+            width:3000px;
+            overflow-x: auto;
+        }
+        #ratetableSubBox{
+            width:1800px;
+            overflow-x: auto;
+        }
     </style>
     <script type="text/javascript">
+
         function ajax_form_success(response){
             if(typeof response.redirect != 'undefined' && response.redirect != ''){
                 window.location = response.redirect;
@@ -712,23 +720,23 @@
                 $('#' + tblID + ' tr:last').children('td:eq(5)').children('input').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'FCountry-' + numb).attr('id', 'FCountry-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'FAccessType-' + numb).attr('id', 'FAccessType-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'FPrefix-' + numb).attr('id', 'FPrefix-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(12)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(13)').children('select').attr('name', 'FCity_Tariff-' + numb).attr('id', 'FCity_Tariff-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'FAccessType-' + numb).attr('id', 'FAccessType-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'FPrefix-' + numb).attr('id', 'FPrefix-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'FCity_Tariff-' + numb).attr('id', 'FCity_Tariff-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(12)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(13)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(14)').children('select').attr('name', 'TCity_Tariff-' + numb).attr('id', 'TCity_Tariff-' + numb).select2();
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(3)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(4)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'Country1-' + numb).attr('id', 'Country1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'AccessType1-' + numb).attr('id', 'AccessType1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'Prefix1-' + numb).attr('id', 'Prefix1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'City_Tariff1-' + numb).attr('id', 'City_Tariff1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Country1-' + numb).attr('id', 'Country1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'AccessType1-' + numb).attr('id', 'AccessType1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'Prefix1-' + numb).attr('id', 'Prefix1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'City_Tariff1-' + numb).attr('id', 'City_Tariff1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(7)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(8)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
             }
             if ($('#' + idInp).val() == '') {
                 $('#' + idInp).val(numb + ',');
@@ -752,8 +760,6 @@
             } else {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').children('a').attr('id', "rateCal-" + numb);
             }
-            alert(tblID);
-
 
             $('#' + tblID + ' tr:last').children('td:eq(0)').find('div:first').remove();
             $('#' + tblID + ' tr:last').children('td:eq(1)').find('div:first').remove();
@@ -810,6 +816,7 @@
                 return false;
             }
         }
+
 
     </script>
     @include('currencies.currencymodal')
