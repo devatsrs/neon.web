@@ -34,7 +34,7 @@
                 <button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>
                 <ul class="dropdown-menu dropdown-green" role="menu">
                     <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/create" class="generate_rate create" >Create New Rate Table</a></li>
-                    <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/update" class="generate_rate update" data-trunk="{{$rategenerators->TrunkID}}" data-codedeck="{{$rategenerators->CodeDeckId}}" data-currency="{{$rategenerators->CurrencyID}}" data-type="{{$rategenerators->SelectType}}">Update Existing Rate Table</a></li>
+                    <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/update" class="generate_rate update" data-trunk="{{$rategenerators->TrunkID}}" data-codedeck="{{$rategenerators->CodeDeckId}}" data-currency="{{$rategenerators->CurrencyID}}">Update Existing Rate Table</a></li>
                 </ul>
             </div>
         @endif
@@ -189,7 +189,7 @@
                         @endif
 
                         @if($rategenerator->SelectType == 2 || $rategenerator->SelectType == 3)
-                            
+
                             @if($rategenerator->SelectType == 2)
                                 <div class="form-group DID-Div">
                                     <label for="field-1" class="col-sm-2 control-label">Country</label>
@@ -212,7 +212,7 @@
                                     </div>
                                 </div>
                             @endif
-                        
+
                         @if($rategenerator->SelectType == 3)
                         <div class="form-group Package-Div" >
                             <label for="field-1" class="col-sm-2 control-label">Package</label>
@@ -221,7 +221,7 @@
                             </div>
                         </div>
                         @endif
-                        
+
                             <div class="form-group DID-Div">
                                 <label for="DateFrom" class="col-sm-2 control-label">Date From</label>
                                 <div class="col-sm-4">
@@ -665,32 +665,20 @@
                                             <td>
                                                 {{ @RateGenerator::$Component[$rategenerator_rule->Component] }}
                                                 <br>
-                                                @if($rategenerator_rule->CountryID == "")
-                                                    Country: All
-                                                @else
-                                                Country: {{$rategenerator_rule->Country->Country}}
-                                                @endif
+                                                @if(isset($rategenerator_rule->CountryID) && $rategenerator_rule->CountryID != '')
+                                                    Country: {{$rategenerator_rule->Country->Country}}
                                                 <br>
-                                                @if($rategenerator_rule->AccessType == "")
-                                                    Type: All
-                                                @else
+                                                @if(isset($rategenerator_rule->AccessType) && $rategenerator_rule->AccessType != '')
                                                     Type: {{$rategenerator_rule->AccessType}}
-                                                @endif
-
                                                 <br>
-                                                @if($rategenerator_rule->Prefix == "")
-                                                    Prefix: All
-                                                @else
+                                                @endif
+                                                @if(isset($rategenerator_rule->Prefix) && $rategenerator_rule->Prefix != '')
                                                     Prefix: {{$rategenerator_rule->Prefix}}
-                                                @endif
-
                                                 <br>
-                                                @if($rategenerator_rule->CityTariff == "")
-                                                    CityTariff: All
-                                                @else
+                                                @endif
+                                                @if(isset($rategenerator_rule->CityTariff) && $rategenerator_rule->CityTariff != '')
                                                     CityTariff: {{$rategenerator_rule->CityTariff}}
                                                 @endif
-
 
                                             </td>
                                             <td>
@@ -1045,7 +1033,6 @@
                 var trunkID = $(this).attr("data-trunk");
                 var codeDeckId = $(this).attr("data-codedeck");
                 var CurrencyID = $(this).attr("data-currency");
-                var Type = $(this).attr("data-type");
                 $.ajax({
                     url: baseurl + "/rategenerators/ajax_load_rate_table_dropdown",
                     type: 'GET',
@@ -1059,7 +1046,7 @@
 
                     },
                     // Form data
-                    data: "TrunkID="+trunkID+'&CodeDeckId='+codeDeckId+'&CurrencyID='+CurrencyID +'&Type='+Type,
+                    data: "TrunkID="+trunkID+'&CodeDeckId='+codeDeckId+'&CurrencyID='+CurrencyID ,
                     cache: false,
                     contentType: false,
                     processData: false
