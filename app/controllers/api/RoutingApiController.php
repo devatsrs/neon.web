@@ -566,7 +566,7 @@ class RoutingApiController extends ApiController {
                 $syntax .= (!empty($syntax) ? ',' : '') . '?';
             }
             $syntax = 'CALL ' . $procName . '(' . $syntax . ');';
-            // Log::info('Filter Routing Profile List procedure $syntax123' . $syntax);
+             Log::info('Filter Routing Profile List procedure $syntax123' . $syntax);
 
             $pdo = DB::connection('speakIntelligentRoutingEngine')->getPdo();
             $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
