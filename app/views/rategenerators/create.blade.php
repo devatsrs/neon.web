@@ -760,8 +760,6 @@
             } else {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').children('a').attr('id', "rateCal-" + numb);
             }
-            alert(tblID);
-
 
             $('#' + tblID + ' tr:last').children('td:eq(0)').find('div:first').remove();
             $('#' + tblID + ' tr:last').children('td:eq(1)').find('div:first').remove();

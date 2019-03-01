@@ -193,6 +193,18 @@ class RateGeneratorRuleController extends \BaseController {
                     }
                 }
             }
+            if($data['CountryID'] == 0 ){
+                $data['CountryID'] == '';
+            }
+            if($data['AccessType'] == 0 ){
+                $data['AccessType'] == '';
+            }
+            if($data['Prefix'] == 0 ){
+                $data['Prefix'] == '';
+            }
+            if($data['CityTariff'] == 0 ){
+                $data['CityTariff'] == '';
+            }
 
             if ($rule_id = RateRule::insertGetId($data)) {
 

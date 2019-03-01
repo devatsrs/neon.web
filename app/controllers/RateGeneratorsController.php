@@ -224,6 +224,30 @@ class RateGeneratorsController extends \BaseController {
                                 "message" => "Merge components Value is missing."
                             ));
                         }
+                        if($data['FCountry-' . $numberArray[$i]] == 0){
+                            $data['FCountry-' . $numberArray[$i]] = '';
+                        }
+                        if($data['TCountry-' . $numberArray[$i]] == 0){
+                            $data['TCountry-' . $numberArray[$i]] = '';
+                        }
+                        if($data['FAccessType-' . $numberArray[$i]] == 0){
+                            $data['FAccessType-' . $numberArray[$i]] = '';
+                        }
+                        if($data['TAccessType-' . $numberArray[$i]] == 0){
+                            $data['TAccessType-' . $numberArray[$i]] = '';
+                        }
+                        if($data['FPrefix-' . $numberArray[$i]] == 0){
+                            $data['FPrefix-' . $numberArray[$i]] = '';
+                        }
+                        if($data['TPrefix-' . $numberArray[$i]] == 0){
+                            $data['TPrefix-' . $numberArray[$i]] = '';
+                        }
+                        if($data['FCity_Tariff-' . $numberArray[$i]] == 0){
+                            $data['FCity_Tariff-' . $numberArray[$i]] = '';
+                        }
+                        if($data['TCity_Tariff-' . $numberArray[$i]] == 0){
+                            $data['TCity_Tariff-' . $numberArray[$i]] = '';
+                        }
 
                         $componts[]       = $data['Component-' . $numberArray[$i]];
                         $origination[]    = @$data['Origination-' . $numberArray[$i]];
@@ -291,6 +315,18 @@ class RateGeneratorsController extends \BaseController {
                                 "status" => "failed",
                                 "message" => "Calculated Rate Value is missing."
                             ));
+                        }
+                        if($data['Country1-' . $calculatedRates[$i]] == 0){
+                            $data['Country1-' . $calculatedRates[$i]] = '';
+                        }
+                        if($data['AccessType1-' . $calculatedRates[$i]] == 0){
+                            $data['AccessType1-' . $calculatedRates[$i]] = '';
+                        }
+                        if($data['Prefix1-' . $calculatedRates[$i]] == 0){
+                            $data['Prefix1-' . $calculatedRates[$i]] = '';
+                        }
+                        if($data['City_Tariff1-' . $calculatedRates[$i]] == 0){
+                            $data['City_Tariff1-' . $calculatedRates[$i]] = '';
                         }
 
                         $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
@@ -473,7 +509,7 @@ class RateGeneratorsController extends \BaseController {
                 "CompanyID" => $companyID
             ])->first();
 
-            $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource')->where([
+            $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource', 'Country')->where([
                 "RateGeneratorId" => $id
             ]) ->orderBy("Order", "asc")->get();
             $rategeneratorComponents = RateGeneratorComponent::where('RateGeneratorID',$id )->get();
@@ -675,6 +711,30 @@ class RateGeneratorsController extends \BaseController {
                                 "message" => "Merge components Value is missing."
                             ));
                         }
+                        if($data['FCountry-' . $numberArray[$i]] == 0){
+                            $data['FCountry-' . $numberArray[$i]] = '';
+                        }
+                        if($data['TCountry-' . $numberArray[$i]] == 0){
+                            $data['TCountry-' . $numberArray[$i]] = '';
+                        }
+                        if($data['FAccessType-' . $numberArray[$i]] == 0){
+                            $data['FAccessType-' . $numberArray[$i]] = '';
+                        }
+                        if($data['TAccessType-' . $numberArray[$i]] == 0){
+                            $data['TAccessType-' . $numberArray[$i]] = '';
+                        }
+                        if($data['FPrefix-' . $numberArray[$i]] == 0){
+                            $data['FPrefix-' . $numberArray[$i]] = '';
+                        }
+                        if($data['TPrefix-' . $numberArray[$i]] == 0){
+                            $data['TPrefix-' . $numberArray[$i]] = '';
+                        }
+                        if($data['FCity_Tariff-' . $numberArray[$i]] == 0){
+                            $data['FCity_Tariff-' . $numberArray[$i]] = '';
+                        }
+                        if($data['TCity_Tariff-' . $numberArray[$i]] == 0){
+                            $data['TCity_Tariff-' . $numberArray[$i]] = '';
+                        }
 
                         $componts[] = $data['Component-' . $numberArray[$i]];
                         $origination[] = @$data['Origination-' . $numberArray[$i]];
@@ -744,11 +804,25 @@ class RateGeneratorsController extends \BaseController {
                             ));
                         }
 
+                        if($data['Country1-' . $calculatedRates[$i]] == 0){
+                            $data['Country1-' . $calculatedRates[$i]] = '';
+                        }
+                        if($data['AccessType1-' . $calculatedRates[$i]] == 0){
+                            $data['AccessType1-' . $calculatedRates[$i]] = '';
+                        }
+                        if($data['Prefix1-' . $calculatedRates[$i]] == 0){
+                            $data['Prefix1-' . $calculatedRates[$i]] = '';
+                        }
+                        if($data['City_Tariff1-' . $calculatedRates[$i]] == 0){
+                            $data['City_Tariff1-' . $calculatedRates[$i]] = '';
+                        }
                         $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
                         $rOrigination[]  = @$data['RateOrigination-' . $calculatedRates[$i]];
                         $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
                         $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
                         $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
+
+
                         $rCountry[] = $data['Country1-' . $calculatedRates[$i]];
                         $rAccessType[] = $data['AccessType1-' . $calculatedRates[$i]];
                         $rPrefix[] = $data['Prefix1-' . $calculatedRates[$i]];

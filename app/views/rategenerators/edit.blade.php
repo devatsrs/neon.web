@@ -578,12 +578,6 @@
                                             {{ Form::select('RateTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                                         </td>
                                         <td>
-                                            <input type="number" min="0" class="form-control" name="RateLessThen-1"/>
-                                        </td>
-                                        <td>
-                                            <input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>
-                                        </td>
-                                        <td>
                                             {{ Form::select('Country1-1', $country, '', array("class"=>"select2")) }}
                                         </td>
                                         <td>
@@ -595,6 +589,13 @@
                                         <td>
                                             {{ Form::select('City_Tariff1-1', $CityTariff, '', array("class"=>"select2")) }}
                                         </td>
+                                        <td>
+                                            <input type="number" min="0" class="form-control" name="RateLessThen-1"/>
+                                        </td>
+                                        <td>
+                                            <input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>
+                                        </td>
+
                                         <td>
                                             <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
                                                 <i></i>
@@ -663,6 +664,16 @@
                                         @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
                                             <td>
                                                 {{ @RateGenerator::$Component[$rategenerator_rule->Component] }}
+                                                <br>
+
+                                                Country: {{$rategenerator_rule->Country->Country}}
+                                                <br>
+                                                Type: {{$rategenerator_rule->AccessType}}
+                                                <br>
+                                                Prefix: {{$rategenerator_rule->Prefix}}
+                                                <br>
+                                                CityTariff: {{$rategenerator_rule->CityTariff}}
+
                                             </td>
                                             <td>
                                                 {{ $rategenerator_rule->OriginationDescription }}
@@ -1365,9 +1376,9 @@
              });
              }*/
             if (tblID == "servicetableSubBox") {
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').children('a').attr('id', "merge-" + numb);
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(4)').children('a').attr('id', "merge-" + numb);
             } else {
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').children('a').attr('id', "rateCal-" + numb);
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(8)').children('a').attr('id', "rateCal-" + numb);
             }
 
 
