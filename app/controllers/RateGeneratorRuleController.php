@@ -29,10 +29,10 @@ class RateGeneratorRuleController extends \BaseController {
             $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
             $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
 
-            $country = array('' => 'Select',0 => "All") + $country;
-            $AccessType = array('' => 'Select',0 => "All") + $AccessType;
-            $Prefix = array('' => 'Select',0 => "All") + $Prefix;
-            $CityTariff = array('' => 'Select',0 => "All") + $CityTariff;
+            $country = array(0 => "All") + $country;
+            $AccessType = array(0 => "All") + $AccessType;
+            $Prefix = array(0 => "All") + $Prefix;
+            $CityTariff = array(0 => "All") + $CityTariff;
 
             return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff'));
         }
