@@ -665,21 +665,14 @@
                                             <td>
                                                 {{ @RateGenerator::$Component[$rategenerator_rule->Component] }}
                                                 <br>
-                                                @if(isset($rategenerator_rule->CountryID) && $rategenerator_rule->CountryID != '')
-                                                    Country: {{$rategenerator_rule->Country->Country}}
+                                                Country: {{@$rategenerator_rule->Country->Country}}
                                                 <br>
-                                                @endif
-                                                @if(isset($rategenerator_rule->AccessType) && $rategenerator_rule->AccessType != '')
-                                                    Type: {{$rategenerator_rule->AccessType}}
+                                                    Type: {{@$rategenerator_rule->AccessType}}
                                                 <br>
-                                                @endif
-                                                @if(isset($rategenerator_rule->Prefix) && $rategenerator_rule->Prefix != '')
-                                                    Prefix: {{$rategenerator_rule->Prefix}}
+                                                    Prefix: {{@$rategenerator_rule->Prefix}}
                                                 <br>
-                                                @endif
-                                                @if(isset($rategenerator_rule->CityTariff) && $rategenerator_rule->CityTariff != '')
-                                                    CityTariff: {{$rategenerator_rule->CityTariff}}
-                                                @endif
+                                                    CityTariff: {{@$rategenerator_rule->CityTariff}}
+
 
                                             </td>
                                             <td>

@@ -193,16 +193,16 @@ class RateGeneratorRuleController extends \BaseController {
                     }
                 }
             }
-            if($data['CountryID'] == 0 ){
+            if($data['CountryID'] == '0' ){
                 $data['CountryID'] = '';
             }
-            if($data['AccessType'] == 0 ){
+            if($data['AccessType'] == '0' ){
                 $data['AccessType'] = '';
             }
-            if($data['Prefix'] == 0 ){
+            if($data['Prefix'] == '0' ){
                 $data['Prefix'] = '';
             }
-            if($data['CityTariff'] == 0 ){
+            if($data['CityTariff'] == '0' ){
                 $data['CityTariff'] = '';
             }
 
@@ -251,6 +251,7 @@ class RateGeneratorRuleController extends \BaseController {
 
         if ($id > 0 && $RateRuleID > 0) {
             $data = Input::all();
+            //dd($data);
 //             $companyID = User::get_companyID();
             $rategenerator_rules = RateRule::findOrFail($RateRuleID); // RateRule::where([ "RateRuleID" => $RateRuleID])->get();
             $rateGenerator = RateGenerator::findOrFail($id);
@@ -286,16 +287,16 @@ class RateGeneratorRuleController extends \BaseController {
                 return json_validator_response($validator);
             }
 
-            if($data['CountryID'] == 0 ){
+            if($data['CountryID'] == '0' ){
                 $data['CountryID'] = '';
             }
-            if($data['AccessType'] == 0 ){
+            if($data['AccessType'] == '0' ){
                 $data['AccessType'] = '';
             }
-            if($data['Prefix'] == 0 ){
+            if($data['Prefix'] == '0' ){
                 $data['Prefix'] = '';
             }
-            if($data['CityTariff'] == 0 ){
+            if($data['CityTariff'] == '0' ){
                 $data['CityTariff'] = '';
             }
 
