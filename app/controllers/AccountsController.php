@@ -2046,11 +2046,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             ->leftJoin('tblRateTable as prt','prt.RateTableId','=','tblCLIRateTable.PackageRateTableID')
             ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
             ->leftJoin('tblPackage','tblPackage.PackageId','=','tblCLIRateTable.PackageID')
-            ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName','CityTariff', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.Status'])
+            ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName', 'tblCLIRateTable.NoType', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.CityTariff', 'tblCLIRateTable.Status', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
             $rate_tables->WhereRaw('CLI like "%'.$data['CLIName'].'%"');
+        }
+        if(isset($data['CLIStatus']) && $data['CLIStatus'] != ""){
+            $rate_tables->where('tblCLIRateTable.Status',"=",$data['CLIStatus']);
         }
         if(!empty($data['ServiceID'])){
             $rate_tables->where('tblCLIRateTable.ServiceID','=',$data['ServiceID']);
@@ -2099,12 +2102,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             } else {
                 $rate_tables['CLI'] = $cli;
                 $rate_tables['RateTableID'] = $data['RateTableID'];
-                $rate_tables['PackageID'] = @$data['PackageID'];
-                $rate_tables['PackageRateTableID'] = @$data['PackageRateTableID'];
+                $rate_tables['PackageID'] = !empty($data['PackageID']) ? $data['PackageID'] : 0;
+                $rate_tables['PackageRateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
                 $rate_tables['AccountID'] = $data['AccountID'];
                 $rate_tables['CompanyID'] = $CompanyID;
                 $rate_tables['CityTariff'] = !empty($data['CityTariff'])?$data['CityTariff']:'';
                 $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
+                $rate_tables['NoType'] = !empty($data['Type'])?$data['Type']:'';
                 $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
                 if(!empty($data['ServiceID'])) {
                     $rate_tables['ServiceID'] = $data['ServiceID'];
@@ -2219,10 +2223,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $UpdateData=array();
         $UpdateData['CityTariff']   = !empty($data['CityTariff'])?$data['CityTariff']:'';
         $UpdateData['Prefix']       = !empty($data['Prefix'])?$data['Prefix']:'';
+        $UpdateData['NoType']       = !empty($data['Type'])?$data['Type']:'';
         $UpdateData['RateTableID']  = @$data['RateTableID'];
         $UpdateData['CLI']          = $data['CLI'];
-        $UpdateData['PackageID']    = $data['PackageID'];
-        $UpdateData['PackageRateTableID'] = $data['PackageRateTableID'];
+        $UpdateData['PackageID']    = !empty($data['PackageID']) ? $data['PackageID'] : 0;
+        $UpdateData['PackageRateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
         $UpdateData['Status']       = isset($data['Status']) ? 1 : 0;
 
         if (!empty($data['criteria'])) {

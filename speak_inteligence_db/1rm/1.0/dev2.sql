@@ -4,6 +4,10 @@ ALTER TABLE `tblRateTableDIDRate`
 ALTER TABLE `tblRateTableDIDRate`
 	ADD COLUMN `VendorID` INT NULL DEFAULT NULL AFTER `ApprovedDate`;
 
+ALTER TABLE `tblRateTableDIDRate`
+	ADD COLUMN `AccessType` VARCHAR(200) NULL DEFAULT NULL AFTER `CityTariff`;
+
+
 ALTER TABLE `tblRateTableRate`
 	ADD COLUMN `VendorID` INT NULL DEFAULT NULL AFTER `ApprovedDate`;
 

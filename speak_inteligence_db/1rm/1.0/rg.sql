@@ -38,6 +38,10 @@ CREATE  PROCEDURE `prc_WSGenerateRateTable`(
 
 
 
+
+
+
+
 )
 GenerateRateTable:BEGIN
 
@@ -863,7 +867,7 @@ GenerateRateTable:BEGIN
 
 
 				) tmp
-				GROUP BY AccountId, TrunkID, TimezonesID, Description
+				GROUP BY AccountId, TrunkID, TimezonesID, Description,OriginationDescription
 				order by Description asc;
 
 
@@ -982,7 +986,7 @@ GenerateRateTable:BEGIN
 
 
 				INSERT INTO tmp_Rates2_ (OriginationCode,OriginationDescription,code,description,rate,rateN,ConnectionFee,AccountID,RateCurrency,ConnectionFeeCurrency)
-				select  OriginationCode,OriginationDescription,code,description,rate,rateN,ConnectionFee,AccountID,AccountID,RateCurrency,ConnectionFeeCurrency from tmp_Rates_;
+				select  OriginationCode,OriginationDescription,code,description,rate,rateN,ConnectionFee,AccountID,RateCurrency,ConnectionFeeCurrency from tmp_Rates_;
 
 
 
@@ -991,7 +995,7 @@ GenerateRateTable:BEGIN
 
 
 						INSERT IGNORE INTO tmp_Rates3_ (OriginationCode,OriginationDescription,code,description)
-						 select distinct OriginationCode,OriginationDescription,r.code,r.description
+						 select distinct tmpvr.OriginationCode,tmpvr.OriginationDescription,r.code,r.description
 						from tmp_VendorCurrentRates1_  tmpvr
 						Inner join  tblRate r   on r.CodeDeckId = v_codedeckid_ AND r.Code = tmpvr.Code
 						inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
@@ -1002,7 +1006,7 @@ GenerateRateTable:BEGIN
 																 )
 																 AND
 																(
-																	 ( rr.code = '' OR ( rr.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%')) ))
+																	 ( rr.code = '' OR ( rr.code != '' AND tmpvr.Code LIKE (REPLACE(rr.code,'*', '%%')) ))
 																	 AND
 																	 ( rr.description = ''  OR (rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) ))
 																 )
@@ -1014,7 +1018,7 @@ GenerateRateTable:BEGIN
 																 )
 																 AND
 																(
-																	 ( rr2.code = '' OR ( rr2.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr2.code,'*', '%%')) ))
+																	 ( rr2.code = '' OR ( rr2.code != '' AND tmpvr.Code  LIKE (REPLACE(rr2.code,'*', '%%')) ))
 																	 AND
 																	 ( rr2.description = ''  OR (rr2.description != '' AND tmpvr.Description LIKE (REPLACE(rr2.description,'*', '%%')) ))
 																 )
@@ -1045,9 +1049,8 @@ GenerateRateTable:BEGIN
 						Preference,
 						RateCurrency,
 						ConnectionFeeCurrency,
-
-						RowCode,
-						FinalRankNumber
+						FinalRankNumber,
+						RowCode
 
 					from
 						(
@@ -1150,8 +1153,9 @@ GenerateRateTable:BEGIN
 						Preference,
 						RateCurrency,
 						ConnectionFeeCurrency,
-						RowCode,
-						FinalRankNumber
+						FinalRankNumber,
+						RowCode
+
 
 					from
 						(
@@ -1529,16 +1533,16 @@ GenerateRateTable:BEGIN
 			)
 				SELECT DISTINCT
 					r.RateID,
-					RateId,
+					tblRate.RateId,
 					p_RateTableId,
 					v_TimezonesID,
-					Rate,
-					RateN,
+					rate.Rate,
+					rate.RateN,
 					p_EffectiveDate,
-					Rate,
-					Interval1,
-					IntervalN,
-					ConnectionFee,
+					rate.Rate,
+					tblRate.Interval1,
+					tblRate.IntervalN,
+					rate.ConnectionFee,
 					IFNULL(@v_RateApprovalProcess_,1) as ApprovedStatus,
 					rate.AccountID,
 					rate.RateCurrency,
@@ -1765,7 +1769,7 @@ GenerateRateTable:BEGIN
 			tmp_ALL_RateTableRate_ temp ON rtr.RateTableRateID=temp.RateTableRateID AND rtr.TimezonesID=temp.TimezonesID
 		SET
 			rtr.EndDate=temp.EndDate,
-			rtr.ApprovedStatus = @v_RateApprovalProcess_
+			rtr.ApprovedStatus = IFNULL(@v_RateApprovalProcess_,1)
 		WHERE
 			rtr.RateTableId=p_RateTableId AND
 			rtr.TimezonesID=v_TimezonesID;

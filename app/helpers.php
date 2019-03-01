@@ -1224,7 +1224,9 @@ function get_report_title($report_type){
 function get_random_number(){
     return md5(uniqid(rand(), true));
 }
-
+function active_url_class($route){
+    return (Request::is($route.'/*') || Request::is($route)) ? "active" : '';
+}
 // sideabar submenu open when click on
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();

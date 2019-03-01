@@ -385,7 +385,7 @@
                             <div class="panel panel-primary tarrif-section-hide" data-collapsed="0">
                                 <div class="panel-heading">
                                     <div class="panel-title">
-                                        Tariff
+                                        Rate Table
                                     </div>
 
                                     <div class="panel-options">
@@ -395,12 +395,12 @@
 
                                 <div class="panel-body">
                                     <div class="form-group">
-                                        <label for="field-1" class="col-md-2 control-label">Inbound Tariff</label>
+                                        <label for="field-1" class="col-md-2 control-label">Access</label>
                                         <div class="col-md-4">
                                             {{ Form::select('InboundTariffID', $rate_table , $InboundTariffID , array("class"=>"select2")) }}
                                         </div>
 
-                                        <label class="col-md-2 control-label">Outbound Tariff</label>
+                                        <label class="col-md-2 control-label">Termination</label>
                                         <div class="col-md-4">
                                             {{ Form::select('OutboundTariffID', $rate_table , $OutboundTariffID , array("class"=>"select2")) }}
                                         </div>

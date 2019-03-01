@@ -29,7 +29,13 @@
                         <div class="col-sm-2">
                             <input type="text" name="CLIName" class="form-control" value="" />
                         </div>
-                        <div class="col-sm-9">
+                        <label for="field-1" class="col-sm-1 control-label">Status</label>
+                        <div class="col-sm-2">
+                            <p class="make-switch switch-small">
+                                <input id="CLIStatus" name="CLIStatus" type="checkbox" value="1" checked="checked">
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
                             <p style="text-align: right;">
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" id="clitable_submit">
                                     <i class="entypo-search"></i>
@@ -84,12 +90,13 @@
             <thead>
             <tr>
                 <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                <th width="15%">Number</th>
+                <th width="12%">Number</th>
                 <th width="15%">Number Rate Table</th>
-                <th width="15%">Package</th>
+                <th width="12%">Package</th>
                 <th width="15%">Package Rate Table</th>
-                <th width="12%">City/Tariff</th>
-                <th width="5%">Prefix</th>
+                <th width="8%">Type</th>
+                <th width="8%">Prefix</th>
+                <th width="8%">City/Tariff</th>
                 <th width="5%">Status</th>
                 <th width="20%">Action</th>
             </tr>
@@ -147,10 +154,24 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-115" class="control-label">City/Tariff
-                                        <span class="label hidden label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span>
-                                    </label>
-                                    <input type="text" name="CityTariff" value="" class="form-control" id="field-5" placeholder="">
+                                    <label for="field-215" class="control-label">Package</label>
+                                    {{ Form::select('PackageID', $Packages , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-125" class="control-label">Package RateTable</label>
+                                    {{ Form::select('PackageRateTableID', $RateTable , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-2315" class="control-label">Type</label>
+                                    <input type="text" name="Type" value="" class="form-control" id="field-2315" placeholder="">
                                 </div>
                             </div>
                         </div>
@@ -165,16 +186,10 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-215" class="control-label">Package</label>
-                                    {{ Form::select('PackageID', $Packages , '' , array("class"=>"select2")) }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-125" class="control-label">Package RateTable</label>
-                                    {{ Form::select('PackageRateTableID', $RateTable , '' , array("class"=>"select2")) }}
+                                    <label for="field-115" class="control-label">City/Tariff
+                                        <span class="label hidden label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span>
+                                    </label>
+                                    <input type="text" name="CityTariff" value="" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                         </div>
