@@ -34,7 +34,7 @@
                 <button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>
                 <ul class="dropdown-menu dropdown-green" role="menu">
                     <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/create" class="generate_rate create" >Create New Rate Table</a></li>
-                    <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/update" class="generate_rate update" data-trunk="{{$rategenerators->TrunkID}}" data-codedeck="{{$rategenerators->CodeDeckId}}" data-currency="{{$rategenerators->CurrencyID}}">Update Existing Rate Table</a></li>
+                    <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/update" class="generate_rate update" data-trunk="{{$rategenerators->TrunkID}}" data-codedeck="{{$rategenerators->CodeDeckId}}" data-currency="{{$rategenerators->CurrencyID}}" data-type="{{$rategenerators->SelectType}}">Update Existing Rate Table</a></li>
                 </ul>
             </div>
         @endif
@@ -1027,6 +1027,7 @@
                 var trunkID = $(this).attr("data-trunk");
                 var codeDeckId = $(this).attr("data-codedeck");
                 var CurrencyID = $(this).attr("data-currency");
+                var Type = $(this).attr("data-type");
                 $.ajax({
                     url: baseurl + "/rategenerators/ajax_load_rate_table_dropdown",
                     type: 'GET',
@@ -1040,7 +1041,7 @@
 
                     },
                     // Form data
-                    data: "TrunkID="+trunkID+'&CodeDeckId='+codeDeckId+'&CurrencyID='+CurrencyID ,
+                    data: "TrunkID="+trunkID+'&CodeDeckId='+codeDeckId+'&CurrencyID='+CurrencyID+'&Type='+Type,
                     cache: false,
                     contentType: false,
                     processData: false
