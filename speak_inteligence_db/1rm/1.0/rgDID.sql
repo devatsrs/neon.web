@@ -58,6 +58,10 @@ GenerateRateTable:BEGIN
 			Component VARCHAR(50) COLLATE utf8_unicode_ci,
 			Origination VARCHAR(50) COLLATE utf8_unicode_ci,
 			TimezonesID int,
+			CountryID int,
+			AccessType varchar(100),
+			Prefix varchar(100),
+			CityTariff varchar(100),
 			`Order` INT,
 			RowNo INT
 		);
@@ -70,6 +74,10 @@ GenerateRateTable:BEGIN
 			TimezonesID int,
 			RateLessThen	double(18,4),
 			ChangeRateTo double(18,4),
+			`CountryID` INT(11) NULL DEFAULT NULL,
+			`AccessType` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+			`Prefix` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+			`CityTariff` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 			RowNo INT
 		);
 
@@ -79,6 +87,9 @@ GenerateRateTable:BEGIN
 				TimezonesID  int,
 				TimezoneTitle  varchar(100),
 				CodeDeckId int,
+				CountryID int,
+				AccessType varchar(100),
+				CountryPrefix varchar(100),
 				CityTariff varchar(100),
 				Code varchar(100),
 				OriginationCode  varchar(100),
@@ -123,6 +134,9 @@ GenerateRateTable:BEGIN
 				TimezonesID  int,
 				TimezoneTitle  varchar(100),
 				CodeDeckId int,
+				CountryID int,
+				AccessType varchar(100),
+				CountryPrefix varchar(100),
 				CityTariff varchar(100),
 				Code varchar(100),
 				OriginationCode  varchar(100),
@@ -172,6 +186,9 @@ GenerateRateTable:BEGIN
 				TimezonesID  int,
 				TimezoneTitle  varchar(100),
 				CodeDeckId int,
+				CountryID int,
+				AccessType varchar(100),
+				CountryPrefix varchar(100),
 				CityTariff varchar(100),
 				Code varchar(100),
 				OriginationCode  varchar(100),
@@ -215,6 +232,9 @@ GenerateRateTable:BEGIN
 				TimezonesID  int,
 				TimezoneTitle  varchar(100),
 				CodeDeckId int,
+				CountryID int,
+				AccessType varchar(100),
+				CountryPrefix varchar(100),
 				CityTariff varchar(100),
 				Code varchar(100),
 				OriginationCode  varchar(100),
@@ -356,7 +376,7 @@ GenerateRateTable:BEGIN
 			tblRateGenerator.RateGeneratorName,
 			RateGeneratorId,
 			CurrencyID,
-			ProductID,
+		--	ProductID,
 			DIDCategoryID,
 			Calls,
 			Minutes,
@@ -366,12 +386,31 @@ GenerateRateTable:BEGIN
 			TimezonesPercentage,
 			Origination,
 			OriginationPercentage,
+
+			IFNULL(CountryID,''),
+			IFNULL(AccessType,''),
+			IFNULL(CityTariff,''),
+			IFNULL(Prefix,''),
+
+
+
 			IF( percentageRate = '' OR percentageRate is null	,0, percentageRate )
 
-			INTO @v_RatePosition_, @v_CompanyId_,   @v_RateGeneratorName_,@p_RateGeneratorId, @v_CurrencyID_,@v_ProductID_,@v_DIDCategoryID_,
+			INTO @v_RatePosition_, @v_CompanyId_,   @v_RateGeneratorName_,@p_RateGeneratorId, @v_CurrencyID_,
+			-- @v_ProductID_,
+			@v_DIDCategoryID_,
 			@v_Calls,
 			@v_Minutes,
-			@v_StartDate_ ,@v_EndDate_ ,@v_TimezonesID, @v_TimezonesPercentage, @v_Origination, @v_OriginationPercentage, @v_percentageRate_
+			@v_StartDate_ ,@v_EndDate_ ,@v_TimezonesID, @v_TimezonesPercentage, @v_Origination, @v_OriginationPercentage,
+
+
+			@p_CountryID,
+			@p_AccessType,
+			@p_CityTariff,
+			@p_Prefix,
+
+
+			@v_percentageRate_
 		FROM tblRateGenerator
 		WHERE RateGeneratorId = @p_RateGeneratorId;
 
@@ -386,6 +425,10 @@ GenerateRateTable:BEGIN
 			Component,
 			Origination ,
 			TimezonesID ,
+			CountryID ,
+			AccessType,
+			Prefix ,
+			CityTariff,
 			`Order` ,
 			RowNo
 		)
@@ -394,6 +437,10 @@ GenerateRateTable:BEGIN
 				Component,
 				OriginationDescription as Origination ,
 				TimeOfDay as TimezonesID,
+				CountryID ,
+				AccessType,
+				Prefix ,
+				CityTariff,
 				`Order`,
 				@row_num := @row_num+1 AS RowID
 			FROM tblRateRule,(SELECT @row_num := 0) x
@@ -410,6 +457,10 @@ GenerateRateTable:BEGIN
 			TimezonesID ,
 			RateLessThen,
 			ChangeRateTo ,
+			CountryID ,
+			AccessType,
+			Prefix ,
+			CityTariff,
 			RowNo )
 			SELECT
 
@@ -419,6 +470,10 @@ GenerateRateTable:BEGIN
 			TimezonesID ,
 			RateLessThen	,
 			ChangeRateTo ,
+			CountryID ,
+			AccessType,
+			Prefix ,
+			CityTariff,
 			@row_num := @row_num+1 AS RowID
 			FROM tblRateGeneratorCalculatedRate,(SELECT @row_num := 0) x
 			WHERE RateGeneratorId = @p_RateGeneratorId
@@ -443,6 +498,7 @@ GenerateRateTable:BEGIN
 			SET @p_PeakTimeZonePercentage	 		 = @v_TimezonesPercentage;		-- peak percentage
 			SET @p_MobileOriginationPercentage	 = @v_OriginationPercentage ;	-- mobile percentage
 
+			SET @p_Prefix = TRIM(LEADING '0' FROM @p_Prefix);
 
 
 			IF @p_Calls = 0 AND @p_Minutes = 0 THEN
@@ -455,7 +511,17 @@ GenerateRateTable:BEGIN
 
 				inner join speakintelligentCDR.tblUsageHeader h on d.UsageHeaderID = h.UsageHeaderID
 
-				where CompanyID = @v_CompanyId_ AND StartDate >= @v_StartDate_ AND StartDate <= @v_EndDate_ and d.is_inbound = 1;
+				inner join speakintelligentRM.tblCountry c  on   d.area_prefix  like concat(c.Prefix,'%')
+
+				where CompanyID = @v_CompanyId_ AND StartDate >= @v_StartDate_ AND StartDate <= @v_EndDate_ and d.is_inbound = 1
+
+				AND (@p_CountryID = '' OR  c.CountryID = @p_CountryID )
+
+				AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
+
+				AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
+
+				AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) );
 
 
 
@@ -467,7 +533,17 @@ GenerateRateTable:BEGIN
 
 				inner join speakintelligentCDR.tblUsageHeader h on d.UsageHeaderID = h.UsageHeaderID
 
+				inner join speakintelligentRM.tblCountry c  on   d.area_prefix  like concat(c.Prefix,'%')
+
 				where CompanyID = @v_CompanyId_ AND StartDate >= @v_StartDate_ AND StartDate <= @v_EndDate_ and d.is_inbound = 1 and TimezonesID is not null
+
+				AND (@p_CountryID = '' OR  c.CountryID = @p_CountryID )
+
+				AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
+
+				AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
+
+				AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) )
 
 				group by TimezonesID;
 
@@ -480,9 +556,20 @@ GenerateRateTable:BEGIN
 
 				inner join speakintelligentCDR.tblUsageHeader h on d.UsageHeaderID = h.UsageHeaderID
 
+				inner join speakintelligentRM.tblCountry c  on   d.area_prefix  like concat(c.Prefix,'%')
+
 				where CompanyID = @v_CompanyId_ AND StartDate >= @v_StartDate_ AND StartDate <= @v_EndDate_ and d.is_inbound = 1 and CLIPrefix is not null
 
+				AND (@p_CountryID = '' OR  c.CountryID = @p_CountryID )
+
+				AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
+
+				AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
+
+				AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) )
+
 				group by CLIPrefix;
+
 
 
 			ELSE
@@ -550,6 +637,9 @@ GenerateRateTable:BEGIN
 																TimezonesID,
 																TimezoneTitle,
 																CodeDeckId,
+																CountryID,
+																AccessType,
+																CountryPrefix,
 																CityTariff,
 																Code,
 																OriginationCode,
@@ -593,6 +683,9 @@ GenerateRateTable:BEGIN
 								drtr.TimezonesID,
 								t.Title as TimezoneTitle,
 								rt.CodeDeckId,
+								c.CountryID,
+								drtr.AccessType,
+								c.Prefix,
 								drtr.CityTariff,
 								r.Code,
 								r2.Code as OriginationCode,
@@ -955,9 +1048,12 @@ GenerateRateTable:BEGIN
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		 		inner join tblCountry c on c.CountryID = r.CountryID
-				inner join tblServiceTemplate st on st.ServiceTemplateId = @v_ProductID_
-			--	 and  c.Country = st.country  AND r.Code = st.prefixName  -- for testing only
-				and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )  --		for live only
+				inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
+				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
+				AND ( @p_AccessType = '' OR  drtr.AccessType = @p_AccessType  )
+				AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff AND st.city_tariff  =  drtr.CityTariff )
+				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+
 				inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
 				left join tmp_origination_minutes tom  on r2.Code = tom.OriginationCode
 
@@ -993,6 +1089,9 @@ GenerateRateTable:BEGIN
 																TimezonesID,
 																TimezoneTitle,
 																CodeDeckId,
+																CountryID,
+																AccessType,
+																CountryPrefix,
 																CityTariff,
 																Code,
 																OriginationCode,
@@ -1035,6 +1134,9 @@ GenerateRateTable:BEGIN
 								drtr.TimezonesID,
 								t.Title as TimezoneTitle,
 								rt.CodeDeckId,
+								c.CountryID,
+								drtr.AccessType,
+								c.Prefix,
 								drtr.CityTariff,
 								r.Code,
 								r2.Code as OriginationCode,
@@ -1397,9 +1499,13 @@ GenerateRateTable:BEGIN
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		 		inner join tblCountry c on c.CountryID = r.CountryID
-				inner join tblServiceTemplate st on st.ServiceTemplateId = @v_ProductID_
-			--	 and  c.Country = st.country  AND r.Code = st.prefixName  -- for testing only
-				and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) -- and  r2.Code = @p_MobileOrigination --		for live only
+				inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
+				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
+				AND ( @p_AccessType = '' OR  drtr.AccessType = @p_AccessType  )
+				AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff AND st.city_tariff  =  drtr.CityTariff )
+				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+
+
 				inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
 				inner join tmp_origination_minutes tom  on r2.Code = tom.OriginationCode
 				where
@@ -1434,6 +1540,9 @@ GenerateRateTable:BEGIN
 										TimezonesID,
 										TimezoneTitle,
 										CodeDeckId,
+										CountryID,
+										AccessType,
+										CountryPrefix,
 										CityTariff,
 										Code,
 										OriginationCode,
@@ -1473,6 +1582,9 @@ GenerateRateTable:BEGIN
 										TimezonesID,
 										TimezoneTitle,
 										CodeDeckId,
+										CountryID,
+										AccessType,
+										CountryPrefix,
 										CityTariff,
 										Code,
 										OriginationCode,
@@ -1511,6 +1623,9 @@ GenerateRateTable:BEGIN
 												TimezonesID,
 												TimezoneTitle,
 												CodeDeckId,
+												CountryID,
+												AccessType,
+												CountryPrefix,
 												CityTariff,
 												Code,
 												OriginationCode,
@@ -1553,6 +1668,9 @@ GenerateRateTable:BEGIN
 												TimezonesID,
 												TimezoneTitle,
 												CodeDeckId,
+												CountryID,
+												AccessType,
+												CountryPrefix,
 												CityTariff,
 												Code,
 												OriginationCode,
@@ -1639,6 +1757,9 @@ GenerateRateTable:BEGIN
 					OriginationCode,
 					VendorID,
 					CodeDeckId,
+					CountryID,
+					AccessType,
+					CountryPrefix,
 					CityTariff,
 					VendorName,
 					EndDate,
@@ -1677,6 +1798,9 @@ GenerateRateTable:BEGIN
 					OriginationCode,
 					VendorID,
 					CodeDeckId,
+					CountryID,
+					AccessType,
+					CountryPrefix,
 					CityTariff,
 					VendorName,
 					EndDate,
@@ -1719,18 +1843,61 @@ GenerateRateTable:BEGIN
 			DROP TEMPORARY TABLE IF EXISTS tmp_MergeComponents;
 			CREATE TEMPORARY TABLE tmp_MergeComponents(
 				ID int auto_increment,
-				Component varchar(500),
-				Origination varchar(20),
-				TimezonesID int,
-				ComponentAction varchar(20),
-				MergeToComponent varchar(20),
-				MergeToTimezonesID int,
-				MergeToOrigination varchar(20),
+				Component TEXT  ,
+				Origination TEXT  ,
+				ToOrigination TEXT  ,
+				TimezonesID INT(11)   ,
+				ToTimezonesID INT(11)   ,
+				Action CHAR(4)    ,
+				MergeTo TEXT  ,
+				FromCountryID INT(11)   ,
+				ToCountryID INT(11)   ,
+				FromAccessType VARCHAR(50)    ,
+				ToAccessType VARCHAR(50)    ,
+				FromPrefix VARCHAR(50)    ,
+				ToPrefix VARCHAR(50)    ,
+				FromCityTariff VARCHAR(50)    ,
+				ToCityTariff VARCHAR(50)    ,
 				primary key (ID)
 			);
 
-			insert into tmp_MergeComponents ( Component,Origination,TimezonesID,ComponentAction,MergeToComponent,MergeToTimezonesID,MergeToOrigination )
-			select Component,Origination,TimezonesID,Action,MergeTo,ToTimezonesID,ToOrigination
+			insert into tmp_MergeComponents (
+									Component,
+									Origination,
+									ToOrigination,
+									TimezonesID,
+									ToTimezonesID,
+									Action,
+									MergeTo,
+									FromCountryID,
+									ToCountryID,
+									FromAccessType,
+									ToAccessType,
+									FromPrefix,
+									ToPrefix,
+									FromCityTariff,
+									ToCityTariff
+
+			)
+			select
+									Component,
+									Origination,
+									ToOrigination,
+									TimezonesID,
+									ToTimezonesID,
+									Action,
+									MergeTo,
+									updated_at,
+									created_at,
+									FromCountryID,
+									ToCountryID,
+									FromAccessType,
+									ToAccessType,
+									FromPrefix,
+									ToPrefix,
+									FromCityTariff,
+									ToCityTariff
+
 			from tblRateGeneratorCostComponent
 			where RateGeneratorId = @p_RateGeneratorId
 			order by CostComponentID asc;
@@ -1746,19 +1913,44 @@ GenerateRateTable:BEGIN
 		DO
 
 
-
-
-
 				SELECT
-				Component,Origination,TimezonesID,ComponentAction,MergeToComponent,MergeToTimezonesID,MergeToOrigination
+						Component,
+						Origination,
+						ToOrigination,
+						TimezonesID,
+						ToTimezonesID,
+						Action,
+						MergeTo,
+						FromCountryID,
+						ToCountryID,
+						FromAccessType,
+						ToAccessType,
+						FromPrefix,
+						ToPrefix,
+						FromCityTariff,
+						ToCityTariff
 
 				INTO
 
-				@v_Component,@v_OriginationCode,@v_TimezonesID,@v_ComponentAction,@v_MergeToComponent,@v_MergeToTimezonesID,@v_MergeToOrigination
+						@v_Component,
+						@v_Origination,
+						@v_ToOrigination,
+						@v_TimezonesID,
+						@v_ToTimezonesID,
+						@v_Action,
+						@v_MergeTo,
+						@v_FromCountryID,
+						@v_ToCountryID,
+						@v_FromAccessType,
+						@v_ToAccessType,
+						@v_FromPrefix,
+						@v_ToPrefix,
+						@v_FromCityTariff,
+						@v_ToCityTariff
 
 				FROM tmp_MergeComponents WHERE ID = @v_pointer_;
 
-				IF @v_ComponentAction = 'sum' THEN
+				IF @v_Action = 'sum' THEN
 
 					SET @ResultField = concat('(' ,  REPLACE(@v_Component,',',' + ') , ') ');
 
@@ -1774,9 +1966,9 @@ GenerateRateTable:BEGIN
 
 								select
 
-									@v_MergeToTimezonesID as TimezonesID,
+									TimezonesID,
 									Code,
-									if (@v_MergeToOrigination = "",OriginationCode,@v_MergeToOrigination) as OriginationCode,
+									OriginationCode,
 									', @ResultField , ' as componentValue
 
 									from tmp_tblRateTableDIDRate
@@ -1784,35 +1976,33 @@ GenerateRateTable:BEGIN
 								where
 									VendorID = @v_SelectedVendor
 
-								AND TimezonesID = @v_TimezonesID
+								AND (  @v_TimezonesID = "" OR  TimezonesID = @v_TimezonesID)
+								AND (  @v_Origination = "" OR  OriginationCode = @v_Origination)
+								AND (  @v_FromCountryID =  ''  OR CountryID = 	@v_FromCountryID )
+								AND (  @v_FromAccessType =  ''  OR AccessType = 	@v_FromAccessType )
+								AND (  @v_FromPrefix =  '' OR Code = 	concat(CountryPrefix ,@v_FromPrefix) )
+								AND (  @v_FromCityTariff =  '' OR CityTariff = 	@v_FromCityTariff )
 
-								AND (
-										@v_OriginationCode = ""
-										OR
-										(@v_OriginationCode != "" AND OriginationCode = @v_OriginationCode)
-									)
 
 
-						) tmp on tmp.TimezonesID = srt.TimezonesID and tmp.Code = srt.Code and tmp.OriginationCode = srt.OriginationCode
+
+						) tmp on
+								tmp.Code = srt.Code
+								AND (  @v_ToTimezonesID = "" OR  srt.TimezonesID = @v_ToTimezonesID)
+								AND (  @v_ToOrigination = "" OR  srt.OriginationCode = @v_ToOrigination)
+								AND (  @v_ToCountryID =  ''  OR srt.CountryID = 	@v_ToCountryID )
+								AND (  @v_ToAccessType =  ''  OR srt.AccessType = 	@v_ToAccessType )
+								AND (  @v_ToPrefix =  '' OR Code = 	concat(srt.CountryPrefix ,@v_ToPrefix) )
+								AND (  @v_ToCityTariff =  '' OR srt.CityTariff = 	@v_ToCityTariff )
 						set
 
-						' , 'new_', @v_MergeToComponent , ' = componentValue,
-						srt.TimezonesID = tmp.TimezonesID;
+						' , 'new_', @v_MergeToComponent , ' = tmp.componentValue;
 				');
 				PREPARE stm1 FROM @stm1;
 				EXECUTE stm1;
-				DEALLOCATE PREPARE stm1;
+				-- dont use dealocate statement here...
 
-				select count(*) into @v_updated_rows
-				from tmp_SelectedVendortblRateTableDIDRate
-				where TimezonesID = @v_MergeToTimezonesID
-				AND (
-					@v_OriginationCode = ''
-					OR
-					(@v_OriginationCode != '' AND OriginationCode = @v_OriginationCode)
-				);
-
-				IF @v_updated_rows  = 0 THEN
+				IF ROW_COUNT()  = 0 THEN
 
 
 
@@ -1824,6 +2014,10 @@ GenerateRateTable:BEGIN
 								OriginationCode,
 								VendorID,
 								CodeDeckId,
+								CountryID,
+								AccessType,
+								CountryPrefix,
+
 								CityTariff,
 								EndDate,
 								VendorName,
@@ -1854,14 +2048,16 @@ GenerateRateTable:BEGIN
 								RegistrationCostPerNumberCurrency
 						)
 						select
-
-								@v_MergeToTimezonesID as TimezonesID,
+								IF(@v_ToTimezonesID = '',TimezonesID,@v_ToTimezonesID) as TimezonesID,
 								TimezoneTitle,
-								Code,
-								if (@v_MergeToOrigination = '',OriginationCode,@v_MergeToOrigination) as OriginationCode,
+								IF(@v_ToPrefix = '', Code, concat(CountryPrefix ,@v_ToPrefix)) as Code,
+								IF(@v_ToOrigination = '',OriginationCode,@v_ToOrigination) as OriginationCode,
 								VendorID,
 								CodeDeckId,
-								CityTariff,
+								IF(@v_ToCountryID = '',CountryID,@v_ToCountryID) as CountryID,
+								IF(@v_ToAccessType = '',AccessType,@v_ToAccessType) as AccessType,
+								CountryPrefix,
+								IF(@v_ToCityTariff = '',CityTariff,@v_ToCityTariff) as CityTariff,
 								VendorName,
 								EndDate,
 								OneOffCost,
@@ -1894,17 +2090,18 @@ GenerateRateTable:BEGIN
 
 						where
 							VendorID = @v_SelectedVendor
+							AND (  @v_TimezonesID = "" OR  TimezonesID = @v_TimezonesID)
+							AND (  @v_Origination = "" OR  OriginationCode = @v_Origination)
+							AND (  @v_FromCountryID =  ''  OR CountryID = 	@v_FromCountryID )
+							AND (  @v_FromAccessType =  ''  OR AccessType = 	@v_FromAccessType )
+							AND (  @v_FromPrefix =  '' OR Code = 	concat(CountryPrefix ,@v_FromPrefix) )
+							AND (  @v_FromCityTariff =  '' OR CityTariff = 	@v_FromCityTariff );
 
-						AND TimezonesID = @v_TimezonesID
 
-						AND (
-								@v_OriginationCode = ''
-								OR
-								(@v_OriginationCode != '' AND OriginationCode = @v_OriginationCode)
-							);
 
 				END IF;
 
+				DEALLOCATE PREPARE stm1;
 
 
 
@@ -1946,7 +2143,14 @@ GenerateRateTable:BEGIN
 
 
 						update tmp_SelectedVendortblRateTableDIDRate rt
-						inner join tmp_Raterules_ rr on rr.RowNo  = @v_pointer_ and rr.TimezonesID  = rt.TimezonesID and (rr.Origination = '' OR rr.Origination = rt.OriginationCode )
+						inner join tmp_Raterules_ rr on rr.RowNo  = @v_pointer_
+						and  rr.TimezonesID  = rt.TimezonesID
+						and (rr.Origination = '' OR rr.Origination = rt.OriginationCode )
+						AND (  rr.CountryID = ''  OR rt.CountryID = 	rr.CountryID )
+						AND (  rr.AccessType = '' OR rt.AccessType = 	rr.AccessType )
+						AND (  rr.Prefix = ''  OR rt.Code = 	concat(rt.CountryPrefix ,rr.Prefix) )
+						AND (  rr.CityTariff = '' OR rt.CityTariff = 	rr.CityTariff )
+
 						LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = @v_rateRuleId_
 						AND
 						(
@@ -2149,6 +2353,12 @@ GenerateRateTable:BEGIN
 						inner join tmp_RateGeneratorCalculatedRate_ rr on
 						rr.RowNo  = @v_pointer_  AND rr.TimezonesID  = rt.TimezonesID  and   (rr.Origination = '' OR rr.Origination = rt.OriginationCode )
 
+						AND (  rr.CountryID = ''  OR rt.CountryID = 	rr.CountryID )
+						AND (  rr.AccessType = ''  OR rt.AccessType = 	rr.AccessType )
+						AND (  rr.Prefix = ''  OR rt.Code = 	concat(rt.CountryPrefix ,rr.Prefix) )
+						AND (  rr.CityTariff = ''  OR rt.CityTariff = 	rr.CityTariff )
+
+
 
 						SET
 						OneOffCost = CASE WHEN FIND_IN_SET(rr.Component,'OneOffCost') != 0 AND OneOffCost < RateLessThen AND rr.CalculatedRateID is not null THEN
@@ -2296,6 +2506,7 @@ GenerateRateTable:BEGIN
 							OriginationRateID,
 							RateId,
 							CityTariff,
+							AccessType,
 							OneOffCost,
 							MonthlyCost,
 							CostPerCall,
@@ -2339,7 +2550,7 @@ GenerateRateTable:BEGIN
 						rr.RateID as OriginationRateID,
 						r.RateId,
 						drtr.CityTariff,
-
+						drtr.AccessType,
 
 
 						CASE WHEN ( drtr.OneOffCostCurrency is not null)
