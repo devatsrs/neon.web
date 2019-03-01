@@ -91,7 +91,7 @@ class LCRDIDController extends \BaseController {
         $country = array('' => "All") + $country;
         $AccessType =array('' => "All") + $AccessType;
         $Prefix = array('' => "All") + $Prefix;
-        $CityTariff = array('' => 'Select') + $CityTariff;
+        $CityTariff = array('' => 'All') + $CityTariff;
 
         $Package = Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
 

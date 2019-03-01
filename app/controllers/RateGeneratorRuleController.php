@@ -28,6 +28,13 @@ class RateGeneratorRuleController extends \BaseController {
             $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
             $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
             $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+            $CityTariffFilter = [];
+            foreach($CityTariff as $key => $City){
+                if(strpos($City, " per ")){
+                    $CityTariffFilter[$City] = $City;
+                    unset($CityTariff[$key]);
+                }
+            }
 
             $country = array(0 => "All") + $country;
             $AccessType = array(0 => "All") + $AccessType;
@@ -54,6 +61,13 @@ class RateGeneratorRuleController extends \BaseController {
             $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
             $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
             $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+            $CityTariffFilter = [];
+            foreach($CityTariff as $key => $City){
+                if(strpos($City, " per ")){
+                    $CityTariffFilter[$City] = $City;
+                    unset($CityTariff[$key]);
+                }
+            }
 
             $country = array(0 => "All") + $country;
             $AccessType = array(0 => "All") + $AccessType;

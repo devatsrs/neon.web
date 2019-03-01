@@ -196,7 +196,7 @@
                                     <div class="col-sm-4">
                                         {{ Form::select('CountryID', $country, $rategenerators->CountryID, array("class"=>"select2")) }}
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Access Type</label>
+                                    <label for="field-1" class="col-sm-2 control-label">Type</label>
                                     <div class="col-sm-4">
                                         {{ Form::select('AccessType', $AccessType, $rategenerators->AccessType, array("class"=>"select2")) }}
                                     </div>
@@ -290,22 +290,22 @@
                             <table id="servicetableSubBox" class="table table-bordered datatable">
                                 <thead>
                                 <tr>
-                                    <th width="20%">Component</th>
-                                    <th width="10%">Origination</th>
-                                    <th width="12%">Time of Day</th>
-                                    <th width="11%">Action</th>
-                                    <th width="15%">Merge To</th>
-                                    <th width="10%">To Origination</th>
-                                    <th width="12%">To Time of Day</th>
-                                    <th width="100px">From Country</th>
-                                    <th width="100px">To Country</th>
-                                    <th width="100px">From Access Type</th>
-                                    <th width="100px">To Access Type</th>
-                                    <th width="100px">From Prefix</th>
-                                    <th width="100px">To Prefix</th>
-                                    <th width="100px">From City/Tariff</th>
-                                    <th width="100px">To City/Tariff</th>
-                                    <th width="10%">Add</th>
+                                    <th style="width:200px !important;">Component</th>
+                                    <th style="width:200px !important;">Origination</th>
+                                    <th style="width:200px !important;">Time of Day</th>
+                                    <th style="width:200px !important;">Action</th>
+                                    <th style="width:200px !important;">Merge To</th>
+                                    <th style="width:200px !important;">To Origination</th>
+                                    <th style="width:200px !important;">To Time of Day</th>
+                                    <th style="width:250px !important;">From Country</th>
+                                    <th style="width:250px !important;">From Type</th>
+                                    <th style="width:250px !important;">From Prefix</th>
+                                    <th style="width:250px !important;">From City/Tariff</th>
+                                    <th style="width:250px !important;">To Country</th>
+                                    <th style="width:250px !important;">To Type</th>
+                                    <th style="width:250px !important;">To Prefix</th>
+                                    <th style="width:250px !important;">To City/Tariff</th>
+                                    <th style="width:100px !important;">Add</th>
                                 </tr>
                                 </thead>
                                 <tbody id="tbody">
@@ -377,23 +377,22 @@
                                             {{ Form::select('FCountry-'.$a, $country, $Component->FromCountryID, array("class"=>"select2")) }}
                                         </td>
                                         <td>
-                                            {{ Form::select('TCountry-'.$a, $country, $Component->ToCountryID, array("class"=>"select2")) }}
-                                        </td>
-                                        <td>
                                             {{ Form::select('FAccessType-'.$a, $AccessType, $Component->FromAccessType, array("class"=>"select2")) }}
                                         </td>
-                                        <td>
-                                            {{ Form::select('TAccessType-'.$a, $AccessType, $Component->ToAccessType, array("class"=>"select2")) }}
-                                        </td>
-
                                         <td>
                                             {{ Form::select('FPrefix-'.$a, $Prefix, $Component->FromPrefix, array("class"=>"select2")) }}
                                         </td>
                                         <td>
-                                            {{ Form::select('TPrefix-'.$a, $Prefix, $Component->ToPrefix, array("class"=>"select2")) }}
+                                            {{ Form::select('FCity_Tariff-'.$a, $CityTariff, $Component->FromCityTariff, array("class"=>"select2")) }}
                                         </td>
                                         <td>
-                                            {{ Form::select('FCity_Tariff-'.$a, $CityTariff, $Component->FromCityTariff, array("class"=>"select2")) }}
+                                            {{ Form::select('TCountry-'.$a, $country, $Component->ToCountryID, array("class"=>"select2")) }}
+                                        </td>
+                                        <td>
+                                            {{ Form::select('TAccessType-'.$a, $AccessType, $Component->ToAccessType, array("class"=>"select2")) }}
+                                        </td>
+                                        <td>
+                                            {{ Form::select('TPrefix-'.$a, $Prefix, $Component->ToPrefix, array("class"=>"select2")) }}
                                         </td>
                                         <td>
                                             {{ Form::select('TCity_Tariff-'.$a, $CityTariff, $Component->ToCityTariff, array("class"=>"select2")) }}
@@ -441,23 +440,22 @@
                                         {{ Form::select('FCountry-1', $country,'', array("class"=>"select2")) }}
                                     </td>
                                     <td>
-                                        {{ Form::select('TCountry-1', $country, '', array("class"=>"select2")) }}
-                                    </td>
-                                    <td>
                                         {{ Form::select('FAccessType-1', $AccessType, '', array("class"=>"select2")) }}
                                     </td>
-                                    <td>
-                                        {{ Form::select('TAccessType-1', $AccessType, '', array("class"=>"select2")) }}
-                                    </td>
-
                                     <td>
                                         {{ Form::select('FPrefix-1', $Prefix, '', array("class"=>"select2")) }}
                                     </td>
                                     <td>
-                                        {{ Form::select('TPrefix-1', $Prefix, '', array("class"=>"select2")) }}
+                                        {{ Form::select('FCity_Tariff-1', $CityTariff, '', array("class"=>"select2")) }}
                                     </td>
                                     <td>
-                                        {{ Form::select('FCity_Tariff-1', $CityTariff, '', array("class"=>"select2")) }}
+                                        {{ Form::select('TCountry-1', $country, '', array("class"=>"select2")) }}
+                                    </td>
+                                    <td>
+                                        {{ Form::select('TAccessType-1', $AccessType, '', array("class"=>"select2")) }}
+                                    </td>
+                                    <td>
+                                        {{ Form::select('TPrefix-1', $Prefix, '', array("class"=>"select2")) }}
                                     </td>
                                     <td>
                                         {{ Form::select('TCity_Tariff-1', $CityTariff, '', array("class"=>"select2")) }}
@@ -498,16 +496,16 @@
                                 <table id="ratetableSubBox" class="table table-bordered datatable">
                                     <thead>
                                     <tr>
-                                        <th width="100px">Component</th>
-                                        <th width="100px">Origination</th>
-                                        <th width="100px">Time of Day</th>
-                                        <th width="100px">Calculated Rate</th>
-                                        <th width="100px">Change Rate To</th>
-                                        <th width="100px">Country</th>
-                                        <th width="100px">Access Type</th>
-                                        <th width="100px">Prefix</th>
-                                        <th width="100px">City/Tariff</th>
-                                        <th width="100px">Add</th>
+                                        <th style="width:200px !important;">Component</th>
+                                        <th style="width:200px !important;">Origination</th>
+                                        <th style="width:200px !important;">Time of Day</th>
+                                        <th style="width:250px !important;">Country</th>
+                                        <th style="width:250px !important;">Type</th>
+                                        <th style="width:250px !important;">Prefix</th>
+                                        <th style="width:250px !important;">City/Tariff</th>
+                                        <th style="width:200px !important;">Calculated Rate</th>
+                                        <th style="width:200px !important;">Change Rate To</th>
+                                        <th style="width:100px !important;">Add</th>
                                     </tr>
                                     </thead>
                                     <tbody id="ratetbody">
@@ -539,12 +537,6 @@
                                                 {{ Form::select('RateTimeOfDay-'.$a, $Timezones, $calculatedRate->TimezonesID, array("class"=>"select2")) }}
                                             </td>
                                             <td>
-                                                <input type="number" min="0" value="{{$calculatedRate->RateLessThen}}" class="form-control" name="RateLessThen-{{$a}}"/>
-                                            </td>
-                                            <td>
-                                                <input type="number" min="0" value="{{$calculatedRate->ChangeRateTo}}" class="form-control" name="ChangeRateTo-{{$a}}"/>
-                                            </td>
-                                            <td>
                                                 {{ Form::select('Country1-'.$a, $country, $calculatedRate->CountryID, array("class"=>"select2")) }}
                                             </td>
                                             <td>
@@ -555,6 +547,12 @@
                                             </td>
                                             <td>
                                                 {{ Form::select('City_Tariff1-'.$a, $CityTariff, $calculatedRate->CityTariff, array("class"=>"select2")) }}
+                                            </td>
+                                            <td>
+                                                <input type="number" min="0" value="{{$calculatedRate->RateLessThen}}" class="form-control" name="RateLessThen-{{$a}}"/>
+                                            </td>
+                                            <td>
+                                                <input type="number" min="0" value="{{$calculatedRate->ChangeRateTo}}" class="form-control" name="ChangeRateTo-{{$a}}"/>
                                             </td>
                                             <td>
                                                 <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
@@ -732,6 +730,14 @@
         }
         .IsMerge {
             display: none;
+        }
+        #servicetableSubBox {
+            width:3000px;
+            overflow-x: auto;
+        }
+        #ratetableSubBox{
+            width:1800px;
+            overflow-x: auto;
         }
     </style>
     <script type="text/javascript">
@@ -1319,27 +1325,27 @@
                 $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', '');
-                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('input').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'FCountry-' + numb).attr('id', 'FCountry-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'FAccessType-' + numb).attr('id', 'FAccessType-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'FPrefix-' + numb).attr('id', 'FPrefix-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(12)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(13)').children('select').attr('name', 'FCity_Tariff-' + numb).attr('id', 'FCity_Tariff-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'FAccessType-' + numb).attr('id', 'FAccessType-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'FPrefix-' + numb).attr('id', 'FPrefix-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'FCity_Tariff-' + numb).attr('id', 'FCity_Tariff-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(12)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(13)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(14)').children('select').attr('name', 'TCity_Tariff-' + numb).attr('id', 'TCity_Tariff-' + numb).select2();
 
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(3)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(4)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'Country1-' + numb).attr('id', 'Country1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'AccessType1-' + numb).attr('id', 'AccessType1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'Prefix1-' + numb).attr('id', 'Prefix1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'City_Tariff1-' + numb).attr('id', 'City_Tariff1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Country1-' + numb).attr('id', 'Country1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'AccessType1-' + numb).attr('id', 'AccessType1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'Prefix1-' + numb).attr('id', 'Prefix1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'City_Tariff1-' + numb).attr('id', 'City_Tariff1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(7)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(8)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
             }
             if ($('#' + idInp).val() == '') {
                 $('#' + idInp).val(numb + ',');
