@@ -16,6 +16,6 @@ class RateRule extends \Eloquent {
     }
     public function country()
     {
-        return $this->hasOne('Country','CountryID');
+        return $this->belongsTo('Country','CountryID');
     }
 }

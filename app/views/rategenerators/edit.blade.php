@@ -665,14 +665,32 @@
                                             <td>
                                                 {{ @RateGenerator::$Component[$rategenerator_rule->Component] }}
                                                 <br>
-
+                                                @if($rategenerator_rule->CountryID == "")
+                                                    Country: All
+                                                @else
                                                 Country: {{$rategenerator_rule->Country->Country}}
+                                                @endif
                                                 <br>
-                                                Type: {{$rategenerator_rule->AccessType}}
+                                                @if($rategenerator_rule->AccessType == "")
+                                                    Type: All
+                                                @else
+                                                    Type: {{$rategenerator_rule->AccessType}}
+                                                @endif
+
                                                 <br>
-                                                Prefix: {{$rategenerator_rule->Prefix}}
+                                                @if($rategenerator_rule->Prefix == "")
+                                                    Prefix: All
+                                                @else
+                                                    Prefix: {{$rategenerator_rule->Prefix}}
+                                                @endif
+
                                                 <br>
-                                                CityTariff: {{$rategenerator_rule->CityTariff}}
+                                                @if($rategenerator_rule->CityTariff == "")
+                                                    CityTariff: All
+                                                @else
+                                                    CityTariff: {{$rategenerator_rule->CityTariff}}
+                                                @endif
+
 
                                             </td>
                                             <td>
