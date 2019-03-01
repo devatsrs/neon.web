@@ -668,6 +668,7 @@
                                                 @if(isset($rategenerator_rule->CountryID) && $rategenerator_rule->CountryID != '')
                                                     Country: {{$rategenerator_rule->Country->Country}}
                                                 <br>
+                                                @endif
                                                 @if(isset($rategenerator_rule->AccessType) && $rategenerator_rule->AccessType != '')
                                                     Type: {{$rategenerator_rule->AccessType}}
                                                 <br>
