@@ -576,7 +576,7 @@ class RoutingApiController extends ApiController {
                 $syntaxLog = $syntaxLog . "'" . $parameters[$i] . "'" . ',';
                 $stmt->bindValue((1 + $i), $parameters[$i]);
             }
-            //  Log::info('Filter Routing Profile List procedure bindvalue' . ($syntaxLog . ');'));
+              Log::info('Filter Routing Profile List procedure bindvalue' . ($syntaxLog . ');'));
             //  $startDate = date('Y-m-d H:i:s');
             $exec = $stmt->execute();
             //  $endDate = date('Y-m-d H:i:s');
