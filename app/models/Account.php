@@ -629,6 +629,31 @@ class Account extends \Eloquent {
         return $vendors;
     }
 
+    public static function getTrunckVendorList(){
+        $account = Account::join('tblVendorTrunk', 'tblAccount.AccountID', '=', 'tblVendorTrunk.AccountID')
+            ->join('tblTrunk', 'tblTrunk.TrunkID', '=', 'tblVendorTrunk.TrunkID');
+
+        $account->where([
+            "tblAccount.CompanyId" => User::get_companyID(),
+            "tblAccount.AccountType" => 1,
+            "tblAccount.VerificationStatus" => Account::VERIFIED,
+            "tblVendorTrunk.Status" => 1,
+            "tblTrunk.Status" => 1,
+        ]);
+
+        $accounts = $account->distinct()->select('tblAccount.AccountName','tblAccount.AccountID')->orderBy('AccountName')->get()->toArray();
+        $new_accounts = array();
+        foreach ($accounts as $item)
+        {
+            $new_accounts[$item['AccountID']] = $item['AccountName'];
+        }
+        //$accounts = array_column($accounts, 'AccountName');
+        if(!empty($new_accounts)){
+            $new_accounts = array(""=> "Select")+$new_accounts;
+        }
+        return $new_accounts;
+    }
+
     public static function GetAccountAllEmails($id,$ArrayReturn=false){
 	  $array			 =  array();
 	  $accountemails	 = 	Account::where(array("AccountID"=>$id))->select(array('Email', 'BillingEmail'))->get();
