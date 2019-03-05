@@ -222,7 +222,11 @@
                 $searchFilter.OriginationPercentage       = $("#did-search-form input[name='OriginationPercentage']").val();
                 $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
-
+                
+                $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
+                $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
+                
+                
                 var aoColumnDefs, aoColumnDefs;
                 if($searchFilter.LCRPosition=='5'){
 
@@ -362,7 +366,9 @@
                                 {"name": "Timezone","value": $searchFilter.Timezone},
                                 {"name": "TimezonePercentage","value": $searchFilter.TimezonePercentage},
                                 {"name": "DateTo", "value": $searchFilter.DateTo},
-                                {"name": "DateFrom", "value": $searchFilter.DateFrom}
+                                {"name": "DateFrom", "value": $searchFilter.DateFrom},
+                                {"name": "lcr_type", "value": $searchFilter.lcr_type},
+                                {"name": "PackageID", "value": $searchFilter.PackageID}
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
@@ -382,6 +388,8 @@
                                 {"name": "TimezonePercentage","value": $searchFilter.TimezonePercentage},
                                 {"name": "DateTo", "value": $searchFilter.DateTo},
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
+                                {"name": "lcr_type", "value": $searchFilter.lcr_type},
+                                {"name": "PackageID", "value": $searchFilter.PackageID},
                                 {"name":"Export","value":1}
                         );
 
