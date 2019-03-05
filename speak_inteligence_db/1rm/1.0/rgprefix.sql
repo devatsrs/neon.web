@@ -14,7 +14,11 @@
 -- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTableWithPrefix
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTableWithPrefix`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`78.129.239.99` PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
+
+-- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTableWithPrefix
+DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTableWithPrefix`;
+DELIMITER //
+CREATE  PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
@@ -28,6 +32,11 @@ CREATE DEFINER=`neon-user`@`78.129.239.99` PROCEDURE `prc_WSGenerateRateTableWit
 	IN `p_IsMerge` INT,
 	IN `p_TakePrice` INT,
 	IN `p_MergeInto` INT
+
+
+
+
+
 
 
 
@@ -115,7 +124,7 @@ GenerateRateTable:BEGIN
 			IF v_RTRowCount_ > 0
 			THEN
 				INSERT INTO tmp_JobLog_ (Message) VALUES ('RateTable Name is already exist, Please try using another RateTable Name');
-
+				select * from tmp_JobLog_;
 				LEAVE GenerateRateTable;
 			END IF;
 		END IF;
@@ -243,9 +252,6 @@ GenerateRateTable:BEGIN
 			RowCode VARCHAR(50)  COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			FinalRankNumber int,
-			AccountID int,
-			RateCurrency int,
-			ConnectionFeeCurrency int,
 			INDEX tmp_dupVendorrates_stage2__code (`RowCode`)
 		);
 		DROP TEMPORARY TABLE IF EXISTS tmp_Vendorrates_stage3_;
@@ -552,7 +558,7 @@ GenerateRateTable:BEGIN
 			INSERT INTO tmp_VendorCurrentRates1_
 				Select DISTINCT AccountId,MAX(AccountName) AS AccountName,MAX(OriginationCode) AS OriginationCode,MAX(OriginationDescription) AS OriginationDescription,MAX(Code) AS Code,MAX(Description) AS Description, ROUND(IF(p_TakePrice=1,MAX(Rate),MIN(Rate)), 6) AS Rate, ROUND(IF(p_TakePrice=1,MAX(RateN),MIN(RateN)), 6) AS RateN,IF(p_TakePrice=1,MAX(ConnectionFee),MIN(ConnectionFee)) AS ConnectionFee,EffectiveDate,TrunkID,p_MergeInto AS TimezonesID,MAX(CountryID) AS CountryID,RateID,MAX(Preference) AS Preference, max(RateCurrency) as RateCurrency ,max(ConnectionFeeCurrency) as  ConnectionFeeCurrency
 				FROM (
-							 SELECT  vt.AccountId,tblAccount.AccountName, r2.Code as OriginationCode, r2.Description as OriginationDescription,tblRate.Code, tblRate.Description,IFNULL(vt.RateCurrency,rt.CurrencyID) as RateCurrency ,IFNULL(vt.ConnectionFeeCurrency,rt.CurrencyID) as ConnectionFeeCurrency,
+							 SELECT  vt.AccountId,tblAccount.AccountName, r2.Code as OriginationCode, r2.Description as OriginationDescription,tblRate.Code, tblRate.Description,IFNULL(RateCurrency,rt.CurrencyID) as RateCurrency ,IFNULL(ConnectionFeeCurrency,rt.CurrencyID) as ConnectionFeeCurrency,
 									CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
 										THEN
 											tblRateTableRate.Rate
@@ -644,7 +650,7 @@ GenerateRateTable:BEGIN
 			INSERT INTO tmp_VendorCurrentRates1_
 				Select DISTINCT AccountId,AccountName,OriginationCode,OriginationDescription,Code,Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference,RateCurrency,ConnectionFeeCurrency
 				FROM (
- 							 SELECT  vt.AccountId,tblAccount.AccountName, r2.Code as OriginationCode, r2.Description as OriginationDescription,tblRate.Code, tblRate.Description,IFNULL(vt.RateCurrency,rt.CurrencyID) as RateCurrency,IFNULL(vt.ConnectionFeeCurrency,rt.CurrencyID) as ConnectionFeeCurrency,
+ 							 SELECT  vt.AccountId,tblAccount.AccountName, r2.Code as OriginationCode, r2.Description as OriginationDescription,tblRate.Code, tblRate.Description,IFNULL(RateCurrency,rt.CurrencyID) as RateCurrency,IFNULL(ConnectionFeeCurrency,rt.CurrencyID) as ConnectionFeeCurrency,
 
 								CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
 									THEN
@@ -1376,20 +1382,22 @@ GenerateRateTable:BEGIN
 
 			SET p_RateTableId = LAST_INSERT_ID();
 
-			INSERT INTO tblRateTableRate (OriginationRateID,RateID,
-																		RateTableId,
-																		TimezonesID,
-																		Rate,
-																		RateN,
-																		EffectiveDate,
-																		PreviousRate,
-																		Interval1,
-																		IntervalN,
-																		ConnectionFee,
-																		ApprovedStatus,
-																		VendorID,
-																		RateCurrency,
-																		ConnectionFeeCurrency
+			INSERT INTO tblRateTableRate (
+									OriginationRateID,
+									RateID,
+									RateTableId,
+									TimezonesID,
+									Rate,
+									RateN,
+									EffectiveDate,
+									PreviousRate,
+									Interval1,
+									IntervalN,
+									ConnectionFee,
+									ApprovedStatus,
+									VendorID,
+									RateCurrency,
+									ConnectionFeeCurrency
 
 			)
 				SELECT DISTINCT
@@ -1404,8 +1412,10 @@ GenerateRateTable:BEGIN
 					tblRate.Interval1,
 					tblRate.IntervalN,
 					ConnectionFee,
-					@v_RateApprovalProcess_ as ApprovedStatus,
-					AccountID,RateCurrency,ConnectionFeeCurrency
+					IFNULL(@v_RateApprovalProcess_,1) as ApprovedStatus,
+					rate.AccountID,
+					rate.RateCurrency,
+					rate.ConnectionFeeCurrency
 				FROM tmp_Rates_ rate
 					INNER JOIN tblRate
 						ON rate.code  = tblRate.Code
@@ -1485,20 +1495,22 @@ GenerateRateTable:BEGIN
 			CALL prc_ArchiveOldRateTableRate(p_RateTableId,v_TimezonesID,CONCAT(p_ModifiedBy,'|RateGenerator'));
 
 
-			INSERT INTO tblRateTableRate (OriginationRateID, RateID,
-																		RateTableId,
-																		TimezonesID,
-																		Rate,
-																		RateN,
-																		EffectiveDate,
-																		PreviousRate,
-																		Interval1,
-																		IntervalN,
-																		ConnectionFee,
-																		ApprovedStatus,
-																		VendorID,
-																		RateCurrency,
-																		ConnectionFeeCurrency
+			INSERT INTO tblRateTableRate (
+				OriginationRateID,
+				RateID,
+				RateTableId,
+				TimezonesID,
+				Rate,
+				RateN,
+				EffectiveDate,
+				PreviousRate,
+				Interval1,
+				IntervalN,
+				ConnectionFee,
+				ApprovedStatus,
+				VendorID,
+				RateCurrency,
+				ConnectionFeeCurrency
 
 
 			)
@@ -1514,8 +1526,10 @@ GenerateRateTable:BEGIN
 					tblRate.Interval1,
 					tblRate.IntervalN,
 					rate.ConnectionFee,
-					@v_RateApprovalProcess_ as ApprovedStatus,
-					AccountID,RateCurrency,ConnectionFeeCurrency
+					IFNULL(@v_RateApprovalProcess_,1) as ApprovedStatus,
+					rate.AccountID,
+					rate.RateCurrency,
+					rate.ConnectionFeeCurrency
 
 				FROM tmp_Rates_ rate
 					INNER JOIN tblRate

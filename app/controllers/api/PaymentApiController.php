@@ -293,7 +293,7 @@ class PaymentApiController extends ApiController {
 					$PaymentData['CreatedBy']="API";
 
 					$PaymentResponse = $PaymentIntegration->paymentWithApiProfile($PaymentData);
-				
+
 
 					if(!empty($PaymentResponse['response_code']) && $PaymentResponse['response_code']==1){
 						$ReturnData=array();
@@ -317,7 +317,7 @@ class PaymentApiController extends ApiController {
 							$InvoiceID = $InvoiceGenerate["LastInvoiceID"];
 							$Invoice = Invoice::find($InvoiceID);
 							$Company = Company::find($Invoice->CompanyID);
-							$Message = "Customer Invoice Successfully Created. Please view the report from the link send to you " ;
+							$Message = "Customer Invoice Successfully Created. Please view the invoice from the link send to you " ;
 							$Subject = "Customer Invoice";
 							$Account=Account::find($Invoice->AccountID);
 							$data['EmailTo'] 		= 	$Account->BillingEmail;

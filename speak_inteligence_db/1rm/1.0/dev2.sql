@@ -4,6 +4,16 @@ ALTER TABLE `tblRateTableDIDRate`
 ALTER TABLE `tblRateTableDIDRate`
 	ADD COLUMN `VendorID` INT NULL DEFAULT NULL AFTER `ApprovedDate`;
 
+ALTER TABLE `tblRateTableDIDRate`
+	ADD COLUMN `AccessType` VARCHAR(200) NULL DEFAULT NULL AFTER `CityTariff`;
+
+ALTER TABLE `tblRateTableDIDRateArchive`
+	ADD COLUMN `AccessType` VARCHAR(200) NULL DEFAULT NULL AFTER `CityTariff`;
+
+ALTER TABLE `tblRateTableDIDRateChangeLog`
+	ADD COLUMN `AccessType` VARCHAR(200) NULL DEFAULT NULL AFTER `CityTariff`;
+
+
 ALTER TABLE `tblRateTableRate`
 	ADD COLUMN `VendorID` INT NULL DEFAULT NULL AFTER `ApprovedDate`;
 
@@ -15,6 +25,8 @@ ALTER TABLE `tblRateTableRateArchive`
 
 INSERT INTO `tblCompanySetting` (`CompanyID`, `Key`, `Value`) VALUES (1, 'UseVendorCurrencyInRateGenerator', '1');
 
+ALTER TABLE `tblUsageDetails`
+	ADD COLUMN `TimezonesID` INT NULL AFTER `disconnect_time`;
 -- --------------------------------------------------------
 -- Host:                         192.168.1.25
 -- Server version:               5.7.23-log - MySQL Community Server (GPL)

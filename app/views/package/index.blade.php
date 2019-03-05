@@ -13,11 +13,15 @@
                     <label for="field-1" class="control-label">Name</label>
                     {{ Form::text('PackageName', '', array("class"=>"form-control")) }}
                 </div>
+                {{--<div class="form-group">--}}
+                    {{--<label for="field-1" class="control-label">Currency</label>--}}
+                    {{--{{ Form::select('CurrencyId', Currency::getCurrencyDropdownIDList(),'', array("class"=>"select2 small")) }}--}}
+                    {{--<input id="PackageRefresh" type="hidden" value="1">--}}
+                    {{--<input id="editRateTableId" type="hidden" value="">--}}
+                {{--</div>--}}
                 <div class="form-group">
-                    <label for="field-1" class="control-label">Currency</label>
-                    {{ Form::select('CurrencyId', Currency::getCurrencyDropdownIDList(),'', array("class"=>"select2 small")) }}
-                    <input id="PackageRefresh" type="hidden" value="1">
-                    <input id="editRateTableId" type="hidden" value="">
+                    <label for="field-1" class="control-label">Status</label>
+                        {{ Form::select('Status', [""=>"Both",1=>"Active",0=>"Inactive"], "", array("class"=>"form-control select2 small")) }}
                 </div>
                 <div class="form-group">
                     <br/>
@@ -60,7 +64,8 @@
             <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
             <th>Name</th>
             <th>Rate Table</th>
-            <th>Currency</th>
+            {{--<th>Currency</th>--}}
+            <th>Status</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -78,6 +83,7 @@
 
             $searchFilter.PackageName = $("#package_filter [name='PackageName']").val();
             $searchFilter.CurrencyId = $("#package_filter [name='CurrencyId']").val();
+            $searchFilter.Status = $("#package_filter [name='Status']").val();
 
             data_table = $("#table-4").dataTable({
 
@@ -91,9 +97,11 @@
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"PackageName","value":$searchFilter.PackageName});
                     aoData.push({"name":"CurrencyId","value":$searchFilter.CurrencyId});
+                    aoData.push({"name":"status","value":$searchFilter.Status});
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push({"name":"PackageName","value":$searchFilter.PackageName},{ "name": "Export", "value": 1});
                     data_table_extra_params.push({"name":"CurrencyId","value":$searchFilter.CurrencyId},{ "name": "Export", "value": 1});
+                    data_table_extra_params.push({"name":"Status","value":$searchFilter.Status},{ "name": "Export", "value": 1});
                 },
                 "aoColumns":
                         [
@@ -105,7 +113,22 @@
                             },
                             { "bSortable": true }, //Name
                             { "bSortable": true }, //Type
-                            { "bSortable": true }, //Gateway
+//                            { "bSortable": true }, //Gateway
+                            {
+                                "bSortable": false,
+                                mRender: function (id, type, full) {
+
+                                    var output = full[6] ;
+                                        if(output==1){
+                                            action='<i class="entypo-check" style="font-size:22px;color:green"></i>';
+                                        }else{
+                                            action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
+                                        }
+                                        return action;
+                                    }
+
+
+                            },
                             {
                                 "bSortable": true,
                                 mRender: function ( id, type, full ) {
@@ -116,6 +139,7 @@
                                     action += '<input type = "hidden"  name ="Currency" value= "' + (full[3] != null ? full[3] : '') + '" / >';
                                     action += '<input type = "hidden"  name ="RateTableId" value= "' + (full[4] != null ? full[4] : '') + '" / >';
                                     action += '<input type = "hidden"  name ="CurrencyId" value= "' + (full[5] != null ? full[5] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="status" value= "' + (full[6] != null ? full[6] : '') + '" / >';
                                     action += '</div>';
                                     action += ' <a data-name = "'+full[1]+'" data-id="'+ full[0] +'" title="Edit" class="edit-package btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     action += ' <a data-id="'+ full[0] +'" title="Delete" class="delete-package btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
@@ -204,6 +228,7 @@
 
                 $searchFilter.PackageName = $("#package_filter [name='PackageName']").val();
                 $searchFilter.CurrencyId = $("#package_filter [name='CurrencyId']").val();
+                $searchFilter.Status = $("#package_filter [name='Status']").val();
 
                 data_table.fnFilter('', 0);
                 return false;
@@ -294,10 +319,13 @@
                 PackageName = $(this).prev("div.hiddenRowData").find("input[name='PackageName']").val();
                 RateTableId = $(this).prev("div.hiddenRowData").find("input[name='RateTableId']").val();
                 CurrencyId  = $(this).prev("div.hiddenRowData").find("input[name='CurrencyId']").val();
+                Status  = $(this).prev("div.hiddenRowData").find("input[name='status']").val();
 
                 $("#add-new-package-form [name='Name']").val(PackageName);
                 $("#add-new-package-form [name='PackageId']").val($(this).attr('data-id'));
+                $("#add-new-package-form [name='RateTableId']").val(RateTableId).trigger("change");
                 $("#add-new-package-form [name='CurrencyId']").val(CurrencyId).trigger("change");
+                $("#add-new-package-form [name='status']").val(Status).prop('checked', Status == 1);
                 $('#add-new-modal-package h4').html('Edit Package');
                 $("#editRateTableId").val(RateTableId);
                 $('#add-new-modal-package').modal('show');

@@ -714,10 +714,14 @@
                                                     <td width="15%"><label for="field-5" class="control-label">Name</label></td>
                                                     <td width="30%"><input type="text" name="Name" class="form-control" id="field-5" placeholder=""></td>
                                                     <td width="5%">&nbsp;</td>
-                                                    <td width="15%"><label for="field-5" class="control-label">Currency</label></td>
+                                                    <td width="15%"><label for="field-5" class="control-label">Service</label></td>
                                                     <td width="35%">
-                                                        {{ Form::select('CurrencyId',Currency::getCurrencyDropdownIDList(),'', array("id" => "serviceTemplateCurreny", "class"=>"form-control")) }}
+                                                        {{ Form::select('ServiceId',$servicesTemplate,array(), array("id" => "ServiceIdField", "class"=>"form-control")) }}
                                                     </td>
+                                                    {{--<td width="15%"><label for="field-5" class="control-label">Currency</label></td>--}}
+                                                    {{--<td width="35%">--}}
+                                                        {{--{{ Form::select('CurrencyId',Currency::getCurrencyDropdownIDList(),'', array("id" => "serviceTemplateCurreny", "class"=>"form-control")) }}--}}
+                                                    {{--</td>--}}
                                                 </tr>
                                             </table>
                                             <input type="hidden" name="ServiceID" >
@@ -727,14 +731,22 @@
                                         <div class="form-group">
                                             <table width="100%">
                                                 <tr>
-                                                    <td width="15%"><label for="field-5" class="control-label">Service</label></td>
-                                                    <td width="30%"><select  id="ServiceIdField" name="ServiceId" class="form-control"></select></td>
-                                                    <td width="5%">&nbsp;</td>
-                                                    <td width="15%"><label for="field-5" class="control-label">Outbound Traiff</label></td>
-                                                    <td width="35%">
-                                                        <select id="OutboundRateTableId" name="OutboundRateTableId" class="form-control">
+                                                    <td width="15%"><label for="field-5" class="control-label">Outbound RateTable</label></td>
+                                                    <td width="30%">
+                                                        {{ Form::select('OutboundRateTableId',$rateTable,array(), array("id" => "OutboundRateTableId", "class"=>"form-control")) }}
+
+                                                        {{--<select id="OutboundRateTableId" name="OutboundRateTableId" class="form-control">--}}
                                                         </select>
                                                     </td>
+                                                    <td width="5%">&nbsp;</td>
+                                                    <td width="15%"><label for="field-5" class="control-label">Inbound Discount Plan</label></td>
+                                                    <td width="35%">
+                                                        {{ Form::select('InboundDiscountPlanId',$inbounddiscountplan,array(), array("id" => "InboundDiscountPlanId", "class"=>"form-control")) }}
+
+                                                        {{--<select id="InboundDiscountPlanId" name="InboundDiscountPlanId" >--}}
+                                                        {{--</select>--}}
+                                                    </td>
+
                                                 </tr>
                                             </table>
                                         </div>
@@ -744,13 +756,14 @@
                                             <table width="100%">
                                                 <tr>
                                                     <td width="15%"><label for="field-5" class="control-label">Outbound Discount Plan</label></td>
-                                                    <td width="30"><select id="OutboundDiscountPlanId" name="OutboundDiscountPlanId" ></select></td>
-                                                    <td width="5%">&nbsp;</td>
-                                                    <td width="15%"><label for="field-5" class="control-label">Inbound Discount Plan</label></td>
-                                                    <td width="35%">
-                                                        <select id="InboundDiscountPlanId" name="InboundDiscountPlanId" >
-                                                        </select>
+                                                    <td width="30">
+
+                                                        {{ Form::select('OutboundDiscountPlanId',$outboundDiscountPlan,array(), array("id" => "OutboundDiscountPlanId", "class"=>"form-control")) }}
+
+                                                        {{--<select id="OutboundDiscountPlanId" name="OutboundDiscountPlanId" ></select>--}}
                                                     </td>
+                                                    <td width="5%">&nbsp;</td>
+
                                                 </tr>
                                             </table>
 
@@ -859,8 +872,11 @@
                                         <table id="servicetableSubBox" class="table table-bordered datatable">
                                             <tr>
                                                 <td width="80%">
-                                                    <select id="templateSubscriptionList" name="templateSubscriptionList" class="form-control">
-                                                    </select>
+
+                                                    {{ Form::select('templateSubscriptionList',$BillingSubsForSrvTemplate,array(), array("id" => "templateSubscriptionList", "class"=>"form-control")) }}
+
+                                                    {{--<select id="templateSubscriptionList" name="templateSubscriptionList" class="form-control">--}}
+                                                    {{--</select>--}}
                                                 </td>
                                                 <td width="20%">
                                                     <button onclick="AddSubscriptionInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
@@ -903,7 +919,7 @@
                                         <br/>
                                         <table id="servicetableSubBox" class="table table-bordered datatable">
                                             <tr>
-                                                <td width="10%"><label for="field-5" class="control-label">DIDCategory</label></td>
+                                                <td width="10%"><label for="field-5" class="control-label">Category</label></td>
                                                 <td width="30%">
                                                     <select onchange="ShowTariffOnSelectedCategory();" id="DidCategoryID" name="DidCategoryID" class="form-control">
                                                         <?php
@@ -914,7 +930,7 @@
 
                                                     </select>
                                                 </td>
-                                                <td width="10%"><label for="field-5" class="control-label">Tariff</label></td>
+                                                <td width="10%"><label for="field-5" class="control-label">RateTable</label></td>
                                                 <td width="30%">
                                                     <select id="DidCategoryTariffID" name="DidCategoryTariffID" class="form-control">
                                                     </select>
@@ -932,7 +948,7 @@
                                                 <thead>
                                                 <tr>
                                                     <td width="35%">Category</td>
-                                                    <td width="35%">Tariff</td>
+                                                    <td width="35%">RateTable</td>
                                                     <td width="20%">Actions</td>
                                                     <input type="hidden" id="selectedcategotyTariff" name="selectedcategotyTariff" value=""/>
                                                 </tr>

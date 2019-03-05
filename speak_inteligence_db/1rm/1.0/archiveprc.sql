@@ -14,10 +14,11 @@
 -- Dumping structure for procedure speakintelligentRM.prc_ArchiveOldRateTableDIDRate
 DROP PROCEDURE IF EXISTS `prc_ArchiveOldRateTableDIDRate`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_ArchiveOldRateTableDIDRate`(
+CREATE PROCEDURE `prc_ArchiveOldRateTableDIDRate`(
 	IN `p_RateTableIds` LONGTEXT,
 	IN `p_TimezonesIDs` LONGTEXT,
 	IN `p_DeletedBy` TEXT
+
 
 )
 BEGIN
@@ -47,6 +48,7 @@ BEGIN
 		`EffectiveDate`,
 		IFNULL(`EndDate`,date(now())) as EndDate,
 		`CityTariff`,
+		`AccessType`,
 		`OneOffCost`,
 		`MonthlyCost`,
 		`CostPerCall`,

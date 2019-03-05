@@ -12,7 +12,6 @@ class PackageController extends BaseController {
 
     public function ajax_datagrid(){
         $data = Input::all();
-
         $CompanyID = User::get_companyID();
         $packages = Package::leftJoin('tblRateTable','tblPackage.RateTableId','=','tblRateTable.RateTableId')
             ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
@@ -22,7 +21,8 @@ class PackageController extends BaseController {
                 "tblRateTable.RateTableName",
                 "tblCurrency.Code",
                 "tblPackage.RateTableId",
-                "tblPackage.CurrencyId"
+                "tblPackage.CurrencyId",
+                "tblPackage.Status"
             ])->where("tblPackage.CompanyID", $CompanyID);
 
 
@@ -30,8 +30,11 @@ class PackageController extends BaseController {
             $packages->where('tblPackage.Name','like','%'.$data['PackageName'].'%');
         }
 
-        if(!empty($data['CurrencyId'])){
-            $packages->where(["tblCurrency.CurrencyId" => $data['CurrencyId']]);
+//        if(!empty($data['CurrencyId'])){
+//            $packages->where(["tblCurrency.CurrencyId" => $data['CurrencyId']]);
+//        }
+        if(isset($data['status']) && $data['status'] != ""){
+            $packages->where("tblPackage.status" , $data['status']);
         }
 
         return Datatables::of($packages)->make();
@@ -43,13 +46,19 @@ class PackageController extends BaseController {
         $CompanyID  = User::get_companyID();
         $defaultCurrencyId = Company::getCompanyField($CompanyID, "CurrencyId");
 
+
         return View::make('package.index', compact('rateTables', 'defaultCurrencyId','currencyDropdown'));
     }
 
     public function store() {
 
         $data = Input::all();
-        if(!empty($data)){
+
+           if(isset($data['status'])){
+               $data['status'] = 1;
+           }else{
+               $data['status'] = 0;
+           }
 
             $CompanyID = User::get_companyID();
             $data['CompanyID'] = $CompanyID;
@@ -67,11 +76,17 @@ class PackageController extends BaseController {
             }
 
         }
-    }
 
     public function update($id) {
 
         $data = Input::all();
+
+        if(isset($data['status'])){
+            $data['status'] = 1;
+        }else{
+            $data['status'] = 0;
+        }
+
         $CompanyID = User::get_companyID();
         $Package = Package::where("CompanyID", $CompanyID)->find($id);
         Package::$rules["Name"] = 'required|unique:tblPackage,Name,'.$id.',PackageId,CompanyID,'.$CompanyID;
@@ -139,22 +154,26 @@ class PackageController extends BaseController {
     public function exports($type){
 
         $data = Input::all();
-
         $CompanyID = User::get_companyID();
         $query = Package::leftJoin('tblRateTable','tblPackage.RateTableId','=','tblRateTable.RateTableId')
             ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
             ->select([
                 "tblPackage.Name",
                 "tblRateTable.RateTableName",
-                "tblCurrency.Code as Currency"
+//                "tblCurrency.Code as Currency",
+                "tblPackage.status"
+
             ])->where("tblPackage.CompanyID", $CompanyID);
 
         if(!empty($data['PackageName'])){
             $query->where('tblPackage.Name','like','%'.$data['PackageName'].'%');
         }
 
-        if(!empty($data['CurrencyId'])){
-            $query->where(["tblCurrency.CurrencyId" => $data['CurrencyId']]);
+//        if(!empty($data['CurrencyId'])){
+//            $query->where(["tblCurrency.CurrencyId" => $data['CurrencyId']]);
+//        }
+        if(isset($data['Status']) && $data['Status'] != ""){
+            $query->where("tblPackage.status" , $data['Status']);
         }
 
         $packages = $query->get();
