@@ -16,7 +16,11 @@ class AccountServiceController extends \BaseController {
         $products = Product::getProductDropdownList($CompanyID);
         $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
         $rate_table = RateTable::getRateTableList([
-            'types' => [RateGenerator::DID, RateGenerator::VoiceCall],
+            'types' => [RateGenerator::DID],
+            'NotVendor' => true,
+        ]);
+        $termination_rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::VoiceCall],
             'NotVendor' => true,
         ]);
         $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
@@ -79,7 +83,7 @@ class AccountServiceController extends \BaseController {
             $PackageId=$AccountServicePackage->PackageId;
             $RateTableID=$AccountServicePackage->RateTableID;
         }
-        return View::make('accountservices.edit', compact('CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
+        return View::make('accountservices.edit', compact('CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table', 'termination_rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
 
     }
 
