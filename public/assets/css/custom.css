@@ -3200,6 +3200,6 @@ select#user_language option {
     background-color: #f8f8f8;
 }
 body .page-container .sidebar-menu #main-menu li.active > a {
-    background: #fdb51c !important;
+    background: #1faf8a !important;
     outline: none;
 }

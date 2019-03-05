@@ -25,7 +25,7 @@
                 alert_inbound_first = true;
             }
             if($(this).val()){
-                $('#minutes_report').removeClass('hidden')
+                //$('#minutes_report').removeClass('hidden')
             }else{
                 $('#minutes_report').addClass('hidden')
             }
@@ -38,7 +38,7 @@
                 alert_outbound_first = true;
             }
             if($(this).val()){
-                $('#inbound_minutes_report').removeClass('hidden')
+                //$('#inbound_minutes_report').removeClass('hidden')
             }else{
                 $('#inbound_minutes_report').addClass('hidden')
             }
@@ -51,7 +51,7 @@
                 alert_package_first = true;
             }
             if($(this).val()){
-                $('#package_minutes_report').removeClass('hidden')
+                //$('#package_minutes_report').removeClass('hidden')
             }else{
                 $('#package_minutes_report').addClass('hidden')
             }
