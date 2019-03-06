@@ -97,9 +97,8 @@ class DiscountPlan extends \Eloquent
     }
     public static function getDropdownIDListForType($CompanyID,$CurrencyID,$RateType){
 
-
-           // ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName', 'tblCLIRateTable.NoType', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.CityTariff', 'tblCLIRateTable.Status', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID'])
-            //->where("tblCLIRateTable.CompanyID",$CompanyID)
+            return getDropdownIDList($CompanyID,$CurrencyID);
+           /*
         $DropdownIDListQry = DiscountPlan::Join('tblDestinationGroupSet as dgs','dgs.DestinationGroupSetID','=','tblDiscountPlan.DestinationGroupSetID')->
                             where(array("tblDiscountPlan.CompanyID"=>$CompanyID,
                                     'dgs.RateTypeID'=>$RateType))->
@@ -110,7 +109,7 @@ class DiscountPlan extends \Eloquent
             $DropdownIDList[$item->DiscountPlanID] = $item->Name;
         }
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
-        return $DropdownIDList;
+        return $DropdownIDList;*/
     }
     public static function getName($DiscountPlanID){
         return DiscountPlan::where("DiscountPlanID",$DiscountPlanID)->pluck('Name');
