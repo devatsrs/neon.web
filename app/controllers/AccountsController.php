@@ -825,7 +825,7 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        $DiscountPlan = DiscountPlan::getDropdownIDList($companyID,(int)$account->CurrencyId);
+        $DiscountPlan = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
         $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
         $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
 		$decimal_places = get_round_decimal_places($id);
