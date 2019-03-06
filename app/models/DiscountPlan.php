@@ -100,9 +100,15 @@ class DiscountPlan extends \Eloquent
 
            // ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName', 'tblCLIRateTable.NoType', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.CityTariff', 'tblCLIRateTable.Status', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID'])
             //->where("tblCLIRateTable.CompanyID",$CompanyID)
-        $DropdownIDList = DiscountPlan::Join('tblDestinationGroupSet as dgs','dgs.DestinationGroupSetID','=','tblDiscountPlan.DestinationGroupSetID')->
+        $DropdownIDListQry = DiscountPlan::Join('tblDestinationGroupSet as dgs','dgs.DestinationGroupSetID','=','tblDiscountPlan.DestinationGroupSetID')->
                             where(array("tblDiscountPlan.CompanyID"=>$CompanyID,
-                                    'dgs.RateTypeID'=>$RateType))->lists( 'tblDiscountPlan.Name' , 'tblDiscountPlan.DiscountPlanID');
+                                    'dgs.RateTypeID'=>$RateType))->
+                                select(['tblDiscountPlan.Name','tblDiscountPlan.DiscountPlanID']);
+        $DropdownIDResult = $DropdownIDListQry->get();
+        $DropdownIDList= array();
+        foreach ($DropdownIDResult as $item) {
+            $DropdownIDList[$item.DiscountPlanID] = $DropdownIDList[$item.Name];
+        }
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
         return $DropdownIDList;
     }
