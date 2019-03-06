@@ -825,7 +825,9 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        $DiscountPlan = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
+        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
+        $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::DID_ID);
+        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::PACKAGE_ID);
         $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
         $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
 		$decimal_places = get_round_decimal_places($id);
@@ -861,8 +863,8 @@ class AccountsController extends \BaseController {
 
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$companyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
-
-        return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
+        return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
+            'DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
     /**
