@@ -333,7 +333,7 @@ class AccountBilling extends \Eloquent {
         if(empty($ServiceID)){
             $ServiceID = 0;
         }
-        Log::info('Update Account Discount Plan 0' . $AccountID . ' ' . $ServiceID . ' ' . $date);
+
         return DB::table('tblAccountBillingPeriod')->where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->where('StartDate','<=',$date)->where('EndDate','>',$date)->first();
     }
 
