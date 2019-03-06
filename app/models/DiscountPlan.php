@@ -102,7 +102,7 @@ class DiscountPlan extends \Eloquent
             //->where("tblCLIRateTable.CompanyID",$CompanyID)
         $DropdownIDList = DiscountPlan::Join('tblDestinationGroupSet as dgs','dgs.DestinationGroupSetID','=','tblDiscountPlan.DestinationGroupSetID')->
                             where(array("tblDiscountPlan.CompanyID"=>$CompanyID,
-                                    'dgs.RateTypeID'=>$RateType))->lists('tblDiscountPlan.Name', 'tblDiscountPlan.DiscountPlanID');
+                                    'dgs.RateTypeID'=>$RateType))->lists( 'tblDiscountPlan.Name' , 'tblDiscountPlan.DiscountPlanID');
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
         return $DropdownIDList;
     }
