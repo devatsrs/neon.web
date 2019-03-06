@@ -44,7 +44,6 @@ class PaymentApiController extends ApiController {
 			$CompanyID = $Account->CompanyId;
 			$AccountID = $Account->AccountID;
 		}else{
-
 			return Response::json(["ErrorMessage"=>"AccountID Required"],Codes::$Code402[0]);
 		}
 
@@ -57,6 +56,27 @@ class PaymentApiController extends ApiController {
 				//echo $query;die;
 				$Result = DB::connection('sqlsrv2')->select($query);
 				$Response = json_decode(json_encode($Result), true);
+				$Balance = (float)AccountBalance::getAccountBalance($AccountID);
+				$BalanceArr = [];
+
+				$payments = Payment::where([
+					'AccountID' => $AccountID,
+					'CompanyID' => $CompanyID
+				])->orderBy('PaymentID', 'DESC')->get();
+
+				foreach($payments as $key => $payment){
+					$BalanceArr[$payment->PaymentID] = $Balance;
+					if(strtolower($payment->PaymentType) == "payment in")
+						$Balance += (float)$payment->Amount;
+					elseif (strtolower($payment->PaymentType) == "payment out")
+						$Balance -= (float)$payment->Amount;
+				}
+
+				foreach($Response as $key => $res){
+					if(array_key_exists($res['PaymentID'], $BalanceArr))
+						$Response[$key]['Balance'] = $BalanceArr[$res['PaymentID']];
+				}
+
 				return Response::json($Response,Codes::$Code200[0]);
 			}catch(Exception $e){
 				Log::info($e);
