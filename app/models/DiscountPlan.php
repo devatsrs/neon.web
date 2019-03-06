@@ -97,7 +97,7 @@ class DiscountPlan extends \Eloquent
     }
     public static function getDropdownIDListForType($CompanyID,$CurrencyID,$RateType){
 
-            return getDropdownIDList($CompanyID,$CurrencyID);
+            return DiscountPlan::getDropdownIDList($CompanyID,$CurrencyID);
            /*
         $DropdownIDListQry = DiscountPlan::Join('tblDestinationGroupSet as dgs','dgs.DestinationGroupSetID','=','tblDiscountPlan.DestinationGroupSetID')->
                             where(array("tblDiscountPlan.CompanyID"=>$CompanyID,
