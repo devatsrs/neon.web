@@ -107,7 +107,7 @@ class DiscountPlan extends \Eloquent
         $DropdownIDResult = $DropdownIDListQry->get();
         $DropdownIDList= array();
         foreach ($DropdownIDResult as $item) {
-            $DropdownIDList[$item->DiscountPlanID] = $DropdownIDList[$item->Name];
+            $DropdownIDList[$item->DiscountPlanID] = $item->Name;
         }
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
         return $DropdownIDList;
