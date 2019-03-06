@@ -2777,7 +2777,7 @@ public function store_inv_in(){
         $n=0;
         foreach($ids as $invid) {
             $invoices = Invoice::where(['InvoiceID' => $invid])->first();
-            if($invoices->accdetail->PaymentMethod == 'Stripe' && $invoices->InvoiceType == 1){
+            if($invoices->accdetail->PaymentMethod == 'Ingenico' && $invoices->InvoiceType == 1){
                 fwrite($file, 
                 number_format($invoices->GrandTotal, 0).';'.
                 $invoices->currency->Code.';;;;'.
