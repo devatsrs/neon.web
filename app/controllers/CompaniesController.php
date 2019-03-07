@@ -14,6 +14,8 @@ class CompaniesController extends \BaseController {
         $LicenceApiResponse = Company::ValidateLicenceKey();
         $company_id = User::get_companyID();
         $company = Company::find($company_id);
+        $ExcludedComponent = array();
+        $ExcludedComponent = explode(",",$company->Components);
         $countries = Country::getCountryDropdownList();
         $currencies = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
@@ -66,7 +68,7 @@ class CompaniesController extends \BaseController {
             $DigitalSignature=json_decode($DigitalSignature, true);
         }
 
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend', 'RateApprovalProcess'));
+        return View::make('companies.edit')->with(compact('company','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend', 'RateApprovalProcess'));
 
     }
 
@@ -93,6 +95,10 @@ class CompaniesController extends \BaseController {
             //'Port' => 'required|numeric',
             'CurrencyId' => 'required'
         );
+        if (isset($data['Components']) ){
+            $data['Components'] = implode(",", $data['Components']);
+        }
+
 
         if (Input::hasFile('RateSheetTemplateFile')) {
             $rules['RateSheetTemplate.HeaderSize'] = 'required|numeric';
