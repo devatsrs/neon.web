@@ -86,7 +86,12 @@ class DiscountPlan extends \Eloquent
 
     public static function checkForeignKeyById($id) {
 
-
+        $hasInAccountDiscountScheme = AccountDiscountPlan::where("DiscountPlanID",$id)->count();
+        if( intval($hasInAccountDiscountScheme) > 0){
+            return true;
+        }else{
+            return false;
+        }
         /** todo implement this function   */
         return false;
     }
