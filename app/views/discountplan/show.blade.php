@@ -21,7 +21,7 @@
     <p style="text-align: right;">
         @if(User::checkCategoryPermission('DiscountPlan','Edit'))
                 <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
-
+        @endif
         <a href="{{URL::to('/discount_plan')}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
             Close
@@ -147,7 +147,7 @@
                                         @if(User::checkCategoryPermission('DiscountPlan','Delete'))
                                         action += ' <a href="' + delete_url.replace("{id}",full[6]) +'" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                         @endif
-                                
+
                                         return action;
                             }
                         },  // 0 Created
