@@ -398,6 +398,11 @@
                                     {{Form::select('emailType',$emailType,'',array("class"=>"select2"))}}
 
                                 </div>
+                                <div class="form-group" style="clear:both"></div>
+                                <div class="col-md-2"><label for="Closingdate" class="col-sm-1 control-label managerLabel " style=" white-space: nowrap;">Account Partner</label></div>
+                                <div class="col-md-3" style="margin-left:-80px;">
+                                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                                </div>
                                 <div class="col-md-1">
                                     <button type="submit" id="submit_paymentreminder" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
                                 </div>
@@ -460,12 +465,14 @@
         $("#submit_paymentreminder").click(function(e) {
             e.preventDefault();
              accountID = $('#PaymentRemindersForm').find('[name="accountID"]').val();
+             ResellerOwner = $('#PaymentRemindersForm').find('[name="ResellerOwner"]').val();
              Duedate = $('#PaymentRemindersForm').find('[name="Duedate"]').val();
             emailType = $('#PaymentRemindersForm').find('[name="emailType"]').val();
 
             data_tables.fnFilter('', 0);
         })
         var accountID = $('#PaymentRemindersForm').find('[name="accountID"]').val();
+        var ResellerOwner = $('#PaymentRemindersForm').find('[name="ResellerOwner"]').val();
         var Duedate = $('#PaymentRemindersForm').find('[name="Duedate"]').val();
         var emailType = $('#PaymentRemindersForm').find('[name="emailType"]').val();
          //$('#submit_paymentreminder').trigger('click');
@@ -479,13 +486,14 @@
                 "oTableTools": {},
                 "aaSorting"   : [[4, 'desc']],
                 "fnServerParams": function (aoData) {
+                    console.log(accountID);console.log(ResellerOwner);
                         aoData.push(
-                                {"name": "accountID", "value": accountID},{"name": "Duedate", "value": Duedate},{"name": "emailType", "value": emailType}
+                                {"name": "accountID", "value": accountID},{"name": "ResellerOwner", "value": ResellerOwner},{"name": "Duedate", "value": Duedate},{"name": "emailType", "value": emailType}
 
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
-                                {"name": "Name", "value": accountID},{"name": "Duedate", "value": Duedate},{"name": "emailType", "value": emailType},
+                                {"name": "accountID", "value": accountID},{"name": "ResellerOwner", "value": ResellerOwner},{"name": "Duedate", "value": Duedate},{"name": "emailType", "value": emailType},
                                 {"name": "Export", "value": 1}
                         );
 

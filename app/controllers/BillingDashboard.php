@@ -310,12 +310,21 @@ class BillingDashboard extends \BaseController {
         if(!empty($data['accountID'])){
             $countQryString = ' (tblAccount.AccountID='.$data['accountID'].') AND ';
         }
+        if(!empty($data['ResellerOwner'])){
+            if(!empty($data['accountID'])){
+                $countQryString .='  ';
+            }
+            $countQryString .= ' (tblAccountDetails.ResellerOwner='.$data['ResellerOwner'].') AND ';
+        }
         if (User::is('AccountManager')) {
-            $userID = User::get_userID();
+            echo $userID = User::get_userID();
+            die();
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
+            ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')        
             ->select(["AccountEmailLog.EmailType","tblAccount.AccountName","AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to') AND  ( tblAccount.Owner = ".    $userID. " OR tblAccount.AccountType = 0 ) ")->orderBy('AccountEmailLog.created_at', 'desc');
         }else{
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
+                  ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')   
                 ->select(["AccountEmailLog.EmailType","tblAccount.AccountName", "AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
         }
         if(!empty($data['emailType'])){
@@ -324,6 +333,7 @@ class BillingDashboard extends \BaseController {
         }else{
             $AccountEmaillog = $AccountEmaillog->whereIn('AccountEmailLog.EmailType',[1,2]);
         }
+       // dd($AccountEmaillog->toSql());
         //( AccountEmailLog.EmailType IN (4,3) ) AND
         return Datatables::of($AccountEmaillog)->make();
     }
