@@ -124,9 +124,7 @@
                                 @endif
                                         action += ' <a href="' + view_url.replace("{id}",id) +'" title="View" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                                 @if(User::checkCategoryPermission('DiscountPlan','Delete'))
-                                if(full[8]== null) {
                                     action += ' <a href="' + delete_url.replace("{id}", id) + '" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
-                                }
                                 @endif
                                         return action;
                             }
