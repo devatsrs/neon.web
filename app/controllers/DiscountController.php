@@ -1,11 +1,13 @@
 <?php
 
+
 class DiscountController extends \BaseController
 {
 
 
     public function index()
     {
+        //git pull test
         $currencies = Currency::getCurrencyDropdownIDList();
         $DestinationGroupSets = DestinationGroupSet::getDropdownIDList();
         return View::make('discountplan.index', compact('currencies', 'DestinationGroupSets'));
