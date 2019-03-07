@@ -28,6 +28,7 @@ class RateGeneratorsController extends \BaseController {
                 'tblRateGenerator.CodeDeckId',
                 'tblRateGenerator.CurrencyID',
                 'tblRateGenerator.SelectType',
+                'tblRateGenerator.CreatedBy',
             )); // by Default Status 1
 
         if(isset($data['Search']) && !empty($data['Search'])){
@@ -98,6 +99,7 @@ class RateGeneratorsController extends \BaseController {
 
     public function store() {
         $data = Input::all();
+
         $companyID = User::get_companyID();
         $data ['CompanyID'] = $companyID;
         $data ['UseAverage'] = isset($data ['UseAverage']) ? 1 : 0;
@@ -186,7 +188,7 @@ class RateGeneratorsController extends \BaseController {
 
             DB::beginTransaction();
 
-            if ($SelectType == 2) {
+            if ($SelectType == 2 ||$SelectType == 3) {
 
                 $numberArray = array_unique(explode(",", $getNumberString));
                 $GetComponent = array();
@@ -224,28 +226,28 @@ class RateGeneratorsController extends \BaseController {
                                 "message" => "Merge components Value is missing."
                             ));
                         }
-                        if($data['FCountry-' . $numberArray[$i]] == '0'){
+                        if(isset($data['FCountry-' . $numberArray[$i]]) && $data['FCountry-' . $numberArray[$i]] == '0'){
                             $data['FCountry-' . $numberArray[$i]] = '';
                         }
-                        if($data['TCountry-' . $numberArray[$i]] == '0'){
+                        if(isset($data['TCountry-' . $numberArray[$i]]) && $data['TCountry-' . $numberArray[$i]] == '0'){
                             $data['TCountry-' . $numberArray[$i]] = '';
                         }
-                        if($data['FAccessType-' . $numberArray[$i]] == '0'){
+                        if(isset($data['FAccessType-' . $numberArray[$i]]) && $data['FAccessType-' . $numberArray[$i]] == '0'){
                             $data['FAccessType-' . $numberArray[$i]] = '';
                         }
-                        if($data['TAccessType-' . $numberArray[$i]] == '0'){
+                        if(isset($data['TAccessType-' . $numberArray[$i]]) && $data['TAccessType-' . $numberArray[$i]] == '0'){
                             $data['TAccessType-' . $numberArray[$i]] = '';
                         }
-                        if($data['FPrefix-' . $numberArray[$i]] == '0'){
+                        if(isset($data['FPrefix-' . $numberArray[$i]]) && $data['FPrefix-' . $numberArray[$i]] == '0'){
                             $data['FPrefix-' . $numberArray[$i]] = '';
                         }
-                        if($data['TPrefix-' . $numberArray[$i]] == '0'){
+                        if(isset($data['TPrefix-' . $numberArray[$i]]) && $data['TPrefix-' . $numberArray[$i]] == '0'){
                             $data['TPrefix-' . $numberArray[$i]] = '';
                         }
-                        if($data['FCity_Tariff-' . $numberArray[$i]] == '0'){
+                        if(isset($data['FCity_Tariff-' . $numberArray[$i]]) && $data['FCity_Tariff-' . $numberArray[$i]] == '0'){
                             $data['FCity_Tariff-' . $numberArray[$i]] = '';
                         }
-                        if($data['TCity_Tariff-' . $numberArray[$i]] == '0'){
+                        if(isset($data['TCity_Tariff-' . $numberArray[$i]]) && $data['TCity_Tariff-' . $numberArray[$i]] == '0'){
                             $data['TCity_Tariff-' . $numberArray[$i]] = '';
                         }
 
@@ -316,16 +318,16 @@ class RateGeneratorsController extends \BaseController {
                                 "message" => "Calculated Rate Value is missing."
                             ));
                         }
-                        if($data['Country1-' . $calculatedRates[$i]] == '0'){
+                        if(isset($data['Country1-' . $calculatedRates[$i]]) && $data['Country1-' . $calculatedRates[$i]] == '0'){
                             $data['Country1-' . $calculatedRates[$i]] = '';
                         }
-                        if($data['AccessType1-' . $calculatedRates[$i]] == '0'){
+                        if(isset($data['AccessType1-' . $calculatedRates[$i]]) && $data['AccessType1-' . $calculatedRates[$i]] == '0'){
                             $data['AccessType1-' . $calculatedRates[$i]] = '';
                         }
-                        if($data['Prefix1-' . $calculatedRates[$i]] == '0'){
+                        if(isset($data['Prefix1-' . $calculatedRates[$i]]) && $data['Prefix1-' . $calculatedRates[$i]] == '0'){
                             $data['Prefix1-' . $calculatedRates[$i]] = '';
                         }
-                        if($data['City_Tariff1-' . $calculatedRates[$i]] == '0'){
+                        if(isset($data['City_Tariff1-' . $calculatedRates[$i]]) && $data['City_Tariff1-' . $calculatedRates[$i]] == '0'){
                             $data['City_Tariff1-' . $calculatedRates[$i]] = '';
                         }
 
@@ -378,16 +380,42 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['RateLessThen-1']);
                 unset($data['ChangeRateTo-1']);
                 unset($data['getRateIDs']);
+                unset($data['FCountry-1']);
+                unset($data['TCountry-1']);
+                unset($data['FAccessType-1']);
+                unset($data['TAccessType-1']);
+                unset($data['FPrefix-1']);
+                unset($data['TPrefix-1']);
+                unset($data['FCity_Tariff-1']);
+                unset($data['TCity_Tariff-1']);
+                unset($data['Country1-1']);
+                unset($data['AccessType1-1']);
+                unset($data['Prefix1-1' ]);
+                unset($data['City_Tariff1-1']);
             }
             if ($SelectType == 2 || $SelectType == 1) {
                  unset($data['PackageID']);
             }
+
+            if(isset($data['CountryID']) && $data['CountryID'] == '0'){
+                $data['CountryID'] = '';
+            }
+            if(isset($data['AccessType']) && $data['AccessType'] == '0'){
+                $data['AccessType'] = '';
+            }
+            if(isset($data['Prefix']) && $data['Prefix'] == '0'){
+                $data['Prefix'] = '';
+            }
+            if(isset($data['CityTariff']) && $data['CityTariff'] == '0'){
+                $data['CityTariff'] = '';
+            }
+
             unset($data['AllComponent']);
             $rateg = RateGenerator::create($data);
             if (isset($rateg->RateGeneratorId) && !empty($rateg->RateGeneratorId)) {
                 $CostComponentSaved = "Created";
 
-                if ($SelectType == 2) {
+                if ($SelectType == 2 ||$SelectType == 3) {
 
                     $numberArray = explode(",", $getNumberString);
                     $GetComponent = array();
@@ -569,7 +597,6 @@ class RateGeneratorsController extends \BaseController {
     public function update($id) {
 
         $data = Input::all();
-
         $RateGeneratorID = $id;
         $RateGenerator = RateGenerator::find($id);
 
@@ -675,7 +702,7 @@ class RateGeneratorsController extends \BaseController {
 
             DB::beginTransaction();
 
-            if ($SelectType == 2) {
+            if ($SelectType == 2 ||$SelectType == 3) {
 
                 $numberArray = array_unique(explode(",", $getNumberString));
                 $GetComponent = array();
@@ -713,28 +740,28 @@ class RateGeneratorsController extends \BaseController {
                                 "message" => "Merge components Value is missing."
                             ));
                         }
-                        if($data['FCountry-' . $numberArray[$i]] == '0'){
+                        if(isset($data['FCountry-' . $numberArray[$i]]) && $data['FCountry-' . $numberArray[$i]] == '0'){
                             $data['FCountry-' . $numberArray[$i]] = '';
                         }
-                        if($data['TCountry-' . $numberArray[$i]] == '0'){
+                        if(isset($data['TCountry-' . $numberArray[$i]]) && $data['TCountry-' . $numberArray[$i]] == '0'){
                             $data['TCountry-' . $numberArray[$i]] = '';
                         }
-                        if($data['FAccessType-' . $numberArray[$i]] == '0'){
+                        if(isset($data['FAccessType-' . $numberArray[$i]]) && $data['FAccessType-' . $numberArray[$i]] == '0'){
                             $data['FAccessType-' . $numberArray[$i]] = '';
                         }
-                        if($data['TAccessType-' . $numberArray[$i]] == '0'){
+                        if(isset($data['TAccessType-' . $numberArray[$i]]) && $data['TAccessType-' . $numberArray[$i]] == '0'){
                             $data['TAccessType-' . $numberArray[$i]] = '';
                         }
-                        if($data['FPrefix-' . $numberArray[$i]] == '0'){
+                        if(isset($data['FPrefix-' . $numberArray[$i]]) && $data['FPrefix-' . $numberArray[$i]] == '0'){
                             $data['FPrefix-' . $numberArray[$i]] = '';
                         }
-                        if($data['TPrefix-' . $numberArray[$i]] == '0'){
+                        if(isset($data['TPrefix-' . $numberArray[$i]]) && $data['TPrefix-' . $numberArray[$i]] == '0'){
                             $data['TPrefix-' . $numberArray[$i]] = '';
                         }
-                        if($data['FCity_Tariff-' . $numberArray[$i]] == '0'){
+                        if(isset($data['FCity_Tariff-' . $numberArray[$i]]) && $data['FCity_Tariff-' . $numberArray[$i]] == '0'){
                             $data['FCity_Tariff-' . $numberArray[$i]] = '';
                         }
-                        if($data['TCity_Tariff-' . $numberArray[$i]] == '0'){
+                        if(isset($data['TCity_Tariff-' . $numberArray[$i]]) && $data['TCity_Tariff-' . $numberArray[$i]] == '0'){
                             $data['TCity_Tariff-' . $numberArray[$i]] = '';
                         }
 
@@ -806,19 +833,19 @@ class RateGeneratorsController extends \BaseController {
                             ));
                         }
 
-                        if($data['Country1-' . $calculatedRates[$i]] == '0'){
+                        if(isset($data['Country1-' . $calculatedRates[$i]]) && $data['Country1-' . $calculatedRates[$i]] == '0'){
                             $data['Country1-' . $calculatedRates[$i]] = '';
                         }
-                        if($data['AccessType1-' . $calculatedRates[$i]] == '0'){
+                        if(isset($data['AccessType1-' . $calculatedRates[$i]]) && $data['AccessType1-' . $calculatedRates[$i]] == '0'){
                             $data['AccessType1-' . $calculatedRates[$i]] = '';
                         }
-                        if($data['Prefix1-' . $calculatedRates[$i]] == '0'){
+                        if(isset($data['Prefix1-' . $calculatedRates[$i]]) && $data['Prefix1-' . $calculatedRates[$i]] == '0'){
                             $data['Prefix1-' . $calculatedRates[$i]] = '';
                         }
-                        if($data['City_Tariff1-' . $calculatedRates[$i]] == '0'){
+                        if(isset($data['City_Tariff1-' . $calculatedRates[$i]]) && $data['City_Tariff1-' . $calculatedRates[$i]] == '0'){
                             $data['City_Tariff1-' . $calculatedRates[$i]] = '';
                         }
-                        
+
                         $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
                         $rOrigination[]  = @$data['RateOrigination-' . $calculatedRates[$i]];
                         $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
@@ -869,9 +896,34 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['RateLessThen-1']);
                 unset($data['ChangeRateTo-1']);
                 unset($data['getRateIDs']);
+                unset($data['FCountry-1']);
+                unset($data['TCountry-1']);
+                unset($data['FAccessType-1']);
+                unset($data['TAccessType-1']);
+                unset($data['FPrefix-1']);
+                unset($data['TPrefix-1']);
+                unset($data['FCity_Tariff-1']);
+                unset($data['TCity_Tariff-1']);
+                unset($data['Country1-1']);
+                unset($data['AccessType1-1']);
+                unset($data['Prefix1-1' ]);
+                unset($data['City_Tariff1-1']);
             }
 
             unset($data['AllComponent']);
+
+            if(isset($data['CountryID']) && $data['CountryID'] == '0'){
+                $data['CountryID'] = '';
+            }
+            if(isset($data['AccessType']) && $data['AccessType'] == '0'){
+                $data['AccessType'] = '';
+            }
+            if(isset($data['Prefix']) && $data['Prefix'] == '0'){
+                $data['Prefix'] = '';
+            }
+            if(isset($data['CityTariff']) && $data['CityTariff'] == '0'){
+                $data['CityTariff'] = '';
+            }
 
             if ($RateGenerator->update($data)) {
                 $CostComponentSaved = "Updated";
@@ -879,7 +931,7 @@ class RateGeneratorsController extends \BaseController {
                 RateGeneratorComponent::where("RateGeneratorId", $id)->delete();
                 RateGeneratorCalculatedRate::where("RateGeneratorId", $id)->delete();
 
-                if ($SelectType == 2) {
+                if ($SelectType == 2 ||$SelectType == 3) {
 
                     $numberArray = explode(",", $getNumberString);
                     $GetComponent = array();
