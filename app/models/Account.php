@@ -22,7 +22,7 @@ class Account extends \Eloquent {
 
 
     public static $rules = array(
-        'Owner' =>      'required',
+        //'Owner' =>      'required',
         'CompanyID' =>  'required',
         'Country'=>'required',
         'Number' =>  'required|unique:tblAccount,Number',
