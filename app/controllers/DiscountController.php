@@ -105,7 +105,7 @@ class DiscountController extends \BaseController
             $query = "call prc_getDiscount(" . $CompanyID . ",'" . intval($post_data['DiscountPlanID']) . "','" . $Name . "'," . (ceil($post_data['iDisplayStart'] / $post_data['iDisplayLength'])) . " ," . $post_data['iDisplayLength'] . ",'" . $sort_column . "','" . $post_data['sSortDir_0'] . "'";
 
                 $result = DB::select($query . ',1)');
-           
+
         } catch (\Exception $e) {
             Log::info($e);
             return [];

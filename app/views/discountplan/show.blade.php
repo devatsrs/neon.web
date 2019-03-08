@@ -543,7 +543,7 @@
                                             {{ Form::select('MinutesComponent-1[]', $DiscountPlanComponents, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"MinutesComponent-1")) }}
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control popover-primary" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="For Percentage,Specify 'p'" data-original-title="Discount" name="MinutesDiscount-1" id="MinutesDiscount-1"/>
+                                            <input type="text" class="form-control" title="For Percentage,Specify 'p'" name="MinutesDiscount-1" id="MinutesDiscount-1"/>
                                         </td>
                                         <td>
                                             <input type="text" class="form-control" name="MinutesTreshhold-1" id="MinutesTreshhold-1"/>
@@ -602,13 +602,13 @@
                                             {{ Form::select('VolumeComponent-1[]', $DiscountPlanComponents, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"VolumeComponent-1")) }}
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control popover-primary" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Please enter the number or > or < value" data-original-title="From" name="VolumeFromMin-1"/>
+                                            <input type="text" class="form-control" title="Please enter the number or > or < value"  name="VolumeFromMin-1"/>
                                         </td>
                                         <td>
                                             <input type="text" class="form-control" name="VolumeToMin-1"/>
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control popover-primary" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="For Percentage,Specify 'p'" data-original-title="Discount"  name="VolumeDiscount-1"/>
+                                            <input type="text" class="form-control" title="For Percentage,Specify 'p'"  name="VolumeDiscount-1"/>
                                         </td>
 
                                         <td>
@@ -658,7 +658,7 @@
                                         </td>
 
                                         <td>
-                                            <input type="text" class="form-control popover-primary" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="For Percentage,Specify 'p'" data-original-title="Discount" name="FixedDiscount-1"/>
+                                            <input type="text" class="form-control" title="For Percentage,Specify 'p'" name="FixedDiscount-1"/>
                                         </td>
 
                                         <td>
@@ -785,6 +785,21 @@
                 markThresholdFieldReadOnly("MinutesUnlimited-" + numb,"MinutesTreshhold-" + numb);
 
             });
+
+          /*  $("#MinutesDiscount-" + numb).bind("mouseover", function() {
+
+                ('MinutesDiscount-' + numb).data('tooltip').show();
+
+            });*/
+            //alert(typeof $('MinutesDiscount-' + numb));
+            /*$('MinutesDiscount-' + numb).attr('title', 'NEW_TITLE')
+                    .tooltip('fixTitle')
+                    .tooltip('show');*/
+
+            /*$('MinutesDiscount-' + numb).tooltip('hide')
+                .attr('data-original-title', newValue)
+                .tooltip('fixTitle')
+                .tooltip('show');*/
 
         }
 
