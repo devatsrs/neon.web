@@ -46,7 +46,12 @@ class DiscountPlan extends \Eloquent
         "RegistrationCostPerNumber" => "Registration Cost Per Number",
     );
 
-    public static $RateTablePKGRate_Components = RateTablePKGRate::$Components;
+    public static $RateTablePKGRate_Components = array(
+        "OneOffCost"                => "One-Off cost",
+        "MonthlyCost"               => "Monthly cost",
+        "PackageCostPerMinute"      => "Package Cost Per Minute",
+        "RecordingCostPerMinute"    => "Recording Cost Per Minute",
+    );
 
     public static $RateTableRate_Components = array(
         "CostPerCall"               => "Cost Per Call",
