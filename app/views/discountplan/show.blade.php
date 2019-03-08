@@ -540,7 +540,7 @@
                                     <tr>
                                         <th width="30%">Component</th>
                                         <th width="15%">Discount</th>
-                                        <th width="15%">Treshhold</th>
+                                        <th width="15%">Threshold</th>
                                         <th width="20%">Unlimited</th>
                                         <th width="20%">Add</th>
                                     </tr>

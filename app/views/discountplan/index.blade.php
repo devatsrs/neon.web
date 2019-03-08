@@ -14,7 +14,7 @@
                     <input type="text" name="Name" class="form-control" value="" />
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">ProductGroupSet</label>
+                    <label for="field-1" class="control-label">Product Group Set</label>
                     {{Form::select('DestinationGroupSetID', $DestinationGroupSets, '' ,array("id"=>"DestinationGroupSetID","class"=>"form-control select2"))}}
                 </div>
 
@@ -51,7 +51,7 @@
         <thead>
         <tr>
             <th width="20%">Name</th>
-            <th width="15%">ProductGroupSet</th>
+            <th width="15%">Product Group Set</th>
             <th width="15%">Modified By</th>
             <th width="15%">Modified Date</th>
             <th width="20%">Action</th>
