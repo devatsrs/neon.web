@@ -14,12 +14,13 @@ class Discount extends \Eloquent
     public static function checkForeignKeyById($id) {
 
 
-        $hasInAccountDiscountScheme = AccountDiscountScheme::where("DiscountID",$id)->count();
+       /* $hasInAccountDiscountScheme = AccountDiscountScheme::where("DiscountID",$id)->count();
         if( intval($hasInAccountDiscountScheme) > 0){
             return true;
         }else{
             return false;
-        }
+        }*/
+        return false;
     }
 
 }

@@ -29,6 +29,7 @@ class SiteIntegration{
  static    $PeleCardSlug		=	'pelecard';
  static    $MerchantWarriorSlug		=	'merchantwarrior';
  static    $FastPaySlug		=	'fastpay';
+ static    $ExactSlug		=	'exact';
 
  	public function __construct(){
 	

@@ -34,11 +34,11 @@
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
 
-        <li class="active"> <strong>DID Category</strong> </li>
+        <li class="active"> <strong>Access Category</strong> </li>
 
     </ol>
 
-    <h3>DID Category</h3>
+    <h3>Access Category</h3>
     <div class="tab-content">
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="clear"></div>
@@ -48,7 +48,7 @@
                         @if( User::is_admin() || User::is('BillingAdmin'))
                             @if(User::checkCategoryPermission('DIDCategory','Add'))
 
-                                <a href="#" data-action="showAddModal" id="add-new-itemtype" data-type="DID Category" data-modal="add-edit-modal-itemtype" class="btn btn-primary pull-right">
+                                <a href="#" data-action="showAddModal" id="add-new-itemtype" data-type="Access Category" data-modal="add-edit-modal-itemtype" class="btn btn-primary pull-right">
                                     <i class="entypo-plus"></i>
                                     Add New
                                 </a>
@@ -269,7 +269,7 @@
                         }
 
                         $("#add-edit-modal-itemtype [name='ProductClone']").val(0);
-                        $('#add-edit-modal-itemtype h4').html('Edit DID Category');
+                        $('#add-edit-modal-itemtype h4').html('Edit Access Category');
                         $('#add-edit-modal-itemtype').modal('show');
                     });
 

@@ -28,9 +28,9 @@
                 <div class="form-group EffectiveBox">
                     <label for="field-1" class="control-label">Effective</label>
                     <select name="Effective" class="select2" data-allow-clear="true" data-placeholder="Select Effective">
+                        <option value="All">All</option>
                         <option value="Now">Now</option>
                         <option value="Future">Future</option>
-                        <option value="All">All</option>
                     </select>
                 </div>
 

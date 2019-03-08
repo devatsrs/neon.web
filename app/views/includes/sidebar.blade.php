@@ -307,7 +307,7 @@
           <li class="{{ active_url_class("timezones") }}"><a href="{{URL::to('/timezones')}}"><span>Time Of Day</span></a></li>
         @endif
         @if(User::checkCategoryPermission('DIDCategory','View'))
-          <li class="{{ active_url_class("did") }}"><a href="{{URL::to('/did')}}"><span>DID Category</span></a></li>
+          <li class="{{ active_url_class("did") }}"><a href="{{URL::to('/did')}}"><span>Access Category</span></a></li>
         @endif
       </ul>
     </li>

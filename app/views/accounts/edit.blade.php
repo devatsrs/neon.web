@@ -288,7 +288,7 @@
                                                 <input type="text" class="form-control" autocomplete="off"  name="{{$dynamicfield['FieldSlug']}}" value="{{$dynamicfield['FieldValue']}}" />
                                             </div>
                                         @endif
-                                        @if($dynamicfield['FieldSlug']=='RegisterDutchFoundation' || $dynamicfield['FieldSlug']=='DirectDebit')
+                                        @if($dynamicfield['FieldSlug']=='RegisterDutchFoundation' || $dynamicfield['FieldSlug']=='DutchProvider' || $dynamicfield['FieldSlug']=='DirectDebit')
                                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
                                             <div class="col-md-4">
                                                 <div class="make-switch switch-small">

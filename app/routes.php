@@ -1464,6 +1464,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Discount Plan
 	Route::any('/discount_plan','DiscountController@index');
 	Route::any('/discount_plan/ajax_datagrid','DiscountController@ajax_datagrid');
+	Route::any('discount_plan/exports/{type}', 'DiscountController@exports');
 	Route::any('/discount_plan/store','DiscountController@store');
 	Route::any('/discount_plan/update/{id}','DiscountController@update');
 	Route::any('/discount_plan/delete/{id}','DiscountController@delete');
@@ -1475,6 +1476,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/discount/update/{id}','DiscountController@discount_update');
 	Route::any('/discount/delete/{id}','DiscountController@discount_delete');
 	Route::any('/discount/getDiscountScheme','DiscountController@getDiscountScheme');
+	Route::any('discount/exports/{type}', 'DiscountController@discountExports');
 
 	//Account Discount Plan
 	Route::any('/account/used_discount_plan/{id}', 'AccountDiscountController@discount_plan');
@@ -1667,7 +1669,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/testdialplan/update_fields_sorting', 'TestdialplanController@update_fields_sorting');
 	Route::any('/testdialplan/exports/{type}', 'TestdialplanController@exports');
 
-
+	Route::get('exact', 'ExactController@index');
 });
 
 Route::group(array('before' => 'global_admin'), function () {

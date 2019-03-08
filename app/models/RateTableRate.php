@@ -17,4 +17,8 @@ class RateTableRate extends \Eloquent {
         'TimezonesID'=>      'required',
     ];
 
+    public static $Components = array(
+        "CostPerCall"               => "Cost Per Call",
+        "CostPerMinute"             => "Cost Per Minute",
+    );
 }

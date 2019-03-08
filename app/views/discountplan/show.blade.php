@@ -60,7 +60,7 @@
         <thead>
         <tr>
 
-            <th width="15%">Destination Group</th>
+            <th width="15%">Product Group</th>
             <th width="15%">Discount Type</th>
             <th width="10%">Modified By</th>
             <th width="10%">Modified Date</th>
@@ -112,7 +112,7 @@
                         data_table_extra_params.push(
                                 {"name": "Name", "value": $search.Name},
                                 {"name": "DiscountPlanID", "value": '{{$id}}'},
-                                {"name": "Export", "value": 1}
+                                {"name": "Export", "value": 0}
                         );
 
                     },
@@ -131,8 +131,16 @@
                             }
                         },// 1 Service
 
-                        {  "bSortable": true },  // 4 UpdatedBy
-                        {  "bSortable": true },  // 5 updated_at
+                        {  "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                return full[4];
+                            }
+                        },  // 4 UpdatedBy
+                        {  "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                return full[5];
+                            }
+                        },  // 5 updated_at
                         {  "bSortable": false,
                             mRender: function ( id, type, full ) {
                                 action = '<div class = "hiddenRowData" >';
@@ -158,11 +166,18 @@
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": datagrid_url,
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/discount/exports/xlsx?Export=1",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/discount/exports/csv?Export=1",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
+
                     },
                     "fnDrawCallback": function() {
                         $(".dataTables_wrapper select").select2({
@@ -192,10 +207,10 @@
                 for (var i =2; i<= numb;i++) {
                     deleteMinuteRow('minute-' + i, 'MinutesSubBox','getIDs','1');
                 }
-                $("#modal-form [id='" + 'MinutesComponent-' + (i + 1) + "']").select2().select2('val', '');
-                $("#modal-form [name='" + 'MinutesDiscount-' + (i + 1) + "']").val('');
-                $("#modal-form [name='" + 'MinutesTreshhold-' + (i + 1) + "']").val('');
-                $("#modal-form [id='" + 'MinutesUnlimited-' + (i + 1) + "']").select2().select2('val', '');
+                $("#modal-form [id='" + 'MinutesComponent-' + (1) + "']").select2().select2('val', '');
+                $("#modal-form [name='" + 'MinutesDiscount-' + (1) + "']").val('');
+                $("#modal-form [name='" + 'MinutesTreshhold-' + (1) + "']").val('');
+                $("#modal-form [id='" + 'MinutesUnlimited-' + (1) + "']").select2().select2('val', '');
 
 
                 $("#Volume-components").hide();
@@ -204,10 +219,10 @@
                 for (var i =2; i<= numb;i++) {
                     deleteVolumeRow('volume-' + i, 'VolumeSubBox','getVolumeIDs','1');
                 }
-                $("#modal-form [id='" + 'VolumeComponent-' + (i + 1) + "']").select2().select2('val', '');
-                $("#modal-form [name='" + 'VolumeFromMin-' + (i + 1) + "']").val('');
-                $("#modal-form [name='" + 'VolumeToMin-' + (i + 1) + "']").val('');
-                $("#modal-form [name='" + 'VolumeDiscount-' + (i + 1) + "']").val('');
+                $("#modal-form [id='" + 'VolumeComponent-' + (1) + "']").select2().select2('val', '');
+                $("#modal-form [name='" + 'VolumeFromMin-' + (1) + "']").val('');
+                $("#modal-form [name='" + 'VolumeToMin-' + (1) + "']").val('');
+                $("#modal-form [name='" + 'VolumeDiscount-' + (1) + "']").val('');
 
                 $("#Fixed-components").hide();
                 var $item = $('#' + 'Fixed-components' + ' tr:last').attr('id');
@@ -525,7 +540,7 @@
                                     <tr>
                                         <th width="30%">Component</th>
                                         <th width="15%">Discount</th>
-                                        <th width="15%">Treshhold</th>
+                                        <th width="15%">Threshold</th>
                                         <th width="20%">Unlimited</th>
                                         <th width="20%">Add</th>
                                     </tr>
@@ -536,7 +551,7 @@
                                             {{ Form::select('MinutesComponent-1[]', $DiscountPlanComponents, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"MinutesComponent-1")) }}
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control" name="MinutesDiscount-1" id="MinutesDiscount-1"/>
+                                            <input type="text" class="form-control" title="For Percentage,Specify 'p'" name="MinutesDiscount-1" id="MinutesDiscount-1"/>
                                         </td>
                                         <td>
                                             <input type="text" class="form-control" name="MinutesTreshhold-1" id="MinutesTreshhold-1"/>
@@ -583,8 +598,8 @@
                                     <thead>
                                     <tr>
                                         <th width="30%">Component</th>
-                                        <th width="15%">From(min)</th>
-                                        <th width="15%">To(min)</th>
+                                        <th width="15%" >From</th>
+                                        <th width="15%">To</th>
                                         <th width="20%">Discount</th>
                                         <th width="20%">Add</th>
                                     </tr>
@@ -595,13 +610,13 @@
                                             {{ Form::select('VolumeComponent-1[]', $DiscountPlanComponents, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"VolumeComponent-1")) }}
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control" name="VolumeFromMin-1"/>
+                                            <input type="text" class="form-control" title="Please enter the number or > or < value"  name="VolumeFromMin-1"/>
                                         </td>
                                         <td>
                                             <input type="text" class="form-control" name="VolumeToMin-1"/>
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control" name="VolumeDiscount-1"/>
+                                            <input type="text" class="form-control" title="For Percentage,Specify 'p'"  name="VolumeDiscount-1"/>
                                         </td>
 
                                         <td>
@@ -651,7 +666,7 @@
                                         </td>
 
                                         <td>
-                                            <input type="text" class="form-control" name="FixedDiscount-1"/>
+                                            <input type="text" class="form-control" title="For Percentage,Specify 'p'" name="FixedDiscount-1"/>
                                         </td>
 
                                         <td>
@@ -779,6 +794,21 @@
 
             });
 
+          /*  $("#MinutesDiscount-" + numb).bind("mouseover", function() {
+
+                ('MinutesDiscount-' + numb).data('tooltip').show();
+
+            });*/
+            //alert(typeof $('MinutesDiscount-' + numb));
+            /*$('MinutesDiscount-' + numb).attr('title', 'NEW_TITLE')
+                    .tooltip('fixTitle')
+                    .tooltip('show');*/
+
+            /*$('MinutesDiscount-' + numb).tooltip('hide')
+                .attr('data-original-title', newValue)
+                .tooltip('fixTitle')
+                .tooltip('show');*/
+
         }
 
         function deleteMinuteRow(id, tblID, idInp,cacheDelete)
@@ -853,6 +883,7 @@
             $('#' + tblID + ' tr:last').children('td:eq(3)').find('div:first').remove();
 
             $('#' + tblID + ' tr:last').closest('tr').children('td:eq(4)').find('a').removeClass('hidden');
+
 
         }
 

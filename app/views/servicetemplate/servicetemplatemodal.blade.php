@@ -91,7 +91,7 @@
                 if (response.status == 'success') {
                     $('#add-new-modal-service').modal('hide');
                     toastr.success(response.message, "Success", toastr_opts);
-                    var ServiceRefresh = $("#ServiceRefresh").val();
+                    var ServiceRefresh = 1;
                     //alert("ServiceRefresh" + ServiceRefresh);
                     if( typeof ServiceRefresh != 'undefined' && ServiceRefresh == '1'){
                         if (true) { //$('#ServiceStatus').is(":checked")
@@ -289,7 +289,7 @@
 
     }
 
-    function loadValuesBasedOnCurrency(selected_currency,selectData,ServiceId,OutboundDiscountPlanID,InboundDiscountPlanID,OutboundTariffId) {
+    function loadValuesBasedOnCurrency(selected_currency,selectData,ServiceId,OutboundTariffId) {
         // alert(selected_currency);
         if (selected_currency == '') {
             selected_currency = "NAN";
@@ -322,36 +322,41 @@
         // }
         //
         //
-        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundPlan";
-        // alert("url :" + url);
-        $.post(url, function (data, status) {
-            // var res = data.split('/>');
-            // alert(data);
-            document.getElementById("OutboundDiscountPlanId").innerHTML = "" + data;
-            //var OutboundDiscountPlanID = $("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
-            // alert(OutboundDiscountPlanID);
-            if (OutboundDiscountPlanID != '') {
-                $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', OutboundDiscountPlanID);
-            }else {
-                $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', '');
-            }
-
-            // $("#serviceBasedOnCurreny").html(data);
-        }, 'html');
-        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=inboundPlan";
-        // alert("url :" + url);
-        $.post(url, function (data, status) {
-            // var res = data.split('/>');
-            document.getElementById("InboundDiscountPlanId").innerHTML = "" + data;
-            //var InboundDiscountPlanID = $("div.hiddenRowData").find("input[name='InboundDiscountPlanID']").val();
-            if (InboundDiscountPlanID != null) {
-                $("#add-new-service-form [name='InboundDiscountPlanId']").select2().select2('val', InboundDiscountPlanID);
-            }else {
-                $("#add-new-service-form [name='InboundDiscountPlanId']").select2().select2('val', '');
-            }
-
-            // $("#serviceBasedOnCurreny").html(data);
-        }, 'html');
+//        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundPlan";
+//        // alert("url :" + url);
+//        $.post(url, function (data, status) {
+//            // var res = data.split('/>');
+//            // alert(data);
+//            document.getElementById("OutboundDiscountPlanId").innerHTML = "" + data;
+//            //var OutboundDiscountPlanID = $("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
+//            // alert(OutboundDiscountPlanID);
+//            if (OutboundDiscountPlanID != '') {
+//                $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', OutboundDiscountPlanID);
+//            }else {
+//                $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', '');
+//            }
+//
+//            // $("#serviceBasedOnCurreny").html(data);
+//        }, 'html');
+//        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=inboundPlan";
+//        // alert("url :" + url);
+//        $.post(url, function (data, status) {
+//            // var res = data.split('/>');
+//            document.getElementById("InboundDiscountPlanId").innerHTML = "" + data;
+//            //var InboundDiscountPlanID = $("div.hiddenRowData").find("input[name='InboundDiscountPlanID']").val();
+//            if (InboundDiscountPlanID != null) {
+//                $("#add-new-service-form [name='InboundDiscountPlanId']").select2().select2('val', InboundDiscountPlanID);
+//            }else {
+//                $("#add-new-service-form [name='InboundDiscountPlanId']").select2().select2('val', '');
+//            }
+//            if (PackageDiscountPlanId != null) {
+//                $("#add-new-service-form [name='PackageDiscountPlanId']").select2().select2('val', PackageDiscountPlanId);
+//            }else {
+//                $("#add-new-service-form [name='PackageDiscountPlanId']").select2().select2('val', '');
+//            }
+//
+//            // $("#serviceBasedOnCurreny").html(data);
+//        }, 'html');
 
         url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundTariff";
         // alert("url :" + url);
@@ -736,12 +741,11 @@
                                                         {{ Form::select('OutboundRateTableId',$rateTable,array(), array("id" => "OutboundRateTableId", "class"=>"form-control")) }}
 
                                                         {{--<select id="OutboundRateTableId" name="OutboundRateTableId" class="form-control">--}}
-                                                        </select>
                                                     </td>
                                                     <td width="5%">&nbsp;</td>
-                                                    <td width="15%"><label for="field-5" class="control-label">Inbound Discount Plan</label></td>
+                                                    <td width="15%"><label for="field-5" class="control-label">Access Discount plan</label></td>
                                                     <td width="35%">
-                                                        {{ Form::select('InboundDiscountPlanId',$inbounddiscountplan,array(), array("id" => "InboundDiscountPlanId", "class"=>"form-control")) }}
+                                                        {{ Form::select('InboundDiscountPlanID123',$DiscountPlanDID,array(), array("id" => "InboundDiscountPlanId", "class"=>"form-control")) }}
 
                                                         {{--<select id="InboundDiscountPlanId" name="InboundDiscountPlanId" >--}}
                                                         {{--</select>--}}
@@ -751,23 +755,25 @@
                                             </table>
                                         </div>
                                     </div>
-                                    <div class="col-md-12">
+                                    <div class="col-md-12" >
                                         <div class="form-group">
                                             <table width="100%">
                                                 <tr>
-                                                    <td width="15%"><label for="field-5" class="control-label">Outbound Discount Plan</label></td>
-                                                    <td width="30">
+                                                    <td width="15%"><label for="field-5" class="control-label">Termination Discount plan</label></td>
+                                                    <td width="30%">
+                                                        {{ Form::select('OutboundDiscountPlanID123',$DiscountPlanVOICECALL,array(), array("id" => "OutboundDiscountPlanId", "class"=>"form-control")) }}
 
-                                                        {{ Form::select('OutboundDiscountPlanId',$outboundDiscountPlan,array(), array("id" => "OutboundDiscountPlanId", "class"=>"form-control")) }}
+                                                        {{--<select id="OutboundRateTableId" name="OutboundRateTableId" class="form-control">--}}
 
-                                                        {{--<select id="OutboundDiscountPlanId" name="OutboundDiscountPlanId" ></select>--}}
                                                     </td>
                                                     <td width="5%">&nbsp;</td>
+                                                    <td width="15%"><label for="field-5" class="control-label">Package Discount Plan</label></td>
+                                                    <td width="35%">
+                                                        {{ Form::select('PackageDiscountPlanId',$DiscountPlanPACKAGE,array(), array("id" => "PackageDiscountPlanId", "class"=>"form-control")) }}
+                                                    </td>
 
                                                 </tr>
                                             </table>
-
-
                                         </div>
                                     </div>
                                     <div class="col-md-12">
