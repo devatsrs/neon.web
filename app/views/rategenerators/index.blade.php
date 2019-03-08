@@ -126,6 +126,7 @@
                 {},
                 {
                     mRender: function (id, type, full) {
+                        id = full[7];
                         var action, edit_, delete_;
                         edit_ = "{{ URL::to('rategenerators/{id}/edit')}}";
                         delete_ = "{{ URL::to('rategenerators/{id}/delete')}}";
