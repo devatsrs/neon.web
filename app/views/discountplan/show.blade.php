@@ -131,8 +131,16 @@
                             }
                         },// 1 Service
 
-                        {  "bSortable": true },  // 4 UpdatedBy
-                        {  "bSortable": true },  // 5 updated_at
+                        {  "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                return full[4];
+                            }
+                        },  // 4 UpdatedBy
+                        {  "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                return full[5];
+                            }
+                        },  // 5 updated_at
                         {  "bSortable": false,
                             mRender: function ( id, type, full ) {
                                 action = '<div class = "hiddenRowData" >';
