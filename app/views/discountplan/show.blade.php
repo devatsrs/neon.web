@@ -159,13 +159,13 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/discount/exports/xlsx",
+                                "sUrl": baseurl + "/discount/exports/xlsx?Export=1",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/discount/exports/csv",
+                                "sUrl": baseurl + "/discount/exports/csv?Export=1",
                                 sButtonClass: "save-collection btn-sm"
                             }
                         ]
