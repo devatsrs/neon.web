@@ -32,15 +32,18 @@ class DiscountController extends \BaseController
             if (isset($post_data['Name'])) {
                 $Name = $post_data['Name'];
             }
-            if (isset($post_data['CodedeckID'])) {
-                $CodedeckID = $post_data['CodedeckID'];
+            $DestinationGroupSetID = '';
+            if (isset($post_data['DestinationGroupSetID'])) {
+                $DestinationGroupSetID = $post_data['DestinationGroupSetID'];
             }
             $sort_column = $columns[$post_data['iSortCol_0']];
-            $query = "call prc_getDiscountPlan(" . $CompanyID . ",'" . $Name . "'," . (ceil($post_data['iDisplayStart'] / $post_data['iDisplayLength'])) . " ," . $post_data['iDisplayLength'] . ",'" . $sort_column . "','" . $post_data['sSortDir_0'] . "'";
+            $query = "call prc_getDiscountPlan(" . $CompanyID . ",'" . $Name . "'," . (ceil($post_data['iDisplayStart'] / $post_data['iDisplayLength'])) . " ," . $post_data['iDisplayLength'] . ",'" . $sort_column . "','" . $post_data['sSortDir_0'] . "'" . ",'" . $DestinationGroupSetID . "'";
             if (isset($post_data['Export']) && $post_data['Export'] == 1) {
+                Log::info("DataGrid Query" . ($query . ',1)'));
                 $result = DB::select($query . ',1)');
             } else {
                 $query .= ',0)';
+                Log::info("DataGrid Query" . ($query));
                 $result = DataTableSql::of($query)->make();
             }
             return $result;
@@ -81,6 +84,65 @@ class DiscountController extends \BaseController
             })->download('xls');
         }
         return $response;
+    }
+
+    public function discountExports($type){
+        $post_data = Input::all();
+        $CompanyID = User::get_companyID();
+        $result = [];
+        try {
+
+            $post_data['iDisplayStart'] += 1;
+            $columns = ['Name', 'CreatedBy', 'created_at'];
+            $Name = $CodedeckID = '';
+            if (isset($post_data['Name'])) {
+                $Name = $post_data['Name'];
+            }
+            if (isset($post_data['CodedeckID'])) {
+                $CodedeckID = $post_data['CodedeckID'];
+            }
+            $sort_column = $columns[$post_data['iSortCol_0']];
+            $query = "call prc_getDiscount(" . $CompanyID . ",'" . intval($post_data['DiscountPlanID']) . "','" . $Name . "'," . (ceil($post_data['iDisplayStart'] / $post_data['iDisplayLength'])) . " ," . $post_data['iDisplayLength'] . ",'" . $sort_column . "','" . $post_data['sSortDir_0'] . "'";
+            if (isset($post_data['Export']) && $post_data['Export'] == 1) {
+                $result = DB::select($query . ',1)');
+            } else {
+                $query .= ',0)';
+                $result = DataTableSql::of($query)->make();
+            }
+        } catch (\Exception $e) {
+            Log::info($e);
+            return [];
+        }
+
+
+        $response = json_decode(json_encode($result),true);
+        if($type=='csv'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Discount.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($response);
+        }elseif($type=='xlsx'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Discount.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($response);
+        }
+
+    }
+    public function exports($type){
+        $getdata = Input::all();
+        $response = $this->DataGrid($getdata);
+
+
+        $response = json_decode(json_encode($response),true);
+        if($type=='csv'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DiscountPlan.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($response);
+        }elseif($type=='xlsx'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DiscountPlan.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($response);
+        }
+
     }
 
     public function store()
@@ -132,7 +194,7 @@ class DiscountController extends \BaseController
                             return Response::json(array("status" => "success", "message" => "Discount Plan deleted successfully"));
                         } else {
 
-                            return Response::json(array("status" => "failed", "message" => "Problem deleting Service"));
+                            return Response::json(array("status" => "failed", "message" => "Problem deleting discount plan"));
                         }
                     } catch (\Exception $ex) {
                         Log::info($ex);
@@ -141,20 +203,20 @@ class DiscountController extends \BaseController
                         } catch (\Exception $err) {
                             Log::error($err);
                         }
-                        return Response::json(array("status" => "failed", "message" => "Problem deleting Service"));
+                        return Response::json(array("status" => "failed", "message" => "Problem deleting Discount plan"));
                     }
                 } else {
 
-                    return Response::json(array("status" => "failed", "message" => "Problem deleting Service"));
+                    return Response::json(array("status" => "failed", "message" => "Discount Plan is in use"));
                 }
             } else {
 
-                return Response::json(array("status" => "failed", "message" => "Problem deleting Service"));
+                return Response::json(array("status" => "failed", "message" => "Problem deleting Discount plan"));
             }
         } catch (\Exception $e) {
 
             Log::info($e);
-            return Response::json(array("status" => "failed", "message" => "Problem deleting Service"));
+            return Response::json(array("status" => "failed", "message" => "Problem deleting discount plan"));
         }
     }
 
@@ -263,12 +325,26 @@ class DiscountController extends \BaseController
             $minutesComponents = isset($post_data['getIDs']) ? $post_data['getIDs'] : '';
             $volumeComponents = isset($post_data['getVolumeIDs']) ? $post_data['getVolumeIDs'] : '';
             $fixedComponents = isset($post_data['getFixedIDs']) ? $post_data['getFixedIDs'] : '';
+            $DiscountValueError = array();
 
-            if ($minutesComponents != '') {
                 $rules['Service'] = 'required';
                 $rules['DestinationGroupID'] = 'required';
                 $messages = array(
                     'DestinationGroupID.required' =>'Product Group ID is required',
+                    'Service.required' =>'Discount Type is required',
+                );
+                $validator = Validator::make($post_data, $rules,$messages);
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
+
+
+            if ($minutesComponents != '' && $post_data['Service'] == 2) {
+                $rules['Service'] = 'required';
+                $rules['DestinationGroupID'] = 'required';
+                $messages = array(
+                    'DestinationGroupID.required' =>'Product Group ID is required',
+                    'Service.required' =>'Discount Type is required',
                 );
 
                 $minutesComponentsList = explode(",", $minutesComponents);
@@ -278,21 +354,24 @@ class DiscountController extends \BaseController
                     $messages['MinutesComponent-' . ($k + 1).'.required'] = "Component value for the Row " . ($k + 1) . " required";
                     $rules['MinutesDiscount-' . ($k + 1)] = 'required';
                     $messages['MinutesDiscount-' . ($k + 1).'.required'] = "Discount value for the Row " . ($k + 1) . " required";
+
                 }
+
 
                 $validator = Validator::make($post_data, $rules,$messages);
                 if ($validator->fails()) {
-                    return json_validator_response($validator);
+                    return json_validator_response($validator,$DiscountValueError);
                 }
             }
 
 
 
-            if ($volumeComponents != '') {
+            if ($volumeComponents != '' && $post_data['Service'] == 1) {
                 $rules['Service'] = 'required';
                 $rules['DestinationGroupID'] = 'required';
                 $messages = array(
                     'DestinationGroupID.required' =>'Product Group ID is required',
+                    'Service.required' =>'Discount Type is required',
                 );
 
                 //VolumeDiscount- VolumeFromMin- VolumeToMin- VolumeComponent-
@@ -307,19 +386,26 @@ class DiscountController extends \BaseController
                     $messages['VolumeFromMin-' . ($k + 1).'.required'] = "FromMin for the Row " . ($k + 1) . " required";
                     $rules['VolumeToMin-' . ($k + 1)] = 'required';
                     $messages['VolumeToMin-' . ($k + 1).'.required'] = "ToMin for the Row " . ($k + 1) . " required";
+                    if (!empty($post_data['VolumeFromMin-' . ($k + 1)])) {
+                        if (!($post_data['VolumeFromMin-' . ($k + 1)] == '>' ||
+                            $post_data['VolumeFromMin-' . ($k + 1)] == '<' || intval($post_data['VolumeFromMin-' . ($k + 1)])))
+                            array_push($DiscountValueError, "From value for the Row " . ($k + 1) . " must be either number or < or <");
+                    }
                 }
 
                 $validator = Validator::make($post_data, $rules,$messages);
-                if ($validator->fails()) {
-                    return json_validator_response($validator);
+                if ($validator->fails() || count($DiscountValueError) > 0) {
+                    return json_validator_responseWithCustom($validator,$DiscountValueError);
                 }
+
             }
 
-            if ($fixedComponents != '') {
+            if ($fixedComponents != ''&& $post_data['Service'] == 3) {
                 $rules['Service'] = 'required';
                 $rules['DestinationGroupID'] = 'required';
                 $messages = array(
                     'DestinationGroupID.required' => 'Product Group ID is required',
+                    'Service.required' =>'Discount Type is required',
                 );
                 $fixedComponentsList = explode(",", $fixedComponents);
                 Log::info('discount_store ' . count($fixedComponentsList));
@@ -335,7 +421,7 @@ class DiscountController extends \BaseController
                 }
             }
             DB::beginTransaction();
-            if ($minutesComponents != '') {
+            if ($minutesComponents != ''&& $post_data['Service'] == 2) {
                 $minutesComponentsList = explode(",", $minutesComponents);
                 Log::info('discount_store count' . count($minutesComponentsList));
                 $discountdata = array();
@@ -359,7 +445,7 @@ class DiscountController extends \BaseController
                     DiscountScheme::create($discountschemedata);
                 }
             }
-            if ($volumeComponents != '') {
+            if ($volumeComponents != ''&& $post_data['Service'] == 1) {
                 $volumeComponentsList = explode(",", $volumeComponents);
                 Log::info('discount_store ' . count($volumeComponentsList));
                 $discountdata = array();
@@ -385,7 +471,7 @@ class DiscountController extends \BaseController
                 }
             }
 
-            if ($fixedComponents != '') {
+            if ($fixedComponents != ''&& $post_data['Service'] == 3) {
                 $fixedComponentsList = explode(",", $fixedComponents);
                 Log::info('discount_store ' . count($fixedComponentsList));
                 $discountdata = array();
@@ -442,7 +528,7 @@ class DiscountController extends \BaseController
 
         } catch (\Exception $e) {
             Log::info($e);
-            return Response::json(array("status" => "failed", "message" => "Internal Server Error"));
+            return Response::json(array("status" => "failed", "message" => "Problem Deleting Discount"));
         }
     }
 
@@ -477,6 +563,7 @@ class DiscountController extends \BaseController
                     $rules['DestinationGroupID'] = 'required';
                     $messages = array(
                         'DestinationGroupID.required' =>'Product Group ID is required',
+
                     );
 
                     $minutesComponentsList = explode(",", $minutesComponents);

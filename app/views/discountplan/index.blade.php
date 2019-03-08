@@ -14,6 +14,11 @@
                     <input type="text" name="Name" class="form-control" value="" />
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="control-label">ProductGroupSet</label>
+                    {{Form::select('DestinationGroupSetID', $DestinationGroupSets, '' ,array("id"=>"DestinationGroupSetID","class"=>"form-control select2"))}}
+                </div>
+
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
                         <i class="entypo-search"></i>
@@ -46,7 +51,7 @@
         <thead>
         <tr>
             <th width="20%">Name</th>
-            <th width="15%">DestinationGroupSet</th>
+            <th width="15%">ProductGroupSet</th>
             <th width="15%">Modified By</th>
             <th width="15%">Modified Date</th>
             <th width="20%">Action</th>
@@ -82,7 +87,8 @@
                 e.preventDefault();
 
                 $search.Name = $("#table_filter").find('[name="Name"]').val();
-                $search.CodedeckID = $("#table_filter").find('[name="CodedeckID"]').val();
+                $search.DestinationGroupSetID = $("#table_filter").find('[name="DestinationGroupSetID"]').val();
+
                 data_table = $("#table-list").dataTable({
                     "bDestroy": true,
                     "bProcessing":true,
@@ -95,14 +101,14 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "Name", "value": $search.Name},
-                                {"name": "CodedeckID", "value": $search.CodedeckID}
+                                {"name": "DestinationGroupSetID", "value": $search.DestinationGroupSetID}
 
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "Name", "value": $search.Name},
-                                {"name": "CodedeckID", "value": $search.CodedeckID},
-                                {"name": "Export", "value": 1}
+                                {"name": "DestinationGroupSetID", "value": $search.DestinationGroupSetID},
+                                {"name": "Export", "value": 0}
                         );
 
                     },
@@ -136,11 +142,18 @@
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": datagrid_url,
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/discount_plan/exports/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/discount_plan/exports/csv",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
+
                     },
                     "fnDrawCallback": function() {
                         $(".dataTables_wrapper select").select2({

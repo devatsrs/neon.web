@@ -12,6 +12,24 @@ function json_validator_response($validator){
 
 }
 
+function json_validator_responseWithCustom($validator,$CustomErrors){
+
+
+    if ($validator->fails() || count($CustomErrors) > 0) {
+        $errors = "";
+        foreach ($validator->messages()->all() as $error){
+            $errors .= $error."<br>";
+        }
+        if (count($CustomErrors) > 0) {
+            foreach ($CustomErrors as $error){
+                $errors .= $error."<br>";
+            }
+        }
+        return  Response::json(array("status" => "failed", "message" => $errors));
+    }
+
+}
+
 function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEncode=true){
     $message = '';
     $status = '';
