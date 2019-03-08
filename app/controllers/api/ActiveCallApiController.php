@@ -432,7 +432,7 @@ class ActiveCallApiController extends ApiController {
         $rules = array(
             'ConnectTime' => 'required',
             'DisconnectTime' => 'required',
-            'Duration' => 'required',
+            //'Duration' => 'required',
             'CLI' => 'required',
             'CLD' => 'required',
             'CallType' => 'required',
@@ -463,7 +463,7 @@ class ActiveCallApiController extends ApiController {
                 if($data['CallType']==1){
                     $data['CallType']='Outbound';
                 }
-                $duration = $data['Duration'];
+                $duration = isset($data['Duration']) ? $data['Duration'] : strtotime($data['DisconnectTime']) - strtotime($data['ConnectTime']);
                 $ActiveCallData=array();
                 $ActiveCallData['AccountID']=$AccountID;
                 $ActiveCallData['CompanyID']=$CompanyID;

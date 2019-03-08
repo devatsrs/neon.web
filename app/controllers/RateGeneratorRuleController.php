@@ -193,16 +193,16 @@ class RateGeneratorRuleController extends \BaseController {
                     }
                 }
             }
-            if($data['CountryID'] == '0' ){
+            if(isset($data['CountryID']) && $data['CountryID'] == '0'){
                 $data['CountryID'] = '';
             }
-            if($data['AccessType'] == '0' ){
+            if(isset($data['AccessType']) && $data['AccessType'] == '0' ){
                 $data['AccessType'] = '';
             }
-            if($data['Prefix'] == '0' ){
+            if(isset($data['Prefix']) && $data['Prefix'] == '0'){
                 $data['Prefix'] = '';
             }
-            if($data['CityTariff'] == '0' ){
+            if(isset($data['CityTariff']) && $data['CityTariff'] == '0' ){
                 $data['CityTariff'] = '';
             }
 
@@ -287,16 +287,16 @@ class RateGeneratorRuleController extends \BaseController {
                 return json_validator_response($validator);
             }
 
-            if($data['CountryID'] == '0' ){
+            if(isset($data['CountryID']) && $data['CountryID'] == '0'){
                 $data['CountryID'] = '';
             }
-            if($data['AccessType'] == '0' ){
+            if(isset($data['AccessType']) && $data['AccessType'] == '0' ){
                 $data['AccessType'] = '';
             }
-            if($data['Prefix'] == '0' ){
+            if(isset($data['Prefix']) && $data['Prefix'] == '0'){
                 $data['Prefix'] = '';
             }
-            if($data['CityTariff'] == '0' ){
+            if(isset($data['CityTariff']) && $data['CityTariff'] == '0' ){
                 $data['CityTariff'] = '';
             }
 

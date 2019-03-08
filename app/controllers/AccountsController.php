@@ -377,6 +377,13 @@ class AccountsController extends \BaseController {
                 $RegisterDutchFoundation = 0;
             }
 
+            if (isset($data['DutchProvider'])) {
+                $DutchProvider = $data['DutchProvider'];
+                unset($data['DutchProvider']);
+            }else{
+                $DutchProvider = 0;
+            }
+
             if (isset($data['DirectDebit'])) {
                 $DirectDebit = $data['DirectDebit'];
                 unset($data['DirectDebit']);
@@ -555,6 +562,11 @@ class AccountsController extends \BaseController {
                 if(isset($RegisterDutchFoundation)){
                     $DynamicData['FieldName'] = 'RegisterDutchFoundation';
                     $DynamicData['FieldValue']= $RegisterDutchFoundation;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(isset($DutchProvider)){
+                    $DynamicData['FieldName'] = 'DutchProvider';
+                    $DynamicData['FieldValue']= $DutchProvider;
                     Account::addUpdateAccountDynamicfield($DynamicData);
                 }
                 if(isset($DirectDebit)){
@@ -1086,6 +1098,13 @@ class AccountsController extends \BaseController {
             $RegisterDutchFoundation = 0;
         }
 
+        if (isset($data['DutchProvider'])) {
+            $DutchProvider = $data['DutchProvider'];
+            unset($data['DutchProvider']);
+        }else{
+            $DutchProvider = 0;
+        }
+
         if (isset($data['DirectDebit'])) {
             $DirectDebit = $data['DirectDebit'];
             unset($data['DirectDebit']);
@@ -1249,6 +1268,11 @@ class AccountsController extends \BaseController {
             if(isset($RegisterDutchFoundation)){
                 $DynamicData['FieldName'] = 'RegisterDutchFoundation';
                 $DynamicData['FieldValue']= $RegisterDutchFoundation;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($DutchProvider)){
+                $DynamicData['FieldName'] = 'DutchProvider';
+                $DynamicData['FieldValue']= $DutchProvider;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
             if(isset($DirectDebit)){
