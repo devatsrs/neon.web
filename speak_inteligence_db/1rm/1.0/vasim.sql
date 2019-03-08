@@ -447,6 +447,23 @@ INSERT INTO `tblDynamicFields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`
 
 
 
+CREATE TABLE IF NOT EXISTS `tblExactAuthentication` (
+  `ExactAuthenticationID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) DEFAULT '0',
+  `authorization_code` text COLLATE utf8_unicode_ci,
+  `access_token` text COLLATE utf8_unicode_ci,
+  `refresh_token` text COLLATE utf8_unicode_ci,
+  `expires_in` text COLLATE utf8_unicode_ci,
+  `token_type` text COLLATE utf8_unicode_ci,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ExactAuthenticationID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'EXACT', '{"client_id":"","client_secret":""}');
+INSERT INTO `tblIntegration` (`IntegrationID`, `CompanyId`, `Title`, `Slug`, `ParentID`, `MultiOption`) VALUES (28, 1, 'Exact', 'exact', 15, 'N');
+INSERT INTO `tblIntegrationConfiguration` (`CompanyId`, `IntegrationID`, `ParentIntegrationID`, `Settings`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES (1, 28, 15, '{"ExactLoginID":"bruce.martin@tek185.com","ExactPassword":"Welcome@100","InvoiceAccount":"Cost of Goods Sold","PaymentAccount":"Inventory Asset","Tax":{"1":"Inventory Asset","2":"","3":"VAT Suspense","4":"","5":"Extra Tax Agency Suspense","6":"Extra Tax Agency Suspense","7":"Extra Tax Agency Suspense","8":"","9":"","10":""},"ExactSandbox":0,"OauthConsumerKey":"qyprdGf6OGO6yJ1RSLL8Z4Z6JU7wtg","OauthConsumerSecret":"ul1U30wQQVziAe6Nl2Cr5yor9dufeIuIu7FHceWb","AppToken":"05b87ff1bd203b4cfdbb450bf6da3242ec19"}', 1, '2019-02-20 13:19:52', 'Vasim Seta', '2018-04-26 12:42:10', 'Vasim Seta');
+INSERT INTO `tblDynamicFields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'checkbox', 'Dutch Provider', 'DutchProvider', 'Dutch Provider', 0, 1, '2019-02-28 16:33:11', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
+
 
 
 DROP PROCEDURE IF EXISTS `prc_ArchiveOldRateTableRate`;
