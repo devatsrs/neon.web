@@ -579,6 +579,7 @@ class DiscountController extends \BaseController
             $createdBy = User::get_user_full_name();
             Log::info('discount_store ' . print_r($post_data, true));
             $arrayId = '';
+            $DiscountValueError = array();
             try {
                 $minutesComponents = isset($post_data['getIDs']) ? $post_data['getIDs'] : '';
                 $volumeComponents = isset($post_data['getVolumeIDs']) ? $post_data['getVolumeIDs'] : '';
@@ -628,11 +629,16 @@ class DiscountController extends \BaseController
                         $messages['VolumeFromMin-' . ($k + 1).'.required'] = "FromMin for the Row " . ($k + 1) . " required";
                         $rules['VolumeToMin-' . ($k + 1)] = 'required';
                         $messages['VolumeToMin-' . ($k + 1).'.required'] = "ToMin for the Row " . ($k + 1) . " required";
+                        if (!empty($post_data['VolumeFromMin-' . ($k + 1)])) {
+                            if (!($post_data['VolumeFromMin-' . ($k + 1)] == '>' ||
+                                $post_data['VolumeFromMin-' . ($k + 1)] == '<' || intval($post_data['VolumeFromMin-' . ($k + 1)])))
+                                array_push($DiscountValueError, "From value for the Row " . ($k + 1) . " must be either number or < or <");
+                        }
                     }
 
                     $validator = Validator::make($post_data, $rules,$messages);
-                    if ($validator->fails()) {
-                        return json_validator_response($validator);
+                    if ($validator->fails()|| count($DiscountValueError) > 0) {
+                        return json_validator_responseWithCustom($validator,$DiscountValueError);
                     }
                 }
 
