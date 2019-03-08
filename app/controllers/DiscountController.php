@@ -106,7 +106,7 @@ class DiscountController extends \BaseController
             if (isset($post_data['Export']) && $post_data['Export'] == 1) {
                 $result = DB::select($query . ',1)');
             } else {
-                $query .= ',0)';
+               // $query .= ',0)';
                 $result = DB::select($query . ',0)');
             }
         } catch (\Exception $e) {
