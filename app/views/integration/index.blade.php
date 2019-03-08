@@ -1215,6 +1215,157 @@
             </div>
         </div>
         <!-- fastpay end -->
+        <!-- Exact -->
+        <?php
+        $ExactDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$ExactSlug);
+        $ExactData   = isset($ExactDbData->Settings)?json_decode($ExactDbData->Settings,true):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$ExactDbData->Slug}}">
+            <!-- Exact form start-->
+
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Details
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6  margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">* Login ID/Email:</label>
+                                <div class="col-sm-8">
+                                    <input type="text"  class="form-control" name="ExactLoginID" value="{{isset($ExactData['ExactLoginID'])?$ExactData['ExactLoginID']:''}}" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+                                <div class="col-sm-8">
+                                    <input type="password"  class="form-control" name="ExactPassword" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clear"></div>
+                        <div class="col-md-6  margin-top">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Active:</label>
+                                <div class="col-sm-8" id="ExactStatusDiv">
+                                    <input id="ExactStatus" class="subcatstatus" Divid="ExactStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($ExactDbData->Status) && $ExactDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @foreach(ExactAuthentication::$MappingTypes as $MappingKey => $MappingText)
+                @if($MappingKey == ExactAuthentication::KEY_VAT)
+                    <div class="panel panel-primary" data-collapsed="0" id="Calculated-Rate">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                G/L Code Mapping - {{$MappingText}} (For Invoice Posting)
+                            </div>
+                            <div class="panel-options">
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <br/>
+                                <input type="hidden" id="getRateIDs" name="getRateIDs" value=""/>
+                                <table id="tblVatMapping" class="table table-bordered datatable">
+                                    <thead>
+                                    <tr>
+                                        <th width="25%">Country</th>
+                                        <th width="15%">Registered Dutch Foundation</th>
+                                        <th width="15%">Dutch Provider</th>
+                                        <th width="17.5%">VAT Code</th>
+                                        <th width="10%">Add</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="tblVatMappingBody">
+                                    <?php
+                                        $row_number = 0;
+                                        $hiddenClass='';
+                                        $row_number++;
+                                        $hiddenClass = $row_number == 1 ? 'hidden' : '';
+                                    ?>
+                                        <tr id="selectedRow-{{$row_number}}">
+                                            <td>
+                                                {{ Form::select('Country-'.$row_number, ExactAuthentication::$VATCountry, '', array("class"=>"form-control")) }}
+                                            </td>
+                                            <td>
+                                                <div id="RegisterDutchFoundation-switch-{{$row_number}}">
+                                                    <input name="RegisterDutchFoundation-{{$row_number}}" Divid="RegisterDutchFoundation-switch-{{$row_number}}" type="checkbox" value="1" class="custom-switch">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div id="DutchProvider-switch-{{$row_number}}">
+                                                    <input name="DutchProvider-{{$row_number}}" Divid="DutchProvider-switch-{{$row_number}}" type="checkbox" value="1" class="custom-switch">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input name="VATCode-{{$row_number}}" type="text" class="form-control" value=""/>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="createCloneRow('tblVatMapping')" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
+                                                    <i></i>
+                                                    +
+                                                </button>
+                                                <a onclick="deleteRow(this.id,'tblVatMapping')" id="deleteRow-{{$row_number}}" class="btn btn-danger btn-sm {{$hiddenClass}}" data-loading-text="Loading..." >
+                                                    <i></i>
+                                                    -
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="panel panel-primary" data-collapsed="0">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                G/L Code Mapping - {{$MappingText}} (For Invoice Posting)
+                            </div>
+                            <div class="panel-options">
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <?php $count=0; ?>
+                            @if(!empty($AllMappingElements[$MappingKey])&& count($AllMappingElements[$MappingKey])>0)
+                                @foreach($AllMappingElements[$MappingKey] as $key=>$Prod)
+                                    <div class="col-md-6  margin-top">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">{{$Prod}}:</label>
+                                            <div class="col-sm-8">
+                                                <input type="text"  class="form-control" name="{{$MappingKey}}[{{$key}}]" value="{{isset($ExactData[$MappingKey][$key])?$ExactData[$MappingKey][$key]:""}}" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php $count++; ?>
+                                    @if($count%2 == 0)
+                                        <div class="clear"></div>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+
+            <!-- Exact form end-->
+        </div>
+        <!-- Exact End-->
+
     </div>
 
   <ul class="pager wizard">
@@ -1227,6 +1378,7 @@
 <!-- Footer -->
 </div>
 <script type="text/javascript">
+    var SubCatID = '';
     jQuery(document).ready(function ($) {
         var checked='';
         public_vars.$body = $("body");
@@ -1364,7 +1516,7 @@
 		$('.manageSubcat').click(function(e) {
             $('#SubcategoryModal .modal-dialog').removeClass('modal-lg');
 			$('#SubcategoryModalContent').html('');
-            var SubCatID		 = 	$(this).attr('data-id');
+            SubCatID		 = 	$(this).attr('data-id');
 			var DataTitle		 = 	$(this).attr('data-title');	
 			var SubCatid	 	 =	$(this).attr("data-subcatid");		 
 			var SubcatContent 	 = 	$('#'+SubCatID).html(); 				
@@ -1386,8 +1538,14 @@
                 }else{
                     $('#quickbook-connect').hide();
                 }
+                if(DataTitle=='Exact'){
+                    $('#exact-connect').show();
+                }else{
+                    $('#exact-connect').hide();
+                }
             }else{
                 $('#quickbook-connect').hide();
+                $('#exact-connect').hide();
             }
 
 			$('#'+SubCatID).find('.subcatstatus').each(function(index, element) {
@@ -1400,7 +1558,9 @@
 					biuldSwicth('#'+$(this).attr('Divid'),$(this).attr('name'),'#SubcategoryModal','');
 				}
             });
-			
+
+            makeSwitch(SubCatID);
+
 			//var StatusValue  = $('#'+SubCatID).find('.subcatstatus:checked').val();
 			
 			//alert(StatusValue);
@@ -1437,17 +1597,7 @@
                 });
 			
         });
-		
-		 function biuldSwicth(container,name,formID,checked){
-                var make = '<span class="make-switch switch-small">';
-                make += '<input name="'+name+'" value="1" '+checked+' type="checkbox">';
-                make +='</span>';
-                var container = $(formID).find(container);
-                container.empty();
-                container.html(make);
-                container.find('.make-switch').bootstrapSwitch();
-            }
-			
+
 		$(document).on("click",'#TestImapConnection',function(e){
 			$(this).button('loading');
 			var email    = 	$('#EmailTrackingEmail').val();
@@ -1480,8 +1630,78 @@
                 processData: false
             });		
 		});
+
+        $('#exact-connect').on('click', function() {
+            $('#exact-connect-form').submit();
+        });
     });
-    </script> 
+
+    function biuldSwicth(container,name,formID,checked){
+        var make = '<span class="make-switch switch-small">';
+        make += '<input name="'+name+'" value="1" '+checked+' type="checkbox">';
+        make +='</span>';
+        var container = $(formID).find(container);
+        container.empty();
+        container.html(make);
+        container.find('.make-switch').bootstrapSwitch();
+    }
+
+    function makeSwitch(SubCatID) {
+        $('#'+SubCatID).find('.custom-switch').each(function(index, element) {
+            if($(this).prop('checked') == true)
+            {
+                biuldSwicth('#'+$(this).attr('Divid'),$(this).attr('name'),'#SubcategoryModal','checked');
+            }
+            else
+            {
+                biuldSwicth('#'+$(this).attr('Divid'),$(this).attr('name'),'#SubcategoryModal','');
+            }
+        });
+    }
+    function getNumber($item){
+        var txt = $item;
+        var numb = txt.match(/\d/g);
+        numb = numb.join("");
+        return numb;
+    }
+
+    function createCloneRow(tblID)
+    {
+        var $item = $('#SubcategoryModal #' + tblID + ' tr:last').attr('id');
+        var numb = getNumber($item);
+        numb++;
+
+        $("#SubcategoryModal #"+$item).clone().appendTo('#SubcategoryModal #' + tblID + ' tbody');
+
+        var row = "selectedRow";
+
+        $('#SubcategoryModal #' + tblID + ' tr:last').attr('id', row + '-' + numb);
+
+        $('#SubcategoryModal #' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Country-' + numb).prop('selectedIndex',0);
+        $('#SubcategoryModal #' + tblID + ' tr:last').children('td:eq(3)').children('input').attr('name', 'VATCode-' + numb).val('');
+
+        $('#SubcategoryModal #' + tblID + ' tr:last').children('td:eq(4)').children('a').attr('id', "deleteRow-"+numb);
+
+        $('#SubcategoryModal #' + tblID + ' tr:last').children('td:eq(4)').find('a').removeClass('hidden');
+
+        makeSwitch(SubCatID);
+    }
+
+    function deleteRow(id, tblID)
+    {
+        var rowCount = $("#SubcategoryModal #" + tblID + " > tbody").children().length;
+
+        //if(confirm("Are You Sure?")) {
+            if (rowCount > 1) {
+                $("#SubcategoryModal #" + id).closest("tr").remove();
+            } /*else {
+                toastr.error("You cannot delete. At least one component is required.", "Error", toastr_opts);
+            }*/
+            return false;
+        //}
+    }
+
+</script>
 <script type="text/javascript" src="<?php echo URL::to('/'); ?>/assets/js/jquery.bootstrap.wizard.min.js" ></script>
 <script type="text/javascript" src="https://appcenter.intuit.com/Content/IA/intuit.ipp.anywhere.js"></script>
 <script type="text/javascript">
@@ -1507,6 +1727,8 @@
       <div class="modal-footer">
           <button type="button" class="btn btn-success btn-sm btn-icon icon-left popover-primary" data-original-title="QuickBook Authorize"
                   data-content="Click to Authorize Neon to connect to Quickbook. Please click on save first." data-placement="top" data-trigger="hover" data-toggle="popover"  id="quickbook-connect"  onclick="intuit.ipp.anywhere.controller.onConnectToIntuitClicked();"><i class="fa fa-lock"></i>Authorize</button>
+          <button type="button" class="btn btn-success btn-sm btn-icon icon-left popover-primary" data-original-title="Exact Authorize"
+                  data-content="Click to Authorize Neon to connect to Exact. Please click on save first." data-placement="top" data-trigger="hover" data-toggle="popover"  id="exact-connect" ><i class="fa fa-lock"></i>Authorize</button>
           <button type="submit" id="task-update"  class="save_template save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
@@ -1518,4 +1740,7 @@
     </form>
   </div>
 </div>
+
+
+    <form id="exact-connect-form" action="{{URL::to('/').'/exact'}}" method="get"></form>
 @stop

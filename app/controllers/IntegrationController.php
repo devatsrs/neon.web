@@ -26,8 +26,9 @@ class IntegrationController extends \BaseController
 			$categories 			= 	Integration::where(["ParentID"=>0])->orderBy('Title', 'asc')->get();
 		}
 		$TaxLists =  TaxRate::where(["CompanyId" => $companyID, "Status" => 1])->get();
+		$AllMappingElements =  ExactAuthentication::getAllMappingElements($companyID);
 		//$companyID = 1;
-		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists"));
+		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists","AllMappingElements"));
     }
 	
 	function Update(){
@@ -900,6 +901,44 @@ class IntegrationController extends \BaseController
 					IntegrationConfiguration::create($SaveData);
 				}
 				return Response::json(array("status" => "success", "message" => "Xero Settings Successfully Updated"));
+
+			}
+
+
+			if($data['secondcategory']=='Exact') {
+				$ExactDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+				$rules = array(
+					//'ConsumerKey'	  => 'required',
+					//'ConsumerSecret' => 'required',
+					//'AppToken' => 'required',
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] 			= 	isset($data['Status']) ? 1 : 0;
+				$data['InvoiceAccount'] 	= 	isset($data['InvoiceAccount'])?$data['InvoiceAccount']:'';
+				$data['PaymentAccount'] 	= 	isset($data['PaymentAccount'])?$data['PaymentAccount']:'';
+
+				$ExactData = array();
+				$ExactData = $data;
+				unset($ExactData['firstcategory']);
+				unset($ExactData['secondcategory']);
+				unset($ExactData['firstcategoryid']);
+				unset($ExactData['secondcategoryid']);
+				unset($ExactData['Status']);
+
+				if(count($ExactDbData)>0) {
+					$SaveData = array("Settings"=>json_encode($ExactData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$ExactDbData->IntegrationConfigurationID))->update($SaveData);
+				} else {
+					$SaveData = array("Settings"=>json_encode($ExactData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "Exact Settings Successfully Updated"));
 
 			}
 		}

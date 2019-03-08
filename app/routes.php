@@ -1667,7 +1667,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/testdialplan/update_fields_sorting', 'TestdialplanController@update_fields_sorting');
 	Route::any('/testdialplan/exports/{type}', 'TestdialplanController@exports');
 
-
+	Route::get('exact', 'ExactController@index');
 });
 
 Route::group(array('before' => 'global_admin'), function () {
