@@ -128,11 +128,40 @@ class DiscountController extends \BaseController
 
     }
     public function exports($type){
-        $getdata = Input::all();
-        $response = $this->DataGrid($getdata);
+        $post_data = Input::all();
+
+            $CompanyID = User::get_companyID();
+
+            $Name = $CodedeckID = '';
+            if (isset($post_data['Name'])) {
+                $Name = $post_data['Name'];
+            }
+            $DestinationGroupSetID = '';
+            if (isset($post_data['DestinationGroupSetID'])) {
+                $DestinationGroupSetID = $post_data['DestinationGroupSetID'];
+            }
+            $sort_column = $post_data['iSortCol_0'];
+
+        $exportSelectedTemplate = DiscountPlan::
+        Join('tblDestinationGroupSet','tblDestinationGroupSet.DestinationGroupSetID','=','tblDiscountPlan.DestinationGroupSetID')
+            //->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
+            ->select(['tblDiscountPlan.Name','tblDestinationGroupSet.Name as DestinationGroupSet',
+            'tblDiscountPlan.UpdatedBy','tblDiscountPlan.updated_at'])
+            ->orderBy("tblDiscountPlan.Name", "ASC");
+
+        if($Name != ''){
+            $exportSelectedTemplate->where('tblDiscountPlan.Name','like','%'.$Name.'%');
+        }
+        if($DestinationGroupSetID != ''){
+            $exportSelectedTemplate->where(["tblDestinationGroupSet.DestinationGroupSetID"=>$DestinationGroupSetID]);
+        }
+
+        $exportSelectedTemplate->where(["tblDiscountPlan.CompanyID"=>$CompanyID]);
+        Log::info('$exportSelectedTemplate query.' . $exportSelectedTemplate->toSql());
+        $exportSelectedTemplate = $exportSelectedTemplate->get();
 
 
-        $response = json_decode(json_encode($response),true);
+        $response = json_decode(json_encode($exportSelectedTemplate),true);
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DiscountPlan.csv';
             $NeonExcel = new NeonExcelIO($file_path);
