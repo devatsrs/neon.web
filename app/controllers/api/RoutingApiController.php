@@ -643,10 +643,10 @@ class RoutingApiController extends ApiController {
 
             // Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
             $lcrDetails = json_decode(json_encode($lcrDetails), true);
-            //    $endDate = date('Y-m-d H:i:s');
+                $endDate = date('Y-m-d H:i:s');
             //   Log::info('Total Time in Seconds .' . strtotime($endDate) . ' ' . strtotime($startDate));
-            //   $diff = abs(strtotime($endDate) - strtotime($startDate));
-            //  Log::info('Total Time in Seconds .' . $diff);
+               $diff = abs(strtotime($endDate) - strtotime($startDate));
+              Log::info('Total Time in Seconds .' . $diff);
             return Response::json($lcrDetails,Codes::$Code200[0]);
         }catch(Exception $ex) {
             Log::info('Exception in Routing API.' . $ex->getTraceAsString());
