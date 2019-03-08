@@ -107,7 +107,7 @@ class DiscountController extends \BaseController
                 $result = DB::select($query . ',1)');
             } else {
                 $query .= ',0)';
-                $result = DataTableSql::of($query)->make();
+                $result = DB::select($query . ',0)');
             }
         } catch (\Exception $e) {
             Log::info($e);
