@@ -327,7 +327,8 @@ class RoutingApiController extends ApiController {
             $accountreseller = '';
             $post_vars = '';
             $routingData = [];
-            $startDate = date('Y-m-d H:i:s');
+            $startDate = microtime(true);//date('Y-m-d H:i:s');
+            
             try {
                 $post_vars = json_decode(file_get_contents("php://input"));
                 //$post_vars = Input::all();
@@ -341,6 +342,9 @@ class RoutingApiController extends ApiController {
                 Log::info('Exception in Routing API.Invalid JSON' . $ex->getTraceAsString());
                 return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
             }
+
+
+
             $lcrDetails = '';
             $CompanyID = User::get_companyID();
             $rules = array(
@@ -643,9 +647,9 @@ class RoutingApiController extends ApiController {
 
             // Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
             $lcrDetails = json_decode(json_encode($lcrDetails), true);
-                $endDate = date('Y-m-d H:i:s');
+                $endDate = microtime(true);//date('Y-m-d H:i:s');
             //   Log::info('Total Time in Seconds .' . strtotime($endDate) . ' ' . strtotime($startDate));
-               $diff = abs(strtotime($endDate) - strtotime($startDate));
+               $diff = $endDate - $startDate;
               Log::info('Total Time in Seconds .' . $diff);
             return Response::json($lcrDetails,Codes::$Code200[0]);
         }catch(Exception $ex) {
