@@ -414,7 +414,7 @@ class DiscountController extends \BaseController
                     $messages['VolumeToMin-' . ($k + 1).'.required'] = "ToMin for the Row " . ($k + 1) . " required";
                     if (!empty($post_data['VolumeFromMin-' . ($k + 1)])) {
                         if (!($post_data['VolumeFromMin-' . ($k + 1)] == '>' ||
-                            $post_data['VolumeFromMin-' . ($k + 1)] == '<' || intval($post_data['VolumeFromMin-' . ($k + 1)])))
+                            $post_data['VolumeFromMin-' . ($k + 1)] == '<' || is_numeric($post_data['VolumeFromMin-' . ($k + 1)])))
                             array_push($DiscountValueError, "From value for the Row " . ($k + 1) . " must be either number or < or <");
                     }
                 }
@@ -629,9 +629,10 @@ class DiscountController extends \BaseController
                         $messages['VolumeFromMin-' . ($k + 1).'.required'] = "FromMin for the Row " . ($k + 1) . " required";
                         $rules['VolumeToMin-' . ($k + 1)] = 'required';
                         $messages['VolumeToMin-' . ($k + 1).'.required'] = "ToMin for the Row " . ($k + 1) . " required";
+
                         if (!empty($post_data['VolumeFromMin-' . ($k + 1)])) {
                             if (!($post_data['VolumeFromMin-' . ($k + 1)] == '>' ||
-                                $post_data['VolumeFromMin-' . ($k + 1)] == '<' || intval($post_data['VolumeFromMin-' . ($k + 1)])))
+                                $post_data['VolumeFromMin-' . ($k + 1)] == '<' || is_numeric($post_data['VolumeFromMin-' . ($k + 1)])))
                                 array_push($DiscountValueError, "From value for the Row " . ($k + 1) . " must be either number or < or <");
                         }
                     }
