@@ -24,6 +24,12 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                         <!-- panel body -->
                         <div class="panel-body">
                             <div class="form-group">
+                                <label for="field-1" class="col-sm-2 control-label">Partner</label>
+                                <div class="col-sm-4">
+                                    {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerOwner)?$BillingClass->ResellerOwner:'' ), array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Class Name</label>
                                 <div class="col-sm-4">
                                     <input type="text" name="Name" class="form-control" id="field-1" placeholder="" value="{{$BillingClass->Name or ''}}" />
