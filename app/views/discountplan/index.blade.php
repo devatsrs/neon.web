@@ -37,9 +37,9 @@
     </ol>
     <h3>Discount Plan</h3>
     @if(User::checkCategoryPermission('DiscountPlan','Edit'))
-    <p style="text-align: right;">
-        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
-    </p>
+        <p style="text-align: right;">
+            <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
+        </p>
     @endif
 
     <table id="table-list" class="table table-bordered datatable">
@@ -47,7 +47,6 @@
         <tr>
             <th width="20%">Name</th>
             <th width="15%">DestinationGroupSet</th>
-            <th width="15%">Currency</th>
             <th width="15%">Modified By</th>
             <th width="15%">Modified Date</th>
             <th width="20%">Action</th>
@@ -69,7 +68,7 @@
 
             $('#filter-button-toggle').show();
 
-            var list_fields  = ["Name","DestinationGroupSet","Currency","UpdatedBy","updated_at","DiscountPlanID","DestinationGroupSetID","CurrencyID","Description","Applied"];
+            var list_fields  = ["Name","DestinationGroupSet","UpdatedBy","updated_at","DiscountPlanID","DestinationGroupSetID","CurrencyID","Description","Applied"];
             //public_vars.$body = $("body");
             var $search = {};
             var add_url = baseurl + "/discount_plan/store";
@@ -110,26 +109,24 @@
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
                         {  "bSortable": true },  // 0 Name
-                        {  "bSortable": true },  // 0 Name
                         {  "bSortable": true },  // 2 UpdatedBy
                         {  "bSortable": true },  // 2 updated_at
                         {  "bSortable": false,
                             mRender: function ( id, type, full ) {
+
                                 action = '<div class = "hiddenRowData" >';
                                 for(var i = 0 ; i< list_fields.length; i++){
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + ((full[i])?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
                                 @if(User::checkCategoryPermission('DiscountPlan','Edit'))
-                                action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                        action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                                 @endif
-                                action += ' <a href="' + view_url.replace("{id}",id) +'" title="View" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
+                                        action += ' <a href="' + view_url.replace("{id}",id) +'" title="View" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                                 @if(User::checkCategoryPermission('DiscountPlan','Delete'))
-                                if(full[9]== null) {
                                     action += ' <a href="' + delete_url.replace("{id}", id) + '" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
-                                }
                                 @endif
-                                return action;
+                                        return action;
                             }
                         },  // 0 Created
 
@@ -242,18 +239,12 @@
                         <div class="row tobe-hide">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Destination Group Set*</label>
+                                    <label for="field-5" class="control-label">Product Group Set*</label>
                                     {{Form::select('DestinationGroupSetID', $DestinationGroupSets, '' ,array("id"=>"DestinationGroupSetID","class"=>"form-control select2"))}}
 
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Currency*</label>
-                                    {{Form::SelectControl('currency',1)}}
-                                    <!--{Form::select('CurrencyID', $currencies, '' ,array("class"=>"","data-modal"=>"add-new-modal-currency","data-active"=>"0","data-type"=>"currency"))}}-->
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                     <input type="hidden" name="DiscountPlanID">

@@ -11,6 +11,7 @@ class PaymentsController extends \BaseController {
 			$data['iSortCol_0']			 	 =  	0;     
 			$data['sSortDir_0']			 	 =  	'desc';
 			$data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:0;
+                        $data['ResellerOwner'] 				 = 		$data['ResellerOwner']!= ''?$data['ResellerOwner']:0;
 			$data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
 			$data['Status'] 				 = 		$data['Status'] != ''?"'".$data['Status']."'":'null';
 			$data['type'] 					 = 		$data['type'] != ''?"'".$data['type']."'":'null';
@@ -49,7 +50,7 @@ class PaymentsController extends \BaseController {
                 $userID = User::get_userID();
             }
 
-			$query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend'].",0,".$userID.",'".$data['tag']."')";
+			$query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['ResellerOwner'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend'].",0,".$userID.",'".$data['tag']."')";
 		   
 			$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
 			$result2  = $result['data']['Total_grand_field'][0]->total_grand;
@@ -66,6 +67,7 @@ class PaymentsController extends \BaseController {
         $CompanyID 						 = 		User::get_companyID();
         $data['iDisplayStart'] 			+=		1;
         $data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:0;
+        $data['ResellerOwner'] 				 = 		$data['ResellerOwner']!= ''?$data['ResellerOwner']:0;
         $data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
         $data['Status'] 				 = 		$data['Status'] != ''?"'".$data['Status']."'":'null';
         $data['type'] 					 = 		$data['type'] != ''?"'".$data['type']."'":'null';
@@ -104,7 +106,7 @@ class PaymentsController extends \BaseController {
             $userID = User::get_userID();
         }
 
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['ResellerOwner'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1,'.$userID.',"'.$data['tag'].'")');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -136,7 +138,9 @@ class PaymentsController extends \BaseController {
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList()); 		
         $accounts = Account::getAccountIDList();
 		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-        return View::make('payments.index', compact('id','currency','accounts','PaymentUploadTemplates','currency_ids','DefaultCurrencyID'));
+                $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+                
+        return View::make('payments.index', compact('id','currency','accounts','PaymentUploadTemplates','currency_ids','DefaultCurrencyID','reseller_owners'));
 	}
 
 	/**

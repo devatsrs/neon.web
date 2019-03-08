@@ -402,7 +402,7 @@
 
                                         <label class="col-md-2 control-label">Termination</label>
                                         <div class="col-md-4">
-                                            {{ Form::select('OutboundTariffID', $rate_table , $OutboundTariffID , array("class"=>"select2")) }}
+                                            {{ Form::select('OutboundTariffID', $termination_rate_table , $OutboundTariffID , array("class"=>"select2")) }}
                                         </div>
 
                                     </div>

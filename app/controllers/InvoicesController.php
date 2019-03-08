@@ -18,7 +18,9 @@ class InvoicesController extends \BaseController {
         $data['Overdue'] = $data['Overdue']== 'true'?1:0;
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['InvoiceStatus'] = is_array($data['InvoiceStatus'])?implode(',',$data['InvoiceStatus']):$data['InvoiceStatus'];
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
+        $data['ResellerOwner'] 				 = 		$data['ResellerOwner']!= ''?$data['ResellerOwner']:0;
+        
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",".intval($data['ResellerOwner']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
         $InvoiceHideZeroValue = Invoice::getCookie('InvoiceHideZeroValue');
         // Account Manager Condition
         $userID = 0;
@@ -86,14 +88,15 @@ class InvoicesController extends \BaseController {
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
         $data['Overdue'] = $data['Overdue']== 'true'?1:0;
         $sort_column = $columns[$data['iSortCol_0']];
-
+        $data['ResellerOwner'] 				 = 		$data['ResellerOwner']!= ''?$data['ResellerOwner']:0;
+        
         // Account Manager Condition
         $userID = 0;
         if(User::is('AccountManager')) { // Account Manager
             $userID = User::get_userID();
         }
 
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",".intval($data['ResellerOwner']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,1,"",'.$userID.',"'.$data['tag'].'")');
@@ -164,9 +167,9 @@ class InvoicesController extends \BaseController {
         
         $IngenicoExport = CompanyConfiguration::where(['Key' => 'INGENICO_EXPORT_BUTTON', 'CompanyID' => $CompanyID])->first();
         
-
+        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID','IngenicoExport','taxes','BillingClass','DynamicFields','itemtypes'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID','IngenicoExport','taxes','BillingClass','DynamicFields','itemtypes','reseller_owners'));
 
     }
 
@@ -2777,7 +2780,7 @@ public function store_inv_in(){
         $n=0;
         foreach($ids as $invid) {
             $invoices = Invoice::where(['InvoiceID' => $invid])->first();
-            if($invoices->accdetail->PaymentMethod == 'Stripe' && $invoices->InvoiceType == 1){
+            if($invoices->accdetail->PaymentMethod == 'Ingenico' && $invoices->InvoiceType == 1){
                 fwrite($file, 
                 number_format($invoices->GrandTotal, 0).';'.
                 $invoices->currency->Code.';;;;'.

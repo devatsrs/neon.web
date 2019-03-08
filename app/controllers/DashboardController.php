@@ -156,7 +156,8 @@ class DashboardController extends BaseController {
             $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
         }
         $accounts = Account::getAccountIDList();
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets','StartDateDefault1','GetDashboardPR','GetDashboardPL','accounts','emailType'));
+        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets','StartDateDefault1','GetDashboardPR','GetDashboardPL','accounts','emailType','reseller_owners'));
 
     }
     public function monitor_dashboard(){
