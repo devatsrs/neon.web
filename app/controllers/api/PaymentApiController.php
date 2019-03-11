@@ -56,20 +56,23 @@ class PaymentApiController extends ApiController {
 				//echo $query;die;
 				$Result = DB::connection('sqlsrv2')->select($query);
 				$Response = json_decode(json_encode($Result), true);
-				$Balance = (float)AccountBalance::getAccountBalance($AccountID);
+				//$Balance = (float)AccountBalance::getAccountBalance($AccountID);
 				$BalanceArr = [];
 
-				$payments = Payment::where([
+				//echo $Balance;
+				/*$payments = Payment::where([
 					'AccountID' => $AccountID,
 					'CompanyID' => $CompanyID
-				])->orderBy('PaymentID', 'DESC')->get();
-
+				])->orderBy('PaymentID', 'DESC')->get();*/
+				$query = "CALL prc_getTransactionHistory(" . $CompanyID . "," . $AccountID . ",'0000-00-00','0000-00-00')";
+				$payments = DB::connection('sqlsrv2')->select($query);
+				$Balance = 0;
 				foreach($payments as $key => $payment){
-					$BalanceArr[$payment->PaymentID] = $Balance;
 					if(strtolower($payment->PaymentType) == "payment in")
 						$Balance += (float)$payment->Amount;
 					elseif (strtolower($payment->PaymentType) == "payment out")
 						$Balance -= (float)$payment->Amount;
+					$BalanceArr[$payment->PaymentID] = $Balance;
 				}
 
 				foreach($Response as $key => $res){
