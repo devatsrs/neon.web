@@ -26,7 +26,7 @@
                     {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
                 <div class="form-group">
-                    <label class="control-label">DID Category</label>
+                    <label class="control-label">Access Category</label>
                     {{Form::select('DIDCategoryID', $DIDCategory, '',array("class"=>"form-control select2"))}}
                 </div>
                 <div class="form-group">
@@ -59,9 +59,9 @@
         Add New RateTable
     </a>
 @endif
-    <a href="{{URL::to('rate_tables/apply_rate_table')}}" id="add-new-rate-table" class="btn btn-primary ">
-        Apply Rate Table
-    </a>
+    {{--<a href="{{URL::to('rate_tables/apply_rate_table')}}" id="add-new-rate-table" class="btn btn-primary ">--}}
+        {{--Apply Rate Table--}}
+    {{--</a>--}}
 </p>
 
 <div class="cler row">
@@ -87,10 +87,10 @@
                                         <th >Name</th>
                                         <th >Currency</th>
                                         <th >Trunk</th>
-                                        <th >DID Category</th>
+                                        <th >Access Category</th>
                                         <th >Codedeck</th>
                                         <th >Last Updated</th>
-                                         <th >Action</th>
+                                        <th >Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -438,7 +438,7 @@ jQuery(document).ready(function($) {
                                 </label>
                                 <label class="radio-inline">
                                     {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, false,array("class"=>""))}}
-                                    Reseller
+                                    Partner
                                 </label>
                             </div>
                         </div>
