@@ -45,29 +45,29 @@
         // }
         //
         //
-        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundPlan";
-        // alert("url :" + url);
-        $.post(url, function (data, status) {
-            // var res = data.split('/>');
-            // alert(data);
-            document.getElementById("OutboundDiscountPlanIdBulkAction").innerHTML = "" + data;
-            //var OutboundDiscountPlanID = $("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
-            // alert(OutboundDiscountPlanID);
-            $("#add-action-bulk-form [name='OutboundDiscountPlanIdBulkAction']").select2().select2('val', '');
-
-            // $("#serviceBasedOnCurreny").html(data);
-        }, 'html');
-        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=inboundPlan";
-        // alert("url :" + url);
-        $.post(url, function (data, status) {
-            // var res = data.split('/>');
-            document.getElementById("InboundDiscountPlanIdBulkAction").innerHTML = "" + data;
-            //var InboundDiscountPlanID = $("div.hiddenRowData").find("input[name='InboundDiscountPlanID']").val();
-            $("#add-action-bulk-form [name='InboundDiscountPlanIdBulkAction']").select2().select2('val', '');
-
-            // $("#serviceBasedOnCurreny").html(data);
-        }, 'html');
-
+//        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundPlan";
+//        // alert("url :" + url);
+//        $.post(url, function (data, status) {
+//            // var res = data.split('/>');
+//            // alert(data);
+//            document.getElementById("OutboundDiscountPlanIdBulkAction").innerHTML = "" + data;
+//            //var OutboundDiscountPlanID = $("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
+//            // alert(OutboundDiscountPlanID);
+//            $("#add-action-bulk-form [name='OutboundDiscountPlanIdBulkAction']").select2().select2('val', '');
+//
+//            // $("#serviceBasedOnCurreny").html(data);
+//        }, 'html');
+//        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=inboundPlan";
+//        // alert("url :" + url);
+//        $.post(url, function (data, status) {
+//            // var res = data.split('/>');
+//            document.getElementById("InboundDiscountPlanIdBulkAction").innerHTML = "" + data;
+//            //var InboundDiscountPlanID = $("div.hiddenRowData").find("input[name='InboundDiscountPlanID']").val();
+//            $("#add-action-bulk-form [name='InboundDiscountPlanIdBulkAction']").select2().select2('val', '');
+//
+//            // $("#serviceBasedOnCurreny").html(data);
+//        }, 'html');
+//
         url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundTariff";
         // alert("url :" + url);
         $.post(url, function (data, status) {
@@ -95,6 +95,7 @@
         $("#OutboundRateTableIdBulkAction").prop("disabled",true);
         $("#OutboundDiscountPlanIdBulkAction").prop("disabled",true);
         $("#InboundDiscountPlanIdBulkAction").prop("disabled",true);
+        $("#PackageDiscountPlanIdBulkAction").prop("disabled",true);
         $("#ServiceIdBulkAction").prop("disabled",true);
 
         $("#add-new-BulkAction-modal-service input:checkbox[name='Service']").change(function() {
@@ -151,6 +152,17 @@
                 countSelectedItems--;
             }
         });
+        $("#add-new-BulkAction-modal-service input:checkbox[name='PackageDiscountPlan']").change(function() {
+            if ($(this).prop('checked') == false)
+            {
+                $("#PackageDiscountPlanIdBulkAction").prop('disabled', 'disabled');
+                countSelectedItems++;
+            }else {
+                $("#PackageDiscountPlanIdBulkAction").prop('disabled', false);
+                $(this).val(1);
+                countSelectedItems--;
+            }
+        });
 
 
         $("#add-new-BulkAction-modal-service input:checkbox[name='InboundTariff']").change(function() {
@@ -173,7 +185,6 @@
 
 
         });
-
     });
 
     function ShowTariffOnSelectedCategoryBulkAction()
@@ -300,8 +311,9 @@
                                                 <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="Service" value=""> Service</label></td>
                                                 <td width="30%"><select  id="ServiceIdBulkAction" name="ServiceIdBulkAction" class="form-control"></select></td>
                                                 <td width="5%">&nbsp;</td>
-                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="OutboundTraiff" value=""> Outbound Traiff</label></td>
+                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="OutboundTraiff" value=""> Outbound Ratetable</label></td>
                                                 <td width="35%">
+
                                                     <select id="OutboundRateTableIdBulkAction" name="OutboundRateTableIdBulkAction" class="form-control">
                                                     </select>
                                                 </td>
@@ -314,18 +326,39 @@
                                         <table width="100%">
 
                                             <tr>
-                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="OutboundDiscountPlan" value=""> Outbound Discount Plan</label></td>
-                                                <td width="30"><select id="OutboundDiscountPlanIdBulkAction" name="OutboundDiscountPlanIdBulkAction" class="form-control"></select></td>
+                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="OutboundDiscountPlan" value=""> Termination Discount Plan</label></td>
+                                                <td width="30">
+                                                    {{ Form::select('OutboundDiscountPlanIdBulkAction',$DiscountPlanVOICECALL,array(), array("id" => "OutboundDiscountPlanIdBulkAction", "class"=>"form-control")) }}
+
+                                                    {{--<select id="OutboundDiscountPlanIdBulkAction" name="OutboundDiscountPlanIdBulkAction" class="form-control"></select>--}}
+                                                </td>
                                                 <td width="5%">&nbsp;</td>
-                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="InboundDiscountPlan" value=""> Inbound Discount Plan</label></td>
+                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="InboundDiscountPlan" value=""> Access Discount Plan</label></td>
                                                 <td width="35%">
-                                                    <select id="InboundDiscountPlanIdBulkAction" name="InboundDiscountPlanIdBulkAction" class="form-control">
-                                                    </select>
+                                                    {{ Form::select('InboundDiscountPlanIdBulkAction',$DiscountPlanDID,array(), array("id" => "InboundDiscountPlanIdBulkAction", "class"=>"form-control")) }}
+
+                                                    {{--<select id="InboundDiscountPlanIdBulkAction" name="InboundDiscountPlanIdBulkAction" class="form-control">--}}
+                                                    {{--</select>--}}
                                                 </td>
                                             </tr>
                                         </table>
-
-
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <table width="100%">
+                                            <tr>
+                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="PackageDiscountPlan" value=""> Package Discount Plan</label></td>
+                                                <td width="20">
+                                                    {{ Form::select('PackageDiscountPlanIdBulkAction',$DiscountPlanPACKAGE,array(), array("id" => "PackageDiscountPlanIdBulkAction", "class"=>"form-control")) }}
+                                                    {{--<select id="PackageDiscountPlanIdBulkAction" name="PackageDiscountPlanIdBulkAction" class="form-control"></select>--}}
+                                                </td>
+                                                <td width="5%">&nbsp;</td>
+                                                <td width="15%"></td>
+                                                <td width="35%">
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </div>
                                 </div>
 
@@ -340,12 +373,12 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <br/>
-                                    <label for="field-5" class="control-label"><input type="checkbox" id="InboundTariff" name="InboundTariff" value=""> Inbound Tariff</label>
+                                    <label for="field-5" class="control-label"><input type="checkbox" id="InboundTariff" name="InboundTariff" value=""> Inbound Ratetable</label>
                                     <br/>
 
                                     <table id="servicetableSubBoxBulkAction" class="table table-bordered datatable">
                                         <tr>
-                                            <td width="10%"><label for="field-5" class="control-label">DIDCategory</label></td>
+                                            <td width="10%"><label for="field-5" class="control-label">Access Category</label></td>
                                             <td width="30%">
                                                 <select onchange="ShowTariffOnSelectedCategoryBulkAction();" id="DidCategoryIDBulkAction" name="DidCategoryIDBulkAction" class="form-control">
                                                     <?php
@@ -356,7 +389,7 @@
 
                                                 </select>
                                             </td>
-                                            <td width="10%"><label for="field-5" class="control-label">Tariff</label></td>
+                                            <td width="10%"><label for="field-5" class="control-label">Ratetable</label></td>
                                             <td width="30%">
                                                 <select id="DidCategoryTariffIDBulkAction" name="DidCategoryTariffIDBulkAction" class="form-control">
                                                 </select>

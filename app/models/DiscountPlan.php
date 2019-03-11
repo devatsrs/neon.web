@@ -66,11 +66,11 @@ class DiscountPlan extends \Eloquent
         $ExcludedComponent = array();
         $DiscountPlanComponents = [];
         if ($DestinationGroupSetID == 1) {
-            $DiscountPlanComponents = DiscountPlan::$RateTableRate_Components;
+            $DiscountPlanComponents = RateTableRate::$Components;
         } else if ($DestinationGroupSetID == 2) {
-            $DiscountPlanComponents = DiscountPlan::$RateTableDIDRate_Components;
+            $DiscountPlanComponents = RateTableDIDRate::$Components;
         } else if ($DestinationGroupSetID == 3) {
-            $DiscountPlanComponents = DiscountPlan::$RateTablePKGRate_Components;
+            $DiscountPlanComponents = RateTablePKGRate::$Components;
         }
         if (!empty($company->Components)) {
             $ExcludedComponent1 = explode(",",$company->Components);

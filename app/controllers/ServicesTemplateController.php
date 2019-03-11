@@ -13,6 +13,7 @@ class ServicesTemplateController extends BaseController {
     public function ajax_datagrid(){
 
        $data = Input::all();
+        //dd($data);
        $companyID = User::get_companyID();
       // $data['ServiceStatus'] = $data['ServiceStatus']== 'true'?1:0;
 
@@ -34,7 +35,7 @@ class ServicesTemplateController extends BaseController {
         }
         $servicesTemplate = ServiceTemplate::
         leftJoin('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
-            ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId','tblServiceTemplate.ContractDuration','tblServiceTemplate.AutomaticRenewal','tblServiceTemplate.CancellationCharges','tblServiceTemplate.CancellationFee'])
+            ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblServiceTemplate.country','tblServiceTemplate.prefixName','tblServiceTemplate.accessType','tblServiceTemplate.city_tariff','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId','tblServiceTemplate.ContractDuration','tblServiceTemplate.AutomaticRenewal','tblServiceTemplate.CancellationCharges','tblServiceTemplate.CancellationFee','tblServiceTemplate.PackageDiscountPlanId'])
             ->where(["tblServiceTemplate.CompanyID" => $companyID])->orderBy($iSortCol_0, $sSortDir_0);
 
         //Log::info('$servicesTemplate AJAX.$data[\'ServiceId\']' . $data['ServiceId']);
@@ -47,8 +48,20 @@ class ServicesTemplateController extends BaseController {
         if($data['ServiceId'] != ''){
             $servicesTemplate->where(["tblServiceTemplate.ServiceId"=>$data['ServiceId']]);
         }
+        if($data['CountryID'] != ''){
+            $servicesTemplate->where("tblServiceTemplate.country",$data['CountryID']);
+        }
+        if($data['AccessType'] != ''){
+            $servicesTemplate->where(["tblServiceTemplate.accessType"=>$data['AccessType']]);
+        }
+        if($data['Prefix'] != ''){
+            $servicesTemplate->where(["tblServiceTemplate.prefixName"=>$data['Prefix']]);
+        }
+        if($data['CityTariff'] != ''){
+            $servicesTemplate->where(["tblServiceTemplate.city_tariff"=>$data['CityTariff']]);
+        }
 
-        //Log::info('$servicesTemplate ajax_datagrid AJAX.' . $servicesTemplate->toSql());
+        Log::info('$servicesTemplate ajax_datagrid AJAX.' . $servicesTemplate->toSql());
 
 
        //dd($servicesTemplate);
@@ -164,21 +177,37 @@ class ServicesTemplateController extends BaseController {
             $outboundDiscountPlan = DiscountPlan::lists('Name','DiscountPlanID');
             $inbounddiscountplan =   DiscountPlan::lists('Name','DiscountPlanID');
             $BillingSubsForSrvTemplate = BillingSubscription::lists('Name','SubscriptionID');
+            $RateType = RateType::select('RateTypeID','Title')->lists('Title','RateTypeID');
+            $country = ServiceTemplate::where("CompanyID",User::get_companyID())->where("country",'!=','')->orderBy('country')->lists("country", "country");
+            $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
+            $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
+            $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+            $CityTariffFilter = [];
+            foreach($CityTariff as $key => $City){
+                if(strpos($City, " per ")){
+                    $CityTariffFilter[$City] = $City;
+                    unset($CityTariff[$key]);
+                }
+            }
+            $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::VOICECALL_ID);
+            $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::PACKAGE_ID);
+            $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::DID_ID);
 
-            return View::make('servicetemplate.index', compact('CategoryDropdownIDList','servicesTemplate','rateTable','outboundDiscountPlan','inbounddiscountplan','BillingSubsForSrvTemplate'));
+
+            $country = array('' => "All") + $country;
+            $AccessType = array('' => "All") + $AccessType;
+            $Prefix = array('' => "All") + $Prefix;
+            $CityTariff = array('' => "All") + $CityTariff;
+            $RateType = array('' => "All") + $RateType;
+
+            return View::make('servicetemplate.index', compact('CategoryDropdownIDList','servicesTemplate','rateTable','outboundDiscountPlan','inbounddiscountplan','BillingSubsForSrvTemplate','country','AccessType','Prefix','CityTariff','RateType','DiscountPlanVOICECALL','DiscountPlanPACKAGE','DiscountPlanDID'));
 
     }
 
     public function store() {
-        //Log::info('Service Template Controller.');
         $data = Input::all();
-
         $CompanyID = User::get_companyID();
-        //dd($CompanyID);
         $data['CompanyID'] = $CompanyID;
-
-       // Log::info('Subscription List.' . $_REQUEST['selectedSubscription']);
-       // Log::info('Subscription List.' . $data['selectedSubscription']);
         $subsriptionList = isset($data['selectedSubscription'])?$data['selectedSubscription']:'';
         $CategoryTariffList = isset($data['selectedcategotyTariff'])?$data['selectedcategotyTariff']:'';
         $subsriptionList = trim($subsriptionList);
@@ -190,14 +219,14 @@ class ServicesTemplateController extends BaseController {
             $CategoryTariffList = substr($CategoryTariffList,0,strlen($CategoryTariffList) - 1);
         }
 
-        //Log::info('read Subscription List.' . $subsriptionList);
-        //Log::info('read Category Tariff List.' . $CategoryTariffList);
+
         $subsriptionList = explode(",",$subsriptionList);
         $CategoryTariffList = explode(",",$CategoryTariffList);
-        $OutboundDiscountPlanId = isset($data['OutboundDiscountPlanId'])?$data['OutboundDiscountPlanId']:'';
+        $OutboundDiscountPlanId = isset($data['OutboundDiscountPlanID123'])?$data['OutboundDiscountPlanID123']:'';
         $ContractDuration = isset($data['ContractDuration'])&&$data['ContractDuration']!=""?$data['ContractDuration']:null;
         $CancellationFee = isset($data['CancellationFee'])&&$data['CancellationFee']!=""?$data['CancellationFee']:null;
-        $InboundDiscountPlanId = isset($data['InboundDiscountPlanId'])?$data['InboundDiscountPlanId']:'';
+        $InboundDiscountPlanId = isset($data['InboundDiscountPlanID123'])?$data['InboundDiscountPlanID123']:'';
+        $PackageDiscountPlanId = isset($data['PackageDiscountPlanId'])?$data['PackageDiscountPlanId']:'';
         $CurrencyId = isset($data['CurrencyId'])?$data['CurrencyId']:'';
 
 
@@ -302,11 +331,16 @@ class ServicesTemplateController extends BaseController {
                         $ServiceTemplateData['OutboundDiscountPlanId'] = $OutboundDiscountPlanId;
                     }
                     if ($InboundDiscountPlanId != '') {
-                        $ServiceTemplateData['InboundDiscountPlanId'] = $InboundDiscountPlanId;
+                        $ServiceTemplateData['InboundDiscountPlanID123'] = $InboundDiscountPlanId;
+                    }
+                    if ($PackageDiscountPlanId != '') {
+                        $ServiceTemplateData['PackageDiscountPlanId'] = $PackageDiscountPlanId;
                     }
                     if (isset($data['OutboundRateTableId']) && $data['OutboundRateTableId'] != '') {
                         $ServiceTemplateData['OutboundRateTableId'] = $data['OutboundRateTableId'];
                     }
+
+
 
                     $ServiceTemplateData['AutomaticRenewal']    = $data['AutomaticRenewal'];
                     $ServiceTemplateData['CancellationCharges'] = $data['CancellationCharges'];
@@ -389,8 +423,9 @@ class ServicesTemplateController extends BaseController {
         //Log::info('update Category Tariff List.' . $CategoryTariffList);
         $subsriptionList = explode(",",$subsriptionList);
         $CategoryTariffList = explode(",",$CategoryTariffList);
-        $OutboundDiscountPlanId = isset($data['OutboundDiscountPlanId'])?$data['OutboundDiscountPlanId']:'';
-        $InboundDiscountPlanId = isset($data['InboundDiscountPlanId'])?$data['InboundDiscountPlanId']:'';
+        $OutboundDiscountPlanId = isset($data['OutboundDiscountPlanID123'])?$data['OutboundDiscountPlanID123']:'';
+        $InboundDiscountPlanId = isset($data['InboundDiscountPlanID123'])?$data['InboundDiscountPlanID123']:'';
+        $PackageDiscountPlanId = isset($data['PackageDiscountPlanId'])?$data['PackageDiscountPlanId']:'';
         $ContractDuration = isset($data['ContractDuration'])&&$data['ContractDuration']!=""?$data['ContractDuration'] : null;
         $CancellationFee = isset($data['CancellationFee'])&&$data['CancellationFee']!=""?$data['CancellationFee'] : null;
         $data['ModifiedBy'] = User::get_user_full_name();
@@ -514,6 +549,9 @@ class ServicesTemplateController extends BaseController {
             }
             if ($InboundDiscountPlanId != '') {
                 $ServiceTemplateData['InboundDiscountPlanId'] = $InboundDiscountPlanId;
+            }
+            if ($PackageDiscountPlanId != '') {
+                $ServiceTemplateData['PackageDiscountPlanId'] = $PackageDiscountPlanId;
             }
 
             if (isset($data['OutboundRateTableId']) && $data['OutboundRateTableId'] != '') {
@@ -657,6 +695,7 @@ class ServicesTemplateController extends BaseController {
     public function exports($type){
             $companyID = User::get_companyID();
             $data = Input::all();
+
             //$data['ServiceStatus']=$data['ServiceStatus']=='true'?1:0;
 
        /* $exportSelectedTemplate = "select tempalte.ServiceTemplateId,".
@@ -668,10 +707,11 @@ class ServicesTemplateController extends BaseController {
                                 "from tblServiceTemplate tempalte";
        DB::select($exportSelectedTemplate)
        */
+        try{
         $exportSelectedTemplate = ServiceTemplate::
         Join('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
             //->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
-            ->select(['tblServiceTemplate.Name','tblService.ServiceName'])
+            ->select(['tblServiceTemplate.Name','tblService.ServiceName','tblServiceTemplate.country','tblServiceTemplate.prefixName','tblServiceTemplate.accessType','tblServiceTemplate.city_tariff'])
             ->orderBy("tblServiceTemplate.Name", "ASC");
 
         if($data['ServiceName'] != ''){
@@ -681,8 +721,20 @@ class ServicesTemplateController extends BaseController {
         if($data['ServiceId'] != ''){
             $exportSelectedTemplate->where(["tblServiceTemplate.ServiceId"=>$data['ServiceId']]);
         }
+        if($data['CountryID'] != ''){
+            $exportSelectedTemplate->where("tblServiceTemplate.country",$data['CountryID']);
+        }
+        if($data['AccessType'] != ''){
+            $exportSelectedTemplate->where(["tblServiceTemplate.accessType"=>$data['AccessType']]);
+        }
+        if($data['Prefix'] != ''){
+            $exportSelectedTemplate->where(["tblServiceTemplate.prefixName"=>$data['Prefix']]);
+        }
+        if($data['CityTariff'] != ''){
+            $exportSelectedTemplate->where(["tblServiceTemplate.city_tariff"=>$data['CityTariff']]);
+        }
 
-        //Log::info('$exportSelectedTemplate query.' . $exportSelectedTemplate->toSql());
+        Log::info('$exportSelectedTemplate query.' . $exportSelectedTemplate->toSql());
         $exportSelectedTemplate = $exportSelectedTemplate->get();
         //Log::info('$exportSelectedTemplate count.' . count($exportSelectedTemplate));
 
@@ -697,6 +749,10 @@ class ServicesTemplateController extends BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($services);
             }
+        }catch(Exception $ex){
+            log::info($ex);
+        }
+
 
     }
 
@@ -1097,6 +1153,7 @@ class ServicesTemplateController extends BaseController {
 
     public function addBulkAction(){ // Add Bulk action if input empty then this will add already existing values...
         $data = Input::all();
+        //dd($data);
         try{
 
         if(isset($data['Service']))
@@ -1115,6 +1172,9 @@ class ServicesTemplateController extends BaseController {
         $data['selectedcategotyTariff'] = (isset($data['selectedcategotyTariffBulkAction'])? $data['selectedcategotyTariffBulkAction'] : " ");
         $data['DidCategoryTariffID']    = (isset($data['DidCategoryTariffIDBulkAction']) ? $data['DidCategoryTariffIDBulkAction'] : " ");
         $data['InboundDiscountPlanId']  = (isset($data['InboundDiscountPlanIdBulkAction']) ? $data['InboundDiscountPlanIdBulkAction'] : " ");
+        $data['PackageDiscountPlanId']  = (isset($data['PackageDiscountPlanIdBulkAction']) ? $data['PackageDiscountPlanIdBulkAction'] : " ");
+
+
 
 
 
@@ -1126,6 +1186,7 @@ class ServicesTemplateController extends BaseController {
         unset($data['DidCategoryTariffIDBulkAction']);
         unset($data['DidCategoryIDBulkAction']);
         unset($data['InboundDiscountPlanIdBulkAction']);
+        unset($data['PackageDiscountPlanIdBulkAction']);
 
 
         if(isset($data['ServiceTemplateIdBulkAction'])) {
@@ -1151,6 +1212,9 @@ class ServicesTemplateController extends BaseController {
                 if (isset($data['InboundDiscountPlan']) && $data['InboundDiscountPlan'] == 1 ) {
                     $updateFields['InboundDiscountPlanId'] = (isset($data['InboundDiscountPlanId']) ? $data['InboundDiscountPlanId'] : $ExistingValues['InboundDiscountPlanId']);
                 }
+                if (isset($data['PackageDiscountPlan']) && $data['PackageDiscountPlan'] == 1 ) {
+                    $updateFields['PackageDiscountPlanId'] = (isset($data['PackageDiscountPlanId']) ? $data['PackageDiscountPlanId'] : $ExistingValues['PackageDiscountPlanId']);
+                }
 
 
 
@@ -1161,6 +1225,7 @@ class ServicesTemplateController extends BaseController {
             unset($data['OutboundTraiff']);
             unset($data['OutboundDiscountPlan']);
             unset($data['InboundDiscountPlan']);
+            unset($data['PackageDiscountPlan']);
 
 
             $data['ServiceTemplateId'] = $data['ServiceTemplateIdBulkAction'];
@@ -1185,6 +1250,7 @@ class ServicesTemplateController extends BaseController {
             unset($data['OutboundRateTableId']);
             unset($data['OutboundDiscountPlanId']);
             unset($data['InboundDiscountPlanId']);
+            unset($data['PackageDiscountPlanId']);
             unset($data['ServiceTemplateIdBulkAction']);
             unset($data['Service']);
             unset($data['selectedcategotyTariff']);

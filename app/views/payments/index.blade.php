@@ -13,12 +13,13 @@
                     <label for="field-1" class="control-label small_label">Account</label>
                     {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                 </div>
-                
+                @if(is_reseller())
+                @else
                 <div class="form-group">
                     <label class="control-label" for="field-1">Account Partner</label>
                     {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
                 </div>
-                
+                @endif
                 <div class="form-group">
                     <label class="control-label small_label">Invoice No</label>
                     <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />

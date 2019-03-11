@@ -13,6 +13,13 @@
                     <label for="field-1" class="control-label">Name</label>
                     <input type="text" name="Name" class="form-control" value="" />
                 </div>
+                @if(is_reseller())
+                @else
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Partner</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                </div>
+                @endif
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
                         <i class="entypo-search"></i>
@@ -48,6 +55,7 @@
         <thead>
         <tr>
             <th width="20%">Name</th>
+            <th width="20%">Partner</th>
             <th width="15%">Modified By</th>
             <th width="15%">Modified Date</th>
             <th width="20%">Action</th>
@@ -76,6 +84,7 @@
                 e.preventDefault();
 
                 $search.Name = $("#table_filter").find('[name="Name"]').val();
+                $search.ResellerOwner = $("#table_filter").find('[name="ResellerOwner"]').val();
 
                 data_table = $("#table-list").dataTable({
                     "bDestroy": true,
@@ -88,19 +97,22 @@
                     "aaSorting": [[0, 'asc']],
                     "fnServerParams": function (aoData) {
                         aoData.push(
-                                {"name": "Name", "value": $search.Name}
+                                {"name": "Name", "value": $search.Name},
+                        {"name": "ResellerOwner", "value": $search.ResellerOwner}
 
 
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "Name", "value": $search.Name},
+                        {"name": "ResellerOwner", "value": $search.ResellerOwner},
                                 {"name": "Export", "value": 1}
                         );
 
                     },
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
+                        {  "bSortable": true },  // 0 partner
                         {  "bSortable": true },  // 2 UpdatedBy
                         {  "bSortable": true },  // 2 updated_at
                         {  "bSortable": false,
