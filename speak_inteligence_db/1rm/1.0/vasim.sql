@@ -2322,6 +2322,7 @@ BEGIN
 		ChargebackCurrencySymbol VARCHAR(255),
 		CollectionCostAmountCurrencySymbol VARCHAR(255),
 		RegistrationCostPerNumberCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
 		INDEX tmp_RateTableDIDRate_RateID (`RateID`)
     );
 
@@ -2381,7 +2382,8 @@ BEGIN
 		IFNULL(tblSurchargesCurrency.Symbol,'') AS SurchargesCurrencySymbol,
 		IFNULL(tblChargebackCurrency.Symbol,'') AS ChargebackCurrencySymbol,
 		IFNULL(tblCollectionCostAmountCurrency.Symbol,'') AS CollectionCostAmountCurrencySymbol,
-		IFNULL(tblRegistrationCostPerNumberCurrency.Symbol,'') AS RegistrationCostPerNumberCurrencySymbol
+		IFNULL(tblRegistrationCostPerNumberCurrency.Symbol,'') AS RegistrationCostPerNumberCurrencySymbol,
+		tblRateTableDIDRate.TimezonesID
     FROM tblRate
     LEFT JOIN tblRateTableDIDRate
         ON tblRateTableDIDRate.RateID = tblRate.RateID
@@ -2427,7 +2429,7 @@ BEGIN
 		AND (p_CityTariff is null OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'))
 		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
-		AND tblRateTableDIDRate.TimezonesID = p_TimezonesID
+		AND (p_TimezonesID IS NULL OR tblRateTableDIDRate.TimezonesID = p_TimezonesID)
 		AND (
 				p_effective = 'All'
 				OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
@@ -2881,7 +2883,7 @@ CREATE PROCEDURE `prc_GetRateTableRate`(
 	IN `p_companyid` INT,
 	IN `p_RateTableId` INT,
 	IN `p_trunkID` INT,
-	IN `p_TimezonesID` INT,
+	IN `p_TimezonesID` VARCHAR(50),
 	IN `p_contryID` INT,
 	IN `p_origination_code` VARCHAR(50),
 	IN `p_origination_description` VARCHAR(50),
@@ -2945,6 +2947,7 @@ BEGIN
 		ConnectionFeeCurrency INT(11),
 		RateCurrencySymbol VARCHAR(255),
 		ConnectionFeeCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
         INDEX tmp_RateTableRate_RateID (`RateID`)
     );
 
@@ -2980,7 +2983,8 @@ BEGIN
 		tblRateCurrency.CurrencyID AS RateCurrency,
 		tblConnectionFeeCurrency.CurrencyID AS ConnectionFeeCurrency,
 		IFNULL(tblRateCurrency.Symbol,'') AS RateCurrencySymbol,
-		IFNULL(tblConnectionFeeCurrency.Symbol,'') AS ConnectionFeeCurrencySymbol
+		IFNULL(tblConnectionFeeCurrency.Symbol,'') AS ConnectionFeeCurrencySymbol,
+		tblRateTableRate.TimezonesID
     FROM tblRate
     LEFT JOIN tblRateTableRate
         ON tblRateTableRate.RateID = tblRate.RateID
@@ -3006,7 +3010,7 @@ BEGIN
 		AND (p_Blocked IS NULL OR tblRateTableRate.Blocked = p_Blocked)
 		AND (p_ApprovedStatus IS NULL OR tblRateTableRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
-		AND tblRateTableRate.TimezonesID = p_TimezonesID
+		AND (p_TimezonesID IS NULL OR tblRateTableRate.TimezonesID = p_TimezonesID)
 		AND (
 			p_effective = 'All'
 		OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
@@ -3024,12 +3028,12 @@ BEGIN
 	UPDATE
 		tmp_RateTableRate_ tr
 	SET
-		PreviousRate = (SELECT Rate FROM tblRateTableRate WHERE RateTableID=p_RateTableId AND TimezonesID = p_TimezonesID AND RateID=tr.RateID AND OriginationRateID=tr.OriginationRateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1);
+		PreviousRate = (SELECT Rate FROM tblRateTableRate WHERE RateTableID=p_RateTableId AND TimezonesID = tr.TimezonesID AND RateID=tr.RateID AND OriginationRateID=tr.OriginationRateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1);
 
 	UPDATE
 		tmp_RateTableRate_ tr
 	SET
-		PreviousRate = (SELECT Rate FROM tblRateTableRateArchive WHERE RateTableID=p_RateTableId AND TimezonesID = p_TimezonesID AND RateID=tr.RateID AND OriginationRateID=tr.OriginationRateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1)
+		PreviousRate = (SELECT Rate FROM tblRateTableRateArchive WHERE RateTableID=p_RateTableId AND TimezonesID = tr.TimezonesID AND RateID=tr.RateID AND OriginationRateID=tr.OriginationRateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1)
 	WHERE
 		PreviousRate is null;
 
@@ -3136,8 +3140,8 @@ BEGIN
         	FROM tmp_RateTableRate_;
 
 		ELSE
-			SELECT group_concat(ID) AS ID,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,MAX(Description),MAX(Interval1),MAX(Intervaln),MAX(ConnectionFee),MAX(PreviousRate),MAX(Rate),MAX(RateN),MAX(EffectiveDate),MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate, MAX(RateCurrency) AS RateCurrency, MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency, MAX(RateCurrencySymbol) AS RateCurrencySymbol, MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol FROM tmp_RateTableRate_
-					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, ApprovedStatus
+			SELECT group_concat(ID) AS ID,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,MAX(Description),MAX(Interval1),MAX(Intervaln),MAX(ConnectionFee),MAX(PreviousRate),MAX(Rate),MAX(RateN),MAX(EffectiveDate),MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate, MAX(RateCurrency) AS RateCurrency, MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency, MAX(RateCurrencySymbol) AS RateCurrencySymbol, MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol,TimezonesID FROM tmp_RateTableRate_
+					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, ApprovedStatus, TimezonesID
 					ORDER BY
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN ANY_VALUE(OriginationCode)
@@ -3230,7 +3234,7 @@ BEGIN
 				SELECT
 	            Description
 	        	FROM tmp_RateTableRate_
-					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, ApprovedStatus
+					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, ApprovedStatus, TimezonesID
 			) totalcount;
 
 
@@ -10957,6 +10961,7 @@ BEGIN
 		MonthlyCostCurrencySymbol VARCHAR(255),
 		PackageCostPerMinuteCurrencySymbol VARCHAR(255),
 		RecordingCostPerMinuteCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
 		INDEX tmp_RateTablePKGRate_RateID (`RateID`)
     );
 
@@ -10985,7 +10990,8 @@ BEGIN
 		IFNULL(tblOneOffCostCurrency.Symbol,'') AS OneOffCostCurrencySymbol,
 		IFNULL(tblMonthlyCostCurrency.Symbol,'') AS MonthlyCostCurrencySymbol,
 		IFNULL(tblPackageCostPerMinuteCurrency.Symbol,'') AS PackageCostPerMinuteCurrencySymbol,
-		IFNULL(tblRecordingCostPerMinuteCurrency.Symbol,'') AS RecordingCostPerMinuteCurrencySymbol
+		IFNULL(tblRecordingCostPerMinuteCurrency.Symbol,'') AS RecordingCostPerMinuteCurrencySymbol,
+		tblRateTablePKGRate.TimezonesID
     FROM tblRate
     LEFT JOIN tblRateTablePKGRate
         ON tblRateTablePKGRate.RateID = tblRate.RateID
@@ -11004,7 +11010,7 @@ BEGIN
 		(tblRate.CompanyID = p_companyid)
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
 		AND (p_ApprovedStatus IS NULL OR tblRateTablePKGRate.ApprovedStatus = p_ApprovedStatus)
-		AND tblRateTablePKGRate.TimezonesID = p_TimezonesID
+		AND (p_TimezonesID IS NULL OR tblRateTablePKGRate.TimezonesID = p_TimezonesID)
 		AND (
 				p_effective = 'All'
 				OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
