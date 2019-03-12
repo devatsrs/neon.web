@@ -59,25 +59,71 @@ class PaymentApiController extends ApiController {
 				//$Balance = (float)AccountBalance::getAccountBalance($AccountID);
 				$BalanceArr = [];
 
-				//echo $Balance;
-				/*$payments = Payment::where([
-					'AccountID' => $AccountID,
-					'CompanyID' => $CompanyID
-				])->orderBy('PaymentID', 'DESC')->get();*/
 				$query = "CALL prc_getTransactionHistory(" . $CompanyID . "," . $AccountID . ",'0000-00-00','0000-00-00')";
 				$payments = DB::connection('sqlsrv2')->select($query);
+				$payments = json_decode(json_encode($payments), true);
 				$Balance = 0;
+
+				// If user type is prepaid
+				$BillingType = AccountBilling::where(['AccountID' => $AccountID,'ServiceID' => 0])->first();
+				if(isset($BillingType)) {
+					if ($BillingType->BillingType == AccountApproval::BILLINGTYPE_PREPAID) {
+						$today = date('Y-m-d 23:59:59');
+						$Account = Account::where(["AccountID" => $AccountID])->first();
+						$CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($BillingType,$Account);
+						$startDate = $data['StartDate'] != "0000-00-00" ? $data['StartDate'] : $CustomerLastInvoiceDate;
+						$endDate = $data['EndDate'] != "0000-00-00" ? $data['EndDate'] : $today;
+
+						$startDate = new DateTime($startDate);
+						$endDate   = new DateTime($endDate);
+
+						$query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?)";
+						$UnBilledResult = DB::select($query, array($CompanyID, $AccountID, $CustomerLastInvoiceDate, $today, 1));
+						if($UnBilledResult != false){
+							foreach($UnBilledResult as $item){
+								if($item->Type == "Usage") {
+									$insertArr = [
+										"PaymentID" 	=> 0,
+										"AccountID" 	=> $AccountID,
+										"Amount" 		=> $item->Amount,
+										"PaymentType" 	=> "Payment Out",
+										"CurrencyID" 	=> $Account->CurrencyId,
+										"PaymentDate" 	=> $item->IssueDate,
+										"CreatedBy" 	=> "",
+										"PaymentProof" 	=> NULL,
+										"InvoiceNo" 	=> "",
+										"PaymentMethod" => "",
+										"Notes" 		=> "",
+										"Recall" 		=> "",
+										"Reason" 		=> "",
+										"RecallBy" 		=> "",
+									];
+									$payments[] = $insertArr;
+									$issueDate = new DateTime($item->IssueDate);
+
+									if($startDate <= $issueDate && $endDate >= $issueDate)
+										$Response[] = $insertArr;
+								}
+							}
+
+							$payments = self::sortByPaymentDate($payments);
+							$Response = self::sortByPaymentDate($Response);
+						}
+					}
+				}
+
+
 				foreach($payments as $key => $payment){
-					if(strtolower($payment->PaymentType) == "payment in")
-						$Balance += (float)$payment->Amount;
-					elseif (strtolower($payment->PaymentType) == "payment out")
-						$Balance -= (float)$payment->Amount;
-					$BalanceArr[$payment->PaymentID] = $Balance;
+					if(strtolower($payment['PaymentType']) == "payment in")
+						$Balance += (float)$payment['Amount'];
+					elseif (strtolower($payment['PaymentType']) == "payment out")
+						$Balance -= (float)$payment['Amount'];
+					$BalanceArr[$payment['PaymentID'] ."-". $payment['PaymentDate']] = $Balance;
 				}
 
 				foreach($Response as $key => $res){
-					if(array_key_exists($res['PaymentID'], $BalanceArr))
-						$Response[$key]['Balance'] = $BalanceArr[$res['PaymentID']];
+					if(array_key_exists($res['PaymentID'] ."-". $res['PaymentDate'], $BalanceArr))
+						$Response[$key]['Balance'] = $BalanceArr[$res['PaymentID'] ."-". $res['PaymentDate']];
 				}
 
 				return Response::json($Response,Codes::$Code200[0]);
@@ -90,6 +136,20 @@ class PaymentApiController extends ApiController {
 			return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code402[0]);
 		}
 
+	}
+
+	public static function sortByPaymentDate($payments){
+		usort($payments, function($a, $b) {
+			$ad = new DateTime($a['PaymentDate']);
+			$bd = new DateTime($b['PaymentDate']);
+
+			if ($ad == $bd) {
+				return 0;
+			}
+
+			return $ad < $bd ? -1 : 1;
+		});
+		return $payments;
 	}
 
 	/**
