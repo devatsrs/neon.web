@@ -491,7 +491,34 @@ BEGIN
 
 
 	INSERT INTO tblRateTableRateArchive
-	SELECT DISTINCT  null ,
+	(
+		RateTableRateID,
+		RateTableId,
+		TimezonesID,
+		OriginationRateID,
+		RateId,
+		Rate,
+		RateN,
+		EffectiveDate,
+		EndDate,
+		updated_at,
+		created_at,
+		created_by,
+		updated_by,
+		Interval1,
+		IntervalN,
+		ConnectionFee,
+		RoutingCategoryID,
+		Preference,
+		Blocked,
+		ApprovedStatus,
+		ApprovedBy,
+		ApprovedDate,
+		RateCurrency,
+		ConnectionFeeCurrency,
+		Notes
+	)
+	SELECT DISTINCT -- null ,
 		`RateTableRateID`,
 		`RateTableId`,
 		`TimezonesID`,
@@ -1193,7 +1220,50 @@ BEGIN
 
 
 	INSERT INTO tblRateTableDIDRateArchive
-	SELECT DISTINCT  null ,
+	(
+		RateTableDIDRateID,
+		OriginationRateID,
+		RateId,
+		RateTableId,
+		TimezonesID,
+		EffectiveDate,
+		EndDate,
+		CityTariff,
+		OneOffCost,
+		MonthlyCost,
+		CostPerCall,
+		CostPerMinute,
+		SurchargePerCall,
+		SurchargePerMinute,
+		OutpaymentPerCall,
+		OutpaymentPerMinute,
+		Surcharges,
+		Chargeback,
+		CollectionCostAmount,
+		CollectionCostPercentage,
+		RegistrationCostPerNumber,
+		OneOffCostCurrency,
+		MonthlyCostCurrency,
+		CostPerCallCurrency,
+		CostPerMinuteCurrency,
+		SurchargePerCallCurrency,
+		SurchargePerMinuteCurrency,
+		OutpaymentPerCallCurrency,
+		OutpaymentPerMinuteCurrency,
+		SurchargesCurrency,
+		ChargebackCurrency,
+		CollectionCostAmountCurrency,
+		RegistrationCostPerNumberCurrency,
+		created_at,
+		updated_at,
+		CreatedBy,
+		ModifiedBy,
+		ApprovedStatus,
+		ApprovedBy,
+		ApprovedDate,
+		Notes
+	)
+	SELECT DISTINCT -- null ,
 		`RateTableDIDRateID`,
 		`OriginationRateID`,
 		`RateId`,
@@ -3172,7 +3242,7 @@ BEGIN
 	-- export
 	IF p_isExport <> 0
 	THEN
-		SET @stm1='',@stm2='',@stm3='',@stm4=''='';
+		SET @stm1='',@stm2='',@stm3='',@stm4='';
 
 		SET @stm1 = "
 			SELECT
@@ -10571,7 +10641,31 @@ BEGIN
 
 
 	INSERT INTO tblRateTablePKGRateArchive
-	SELECT DISTINCT  null ,
+	(
+		RateTablePKGRateID,
+		RateId,
+		RateTableId,
+		TimezonesID,
+		EffectiveDate,
+		EndDate,
+		OneOffCost,
+		MonthlyCost,
+		PackageCostPerMinute,
+		RecordingCostPerMinute,
+		OneOffCostCurrency,
+		MonthlyCostCurrency,
+		PackageCostPerMinuteCurrency,
+		RecordingCostPerMinuteCurrency,
+		created_at,
+		updated_at,
+		CreatedBy,
+		ModifiedBy,
+		ApprovedStatus,
+		ApprovedBy,
+		ApprovedDate,
+		Notes
+	)
+	SELECT DISTINCT -- null ,
 		`RateTablePKGRateID`,
 		`RateId`,
 		`RateTableId`,
