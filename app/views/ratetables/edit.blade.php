@@ -638,8 +638,6 @@
         @endif
         $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val() != undefined ? $("#rate-table-search select[name='ApprovedStatus']").val() : '';
         $searchFilter.ratetablepageview = ratetablepageview;
-
-        console.log($searchFilter.Blocked);
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
             "bProcessing": true,
