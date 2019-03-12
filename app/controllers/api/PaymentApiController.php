@@ -81,7 +81,7 @@ class PaymentApiController extends ApiController {
 						$UnBilledResult = DB::select($query, array($CompanyID, $AccountID, $CustomerLastInvoiceDate, $today, 1));
 						if($UnBilledResult != false){
 							foreach($UnBilledResult as $item){
-								if($item->Type == "Usage") {
+								if($item->Type == "Usage" && 0 != (float)$item->Amount) {
 									$insertArr = [
 										"PaymentID" 	=> 0,
 										"AccountID" 	=> $AccountID,
@@ -93,7 +93,7 @@ class PaymentApiController extends ApiController {
 										"PaymentProof" 	=> NULL,
 										"InvoiceNo" 	=> "",
 										"PaymentMethod" => "",
-										"Notes" 		=> "",
+										"Notes" 		=> "Charges",
 										"Recall" 		=> "",
 										"Reason" 		=> "",
 										"RecallBy" 		=> "",
@@ -125,7 +125,6 @@ class PaymentApiController extends ApiController {
 					if(array_key_exists($res['PaymentID'] ."-". $res['PaymentDate'], $BalanceArr))
 						$Response[$key]['Balance'] = $BalanceArr[$res['PaymentID'] ."-". $res['PaymentDate']];
 				}
-
 				return Response::json($Response,Codes::$Code200[0]);
 			}catch(Exception $e){
 				Log::info($e);
