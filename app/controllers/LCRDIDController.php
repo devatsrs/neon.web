@@ -78,6 +78,8 @@ if($data['lcr_type']=='Y'){
                 }
                 $query .=',0)';
 }
+
+        Log::info('Search procedure query' . $query);
         return DataTableSql::of($query)->make();
 
 
