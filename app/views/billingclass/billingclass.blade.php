@@ -23,7 +23,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                 <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel body -->
                         <div class="panel-body">
-                            <div class="form-group">
+                            <div class="form-group"  style="display:none;">
                                 <label for="field-1" class="col-sm-2 control-label">Partner</label>
                                 <div class="col-sm-4">
                                     {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerOwner)?$BillingClass->ResellerOwner:'' ), array("class"=>"select2")) }}
@@ -418,6 +418,8 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
 <div id="rowContainer"></div>
 <script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>
 <script>
+    
+    
     var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select22 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}';
     var add_row_html_payment = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
     add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
@@ -426,6 +428,28 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
     var target = '';
     jQuery(document).ready(function ($) {
 
+        $("[name='ResellerOwner']").on('change', function () {
+            console.log($(this).val()+'ooooooo');
+            var options='<option>a</option><option>b</option>';
+            
+            console.log(options);
+                
+                //append new table rows here
+                $("[name=InvoiceTemplateID]").empty().append(options);
+
+                //reinitialize the new select box
+                $("[name=InvoiceTemplateID]").select2({
+                 //configuration
+                });
+//            $.ajax({
+//                type : 'POST',
+//                url : 'userprofile',
+//                data : "w4rlistings_feed_level=1&feed_level="+$(this).val()+"&system_id="+$('#system_id').val()+'&csrfKey='+$('#csrfKey').val(),
+//                success: function( response ) {
+//                }
+//            });
+        });
+        
         $("[name='BalanceWarning[StartDay]']").keyup(function(){
             var days = $("[name='BalanceWarning[StartDay]']").val();
             if(days == 1)

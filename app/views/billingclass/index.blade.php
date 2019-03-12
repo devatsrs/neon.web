@@ -15,7 +15,7 @@
                 </div>
                 @if(is_reseller())
                 @else
-                <div class="form-group">
+                <div class="form-group" style="display:none;">
                     <label for="field-1" class="control-label">Partner</label>
                     {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
                 </div>
@@ -55,7 +55,7 @@
         <thead>
         <tr>
             <th width="20%">Name</th>
-            <th width="20%">Partner</th>
+            <th width="20%" style="display:none;">Partner</th>
             <th width="15%">Modified By</th>
             <th width="15%">Modified Date</th>
             <th width="20%">Action</th>
@@ -112,7 +112,6 @@
                     },
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
-                        {  "bSortable": true },  // 0 partner
                         {  "bSortable": true },  // 2 UpdatedBy
                         {  "bSortable": true },  // 2 updated_at
                         {  "bSortable": false,

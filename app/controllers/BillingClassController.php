@@ -4,7 +4,7 @@ class BillingClassController extends \BaseController {
 
 
     public function index() {
-        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        $reseller_owners = Reseller::getDropdownIDListAll();
         return View::make('billingclass.index', compact('reseller_owners'));
     }
     public function create() {
@@ -18,7 +18,7 @@ class BillingClassController extends \BaseController {
         $privacy = EmailTemplate::$privacy;
         $type = EmailTemplate::$Type;*/
         $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
-        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        $reseller_owners = Reseller::getDropdownIDListAll();
         return View::make('billingclass.create', compact('BillingClassList','reseller_owners'));
         //return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates','privacy','type'));
     }

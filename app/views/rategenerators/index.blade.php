@@ -123,7 +123,12 @@
                         return output;
                     }
                 },
-                {},
+                {
+                    mRender: function (status, type, full) {
+                        var output = full[6];
+                        return output;
+                    }
+                },
                 {
                     mRender: function (id, type, full) {
                         id = full[7];

@@ -11,15 +11,14 @@ class PaymentsController extends \BaseController {
 			$data['iSortCol_0']			 	 =  	0;     
 			$data['sSortDir_0']			 	 =  	'desc';
 			$data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:0;
-                        $data['ResellerOwner'] 				 = 		$data['ResellerOwner']!= ''?$data['ResellerOwner']:0;
 			$data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
 			$data['Status'] 				 = 		$data['Status'] != ''?"'".$data['Status']."'":'null';
 			$data['type'] 					 = 		$data['type'] != ''?"'".$data['type']."'":'null';
 			$data['paymentmethod'] 			 = 		$data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';
 			$data['p_paymentstartdate'] 	 = 		empty($data['PaymentDate_StartDate']) ?'null':"".$data['PaymentDate_StartDate']."";
 			$data['p_paymentenddate'] 	     = 		empty($data['p_paymentenddate']) ?'null':"".$data['p_paymentenddate']."";
-            $data['p_paymentstartTime'] 	 = 		empty($data['PaymentDate_StartTime'])?'00:00:00':"".$data['PaymentDate_StartTime']."";
-            $data['p_paymentendtime']   	 = 		empty($data['p_paymentendtime'])?'00:00:00':"".$data['p_paymentendtime']."";
+                        $data['p_paymentstartTime'] 	 = 		empty($data['PaymentDate_StartTime'])?'00:00:00':"".$data['PaymentDate_StartTime']."";
+                        $data['p_paymentendtime']   	 = 		empty($data['p_paymentendtime'])?'00:00:00':"".$data['p_paymentendtime']."";
 			$data['p_paymentstart']			 =		'null';		
 			$data['p_paymentend']			 =		'null';
 			$data['CurrencyID'] 			 = 		empty($data['CurrencyID'])?'0':$data['CurrencyID'];
@@ -44,6 +43,7 @@ class PaymentsController extends \BaseController {
 			$columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
 			$sort_column = $columns[$data['iSortCol_0']];
 
+                       $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
             // AccountManger Condition
             $userID = 0;
             if(User::is('AccountManager')) { // Account Manager
@@ -67,7 +67,7 @@ class PaymentsController extends \BaseController {
         $CompanyID 						 = 		User::get_companyID();
         $data['iDisplayStart'] 			+=		1;
         $data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:0;
-        $data['ResellerOwner'] 				 = 		$data['ResellerOwner']!= ''?$data['ResellerOwner']:0;
+        
         $data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
         $data['Status'] 				 = 		$data['Status'] != ''?"'".$data['Status']."'":'null';
         $data['type'] 					 = 		$data['type'] != ''?"'".$data['type']."'":'null';
@@ -105,7 +105,7 @@ class PaymentsController extends \BaseController {
         if(User::is('AccountManager')) { // Account Manager
             $userID = User::get_userID();
         }
-
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['ResellerOwner'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1,'.$userID.',"'.$data['tag'].'")');

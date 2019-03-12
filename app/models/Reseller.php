@@ -30,7 +30,11 @@ class Reseller extends \Eloquent
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
         return $DropdownIDList;
     }
-
+    public static function getDropdownIDListAll(){
+        $DropdownIDList = Reseller::where(array("Status"=>1))->lists('ResellerName', 'ResellerID');
+        $DropdownIDList = array('' => "Select") + $DropdownIDList;
+        return $DropdownIDList;
+    }
     public static function getResellerDetails($ResellerID){
         return Reseller::where('ResellerID',$ResellerID)->first();
     }

@@ -43,6 +43,8 @@
                         <input id="Vendor_on_off" name="vendor_on_off" type="checkbox" value="1">
                     </p>
                 </div>
+                @if(is_reseller())
+                @else
                 <div class="form-group">
                     <label class="control-label"  >Partner</label><br/>
                     <p class="make-switch switch-small">
@@ -53,6 +55,7 @@
                     <label class="control-label" for="field-1">Account Partner</label>
                     {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
                 </div>
+                @endif
                 <div class="form-group">
                     <label class="control-label"  >Active</label><br/>
                     <p class="make-switch switch-small">
