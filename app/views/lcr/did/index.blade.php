@@ -115,7 +115,7 @@
             <a href="{{URL::to('lcr')}}">Compare Vendor Rate</a>
         </li>
         <li class="active">
-            <strong>{{!isset($_REQUEST['lcrType']) ? "Access":$_REQUEST['lcrType']}}</strong>
+            <strong id="treeLCR">{{!isset($_REQUEST['lcrType']) ? "Access":$_REQUEST['lcrType']}}</strong>
         </li>
     </ol>
     <h3 id="headingLCR">{{!isset($_REQUEST['lcrType']) ? "Access":$_REQUEST['lcrType']}}</h3>
@@ -192,6 +192,8 @@
                    $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
+
+
                 }else{
 
                     $('#lcr_type').val('N');
@@ -202,6 +204,7 @@
                    $('.productcategory').show();
                     $('#Origination').show();
                     $('#OriginationPercentage').show();
+
                 }
                 
             });
@@ -519,8 +522,9 @@
                     }
 
                 });
-                alert("Change" + $searchFilter.lcrType);
-                $('.headingLCR').html($searchFilter.lcrType);
+
+                $('#treeLCR').text($searchFilter.lcrType);
+                $('#headingLCR').text($searchFilter.lcrType);
                 return false;
             });
 
