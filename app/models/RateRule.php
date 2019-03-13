@@ -14,4 +14,8 @@ class RateRule extends \Eloquent {
     {
         return $this->hasMany('RateRuleMargin','RateRuleId');
     }
+    public function country()
+    {
+        return $this->belongsTo('Country','CountryID');
+    }
 }

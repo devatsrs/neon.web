@@ -10,6 +10,7 @@ class AccountDiscountPlan extends \Eloquent
 
     const OUTBOUND = 1;
     const INBOUND = 2;
+    const PACKAGE = 3;
 
 
     public static function checkForeignKeyById($id) {
@@ -31,8 +32,8 @@ class AccountDiscountPlan extends \Eloquent
         log::info('test prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,$CreatedBY,$Today,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
         if( AccountDiscountPlan::where(["AccountID"=> $AccountID,'Type'=>$Type,'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID,'AccountSubscriptionID'=>$AccountSubscriptionID,'AccountName'=>$AccountName,'AccountCLI'=>$AccountCLI,'SubscriptionDiscountPlanID'=>$SubscriptionDiscountPlanID])->pluck('DiscountPlanID') != $DiscountPlanID){
             $Today = date('Y-m-d H:i:s');
-            log::info('call prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,$CreatedBY,$Today,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
-            DB::select('call prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,$CreatedBY,$Today,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
+            log::info('call prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,$CreatedBY,$Today,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
+            DB::select('call prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,$CreatedBY,$Today,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
         }
     }
     public static function getDiscountPlan($AccountID,$Type,$ServiceID,$AccountSubscriptionID,$SubscriptionDiscountPlanID){

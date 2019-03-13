@@ -110,6 +110,10 @@
                         <div class="col-sm-4">
                             {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control select2 small"))}}
                         </div>
+                        <label for="field-1" class="col-sm-2 control-label">Exclude Discount Components</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('Components[]', DiscountPlan::$Component, $ExcludedComponent, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"MinutesComponent-1")) }}
+                        </div>
                         <!--<label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
 
                         <p class="make-switch switch-small">

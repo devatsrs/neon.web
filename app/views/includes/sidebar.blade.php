@@ -36,32 +36,32 @@
                     </form>
                 </li>--> 
     @if(User::checkCategoryPermission('MonitorDashboard','All'))
-    <li class=""><a href="{{Url::to('/monitor')}}"><i class="entypo-monitor"></i><span>Monitor Dashboard</span></a>
+    <li class="{{ active_url_class("monitor") }}"><a href="{{Url::to('/monitor')}}"><i class="entypo-monitor"></i><span>Monitor Dashboard</span></a>
     </li>
     @endif
     @if(User::checkCategoryPermission('Leads','View'))
       @if(User::checkCategoryPermission('Leads','Add'))
-        <li class="two-links"> <a href="{{Url::to('/leads')}}" class="first"> <i class="fa fa-building" aria-hidden="true"></i> <span>&nbsp;Leads</span> </a> <a href="{{URL::to('leads/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
+        <li class="two-links {{ active_url_class("leads") }}"> <a href="{{Url::to('/leads')}}" class="first"> <i class="fa fa-building" aria-hidden="true"></i> <span>&nbsp;Leads</span> </a> <a href="{{URL::to('leads/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
       @else
-        <li> <a href="{{Url::to('/leads')}}"> <i class="fa fa-building" aria-hidden="true"></i> <span>&nbsp;Leads</span> </a></li>
+        <li class="{{ active_url_class("leads") }}"> <a href="{{Url::to('/leads')}}"> <i class="fa fa-building" aria-hidden="true"></i> <span>&nbsp;Leads</span> </a></li>
       @endif
     @endif
     @if( User::checkCategoryPermission('Contacts','View'))
       @if( User::checkCategoryPermission('Contacts','Add'))
-        <li class="two-links"> <a href="{{Url::to('/contacts')}}" class="first"> <i class="entypo-users"></i><span>Contacts</span></a> <a href="{{URL::to('contacts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
+        <li class="two-links {{ active_url_class("contacts") }}"> <a href="{{Url::to('/contacts')}}" class="first"> <i class="entypo-users"></i><span>Contacts</span></a> <a href="{{URL::to('contacts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
       @else
-        <li> <a href="{{Url::to('/contacts')}}"> <i class="entypo-users"></i><span>Contacts</span></a></li>
+        <li class="{{ active_url_class("contacts") }}"> <a href="{{Url::to('/contacts')}}"> <i class="entypo-users"></i><span>Contacts</span></a></li>
       @endif
     @endif
     @if( User::checkCategoryPermission('Account','View'))
       @if( User::checkCategoryPermission('Account','Add'))
-        <li class="two-links"> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> <a href="{{URL::to('accounts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
+        <li class="two-links {{ active_url_class("accounts") }} {{ active_url_class("accountservices") }}"> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> <a href="{{URL::to('accounts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
       @else
-        <li> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a></li>
+        <li class="{{ active_url_class("accounts") }} {{ active_url_class("accountservices") }}"> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a></li>
       @endif
     @endif
     @if(User::checkCategoryPermission('Reseller','View'))
-    <li> <a href="{{URL::to('/reseller')}}">  <i class="entypo-users"></i><span>Partner</span> </a> </li>
+    <li class="{{ active_url_class("reseller") }}"> <a href="{{URL::to('/reseller')}}">  <i class="entypo-users"></i><span>Partner</span> </a> </li>
     @endif
          <!--tickets start -->
     @if(Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','View'))
@@ -71,24 +71,24 @@
       @endif
       <ul>
           @if(User::checkCategoryPermission('TicketDashboard','View'))
-              <li> <a href="{{URL::to('/ticketdashboard')}}">  <span>Dashboard</span> </a> </li>
+              <li class="{{ active_url_class("ticketdashboard") }}"> <a href="{{URL::to('/ticketdashboard')}}">  <span>Dashboard</span> </a> </li>
           @endif
         @if(User::checkCategoryPermission('Tickets','View'))
-        <li> <a href="{{URL::to('/tickets')}}">  <span>Tickets</span> </a> </li>
+        <li class="{{ active_url_class("tickets") }}"> <a href="{{URL::to('/tickets')}}">  <span>Tickets</span> </a> </li>
         @tingif(User::checkCategoryPermission('TicketsFields','Edit'))
-        <li> <a href="{{URL::to('/ticketsfields')}}">  <span>Tickets Fields</span></a></li>
+        <li class="ticketsfields"> <a href="{{URL::to('/ticketsfields')}}">  <span>Tickets Fields</span></a></li>
         @endif
         @if(User::checkCategoryPermission('TicketsGroups','View'))
-        <li> <a href="{{URL::to('/ticketgroups')}}">  <span>Groups</span></a> </li>
+        <li class="{{ active_url_class("ticketgroups") }}"> <a href="{{URL::to('/ticketgroups')}}">  <span>Groups</span></a> </li>
         @endif
          @if(User::checkCategoryPermission('TicketsSla','View'))
-        <li> <a href="{{URL::to('/tickets/sla_policies')}}">  <span>SLA Policies</span></a> </li>
+        <li class="{{ active_url_class("sla_policies") }}"> <a href="{{URL::to('/tickets/sla_policies')}}">  <span>SLA Policies</span></a> </li>
         @endif
         @if(User::checkCategoryPermission('BusinessHours','View'))
-        <li> <a href="{{URL::to('/businesshours')}}">  <span>Business Hours</span></a> </li>
+        <li class="{{ active_url_class("businesshours") }}"> <a href="{{URL::to('/businesshours')}}">  <span>Business Hours</span></a> </li>
         @endif
          @if(User::checkCategoryPermission('TicketImportRules','View'))
-        <li> <a href="{{URL::to('/tickets/importrules')}}">  <span>Import Rules</span></a> </li>
+        <li class="{{ active_url_class("importrules") }}"> <a href="{{URL::to('/tickets/importrules')}}">  <span>Import Rules</span></a> </li>
         @endif
       </ul>
     </li>
@@ -101,37 +101,37 @@
     <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
       <ul>
         @if(User::checkCategoryPermission('RateUpload','All'))
-          <li> <a href="{{URL::to('/rate_upload')}}">  <span>Upload Rates</span> </a> </li>
+          <li class="{{ active_url_class("rate_upload") }}"> <a href="{{URL::to('/rate_upload')}}">  <span>Upload Rates</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('RateTables','View'))
-        <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
+        <li class="{{ active_url_class("rate_tables") }}"> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('LCR','All'))
-        <li> <a href="{{URL::to('/lcr')}}">  <span>Compare Vendor Rate</span> </a> </li>
+        <li class="{{ active_url_class("lcr") }}"> <a href="{{URL::to('/lcr')}}">  <span>Compare Vendor Rate</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('RateGenerator','View'))
-        <li> <a href="{{URL::to('/rategenerators')}}">  <span>Rate Generator</span> </a> </li>
+        <li class="{{ active_url_class("rategenerators") }}"> <a href="{{URL::to('/rategenerators')}}">  <span>Rate Generator</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('RateCompare','All'))
-          <li> <a href="{{URL::to('/rate_compare')}}">  <span>Rate Analysis</span> </a> </li>
+          <li class="{{ active_url_class("rate_compare") }}"> <a href="{{URL::to('/rate_compare')}}">  <span>Rate Analysis</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('VendorProfiling','All'))
-        <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li>
+        <li class="{{ active_url_class("vendor_profiling") }}"> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li>
         @endif
 
         {{--  for the Auto import link  --}}
         @if(User::checkCategoryPermission('AutoImport','View'))
-            <li> <a href="{{URL::to('/auto_rate_import/autoimport')}}">  <span>Rate Import</span> </a> </li>
+            <li class="{{ active_url_class("auto_rate_import") }}"> <a href="{{URL::to('/auto_rate_import/autoimport')}}">  <span>Rate Import</span> </a> </li>
 
-            <ul >
+            <ul>
               @if(User::checkCategoryPermission('AutoRateImport','View'))
-                <li> <a href="{{URL::to('/auto_rate_import/import_inbox_setting')}}">  <span>Import Inbox Settings</span> </a> </li>
+                <li class="{{ active_url_class("import_inbox_setting") }}"> <a href="{{URL::to('/auto_rate_import/import_inbox_setting')}}">  <span>Import Inbox Settings</span> </a> </li>
               @endif
               @if(User::checkCategoryPermission('AutoRateImport','View'))
-                <li> <a href="{{URL::to('/auto_rate_import/account_setting')}}">  <span>Account Settings</span> </a> </li>
+                <li class="{{ active_url_class("account_setting") }}"> <a href="{{URL::to('/auto_rate_import/account_setting')}}">  <span>Account Settings</span> </a> </li>
               @endif
               @if(User::checkCategoryPermission('AutoRateImport','View'))
-                <li> <a href="{{URL::to('/auto_rate_import/ratetable_setting')}}">  <span>Rate Table Settings </span> </a> </li>
+                <li class="{{ active_url_class("ratetable_setting") }}"> <a href="{{URL::to('/auto_rate_import/ratetable_setting')}}">  <span>Rate Table Settings </span> </a> </li>
               @endif
             </ul>
           </li>
@@ -157,13 +157,13 @@
     <li class="{{check_uri('Crm')}}"><a href="#"><i class="glyphicon glyphicon-th"></i><span>&nbsp;&nbsp;CRM</span></a>
         <ul>
          @if(User::checkCategoryPermission('CrmDashboard','View'))
-                <li><a href="{{URL::to('/crmdashboard')}}"><span>Dashboard</span></a></li>
+                <li class="{{ active_url_class("crmdashboard") }}"><a href="{{URL::to('/crmdashboard')}}"><span>Dashboard</span></a></li>
             @endif 
             @if(User::checkCategoryPermission('OpportunityBoard','View'))
-                <li><a href="{{URL::to('/opportunityboards')}}"><span>Opportunities</span></a></li>
+                <li class="{{ active_url_class("opportunityboards") }}"><a href="{{URL::to('/opportunityboards')}}"><span>Opportunities</span></a></li>
             @endif
             @if(User::checkCategoryPermission('Task','View'))
-                <li><a href="{{URL::to('/task')}}"><span>Tasks</span></a></li>
+                <li class="{{ active_url_class("task") }}"><a href="{{URL::to('/task')}}"><span>Tasks</span></a></li>
             @endif
         </ul>
     </li>
@@ -173,11 +173,11 @@
 	<!-- Here below line we need to add the rules OR permission setting for this menu - Ahtsham -->
     <li class="{{check_uri('Routing')}}"> <a href="#"> <i class="glyphicon glyphicon-info-sign"></i> <span>&nbsp;Routing</span> </a>
         <ul>
-              <li> <a href="{{URL::to('/routingcategory')}}">  <span>Routing Category</span> </a> </li>
+              <li class="{{ active_url_class("routingcategory") }}"> <a href="{{URL::to('/routingcategory')}}">  <span>Routing Category</span> </a> </li>
 
-              <li> <a href="{{URL::to('/routingprofiles')}}">  <span>Routing Profiles</span> </a> </li>
+              <li class="{{ active_url_class("routingprofiles") }}"> <a href="{{URL::to('/routingprofiles')}}">  <span>Routing Profiles</span> </a> </li>
 
-              <li> <a href="{{URL::to('/testdialplan')}}">  <span>Test Dial Plan</span> </a> </li>
+              <li class="{{ active_url_class("testdialplan") }}"> <a href="{{URL::to('/testdialplan')}}">  <span>Test Dial Plan</span> </a> </li>
         </ul>
     </li>
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
@@ -190,56 +190,56 @@
     <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-table" ></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('BillingDashboard','All'))
-          <li> <a href="{{Url::to('/billingdashboard')}}"><span>Analysis</span> </a> </li>
+          <li class="{{ active_url_class("billingdashboard") }}"> <a href="{{Url::to('/billingdashboard')}}"><span>Analysis</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('Estimate','View'))
-        <li> <a href="{{URL::to('/estimates')}}">  <span>Estimates</span> </a> </li>
+        <li class="{{ active_url_class("estimates") }}"> <a href="{{URL::to('/estimates')}}">  <span>Estimates</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('Invoice','View'))
-        <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
+        <li class="{{ active_url_class("invoice") }}"> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
         @endif
-        <li> <a href="{{URL::to('/creditnotes')}}">  <span>Credit Notes</span> </a> </li>
+        <li class="{{ active_url_class("creditnotes") }}"> <a href="{{URL::to('/creditnotes')}}">  <span>Credit Notes</span> </a> </li>
       @if(User::checkCategoryPermission('Payments','View'))
-        <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
+        <li class="{{ active_url_class("payments") }}"> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
       @endif
         @if(User::checkCategoryPermission('Disputes','View'))
-        <li> <a href="{{URL::to('/disputes')}}">  <span>Disputes</span> </a> </li>
+        <li class="{{ active_url_class("disputes") }}"> <a href="{{URL::to('/disputes')}}">  <span>Disputes</span> </a> </li>
         @endif
           @if(User::checkCategoryPermission('AccountStatement','All'))
-            <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
+            <li class="{{ active_url_class("account_statement") }}"> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('Service','View'))
-            <li> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
+            <li class="{{ active_url_class("services") }}"> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('SubscriptionTemplate','View'))
-            <li> <a href="{{URL::to('/servicesTemplate')}}">  <span>Products</span> </a> </li>
+            <li class="{{ active_url_class("servicesTemplate") }}"> <a href="{{URL::to('/servicesTemplate')}}">  <span>Products</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('Service','View'))
-            <li> <a href="{{URL::to('/package')}}">  <span>Packages</span> </a> </li>
+            <li class="{{ active_url_class("package") }}"> <a href="{{URL::to('/package')}}">  <span>Packages</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('BillingSubscription','View'))
-            <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
+            <li class="{{ active_url_class("billing_subscription") }}"> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('DiscountPlan','View'))
-            <li><a href="{{URL::to('/discount_plan')}}"><span>Discount Plan</span></a></li>
+            <li class="{{ active_url_class("discount_plan") }}"><a href="{{URL::to('/discount_plan')}}"><span>Discount Plan</span></a></li>
           @endif
           @if(User::checkCategoryPermission('Products','View'))
-            <li> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li>
+            <li class="{{ active_url_class("products") }}"> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('InvoiceTemplates','View'))
-            <li> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li>
+            <li class="{{ active_url_class("invoice_template") }}"> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('TaxRates','View'))
-            <li> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li>
+            <li class="{{ active_url_class("taxrate") }}"> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li>
           @endif
           @if( User::checkCategoryPermission('BillingClass','View'))
-            <li> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
+            <li class="{{ active_url_class("billing_class") }}"> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
           @endif
         @if(User::checkCategoryPermission('CDR','Upload'))
-        <li> <a href="{{URL::to('/cdr_upload')}}">  <span>CDR Upload</span> </a> </li>
+        <li class="{{ active_url_class("cdr_upload") }}"> <a href="{{URL::to('/cdr_upload')}}">  <span>CDR Upload</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('CDR','View'))
-        <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
+        <li class="{{ active_url_class("cdr_show") }}"> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
         @endif
 
         <!--<li>
@@ -269,15 +269,15 @@
           else if(User::checkCategoryPermission('Analysis','AccountManager'))
             $analysis_url = Url::to('/analysis_manager');
       ?>
-      <li> <a href="{{$analysis_url}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
+      <li class="{{ active_url_class("analysis") }}"> <a href="{{$analysis_url}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
     @endif
     @endif
 
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
         @if( User::checkCategoryPermission('Report','Add'))
-          <li class="two-links"> <a href="{{Url::to('/report')}}" class="first"> <i class="fa fa-line-chart"></i><span>Reports</span></a> <a href="{{URL::to('report/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
+          <li class="two-links {{ active_url_class("report") }}"> <a href="{{Url::to('/report')}}" class="first"> <i class="fa fa-line-chart"></i><span>Reports</span></a> <a href="{{URL::to('report/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
         @elseif( User::checkCategoryPermission('Report','All'))
-          <li> <a href="{{Url::to('/report')}}"> <i class="fa fa-line-chart"></i><span>Reports</span></a></li>
+          <li class="{{ active_url_class("report") }}"> <a href="{{Url::to('/report')}}"> <i class="fa fa-line-chart"></i><span>Reports</span></a></li>
         @endif
     @endif
     @if(User::checkCategoryPermission('Users','All') || User::checkCategoryPermission('Trunk','View') ||
@@ -286,34 +286,34 @@
     <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
       <ul>      
         @if( User::checkCategoryPermission('Trunk','View') )
-        <li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>
+        <li class="{{ active_url_class("trunks") }}"> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>
         @endif
         @if( User::checkCategoryPermission('CodeDecks','View') )
-        <li> <a href="{{Url::to('/codedecks')}}">  <span>Code Decks</span> </a> </li>
+        <li class="{{ active_url_class("codedecks") }}"> <a href="{{Url::to('/codedecks')}}">  <span>Code Decks</span> </a> </li>
         @endif
           @if(User::checkCategoryPermission('DialStrings','View'))
-            <li> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li>
+            <li class="{{ active_url_class("dialstrings") }}"> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li>
         @endif       
         @if(User::checkCategoryPermission('Currency','View'))
-        <li> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>
+        <li class="{{ active_url_class("currency") }}"> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('ExchangeRate','View'))
-        <li> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li>
+        <li class="{{ active_url_class("currency_conversion") }}"> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('DestinationGroup','View'))
-          <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
+          <li class="{{ active_url_class("destination_group_set") }}"><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
         @endif
         @if(User::checkCategoryPermission('Timezones','View'))
-          <li><a href="{{URL::to('/timezones')}}"><span>Time Of Day</span></a></li>
+          <li class="{{ active_url_class("timezones") }}"><a href="{{URL::to('/timezones')}}"><span>Time Of Day</span></a></li>
         @endif
         @if(User::checkCategoryPermission('DIDCategory','View'))
-          <li><a href="{{URL::to('/did')}}"><span>DID Category</span></a></li>
+          <li class="{{ active_url_class("did") }}"><a href="{{URL::to('/did')}}"><span>Access Category</span></a></li>
         @endif
       </ul>
     </li>
     @endif
      @if( User::checkCategoryPermission('Integration','View'))
-       <li> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li>
+       <li class="{{ active_url_class("integration") }}"> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li>
     @endif
 
 
@@ -326,46 +326,46 @@
     <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
       <ul>       
         @if(User::checkCategoryPermission('Notification','View'))
-            <li> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li>
+            <li class="{{ active_url_class("notification") }}"> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('themes','View'))
-        <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
+        <li class="{{ active_url_class("themes") }}"> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('AccountChecklist','View'))
-        <li> <a href="{{Url::to('accountapproval')}}">  <span>Account Checklist</span> </a> </li>
+        <li class="{{ active_url_class("accountapproval") }}"> <a href="{{Url::to('accountapproval')}}">  <span>Account Checklist</span> </a> </li>
         @endif
          @if(User::checkCategoryPermission('Retention','View'))
-         <li> <a href="{{URL::to('/retention')}}">  <span>Retention</span> </a> </li>
+         <li class="{{ active_url_class("retention") }}"> <a href="{{URL::to('/retention')}}">  <span>Retention</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
-        <li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Upload Template</span> </a> </li>
+        <li class="{{ active_url_class("uploadtemplate") }}"> <a href="{{URL::to('/uploadtemplate')}}">  <span>Upload Template</span> </a> </li>
         @endif
          @if( User::checkCategoryPermission('EmailTemplate','View'))
-        <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
+        <li class="{{ active_url_class("email_template") }}"> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
     	@endif
           @if( User::checkCategoryPermission('NoticeBoardPost','View'))
-            <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li>
+            <li class="{{ active_url_class("noticeboard") }}"> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li>
           @endif
          @if( User::checkCategoryPermission('ServerInfo','View'))
-        <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
+        <li class="{{ active_url_class("serverinfo") }}"> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
           @if( User::checkCategoryPermission('Translate','View'))
-          <li> <a href="{{URL::to('/translate')}}">  <span>Translation</span> </a> </li>
+          <li class="{{ active_url_class("translate") }}"> <a href="{{URL::to('/translate')}}">  <span>Translation</span> </a> </li>
           @endif
           @if( User::checkCategoryPermission('Dynamiclink','View'))
-            <li> <a href="{{Url::to('/dynamiclink')}}"> <span>&nbsp;Dynamic Link</span> </a> </li>
+            <li class="{{ active_url_class("dynamiclink") }}"> <a href="{{Url::to('/dynamiclink')}}"> <span>&nbsp;Dynamic Link</span> </a> </li>
           @endif
       </ul>
     </li>
     @endif
     @if( User::checkCategoryPermission('CronJob','View'))
-    <li> <a href="{{Url::to('cronjob_monitor')}}"> <i class="glyphicon glyphicon-time"></i> <span>&nbsp;Cron Jobs</span> </a> </li>
+    <li class="{{ active_url_class("cronjob_monitor") }}"> <a href="{{Url::to('cronjob_monitor')}}"> <i class="glyphicon glyphicon-time"></i> <span>&nbsp;Cron Jobs</span> </a> </li>
     @endif
     @if( User::checkCategoryPermission('Company','View'))
-    <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-home"></i> <span>&nbsp;Company</span> </a> </li>
+    <li class="{{ active_url_class("company") }}"> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-home"></i> <span>&nbsp;Company</span> </a> </li>
     @endif
     @if( User::checkCategoryPermission('Pages','About'))
-    <li> <a href="{{Url::to('/about')}}"> <i class="glyphicon glyphicon-info-sign"></i> <span>&nbsp;About</span> </a> </li>
+    <li class="{{ active_url_class("about") }}"> <a href="{{Url::to('/about')}}"> <i class="glyphicon glyphicon-info-sign"></i> <span>&nbsp;About</span> </a> </li>
     @endif
   </ul>
 </div>

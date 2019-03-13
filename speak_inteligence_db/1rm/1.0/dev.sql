@@ -11,12 +11,16 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
+use speakintelligentRM;
 -- Dumping structure for procedure speakintelligentRM.prc_GetDIDLCR
 DROP PROCEDURE IF EXISTS `prc_GetDIDLCR`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`78.129.239.99` PROCEDURE `prc_GetDIDLCR`(
+CREATE PROCEDURE `prc_GetDIDLCR`(
 	IN `p_companyid` INT,
-	IN `p_ServiceTemplateID` INT,
+	IN `p_CountryID` varchar(100),
+	IN `p_AccessType` varchar(100),
+	IN `p_CityTariff` varchar(100),
+	IN `p_Prefix` varchar(100),
 	IN `p_CurrencyID` INT,
 	IN `p_DIDCategoryID` INT,
 	IN `p_Position` INT,
@@ -30,6 +34,8 @@ CREATE DEFINER=`neon-user`@`78.129.239.99` PROCEDURE `prc_GetDIDLCR`(
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_isExport` INT
+
+
 
 
 
@@ -228,6 +234,13 @@ CREATE DEFINER=`neon-user`@`78.129.239.99` PROCEDURE `prc_GetDIDLCR`(
 			TimezonesID int,
 			minutes int
 		);
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_origination_minutes;
+		CREATE TEMPORARY TABLE tmp_origination_minutes (
+			OriginationCode varchar(50),
+			minutes int
+		);
 		DROP TEMPORARY TABLE IF EXISTS tmp_timezone_minutes_2;
 		CREATE TEMPORARY TABLE tmp_timezone_minutes_2 (
 			TimezonesID int,
@@ -242,25 +255,6 @@ CREATE DEFINER=`neon-user`@`78.129.239.99` PROCEDURE `prc_GetDIDLCR`(
 		-- arguments usage input
 		SET @p_Calls	 							 = p_Calls;
 		SET @p_Minutes	 							 = p_Minutes;
-		SET @v_PeakTimeZoneID	 				 = p_Timezone;
-		SET @p_PeakTimeZonePercentage	 		 = p_TimezonePercentage;		-- peak percentage
-		SET @p_MobileOrigination				 = p_Origination ; -- 'Mobile';	--
-		SET @p_MobileOriginationPercentage	 = p_OriginationPercentage ;	-- mobile percentage
-
-		SELECT TimezonesID into @v_DefaultTimeZoneID from tblTimezones where Title = 'Default' limit 1;
-		SELECT TimezonesID into @v_PeakTimeZoneID from tblTimezones where Title = 'Peak' limit 1;
-		SELECT TimezonesID into @v_OffPeakTimeZoneID  from tblTimezones where Title = 'Off Peak'  limit 1;
-
-
-		-- Helper calculations...
-
-		SET @v_PeakTimeZoneMinutes				 =  ( (@p_Minutes/ 100) * @p_PeakTimeZonePercentage ) 	; -- Peak minutes:
-		SET @v_OffpeakTimeZoneMinutes		 	 =  (@p_Minutes -  @v_PeakTimeZoneMinutes)	; -- off Peak minutes;
-		SET @v_MinutesFromMobileOrigination  =  ( (@p_Minutes/ 100) * @p_MobileOriginationPercentage ) 	; -- Minutes from mobile:
-
-		SET @v_CallerRate = 1; -- temp set as 1
-		SET @p_ServiceTemplateID  = p_ServiceTemplateID;
-		SET @p_DIDCategoryID  		= p_DIDCategoryID;
 
 		set @p_CurrencyID = p_CurrencyID;
 
@@ -269,14 +263,98 @@ CREATE DEFINER=`neon-user`@`78.129.239.99` PROCEDURE `prc_GetDIDLCR`(
 
 
 
-		SET @v_days =    TIMESTAMPDIFF(DAY, (SELECT @p_StartDate), (SELECT @p_EndDate)) + 1 ;
-		SET @v_period1 =      IF(MONTH((SELECT @p_StartDate)) = MONTH((SELECT @p_EndDate)), 0, (TIMESTAMPDIFF(DAY, (SELECT @p_StartDate), LAST_DAY((SELECT @p_StartDate)) + INTERVAL 1 DAY)) / DAY(LAST_DAY((SELECT @p_StartDate))));
-		SET @v_period2 =      TIMESTAMPDIFF(MONTH, LAST_DAY((SELECT @p_StartDate)) + INTERVAL 1 DAY, LAST_DAY((SELECT @p_EndDate))) ;
-		SET @v_period3 =      IF(MONTH((SELECT @p_StartDate)) = MONTH((SELECT @p_EndDate)), (SELECT @v_days), DAY((SELECT @p_EndDate))) / DAY(LAST_DAY((SELECT @p_EndDate)));
-		SET @p_months =     (SELECT @v_period1) + (SELECT @v_period2) + (SELECT @v_period3);
+		SET @v_CallerRate = 1; -- temp set as 1
+		-- SET @p_ServiceTemplateID  = p_ServiceTemplateID;
+		SET @p_DIDCategoryID  		= p_DIDCategoryID;
+
+		SET @p_CountryID = p_CountryID;
+		SET @p_AccessType = p_AccessType;
+		SET @p_CityTariff = p_CityTariff;
+		SET @p_Prefix = TRIM(LEADING '0' FROM p_Prefix);
+
+
+		IF @p_Calls = 0 AND @p_Minutes = 0 THEN
 
 
 
+			select count(UsageDetailID)  into @p_Calls
+
+			from speakintelligentCDR.tblUsageDetails  d
+
+				inner join speakintelligentCDR.tblUsageHeader h on d.UsageHeaderID = h.UsageHeaderID
+
+				inner join speakintelligentRM.tblCountry c  on   d.area_prefix  like concat(c.Prefix,'%')
+
+			where CompanyID = p_companyid AND StartDate >= @p_StartDate AND StartDate <= @p_EndDate and d.is_inbound = 1
+
+						AND (@p_CountryID = '' OR  c.CountryID = @p_CountryID )
+
+						AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
+
+						AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
+
+						AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) );
+
+
+
+			insert into tmp_timezone_minutes (TimezonesID, minutes)
+
+				select TimezonesID  , (sum(billed_duration) / 60) as minutes
+
+				from speakintelligentCDR.tblUsageDetails  d
+
+					inner join speakintelligentCDR.tblUsageHeader h on d.UsageHeaderID = h.UsageHeaderID
+
+					inner join speakintelligentRM.tblCountry c  on   d.area_prefix  like concat(c.Prefix,'%')
+
+				where CompanyID = p_companyid AND StartDate >= @p_StartDate AND StartDate <= @p_EndDate and d.is_inbound = 1 and TimezonesID is not null
+
+							AND (@p_CountryID = '' OR  c.CountryID = @p_CountryID )
+
+							AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
+
+							AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
+
+							AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) )
+
+				group by TimezonesID;
+
+
+			insert into tmp_origination_minutes ( OriginationCode, minutes )
+
+				select CLIPrefix  , (sum(billed_duration) / 60) as minutes
+
+				from speakintelligentCDR.tblUsageDetails  d
+
+					inner join speakintelligentCDR.tblUsageHeader h on d.UsageHeaderID = h.UsageHeaderID
+
+					inner join speakintelligentRM.tblCountry c  on   d.area_prefix  like concat(c.Prefix,'%')
+
+				where CompanyID = p_companyid AND StartDate >= @p_StartDate AND StartDate <= @p_EndDate and d.is_inbound = 1 and CLIPrefix is not null
+
+							AND (@p_CountryID = '' OR  c.CountryID = @p_CountryID )
+
+							AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
+
+							AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
+
+							AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) )
+
+				group by CLIPrefix;
+
+
+		ELSE
+
+
+			-- SET @v_PeakTimeZoneID	 				 = p_Timezone;
+			SET @p_PeakTimeZonePercentage	 		 = p_TimezonePercentage;		-- peak percentage
+			SET @p_MobileOrigination				 = p_Origination ; -- 'Mobile';	--
+			SET @p_MobileOriginationPercentage	 	 = p_OriginationPercentage ;	-- mobile percentage
+
+			-- Helper calculations...
+
+			SET @v_PeakTimeZoneMinutes				 =  ( (@p_Minutes/ 100) * @p_PeakTimeZonePercentage ) 	; -- Peak minutes:
+			SET @v_MinutesFromMobileOrigination  =  ( (@p_Minutes/ 100) * @p_MobileOriginationPercentage ) 	; -- Minutes from mobile:
 
 -- ///////////////////////////////////////////////////// Timezone minutes logic
 insert into tmp_timezones (TimezonesID) select TimezonesID from 	tblTimezones;
@@ -303,6 +381,23 @@ END IF ;
 SET @v_pointer_ = @v_pointer_ + 1;
 
 END WHILE;
+
+
+insert into tmp_origination_minutes ( OriginationCode, minutes )
+	select @p_MobileOrigination  , @v_MinutesFromMobileOrigination ;
+
+
+
+END IF;
+
+
+SET @v_days =    TIMESTAMPDIFF(DAY, (SELECT @p_StartDate), (SELECT @p_EndDate)) + 1 ;
+SET @v_period1 =      IF(MONTH((SELECT @p_StartDate)) = MONTH((SELECT @p_EndDate)), 0, (TIMESTAMPDIFF(DAY, (SELECT @p_StartDate), LAST_DAY((SELECT @p_StartDate)) + INTERVAL 1 DAY)) / DAY(LAST_DAY((SELECT @p_StartDate))));
+SET @v_period2 =      TIMESTAMPDIFF(MONTH, LAST_DAY((SELECT @p_StartDate)) + INTERVAL 1 DAY, LAST_DAY((SELECT @p_EndDate))) ;
+SET @v_period3 =      IF(MONTH((SELECT @p_StartDate)) = MONTH((SELECT @p_EndDate)), (SELECT @v_days), DAY((SELECT @p_EndDate))) / DAY(LAST_DAY((SELECT @p_EndDate)));
+SET @p_months =     (SELECT @v_period1) + (SELECT @v_period2) + (SELECT @v_period3);
+
+
 
 insert into tmp_timezone_minutes_2 (TimezonesID, minutes) select TimezonesID, minutes from tmp_timezone_minutes;
 insert into tmp_timezone_minutes_3 (TimezonesID, minutes) select TimezonesID, minutes from tmp_timezone_minutes;
@@ -641,7 +736,7 @@ Cost per month +
 		(	IFNULL(@MonthlyCost,0) 				)				+
 		(IFNULL(@CostPerMinute,0) * (select minutes from tmp_timezone_minutes tm where tm.TimezonesID = t.TimezonesID ))	+
 		(IFNULL(@CostPerCall,0) * @p_Calls)		+
-		(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
+		(IFNULL(@SurchargePerCall,0) * IFNULL(tom.minutes,0)) +
 		(IFNULL(@OutpaymentPerMinute,0) *  (select minutes from tmp_timezone_minutes_2 tm2 where tm2.TimezonesID = t.TimezonesID ))	+
 		(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
 		-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
@@ -651,7 +746,7 @@ Cost per month +
 	)
 		as Total1,
 	@Total := (
-		@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * @CollectionCostPercentage)  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+		@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
 	) as Total
 
 
@@ -665,10 +760,14 @@ from tblRateTableDIDRate  drtr
 	inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 	left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 	inner join tblCountry c on c.CountryID = r.CountryID
-	inner join tblServiceTemplate st on st.ServiceTemplateId = @p_ServiceTemplateID
-																			--	 and  c.Country = st.country  AND r.Code = st.prefixName  -- for testing only
-																			and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) --		for live only
+	inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
+																		AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
+																		 AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff AND st.city_tariff  =  drtr.CityTariff )
+																		 AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+
 	inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
+	left join tmp_origination_minutes tom  on r2.Code = tom.OriginationCode
+
 where
 
 	rt.CompanyId =  p_companyid
@@ -681,13 +780,9 @@ where
 
 	and rt.AppliedTo = 2 -- vendor
 
-
 	AND EffectiveDate <= DATE(p_SelectedEffectiveDate)
 
 	AND (EndDate is NULL OR EndDate > now() )    -- rate should not end Today
-
-
---	and t.TimezonesID = @v_TimezonesID
 ;
 
 
@@ -1022,19 +1117,19 @@ insert into tmp_table_with_origination
 		-- @v_MinutesFromMobileOrigination used here instead of timezone or default minutes
 		@Total1 := (
 			(	IFNULL(@MonthlyCost,0) 				)				+
-			(IFNULL(@CostPerMinute,0) * @v_MinutesFromMobileOrigination)	+
+			(IFNULL(@CostPerMinute,0) * IFNULL(tom.minutes,0))	+
 			(IFNULL(@CostPerCall,0) * @p_Calls)		+
-			(IFNULL(@SurchargePerCall,0) * @v_MinutesFromMobileOrigination) +
-			(IFNULL(@OutpaymentPerMinute,0) * 	@v_MinutesFromMobileOrigination)	+
+			(IFNULL(@SurchargePerCall,0) * IFNULL(tom.minutes,0)) +
+			(IFNULL(@OutpaymentPerMinute,0) * 	IFNULL(tom.minutes,0))	+
 			(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
 			-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
-			(IFNULL(@CollectionCostAmount,0) * @v_MinutesFromMobileOrigination)
+			(IFNULL(@CollectionCostAmount,0) * IFNULL(tom.minutes,0))
 
 
 		) as Total1,
 
 		@Total := (
-			@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * @CollectionCostPercentage)  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+			@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
 		) as Total
 
 
@@ -1048,10 +1143,15 @@ insert into tmp_table_with_origination
 		inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 		inner join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		inner join tblCountry c on c.CountryID = r.CountryID
-		inner join tblServiceTemplate st on st.ServiceTemplateId = @p_ServiceTemplateID
-																				--				 and  c.Country = st.country  AND r.Code = st.prefixName and  r2.Code = @p_MobileOrigination  -- for testing only
-																				and st.city_tariff  =  drtr.CityTariff and c.Country = st.country AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) and  r2.Code = @p_MobileOrigination --		for live only
+		inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
+																			AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
+																			 AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff AND st.city_tariff  =  drtr.CityTariff )
+																			 AND ( @p_Prefix = '' OR ( r.Code  = concat(c.Prefix ,@p_Prefix) AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) ) )
+
+
+
 		inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
+		inner join tmp_origination_minutes tom  on r2.Code = tom.OriginationCode
 	where
 
 		rt.CompanyId = p_companyid
@@ -1350,9 +1450,9 @@ DEALLOCATE PREPARE stm2;
 
 
 
-set @Total = (select sum(Total) from tmp_component_output_ where Component = 'zCost' and VendorName = @ColumnName) ;
+set @Total = (select round(sum(Total),4) from tmp_component_output_ where Component = 'zCost' and VendorName = @ColumnName) ;
 
-SET @stm3 = CONCAT('update tmp_final_result set  `', @ColumnName , '` = ', @Total , ' where Component = "zCost"');
+SET @stm3 = CONCAT('update tmp_final_result set  `', @ColumnName , '` = ', ROUND(@Total,4) , ' where Component = "zCost"');
 
 PREPARE stm3 FROM @stm3;
 EXECUTE stm3;

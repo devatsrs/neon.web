@@ -13,6 +13,13 @@
                     <label for="field-1" class="control-label small_label">Account</label>
                     {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                 </div>
+                @if(is_reseller())
+                @else
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Account Partner</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                </div>
+                @endif
                 <div class="form-group">
                     <label class="control-label small_label">Invoice No</label>
                     <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
@@ -279,6 +286,7 @@
                     $('#filter-button-toggle').show();
 
                     $searchFilter.AccountID = $("#payment-table-search select[name='AccountID']").val();
+                    $searchFilter.ResellerOwner = $("#payment-table-search select[name='ResellerOwner']").val();
                     $searchFilter.InvoiceNo = $("#payment-table-search [name='InvoiceNo']").val();
                     $searchFilter.Status = $("#payment-table-search select[name='Status']").val();
                     $searchFilter.type = $("#payment-table-search select[name='type']").val();
@@ -303,6 +311,7 @@
                         "fnServerParams": function (aoData) {
                             aoData.push(
                                     {"name": "AccountID", "value": $searchFilter.AccountID},
+                            {"name": "ResellerOwner", "value": $searchFilter.ResellerOwner},
                                     {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
                                     {"name": "Status","value": $searchFilter.Status},
                                     {"name": "type","value": $searchFilter.type},
@@ -319,6 +328,7 @@
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push(
                                     {"name": "AccountID", "value": $searchFilter.AccountID},
+                            {"name": "ResellerOwner", "value": $searchFilter.ResellerOwner},
                                     {"name": "InvoiceNo","value": $searchFilter.InvoiceNo},
                                     {"name": "Status","value": $searchFilter.Status},
                                     {"name": "type","value": $searchFilter.type},
@@ -1078,6 +1088,7 @@
 					dataType: 'json',
 					data:{
 				"AccountID":$("#payment-table-search select[name='AccountID']").val(),
+                                "ResellerOwner":$("#payment-table-search select[name='ResellerOwner']").val(),
 				"InvoiceNo":$("#payment-table-search input[name='InvoiceNo']").val(),
 				"Status":$("#payment-table-search select[name='Status']").val(),
 				"type":$("#payment-table-search select[name='type']").val(),
@@ -1128,6 +1139,7 @@
                         public_vars.$body = $("body");
                         //show_loading_bar(40);
                         $searchFilter.AccountID = $("#payment-table-search select[name='AccountID']").val();
+                        $searchFilter.ResellerOwner = $("#payment-table-search select[name='ResellerOwner']").val();
                         $searchFilter.InvoiceNo = $("#payment-table-search [name='InvoiceNo']").val();
                         $searchFilter.Status = $("#payment-table-search select[name='Status']").val();
                         $searchFilter.type = $("#payment-table-search select[name='type']").val();

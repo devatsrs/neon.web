@@ -14,6 +14,11 @@
                     <input type="text" name="Name" class="form-control" value="" />
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="control-label">Product Group Set</label>
+                    {{Form::select('DestinationGroupSetID', $DestinationGroupSets, '' ,array("id"=>"DestinationGroupSetID","class"=>"form-control select2"))}}
+                </div>
+
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
                         <i class="entypo-search"></i>
@@ -37,17 +42,16 @@
     </ol>
     <h3>Discount Plan</h3>
     @if(User::checkCategoryPermission('DiscountPlan','Edit'))
-    <p style="text-align: right;">
-        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
-    </p>
+        <p style="text-align: right;">
+            <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
+        </p>
     @endif
 
     <table id="table-list" class="table table-bordered datatable">
         <thead>
         <tr>
             <th width="20%">Name</th>
-            <th width="15%">DestinationGroupSet</th>
-            <th width="15%">Currency</th>
+            <th width="15%">Product Group Set</th>
             <th width="15%">Modified By</th>
             <th width="15%">Modified Date</th>
             <th width="20%">Action</th>
@@ -69,7 +73,7 @@
 
             $('#filter-button-toggle').show();
 
-            var list_fields  = ["Name","DestinationGroupSet","Currency","UpdatedBy","updated_at","DiscountPlanID","DestinationGroupSetID","CurrencyID","Description","Applied"];
+            var list_fields  = ["Name","DestinationGroupSet","UpdatedBy","updated_at","DiscountPlanID","DestinationGroupSetID","CurrencyID","Description","Applied"];
             //public_vars.$body = $("body");
             var $search = {};
             var add_url = baseurl + "/discount_plan/store";
@@ -83,7 +87,8 @@
                 e.preventDefault();
 
                 $search.Name = $("#table_filter").find('[name="Name"]').val();
-                $search.CodedeckID = $("#table_filter").find('[name="CodedeckID"]').val();
+                $search.DestinationGroupSetID = $("#table_filter").find('[name="DestinationGroupSetID"]').val();
+
                 data_table = $("#table-list").dataTable({
                     "bDestroy": true,
                     "bProcessing":true,
@@ -96,40 +101,38 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "Name", "value": $search.Name},
-                                {"name": "CodedeckID", "value": $search.CodedeckID}
+                                {"name": "DestinationGroupSetID", "value": $search.DestinationGroupSetID}
 
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "Name", "value": $search.Name},
-                                {"name": "CodedeckID", "value": $search.CodedeckID},
-                                {"name": "Export", "value": 1}
+                                {"name": "DestinationGroupSetID", "value": $search.DestinationGroupSetID},
+                                {"name": "Export", "value": 0}
                         );
 
                     },
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
                         {  "bSortable": true },  // 0 Name
-                        {  "bSortable": true },  // 0 Name
                         {  "bSortable": true },  // 2 UpdatedBy
                         {  "bSortable": true },  // 2 updated_at
                         {  "bSortable": false,
                             mRender: function ( id, type, full ) {
+
                                 action = '<div class = "hiddenRowData" >';
                                 for(var i = 0 ; i< list_fields.length; i++){
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + ((full[i])?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
                                 @if(User::checkCategoryPermission('DiscountPlan','Edit'))
-                                action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                        action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                                 @endif
-                                action += ' <a href="' + view_url.replace("{id}",id) +'" title="View" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
+                                        action += ' <a href="' + view_url.replace("{id}",id) +'" title="View" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                                 @if(User::checkCategoryPermission('DiscountPlan','Delete'))
-                                if(full[9]== null) {
                                     action += ' <a href="' + delete_url.replace("{id}", id) + '" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
-                                }
                                 @endif
-                                return action;
+                                        return action;
                             }
                         },  // 0 Created
 
@@ -139,11 +142,18 @@
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "Export Data",
-                                "sUrl": datagrid_url,
-                                sButtonClass: "save-collection"
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/discount_plan/exports/xlsx?Export=1",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/discount_plan/exports/csv?Export=1",
+                                sButtonClass: "save-collection btn-sm"
                             }
                         ]
+
                     },
                     "fnDrawCallback": function() {
                         $(".dataTables_wrapper select").select2({
@@ -242,18 +252,12 @@
                         <div class="row tobe-hide">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Destination Group Set*</label>
+                                    <label for="field-5" class="control-label">Product Group Set*</label>
                                     {{Form::select('DestinationGroupSetID', $DestinationGroupSets, '' ,array("id"=>"DestinationGroupSetID","class"=>"form-control select2"))}}
 
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Currency*</label>
-                                    {{Form::SelectControl('currency',1)}}
-                                    <!--{Form::select('CurrencyID', $currencies, '' ,array("class"=>"","data-modal"=>"add-new-modal-currency","data-active"=>"0","data-type"=>"currency"))}}-->
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                     <input type="hidden" name="DiscountPlanID">

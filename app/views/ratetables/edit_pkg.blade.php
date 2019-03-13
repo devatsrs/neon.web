@@ -28,9 +28,9 @@
                 <div class="form-group EffectiveBox">
                     <label for="field-1" class="control-label">Effective</label>
                     <select name="Effective" class="select2" data-allow-clear="true" data-placeholder="Select Effective">
+                        <option value="All">All</option>
                         <option value="Now">Now</option>
                         <option value="Future">Future</option>
-                        <option value="All">All</option>
                     </select>
                 </div>
 
@@ -156,7 +156,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','Code','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTablePKGRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'PackageCostPerMinuteCurrency', 'RecordingCostPerMinuteCurrency'];
+        var list_fields  = ['ID','Code','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTablePKGRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'PackageCostPerMinuteCurrency', 'RecordingCostPerMinuteCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'PackageCostPerMinuteCurrencySymbol', 'RecordingCostPerMinuteCurrencySymbol', 'TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -458,9 +458,10 @@
         });
 
         $(document).on('click', '.btn-history', function() {
-            var $this   = $(this);
-            var RateID   = $this.prevAll("div.hiddenRowData").find("input[name='RateID']").val();
-            getArchiveRateTablePKGRates($this,RateID);
+            var $this       = $(this);
+            var RateID      = $this.prevAll("div.hiddenRowData").find("input[name='RateID']").val();
+            var TimezonesID = $this.prevAll("div.hiddenRowData").find("input[name='TimezonesID']").val();
+            getArchiveRateTablePKGRates($this,RateID,TimezonesID);
         });
 
         $(".numbercheck").keypress(function (e) {
@@ -742,7 +743,7 @@
         return false;
     }
 
-    function getArchiveRateTablePKGRates($clickedButton,RateID) {
+    function getArchiveRateTablePKGRates($clickedButton,RateID,TimezonesID) {
         var ArchiveRates;
 
         var tr  = $clickedButton.closest('tr');
@@ -759,7 +760,7 @@
             $.ajax({
                 url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
                 type: 'POST',
-                data: "RateID=" + RateID + "&TimezonesID=" + $searchFilter.Timezones,
+                data: "RateID=" + RateID + "&TimezonesID=" + TimezonesID,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -1061,7 +1062,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Timezone</label>
-                                {{ Form::select('TimezonesID', $Timezones, '', array("class"=>"select2")) }}
+                                {{ Form::select('TimezonesID', $Timezone, '', array("class"=>"select2")) }}
                             </div>
                         </div>
                         <div class="col-md-6">

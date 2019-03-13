@@ -273,7 +273,7 @@ class AccountsController extends \BaseController {
                 $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
             }
             if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-                return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
+                return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
             }
             $data['Status'] = isset($data['Status']) ? 1 : 0;
 
@@ -286,7 +286,7 @@ class AccountsController extends \BaseController {
         $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
-            Account::$rules['BillingTimezone'] = 'required';
+            //Account::$rules['BillingTimezone'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
             Account::$rules['BillingClassID'] = 'required';
             if(isset($data['BillingCycleValue'])){
@@ -307,6 +307,7 @@ class AccountsController extends \BaseController {
             }
 
             $validator = Validator::make($data, Account::$rules, Account::$messages);
+            $validator->setAttributeNames(['AccountName' => 'Company Name']);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -374,6 +375,13 @@ class AccountsController extends \BaseController {
                 unset($data['RegisterDutchFoundation']);
             }else{
                 $RegisterDutchFoundation = 0;
+            }
+
+            if (isset($data['DutchProvider'])) {
+                $DutchProvider = $data['DutchProvider'];
+                unset($data['DutchProvider']);
+            }else{
+                $DutchProvider = 0;
             }
 
             if (isset($data['DirectDebit'])) {
@@ -554,6 +562,11 @@ class AccountsController extends \BaseController {
                 if(isset($RegisterDutchFoundation)){
                     $DynamicData['FieldName'] = 'RegisterDutchFoundation';
                     $DynamicData['FieldValue']= $RegisterDutchFoundation;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(isset($DutchProvider)){
+                    $DynamicData['FieldName'] = 'DutchProvider';
+                    $DynamicData['FieldValue']= $DutchProvider;
                     Account::addUpdateAccountDynamicfield($DynamicData);
                 }
                 if(isset($DirectDebit)){
@@ -824,7 +837,10 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        $DiscountPlan = DiscountPlan::getDropdownIDList($companyID,(int)$account->CurrencyId);
+        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
+        $DiscountPlan = $DiscountPlanVOICECALL;
+        $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::DID_ID);
+        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::PACKAGE_ID);
         $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
         $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
 		$decimal_places = get_round_decimal_places($id);
@@ -845,13 +861,14 @@ class AccountsController extends \BaseController {
         $ResellerCount = Reseller::where(['AccountID'=>$id,'Status'=>1])->count();
 
         $dynamicfields = Account::getDynamicfields('account',$id);
-        Log::info("Count for Dynamic fields for Account ." . $id . ' ' . count($dynamicfields));
+        //Log::info("Count for Dynamic fields for Account ." . $id . ' ' . count($dynamicfields));
         $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
-        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        $reseller_owners = Reseller::getDropdownIDList($companyID);
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
-        
+        $PackageDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::PACKAGE,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
+
         //As per new question call the routing profile model for fetch the routing profile list.
         $routingprofile = RoutingProfiles::getRoutingProfile($companyID);
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
@@ -859,8 +876,8 @@ class AccountsController extends \BaseController {
 
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$companyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
-
-        return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
+        return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
+            'DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
     /**
@@ -963,7 +980,7 @@ class AccountsController extends \BaseController {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
         }
         if (strpbrk($data['AccountName'],'\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
+            return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
         }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
@@ -986,7 +1003,7 @@ class AccountsController extends \BaseController {
 
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
-            Account::$rules['BillingTimezone'] = 'required';
+            //Account::$rules['BillingTimezone'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
             Account::$rules['BillingClassID'] = 'required';
             if(isset($data['BillingCycleValue'])){
@@ -1005,6 +1022,7 @@ class AccountsController extends \BaseController {
         }
         $validator = Validator::make($data, Account::$rules,Account::$messages);
 
+        $validator->setAttributeNames(['AccountName' => 'Company Name']);
         if ($validator->fails()) {
             return json_validator_response($validator);
             exit;
@@ -1078,6 +1096,13 @@ class AccountsController extends \BaseController {
             unset($data['RegisterDutchFoundation']);
         }else{
             $RegisterDutchFoundation = 0;
+        }
+
+        if (isset($data['DutchProvider'])) {
+            $DutchProvider = $data['DutchProvider'];
+            unset($data['DutchProvider']);
+        }else{
+            $DutchProvider = 0;
         }
 
         if (isset($data['DirectDebit'])) {
@@ -1245,6 +1270,11 @@ class AccountsController extends \BaseController {
                 $DynamicData['FieldValue']= $RegisterDutchFoundation;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
+            if(isset($DutchProvider)){
+                $DynamicData['FieldName'] = 'DutchProvider';
+                $DynamicData['FieldValue']= $DutchProvider;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
             if(isset($DirectDebit)){
                 $DynamicData['FieldName'] = 'DirectDebit';
                 $DynamicData['FieldValue']= $DirectDebit;
@@ -1266,8 +1296,11 @@ class AccountsController extends \BaseController {
                 }
 
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
+
                 $OutboundDiscountPlan = empty($data['DiscountPlanID']) ? '' : $data['DiscountPlanID'];
                 $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
+                $PackageDiscountPlan = empty($data['PackageDiscountPlanID']) ? '' : $data['PackageDiscountPlanID'];
+
                 if(!empty($AccountPeriod)) {
                     $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                     $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
@@ -1278,8 +1311,10 @@ class AccountsController extends \BaseController {
                     $AccountCLI='';
                     $SubscriptionDiscountPlanID=0;
                     $AccountServiceID=0;
+
                     AccountDiscountPlan::addUpdateDiscountPlan($id, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                     AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                 }
             }
 
@@ -2041,11 +2076,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             ->leftJoin('tblRateTable as prt','prt.RateTableId','=','tblCLIRateTable.PackageRateTableID')
             ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
             ->leftJoin('tblPackage','tblPackage.PackageId','=','tblCLIRateTable.PackageID')
-            ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName','CityTariff', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.Status'])
+            ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName', 'tblCLIRateTable.NoType', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.CityTariff', 'tblCLIRateTable.Status', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
             $rate_tables->WhereRaw('CLI like "%'.$data['CLIName'].'%"');
+        }
+        if(isset($data['CLIStatus']) && $data['CLIStatus'] != ""){
+            $rate_tables->where('tblCLIRateTable.Status',"=",$data['CLIStatus']);
         }
         if(!empty($data['ServiceID'])){
             $rate_tables->where('tblCLIRateTable.ServiceID','=',$data['ServiceID']);
@@ -2069,6 +2107,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['PackageRateTableID'] = 'required_with:PackageID';
 
         $validator = Validator::make($data, $rules, [
+            'CLI.required' => "Number is required.",
             'PackageID.required_with' => "Package is required.",
             'PackageRateTableID.required_with' => "Package Rate Table is required."
         ]);
@@ -2093,12 +2132,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             } else {
                 $rate_tables['CLI'] = $cli;
                 $rate_tables['RateTableID'] = $data['RateTableID'];
-                $rate_tables['PackageID'] = $data['PackageID'];
-                $rate_tables['PackageRateTableID'] = $data['PackageRateTableID'];
+                $rate_tables['PackageID'] = !empty($data['PackageID']) ? $data['PackageID'] : 0;
+                $rate_tables['PackageRateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
                 $rate_tables['AccountID'] = $data['AccountID'];
                 $rate_tables['CompanyID'] = $CompanyID;
                 $rate_tables['CityTariff'] = !empty($data['CityTariff'])?$data['CityTariff']:'';
                 $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
+                $rate_tables['NoType'] = !empty($data['Type'])?$data['Type']:'';
                 $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
                 if(!empty($data['ServiceID'])) {
                     $rate_tables['ServiceID'] = $data['ServiceID'];
@@ -2189,6 +2229,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['PackageRateTableID'] = 'required_with:PackageID';
 
         $validator = Validator::make($data, $rules, [
+            'CLI.required' => "Number is required.",
             'PackageID.required_with' => "Package is required.",
             'PackageRateTableID.required_with' => "Package Rate Table is required."
         ]);
@@ -2212,10 +2253,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $UpdateData=array();
         $UpdateData['CityTariff']   = !empty($data['CityTariff'])?$data['CityTariff']:'';
         $UpdateData['Prefix']       = !empty($data['Prefix'])?$data['Prefix']:'';
+        $UpdateData['NoType']       = !empty($data['Type'])?$data['Type']:'';
         $UpdateData['RateTableID']  = @$data['RateTableID'];
         $UpdateData['CLI']          = $data['CLI'];
-        $UpdateData['PackageID']    = $data['PackageID'];
-        $UpdateData['PackageRateTableID'] = $data['PackageRateTableID'];
+        $UpdateData['PackageID']    = !empty($data['PackageID']) ? $data['PackageID'] : 0;
+        $UpdateData['PackageRateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
         $UpdateData['Status']       = isset($data['Status']) ? 1 : 0;
 
         if (!empty($data['criteria'])) {
@@ -2319,7 +2361,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 		if(isset($data['BillingCheck'])){
             $billing_on_off = isset($data['billing_on_off'])?1:0;
-            \Illuminate\Support\Facades\Log::info('billing -- '.$billing_on_off);
+            //\Illuminate\Support\Facades\Log::info('billing -- '.$billing_on_off);
             if(!empty($billing_on_off)){
                 Account::$billingrules['BillingClassID'] = 'required';
                 Account::$billingrules['BillingType'] = 'required';
@@ -2414,9 +2456,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $criteria = json_decode($data['BulkActionCriteria'], true);
             $BulkselectedIDs = $this->getAccountsByCriteria($criteria);
             $selectedIDs = array_filter(explode(',',$BulkselectedIDs));
-            \Illuminate\Support\Facades\Log::info('--criteria-- '.$BulkselectedIDs);
+            //\Illuminate\Support\Facades\Log::info('--criteria-- '.$BulkselectedIDs);
         }else{
-            \Illuminate\Support\Facades\Log::info('--ids-- '.$data['BulkselectedIDs']);
+            //\Illuminate\Support\Facades\Log::info('--ids-- '.$data['BulkselectedIDs']);
             $selectedIDs = array_filter(explode(',',$data['BulkselectedIDs']));
         }
 
@@ -2429,18 +2471,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
                 $ResellerCompanyID = Account::where("AccountID",$id)->pluck('CompanyId');
                 $CompanyID = User::get_companyID();
-                \Illuminate\Support\Facades\Log::info("reseller companyID".$CompanyID);
+                //\Illuminate\Support\Facades\Log::info("reseller companyID".$CompanyID);
                 /*if current companyid and account companyid is differnt that means it reseller account*/
                 if($ResellerCompanyID!=$CompanyID){
-                    \Illuminate\Support\Facades\Log::info("reseller account");
+                    //\Illuminate\Support\Facades\Log::info("reseller account");
                     unset($update['IsReseller']);
                     unset($update['Billing']);
                     $billing_on_off=0;
                     $update_billing=0;
                 }else{
                     if($ResellerAccountOwnerUpdate==1 && $ResellerCount==0) {
-                        log::info('IsReseller is on');
-                        log::info('ResellerOwner '.$ResellerOwner);
+                        //log::info('IsReseller is on');
+                        //log::info('ResellerOwner '.$ResellerOwner);
                         $Reseller = Reseller::getResellerDetails($ResellerOwner);
                         $NewResellerCompanyID = $Reseller->ChildCompanyID;
                         $ResellerUser = User::where('CompanyID', $NewResellerCompanyID)->first();
@@ -2451,8 +2493,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     }
                 }
 
-                \Illuminate\Support\Facades\Log::info('Account id -- '.$id);
-                \Illuminate\Support\Facades\Log::info(print_r($update,true));
+                //\Illuminate\Support\Facades\Log::info('Account id -- '.$id);
+                //\Illuminate\Support\Facades\Log::info(print_r($update,true));
 				DB::beginTransaction();
                 $upcurrencyaccount = Account::find($id);
                 if(empty($upcurrencyaccount->CurrencyId) && isset($currencyupdate['CurrencyId'])){
@@ -2477,7 +2519,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $invoice_count = Account::getInvoiceCount($id);
                 //new billing
                 if(isset($data['BillingCheck']) && !empty($billing_on_off)) {
-                    \Illuminate\Support\Facades\Log::info('--update billing--');
+                    //\Illuminate\Support\Facades\Log::info('--update billing--');
                     $count = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->count();
                     if($count==0){
                         //billing section start
@@ -2494,9 +2536,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                             AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                         }
                     }else{
-                        \Illuminate\Support\Facades\Log::info('-- AllReady Billing set. No Billing Change--');
+                        //\Illuminate\Support\Facades\Log::info('-- AllReady Billing set. No Billing Change--');
                     }
-                    \Illuminate\Support\Facades\Log::info('--update billing over--');
+                    //\Illuminate\Support\Facades\Log::info('--update billing over--');
                 }
 
                 if(!empty($update_billing) && $update_billing==1){
@@ -2504,7 +2546,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     $billing_on_off = isset($data['billing_on_off'])?1:0;
                     $AccBilling = Account::where(['AccountID'=>$id])->pluck('Billing');
                     //if billing than update account
-                    log::info('Update Billing '.$count.' - '.$update_billing.' - '.$billing_on_off.' - '.$AccBilling);
+                    //log::info('Update Billing '.$count.' - '.$update_billing.' - '.$billing_on_off.' - '.$AccBilling);
                     if($count>0 && ($billing_on_off==1 || $AccBilling==1)){
                         //AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         if(!empty($accountbillngdata) && $accountbillngdata==1){
@@ -2539,14 +2581,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                                     AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                                 }
                             }else{
-                                \Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change.count 0 --');
+                                //\Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change.count 0 --');
                             }
 
                         }else{
                             AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         }
                     }else{
-                        \Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change--');
+                        //\Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change--');
                     }
 
                 }
@@ -2586,7 +2628,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $excel_data  = DB::select($query);
         $excel_datas = json_decode(json_encode($excel_data),true);
 
-        \Illuminate\Support\Facades\Log::info(print_r($excel_data,true));
+        //\Illuminate\Support\Facades\Log::info(print_r($excel_data,true));
 
         $selectedIDs='';
         foreach($excel_datas as $exceldata){

@@ -12,6 +12,24 @@ function json_validator_response($validator){
 
 }
 
+function json_validator_responseWithCustom($validator,$CustomErrors){
+
+
+    if ($validator->fails() || count($CustomErrors) > 0) {
+        $errors = "";
+        foreach ($validator->messages()->all() as $error){
+            $errors .= $error."<br>";
+        }
+        if (count($CustomErrors) > 0) {
+            foreach ($CustomErrors as $error){
+                $errors .= $error."<br>";
+            }
+        }
+        return  Response::json(array("status" => "failed", "message" => $errors));
+    }
+
+}
+
 function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEncode=true){
     $message = '';
     $status = '';
@@ -1224,7 +1242,9 @@ function get_report_title($report_type){
 function get_random_number(){
     return md5(uniqid(rand(), true));
 }
-
+function active_url_class($route){
+    return (Request::is($route.'/*') || Request::is($route)) ? "active" : '';
+}
 // sideabar submenu open when click on
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
@@ -1233,7 +1253,7 @@ function check_uri($parent_link=''){
     $array_routing   =      array("RoutingProfiles","RoutingCategory","Testdialplan");
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","FileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
     $array_summary    =    array("Summary");
-    $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling","AutoRateImport");
+    $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling","AutoRateImport", "RateUpload");
     $array_autoImport =	   array("AutoRateImport");
 	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours","TicketImportRules");
     $array_template   =    array("");

@@ -19,4 +19,10 @@ class RateTablePKGRate extends \Eloquent {
         'MonthlyCost.required_without_all'  =>      'Any one cost component is required.'
     ];
 
+    public static $Components = array(
+        "OneOffCost"                => "One-Off cost",
+        "MonthlyCost"               => "Monthly cost",
+        "PackageCostPerMinute"      => "Package Cost Per Minute",
+        "RecordingCostPerMinute"    => "Recording Cost Per Minute",
+    );
 }

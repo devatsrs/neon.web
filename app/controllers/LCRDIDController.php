@@ -4,6 +4,7 @@ class LCRDIDController extends \BaseController {
 
     public function search_ajax_datagrid($type) {
 
+
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
@@ -25,9 +26,11 @@ class LCRDIDController extends \BaseController {
 
 
 
-        //$data['ProductID'] = 1; // 1 for local testing , 27825 for staging testing else "Geo number Argentina; Prefix:011"
 
-        $query = "call prc_GetDIDLCR(".$companyID.", ".$data['ProductID']." ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+        //$data['ProductID'] = 1; // 1 for local testing , 27825 for staging testing else "Geo number Argentina; Prefix:011"
+if($data['lcr_type']=='Y'){
+    
+    $query = "call prc_GetPACKAGELCR(".$companyID.", '".$data['PackageID']."', '".$data['Currency']."' , '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
@@ -50,11 +53,33 @@ class LCRDIDController extends \BaseController {
 
                 }
                 $query .=',0)';
+}else{
+        $query = "call prc_GetDIDLCR(".$companyID.", '".$data['CountryID']."', '".$data['AccessType']."', '".$data['CityTariff']."', '".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
 
-        //echo $query;
-        //exit;
-        Log::info($query);
+                if(isset($data['Export']) && $data['Export'] == 1) {
+                    $excel_data  = DB::select($query.',1)');
+                    $excel_data = json_decode(json_encode($excel_data),true);
+                    foreach($excel_data as $rowno => $rows){
+                        foreach($rows as $colno => $colval){
+                            $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
+                        }
+                    }
 
+                    if($type=='csv'){
+                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DID_LCR.csv';
+                        $NeonExcel = new NeonExcelIO($file_path);
+                        $NeonExcel->download_csv($excel_data);
+                    }elseif($type=='xlsx'){
+                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DID_LCR.xls';
+                        $NeonExcel = new NeonExcelIO($file_path);
+                        $NeonExcel->download_excel($excel_data);
+                    }
+
+                }
+                $query .=',0)';
+}
+
+        Log::info('Search procedure query' . $query);
         return DataTableSql::of($query)->make();
 
 
@@ -72,9 +97,32 @@ class LCRDIDController extends \BaseController {
         $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
         $Timezones = Timezones::getTimezonesIDList();
         $products = ServiceTemplate::where("CompanyID",User::get_companyID())->lists("Name", "ServiceTemplateId");
-        
+        $country = ServiceTemplate::Join('tblCountry', function($join) {
+            $join->on('tblServiceTemplate.country','=','tblCountry.country');
+            })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+            ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+
+            //->orderBy('tblServiceTemplate.country');
+
+        $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
+        $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
+        $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+        $CityTariffFilter = [];
+        foreach($CityTariff as $key => $City){
+            if(strpos($City, " per ")){
+                $CityTariffFilter[$City] = $City;
+                unset($CityTariff[$key]);
+            }
+        }
+        $CityTariff = array_merge($CityTariff, $CityTariffFilter);
+
+        $country = array('' => "All") + $country;
+        $AccessType =array('' => "All") + $AccessType;
+        $Prefix = array('' => "All") + $Prefix;
+        $CityTariff = array('' => 'All') + $CityTariff;
+
         $Package = Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
-        
+
         $RateTypes = RateType::getRateTypeDropDownList();
         $data=array();
         $data['IsVendor']=1;
@@ -310,7 +358,6 @@ class LCRDIDController extends \BaseController {
         $username = User::get_user_full_name();
 
         $query = "call prc_editpreference ('".$data["GroupBy"]."',".$preference.",".$data["RateTableRateID"].",".$Timezones.",'".$OriginationDescription."','".$description."','".$username."')";
-        \Illuminate\Support\Facades\Log::info($query);
         DB::select($query);
 
         try{

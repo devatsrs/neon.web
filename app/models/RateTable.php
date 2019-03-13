@@ -16,7 +16,7 @@ class RateTable extends \Eloquent
     const APPLIED_TO_VENDOR = 2;
     const APPLIED_TO_RESELLER = 3;
     //public static $types = array( self::TYPE_VOICECALL => 'Voice Call',self::TYPE_DID=>'DID');
-    public static $AppliedTo = array( self::APPLIED_TO_CUSTOMER => 'Customer',self::APPLIED_TO_VENDOR=>'Vendor',self::APPLIED_TO_RESELLER=>'Reseller');
+    public static $AppliedTo = array( self::APPLIED_TO_CUSTOMER => 'Customer',self::APPLIED_TO_VENDOR=>'Vendor',self::APPLIED_TO_RESELLER=>'Partner');
 
     /*
      * Option = ["TrunkID" = int ,... ]

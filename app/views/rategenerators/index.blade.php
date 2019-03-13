@@ -60,10 +60,11 @@
         <tr>
           <th width="5%">Type</th>
           <th width="10%">Name</th>
-            <th width="10%">Category</th>
-          <th width="25%">Trunk</th>
+          <th width="10%">Category</th>
+          <th width="20%">Trunk</th>
           <th width="10%">Currency</th>
           <th width="10%">Status</th>
+          <th width="10%">Created By</th>
           <th width="10%">Created At</th>
           <th width="25%">Action</th>
         </tr>
@@ -116,9 +117,21 @@
                             return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
                     }
                 },
-                {},
+                {
+                    mRender: function (status, type, full) {
+                        var output = full[12];
+                        return output;
+                    }
+                },
+                {
+                    mRender: function (status, type, full) {
+                        var output = full[6];
+                        return output;
+                    }
+                },
                 {
                     mRender: function (id, type, full) {
+                        id = full[7];
                         var action, edit_, delete_;
                         edit_ = "{{ URL::to('rategenerators/{id}/edit')}}";
                         delete_ = "{{ URL::to('rategenerators/{id}/delete')}}";

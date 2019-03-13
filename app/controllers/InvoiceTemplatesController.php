@@ -19,14 +19,18 @@ class InvoiceTemplatesController extends \BaseController {
                 $NeonExcel->download_excel($invoiceCompanies);
             }
         }
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency');
+        $defaultDB=DB::connection()->getDatabaseName();
+        
+        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency',
+                    DB::raw("(SELECT ResellerName FROM ".$defaultDB.".tblReseller WHERE tblInvoiceTemplate.ResellerOwner = tblReseller.ResellerID) as ResellerName"));
         return Datatables::of($invoiceCompanies)->make();
     }
 
     public function index() {
 
         $countries = Country::getCountryDropdownList();
-        return View::make('invoicetemplates.index', compact('countries'));
+        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        return View::make('invoicetemplates.index', compact('countries','reseller_owners'));
 
     }
 
@@ -232,6 +236,8 @@ class InvoiceTemplatesController extends \BaseController {
         $data['FooterDisplayOnlyFirstPage'] = isset($data['FooterDisplayOnlyFirstPage']) ? 1 : 0;
         $data['ShowTaxesOnSeparatePage'] = isset($data['ShowTaxesOnSeparatePage']) ? 1 : 0;
         $data['ShowTotalInMultiCurrency'] = isset($data['ShowTotalInMultiCurrency']) ? 1 : 0;
+        
+        $data['ResellerOwner'] = isset($data['ResellerOwner']) ? $data['ResellerOwner'] : 0;
         unset($data['InvoiceTemplateID']);
         unset($data['EditPage']);
         $rules = array(

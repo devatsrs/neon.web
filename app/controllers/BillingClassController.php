@@ -4,7 +4,8 @@ class BillingClassController extends \BaseController {
 
 
     public function index() {
-        return View::make('billingclass.index');
+        $reseller_owners = Reseller::getDropdownIDListAll();
+        return View::make('billingclass.index', compact('reseller_owners'));
     }
     public function create() {
         /*$emailTemplates = EmailTemplate::getTemplateArray();
@@ -17,7 +18,8 @@ class BillingClassController extends \BaseController {
         $privacy = EmailTemplate::$privacy;
         $type = EmailTemplate::$Type;*/
         $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
-        return View::make('billingclass.create', compact('BillingClassList'));
+        $reseller_owners = Reseller::getDropdownIDListAll();
+        return View::make('billingclass.create', compact('BillingClassList','reseller_owners'));
         //return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates','privacy','type'));
     }
     public function edit($id) {
@@ -46,7 +48,8 @@ class BillingClassController extends \BaseController {
             $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
             $BalanceWarning = json_decode($response->data->BalanceWarningSettings);
             $PaymentReminders = json_decode($response->data->PaymentReminderSettings);
-            return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','PaymentReminders','LowBalanceReminder','BalanceWarning','accounts'));
+            $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+            return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','PaymentReminders','LowBalanceReminder','BalanceWarning','accounts','reseller_owners'));
             //return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{
             return view_response_api($response);

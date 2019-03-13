@@ -16,7 +16,7 @@
                             <button type="button" class="btn btn-primary dropdown-toggle pull-right didbutton" data-toggle="dropdown" aria-expanded="false" style="width:100%">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_DID)}} <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; width:100% ">
                                 <li> <a  href="{{URL::to('lcr')}}"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_VOICECALL)}}</a></li>
-                                <li> <a  href="javascript:;" class="packageoption"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_PACKAGE)}}</a></li>
+                               <li> <a  href="javascript:;" class="packageoption"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_PACKAGE)}}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -26,8 +26,20 @@
                     {{Form::text('EffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-startdate"=>date('Y-m-d'), "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
                 </div>
                 <div class="form-group productdiv">
-                    <label class="control-label">Product</label>
-                    {{ Form::select('ProductID', $products, '', array("class"=>"select2")) }}
+                    <label class="control-label">Country</label>
+                    {{ Form::select('CountryID', $country, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group productdiv">
+                    <label class="control-label">Access Type</label>
+                    {{ Form::select('AccessType', $AccessType, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group productdiv">
+                    <label class="control-label">Prefix</label>
+                    {{ Form::select('Prefix', $Prefix, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group productdiv">
+                    <label class="control-label">City/Tariff</label>
+                    {{ Form::select('CityTariff', $CityTariff, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group packagediv" style="display:none;">
                     <label class="control-label">Package</label>
@@ -152,6 +164,8 @@
                    $('.packagediv').show();
                    $('.productdiv').hide();
                    $('.productcategory').hide();
+                    $('#Origination').hide();
+                    $('#OriginationPercentage').hide();
                 }else{
                     $('#lcr_type').val('N');
                    $('.didbutton').html(accbtnval+' <span class="caret"></span>');
@@ -159,6 +173,8 @@
                     $('.packagediv').hide();
                    $('.productdiv').show();
                    $('.productcategory').show();
+                    $('#Origination').show();
+                    $('#OriginationPercentage').show();
                 }
                 
             });
@@ -186,10 +202,14 @@
             }
 
 
+
             $("#did-search-form").submit(function(e) {
                 e.preventDefault();
                 $searchFilter.EffectiveDate             = $("#did-search-form input[name='EffectiveDate']").val();
-                $searchFilter.ProductID                  = $("#did-search-form select[name='ProductID']").val();
+                $searchFilter.Country                   = $("#did-search-form select[name='CountryID']").val();
+                $searchFilter.AccessType                = $("#did-search-form select[name='AccessType']").val();
+                $searchFilter.Prefix                    = $("#did-search-form select[name='Prefix']").val();
+                $searchFilter.CityTariff                    = $("#did-search-form select[name='CityTariff']").val();
                 $searchFilter.Currency                   = $("#did-search-form select[name='Currency']").val();
                 $searchFilter.LCRPosition                 = $("#did-search-form select[name='LCRPosition']").val();
                 $searchFilter.DIDCategoryID              = $("#did-search-form select[name='DIDCategoryID']").val();
@@ -202,7 +222,11 @@
                 $searchFilter.OriginationPercentage       = $("#did-search-form input[name='OriginationPercentage']").val();
                 $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
-
+                
+                $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
+                $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
+                
+                
                 var aoColumnDefs, aoColumnDefs;
                 if($searchFilter.LCRPosition=='5'){
 
@@ -290,17 +314,27 @@
                     ];
                 }
 
-                if(typeof $searchFilter.EffectiveDate  == 'undefined' || $searchFilter.EffectiveDate == '' ){
+                if(typeof $searchFilter.EffectiveDate  == 'undefined'){
                     toastr.error("Please Select a Effective Date", "Error", toastr_opts);
                     return false;
                 }
-                if(typeof $searchFilter.ProductID  == 'undefined' || $searchFilter.ProductID == '' ){
-                    toastr.error("Please Select a Product", "Error", toastr_opts);
-                    return false;
-                }
-                if((typeof $searchFilter.Currency  == 'undefined' || $searchFilter.Currency == '' ) ){
+                if((typeof $searchFilter.Currency  == 'undefined' ) ){
                     toastr.error("Please Select Currency", "Error", toastr_opts);
                     return false;
+                }
+                if($('#lcr_type').val()=='Access'){
+                    if(typeof $searchFilter.Country  == 'undefined'){
+                        toastr.error("Please Select a Country", "Error", toastr_opts);
+                        return false;
+                    }
+                    if(typeof $searchFilter.AccessType  == 'undefined' || $searchFilter.AccessType == '' ){
+                        toastr.error("Please Select a Access Type", "Error", toastr_opts);
+                        return false;
+                    }
+                    if(typeof $searchFilter.Prefix  == 'undefined' || $searchFilter.Prefix == '' ){
+                        toastr.error("Please Select a Prefix", "Error", toastr_opts);
+                        return false;
+                    }
                 }
                 if($('#lcr_type').val()=='Y'){
                 }else{
@@ -318,8 +352,11 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
-                                {"name": "ProductID","value": $searchFilter.ProductID},
                                 {"name": "Currency","value": $searchFilter.Currency},
+                                {"name": "CountryID","value": $searchFilter.Country},
+                                {"name": "AccessType","value": $searchFilter.AccessType},
+                                {"name": "Prefix","value": $searchFilter.Prefix},
+                                {"name": "CityTariff","value": $searchFilter.CityTariff},
                                 {"name": "LCRPosition","value": $searchFilter.LCRPosition},
                                 {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},
                                 {"name": "Calls","value": $searchFilter.Calls},
@@ -329,12 +366,17 @@
                                 {"name": "Timezone","value": $searchFilter.Timezone},
                                 {"name": "TimezonePercentage","value": $searchFilter.TimezonePercentage},
                                 {"name": "DateTo", "value": $searchFilter.DateTo},
-                                {"name": "DateFrom", "value": $searchFilter.DateFrom}
+                                {"name": "DateFrom", "value": $searchFilter.DateFrom},
+                                {"name": "lcr_type", "value": $searchFilter.lcr_type},
+                                {"name": "PackageID", "value": $searchFilter.PackageID}
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
-                                {"name": "ProductID","value": $searchFilter.ProductID},
+                                {"name": "CountryID","value": $searchFilter.Country},
+                                {"name": "AccessType","value": $searchFilter.AccessType},
+                                {"name": "Prefix","value": $searchFilter.Prefix},
+                                {"name": "CityTariff","value": $searchFilter.CityTariff},
                                 {"name": "Currency","value": $searchFilter.Currency},
                                 {"name": "LCRPosition","value": $searchFilter.LCRPosition},
                                 {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},
@@ -346,6 +388,8 @@
                                 {"name": "TimezonePercentage","value": $searchFilter.TimezonePercentage},
                                 {"name": "DateTo", "value": $searchFilter.DateTo},
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
+                                {"name": "lcr_type", "value": $searchFilter.lcr_type},
+                                {"name": "PackageID", "value": $searchFilter.PackageID},
                                 {"name":"Export","value":1}
                         );
 

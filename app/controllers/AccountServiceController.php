@@ -16,10 +16,18 @@ class AccountServiceController extends \BaseController {
         $products = Product::getProductDropdownList($CompanyID);
         $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
         $rate_table = RateTable::getRateTableList([
-            'types' => [RateGenerator::DID, RateGenerator::VoiceCall],
+            'types' => [RateGenerator::DID],
+            'NotVendor' => true,
+        ]);
+        $termination_rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::VoiceCall],
             'NotVendor' => true,
         ]);
         $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
+        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
+        $DiscountPlan = $DiscountPlanVOICECALL;
+        $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::DID_ID);
+        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::PACKAGE_ID);
         $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceID)->first();
         $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID',$AccountServiceID)->first();
 
@@ -46,6 +54,7 @@ class AccountServiceController extends \BaseController {
 
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
+        $PackageDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::PACKAGE,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
 
         $ServiceTitle = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceTitle');
         $ServiceDescription = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceDescription');
@@ -71,13 +80,15 @@ class AccountServiceController extends \BaseController {
 
         $PackageId="";
         $RateTableID="";
+        $allservices = Service::where('Status', 1)->get();
 
         $AccountServicePackage = AccountServicePackage::where(['AccountID' => $AccountID, 'AccountServiceID' => $AccountServiceID])->first();
         if(!empty($AccountServicePackage) && count($AccountServicePackage) > 0){
             $PackageId=$AccountServicePackage->PackageId;
             $RateTableID=$AccountServicePackage->RateTableID;
         }
-        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID'));
+        return View::make('accountservices.edit', compact('CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table', 'termination_rate_table',
+            'DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
 
     }
 
@@ -128,11 +139,17 @@ class AccountServiceController extends \BaseController {
         $serviceid = Input::get('serviceid');
         $companyid = Input::get('companyid');
         $accountid = Input::get('accountid');
+        $serviceTitle = empty(Input::get('ServiceTitle')) ? '' : Input::get('ServiceTitle');
+        $serviceDescription = empty(Input::get('ServiceDescription')) ? '' : Input::get('ServiceDescription');
+        $serviceShowTitle = Input::get('ServiceTitleShow') == false ? 0 : 1;
         $add = new AccountService;
         $add->AccountID = $accountid;
         $add->ServiceID = $serviceid;
         $add->CompanyID = $companyid;
         $add->Status  = 1;
+        $add->ServiceTitle = $serviceTitle;
+        $add->ServiceDescription = $serviceDescription;
+        $add->ServiceTitleShow = $serviceShowTitle;
         if($add->save()){
             $lastid = $add->AccountServiceID;
             return \Redirect::to('accountservices/'.$accountid.'/edit/'.$lastid);
@@ -183,13 +200,13 @@ class AccountServiceController extends \BaseController {
         ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
         ->leftjoin('tblPackage', 'tblPackage.PackageId', '=' , 'tblCLIRateTable.PackageID' )
         ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
-         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"),"tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate", "tblAccountService.Status"])
+         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"), "tblAccountService.Status", "tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate"])
         ->where("tblAccountService.AccountID",$id);
 
         //Log::debug($services->toSql());
 
-        if(!empty($data['ServiceName'])){
-            $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
+        if(!empty($data['Number'])){
+            $services->where('tblCLIRateTable.CLI','Like','%'.trim($data['Number']).'%');
         }
         if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
             $services->where(function($query){
@@ -327,6 +344,7 @@ class AccountServiceController extends \BaseController {
 
             $OutboundDiscountPlan = empty($data['DiscountPlanID']) ? '' : $data['DiscountPlanID'];
             $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
+            $PackageDiscountPlan = empty($data['PackageDiscountPlanID']) ? '' : $data['PackageDiscountPlanID'];
 
             //billing
             //$invoice_count = Account::getInvoiceCount($AccountID);
@@ -369,6 +387,7 @@ class AccountServiceController extends \BaseController {
                 $SubscriptionDiscountPlanID = 0;
                 AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
                 AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff, $ServiceID, $AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
             }
 
 

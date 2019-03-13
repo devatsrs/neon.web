@@ -243,7 +243,7 @@ class ActiveCall extends \Eloquent {
     }
 
     public static function updateActiveCall($ActiveCallID){
-        log::info('update active call start '.$ActiveCallID);
+        //log::info('update active call start '.$ActiveCallID);
         $Response = array();
         $Response['Status'] = 'Success';
         $ActiveCall = ActiveCall::find($ActiveCallID);
@@ -295,7 +295,7 @@ class ActiveCall extends \Eloquent {
             $NoType = empty($CLIRateTable->NoType)?'':$CLIRateTable->NoType;
         }
 
-        log::info('Account Service ID '.$AccountServiceID);
+        //log::info('Account Service ID '.$AccountServiceID);
 
         if(empty($AccountServiceID)){
             $Response['Status'] = 'Failed';
@@ -304,7 +304,7 @@ class ActiveCall extends \Eloquent {
         }
 
         $ServiceID=AccountService::getServiceIDByAccountServiceID($AccountServiceID);
-        log::info('Service ID '.$ServiceID);
+        //log::info('Service ID '.$ServiceID);
         $GatewayAccount = GatewayAccount::where(['CompanyID'=>$CompanyID,'CompanyGatewayID'=>$CompanyGatewayID,'GatewayAccountID'=>$CLI,'AccountID'=>$AccountID,'AccountCLI'=>$CLI,'AccountServiceID'=>$AccountServiceID])->first();
         if(empty($GatewayAccount)){
             $GatewayAccountData = array();
@@ -318,7 +318,7 @@ class ActiveCall extends \Eloquent {
             $GatewayAccount = GatewayAccount::create($GatewayAccountData);
         }
         $GatewayAccountPKID = $GatewayAccount->GatewayAccountPKID;
-        log::info('GatewayAccount PKID '.$GatewayAccountPKID);
+        //log::info('GatewayAccount PKID '.$GatewayAccountPKID);
         /**
          * TimeZone ID update
         */
@@ -367,7 +367,7 @@ class ActiveCall extends \Eloquent {
 
 
             $Result = DB::connection('sqlsrv')->select('CALL  prc_FindApiOutBoundPrefix( ' . $CompanyID . "," . $OutBoundRateTableID ."," . $TimezonesID .",".$CLI.",'".$CLD."')");
-            log::info('CALL  prc_FindApiOutBoundPrefix( ' . $CompanyID . "," . $OutBoundRateTableID ."," . $TimezonesID .",".$CLI.",'".$CLD."')");
+            //log::info('CALL  prc_FindApiOutBoundPrefix( ' . $CompanyID . "," . $OutBoundRateTableID ."," . $TimezonesID .",".$CLI.",'".$CLD."')");
             if(count($Result) >0){
                 $OutBoundRateTableRateID = $Result[0]->RateTableRateID;
                 $CLIPrefix = $Result[0]->OriginationCode;
@@ -474,7 +474,7 @@ class ActiveCall extends \Eloquent {
 
             return $Response;
         }
-        log::info('update active call end '.$ActiveCallID);
+        //log::info('update active call end '.$ActiveCallID);
         return $Response;
     }
 

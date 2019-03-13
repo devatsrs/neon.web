@@ -45,9 +45,9 @@
                 <div class="form-group EffectiveBox">
                     <label for="field-1" class="control-label">Effective</label>
                     <select name="Effective" class="select2" data-allow-clear="true" data-placeholder="Select Effective">
+                        <option value="All">All</option>
                         <option value="Now">Now</option>
                         <option value="Future">Future</option>
-                        <option value="All">All</option>
                     </select>
                 </div>
 
@@ -214,7 +214,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate','RateCurrency','ConnectionFeeCurrency'];
+        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate','RateCurrency','ConnectionFeeCurrency','RateCurrencySymbol','ConnectionFeeCurrencySymbol','TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -570,7 +570,8 @@
             var $this   = $(this);
             var RateID   = $this.prevAll("div.hiddenRowData").find("input[name='RateID']").val();
             var OriginationRateID = $this.prevAll("div.hiddenRowData").find("input[name='OriginationRateID']").val();
-            getArchiveRateTableRates($this,RateID,OriginationRateID);
+            var TimezonesID = $this.prevAll("div.hiddenRowData").find("input[name='TimezonesID']").val();
+            getArchiveRateTableRates($this,RateID,OriginationRateID,TimezonesID);
         });
 
         //set RateN value = Rate1 value if RateN value is blank
@@ -632,12 +633,12 @@
         $searchFilter.Preference = Preference = $("#rate-table-search input[name='Preference']").val();
         $searchFilter.Blocked = Blocked = $("#rate-table-search select[name='Blocked']").val();
         @else
-        $searchFilter.Preference = Preference = null;
-        $searchFilter.Blocked = Blocked = null;
+        $searchFilter.Preference = Preference = '';
+        $searchFilter.Blocked = Blocked = '';
+
         @endif
         $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val() != undefined ? $("#rate-table-search select[name='ApprovedStatus']").val() : '';
         $searchFilter.ratetablepageview = ratetablepageview;
-
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
             "bProcessing": true,
@@ -990,7 +991,7 @@
         return false;
     }
 
-    function getArchiveRateTableRates($clickedButton,RateID,OriginationRateID) {
+    function getArchiveRateTableRates($clickedButton,RateID,OriginationRateID,TimezonesID) {
         //var Codes = new Array();
         var ArchiveRates;
         /*$("#table-4 tr td:nth-child(2)").each(function(){
@@ -1019,7 +1020,7 @@
             $.ajax({
                 url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
                 type: 'POST',
-                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&view=" + view + "&TimezonesID=" + $searchFilter.Timezones,
+                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&view=" + view + "&TimezonesID=" + TimezonesID,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -1490,7 +1491,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Timezone</label>
-                                {{ Form::select('TimezonesID', $Timezones, '', array("class"=>"select2")) }}
+                                {{ Form::select('TimezonesID', $Timezone, '', array("class"=>"select2")) }}
                             </div>
                         </div>
 

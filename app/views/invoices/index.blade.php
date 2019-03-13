@@ -17,6 +17,13 @@
                     <label for="field-1" class="control-label">Account</label>
                     {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                 </div>
+                @if(is_reseller())
+                @else
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Account Partner</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                </div>
+                @endif
                 <div class="form-group">
                     <label for="field-1" class="control-label">Status</label>
                     {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
@@ -31,6 +38,9 @@
                     <label for="field-1" class="control-label">Invoice Number</label>
                     {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
                 </div>
+                
+                
+                
                 <div class="form-group">
                     <label for="field-1" class="control-label">Issue Date Start</label>
                         {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
@@ -225,7 +235,9 @@
             $searchFilter.CurrencyID = $("#invoice_filter [name='CurrencyID']").val();
             $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
             $searchFilter.tag = $("#invoice_filter [name='tag']").val();
-
+            
+            $searchFilter.ResellerOwner = $("#invoice_filter [name='ResellerOwner']").val();
+            
             data_table = $("#table-4").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
@@ -239,6 +251,7 @@
                     aoData.push({"name": "InvoiceType", "value": $searchFilter.InvoiceType},
                             {"name": "AccountID","value": $searchFilter.AccountID},
                             {"name": "InvoiceNumber", "value": $searchFilter.InvoiceNumber},
+                            {"name": "ResellerOwner", "value": $searchFilter.ResellerOwner},
                             {"name": "InvoiceStatus","value": $searchFilter.InvoiceStatus},
                             {"name":"IssueDateStart","value":$searchFilter.IssueDateStart},
                             {"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},
@@ -250,6 +263,7 @@
                     data_table_extra_params.push({"name": "InvoiceType","value": $searchFilter.InvoiceType},
                             {"name": "AccountID", "value": $searchFilter.AccountID},
                             {"name": "InvoiceNumber","value": $searchFilter.InvoiceNumber},
+                            {"name": "ResellerOwner", "value": $searchFilter.ResellerOwner},
                             {"name": "InvoiceStatus", "value": $searchFilter.InvoiceStatus},
                             {"name":"IssueDateStart","value":$searchFilter.IssueDateStart},
                             {"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},
@@ -539,6 +553,7 @@
                 e.preventDefault();
                 $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
                 $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
+                $searchFilter.ResellerOwner = $("#invoice_filter select[name='ResellerOwner']").val();
                 $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();
                 $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ? $("#invoice_filter select[name='InvoiceStatus']").val() : '';
                 $searchFilter.IssueDateStart = $("#invoice_filter [name='IssueDateStart']").val();
@@ -560,6 +575,7 @@
                     data: {
                         "InvoiceType": $("#invoice_filter [name='InvoiceType']").val(),
                         "AccountID": $("#invoice_filter select[name='AccountID']").val(),
+                        "ResellerOwner": $("#invoice_filter select[name='ResellerOwner']").val(),
                         "InvoiceNumber": $("#invoice_filter [name='InvoiceNumber']").val(),
                         "InvoiceStatus": $("#invoice_filter select[name='InvoiceStatus']").val(),
                         "IssueDateStart":$("#invoice_filter [name='IssueDateStart']").val(),

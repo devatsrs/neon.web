@@ -3199,3 +3199,7 @@ select#user_language option {
 .child-row {
     background-color: #f8f8f8;
 }
+body .page-container .sidebar-menu #main-menu li.active > a {
+    background: #1faf8a !important;
+    outline: none;
+}

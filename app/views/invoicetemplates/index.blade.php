@@ -335,7 +335,12 @@ function ajax_update(fullurl,data){
                     <h4 class="modal-title">Add New Invoice Template</h4>
                 </div>
                 <div class="modal-body">
-
+                    <div class="form-group" style="display:none;">
+                            <label for="field-1" class="col-sm-2 control-label">Partner</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerOwner)?$BillingClass->ResellerOwner:'' ), array("class"=>"select2")) }}
+                            </div>
+                        </div>
                          <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Template Name</label>
                             <div class="col-sm-4">
