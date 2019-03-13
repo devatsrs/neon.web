@@ -46,6 +46,18 @@ class InvoiceTemplate extends \Eloquent {
             return 0;
         }
     }
+    public static function getInvoiceTemplateDropdownIDList($ID){
+        $CompanyID = User::get_companyID();
+        
+        $row = InvoiceTemplate::where('CompanyID',$ID)->lists('Name', 'InvoiceTemplateID');
+        
+      //  $row = VendorTrunk::join("tblTrunk","tblTrunk.TrunkID", "=    ","tblVendorTrunk.TrunkID")
+    //        ->where(["tblVendorTrunk.Status"=> 1])->where(["tblVendorTrunk.CompanyID"=>$ID])->where(["tblVendorTrunk.AccountID"=>$AccountID])->select(array('tblVendorTrunk.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+    }
     public static function getNextInvoiceNumber($InvoiceTemplateid){
         $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateid);
         $NewInvoiceNumber =  (($InvoiceTemplate->LastInvoiceNumber > 0)?($InvoiceTemplate->LastInvoiceNumber + 1):$InvoiceTemplate->InvoiceStartNumber);

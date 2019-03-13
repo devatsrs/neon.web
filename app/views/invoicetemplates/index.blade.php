@@ -1,5 +1,36 @@
 @extends('layout.main')
 
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <div id="table_filter" method="get" action="#" >
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Name</label>
+                    <input type="text" name="Name" class="form-control" value="" />
+                </div>
+                @if(is_reseller())
+                @else
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Partner</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                </div>
+                @endif
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@stop
+
 @section('content')
 
 <ol class="breadcrumb bc-3">
@@ -29,7 +60,8 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="35%">Name</th>
+        <th width="25%">Name</th>
+        <th width="15%">Partner</th>
         <th width="25%">Modified Date</th>
         <th width="15%">Modified By</th>
         <th width="25%">Action</th>
@@ -47,12 +79,28 @@ var update_new_url;
 var loading = '{{URL::to('/').'/assets/images/loader-1.gif';}}';
 var postdata;
     jQuery(document).ready(function ($) {
+        
+        $('#filter-button-toggle').show();
+        
         public_vars.$body = $("body");
         //show_loading_bar(40);
 
-        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency'];
+        var list_fields  = ['Name','ResellerOwner','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency','CompanyID'];
 
-        data_table = $("#table-4").dataTable({
+
+        //public_vars.$body = $("body");
+            var $search = {};
+            var edit_url = baseurl + "/billing_class/edit/{id}";
+            var delete_url = baseurl + "/billing_class/delete/{id}";
+            var datagrid_url = baseurl + "/invoice_template/ajax_datagrid/type";
+
+            $("#filter_submit").click(function(e) {
+                e.preventDefault();
+
+                $search.Name = $("#table_filter").find('[name="Name"]').val();
+                $search.ResellerOwner = $("#table_filter").find('[name="ResellerOwner"]').val();
+
+                data_table = $("#table-4").dataTable({
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
@@ -62,11 +110,20 @@ var postdata;
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
             "fnServerParams": function(aoData) {
+                aoData.push(
+                                {"name": "Name", "value": $search.Name},
+                        {"name": "ResellerOwner", "value": $search.ResellerOwner}
+
+
+                        );
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"Export","value":1});
+                data_table_extra_params.push({"name":"Export","value":1},
+                {"name": "Name", "value": $search.Name},
+                        {"name": "ResellerOwner", "value": $search.ResellerOwner});
             },
              "aoColumns":
             [
+                {  "bSortable": true },  //1  [CompanyName]', '', '', '
                 {  "bSortable": true },  //1  [CompanyName]', '', '', '
                 {  "bSortable": true },  //2  [ModifledDate]', '', '', '
                 {  "bSortable": true },  //3  [ModifledBy]', '', '', '
@@ -142,6 +199,10 @@ var postdata;
            }
 
         });
+            });
+        
+        $('#filter_submit').trigger('click');
+        
 
 
         // Replace Checboxes
@@ -193,7 +254,10 @@ var postdata;
         $("#add-new-invoice_template-form [name='InvoiceNumberPrefix']").val(cur_obj.find("input[name='InvoiceNumberPrefix']").val());
 		$("#add-new-invoice_template-form [name='EstimateNumberPrefix']").val(cur_obj.find("input[name='EstimateNumberPrefix']").val());
 		$("#add-new-invoice_template-form [name='CreditNotesNumberPrefix']").val(cur_obj.find("input[name='CreditNotesNumberPrefix']").val());
+                
         $("#add-new-invoice_template-form [name='InvoicePages']").val(cur_obj.find("input[name='InvoicePages']").val()).trigger("change");
+        $("#add-new-invoice_template-form [name='ResellerOwner']").val(cur_obj.find("input[name='CompanyID']").val()).trigger("change");
+        
         $("#add-new-invoice_template-form [name='DateFormat']").val(cur_obj.find("input[name='DateFormat']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='CDRType']").val(cur_obj.find("input[name='CDRType']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='LastInvoiceNumber']").val(cur_obj.find("input[name='LastInvoiceNumber']").val());
@@ -277,6 +341,7 @@ var postdata;
     $('#add-new-invoice_template-form').submit(function(e){
         e.preventDefault();
         var InvoiceTemplateID = $("#add-new-invoice_template-form [name='InvoiceTemplateID']").val();
+        console.log(InvoiceTemplateID);
         if( typeof InvoiceTemplateID != 'undefined' && InvoiceTemplateID != ''){
             update_new_url = baseurl + '/invoice_template/'+InvoiceTemplateID+'/update';
         }else{
@@ -335,10 +400,10 @@ function ajax_update(fullurl,data){
                     <h4 class="modal-title">Add New Invoice Template</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group" style="display:none;">
+                    <div class="form-group" >
                             <label for="field-1" class="col-sm-2 control-label">Partner</label>
                             <div class="col-sm-4">
-                                {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerOwner)?$BillingClass->ResellerOwner:'' ), array("class"=>"select2")) }}
+                                {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->CompanyID)?$BillingClass->CompanyID:'' ), array("class"=>"select2")) }}
                             </div>
                         </div>
                          <div class="form-group">

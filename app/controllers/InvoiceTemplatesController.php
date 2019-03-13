@@ -5,7 +5,14 @@ class InvoiceTemplatesController extends \BaseController {
     public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
+        if(isset($data['ResellerOwner']) && !empty($data['ResellerOwner'])) {
+            $invoiceCompanies = InvoiceTemplate::where("CompanyID",'=',$data['ResellerOwner']);
+        }else{
+            $invoiceCompanies = InvoiceTemplate::where("InvoiceTemplateID",'!=','');
+        }
+        if(isset($data['Name']) && !empty($data['Name'])) {
+            $invoiceCompanies = $invoiceCompanies->where("Name",'=',$data['Name']);
+        }
         if(isset($data['Export']) && $data['Export'] == 1) {
             $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency')->get();
             $invoiceCompanies = json_decode(json_encode($invoiceCompanies),true);
@@ -21,8 +28,9 @@ class InvoiceTemplatesController extends \BaseController {
         }
         $defaultDB=DB::connection()->getDatabaseName();
         
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency',
-                    DB::raw("(SELECT ResellerName FROM ".$defaultDB.".tblReseller WHERE tblInvoiceTemplate.ResellerOwner = tblReseller.ResellerID) as ResellerName"));
+        $invoiceCompanies = $invoiceCompanies->select('Name',
+                DB::raw("(SELECT ResellerName FROM ".$defaultDB.".tblReseller WHERE tblInvoiceTemplate.CompanyID = tblReseller.ResellerID) as ResellerName")
+                ,'updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency','CompanyID');
         return Datatables::of($invoiceCompanies)->make();
     }
 
@@ -109,7 +117,9 @@ class InvoiceTemplatesController extends \BaseController {
 
             $InvoiceTemplates = InvoiceTemplate::find($id);
             $data = Input::all();
-            $companyID = User::get_companyID();
+            
+            $companyID = isset($data['ResellerOwner']) ? $data['ResellerOwner'] : 1;
+            
             $data['CompanyID'] = $companyID;
             $data['ModifiedBy'] = User::get_user_full_name();
             if(!empty($data['EditPage']) && $data['EditPage']==1){
@@ -124,6 +134,7 @@ class InvoiceTemplatesController extends \BaseController {
                 $data['ShowTaxesOnSeparatePage'] = isset($data['ShowTaxesOnSeparatePage']) ? 1 : 0;
                 $data['ShowTotalInMultiCurrency'] = isset($data['ShowTotalInMultiCurrency']) ? 1 : 0;
             }
+            unset($data['ResellerOwner']);
             unset($data['EditPage']);
             unset($data['ServicePage']);
             if(!isset($data['DateFormat'])){
@@ -222,9 +233,10 @@ class InvoiceTemplatesController extends \BaseController {
 
     public function create()
     {
+       
         $data = Input::all();
         $companyID = User::get_companyID();
-        $data['CompanyID'] = $companyID;
+        $data['CompanyID'] = isset($data['ResellerOwner']) ? $data['ResellerOwner'] : 1;
         $data['ModifiedBy'] = User::get_user_full_name();
         $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
         $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
@@ -236,8 +248,7 @@ class InvoiceTemplatesController extends \BaseController {
         $data['FooterDisplayOnlyFirstPage'] = isset($data['FooterDisplayOnlyFirstPage']) ? 1 : 0;
         $data['ShowTaxesOnSeparatePage'] = isset($data['ShowTaxesOnSeparatePage']) ? 1 : 0;
         $data['ShowTotalInMultiCurrency'] = isset($data['ShowTotalInMultiCurrency']) ? 1 : 0;
-        
-        $data['ResellerOwner'] = isset($data['ResellerOwner']) ? $data['ResellerOwner'] : 0;
+        unset($data['ResellerOwner']);
         unset($data['InvoiceTemplateID']);
         unset($data['EditPage']);
         $rules = array(

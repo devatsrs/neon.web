@@ -784,6 +784,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_upload/ajaxfilegrid', 'RateUploadController@ajaxfilegrid');
 	Route::any('/rate_upload/checkUpload', 'RateUploadController@checkUpload');
 	Route::any('/rate_upload/getTrunk/{type}', 'RateUploadController@getTrunk');
+        
 	Route::any('/rate_upload/getUploadTemplates/{type}', 'RateUploadController@getUploadTemplates');
 	Route::any('/rate_upload/{id}/getRateTableDetails', 'RateUploadController@getRateTableDetails');
 	Route::any('/rate_upload/{id}/{type}', 'RateUploadController@index');
@@ -1485,6 +1486,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_class','BillingClassController@index');
 	Route::any('/billing_class/ajax_datagrid','BillingClassController@ajax_datagrid');
 	Route::any('/billing_class/create','BillingClassController@create');
+        Route::any('/billing_class/getInvoicetemplate', 'BillingClassController@getInvoicetemplate');
 	Route::any('/billing_class/store/{type}','BillingClassController@store');
 	Route::any('/billing_class/edit/{id}','BillingClassController@edit');
 	Route::any('/billing_class/update/{id}','BillingClassController@update');
