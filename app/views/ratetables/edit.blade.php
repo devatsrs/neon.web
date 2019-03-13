@@ -214,7 +214,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate','RateCurrency','ConnectionFeeCurrency'];
+        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate','RateCurrency','ConnectionFeeCurrency','RateCurrencySymbol','ConnectionFeeCurrencySymbol','TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -570,7 +570,8 @@
             var $this   = $(this);
             var RateID   = $this.prevAll("div.hiddenRowData").find("input[name='RateID']").val();
             var OriginationRateID = $this.prevAll("div.hiddenRowData").find("input[name='OriginationRateID']").val();
-            getArchiveRateTableRates($this,RateID,OriginationRateID);
+            var TimezonesID = $this.prevAll("div.hiddenRowData").find("input[name='TimezonesID']").val();
+            getArchiveRateTableRates($this,RateID,OriginationRateID,TimezonesID);
         });
 
         //set RateN value = Rate1 value if RateN value is blank
@@ -638,8 +639,6 @@
         @endif
         $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val() != undefined ? $("#rate-table-search select[name='ApprovedStatus']").val() : '';
         $searchFilter.ratetablepageview = ratetablepageview;
-
-        console.log($searchFilter.Blocked);
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
             "bProcessing": true,
@@ -992,7 +991,7 @@
         return false;
     }
 
-    function getArchiveRateTableRates($clickedButton,RateID,OriginationRateID) {
+    function getArchiveRateTableRates($clickedButton,RateID,OriginationRateID,TimezonesID) {
         //var Codes = new Array();
         var ArchiveRates;
         /*$("#table-4 tr td:nth-child(2)").each(function(){
@@ -1021,7 +1020,7 @@
             $.ajax({
                 url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
                 type: 'POST',
-                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&view=" + view + "&TimezonesID=" + $searchFilter.Timezones,
+                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&view=" + view + "&TimezonesID=" + TimezonesID,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
