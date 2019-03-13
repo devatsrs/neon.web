@@ -301,7 +301,7 @@
         <li class="{{ active_url_class("currency_conversion") }}"> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('DestinationGroup','View'))
-          <li class="{{ active_url_class("destination_group_set") }}"><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
+          <li class="{{ active_url_class("destination_group_set") }}"><a href="{{URL::to('/destination_group_set')}}"><span>Product Group</span></a></li>
         @endif
         @if(User::checkCategoryPermission('Timezones','View'))
           <li class="{{ active_url_class("timezones") }}"><a href="{{URL::to('/timezones')}}"><span>Time Of Day</span></a></li>
