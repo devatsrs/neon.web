@@ -252,7 +252,15 @@
                 
                 $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
                 $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
-                
+
+                @if($lcrType == "Package")
+           $('#lcr_type').val('Y');
+                $searchFilter.lcrType = "Package";
+                @endif
+
+                @if($lcrType == "Access")
+                        $searchFilter.lcrType = "Access";
+                @endif
                 
                 var aoColumnDefs, aoColumnDefs;
                 if($searchFilter.LCRPosition=='5'){
@@ -395,7 +403,9 @@
                                 {"name": "DateTo", "value": $searchFilter.DateTo},
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
-                                {"name": "PackageID", "value": $searchFilter.PackageID}
+                                {"name": "PackageID", "value": $searchFilter.PackageID},
+                                {"name": "lcrType", "value": $searchFilter.lcrType}
+
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
@@ -417,6 +427,7 @@
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
                                 {"name": "PackageID", "value": $searchFilter.PackageID},
+                                {"name": "lcrType", "value": $searchFilter.lcrType},
                                 {"name":"Export","value":1}
                         );
 
