@@ -263,7 +263,7 @@
                 }
 
 
-                alert($searchFilter.lcrType);
+               // alert($searchFilter.lcrType);
                 
                 var aoColumnDefs, aoColumnDefs;
                 if($searchFilter.LCRPosition=='5'){
