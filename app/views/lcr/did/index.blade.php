@@ -259,6 +259,7 @@
                     $searchFilter.lcrType = "Access";
                 }
 
+
                 alert($searchFilter.lcrType);
                 
                 var aoColumnDefs, aoColumnDefs;
@@ -518,6 +519,8 @@
                     }
 
                 });
+                alert("Change" + $searchFilter.lcrType);
+                $('.headingLCR').html($searchFilter.lcrType);
                 return false;
             });
 
