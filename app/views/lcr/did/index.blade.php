@@ -152,21 +152,48 @@
         
         var $searchFilter = {};
         var data_table;
-       
+
+
         jQuery(document).ready(function($) {
             var accbtnval=$('.didbutton').text();
             var packbtnval=$('.packageoption').text();
+
+            @if($lcrType == "Package")
+            $('#lcr_type').val('Y');
+            $('.didbutton').html(packbtnval+' <span class="caret"></span>');
+            $('.packageoption').html(accbtnval);
+            $('.packagediv').show();
+            $('.productdiv').hide();
+            $('.productcategory').hide();
+            $('#Origination').hide();
+            $('#OriginationPercentage').hide();
+            @endif
+
+            @if($lcrType == "Access")
+             $('#lcr_type').val('N');
+            $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+            $('.packageoption').html(packbtnval);
+            $('.packagediv').hide();
+            $('.productdiv').show();
+            $('.productcategory').show();
+            $('#Origination').show();
+            $('#OriginationPercentage').show();
+            @endif
+
+           // alert(accbtnval);
             $('.packageoption').click(function(){
                 if($('.packageoption').text()=='Package'){
+
                    $('#lcr_type').val('Y');
                    $('.didbutton').html(packbtnval+' <span class="caret"></span>');
-                   $('.packageoption').html(accbtnval); 
+                   $('.packageoption').html(accbtnval);
                    $('.packagediv').show();
                    $('.productdiv').hide();
                    $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
                 }else{
+
                     $('#lcr_type').val('N');
                    $('.didbutton').html(accbtnval+' <span class="caret"></span>');
                     $('.packageoption').html(packbtnval); 

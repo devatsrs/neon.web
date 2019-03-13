@@ -88,6 +88,9 @@ if($data['lcr_type']=='Y'){
 
     public function index() {
 
+        $post_data = Input::all();
+        Log::info('LCRDIDController' . print_r($post_data, true));
+        $lcrType = $post_data['lcrType'];
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunk_keys = getDefaultTrunk($trunks);
         //$countries = Country::getCountryDropdownIDList();
