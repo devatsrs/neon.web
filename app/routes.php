@@ -1445,12 +1445,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/retention/create', "RetentionController@create");
 
 	//Destination Group Set
-	Route::any('/destination_group_set','DestinationGroupController@index');
-	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupController@ajax_datagrid');
-	Route::any('/destination_group_set/store','DestinationGroupController@store');
-	Route::any('/destination_group_set/update/{id}','DestinationGroupController@update');
-	Route::any('/destination_group_set/delete/{id}','DestinationGroupController@delete');
-	Route::any('/destination_group_set/show/{id}','DestinationGroupController@show');
+	Route::any('/destination_group_set','DestinationGroupSetController@index');
+	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupSetController@ajax_datagrid');
+	Route::any('/destination_group_set/store','DestinationGroupSetController@store');
+	Route::any('/destination_group_set/update/{id}','DestinationGroupSetController@update');
+	Route::any('/destination_group_set/delete/{id}','DestinationGroupSetController@delete');
+	Route::any('/destination_group_set/show/{id}','DestinationGroupSetController@show');
 
 	//Destination Group
 	Route::any('/destination_group/ajax_datagrid','DestinationGroupController@group_ajax_datagrid');
@@ -1460,7 +1460,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/destination_group/delete/{id}','DestinationGroupController@group_delete');
 	Route::any('/destination_group/show/{id}','DestinationGroupController@group_show');
 	Route::any('/destination_group_code/ajax_datagrid','DestinationGroupController@code_ajax_datagrid');
-
+    Route::any('/destination_group_code/codelist','DestinationGroupController@codelist');
+    Route::any('/destination_group_code/codelists','DestinationGroupController@codelists');
+    Route::any('/destination_group/loadappliedcodes','DestinationGroupController@appcodes');
 	//Discount Plan
 	Route::any('/discount_plan','DiscountController@index');
 	Route::any('/discount_plan/ajax_datagrid','DiscountController@ajax_datagrid');
@@ -1784,6 +1786,9 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/api_sagepay_return/{id}', 'InvoicesController@api_sagepay_return'); //Payment response by paypal.
 	Route::any('/api_sagepay_declined/{id}', 'InvoicesController@api_sagepay_declined'); //Payment response by paypal.
 	Route::any('/api_sagepay_ipn/{id}', 'InvoicesController@api_sagepay_ipn'); //Payment response by paypal.
+	Route::any('/transcheck', function(){
+		return View::make('test.transcheck');
+	});
 
 });
 
@@ -1849,6 +1854,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/CreateCharge', 'AccountsApiController@CreateCharge');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
+    Route::post('destinationgroupset/datagrid', 'DestinationGroupSetController@DataGrid');
 
 
 
