@@ -2963,6 +2963,7 @@ function submit_ajax_datatable(fullurl,data,refreshjob,data_table_reload){
         dataType: 'json',
         success: function(response) {
             $(".btn").button('reset');
+            data_table_reload.fnFilter('', 0);
             if (response.status == 'success') {
                 $('.modal').modal('hide');
                 toastr.success(response.message, "Success", toastr_opts);
@@ -3075,6 +3076,35 @@ function submit_ajaxbtn(fullurl,data,refreshjob,btn,reload){
                 if(refreshjob){
                     reloadJobsDrodown(0);
 					reloadMsgDrodown(0);
+                }
+                if(reload){
+                    location.reload();
+                }
+            } else {
+                toastr.error(response.message, "Error", toastr_opts);
+            }
+        },
+        data: data,
+        //Options to tell jQuery not to process data or worry about content-type.
+        cache: false
+    });
+}
+function submit_ajaxbtn_show_modal(fullurl,data,refreshjob,btn,reload){
+    $.ajax({
+        url:fullurl, //Server script to process data
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            btn.button('reset');
+            if (response.status == 'success') {
+                
+                toastr.success(response.message, "Success", toastr_opts);
+                if( typeof data_table !=  'undefined'){
+                    data_table.fnFilter('', 0);
+                }
+                if(refreshjob){
+                    reloadJobsDrodown(0);
+                    reloadMsgDrodown(0);
                 }
                 if(reload){
                     location.reload();

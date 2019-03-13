@@ -48,6 +48,7 @@ class BillingClassController extends \BaseController {
             $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
             $BalanceWarning = json_decode($response->data->BalanceWarningSettings);
             $PaymentReminders = json_decode($response->data->PaymentReminderSettings);
+            
             $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
             return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','PaymentReminders','LowBalanceReminder','BalanceWarning','accounts','reseller_owners'));
             //return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
@@ -55,7 +56,33 @@ class BillingClassController extends \BaseController {
             return view_response_api($response);
         }
     }
+    public function getInvoicetemplate() {
+        $response = array();
 
+        $data       = Input::all();
+        $trunks     = array();
+
+        if(!empty($data['id'])) {
+            $id = $data['id'];
+            $getResellerCompany=Reseller::getResellerCompanyID($id);
+            if($data['type']=='emailtemp'){
+                $TemplateData     = EmailTemplate::getEmailTemplateDropdownIDList($getResellerCompany);
+            }else{
+                $TemplateData     = InvoiceTemplate::getInvoiceTemplateDropdownIDList($id);
+            }
+        }else{
+            $getResellerCompany=1;
+            if($data['type']=='emailtemp'){
+                $TemplateData     = EmailTemplate::getEmailTemplateDropdownIDList($getResellerCompany);
+            }else{
+                $TemplateData     = InvoiceTemplate::getInvoiceTemplateDropdownIDList($getResellerCompany);
+            }
+        }
+
+        $response['status']                     = 'success';
+        $response['invoicetemplate']            = $TemplateData;
+        return json_encode($response);
+    }
     public function ajax_datagrid(){
         $getdata = Input::all();
         $response =  NeonAPI::request('billing_class/datagrid',$getdata,false,false,false);

@@ -109,9 +109,7 @@
         <thead>
         <tr>
             <th width="20%">Name</th>
-            <th width="30%">Code</th>
-            <th width="10%">Country</th>
-            <th width="10%">Type</th>
+            <th width="20%">Package</th>
             <th width="10%">Created By</th>
             <th width="10%">Created</th>
             <th width="30%">Action</th>
@@ -139,13 +137,12 @@
         var datagrid_url = baseurl + "/destination_group/ajax_datagrid";
         var datagrid_extra_url = baseurl + "/destination_group_code/ajax_datagrid";
         var checked='';
-        var newdgid = '';
 
         jQuery(document).ready(function ($) {
 
             $('#filter-button-toggle').show();
-
-            var list_fields  = ["Name","Code","CountryID","Type","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID"];
+var nm = 'king';
+            var list_fields  = ["Name","PackageID","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID"];
             //public_vars.$body = $("body");
             var $search = {};
 
@@ -189,11 +186,10 @@
                         );
 
                     },
+                    
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
-                        {  "bSortable": true },  // 0 Code
-                        {  "bSortable": true },  // country
-                        {  "bSortable": true },  // type
+                        {  "bSortable": true },  // package
                         {  "bSortable": true }, //created by
                         {  "bSortable": true },  //created at
                         {  "bSortable": false,
@@ -270,6 +266,7 @@
                 $("#showmodal").show();
                 $('#modal-form-data').attr("action",edit_url);
                 $('#modal-list .panel-title').html('Edit Product Group');
+                
                 var cur_obj = $(this).prev("div.hiddenRowData");
 
                 for(var i = 0 ; i< list_fields.length; i++){
@@ -297,12 +294,7 @@
                     {   
                         var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
                         $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
-                    } else if(list_fields[i] =='DestinationGroupID') {
-
-                        newdgid = cur_obj.find("[name="+list_fields[i]+"]").val();
-                        $("#modal-form-data [name='"+list_fields[i]+"']").val(cur_obj.find("[name='"+list_fields[i]+"']").val());
-                        
-                    }
+                    } 
 
                      else {
                     $("#modal-form-data [name='"+list_fields[i]+"']").val(cur_obj.find("[name='"+list_fields[i]+"']").val());
@@ -335,12 +327,12 @@
                 $("#showmodal").click(function(){
                     $("#editdata").empty();
                     $("#editdata").html("<div align='center'>loading...</div>");
+                    var dgid = $("input[name='DestinationGroupID']").val();
                 var dgsid = $("input[name='DestinationGroupSetID']").val();
-               
                 var stype = "{{$typename}}";
                     //$("#appcodes").load(baseurl+"/destination_group/loadappliedcodes",{DestinationGroupID:dgid, DestinationGroupSetID:dgsid});
                     var countries = '{{json_encode($countries)}}';
-                        $("#editdata").load(baseurl+"/destination_group_code/codelist", {DestinationGroupID:newdgid, DestinationGroupSetID:dgsid, iDisplayStart:0, iDisplayLength:0, countries:countries, stype:stype });
+                        $("#editdata").load(baseurl+"/destination_group_code/codelist", {DestinationGroupID:dgid, DestinationGroupSetID:dgsid, iDisplayStart:0, iDisplayLength:0, countries:countries, stype:stype });
                     $('#modal_codes').modal('show');
                 });
 
@@ -391,7 +383,7 @@ $("#newdata").hide();
                             </div>
                         </div>
                         @if(!empty($typename))
-
+                          
                         @if($typename == 'Termination')
                         
                         <div class="row">
