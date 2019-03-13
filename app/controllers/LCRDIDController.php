@@ -8,6 +8,7 @@ class LCRDIDController extends \BaseController {
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
+        Log::info('LCRDIDController:search_ajax_datagrid' . print_r($data, true));
         $data['ComponentAction']=empty($data['ComponentAction'])?'':$data['ComponentAction'];
         $data['DIDCategoryID']=empty($data['DIDCategoryID'])?0:$data['DIDCategoryID'];
         $data['ProductID']=empty($data['ProductID'])?0:$data['ProductID'];
@@ -78,6 +79,8 @@ if($data['lcr_type']=='Y'){
                 }
                 $query .=',0)';
 }
+
+        Log::info('Search procedure query' . $query);
         return DataTableSql::of($query)->make();
 
 
@@ -86,6 +89,9 @@ if($data['lcr_type']=='Y'){
 
     public function index() {
 
+        $post_data = Input::all();
+
+        $lcrType = isset($post_data['lcrType']) ? $post_data['lcrType'] : '';
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunk_keys = getDefaultTrunk($trunks);
         //$countries = Country::getCountryDropdownIDList();

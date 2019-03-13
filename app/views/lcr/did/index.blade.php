@@ -16,7 +16,7 @@
                             <button type="button" class="btn btn-primary dropdown-toggle pull-right didbutton" data-toggle="dropdown" aria-expanded="false" style="width:100%">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_DID)}} <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; width:100% ">
                                 <li> <a  href="{{URL::to('lcr')}}"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_VOICECALL)}}</a></li>
-<!--                                <li> <a  href="javascript:;" class="packageoption"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_PACKAGE)}}</a></li>-->
+                               <li> <a  href="javascript:;" class="packageoption"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_PACKAGE)}}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -115,10 +115,10 @@
             <a href="{{URL::to('lcr')}}">Compare Vendor Rate</a>
         </li>
         <li class="active">
-            <strong>Access</strong>
+            <strong>{{!isset($_REQUEST['lcrType']) ? "Access":$_REQUEST['lcrType']}}</strong>
         </li>
     </ol>
-    <h3 id="headingLCR">Access</h3>
+    <h3 id="headingLCR">{{!isset($_REQUEST['lcrType']) ? "Access":$_REQUEST['lcrType']}}</h3>
     <div class="clear"></div>
     <br>
     <table class="table table-bordered datatable" id="table">
@@ -152,21 +152,48 @@
         
         var $searchFilter = {};
         var data_table;
-       
+
+
         jQuery(document).ready(function($) {
             var accbtnval=$('.didbutton').text();
             var packbtnval=$('.packageoption').text();
+
+            @if($lcrType == "Package")
+            $('#lcr_type').val('Y');
+            $('.didbutton').html(packbtnval+' <span class="caret"></span>');
+            $('.packageoption').html(accbtnval);
+            $('.packagediv').show();
+            $('.productdiv').hide();
+            $('.productcategory').hide();
+            $('#Origination').hide();
+            $('#OriginationPercentage').hide();
+            @endif
+
+            @if($lcrType == "Access")
+             $('#lcr_type').val('N');
+            $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+            $('.packageoption').html(packbtnval);
+            $('.packagediv').hide();
+            $('.productdiv').show();
+            $('.productcategory').show();
+            $('#Origination').show();
+            $('#OriginationPercentage').show();
+            @endif
+
+           // alert(accbtnval);
             $('.packageoption').click(function(){
                 if($('.packageoption').text()=='Package'){
+
                    $('#lcr_type').val('Y');
                    $('.didbutton').html(packbtnval+' <span class="caret"></span>');
-                   $('.packageoption').html(accbtnval); 
+                   $('.packageoption').html(accbtnval);
                    $('.packagediv').show();
                    $('.productdiv').hide();
                    $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
                 }else{
+
                     $('#lcr_type').val('N');
                    $('.didbutton').html(accbtnval+' <span class="caret"></span>');
                     $('.packageoption').html(packbtnval); 
@@ -225,7 +252,15 @@
                 
                 $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
                 $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
-                
+                $searchFilter.lcrType = '';
+                if($('#lcr_type').val()=='Y'){
+                    $searchFilter.lcrType = "Package";
+                }else {
+                    $searchFilter.lcrType = "Access";
+                }
+
+
+                alert($searchFilter.lcrType);
                 
                 var aoColumnDefs, aoColumnDefs;
                 if($searchFilter.LCRPosition=='5'){
@@ -348,7 +383,7 @@
                     "bDestroy":    true,
                     "bProcessing": true,
                     "bServerSide": true,
-                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type",
+                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type?lcrType=" +$searchFilter.lcrType ,
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
@@ -368,7 +403,9 @@
                                 {"name": "DateTo", "value": $searchFilter.DateTo},
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
-                                {"name": "PackageID", "value": $searchFilter.PackageID}
+                                {"name": "PackageID", "value": $searchFilter.PackageID},
+                                {"name": "lcrType", "value": $searchFilter.lcrType}
+
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
@@ -390,6 +427,7 @@
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
                                 {"name": "PackageID", "value": $searchFilter.PackageID},
+                                {"name": "lcrType", "value": $searchFilter.lcrType},
                                 {"name":"Export","value":1}
                         );
 
@@ -481,6 +519,8 @@
                     }
 
                 });
+                alert("Change" + $searchFilter.lcrType);
+                $('.headingLCR').html($searchFilter.lcrType);
                 return false;
             });
 
