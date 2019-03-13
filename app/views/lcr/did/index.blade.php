@@ -115,10 +115,10 @@
             <a href="{{URL::to('lcr')}}">Compare Vendor Rate</a>
         </li>
         <li class="active">
-            <strong>{{$lcrType}}</strong>
+            <strong>{{$_REQUEST['lcrType']}}</strong>
         </li>
     </ol>
-    <h3 id="headingLCR">{{$lcrType}}</h3>
+    <h3 id="headingLCR">{{$_REQUEST['lcrType']}}</h3>
     <div class="clear"></div>
     <br>
     <table class="table table-bordered datatable" id="table">
