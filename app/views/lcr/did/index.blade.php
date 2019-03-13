@@ -115,10 +115,10 @@
             <a href="{{URL::to('lcr')}}">Compare Vendor Rate</a>
         </li>
         <li class="active">
-            <strong>{{$_REQUEST['lcrType']}}</strong>
+            <strong>{{!isset($_REQUEST['lcrType']) ? "Access":$_REQUEST['lcrType']}}</strong>
         </li>
     </ol>
-    <h3 id="headingLCR">{{$_REQUEST['lcrType']}}</h3>
+    <h3 id="headingLCR">{{!isset($_REQUEST['lcrType']) ? "Access":$_REQUEST['lcrType']}}</h3>
     <div class="clear"></div>
     <br>
     <table class="table table-bordered datatable" id="table">
@@ -253,13 +253,13 @@
                 $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
                 $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
                 $searchFilter.lcrType = '';
-                @if($lcrType == "Package")
-                $searchFilter.lcrType = "Package";
-                @endif
+                if($('#lcr_type').val()=='Y'){
+                    $searchFilter.lcrType = "Package";
+                }else {
+                    $searchFilter.lcrType = "Access";
+                }
 
-                @if($lcrType == "Access")
-                        $searchFilter.lcrType = "Access";
-                @endif
+                alert($searchFilter.lcrType);
                 
                 var aoColumnDefs, aoColumnDefs;
                 if($searchFilter.LCRPosition=='5'){
@@ -382,7 +382,7 @@
                     "bDestroy":    true,
                     "bProcessing": true,
                     "bServerSide": true,
-                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type?lcrType={{$_REQUEST['lcrType']}}",
+                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type",
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
