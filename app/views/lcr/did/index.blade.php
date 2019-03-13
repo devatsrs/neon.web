@@ -382,7 +382,7 @@
                     "bDestroy":    true,
                     "bProcessing": true,
                     "bServerSide": true,
-                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type",
+                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type?lcrType=" +$searchFilter.lcrType ,
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
