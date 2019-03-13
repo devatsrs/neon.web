@@ -252,9 +252,8 @@
                 
                 $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
                 $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
-
+                $searchFilter.lcrType = '';
                 @if($lcrType == "Package")
-           $('#lcr_type').val('Y');
                 $searchFilter.lcrType = "Package";
                 @endif
 
@@ -383,7 +382,7 @@
                     "bDestroy":    true,
                     "bProcessing": true,
                     "bServerSide": true,
-                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type",
+                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type?lcrType={{$_REQUEST['lcrType']}}",
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
