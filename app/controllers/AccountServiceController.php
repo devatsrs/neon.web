@@ -200,7 +200,7 @@ class AccountServiceController extends \BaseController {
         ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
         ->leftjoin('tblPackage', 'tblPackage.PackageId', '=' , 'tblCLIRateTable.PackageID' )
         ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
-         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"), "tblAccountService.Status", "tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate"])
+         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID` AND `tblCLIRateTable`.`Status` = 1) as Clis"), "tblAccountService.Status", "tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate"])
         ->where("tblAccountService.AccountID",$id);
 
         //Log::debug($services->toSql());
