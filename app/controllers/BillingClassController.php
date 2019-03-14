@@ -18,7 +18,7 @@ class BillingClassController extends \BaseController {
         $privacy = EmailTemplate::$privacy;
         $type = EmailTemplate::$Type;*/
         $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
-        $reseller_owners = Reseller::getDropdownIDListAll();
+        $reseller_owners = Reseller::getDropdownIDListAllChildCompanyID();
         return View::make('billingclass.create', compact('BillingClassList','reseller_owners'));
         //return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates','privacy','type'));
     }
@@ -49,7 +49,7 @@ class BillingClassController extends \BaseController {
             $BalanceWarning = json_decode($response->data->BalanceWarningSettings);
             $PaymentReminders = json_decode($response->data->PaymentReminderSettings);
             
-            $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+            $reseller_owners = Reseller::getDropdownIDListAllChildCompanyID();
             return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','PaymentReminders','LowBalanceReminder','BalanceWarning','accounts','reseller_owners'));
             //return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{
@@ -66,7 +66,7 @@ class BillingClassController extends \BaseController {
             $id = $data['id'];
             $getResellerCompany=Reseller::getResellerCompanyID($id);
             if($data['type']=='emailtemp'){
-                $TemplateData     = EmailTemplate::getEmailTemplateDropdownIDList($getResellerCompany);
+                $TemplateData     = EmailTemplate::getEmailTemplateDropdownIDList($id);
             }else{
                 $TemplateData     = InvoiceTemplate::getInvoiceTemplateDropdownIDList($id);
             }
