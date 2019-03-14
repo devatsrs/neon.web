@@ -845,7 +845,7 @@
                 $('#' + tblID + ' tr:last').children('td:eq(5)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', 'OneOffCost');
                 $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
