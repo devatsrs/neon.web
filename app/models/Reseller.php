@@ -55,7 +55,9 @@ class Reseller extends \Eloquent
     public static function getResellerAccountID($ChildCompanyID){
         return Reseller::where('ChildCompanyID',$ChildCompanyID)->pluck('AccountID');
     }
-
+     public static function getResellerCompanyID($ResellerID){
+        return Reseller::where('ResellerID',$ResellerID)->pluck('CompanyID');
+    }
     // main admin company id
     public static function get_companyID(){
         return  Reseller::where('ChildCompanyID',Auth::user()->CompanyID)->pluck('CompanyID');

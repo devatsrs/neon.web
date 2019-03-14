@@ -313,7 +313,7 @@
             $('#edit-vendor-rate-form').find(".select2").select2("val", "");
             $("#edit-vendor-rate-form [name='VendorConnectionID']").val('');
 
-            $('.modal-title').html('Add New  Vendor Connection');
+            $('.vendor-connection-modal-title').html('Add New  Vendor Connection');
             $('#did_Div,#voice_Div,#package_Div').addClass('hidden');
             var RateTypeID = $("#vendor-rate-search select[name='RateTypeID']").val();
             if(typeof(RateTypeID)!='undefined' && $.trim(RateTypeID)!=''){
@@ -653,7 +653,7 @@
 
                 $(".edit-vendor-rate.btn").click(function(ev) {
                     ev.stopPropagation();
-                    $('.modal-title').html("Edit Vendor Connection");
+                    $('.vendor-connection-modal-title').html("Edit Vendor Connection");
                     $('#edit-vendor-rate-form').trigger("reset");
                     var cur_obj = $(this).prev("div.hiddenRowData");
                     var RateTypeID=cur_obj.find("input[name='RateTypeID']").val();
@@ -1066,7 +1066,7 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"
                             aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Edit Vendor Connection</h4>
+                    <h4 class="vendor-connection-modal-title">Edit Vendor Connection</h4>
                 </div>
 
                 <div class="modal-body">

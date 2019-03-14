@@ -35,7 +35,31 @@ class EmailTemplate extends \Eloquent {
     public static $privacy = [0=>'All User',1=>'Only Me'];
     public static $Type = [0=>'Select Template Type',self::ACCOUNT_TEMPLATE=>'Account',self::INVOICE_TEMPLATE=>'Billing',self::RATESHEET_TEMPLATE=>'Rate sheet',self::TICKET_TEMPLATE=>'Tickets'];
 	
-	
+    public static function getEmailTemplateDropdownIDList($ID){
+        $select =  1;
+        $data['CompanyID']=$ID;
+
+        $language_arr = Translation::getLanguageDropdownIdList();
+        //print_r($language_arr);
+        $result=array();
+        foreach($language_arr as $key=>$value){
+
+            $data['LanguageID']=$key;
+
+            $EmailTemplate = EmailTemplate::where('CompanyID',$ID);
+            $EmailTemplate->where('StaticType',0);
+            $row = $EmailTemplate->select(array('TemplateID', 'TemplateName'))->orderBy('TemplateName')->lists('TemplateName','TemplateID');
+
+            if(count($row)){
+                $result[$value]=$row;
+            }
+        }
+
+        if(!empty($result) && $select==1){
+            $result = array(""=> "Select")+$result;
+        }
+        return $result;
+    }
     public static function checkForeignKeyById($id){
         $companyID = User::get_companyID();
         $JobTypeID = JobType::where(["Code" => 'BLE'])->pluck('JobTypeID');
