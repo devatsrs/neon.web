@@ -46,39 +46,27 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="field-4" class="control-label">Component</label>
+                        <label for="field-4" class="control-label">Component*</label>
                         {{ Form::select('Component', RateGenerator::$Component, '', array("class"=>"select2")) }}
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="field-5" class="control-label">Origination</label>
-                        <input type="text" class="form-control" name="Origination"/>
+                        <label for="field-4" class="control-label">Country*</label>
+                        {{ Form::select('CountryID', $country, '', array("class"=>"select2")) }}
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="field-5" class="control-label">Time of Day</label>
-                        {{ Form::select('TimeOfDay', $Timezones, '', array("class"=>"select2")) }}
+                        <label for="field-5" class="control-label">Type*</label>
+                        {{ Form::select('AccessType', $AccessType, '', array("class"=>"select2")) }}
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="field-4" class="control-label">Country*</label>
-                        {{ Form::select('CountryID', $country, '', array("class"=>"select2")) }}
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="field-5" class="control-label">Type*</label>
-                        {{ Form::select('AccessType', $AccessType, '', array("class"=>"select2")) }}
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="field-5" class="control-label">Prefix</label>
+                        <label for="field-5" class="control-label">Prefix*</label>
                         {{ Form::select('Prefix', $Prefix, '', array("class"=>"select2")) }}
                     </div>
                 </div>
@@ -86,6 +74,18 @@
                     <div class="form-group">
                         <label for="field-5" class="control-label">City/Tariff</label>
                         {{ Form::select('CityTariff', $CityTariff, null, array("class"=>"select2")) }}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="field-5" class="control-label">Origination</label>
+                        <input type="text" class="form-control" name="Origination"/>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="field-5" class="control-label">Time of Day*</label>
+                        {{ Form::select('TimeOfDay', $Timezones, '', array("class"=>"select2")) }}
                     </div>
                 </div>
             </div>
