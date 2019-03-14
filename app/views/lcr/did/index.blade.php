@@ -386,7 +386,7 @@
                     "bDestroy":    true,
                     "bProcessing": true,
                     "bServerSide": true,
-                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type?lcrType=" +$searchFilter.lcrType ,
+                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type" ,
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
@@ -406,8 +406,7 @@
                                 {"name": "DateTo", "value": $searchFilter.DateTo},
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
-                                {"name": "PackageID", "value": $searchFilter.PackageID},
-                                {"name": "lcrType", "value": $searchFilter.lcrType}
+                                {"name": "PackageID", "value": $searchFilter.PackageID}
 
                         );
                         data_table_extra_params.length = 0;
@@ -430,7 +429,7 @@
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
                                 {"name": "PackageID", "value": $searchFilter.PackageID},
-                                {"name": "lcrType", "value": $searchFilter.lcrType},
+
                                 {"name":"Export","value":1}
                         );
 
