@@ -262,8 +262,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-             
+
                  
             @if($ROUTING_PROFILE =='1') 
             <div class="panel panel-primary" data-collapsed="0">
@@ -541,6 +540,7 @@
 
                     </div>
                  </div>
+                @include('accountdiscountplan.index')
 
              </form>
     </div>
@@ -732,6 +732,7 @@ function ajax_form_success(response){
 </script>
 @include('currencies.currencymodal')
 @include('billingclass.billingclassmodal')
+@include('accountdiscountplan.discountplanmodal')
 @include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => 'accounts/store','update_url'=>'accounts/update/{id}' ))
 @stop
 @section('footer_ext')
