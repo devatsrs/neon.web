@@ -14,7 +14,7 @@
                     <input class="form-control" name="account_name"  type="text" >
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">Number</label>
+                    <label for="field-1" class="control-label">Account Number</label>
                     <input class="form-control" name="account_number" type="text"  >
                 </div>
                 <div class="form-group">
@@ -66,14 +66,14 @@
                     <label class="control-label">Status</label>
                     {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"select2 small"))}}
                 </div>
-                <div class="form-group">
+                <div class="form-group hide">
                     @if(User::is_admin())
                         <label for="field-1" class="control-label">Owner</label>
                         {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                     @endif
                 </div>
                 <div class="form-group">
-                    <label for="field-5" class="control-label">IP/CLI</label>
+                    <label for="field-5" class="control-label">Number</label>
                     <input type="text" name="IPCLIText" class="form-control">
                 </div>
                 <div class="form-group">
