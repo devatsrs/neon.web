@@ -150,14 +150,14 @@ class RateGeneratorRuleController extends \BaseController {
 
             $rateGenerator = RateGenerator::findOrFail($id);
 
-            if($rateGenerator->SelectType == 2) {
+            if($rateGenerator->SelectType == 2 || $rateGenerator->SelectType == 3) {
                 $rules = array(
                     'Component'  => 'required',
                     'TimeOfDay'  => 'required',
                     'CreatedBy'  => 'required',
 
                 );
-            } else {
+            }else {
                 $rules = array(
                     'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
                     'Description' => 'required_without_all:Code,OriginationCode,OriginationDescription',
@@ -248,7 +248,7 @@ class RateGeneratorRuleController extends \BaseController {
                 unset($data['Origination']);
             }
 
-            if($rateGenerator->SelectType == 2) {
+            if($rateGenerator->SelectType == 2 || $rateGenerator->SelectType == 3) {
                 $rules = array(
                     'Component'   => 'required',
                     'TimeOfDay'   => 'required',

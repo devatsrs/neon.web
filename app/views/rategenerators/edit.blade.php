@@ -286,7 +286,7 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="Service-update" class="btn btn-primary btn-xs add-clone-row-btn  pull-right" data-loading-text="Loading...">
+                        <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="Service-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
                             <i></i>
                             +
                         </button>
@@ -312,6 +312,7 @@
                                     <th style="width:250px !important;" class="DID-Div">To City/Tariff</th>
                                     <th style="width:200px !important;" class="DID-Div">To Origination</th>
                                     <th style="width:200px !important;">To Time of Day</th>
+                                    <th style="width:40px !important;">Action</th>
                                 </tr>
                                 </thead>
                                 <tbody id="tbody">
@@ -432,7 +433,7 @@
                             </div>
                         </div>
                         <div class="panel-body">
-                            <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn  pull-right" data-loading-text="Loading...">
+                            <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
                                 <i></i>
                                 +
                             </button>
@@ -444,14 +445,15 @@
                                     <thead>
                                     <tr>
                                         <th style="width:200px !important;">Component</th>
-                                        <th style="width:200px !important;">Origination</th>
-                                        <th style="width:200px !important;">Time of Day</th>
                                         <th style="width:250px !important;" class="DID-Div">Country</th>
                                         <th style="width:250px !important;" class="DID-Div">Type</th>
                                         <th style="width:250px !important;" class="DID-Div">Prefix</th>
                                         <th style="width:250px !important;" class="DID-Div">City/Tariff</th>
+                                        <th style="width:200px !important;" class="DID-Div">Origination</th>
+                                        <th style="width:200px !important;">Time of Day</th>
                                         <th style="width:200px !important;">Calculated Rate</th>
                                         <th style="width:200px !important;">Change Rate To</th>
+                                        <th style="width:40px !important;">Action</th>
                                     </tr>
                                     </thead>
                                     <tbody id="ratetbody">
@@ -476,12 +478,6 @@
                                             <td>
                                                 {{ Form::select('RateComponent-'.$a.'[]', RateGenerator::$Component, explode("," ,$calculatedRate->Component), array("class"=>"select2 selected-RComponents" ,'multiple', "id"=>"RateComponent-".$a)) }}
                                             </td>
-                                            <td>
-                                                <input type="text" class="form-control" value="{{$calculatedRate->Origination}}" name="RateOrigination-{{$a}}"/>
-                                            </td>
-                                            <td>
-                                                {{ Form::select('RateTimeOfDay-'.$a, $Timezones, $calculatedRate->TimezonesID, array("class"=>"select2")) }}
-                                            </td>
                                             <td  class="DID-Div">
                                                 {{ Form::select('Country1-'.$a, $country, $calculatedRate->CountryID, array("class"=>"select2")) }}
                                             </td>
@@ -493,6 +489,12 @@
                                             </td>
                                             <td  class="DID-Div">
                                                 {{ Form::select('City_Tariff1-'.$a, $CityTariff, $calculatedRate->CityTariff, array("class"=>"select2")) }}
+                                            </td>
+                                            <td class="DID-Div">
+                                                <input type="text" class="form-control" value="{{$calculatedRate->Origination}}" name="RateOrigination-{{$a}}"/>
+                                            </td>
+                                            <td>
+                                                {{ Form::select('RateTimeOfDay-'.$a, $Timezones, $calculatedRate->TimezonesID, array("class"=>"select2")) }}
                                             </td>
                                             <td>
                                                 <input type="number" min="0" value="{{$calculatedRate->RateLessThen}}" class="form-control" name="RateLessThen-{{$a}}"/>
@@ -550,7 +552,9 @@
                                 <tr>
                                     @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
                                         <th width="25%">Component</th>
-                                        <th width="15%">Origination</th>
+                                        @if($rategenerator->SelectType == 2)
+                                            <th width="15%">Origination</th>
+                                        @endif
                                         <th width="15%">Time of Day</th>
                                     @else
                                         <th width="25%">Rate Filter Origination</th>
@@ -567,20 +571,24 @@
                                         @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
                                             <td>
                                                 {{ @RateGenerator::$Component[$rategenerator_rule->Component] }}
-                                                <br>
-                                                Country: {{@$rategenerator_rule->Country->Country}}
-                                                <br>
-                                                    Type: {{@$rategenerator_rule->AccessType}}
-                                                <br>
-                                                    Prefix: {{@$rategenerator_rule->Prefix}}
-                                                <br>
-                                                    CityTariff: {{@$rategenerator_rule->CityTariff}}
+                                                @if($rategenerator->SelectType == 2)
+                                                    <br>
+                                                    Country: {{@$rategenerator_rule->Country->Country}}
+                                                    <br>
+                                                        Type: {{@$rategenerator_rule->AccessType}}
+                                                    <br>
+                                                        Prefix: {{@$rategenerator_rule->Prefix}}
+                                                    <br>
+                                                        CityTariff: {{@$rategenerator_rule->CityTariff}}
+                                                @endif
 
 
                                             </td>
+                                            @if($rategenerator->SelectType == 2)
                                             <td>
                                                 {{$rategenerator_rule->OriginationDescription }}
                                             </td>
+                                            @endif
                                             <td>
                                                 {{@$Timezones[$rategenerator_rule->TimeOfDay] }}
                                             </td>
@@ -702,12 +710,6 @@
                 <td>
                     {{ Form::select('RateComponent-1[]', RateGenerator::$Component, '', array("class"=>"select2 selected-Components" ,'multiple', "id"=>"RateComponent-1")) }}
                 </td>
-                <td>
-                    <input type="text" class="form-control" name="RateOrigination-1"/>
-                </td>
-                <td>
-                    {{ Form::select('RateTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
-                </td>
                 <td class="DID-Div">
                     {{ Form::select('Country1-1', $country, '', array("class"=>"select2")) }}
                 </td>
@@ -719,6 +721,12 @@
                 </td>
                 <td class="DID-Div">
                     {{ Form::select('City_Tariff1-1', $CityTariff, null, array("class"=>"select2")) }}
+                </td>
+                <td  class="DID-Div">
+                    <input type="text" class="form-control" name="RateOrigination-1"/>
+                </td>
+                <td>
+                    {{ Form::select('RateTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                 </td>
                 <td>
                     <input type="number" min="0" class="form-control" name="RateLessThen-1"/>
@@ -1390,12 +1398,12 @@
 
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
-                $('#' + tblID + ' tr:last').children('td:eq(1)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Country1-' + numb).attr('id', 'Country1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'AccessType1-' + numb).attr('id', 'AccessType1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'Prefix1-' + numb).attr('id', 'Prefix1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'City_Tariff1-' + numb).attr('id', 'City_Tariff1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'Country1-' + numb).attr('id', 'Country1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'AccessType1-' + numb).attr('id', 'AccessType1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Prefix1-' + numb).attr('id', 'Prefix1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'City_Tariff1-' + numb).attr('id', 'City_Tariff1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(7)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(8)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
             }
