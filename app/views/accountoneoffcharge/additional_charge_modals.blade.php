@@ -7,7 +7,7 @@
                     <h4 class="modal-title">Additional Charges</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
+                    <div class="row hide">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">One of charge</label>
@@ -63,7 +63,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row tax">
+                    <div class="row tax  hide">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Tax 1</label>
@@ -85,7 +85,7 @@
                         </div>
                     </div>
 
-                    <div class="row tax">
+                    <div class="row tax  hide">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Tax 2</label>
