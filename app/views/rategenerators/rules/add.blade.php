@@ -26,7 +26,7 @@
         </a>
     </div>
     <div class="clearfix"></div>
-    @if($rateGenerator->SelectType != 2)
+    @if($rateGenerator->SelectType == 1)
         <div class="row">
             <div class="col-md-12">
                 <ul class="nav nav-tabs bordered">
@@ -41,7 +41,8 @@
                 </div>
             </div>
         </div>
-    @else
+    @endif
+    @if($rateGenerator->SelectType == 2)
         <form role="form" id="rategenerator-code-from" method="post" action="{{URL::to('rategenerators/'.$id.'/rule/store_code')}}">
             <div class="row">
                 <div class="col-md-4">
@@ -91,12 +92,32 @@
             </div>
         </form>
     @endif
+    @if($rateGenerator->SelectType == 3)
+        <form role="form" id="rategenerator-code-from" method="post" action="{{URL::to('rategenerators/'.$id.'/rule/store_code')}}">
+            <div class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="field-4" class="control-label">Component*</label>
+                        {{ Form::select('Component', RateGenerator::$Component, '', array("class"=>"select2")) }}
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="field-5" class="control-label">Time of Day*</label>
+                        {{ Form::select('TimeOfDay', $Timezones, '', array("class"=>"select2")) }}
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+            </div>
+           </form>
+    @endif
 
     <script type="text/javascript">
         jQuery(document).ready(function($) {
             $(".saveall.btn").click(function(e){
 
-                        @if($rateGenerator->SelectType != 2)
+                        @if($rateGenerator->SelectType == 1)
                 var OriginationCode = $("#rategenerator-code-from input[name='OriginationCode']").val();
                 var OriginationDescription = $("#rategenerator-code-from input[name='OriginationDescription']").val();
                 var DestinationCode = $("#rategenerator-code-from input[name='Code']").val();

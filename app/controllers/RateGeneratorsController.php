@@ -53,7 +53,6 @@ class RateGeneratorsController extends \BaseController {
         $Categories = DidCategory::getCategoryDropdownIDList();
         $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
         $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
-        unset($RateTypes[3]);
         return View::make('rategenerators.index', compact('Trunks','RateTypes','Categories','DIDType','VoiceCallType'));
     }
 
@@ -99,9 +98,6 @@ class RateGeneratorsController extends \BaseController {
 
     public function store() {
         $data = Input::all();
-      ;
-
-        'DIDCategoryID';
 
         $companyID = User::get_companyID();
         $data ['CompanyID'] = $companyID;
@@ -200,13 +196,18 @@ class RateGeneratorsController extends \BaseController {
 
                 for ($i; $i < sizeof($numberArray) - 1; $i++) {
 
-                    if(!isset($data['Component-' . $numberArray[$i]])){
-                        unset($data['getIDs']);
-                        unset($data['Category']);
+                    if(empty($data['Component-'. $numberArray[$i]]) ||
+                        empty($data['TimeOfDay-'. $numberArray[$i]]) ||
+                        empty($data['Action-'. $numberArray[$i]]) ||
+                        empty($data['MergeTo-'. $numberArray[$i]]) ||
+                        empty($data['ToTimeOfDay-'. $numberArray[$i]])){
+                        return Response::json(array(
+                            "status" => "failed",
+                            "message" => "Merge components Value is missing."
+                        ));
                     }
                     if(isset($data['Component-' . $numberArray[$i]])){
                     $GetAllcomponts[] = 'Component-' . $numberArray[$i];
-
 
                     if (!isset($data[$GetAllcomponts[$i]])) {
                         unset($data['Component-' . $numberArray[$i]]);
@@ -225,16 +226,7 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['FCity_Tariff-' . $numberArray[$i]]);
                         unset($data['TCity_Tariff-' . $numberArray[$i]]);
                     } else {
-                        if(empty($data['Component-'. $numberArray[$i]]) ||
-                            empty($data['TimeOfDay-'. $numberArray[$i]]) ||
-                            empty($data['Action-'. $numberArray[$i]]) ||
-                            empty($data['MergeTo-'. $numberArray[$i]]) ||
-                            empty($data['ToTimeOfDay-'. $numberArray[$i]])){
-                            return Response::json(array(
-                                "status" => "failed",
-                                "message" => "Merge components Value is missing."
-                            ));
-                        }
+
 //                        if(isset($data['FCountry-' . $numberArray[$i]]) && $data['FCountry-' . $numberArray[$i]] == '0'){
 //                            $data['FCountry-' . $numberArray[$i]] = '';
 //                        }
