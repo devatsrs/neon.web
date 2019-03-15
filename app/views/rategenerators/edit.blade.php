@@ -595,11 +595,23 @@
                                         @else
                                             <td>
                                                 {{$rategenerator_rule->OriginationCode}}@if(!empty($rategenerator_rule->OriginationCode)) <br/> @endif
-                                                {{$rategenerator_rule->OriginationDescription}}
+                                                @if($rategenerator_rule->OriginationType != '')
+                                                    Type : {{$rategenerator_rule->OriginationType}}
+                                                <br>
+                                                @endif
+                                                @if($rategenerator_rule->OriginationCountryID != '')
+                                                    Country : {{Country::getName($rategenerator_rule->OriginationCountryID)}}
+                                                @endif
                                             </td>
                                             <td>
                                                 {{$rategenerator_rule->Code}}@if(!empty($rategenerator_rule->Code)) <br/> @endif
-                                                {{$rategenerator_rule->Description}}
+                                                @if($rategenerator_rule->DestinationType != '')
+                                                    Type : {{$rategenerator_rule->DestinationType}}
+                                                <br>
+                                                @endif
+                                                @if($rategenerator_rule->DestinationCountryID != '')
+                                                    Country : {{Country::getName($rategenerator_rule->DestinationCountryID)}}
+                                                @endif
                                             </td>
                                             <td>
                                                 @if(count($rategenerator_rule['RateRuleSource']))
