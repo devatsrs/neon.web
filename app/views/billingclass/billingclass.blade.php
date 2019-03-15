@@ -23,7 +23,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                 <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel body -->
                         <div class="panel-body">
-                             @if(isset($BillingClass->CompanyID) && $BillingClass->CompanyID == '1' )
+                             @if(!isset($BillingClass->ResellerID) && isset($BillingClass->Name))
                              @else
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Partner</label>
@@ -31,9 +31,9 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                     
                                     
                                     @if(isset($BillingClass->Name))
-                                    {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->CompanyID)?$BillingClass->CompanyID:'' ), array("class"=>"select2", 'disabled' => "false")) }}
+                                    {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerID)?$BillingClass->ResellerID:'' ), array("class"=>"select2", 'disabled' => "false")) }}
                                     @else 
-                                    {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->CompanyID)?$BillingClass->CompanyID:'' ), array("class"=>"select2")) }}
+                                    {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerID)?$BillingClass->ResellerID:'' ), array("class"=>"select2")) }}
                                     @endif
                                     
                                     

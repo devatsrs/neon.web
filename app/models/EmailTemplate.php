@@ -48,7 +48,6 @@ class EmailTemplate extends \Eloquent {
             $data['LanguageID']=$key;
 
             $EmailTemplate = EmailTemplate::where('CompanyID',$ID);
-            $EmailTemplate->where('StaticType',0);
             $row = $EmailTemplate->select(array('TemplateID', 'TemplateName'))->orderBy('TemplateName')->lists('TemplateName','TemplateID');
 
             if(count($row)){
