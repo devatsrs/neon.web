@@ -4,7 +4,7 @@ class BillingClassController extends \BaseController {
 
 
     public function index() {
-        $reseller_owners = Reseller::getDropdownIDListAll();
+        $reseller_owners = Reseller::getDropdownIDListAllChildCompanyID();
         return View::make('billingclass.index', compact('reseller_owners'));
     }
     public function create() {

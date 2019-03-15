@@ -14,13 +14,13 @@
             <div class="row">
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label for="field-4" class="control-label">Min Rate</label>
+                            <label for="field-4" class="control-label">Min Rate*</label>
                             <input type="text" name="MinRate" class="form-control" id="field-5" placeholder="">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label for="field-5" class="control-label">Max Rate</label>
+                            <label for="field-5" class="control-label">Max Rate*</label>
                             <input type="text" name="MaxRate" class="form-control" id="field-5" placeholder="">
                         </div>
                     </div>

@@ -29,7 +29,7 @@ class InvoiceTemplatesController extends \BaseController {
         $defaultDB=DB::connection()->getDatabaseName();
         
         $invoiceCompanies = $invoiceCompanies->select('Name',
-                DB::raw("(SELECT ResellerName FROM ".$defaultDB.".tblReseller WHERE tblInvoiceTemplate.CompanyID = tblReseller.ResellerID) as ResellerName")
+                DB::raw("(SELECT ResellerName FROM ".$defaultDB.".tblReseller WHERE tblInvoiceTemplate.CompanyID = tblReseller.ChildCompanyID) as ResellerName")
                 ,'updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency','CompanyID');
         return Datatables::of($invoiceCompanies)->make();
     }
@@ -37,7 +37,7 @@ class InvoiceTemplatesController extends \BaseController {
     public function index() {
 
         $countries = Country::getCountryDropdownList();
-        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        $reseller_owners = Reseller::getDropdownIDListAllChildCompanyID();
         return View::make('invoicetemplates.index', compact('countries','reseller_owners'));
 
     }
@@ -252,7 +252,6 @@ class InvoiceTemplatesController extends \BaseController {
         unset($data['InvoiceTemplateID']);
         unset($data['EditPage']);
         $rules = array(
-            'CompanyID' => 'required',
             'Name' => 'required|unique:tblInvoiceTemplate,Name,NULL,InvoiceTemplateID,CompanyID,'.$data['CompanyID'],
             'InvoiceStartNumber' => 'required',
             'CDRType'=> 'required',
@@ -260,7 +259,6 @@ class InvoiceTemplatesController extends \BaseController {
         );
 
         $messages = array(
-            'CompanyID.required' =>'The companyid field is required',
             'Name.required' =>'name field is required',
             'InvoiceStartNumber.required' =>'invoice start number field is required',
             'CDRType.required' =>'cdr format field is required',
