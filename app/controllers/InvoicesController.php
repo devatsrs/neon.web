@@ -18,9 +18,9 @@ class InvoicesController extends \BaseController {
         $data['Overdue'] = $data['Overdue']== 'true'?1:0;
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['InvoiceStatus'] = is_array($data['InvoiceStatus'])?implode(',',$data['InvoiceStatus']):$data['InvoiceStatus'];
-        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
+       // $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",".$data['ResellerOwner'].",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
         $InvoiceHideZeroValue = Invoice::getCookie('InvoiceHideZeroValue');
         // Account Manager Condition
         $userID = 0;
@@ -88,7 +88,7 @@ class InvoicesController extends \BaseController {
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
         $data['Overdue'] = $data['Overdue']== 'true'?1:0;
         $sort_column = $columns[$data['iSortCol_0']];
-        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
+        //$data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         
         // Account Manager Condition
         $userID = 0;
@@ -96,7 +96,7 @@ class InvoicesController extends \BaseController {
             $userID = User::get_userID();
         }
 
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",".intval($data['ResellerOwner']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,1,"",'.$userID.',"'.$data['tag'].'")');

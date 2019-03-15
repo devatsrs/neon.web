@@ -36,10 +36,10 @@ class RateGeneratorRuleController extends \BaseController {
                 }
             }
 
-            $country = array(0 => "All") + $country;
-            $AccessType = array(0 => "All") + $AccessType;
-            $Prefix = array(0 => "All") + $Prefix;
-            $CityTariff = array(0 => "All") + $CityTariff;
+            $country = array('' => "All") + $country;
+            $AccessType = array('' => "All") + $AccessType;
+            $Prefix = array('' => "All") + $Prefix;
+            $CityTariff = array('' => "All") + $CityTariff;
 
             return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff'));
         }
@@ -69,10 +69,10 @@ class RateGeneratorRuleController extends \BaseController {
                 }
             }
 
-            $country = array(0 => "All") + $country;
-            $AccessType = array(0 => "All") + $AccessType;
-            $Prefix = array(0 => "All") + $Prefix;
-            $CityTariff = array(0 => "All") + $CityTariff;
+            $country = array('' => "All") + $country;
+            $AccessType = array('' => "All") + $AccessType;
+            $Prefix = array('' => "All") + $Prefix;
+            $CityTariff = array('' => "All") + $CityTariff;
 
             $Timezones = Timezones::getTimezonesIDList();
             //source
@@ -150,16 +150,14 @@ class RateGeneratorRuleController extends \BaseController {
 
             $rateGenerator = RateGenerator::findOrFail($id);
 
-            if($rateGenerator->SelectType == 2) {
+            if($rateGenerator->SelectType == 2 || $rateGenerator->SelectType == 3) {
                 $rules = array(
                     'Component'  => 'required',
                     'TimeOfDay'  => 'required',
                     'CreatedBy'  => 'required',
-                    'CountryID'  => 'required',
-                    'AccessType' => 'required',
-                    'Prefix'     => 'required',
+
                 );
-            } else {
+            }else {
                 $rules = array(
                     'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
                     'Description' => 'required_without_all:Code,OriginationCode,OriginationDescription',
@@ -192,18 +190,6 @@ class RateGeneratorRuleController extends \BaseController {
                         }
                     }
                 }
-            }
-            if(isset($data['CountryID']) && $data['CountryID'] == '0'){
-                $data['CountryID'] = '';
-            }
-            if(isset($data['AccessType']) && $data['AccessType'] == '0' ){
-                $data['AccessType'] = '';
-            }
-            if(isset($data['Prefix']) && $data['Prefix'] == '0'){
-                $data['Prefix'] = '';
-            }
-            if(isset($data['CityTariff']) && $data['CityTariff'] == '0' ){
-                $data['CityTariff'] = '';
             }
 
             if ($rule_id = RateRule::insertGetId($data)) {
@@ -262,14 +248,11 @@ class RateGeneratorRuleController extends \BaseController {
                 unset($data['Origination']);
             }
 
-            if($rateGenerator->SelectType == 2) {
+            if($rateGenerator->SelectType == 2 || $rateGenerator->SelectType == 3) {
                 $rules = array(
                     'Component'   => 'required',
                     'TimeOfDay'   => 'required',
                     'ModifiedBy'  => 'required',
-                    'CountryID'  => 'required',
-                    'AccessType' => 'required',
-                    'Prefix'     => 'required',
                 );
             } else {
                 $rules = array(
@@ -287,18 +270,6 @@ class RateGeneratorRuleController extends \BaseController {
                 return json_validator_response($validator);
             }
 
-            if(isset($data['CountryID']) && $data['CountryID'] == '0'){
-                $data['CountryID'] = '';
-            }
-            if(isset($data['AccessType']) && $data['AccessType'] == '0' ){
-                $data['AccessType'] = '';
-            }
-            if(isset($data['Prefix']) && $data['Prefix'] == '0'){
-                $data['Prefix'] = '';
-            }
-            if(isset($data['CityTariff']) && $data['CityTariff'] == '0' ){
-                $data['CityTariff'] = '';
-            }
 
             if ($rategenerator_rules->update($data)) {
                 return Response::json(array(

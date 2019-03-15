@@ -9,5 +9,6 @@ class OutPaymentLog extends \Eloquent {
 
     protected $primaryKey = "OutPaymentLogID";
 
+    public $timestamps = false;
 
 }

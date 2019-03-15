@@ -194,15 +194,18 @@ class AccountsController extends \BaseController {
             if(!User::is_admin()){
                 unset($doc_status[Account::VERIFIED]);
             }
+            $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::VOICECALL_ID);
+            $DiscountPlan = $DiscountPlanVOICECALL;
+            $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::DID_ID);
+            $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::PACKAGE_ID);
             $dynamicfields = Account::getDynamicfields('account',0);
             $reseller_owners = Reseller::getDropdownIDList($company_id);
-            
             //As per new question call the routing profile model for fetch the routing profile list.
             $routingprofile = RoutingProfiles::getRoutingProfile($company_id);
             //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
             //----------------------------------------------------------------------
             $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE'));
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL'));
     }
 
     /**
@@ -591,6 +594,27 @@ class AccountsController extends \BaseController {
                     AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
                     if($ManualBilling ==0) {
                         AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, $ServiceID);
+                    }
+
+                    $AccountPeriod = AccountBilling::getCurrentPeriod($account->AccountID, date('Y-m-d'),$ServiceID);
+                    $OutboundDiscountPlan = empty($data['DiscountPlanID']) ? '' : $data['DiscountPlanID'];
+                    $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
+                    $PackageDiscountPlan = empty($data['PackageDiscountPlanID']) ? '' : $data['PackageDiscountPlanID'];
+
+                    if(!empty($AccountPeriod)) {
+                        $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                        $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                        $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                        $ServiceID=0;
+                        $AccountSubscriptionID = 0;
+                        $AccountName='';
+                        $AccountCLI='';
+                        $SubscriptionDiscountPlanID=0;
+                        $AccountServiceID=0;
+
+                        AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                        AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                        AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                     }
                 }
 

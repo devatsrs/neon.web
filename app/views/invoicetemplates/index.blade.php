@@ -252,12 +252,18 @@ var postdata;
         $("#add-new-invoice_template-form [name='InvoiceTemplateID']").val(cur_obj.find("input[name='InvoiceTemplateID']").val());
         $("#add-new-invoice_template-form [name='InvoiceStartNumber']").val(cur_obj.find("input[name='InvoiceStartNumber']").val());
         $("#add-new-invoice_template-form [name='InvoiceNumberPrefix']").val(cur_obj.find("input[name='InvoiceNumberPrefix']").val());
-		$("#add-new-invoice_template-form [name='EstimateNumberPrefix']").val(cur_obj.find("input[name='EstimateNumberPrefix']").val());
-		$("#add-new-invoice_template-form [name='CreditNotesNumberPrefix']").val(cur_obj.find("input[name='CreditNotesNumberPrefix']").val());
+        $("#add-new-invoice_template-form [name='EstimateNumberPrefix']").val(cur_obj.find("input[name='EstimateNumberPrefix']").val());
+        $("#add-new-invoice_template-form [name='CreditNotesNumberPrefix']").val(cur_obj.find("input[name='CreditNotesNumberPrefix']").val());
                 
         $("#add-new-invoice_template-form [name='InvoicePages']").val(cur_obj.find("input[name='InvoicePages']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='ResellerOwner']").val(cur_obj.find("input[name='CompanyID']").val()).trigger("change");
         
+        console.log(cur_obj.find("input[name='CompanyID']").val());
+        if(cur_obj.find("input[name='CompanyID']").val()=='1'){
+            $('#partnerdiv').hide();
+        }else{
+            $('#partnerdiv').show();
+        }
         $("#add-new-invoice_template-form [name='DateFormat']").val(cur_obj.find("input[name='DateFormat']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='CDRType']").val(cur_obj.find("input[name='CDRType']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='LastInvoiceNumber']").val(cur_obj.find("input[name='LastInvoiceNumber']").val());
@@ -400,12 +406,18 @@ function ajax_update(fullurl,data){
                     <h4 class="modal-title">Add New Invoice Template</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group" >
+                    
+                        @if(is_reseller())
+                        @else
+                        <div class="form-group" id="partnerdiv" >
                             <label for="field-1" class="col-sm-2 control-label">Partner</label>
                             <div class="col-sm-4">
                                 {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->CompanyID)?$BillingClass->CompanyID:'' ), array("class"=>"select2")) }}
                             </div>
                         </div>
+                        @endif
+                
+                        
                          <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Template Name</label>
                             <div class="col-sm-4">

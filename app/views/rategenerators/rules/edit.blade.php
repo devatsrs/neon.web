@@ -29,7 +29,7 @@
     <div class="row">
         <div class="col-md-12">
             <ul class="nav nav-tabs bordered" >
-                @if($rategenerator->SelectType != 2)
+                @if($rategenerator->SelectType == 1)
                     <li class="active"><a data-toggle="tab" href="#tab-code_description">Call Codes</a></li>
                     <li><a data-toggle="tab" href="#tab-source">Sources</a></li>
                 @else
@@ -38,16 +38,20 @@
                 <li><a data-toggle="tab" href="#tab-margin">Margin</a></li>
             </ul>
             <div class="tab-content">
-                @if($rategenerator->SelectType != 2)
+                @if($rategenerator->SelectType == 1)
                     <div class="tab-pane active" id="tab-code_description">
                         @include('rategenerators.rules.edit_code', array('id', 'RateRuleID', 'rategenerator_rules'))
                     </div>
                     <div class="tab-pane" id="tab-source">
                         @include('rategenerators.rules.edit_source', array('id', 'RateRuleID', 'rategenerator_sources', 'vendors', 'rategenerator'))
                     </div>
-                @else
+                @elseif($rategenerator->SelectType == 2)
                     <div class="tab-pane active" id="tab-details">
                         @include('rategenerators.rules.edit_details', array('id', 'RateRuleID', 'rategenerator_rules'))
+                    </div>
+                @elseif($rategenerator->SelectType == 3)
+                    <div class="tab-pane active" id="tab-details">
+                        @include('rategenerators.rules.edit_details_package', array('id', 'RateRuleID', 'rategenerator_rules'))
                     </div>
                 @endif
                 <div class="tab-pane" id="tab-margin">
@@ -61,7 +65,7 @@
         jQuery(document).ready(function($) {
 
             $(".saveall.btn").click(function(e){
-                        @if($rategenerator->SelectType != 2)
+                        @if($rategenerator->SelectType == 1)
                 var DestinationCode         = $("#rategenerator-code-from input[name='Code']").val();
                 var DestinationDescription  = $("#rategenerator-code-from input[name='Description']").val();
                 var OriginationCode         = $("#rategenerator-code-from input[name='OriginationCode']").val();
@@ -88,7 +92,7 @@
                     return false;
                 }
 
-                        @else
+                        @elseif($rategenerator->SelectType == 2)
 
                 var Origination = $("#rategenerator-code-from input[name='Origination']").val();
                 var Component = $("#rategenerator-code-from select[name='Component']").val();
@@ -99,6 +103,16 @@
                     toastr.error("Please Select Origination, Component, Time of Day", "Error", toastr_opts);
                     return false;
                 }
+                        @elseif($rategenerator->SelectType == 3)
+                var Component = $("#rategenerator-code-from select[name='Component']").val();
+                var TimeOfDay = $("#rategenerator-code-from select[name='TimeOfDay']").val();
+
+                if(Component == '' && TimeOfDay == ''){
+                    setTimeout(function(){$('.btn').button('reset');},10);
+                    toastr.error("Please Select Component, Time of Day", "Error", toastr_opts);
+                    return false;
+                }
+
                         @endif
 
                 var _url = $('#rategenerator-code-from').attr("action");
