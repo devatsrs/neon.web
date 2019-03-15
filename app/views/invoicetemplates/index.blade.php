@@ -51,7 +51,7 @@
 <p style="text-align: right;">
 
 @if( User::checkCategoryPermission('InvoiceTemplates','Add'))
-    <a href="#" data-action="showAddModal" data-type="invoice_template" data-modal="add-new-modal-invoice_template" class="btn btn-primary ">
+    <a href="#" data-action="showAddModal" data-type="invoice_template" data-modal="add-new-modal-invoice_template" class="btn btn-primary btnaddnewtemp ">
         <i class="entypo-plus"></i>
         Add New
     </a>
@@ -209,8 +209,11 @@ var postdata;
         $(".pagination a").click(function (ev) {
             replaceCheckboxes();
         });
-
-
+$('.btnaddnewtemp').click(function(ev){
+    try{
+    $('#partnerdiv').show();
+    } catch(e){};
+  });
     $('#add-new-invoice_template').click(function(ev){
         ev.preventDefault();
         $('#add-new-invoice_template-form').trigger("reset");
@@ -263,6 +266,7 @@ var postdata;
             $('#partnerdiv').hide();
         }else{
             $('#partnerdiv').show();
+            
         }
         $("#add-new-invoice_template-form [name='DateFormat']").val(cur_obj.find("input[name='DateFormat']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='CDRType']").val(cur_obj.find("input[name='CDRType']").val()).trigger("change");

@@ -135,9 +135,11 @@ class InvoiceTemplatesController extends \BaseController {
             $InvoiceTemplates = InvoiceTemplate::find($id);
             $data = Input::all();
             
-            $companyID = isset($data['ResellerOwner']) ? $data['ResellerOwner'] : 1;
-            
-            $data['CompanyID'] = $companyID;
+            $companyID = User::get_companyID();
+            $data['CompanyID'] =$companyID;
+            if (isset($data['ResellerOwner']) && !empty($data['ResellerOwner'])) {
+                $data['CompanyID'] = $data['ResellerOwner'];
+            }
             $data['ModifiedBy'] = User::get_user_full_name();
             if(!empty($data['EditPage']) && $data['EditPage']==1){
                 $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
@@ -161,7 +163,6 @@ class InvoiceTemplatesController extends \BaseController {
                 $data['CDRType'] = $InvoiceTemplates->CDRType;
             }
             $rules = array(
-                'CompanyID' => 'required',
                 /*'Pages' => 'required',
                 'Header' => 'required',
                 'Footer' => 'required',
@@ -253,7 +254,11 @@ class InvoiceTemplatesController extends \BaseController {
        
         $data = Input::all();
         $companyID = User::get_companyID();
-        $data['CompanyID'] = isset($data['ResellerOwner']) ? $data['ResellerOwner'] : 1;
+        $data['CompanyID'] =$companyID;
+        if (isset($data['ResellerOwner']) && !empty($data['ResellerOwner'])) {
+            $data['CompanyID'] = $data['ResellerOwner'];
+        }
+        //$data['CompanyID'] = isset($data['ResellerOwner']) ? $data['ResellerOwner'] : $companyID;
         $data['ModifiedBy'] = User::get_user_full_name();
         $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
         $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
