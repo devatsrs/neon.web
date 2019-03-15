@@ -120,9 +120,13 @@ class RateGeneratorsController extends \BaseController {
                 'LessThenRate' => 'numeric',
                 'ChargeRate' => 'numeric',
                 'percentageRate' => 'numeric',
-                'DateFrom'          => 'required|date|date_format:Y-m-d',
-                'DateTo'            => 'required|date|date_format:Y-m-d',
             );
+            if($SelectType == 3){
+                $rules = array(
+                    'DateFrom'          => 'required|date|date_format:Y-m-d',
+                    'DateTo'            => 'required|date|date_format:Y-m-d',
+                );
+            }
             
             if($SelectType == 1){
                 $rules['codedeckid']='required';
