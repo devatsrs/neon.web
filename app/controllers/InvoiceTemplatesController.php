@@ -44,7 +44,7 @@ class InvoiceTemplatesController extends \BaseController {
            
             log::info($query);
 
-            return DataTableSql::of($query)->make();
+            return DataTableSql::of($query,'sqlsrv2')->make();
         } catch (\Exception $e) {
             Log::info($e);
             return $this->response->errorInternal('Internal Server');
