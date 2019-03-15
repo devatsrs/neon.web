@@ -68,7 +68,7 @@ class AccountOneOffChargeController extends \BaseController {
             $product['Code'] = 'One-Off';
             $product['Description'] = 'One-Off';
             $product['Amount'] = '1';
-            $product['Active'] = '0';
+            $product['Active'] = '1';
             $product['Note'] = '';
             $product['AppliedTo'] = '0';
             $product['ItemTypeID'] = '0';
