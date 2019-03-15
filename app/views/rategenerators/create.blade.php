@@ -251,7 +251,7 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <button type="button" onclick="createCloneRow('servicetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
+                        <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
                             <i></i>
                             +
                         </button>
@@ -815,16 +815,8 @@
         function createCloneRow(tblID, idInp) {
             var lastrow = $('#' + tblID + ' tbody tr:last');
             var $item = lastrow.attr('id');
-            console.log(lastrow.length);
             var numb = lastrow.length > 0 ? getNumber($item) : 0;
             numb++;
-
-
-            console.log($("#selectedRow-" + numb).clone());
-            console.log(numb);
-            var data =  $("#selectedRow-"+numb);
-
-            console.log(data);
 
             if(tblID == 'servicetableSubBox'){
                 $("#table-1 tr").clone().appendTo('#' + tblID + ' tbody');

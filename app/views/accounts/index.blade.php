@@ -436,11 +436,11 @@
                                 
 								
 								<?php if(User::checkCategoryPermission('Opportunity','Add') && CompanyConfiguration::get('ACCOUNT_ADD_OPP') == 1) { ?>
-                                action +='&nbsp;<button class="btn  btn-default btn-xs small_icons" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
+                                //action +='&nbsp;<button class="btn  btn-default btn-xs small_icons" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                                 <?php } ?>
 
                                 <?php if(User::checkCategoryPermission('AccountActivityChart','View') && CompanyConfiguration::get('ACCOUNT_ACT_CHART') == 1){ ?>
-                                action +='&nbsp;<button redirecto="'+chart_+'" class="btn small_icons btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
+                                //action +='&nbsp;<button redirecto="'+chart_+'" class="btn small_icons btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
                                 //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
 
@@ -448,9 +448,9 @@
                                         action +='&nbsp;<button redirecto="'+credit_+'" class="btn small_icons btn-default btn-xs" title="Credit Control" data-id="'+full[0]+'" type="button"> <i class="fa fa-credit-card"></i> </button>';
                                 <?php } ?>
 								
-								if(full[10]==1 || full[11]==1){
-                                 	action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
-                                }
+//								if(full[10]==1 || full[11]==1){
+//                                 	//action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
+//                                }
 
 								<?php if(User::checkCategoryPermission('AccountSubscription','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1) { ?>
                                 action +='&nbsp;<button class="btn btn-default small_icons btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
@@ -466,7 +466,7 @@
                                 action +='&nbsp;<button redirecto="'+log_+'" class="btn small_icons btn-default btn-xs" title="View Account Logs" data-id="'+full[0]+'" type="button"> <i class="fa fa-file-text-o"></i></button>';//entypo-info
                                 <?php } ?>
                                 <?php if(CompanyConfiguration::get('ACCOUNT_MOV_REPORT') == 1){ ?>
-                                action +='&nbsp;<button redirecto="'+movement_report+'" class="btn small_icons btn-default btn-xs" title="Movement Report" data-id="'+full[0]+'" type="button"> <i class="fa fa-calendar-plus-o"></i></button>';//entypo-info
+                                //action +='&nbsp;<button redirecto="'+movement_report+'" class="btn small_icons btn-default btn-xs" title="Movement Report" data-id="'+full[0]+'" type="button"> <i class="fa fa-calendar-plus-o"></i></button>';//entypo-info
                                 <?php } ?>
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
@@ -493,7 +493,7 @@
 
                                 if(full[10]==1 && full[12]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
-                                        action += '&nbsp;<button redirecto="'+customer_rate_+'" title="Customer" class="btn small_icons btn-warning btn-xs"><i class="entypo-user"></i></button>';
+                                        action += '&nbsp;<button redirecto="'+customer_rate_+'" title="Customer" class="btn small_icons btn-warning btn-xs" disabled><i class="entypo-user"></i></button>';
                                     <?php } ?>
                                 }
 

@@ -595,11 +595,23 @@
                                         @else
                                             <td>
                                                 {{$rategenerator_rule->OriginationCode}}@if(!empty($rategenerator_rule->OriginationCode)) <br/> @endif
-                                                {{$rategenerator_rule->OriginationDescription}}
+                                                @if($rategenerator_rule->OriginationType != '')
+                                                    Type : {{$rategenerator_rule->OriginationType}}
+                                                <br>
+                                                @endif
+                                                @if($rategenerator_rule->OriginationCountryID != '')
+                                                    Country : {{Country::getName($rategenerator_rule->OriginationCountryID)}}
+                                                @endif
                                             </td>
                                             <td>
                                                 {{$rategenerator_rule->Code}}@if(!empty($rategenerator_rule->Code)) <br/> @endif
-                                                {{$rategenerator_rule->Description}}
+                                                @if($rategenerator_rule->DestinationType != '')
+                                                    Type : {{$rategenerator_rule->DestinationType}}
+                                                <br>
+                                                @endif
+                                                @if($rategenerator_rule->DestinationCountryID != '')
+                                                    Country : {{Country::getName($rategenerator_rule->DestinationCountryID)}}
+                                                @endif
                                             </td>
                                             <td>
                                                 @if(count($rategenerator_rule['RateRuleSource']))
@@ -1357,16 +1369,8 @@
         function createCloneRow(tblID, idInp) {
             var lastrow = $('#' + tblID + ' tbody tr:last');
             var $item = lastrow.attr('id');
-            console.log(lastrow.length);
             var numb = lastrow.length > 0 ? getNumber($item) : 0;
             numb++;
-
-
-            console.log($("#selectedRow-" + numb).clone());
-            console.log(numb);
-            var data =  $("#selectedRow-"+numb);
-
-            console.log(data);
 
             if(tblID == 'servicetableSubBox'){
                 $("#table-1 tr").clone().appendTo('#' + tblID + ' tbody');

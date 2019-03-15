@@ -171,9 +171,8 @@ class ServicesTemplateController extends BaseController {
             $CompanyID  = User::get_companyID();
             $CategoryDropdownIDList = DIDCategory::getCategoryDropdownIDList($CompanyID);
             $servicesTemplate = Service::lists('ServiceName','ServiceID');
-            $rateTable = RateTable::select(["RateTableName", "RateTableId"]);
-            $rateTable->where('Type','=', '1');
-            $rateTable->where('AppliedTo','!=',2 );
+            $rateTable = RateTable::where('Type','=', '1')->where('AppliedTo','!=',2 )->lists('RateTableName','RateTableId');
+//
             $outboundDiscountPlan = DiscountPlan::lists('Name','DiscountPlanID');
             $inbounddiscountplan =   DiscountPlan::lists('Name','DiscountPlanID');
             $BillingSubsForSrvTemplate = BillingSubscription::lists('Name','SubscriptionID');
@@ -199,6 +198,7 @@ class ServicesTemplateController extends BaseController {
             $Prefix = array('' => "All") + $Prefix;
             $CityTariff = array('' => "All") + $CityTariff;
             $RateType = array('' => "All") + $RateType;
+            $rateTable  = array('' => "Select") + $rateTable;
 
             return View::make('servicetemplate.index', compact('CategoryDropdownIDList','servicesTemplate','rateTable','outboundDiscountPlan','inbounddiscountplan','BillingSubsForSrvTemplate','country','AccessType','Prefix','CityTariff','RateType','DiscountPlanVOICECALL','DiscountPlanPACKAGE','DiscountPlanDID'));
 
@@ -331,7 +331,7 @@ class ServicesTemplateController extends BaseController {
                         $ServiceTemplateData['OutboundDiscountPlanId'] = $OutboundDiscountPlanId;
                     }
                     if ($InboundDiscountPlanId != '') {
-                        $ServiceTemplateData['InboundDiscountPlanID123'] = $InboundDiscountPlanId;
+                        $ServiceTemplateData['InboundDiscountPlanID'] = $InboundDiscountPlanId;
                     }
                     if ($PackageDiscountPlanId != '') {
                         $ServiceTemplateData['PackageDiscountPlanId'] = $PackageDiscountPlanId;
@@ -521,7 +521,7 @@ class ServicesTemplateController extends BaseController {
 
 
 
-            ServiceTemplate::$updateRules['Name'] = 'required|unique:tblServiceTemplate,Name,'.$ServiceTemplateId.',ServiceTemplateId';
+            ServiceTemplate::$updateRules['Name'] = "required|unique:tblServiceTemplate,Name,".$ServiceTemplateId.",ServiceTemplateId,CompanyID,".User::get_companyID()."";
 
             ServiceTemplate::$updateRules['ContractDuration'] = 'numeric';
             ServiceTemplate::$updateRules['CancellationCharges'] = 'required|numeric';

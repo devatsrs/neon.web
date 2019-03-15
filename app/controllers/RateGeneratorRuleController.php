@@ -5,6 +5,7 @@ class RateGeneratorRuleController extends \BaseController {
 
     public function add($id) {
 
+
         if ($id > 0) {
 
             $rateGenerator = RateGenerator::findOrFail($id);
@@ -19,11 +20,16 @@ class RateGeneratorRuleController extends \BaseController {
                 "AccountID",
                 "IsVendor"
             ])->where(["Status" => 1, "IsVendor" => 1, "AccountType" => 1, "CompanyID" => $companyID /*'CodeDeckId'=>$rateGenerator->CodeDeckId*/])->get();
+            $type = Rate::where("CompanyID",User::get_companyID())->whereRaw('Type IS NOT NULL')->lists('Type','Type');
+            $countryForRule = Country::lists('Country','CountryID');
 
             $country = ServiceTemplate::Join('tblCountry', function($join) {
                 $join->on('tblServiceTemplate.country','=','tblCountry.country');
             })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
                 ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+
+
+
 
             $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
             $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
@@ -40,8 +46,10 @@ class RateGeneratorRuleController extends \BaseController {
             $AccessType = array('' => "All") + $AccessType;
             $Prefix = array('' => "All") + $Prefix;
             $CityTariff = array('' => "All") + $CityTariff;
+            $type = array('' => "All") + $type;
+            $countryForRule = array('' => "All") + $countryForRule;
 
-            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff'));
+            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff','type','countryForRule'));
         }
     }
     public function edit($id, $RateRuleID) {
@@ -49,10 +57,16 @@ class RateGeneratorRuleController extends \BaseController {
             //Code
             $companyID = User::get_companyID();
             $rategenerator_rule = RateRule::where(["RateRuleId" => $RateRuleID])->get()->first()->toArray();
-            $DestinationCode        = $rategenerator_rule["Code"];
-            $DestinationDescription = $rategenerator_rule["Description"];
             $OriginationCode        = $rategenerator_rule["OriginationCode"];
-            $OriginationDescription = $rategenerator_rule["OriginationDescription"];
+            $OriginationType        = $rategenerator_rule["OriginationType"];
+            $OriginationCountryID        = $rategenerator_rule["OriginationCountryID"];
+            $DestinationCode        = $rategenerator_rule["Code"];
+            $DestinationType        = $rategenerator_rule["DestinationType"];
+            $DestinationCountryID        = $rategenerator_rule["DestinationCountryID"];
+
+
+            $type = Rate::where("CompanyID",User::get_companyID())->whereRaw('Type IS NOT NULL')->lists('Type','Type');
+            $countryForRule = Country::lists('Country','CountryID');
             $country = ServiceTemplate::Join('tblCountry', function($join) {
                 $join->on('tblServiceTemplate.country','=','tblCountry.country');
             })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
@@ -73,6 +87,8 @@ class RateGeneratorRuleController extends \BaseController {
             $AccessType = array('' => "All") + $AccessType;
             $Prefix = array('' => "All") + $Prefix;
             $CityTariff = array('' => "All") + $CityTariff;
+            $type = array('' => "All") + $type;
+            $countryForRule = array('' => "All") + $countryForRule;
 
             $Timezones = Timezones::getTimezonesIDList();
             //source
@@ -90,7 +106,7 @@ class RateGeneratorRuleController extends \BaseController {
                 "RateRuleID" => $RateRuleID
             ])->get();
 
-            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','CityTariff'));
+            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','CityTariff','type','countryForRule','OriginationType','OriginationCountryID','DestinationType','DestinationCountryID'));
 
 
 
@@ -160,9 +176,7 @@ class RateGeneratorRuleController extends \BaseController {
             }else {
                 $rules = array(
                     'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
-                    'Description' => 'required_without_all:Code,OriginationCode,OriginationDescription',
                     'OriginationCode' => 'required_without_all:Code,Description,OriginationDescription',
-                    'OriginationDescription' => 'required_without_all:Code,Description,OriginationCode',
                     'CreatedBy' => 'required'
                 );
             }
@@ -175,7 +189,7 @@ class RateGeneratorRuleController extends \BaseController {
 
             if($rateGenerator->SelectType != 2) {
                 if (isset($data['Code']) && !empty($data['Code']) || (isset($data['Description']) && !empty($data['Description']))) {
-                    $rateRuleDesination = RateRule::select('Code', 'Description')->where(["RateGeneratorId" => $data['RateGeneratorId'], "Code" => $data['Code'], "Description" => $data['Description']])->first();
+                    $rateRuleDesination = RateRule::select('Code')->where(["RateGeneratorId" => $data['RateGeneratorId'], "Code" => $data['Code'],'DestinationType' => $data['DestinationType']])->first();
                     if ($rateRuleDesination) {
                         if (isset($rateRuleDesination->Code) && isset($rateRuleDesination->Description)) {
                             return Response::json(array("status" => "failed", "message" => "Destination Code or Description already exist"));
@@ -183,7 +197,7 @@ class RateGeneratorRuleController extends \BaseController {
                     }
                 }
                 if (isset($data['OriginationCode']) && !empty($data['OriginationCode']) || (isset($data['OriginationDescription']) && !empty($data['OriginationDescription']))) {
-                    $rateRuleOrigination = RateRule::select('OriginationCode', 'OriginationDescription')->where(["RateGeneratorId" => $data['RateGeneratorId'], "OriginationCode" => $data['OriginationCode'], "OriginationDescription" => $data['OriginationDescription']])->first();
+                    $rateRuleOrigination = RateRule::select('OriginationCode', 'OriginationDescription')->where(["RateGeneratorId" => $data['RateGeneratorId'], "OriginationCode" => $data['OriginationCode'],'OriginationType' =>$data["OriginationType"]])->first();
                     if ($rateRuleOrigination) {
                         if (isset($rateRuleOrigination->OriginationCode) && isset($rateRuleOrigination->OriginationDescription)) {
                             return Response::json(array("status" => "failed", "message" => "Origination Code or Description already exist"));
@@ -257,9 +271,7 @@ class RateGeneratorRuleController extends \BaseController {
             } else {
                 $rules = array(
                     'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
-                    'Description' => 'required_without_all:Code,OriginationCode,OriginationDescription',
                     'OriginationCode' => 'required_without_all:Code,Description,OriginationDescription',
-                    'OriginationDescription' => 'required_without_all:Code,Description,OriginationCode',
                     'ModifiedBy' => 'required'
                 );
             }
