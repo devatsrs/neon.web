@@ -46,13 +46,13 @@
         {{--<li class="{{ active_url_class("leads") }}"> <a href="{{Url::to('/leads')}}"> <i class="fa fa-building" aria-hidden="true"></i> <span>&nbsp;Leads</span> </a></li>--}}
       {{--@endif--}}
     {{--@endif--}}
-    @if( User::checkCategoryPermission('Contacts','View'))
-      @if( User::checkCategoryPermission('Contacts','Add'))
-        <li class="two-links {{ active_url_class("contacts") }}"> <a href="{{Url::to('/contacts')}}" class="first"> <i class="entypo-users"></i><span>Contacts</span></a> <a href="{{URL::to('contacts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
-      @else
-        <li class="{{ active_url_class("contacts") }}"> <a href="{{Url::to('/contacts')}}"> <i class="entypo-users"></i><span>Contacts</span></a></li>
-      @endif
-    @endif
+    {{--@if( User::checkCategoryPermission('Contacts','View'))--}}
+      {{--@if( User::checkCategoryPermission('Contacts','Add'))--}}
+        {{--<li class="two-links {{ active_url_class("contacts") }}"> <a href="{{Url::to('/contacts')}}" class="first"> <i class="entypo-users"></i><span>Contacts</span></a> <a href="{{URL::to('contacts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>--}}
+      {{--@else--}}
+        {{--<li class="{{ active_url_class("contacts") }}"> <a href="{{Url::to('/contacts')}}"> <i class="entypo-users"></i><span>Contacts</span></a></li>--}}
+      {{--@endif--}}
+    {{--@endif--}}
     @if( User::checkCategoryPermission('Account','View'))
       @if( User::checkCategoryPermission('Account','Add'))
         <li class="two-links {{ active_url_class("accounts") }} {{ active_url_class("accountservices") }}"> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> <a href="{{URL::to('accounts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
