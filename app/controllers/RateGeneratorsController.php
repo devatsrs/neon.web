@@ -110,7 +110,7 @@ class RateGeneratorsController extends \BaseController {
         $getRateNumberString = @$data['getRateIDs'];
         $SelectType = $data['SelectType'];
 
-        if($SelectType == 3 || $SelectType == 1) {
+        if($SelectType == 1) {
             $rules = array(
                 'CompanyID' => 'required',
                 'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,' . $data['CompanyID'],
@@ -123,8 +123,16 @@ class RateGeneratorsController extends \BaseController {
             );
             if($SelectType == 3){
                 $rules = array(
-                    'DateFrom'          => 'required|date|date_format:Y-m-d',
-                    'DateTo'            => 'required|date|date_format:Y-m-d',
+                    'CompanyID' => 'required',
+                    'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,' . $data['CompanyID'],
+                    'Timezones' => 'required',
+                    'CurrencyID' => 'required',
+                    'Policy' => 'required',
+                    'LessThenRate' => 'numeric',
+                    'ChargeRate' => 'numeric',
+                    'percentageRate' => 'numeric',
+                    'DateFrom'   => 'required|date|date_format:Y-m-d',
+                    'DateTo'     => 'required|date|date_format:Y-m-d',
                 );
             }
             
@@ -154,6 +162,9 @@ class RateGeneratorsController extends \BaseController {
             $rules['TrunkID']='required';
             $rules['RatePosition']='required|numeric';
             $rules['UseAverage']='required';
+        }
+        if($SelectType == 2){
+            $rules['RatePosition']='required|numeric';
         }
 
         $message = array(
@@ -199,11 +210,25 @@ class RateGeneratorsController extends \BaseController {
                 $i = 0;
 
                 for ($i; $i < sizeof($numberArray) - 1; $i++) {
-                    if(empty($data['Component-'. $numberArray[$i]])){
-                        return Response::json(array(
-                            "status" => "failed",
-                            "message" => "Component Value is missing."
-                        ));
+                     if(empty($data['Component-'. $numberArray[$i]]) ||
+                        empty($data['TimeOfDay-'. $numberArray[$i]]) ||
+                        empty($data['Action-'. $numberArray[$i]]) ||
+                        empty($data['MergeTo-'. $numberArray[$i]]) ||
+                        empty($data['ToTimeOfDay-'. $numberArray[$i]])){
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Merge components Value is missing."
+                            ));
+                    }
+                    if($SelectType == 2){
+                        if(empty($data['Origination-'. $numberArray[$i]]) ||
+                            empty($data['ToOrigination-'. $numberArray[$i]])
+                        ){
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Merge Origination Value is missing."
+                            ));
+                        }
                     }
                     $GetAllcomponts[] = 'Component-' . $numberArray[$i];
 
@@ -224,6 +249,7 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['FCity_Tariff-' . $numberArray[$i]]);
                         unset($data['TCity_Tariff-' . $numberArray[$i]]);
                     } else {
+
                         $componts[]       = $data['Component-' . $numberArray[$i]];
                         $origination[]    = @$data['Origination-' . $numberArray[$i]];
                         $timeofday[]      = $data['TimeOfDay-' . $numberArray[$i]];
@@ -575,30 +601,43 @@ class RateGeneratorsController extends \BaseController {
             $SelectType = $Type->SelectType;
         }
 
-        
-        if($SelectType == 1 || $SelectType == 3) {
+
+        if($SelectType == 1) {
             $rules = array(
                 'CompanyID' => 'required',
-                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
+                'RateGeneratorName' => 'required',
+                'Timezones' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
                 'LessThenRate' => 'numeric',
                 'ChargeRate' => 'numeric',
                 'percentageRate' => 'numeric',
             );
+            if($SelectType == 3){
+                $rules = array(
+                    'CompanyID' => 'required',
+                    'RateGeneratorName' => 'required',
+                    'Timezones' => 'required',
+                    'CurrencyID' => 'required',
+                    'Policy' => 'required',
+                    'LessThenRate' => 'numeric',
+                    'ChargeRate' => 'numeric',
+                    'percentageRate' => 'numeric',
+                    'DateFrom'   => 'required|date|date_format:Y-m-d',
+                    'DateTo'     => 'required|date|date_format:Y-m-d',
+                );
+            }
+
             if($SelectType == 1){
                 $rules['codedeckid']='required';
-                $rules['Timezones']='required';
             }
+
         } else {
             $rules = array(
                 'CompanyID'         => 'required',
-                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
+                'RateGeneratorName' => 'required',
                 'CurrencyID'        => 'required',
                 'Policy'            => 'required',
-                'CountryID'         => 'required',
-                'AccessType'        => 'required',
-                'Prefix'            => 'required',
                 'DateFrom'          => 'required|date|date_format:Y-m-d',
                 'DateTo'            => 'required|date|date_format:Y-m-d',
                 'Calls'             => 'numeric',
@@ -610,14 +649,17 @@ class RateGeneratorsController extends \BaseController {
                 'percentageRate'    => 'numeric',
             );
         }
-        if ($SelectType == 2 || $SelectType == 1) {
-                unset($data['PackageID']);
-           }
+
         if($SelectType == 1) {
             $rules['TrunkID']='required';
             $rules['RatePosition']='required|numeric';
             $rules['UseAverage']='required';
-
+        }
+        if($SelectType == 2){
+            $rules['RatePosition']='required|numeric';
+        }
+        if ($SelectType == 2 || $SelectType == 1) {
+                unset($data['PackageID']);
         }
 
         $message = array(
@@ -665,6 +707,26 @@ class RateGeneratorsController extends \BaseController {
                 $i = 0;
 
                 for ($i; $i < sizeof($numberArray) - 1; $i++) {
+                    if(empty($data['Component-'. $numberArray[$i]]) ||
+                        empty($data['TimeOfDay-'. $numberArray[$i]]) ||
+                        empty($data['Action-'. $numberArray[$i]]) ||
+                        empty($data['MergeTo-'. $numberArray[$i]]) ||
+                        empty($data['ToTimeOfDay-'. $numberArray[$i]])){
+                        return Response::json(array(
+                            "status" => "failed",
+                            "message" => "Merge components Value is missing."
+                        ));
+                    }
+                    if($SelectType == 2){
+                        if(empty($data['Origination-'. $numberArray[$i]]) ||
+                            empty($data['ToOrigination-'. $numberArray[$i]])
+                        ){
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Merge Origination Value is missing."
+                            ));
+                        }
+                    }
                     $GetAllcomponts[$i] = 'Component-' . $numberArray[$i];
 
                     if (!isset($data[$GetAllcomponts[$i]])) {
@@ -684,16 +746,16 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['FCity_Tariff-' . $numberArray[$i]]);
                         unset($data['TCity_Tariff-' . $numberArray[$i]]);
                     } else {
-                        if(empty($data['Component-'. $numberArray[$i]]) ||
-                            empty($data['TimeOfDay-'. $numberArray[$i]]) ||
-                            empty($data['Action-'. $numberArray[$i]]) ||
-                            empty($data['MergeTo-'. $numberArray[$i]]) ||
-                            empty($data['ToTimeOfDay-'. $numberArray[$i]])){
-                            return Response::json(array(
-                                "status" => "failed",
-                                "message" => "Merge components Value is missing."
-                            ));
-                        }
+//                        if(empty($data['Component-'. $numberArray[$i]]) ||
+//                            empty($data['TimeOfDay-'. $numberArray[$i]]) ||
+//                            empty($data['Action-'. $numberArray[$i]]) ||
+//                            empty($data['MergeTo-'. $numberArray[$i]]) ||
+//                            empty($data['ToTimeOfDay-'. $numberArray[$i]])){
+//                            return Response::json(array(
+//                                "status" => "failed",
+//                                "message" => "Merge components Value is missing."
+//                            ));
+//                        }
                         if(isset($data['FCountry-' . $numberArray[$i]]) && $data['FCountry-' . $numberArray[$i]] == '0'){
                             $data['FCountry-' . $numberArray[$i]] = '';
                         }
