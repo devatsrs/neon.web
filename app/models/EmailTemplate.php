@@ -70,10 +70,12 @@ class EmailTemplate extends \Eloquent {
             return false;
         }
     }
-    public static function getTemplateArray($data=array()){
+    public static function getTemplateArray($data=array(),$CompanyID=0){
         $select =  isset($data['select'])?$data['select']:1;
         unset($data['select']);
-        $data['CompanyID']=User::get_companyID();
+        
+        $CompanyID = $CompanyID>0 ? $CompanyID : User::get_companyID();
+        $data['CompanyID']=$CompanyID;
 
         $language_arr = Translation::getLanguageDropdownIdList();
 
@@ -83,6 +85,7 @@ class EmailTemplate extends \Eloquent {
             ];
         }
         $result=array();
+        
         foreach($language_arr as $key=>$value){
 
             $data['LanguageID']=$key;

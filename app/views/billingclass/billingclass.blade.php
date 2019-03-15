@@ -1,5 +1,8 @@
-<?php $emailTemplates = EmailTemplate::getTemplateArray();
-$CompanyID = User::get_companyID();
+<?php 
+$data=array();
+$emailTemplates = EmailTemplate::getTemplateArray($data,$CompanyID);
+
+//$CompanyID = User::get_companyID();
 $taxrates = TaxRate::getTaxRateDropdownIDList($CompanyID);
 if(isset($taxrates[""])){unset($taxrates[""]);}
 $type = EmailTemplate::$Type;
@@ -89,7 +92,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
                                 <div class="col-sm-4">
-                                    {{Form::SelectControl('invoice_template',1,( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ))}}
+                                    {{Form::SelectControl('invoice_template',1,( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),'','','1',$CompanyID)}}
                                             <!--{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 select2Add small"))}}-->
                                 </div>
                             </div>
