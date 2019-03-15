@@ -32,27 +32,27 @@
                 Credit Control
             </a>
         @endif
-        @if(User::checkCategoryPermission('Opportunity','Add'))
-            <a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">
-                <i class="fa fa-line-chart"></i>
-                Add Opportunity
-            </a>
+        {{--@if(User::checkCategoryPermission('Opportunity','Add'))--}}
+            {{--<a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">--}}
+                {{--<i class="fa fa-line-chart"></i>--}}
+                {{--Add Opportunity--}}
+            {{--</a>--}}
 
-        @endif
+        {{--@endif--}}
         @if($account->VerificationStatus == Account::NOT_VERIFIED)
             <a data-id="{{$account->AccountID}}"  class="btn btn-success btn-sm btn-icon icon-left change_verification_status">
                 <i class="entypo-check"></i>
                 Verify
             </a>
         @endif
-        @if( User::checkCategoryPermission('AuthenticationRule','View'))
-            @if($account->IsCustomer==1 || $account->IsVendor==1)
-                <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
-                    <i class="entypo-lock"></i>
-                    Authentication Rule
-                </a>
-            @endif
-        @endif
+        {{--@if( User::checkCategoryPermission('AuthenticationRule','View'))--}}
+            {{--@if($account->IsCustomer==1 || $account->IsVendor==1)--}}
+                {{--<a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">--}}
+                    {{--<i class="entypo-lock"></i>--}}
+                    {{--Authentication Rule--}}
+                {{--</a>--}}
+            {{--@endif--}}
+        {{--@endif--}}
         <button type="button" id="save_account" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
             <i class="entypo-floppy"></i>
             Save
