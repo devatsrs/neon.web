@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- Host:                         192.168.1.25
--- Server version:               5.7.23-log - MySQL Community Server (GPL)
--- Server OS:                    Win64
+-- Host:                         188.227.186.98
+-- Server version:               5.7.18 - MySQL Community Server (GPL)
+-- Server OS:                    Linux
 -- HeidiSQL Version:             9.5.0.5196
 -- --------------------------------------------------------
 
@@ -11,8 +11,8 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-use speakintelligentRM;
 -- Dumping structure for procedure speakintelligentRM.prc_GetDIDLCR
+use speakintelligentRM;
 DROP PROCEDURE IF EXISTS `prc_GetDIDLCR`;
 DELIMITER //
 CREATE PROCEDURE `prc_GetDIDLCR`(
@@ -34,6 +34,8 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_isExport` INT
+
+
 
 
 
@@ -734,19 +736,19 @@ Cost per month +
 	@Total1 := (
 
 		(	IFNULL(@MonthlyCost,0) 				)				+
-		(IFNULL(@CostPerMinute,0) * (select minutes from tmp_timezone_minutes tm where tm.TimezonesID = t.TimezonesID ))	+
+		(IFNULL(@CostPerMinute,0) * IFNULL((select minutes from tmp_timezone_minutes tm where tm.TimezonesID = t.TimezonesID ),0))	+
 		(IFNULL(@CostPerCall,0) * @p_Calls)		+
 		(IFNULL(@SurchargePerCall,0) * IFNULL(tom.minutes,0)) +
-		(IFNULL(@OutpaymentPerMinute,0) *  (select minutes from tmp_timezone_minutes_2 tm2 where tm2.TimezonesID = t.TimezonesID ))	+
+		(IFNULL(@OutpaymentPerMinute,0) *  IFNULL((select minutes from tmp_timezone_minutes_2 tm2 where tm2.TimezonesID = t.TimezonesID ),0))	+
 		(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
 		-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
-		(IFNULL(@CollectionCostAmount,0) * (select minutes from tmp_timezone_minutes_3 tm3 where tm3.TimezonesID = t.TimezonesID ) )
+		(IFNULL(@CollectionCostAmount,0) * IFNULL((select minutes from tmp_timezone_minutes_3 tm3 where tm3.TimezonesID = t.TimezonesID ),0) )
 
 
 	)
 		as Total1,
 	@Total := (
-		@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+		@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = p_companyid  AND `Status` = 1 AND  TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
 	) as Total
 
 
@@ -755,15 +757,16 @@ Cost per month +
 
 from tblRateTableDIDRate  drtr
 	inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId -- and rt.DIDCategoryID = 2
-	inner join tblVendorConnection vc on vc.RateTableID = rt.RateTableId and vc.DIDCategoryID = rt.DIDCategoryID and vc.CompanyID = rt.CompanyId  and vc.Active=1
+	inner join tblVendorConnection vc on vc.RateTableID = rt.RateTableId and ((vc.DIDCategoryID IS NOT NULL AND rt.DIDCategoryID IS NOT NULL) AND vc.DIDCategoryID = rt.DIDCategoryID) and vc.CompanyID = rt.CompanyId  and vc.Active=1
 	inner join tblAccount a on vc.AccountId = a.AccountID and rt.CompanyId = a.CompanyId
 	inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 	left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 	inner join tblCountry c on c.CountryID = r.CountryID
-	inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
-																		AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
-																		 AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff AND st.city_tariff  =  drtr.CityTariff )
-																		 AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+														 -- inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
+														 AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID ) -- AND (st.country IS NOT NULL AND c.Country = st.country) )
+														 AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff ) -- AND st.city_tariff  =  drtr.CityTariff )
+														 AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) ) ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+														 AND ( @p_AccessType = '' OR drtr.AccessType = @p_AccessType ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
 
 	inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
 	left join tmp_origination_minutes tom  on r2.Code = tom.OriginationCode
@@ -1129,7 +1132,7 @@ insert into tmp_table_with_origination
 		) as Total1,
 
 		@Total := (
-			@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = p_companyid AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+			@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = p_companyid AND `Status` = 1 AND  TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
 		) as Total
 
 
@@ -1143,10 +1146,11 @@ insert into tmp_table_with_origination
 		inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 		inner join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		inner join tblCountry c on c.CountryID = r.CountryID
-		inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
-																			AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
-																			 AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff AND st.city_tariff  =  drtr.CityTariff )
-																			 AND ( @p_Prefix = '' OR ( r.Code  = concat(c.Prefix ,@p_Prefix) AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) ) ) )
+															 -- inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
+															 AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID ) -- AND (st.country IS NOT NULL AND c.Country = st.country) )
+															 AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff ) -- AND st.city_tariff  =  drtr.CityTariff )
+															 AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) ) ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+															 AND ( @p_AccessType = '' OR drtr.AccessType = @p_AccessType ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
 
 
 
@@ -1177,10 +1181,12 @@ insert into tmp_table_with_origination
 delete t1 from tmp_table_without_origination t1 inner join tmp_table_with_origination t2 on t1.VendorID = t2.VendorID and t1.TimezonesID = t2.TimezonesID and t1.Code = t2.Code;
 
 
+
 insert into tmp_table1_ (
 
 	TimezonesID,
 	TimezoneTitle,
+	Code,
 	OriginationCode,
 	VendorID,
 	VendorName,
@@ -1202,6 +1208,7 @@ insert into tmp_table1_ (
 	select
 		TimezonesID,
 		TimezoneTitle,
+		Code,
 		OriginationCode,
 		VendorID,
 		VendorName,
@@ -1222,6 +1229,7 @@ insert into tmp_table1_ (
 				 select
 					 TimezonesID,
 					 TimezoneTitle,
+					 Code,
 					 OriginationCode,
 					 VendorID,
 					 VendorName,
@@ -1246,6 +1254,7 @@ insert into tmp_table1_ (
 				 select
 					 TimezonesID,
 					 TimezoneTitle,
+					 Code,
 					 OriginationCode,
 					 VendorID,
 					 VendorName,
@@ -1454,6 +1463,7 @@ set @Total = (select round(sum(Total),4) from tmp_component_output_ where Compon
 
 SET @stm3 = CONCAT('update tmp_final_result set  `', @ColumnName , '` = ', ROUND(@Total,4) , ' where Component = "zCost"');
 
+
 PREPARE stm3 FROM @stm3;
 EXECUTE stm3;
 DEALLOCATE PREPARE stm3;
@@ -1487,7 +1497,7 @@ DELIMITER ;
 -- Dumping structure for procedure speakintelligentRM.prc_GetLCR
 DROP PROCEDURE IF EXISTS `prc_GetLCR`;
 DELIMITER //
-CREATE PROCEDURE `prc_GetLCR`(
+CREATE  PROCEDURE `prc_GetLCR`(
 	IN `p_companyid` INT,
 	IN `p_trunkID` INT,
 	IN `p_TimezonesID` VARCHAR(50),
@@ -1510,6 +1520,13 @@ CREATE PROCEDURE `prc_GetLCR`(
 	IN `p_merge_timezones` INT,
 	IN `p_TakePrice` INT,
 	IN `p_isExport` INT
+
+
+
+
+
+
+
 
 
 
@@ -1971,7 +1988,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 			',
 											IF (p_merge_timezones = 1,") AS x WHERE x.row_number <= 1","")
 		,'
-			order by Code asc;
+			;
 		');
 
 
@@ -2007,7 +2024,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 						 ) tbl
 				WHERE RowID = 1
 				group BY AccountName, TrunkID, Description, OriginationDescription
-				order by Description, OriginationDescription asc;
+			;
 
 		ELSE
 
@@ -2027,7 +2044,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 							 ORDER BY AccountId, TrunkID, OriginationRateID,RateId, EffectiveDate , RateTableRateID DESC
 						 ) tbl
 				WHERE RowID = 1
-				order by OriginationCode,Code asc;
+			;
 
 		END IF;
 
@@ -2183,7 +2200,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 								preference.Preference DESC, preference.Rate ASC,preference.AccountId ASC
 						 ) tbl
 				WHERE (p_isExport = 1 OR p_isExport = 2) OR (p_isExport = 0 AND preference_rank <= p_Position)
-				ORDER BY OriginationCode, Code, preference_rank;
+			;
 
 		ELSE
 
@@ -2253,7 +2270,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 
 						 ) tbl
 				WHERE (p_isExport = 1 OR p_isExport = 2) OR (p_isExport = 0 AND RateRank <= p_Position)
-				ORDER BY OriginationCode, Code, RateRank;
+			;
 
 		END IF;
 
@@ -2364,7 +2381,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 							 where  SplitCode.Code is not null AND  (p_isExport = 1 OR p_isExport = 2  OR (p_isExport = 0 AND rankname <= p_Position))
 
 						 ) tmp
-				order by AccountID,RowCode desc ,LENGTH(RowCode), OriginationCode, Code desc, LENGTH(OriginationCode), LENGTH(Code)  desc;
+			;
 
 		ELSE
 
@@ -2408,7 +2425,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 
 				where  SplitCode.Code is not null and ((p_isExport = 1  OR p_isExport = 2) OR (p_isExport = 0 AND rankname <= p_Position))
 
-				order by AccountID,SplitCode.RowCode desc ,LENGTH(SplitCode.RowCode), v.Code desc, LENGTH(v.Code)  desc;
+			;
 
 		END IF;
 
@@ -2466,7 +2483,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 				from tmp_VendorRate_stage_
 				where MaxMatchRank = 1
 				group by AccountId,OriginationDescription,Description
-				order by AccountId,OriginationDescription, Description asc;
+			;
 
 		ELSE
 
@@ -2489,7 +2506,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 					RowCode
 				from tmp_VendorRate_stage_
 				where MaxMatchRank = 1
-				order by RowCode desc;
+			;
 		END IF;
 
 
@@ -2506,7 +2523,6 @@ CREATE PROCEDURE `prc_GetLCR`(
 				insert into tmp_final_VendorRate_
 					SELECT
 						RateTableRateID,
-
 						AccountId ,
 						Blocked,
 						AccountName ,
@@ -2744,13 +2760,14 @@ CREATE PROCEDURE `prc_GetLCR`(
 					ANY_VALUE(Rate) as Rate,
 					ANY_VALUE(ConnectionFee) as ConnectionFee,
 					ANY_VALUE(EffectiveDate ) as EffectiveDate,
-					ANY_VALUE(OriginationDescription) as OriginationDescription,
+					OriginationDescription as OriginationDescription,
 					Description as Description,
 					ANY_VALUE(Preference) as Preference,
 					ANY_VALUE(RowCode) as RowCode,
 					ANY_VALUE(FinalRankNumber) as FinalRankNumber
 				from tmp_final_VendorRate_
-				GROUP BY  OriginationDescription,Description ORDER BY RowCode ASC;
+				GROUP BY  OriginationDescription,Description ORDER BY OriginationDescription,Description ASC;
+
 
 			ELSE
 
@@ -2761,7 +2778,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 					ANY_VALUE(AccountId) as AccountId,
 					ANY_VALUE(Blocked) as Blocked,
 					ANY_VALUE(AccountName) as AccountName,
-					ANY_VALUE(OriginationCode) as OriginationCode,
+					OriginationCode as OriginationCode,
 					ANY_VALUE(Code) as Code,
 					ANY_VALUE(Rate) as Rate,
 					ANY_VALUE(ConnectionFee) as ConnectionFee,
@@ -2772,7 +2789,7 @@ CREATE PROCEDURE `prc_GetLCR`(
 					RowCode as RowCode,
 					ANY_VALUE(FinalRankNumber) as FinalRankNumber
 				from tmp_final_VendorRate_
-				GROUP BY  OriginationCode,RowCode ORDER BY RowCode ASC;
+				GROUP BY  OriginationCode,RowCode ORDER BY OriginationCode,RowCode ASC;
 
 
 			END IF;
@@ -2795,9 +2812,9 @@ CREATE PROCEDURE `prc_GetLCR`(
 
 				IF (p_isExport = 0)
 				THEN
-					SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(ANY_VALUE(t.OriginationCode), '<br>', ANY_VALUE(t.OriginationDescription), '<br>',ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Description), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.RateTableRateID), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.Blocked) , '-', ANY_VALUE(t.Preference)  ), NULL)) AS `POSITION ",v_pointer_,"`,");
+					SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(ANY_VALUE(OriginationCode), '<br>', ANY_VALUE(OriginationDescription), '<br>',ANY_VALUE(Code), '<br>', ANY_VALUE(Description), '<br>', ANY_VALUE(Rate), '<br>', ANY_VALUE(AccountName), '<br>', DATE_FORMAT (ANY_VALUE(EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(RateTableRateID), '-', ANY_VALUE(AccountId), '-', ANY_VALUE(Code), '-', ANY_VALUE(Blocked) , '-', ANY_VALUE(Preference)  ), NULL)) AS `POSITION ",v_pointer_,"`,");
 				ELSE
-					SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Description), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y')), NULL))  AS `POSITION ",v_pointer_,"`,");
+					SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(ANY_VALUE(Code), '<br>', ANY_VALUE(Description), '<br>', ANY_VALUE(Rate), '<br>', ANY_VALUE(AccountName), '<br>', DATE_FORMAT (ANY_VALUE(EffectiveDate), '%d/%m/%Y')), NULL))  AS `POSITION ",v_pointer_,"`,");
 				END IF;
 
 				SET v_pointer_ = v_pointer_ + 1;
@@ -2812,17 +2829,19 @@ CREATE PROCEDURE `prc_GetLCR`(
 			THEN
 
 
+
+
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.Description ORDER BY t.OriginationDescription, t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT CONCAT(OriginationDescription , ' <br> => ' , Description) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  GROUP BY  OriginationDescription,Description ORDER BY OriginationDescription, Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
-					SELECT count(Description) as totalcount from tmp_final_VendorRate_  ;
+					select count(Description) as totalcount from ( SELECT Description as totalcount from tmp_final_VendorRate_  GROUP BY OriginationDescription,Description ) tmp ;
 
 				ELSE
 
-					SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  OriginationCode,RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT CONCAT(OriginationCode , ' : ' , ANY_VALUE(OriginationDescription), ' <br> => '  , RowCode , ' : ' , ANY_VALUE(Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_  GROUP BY  OriginationCode,RowCode ORDER BY OriginationCode,RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
-					SELECT count(RowCode) as totalcount from tmp_final_VendorRate_ ;
+					select count(RowCode) as totalcount from ( SELECT RowCode from tmp_final_VendorRate_ GROUP BY OriginationCode, RowCode) tmp;
 
 				END IF;
 
@@ -2834,12 +2853,12 @@ CREATE PROCEDURE `prc_GetLCR`(
 
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , '  => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.Description ORDER BY t.Description ASC ;");
+					SET @stm_query = CONCAT("SELECT CONCAT(OriginationDescription , '  => ' , Description) as Destination,",@stm_columns," FROM tmp_final_VendorRate_   GROUP BY  OriginationDescription,Description ORDER BY Description ASC ;");
 
 
 				ELSE
 
-					SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), '  => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  RowCode ORDER BY RowCode ASC;");
+					SET @stm_query = CONCAT("SELECT CONCAT(OriginationCode , ' : ' , ANY_VALUE(OriginationDescription), '  => '  , RowCode , ' : ' , ANY_VALUE(Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_   GROUP BY  OriginationCode,RowCode ORDER BY RowCode ASC;");
 
 
 				END IF;
@@ -2865,7 +2884,7 @@ DELIMITER ;
 -- Dumping structure for procedure speakintelligentRM.prc_GetLCRwithPrefix
 DROP PROCEDURE IF EXISTS `prc_GetLCRwithPrefix`;
 DELIMITER //
-CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
+CREATE  PROCEDURE `prc_GetLCRwithPrefix`(
 	IN `p_companyid` INT,
 	IN `p_trunkID` INT,
 	IN `p_TimezonesID` VARCHAR(50),
@@ -2888,6 +2907,14 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 	IN `p_merge_timezones` INT,
 	IN `p_TakePrice` INT,
 	IN `p_isExport` INT
+
+
+
+
+
+
+
+
 
 
 
@@ -3264,7 +3291,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 			',
 											IF (p_merge_timezones = 1,") AS x WHERE x.row_number <= 1","")
 		,'
-			ORDER BY Code ASC;');
+			;');
 
 
 
@@ -3299,7 +3326,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 						 ) tbl
 				WHERE RowID = 1
 				group BY AccountName, TrunkID, Description, OriginationDescription
-				order by Description, OriginationDescription asc;
+			;
 
 
 		Else
@@ -3322,7 +3349,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 							 ORDER BY AccountId, TrunkID, OriginationRateID,RateId, EffectiveDate,RateTableRateID DESC
 						 ) tbl
 				WHERE RowID = 1
-				order by OriginationCode,Code asc;
+			;
 
 		END IF;
 
@@ -3401,7 +3428,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 				WHERE ( p_isExport = 1 OR p_isExport = 2 ) OR (p_isExport = 0 AND preference_rank <= p_Position)
 
 
-				ORDER BY OriginationCode,Code, preference_rank;
+			;
 
 		ELSE
 
@@ -3472,7 +3499,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 
 						 ) tbl
 				WHERE ( p_isExport = 1 OR p_isExport = 2 ) OR (p_isExport = 0 AND RateRank <= p_Position)
-				ORDER BY OriginationCode,Code, RateRank;
+			;
 
 		END IF;
 
@@ -3531,7 +3558,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 
 										) tr2 on tr2.Code=v.OriginationCode
 
-				order by RowCode desc;
+			;
 
 		ELSE
 
@@ -3554,7 +3581,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 					Preference,
 					Code as RowCode
 				from tmp_VendorRateByRank_
-				order by RowCode desc;
+			;
 
 		END IF;
 
@@ -3867,11 +3894,12 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 			WHILE v_pointer_ <= p_Position
 			DO
 
+
 				IF (p_isExport = 0)
 				THEN
-					SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(  ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.RateTableRateID), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.Blocked) , '-', ANY_VALUE(t.Preference)  ), NULL))AS `POSITION ",v_pointer_,"`,");
+					SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(  ANY_VALUE(Rate), '<br>', ANY_VALUE(AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(RateTableRateID), '-', ANY_VALUE(AccountId), '-', ANY_VALUE(RowCode), '-', ANY_VALUE(Blocked) , '-', ANY_VALUE(Preference)  ), NULL))AS `POSITION ",v_pointer_,"`,");
 				ELSE
-					SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(  ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y') ), NULL))AS `POSITION ",v_pointer_,"`,");
+					SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(  ANY_VALUE(Rate), '<br>', ANY_VALUE(AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(EffectiveDate), '%d/%m/%Y') ), NULL))AS `POSITION ",v_pointer_,"`,");
 				END IF;
 
 				SET v_pointer_ = v_pointer_ + 1;
@@ -3885,18 +3913,18 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT	CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t,OriginationDescription,t.Description ORDER BY t.OriginationDescription , t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT	CONCAT(OriginationDescription , ' <br> => ' , Description) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  GROUP BY OriginationDescription,Description ORDER BY OriginationDescription , Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 
-					SELECT count(Description) as totalcount from tmp_final_VendorRate_  ;
+					select count(Description) as totalcount from ( SELECT Description as totalcount from tmp_final_VendorRate_  GROUP BY OriginationDescription,Description ) tmp ;
 
 				ELSE
 
-					SET @stm_query = CONCAT("SELECT	CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t.OriginationCode, t.RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT	CONCAT(OriginationCode , ' : ' , ANY_VALUE(OriginationDescription), ' <br> => '  , RowCode , ' : ' , ANY_VALUE(Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  GROUP BY OriginationCode, RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 
+					select count(RowCode) as totalcount from ( SELECT RowCode from tmp_final_VendorRate_ GROUP BY OriginationCode, RowCode) tmp;
 
-					SELECT count(RowCode) as totalcount from tmp_final_VendorRate_ ;
 
 				END IF;
 
@@ -3905,11 +3933,11 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' => ' , max(t.Description))as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.OriginationDescription,t.Description ORDER BY t.Description ASC;");
+					SET @stm_query = CONCAT("SELECT CONCAT(OriginationDescription , ' => ' , Description)as Destination,",@stm_columns," FROM tmp_final_VendorRate_  GROUP BY  OriginationDescription,Description ORDER BY Description ASC;");
 
 				ELSE
 
-					SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.OriginationCode, t.RowCode  ORDER BY RowCode ASC;");
+					SET @stm_query = CONCAT("SELECT CONCAT(OriginationCode , ' : ' , ANY_VALUE(OriginationDescription), ' => '  , RowCode , ' : ' , ANY_VALUE(Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  GROUP BY  OriginationCode, RowCode  ORDER BY RowCode ASC;");
 
 
 				END IF;

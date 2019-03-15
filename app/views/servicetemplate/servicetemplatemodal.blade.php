@@ -289,30 +289,30 @@
 
     }
 
-    function loadValuesBasedOnCurrency(selected_currency,selectData,ServiceId,OutboundTariffId) {
+    function loadValuesBasedOnCurrency(selected_currency,selectData) {
         // alert(selected_currency);
         if (selected_currency == '') {
             selected_currency = "NAN";
         }
         url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=service";
         // alert("url :" + url);
-        $.post(url, function (data, status) {
-            //  var res = data.split('/>');
-            //alert(data);
-            document.getElementById("ServiceIdField").innerHTML = "" + data;
-            // var ServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
-            // alert("ServiceId" + ServiceId);
-            if (ServiceId != '') {
-                $("#add-new-service-form [name='ServiceId']").select2().select2('val', ServiceId);
-
-            }else {
-                $("#add-new-service-form [name='ServiceId']").select2().select2('val', '');
-            }
-            // console.log(document.getElementById("TemplateDataTabServiceId").innerHTML);
-            // alert(document.getElementById("TemplateDataTabServiceId").innerHTML);
-
-            // $("#serviceBasedOnCurreny").html(data);
-        }, 'html');
+//        $.post(url, function (data, status) {
+//            //  var res = data.split('/>');
+//            //alert(data);
+//            document.getElementById("ServiceIdField").innerHTML = "" + data;
+//            // var ServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
+//            // alert("ServiceId" + ServiceId);
+//            if (ServiceId != '') {
+//                $("#add-new-service-form [name='ServiceId']").select2().select2('val', ServiceId);
+//
+//            }else {
+//                $("#add-new-service-form [name='ServiceId']").select2().select2('val', '');
+//            }
+//            // console.log(document.getElementById("TemplateDataTabServiceId").innerHTML);
+//            // alert(document.getElementById("TemplateDataTabServiceId").innerHTML);
+//
+//            // $("#serviceBasedOnCurreny").html(data);
+//        }, 'html');
         //if (selectData) {
         // editServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
         //  alert('editServiceId' + editServiceId);
@@ -358,20 +358,20 @@
 //            // $("#serviceBasedOnCurreny").html(data);
 //        }, 'html');
 
-        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundTariff";
-        // alert("url :" + url);
-        $.post(url, function (data, status) {
-            // var res = data.split('/>');
-            document.getElementById("OutboundRateTableId").innerHTML = "" + data;
-            // var OutboundTariffId = $("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
-            if (OutboundTariffId != '') {
-                $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', OutboundTariffId);
-            }else {
-                $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', '');
-            }
-
-            // $("#serviceBasedOnCurreny").html(data);
-        }, 'html');
+//        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundTariff";
+//        // alert("url :" + url);
+//        $.post(url, function (data, status) {
+//            // var res = data.split('/>');
+//            document.getElementById("OutboundRateTableId").innerHTML = "" + data;
+//            // var OutboundTariffId = $("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
+//            if (OutboundTariffId != '') {
+//                $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', OutboundTariffId);
+//            }else {
+//                $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', '');
+//            }
+//
+//            // $("#serviceBasedOnCurreny").html(data);
+//        }, 'html');
 
         url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=templateSubscriptionList";
         // alert("url :" + url);
@@ -860,7 +860,7 @@
                                 </li>
                                 <li id="tab2">
                                     <a href="javascript:void(0);" onclick="ShowSubscriptionTemplate('InboundTariffTab');" >
-                                        Inbound Tariff
+                                        Inbound Ratetable
                                     </a>
                                 </li>
                             </ul>
