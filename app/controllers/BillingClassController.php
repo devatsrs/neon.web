@@ -91,6 +91,10 @@ class BillingClassController extends \BaseController {
     }
     public function ajax_datagrid(){
         $getdata = Input::all();
+        $getdata['is_reseller']=0;
+        if(is_reseller()){
+            $getdata['is_reseller']=1;
+        }
         $response =  NeonAPI::request('billing_class/datagrid',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
             $excel_data = $response->data;
