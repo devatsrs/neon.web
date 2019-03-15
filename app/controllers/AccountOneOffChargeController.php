@@ -44,7 +44,7 @@ class AccountOneOffChargeController extends \BaseController {
          
         }
         $accountOneOffCharge->select($select);
-
+        Log::info("Account One Off Charge .ajax_datagrid" . $accountOneOffCharge->toSql());
         return Datatables::of($accountOneOffCharge)->make();
     }
 
@@ -56,9 +56,42 @@ class AccountOneOffChargeController extends \BaseController {
 	 */
 	public function store($id)
 	{
+        $CompanyID = User::get_companyID();
+
 		$data = Input::all();
+        $ChargeCode = strtolower('One-Off');
+        $product = Product::whereRaw('lower(Code) = '. "'". $ChargeCode . "'")->where("Active", 1);
+        if ($product->count() == 0) {
+            $product = [];
+            $product['CompanyId'] = $CompanyID;
+            $product['Name'] = 'One-Off';
+            $product['Code'] = 'One-Off';
+            $product['Description'] = 'One-Off';
+            $product['Amount'] = '1';
+            $product['Active'] = '0';
+            $product['Note'] = '';
+            $product['AppliedTo'] = '0';
+            $product['ItemTypeID'] = '0';
+            $product['BuyingPrice'] = '0';
+            $product['Quantity'] = '0';
+            $product['LowStockLevel'] = '0';
+            $product['EnableStock'] = '0';
+            $product = Product::create($product);
+            Log::info("Account One Off Charge ." . $product);
+
+        }else {
+            $product = $product->first();
+        }
+        Log::info("Account One Off Charge AccountAdditionChangesProductID1." . $product->count());
+        $AccountAdditionChangesProductID = $product->ProductID;
+        Log::info("Account One Off Charge AccountAdditionChangesProductID." . $AccountAdditionChangesProductID);
+        Log::info("Account One Off Charge AccountAdditionChangesProductID1." . print_r($data,true));
         $data["AccountID"] = $id;
         $data["CreatedBy"] = User::get_user_full_name();
+        if (!isset($data["ProductID"]) || empty($data["ProductID"])) {
+            $data["ProductID"] = $AccountAdditionChangesProductID;
+            Log::info("Set Account One Off Charge AccountAdditionChangesProductID." . $data["ProductID"]);
+        }
 
         $verifier = App::make('validation.presence');
         $verifier->setConnection('sqlsrv2');
