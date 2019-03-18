@@ -2842,7 +2842,7 @@ class AccountsApiController extends ApiController {
 				if (!empty($CurrencyID)) {
 					// if One-Off Cost
 					if($data['ChargeType'] == 0) {
-						$product = Product::whereRaw('lower(Code) = '. "'". $data['ChargeCode'] . "'")->where("Active", 1);
+						$product = Product::whereRaw('lower(Code) = '. "'". $data['ChargeCode'] . "'")->where("CompanyId", $CompanyID);
 						if ($product->count() > 0) {
 							$product = $product->first();
 							if ($product->Active != 1) {

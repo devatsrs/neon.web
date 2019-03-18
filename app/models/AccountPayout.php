@@ -8,10 +8,10 @@ class AccountPayout extends \Eloquent
     public static $StatusActive = 1;
     public static $StatusDeactive = 0;
     public static  $AccountPayoutBankRules = array(
-    'AccountNumber'     => 'required|digits_between:6,19',
-    'RoutingNumber'     => 'required',
-    'AccountHolderType' => 'required',
-    'AccountHolderName' => 'required',
+        'AccountNumber'     => 'required|digits_between:6,19',
+        'RoutingNumber'     => 'required',
+        'AccountHolderType' => 'required',
+        'AccountHolderName' => 'required',
     );
 
     public static function getActivePayoutAccounts($AccountID,$PaymentGatewayID)
@@ -35,6 +35,85 @@ class AccountPayout extends \Eloquent
     {
         $AccountPayout = AccountPayout::where(array('AccountPaymentProfileID' => $AccountPayoutID))->first();
         return $AccountPayout;
+    }
+
+
+    public static function createPayoutInvoice($data){
+
+        $InvoiceData["CompanyID"] = $data['CompanyID'];
+        $InvoiceData["AccountID"] = $data['AccountID'];
+        $CreatedBy = "API";
+        $Account = Account::find($data["AccountID"]);
+        $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
+
+        if($InvoiceTemplateID == false)
+            return ["status"  => "failed", "message" => "Account don't have billing class."];
+
+        $InvoiceData["InvoiceNumber"] = InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID);
+        $prefix = InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix;
+        $InvoiceData["FullInvoiceNumber"] = $prefix . $InvoiceData["InvoiceNumber"];
+        $InvoiceData["Address"]       = Account::getFullAddress($data['AccountID']);
+        $InvoiceData["Description"]   = "Out Payment";
+        $InvoiceData["IssueDate"]     = date('Y-m-d H:i:s');
+        $InvoiceData["SubTotal"]      = -floatval($data["Amount"]);
+        $InvoiceData["TotalDiscount"] = 0;
+        $InvoiceData["TotalTax"]      = 0;
+        $InvoiceData["InvoiceStatus"] = Invoice::SEND;
+        $InvoiceData["GrandTotal"]    = -floatval($data["Amount"]);
+        $InvoiceData["CurrencyID"]    = $Account->CurrencyId;
+        $InvoiceData["InvoiceType"]   = Invoice::INVOICE_IN;
+        $InvoiceData["CreatedBy"]     = $CreatedBy;
+        $InvoiceData['InvoiceTotal']  = -floatval($data["Amount"]);
+
+        try{
+            DB::connection('sqlsrv2')->beginTransaction();
+            $Invoice = Invoice::create($InvoiceData);
+
+            $InvoiceDetailData = $InvoiceTaxRates = array();
+            $InvoiceDetailData['InvoiceID']     = $Invoice->InvoiceID;
+            $InvoiceDetailData['StartDate']     = '';
+            $InvoiceDetailData['EndDate']       = '';
+            $InvoiceDetailData['TotalMinutes']  = 0;
+            $InvoiceDetailData['Price']         = -floatval($data["Amount"]);
+            $InvoiceDetailData['Qty']           = 1;
+            $InvoiceDetailData['ProductType']   = Product::INVOICE_PERIOD;
+            $InvoiceDetailData['LineTotal']     = -floatval($data["Amount"]);
+            $InvoiceDetailData["created_at"]    = date("Y-m-d H:i:s");
+            $InvoiceDetailData['Description']   = 'Invoice In';
+            $InvoiceDetailData['ProductID']     = 0;
+            $InvoiceDetailData["CreatedBy"]     = $CreatedBy;
+            InvoiceDetail::insert($InvoiceDetailData);
+
+            $invoiceloddata = array();
+            $invoiceloddata['InvoiceID']        = $Invoice->InvoiceID;
+            $invoiceloddata['Note']             = 'Out Payment. Created By '.$CreatedBy;
+            $invoiceloddata['created_at']       = date("Y-m-d H:i:s");
+            $invoiceloddata['InvoiceLogStatus'] = InVoiceLog::CREATED;
+            InVoiceLog::insert($invoiceloddata);
+
+            $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($Invoice->InvoiceID);
+            if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                InvoiceTaxRate::insert($InvoiceTaxRates1);
+            }
+
+            DB::connection('sqlsrv2')->commit();
+            $SuccessMsg="Invoice Successfully Created.";
+
+            return [
+                "status"  => "success",
+                "message" => $SuccessMsg,
+                'LastID'  => $Invoice->InvoiceID
+            ];
+
+        } catch (Exception $e){
+            Log::info($e);
+            DB::connection('sqlsrv2')->rollback();
+            return [
+                "status"  => "failed",
+                "message" => "Problem Creating Invoice. \n" . $e->getMessage()
+            ];
+        }
+
     }
 
 

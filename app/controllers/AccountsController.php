@@ -1839,14 +1839,23 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = $account->CompanyId;
         $BillingType=AccountBilling::where(['AccountID'=>$id,'ServiceID'=>0])->pluck('BillingType');
         $getdata['AccountID'] = $id;
-        $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount']);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = 0;
+        $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount', 'OutPaymentAwaiting', 'OutPaymentAvailable', 'OutPaymentPaid']);
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = $OutPaymentAwaiting = $OutPaymentAvailable = $OutPaymentPaid = $OutPaymentPaid = 0;
         if (!empty($response)) {
             if (!empty($response->PermanentCredit)) {
                 $PermanentCredit = $response->PermanentCredit;
             }
             if (!empty($response->TemporaryCredit)) {
                 $TemporaryCredit = $response->TemporaryCredit;
+            }
+            if (!empty($response->OutPaymentAwaiting)) {
+                $OutPaymentAwaiting = $response->OutPaymentAwaiting;
+            }
+            if (!empty($response->OutPaymentAvailable)) {
+                $OutPaymentAvailable = $response->OutPaymentAvailable;
+            }
+            if (!empty($response->OutPaymentPaid)) {
+                $OutPaymentPaid = $response->OutPaymentPaid;
             }
             if (!empty($response->BalanceThreshold)) {
                 $BalanceThreshold = $response->BalanceThreshold;
@@ -1873,7 +1882,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($id)){
                 $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $id))->get();
             }
-        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType','AccountBalanceThreshold'));
+        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType','AccountBalanceThreshold', 'OutPaymentAwaiting', 'OutPaymentAvailable', 'OutPaymentPaid'));
     }
 
     public function update_credit(){
