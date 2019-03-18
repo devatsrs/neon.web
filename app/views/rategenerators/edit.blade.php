@@ -356,8 +356,11 @@
                                     ?>
                                     <tr id="selectedRow-{{$a}}">
                                         <td id="testValues">
-
-                                            {{ Form::select('Component-'.$a.'[]', RateGenerator::$Component, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
+                                            @if($rategenerators->SelectType == 2)
+                                            {{ Form::select('Component-'.$a.'[]', DiscountPlan::$RateTableDIDRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
+                                            @elseif($rategenerators->SelectType == 3)
+                                            {{ Form::select('Component-'.$a.'[]', DiscountPlan::$RateTablePKGRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
+                                            @endif
 
                                         </td>
                                         <td class="DID-Div">
@@ -383,8 +386,11 @@
 
                                         </td>
                                         <td>
-                                            {{ Form::select('MergeTo-'.$a, RateGenerator::$Component,  $MergeToArray1 , array("class"=>"select2" , "id"=>"MergeTo-".$a)) }}
-
+                                            @if($rategenerators->SelectType == 2)
+                                            {{ Form::select('MergeTo-'.$a,DiscountPlan::$RateTableDIDRate_Components,  $MergeToArray1 , array("class"=>"select2" , "id"=>"MergeTo-".$a)) }}
+                                            @elseif($rategenerators->SelectType == 3)
+                                            {{ Form::select('MergeTo-'.$a, DiscountPlan::$RateTablePKGRate_Components,  $MergeToArray1 , array("class"=>"select2" , "id"=>"MergeTo-".$a)) }}
+                                            @endif
                                         </td>
                                         <td class="DID-Div">
                                             {{ Form::select('TCountry-'.$a, $country, $Component->ToCountryID, array("class"=>"select2")) }}
@@ -476,7 +482,11 @@
                                         ?>
                                         <tr id="selectedRateRow-{{$a}}">
                                             <td>
-                                                {{ Form::select('RateComponent-'.$a.'[]', RateGenerator::$Component, explode("," ,$calculatedRate->Component), array("class"=>"select2 selected-RComponents" ,'multiple', "id"=>"RateComponent-".$a)) }}
+                                                @if($rategenerators->SelectType == 2)
+                                                {{ Form::select('RateComponent-'.$a.'[]',DiscountPlan::$RateTableDIDRate_Components, explode("," ,$calculatedRate->Component), array("class"=>"select2 selected-RComponents" ,'multiple', "id"=>"RateComponent-".$a)) }}
+                                                @elseif($rategenerators->SelectType == 3)
+                                                {{ Form::select('RateComponent-'.$a.'[]', DiscountPlan::$RateTablePKGRate_Components, explode("," ,$calculatedRate->Component), array("class"=>"select2 selected-RComponents" ,'multiple', "id"=>"RateComponent-".$a)) }}
+                                                @endif
                                             </td>
                                             <td  class="DID-Div">
                                                 {{ Form::select('Country1-'.$a, $country, $calculatedRate->CountryID, array("class"=>"select2")) }}
@@ -661,8 +671,8 @@
     <div class="hidden">
         <table id="table-1">
             <tr id="selectedRow-">
-                <td id="testValues">
-                    {{ Form::select('Component-1[]', RateGenerator::$Component, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}
+                <td id="testValuess">
+                    {{--{{ Form::select('Component-1[]', RateGenerator::$Component, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}--}}
                 </td>
                 <td class="DID-Div">
                     {{ Form::select('FCountry-1', $country, '', array("class"=>"select2")) }}
@@ -686,8 +696,8 @@
                     {{ Form::select('Action-1',  RateGenerator::$Action, RateGenerator::$Action, array("class"=>"select2")) }}
 
                 </td>
-                <td>
-                    {{ Form::select('MergeTo-1', RateGenerator::$Component,  'OneOffCost' , array("class"=>"select2" , "id"=>"MergeTo-1")) }}
+                <td class="mergetestvalues">
+                    {{--{{ Form::select('MergeTo-1', RateGenerator::$Component,  'OneOffCost' , array("class"=>"select2" , "id"=>"MergeTo-1")) }}--}}
 
                 </td>
                 <td class="DID-Div">
@@ -719,8 +729,8 @@
         </table>
         <table id="table-2">
             <tr id="selectedRateRow-0">
-                <td>
-                    {{ Form::select('RateComponent-1[]', RateGenerator::$Component, '', array("class"=>"select2 selected-Components" ,'multiple', "id"=>"RateComponent-1")) }}
+                <td id="testRateValues">
+                    {{--{{ Form::select('RateComponent-1[]', RateGenerator::$Component, '', array("class"=>"select2 selected-Components" ,'multiple', "id"=>"RateComponent-1")) }}--}}
                 </td>
                 <td class="DID-Div">
                     {{ Form::select('Country1-1', $country, '', array("class"=>"select2")) }}
@@ -919,6 +929,10 @@
                 $("#Merge-components").show();
                 $(".DID-Div").show();
                 $(".NonDID-Div").hide();
+                $('#testValuess').html('{{ Form::select("Component-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"Component-1")) }}');
+                $('#testRateValues').html('{{ Form::select("RateComponent-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"RateComponent-1")) }}');
+                $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID", "id"=>"MergeTo-1")) }}');
+                $('.DID').select2();
             }else if(TypeValue == 1){
                 $("#rate-ostion-trunk-div").show();
                 $("#rate-aveg-div").show();
@@ -940,6 +954,11 @@
                 $("#Merge-components").show();
                 $('#servicetableSubBox').css('width','1025px');
                 $('#ratetableSubBox').css('width','1025px');
+                $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
+                $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
+                $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "id"=>"MergeTo-1")) }}');
+
+                $('.PKG').select2();
             }
             else {
                 $(".DID-Div").hide();
@@ -1330,6 +1349,10 @@
                     $("#hide-components").show();
                     $(".DID-Div").show();
                     $(".NonDID-Div").hide();
+                    $('#testValues').html('{{ Form::select("Component-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"Component-1")) }}');
+                    $('#testRateValues').html('{{ Form::select("RateComponent-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"RateComponent-1")) }}');
+                    $('.DID').select2();
+                    $(".DID").prop("disabled", false);
                 }else if(TypeValue == 1){
                     $("#rate-ostion-trunk-div").show();
                     $("#rate-aveg-div").show();
@@ -1349,6 +1372,9 @@
                     $("#group-preference-div").hide();
                     $("#DIDCategoryDiv").hide();
                     $("#Merge-components").show();
+                    $('#testValues').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
+                    $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
+                    $('.PKG').select2();
                 }
                 else {
                     $(".DID-Div").hide();

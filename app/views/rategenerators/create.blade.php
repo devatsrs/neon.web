@@ -2,6 +2,7 @@
 
 @section('content')
 
+
     <ol class="breadcrumb bc-3">
         <li>
             <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -423,8 +424,7 @@
     <div class="hidden">
         <table id="table-1">
             <tr id="selectedRow-">
-                <td id="testValues">
-                    {{ Form::select('Component-1[]', RateGenerator::$Component , null, array("class"=>"select2 selected-Components DID" ,'multiple', "id"=>"Component-1")) }}
+                <td id="testValues" class="testValues">
                 </td>
                 <td class="DID-Div">
                     {{ Form::select('FCountry-1', $country, '', array("class"=>"select2")) }}
@@ -448,8 +448,8 @@
                     {{ Form::select('Action-1',  RateGenerator::$Action, RateGenerator::$Action, array("class"=>"select2")) }}
 
                 </td>
-                <td>
-                    {{ Form::select('MergeTo-1', RateGenerator::$Component,  'OneOffCost' , array("class"=>"select2" , "id"=>"MergeTo-1")) }}
+                <td class="mergetestvalues">
+                    {{--{{ Form::select('MergeTo-1', RateGenerator::$Component,  'OneOffCost' , array("class"=>"select2" , "id"=>"MergeTo-1")) }}--}}
 
                 </td>
                 <td class="DID-Div">
@@ -481,8 +481,7 @@
         </table>
         <table id="table-2">
             <tr id="selectedRateRow-0">
-                <td>
-                    {{ Form::select('RateComponent-1[]', RateGenerator::$Component, '', array("class"=>"select2 selected-Components" ,'multiple', "id"=>"RateComponent-1")) }}
+                <td class="testRateValues">
                 </td>
                 <td>
                     {{ Form::select('Country1-1', $country, '', array("class"=>"select2")) }}
@@ -678,6 +677,7 @@
         $("#rategenerator-from [name='SelectType']").on('change', function() {
 
             var TypeValue = $(this).val();
+            var lastrow = $('#servicetableSubBox tbody tr').length;
 
             if(TypeValue == 2){
                 $("#rate-ostion-trunk-div").hide();
@@ -689,9 +689,14 @@
                 $(".DID-Div").show();
                 $(".NonDID-Div").hide();$(".Package-Div").hide();
                 $('#servicetableSubBox').css('width','3000px');
-                $('.PKG').hide();
-                $('.DID').show();
-
+                $('#getIDs').val('');
+                $('#getRateIDs').val('');
+                $('#servicetableSubBox tbody').empty();
+                $('#ratetableSubBox tbody').empty();
+                $('.testValues').html('{{ Form::select("Component-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID Components1" ,"multiple", "id"=>"Component-1")) }}');
+                $('.testRateValues').html('{{ Form::select("RateComponent-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID Components2" ,"multiple", "id"=>"RateComponent-1")) }}');
+                $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID Components3", "id"=>"MergeTo-1")) }}');
+                $('.DID').select2();
             }else if(TypeValue == 1){
                 $("#rate-ostion-trunk-div").show();
                 $("#rate-aveg-div").show();
@@ -703,6 +708,7 @@
                 $(".NonDID-Div").show();$(".Package-Div").hide();
 
             }else if(TypeValue == 3){
+
                 $(".DID-Div").hide();
                 $(".Package-Div1").show();
                 $(".NonDID-Div").hide();
@@ -714,6 +720,14 @@
                 $("#Merge-components").show();
 //              $('#servicetableSubBox thead th').css('width','50px');
                 $('#servicetableSubBox').css('width','1025px');
+                $('#servicetableSubBox tbody').empty();
+                $('#ratetableSubBox tbody').empty();
+                $('#getIDs').val('');
+                $('#getRateIDs').val('');
+                $('.testValues').html('{{ Form::select("Component-[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
+                $('.testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
+                $('.mergetestvalues').html('{{ Form::select("MergeTo-1", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" , "id"=>"MergeTo-1")) }}');
+                $('.PKG').select2();
 
             } else {
                 $(".DID-Div").hide();$(".Package-Div").hide();
@@ -833,7 +847,7 @@
 
             $('#' + tblID + ' tr:last').attr('id', row + '-' + numb);
             if (tblID == "servicetableSubBox") {
-                $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Component-' + numb + '[]').attr('id', 'Component-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(0)').removeAttr('class').children('select').attr('name', 'Component-' + numb + '[]').attr('id', 'Component-' + numb).select2().select2('val', '');
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'FCountry-' + numb).attr('id', 'FCountry-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'FAccessType-' + numb).attr('id', 'FAccessType-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'FPrefix-' + numb).attr('id', 'FPrefix-' + numb).select2();
@@ -841,7 +855,7 @@
                 $('#' + tblID + ' tr:last').children('td:eq(5)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', 'OneOffCost');
+                $('#' + tblID + ' tr:last').children('td:eq(8)').removeAttr('class').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', 'OneOffCost');
                 $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
@@ -850,7 +864,7 @@
                 $('#' + tblID + ' tr:last').children('td:eq(14)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
 
             } else {
-                $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(0)').removeAttr('class').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'Country1-' + numb).attr('id', 'Country1-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'AccessType1-' + numb).attr('id', 'AccessType1-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Prefix1-' + numb).attr('id', 'Prefix1-' + numb).select2();

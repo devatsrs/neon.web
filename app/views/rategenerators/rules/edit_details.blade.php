@@ -20,7 +20,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="field-4" class="control-label">Component*</label>
-                        {{ Form::select('Component', RateGenerator::$Component, $rategenerator_rule['Component'], array("class"=>"select2")) }}
+                        {{ Form::select('Component', DiscountPlan::$RateTableDIDRate_Components, $rategenerator_rule['Component'], array("class"=>"select2")) }}
                     </div>
                 </div>
                 <div class="col-md-4">
