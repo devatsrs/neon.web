@@ -60,7 +60,7 @@ class AccountOneOffChargeController extends \BaseController {
 
 		$data = Input::all();
         $ChargeCode = strtolower('One-Off');
-        $product = Product::whereRaw('lower(Code) = '. "'". $ChargeCode . "'")->where("Active", 1);
+        $product = Product::whereRaw('lower(Code) = '. "'". $ChargeCode . "'")->where("CompanyId", $CompanyID);
         if ($product->count() == 0) {
             $product = [];
             $product['CompanyId'] = $CompanyID;
@@ -81,6 +81,10 @@ class AccountOneOffChargeController extends \BaseController {
 
         }else {
             $product = $product->first();
+            if ($product->Active != 1) {
+                $product->Active = 1;
+                $product->save();
+            }
         }
         Log::info("Account One Off Charge AccountAdditionChangesProductID1." . $product->count());
         $AccountAdditionChangesProductID = $product->ProductID;
