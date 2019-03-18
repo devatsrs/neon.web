@@ -34,7 +34,7 @@ class Notification extends \Eloquent {
         Notification::AutoTopAccount=>'Auto Top Account',
         Notification::AutoOutPayment=>'Auto Out Payment',
         Notification::ContractManage=>'Contract',
-        Notification::ApproveOutPayment=>'Approve Out Payment',
+        //Notification::ApproveOutPayment=>'Approve Out Payment',
         //Notification::LowStockReminder=>'Low Stock Reminder'
     ];
 
