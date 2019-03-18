@@ -1,2 +1,2 @@
-Country,Code,Description,Action,Interval1,IntervalN
-Pakistan,92333,Pakistan UFones,I,1,1
+Country,Code,Description,Type,Action,Interval1,IntervalN
+Pakistan,92333,Pakistan UFones,Mobile,I,1,1

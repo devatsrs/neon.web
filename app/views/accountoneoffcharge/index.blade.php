@@ -25,8 +25,8 @@
                                     </div>
                                     <div class="panel-body" style="display: none;">
                                         <div class="form-group">
-                                            <label for="field-1" class="col-sm-1 control-label">Item</label>
-                                            <div class="col-sm-2">
+                                            <label for="field-1" class="col-sm-1 control-label hide">Item</label>
+                                            <div class="col-sm-2 hide">
                                                {{Form::select('OneOfCharge_ProductID',$products,'',array("class"=>"select2 OneOfCharge_product_dropdown"))}}
                                             </div>
                                             <label for="field-1" class="col-sm-1 control-label">Description</label>
@@ -140,7 +140,7 @@
             "aaSorting": [[0, 'asc']],
             "sDom": "<'row'<'col-xs-6 col-left 'l><'col-xs-6 col-right'f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aoColumns": [
-                {"bSortable": true},  // 0 Name
+                {"bSortable": true,"bVisible": false},  // 0 Name
                 {"bSortable": true},  // 1 Description
                 {"bSortable": true},  // 2 Qty
                 {"bSortable": true},  // 3 Price
@@ -150,7 +150,7 @@
                         return ar[0];
                     }
                 },
-                {"bSortable": true},  // 5 Tax Amount
+                {"bSortable": true,"bVisible": false},  // 5 Tax Amount
                 {"bSortable": true},  // 6 Currency
                 {"bSortable": true},  // 7 Created at
                 {"bSortable": true},  // 8 CreatedBy

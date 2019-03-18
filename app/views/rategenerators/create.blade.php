@@ -75,7 +75,7 @@
                             <div class="panel-options">
                                 <div class="col-sm-3">
                                     <label for="field-1" class="control-label">Use Preference</label>
-                                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="IF ON then vendors will orders based on preference instead of rate. Preference can be set from rate table." data-original-title="Use Preference">?</span>
+                                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON then vendors will be ordered based on Preference instead of rate." data-original-title="Use Preference">?</span>
 
                                     <div class="make-switch switch-small">
                                         {{Form::checkbox('UsePreference', 1, '');}}
@@ -424,7 +424,7 @@
         <table id="table-1">
             <tr id="selectedRow-">
                 <td id="testValues">
-                    {{ Form::select('Component-1[]', RateGenerator::$Component, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}
+                    {{ Form::select('Component-1[]', RateGenerator::$Component , null, array("class"=>"select2 selected-Components DID" ,'multiple', "id"=>"Component-1")) }}
                 </td>
                 <td class="DID-Div">
                     {{ Form::select('FCountry-1', $country, '', array("class"=>"select2")) }}
@@ -689,6 +689,8 @@
                 $(".DID-Div").show();
                 $(".NonDID-Div").hide();$(".Package-Div").hide();
                 $('#servicetableSubBox').css('width','3000px');
+                $('.PKG').hide();
+                $('.DID').show();
 
             }else if(TypeValue == 1){
                 $("#rate-ostion-trunk-div").show();
@@ -710,7 +712,7 @@
                 $("#group-preference-div").hide();
                 $("#DIDCategoryDiv").hide();
                 $("#Merge-components").show();
-//                $('#servicetableSubBox thead th').css('width','50px');
+//              $('#servicetableSubBox thead th').css('width','50px');
                 $('#servicetableSubBox').css('width','1025px');
 
             } else {

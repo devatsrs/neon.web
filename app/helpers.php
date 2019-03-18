@@ -1435,8 +1435,10 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
     $mail->Timeout		=    25;
   /*if($mail->smtpConnect()){
 		$mail->smtpClose();*/
-	$mail->addAddress($ToEmail); 
-   if ($mail->send()) {
+	$mail->addAddress($ToEmail);
+    $mailSendResponse = $mail->send();
+    Log::info('ValidateSmtp Email Response ' . print_r($mailSendResponse, true));
+   if ($mailSendResponse) {
 	   return "Valid mail settings.";
 	}else{ 
 		return "Invalid mail settings.";
