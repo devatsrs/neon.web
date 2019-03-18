@@ -183,7 +183,8 @@ class AccountsController extends \BaseController {
 
             $company_id = User::get_companyID();
             $company = Company::find($company_id);
-
+            
+            $CompanyID = $company_id;
             $currencies = Currency::getCurrencyDropdownIDList();
             $timezones = TimeZone::getTimeZoneDropdownList();
             $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
@@ -201,11 +202,11 @@ class AccountsController extends \BaseController {
             $dynamicfields = Account::getDynamicfields('account',0);
             $reseller_owners = Reseller::getDropdownIDList($company_id);
             //As per new question call the routing profile model for fetch the routing profile list.
-            $routingprofile = RoutingProfiles::getRoutingProfile($company_id);
+            $routingprofile = RoutingProfiles::getRoutingProfile($company_id); 
             //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
             //----------------------------------------------------------------------
             $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL'));
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID'));
     }
 
     /**
