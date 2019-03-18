@@ -1,5 +1,6 @@
 <?php 
 $data=array();
+if(isset($CompanyID)){$CompanyID=$CompanyID;}else{$CompanyID=0;}
 $emailTemplates = EmailTemplate::getTemplateArray($data,$CompanyID);
 
 //$CompanyID = User::get_companyID();
