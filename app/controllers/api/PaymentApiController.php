@@ -172,11 +172,11 @@ class PaymentApiController extends ApiController {
 		$rules = array(
 			'Amount' => 'required',
 		);
+
 		$validator = Validator::make($data, $rules);
 		$validator->setPresenceVerifier($verifier);
 
 		if ($validator->fails()) {
-
 			return Response::json([ "ErrorMessage" => $validator->messages()->first()],Codes::$Code402[0]);
 		}
 
@@ -217,24 +217,42 @@ class PaymentApiController extends ApiController {
 			//if Auto payout is allowed
 			$approved = !empty($data['Approved']) && $data['Approved'] == 1 ? 1 : 0;
 			$paymentID = isset($data['PaymentID']) ? $data['PaymentID'] : false;
-			$resp = ['status' => 'success'];
+			/*$resp = ['status' => 'success'];
 			if ($approved == 1) {
 				$resp = AccountPayout::payout($data);
-			}
-			if($approved == 1){
-				if($resp['status'] == "success") {
-					AccountPayout::successPayoutCustomerEmail($data);
-					$transactionID = @$resp['response']['balance_transaction'];
-					$payoutID = @$resp['response']['balance_transaction'];
-					$note = "Stripe payout_id: {$transactionID}, transaction_id: {$payoutID}";
+			}*/
 
-					$data['Status'] 	 = 'Approved';
-					$data['PaymentType'] = Payment::$action['Payment Out'];
-					$data['PaymentDate'] = date('Y-m-d 00:00:00');
-					$data['created_at']  = date("Y-m-d H:i:s");
-					$data['CreatedBy'] 	 = 'API';
-					$data['Notes'] 	 	 = $note;
-					$data['IsOutPayment']= 1;
+			if($approved == 1){
+				$AccountBalance = AccountBalance::where('AccountID', $AccountID)->first();
+				if($AccountBalance != false && $AccountBalance->OutPaymentAvailable >= $data['Amount']){
+
+					$resp = AccountPayout::createPayoutInvoice($data);
+					if($resp['status'] == "failed")
+						return Response::json(array("ErrorMessage" => "Problem Creating Out Payment Invoice."),Codes::$Code500[0]);
+
+					$newAvailable = $AccountBalance->OutPaymentAvailable - (float)$data['Amount'];
+					$newPaid = $AccountBalance->OutPaymentPaid + (float)$data['Amount'];
+
+					$AccountBalance::where('AccountID', $AccountID)->update([
+							'OutPaymentAvailable' => $newAvailable,
+							'OutPaymentPaid' 	  => $newPaid,
+						]);
+
+					AccountPayout::successPayoutCustomerEmail($data);
+					//$transactionID = @$resp['response']['balance_transaction'];
+					//$payoutID = @$resp['response']['balance_transaction'];
+					//$note = "Stripe payout_id: {$transactionID}, transaction_id: {$payoutID}";
+
+					$note 				  = "Payout";
+					$data['Status'] 	  = 'Approved';
+					$data['PaymentType']  = Payment::$action['Payment Out'];
+					$data['PaymentDate']  = date('Y-m-d 00:00:00');
+					$data['created_at']   = date("Y-m-d H:i:s");
+					$data['CreatedBy'] 	  = 'API';
+					$data['Notes'] 	 	  = $note;
+					$data['InvoiceID'] 	  = $resp['LastID'];
+					$data['IsOutPayment'] = 1;
+
 					unset($data['AccountNo']);
 					unset($data['Approved']);
 					unset($data['PaymentID']);
@@ -253,10 +271,8 @@ class PaymentApiController extends ApiController {
 						return Response::json(array("ErrorMessage" => "Problem Creating Payment."),Codes::$Code500[0]);
 					}
 
-				} else {
-					return Response::json(array("ErrorMessage" => @$resp['message']),Codes::$Code500[0]);
-				}
-
+				} else
+					return Response::json(array("ErrorMessage" => "Approved payment is less then requested amount."));
 			} else {
 				$data['Status'] = 'Pending Approval';
 				$data['PaymentType'] = Payment::$action['Payment Out'];
