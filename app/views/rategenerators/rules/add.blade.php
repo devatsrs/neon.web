@@ -119,8 +119,8 @@
 
                 @if($rateGenerator->SelectType != 1)
                     var Origination = $("#rategenerator-code-from input[name='Origination']").val();
-                    var Component = $("#rategenerator-code-from select[name='Component']").val();
-                    var TimeOfDay = $("#rategenerator-code-from select[name='TimeOfDay']").val();
+                    var Component   = $("#rategenerator-code-from select[name='Component']").val();
+                    var TimeOfDay   = $("#rategenerator-code-from select[name='TimeOfDay']").val();
 
                     if(Origination == '' && Component == '' && TimeOfDay == ''){
                         setTimeout(function(){$('.btn').button('reset');},10);

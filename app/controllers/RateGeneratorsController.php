@@ -221,16 +221,6 @@ class RateGeneratorsController extends \BaseController {
                                 "message" => "Merge components Value is missing."
                             ));
                     }
-                    if($SelectType == 2){
-                        if(empty($data['Origination-'. $numberArray[$i]]) ||
-                            empty($data['ToOrigination-'. $numberArray[$i]])
-                        ){
-                            return Response::json(array(
-                                "status" => "failed",
-                                "message" => "Merge Origination Value is missing."
-                            ));
-                        }
-                    }
                     $GetAllcomponts[] = 'Component-' . $numberArray[$i];
 
                     if (!isset($data[$GetAllcomponts[$i]])) {
@@ -718,16 +708,6 @@ class RateGeneratorsController extends \BaseController {
                             "status" => "failed",
                             "message" => "Merge components Value is missing."
                         ));
-                    }
-                    if($SelectType == 2){
-                        if(empty($data['Origination-'. $numberArray[$i]]) ||
-                            empty($data['ToOrigination-'. $numberArray[$i]])
-                        ){
-                            return Response::json(array(
-                                "status" => "failed",
-                                "message" => "Merge Origination Value is missing."
-                            ));
-                        }
                     }
                     $GetAllcomponts[$i] = 'Component-' . $numberArray[$i];
 

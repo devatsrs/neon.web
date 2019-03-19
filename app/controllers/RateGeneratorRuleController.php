@@ -153,17 +153,15 @@ class RateGeneratorRuleController extends \BaseController {
         if ($id > 0) {
             $last_max_order =  RateRule::where(["RateGeneratorId" => $id])->max('Order');
             $data = Input::all();
+            $rules = array();
             $data['Order'] = $last_max_order+1;
-            // print_R($data);exit;
-            $data ['CreatedBy'] = User::get_user_full_name();
-            $data ['RateGeneratorId'] = $id;
+            $data['CreatedBy'] = User::get_user_full_name();
+            $data['RateGeneratorId'] = $id;
 
             if(isset($data['Origination'])) {
                 $data ['OriginationDescription'] = $data['Origination'];
                 unset($data['Origination']);
             }
-            // $data['RateGeneratorId']
-
             $rateGenerator = RateGenerator::findOrFail($id);
 
             if($rateGenerator->SelectType == 2 || $rateGenerator->SelectType == 3) {
@@ -171,24 +169,16 @@ class RateGeneratorRuleController extends \BaseController {
                     'Component'  => 'required',
                     'TimeOfDay'  => 'required',
                     'CreatedBy'  => 'required',
+                );
 
-                );
-            }else {
-                $rules = array(
-                    'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
-                    'OriginationCode' => 'required_without_all:Code,Description,OriginationDescription',
-                    'CreatedBy' => 'required'
-                );
             }
-
             $validator = Validator::make($data, $rules);
-
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
 
             if($rateGenerator->SelectType != 2) {
-                if (isset($data['Code']) && !empty($data['Code']) || (isset($data['Description']) && !empty($data['Description']))) {
+                if (isset($data['Code']) && !empty($data['Code'])) {
                     $rateRuleDesination = RateRule::select('Code')->where(["RateGeneratorId" => $data['RateGeneratorId'], "Code" => $data['Code'],'DestinationType' => $data['DestinationType']])->first();
                     if ($rateRuleDesination) {
                         if (isset($rateRuleDesination->Code) && isset($rateRuleDesination->Description)) {
@@ -196,7 +186,7 @@ class RateGeneratorRuleController extends \BaseController {
                         }
                     }
                 }
-                if (isset($data['OriginationCode']) && !empty($data['OriginationCode']) || (isset($data['OriginationDescription']) && !empty($data['OriginationDescription']))) {
+                if (isset($data['OriginationCode']) && !empty($data['OriginationCode'])) {
                     $rateRuleOrigination = RateRule::select('OriginationCode', 'OriginationDescription')->where(["RateGeneratorId" => $data['RateGeneratorId'], "OriginationCode" => $data['OriginationCode'],'OriginationType' =>$data["OriginationType"]])->first();
                     if ($rateRuleOrigination) {
                         if (isset($rateRuleOrigination->OriginationCode) && isset($rateRuleOrigination->OriginationDescription)) {
@@ -251,6 +241,7 @@ class RateGeneratorRuleController extends \BaseController {
 
         if ($id > 0 && $RateRuleID > 0) {
             $data = Input::all();
+            $rules = array();
             //dd($data);
 //             $companyID = User::get_companyID();
             $rategenerator_rules = RateRule::findOrFail($RateRuleID); // RateRule::where([ "RateRuleID" => $RateRuleID])->get();
@@ -267,12 +258,6 @@ class RateGeneratorRuleController extends \BaseController {
                     'Component'   => 'required',
                     'TimeOfDay'   => 'required',
                     'ModifiedBy'  => 'required',
-                );
-            } else {
-                $rules = array(
-                    'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
-                    'OriginationCode' => 'required_without_all:Code,Description,OriginationDescription',
-                    'ModifiedBy' => 'required'
                 );
             }
 

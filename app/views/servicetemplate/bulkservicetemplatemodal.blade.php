@@ -314,7 +314,7 @@
                                                     {{--<select  id="ServiceIdBulkAction" name="ServiceIdBulkAction" class="form-control"></select>--}}
                                                 </td>
                                                 <td width="5%">&nbsp;</td>
-                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="OutboundTraiff" value=""> Outbound Ratetable</label></td>
+                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="OutboundTraiff" value=""> Termination Ratetable</label></td>
                                                 <td width="35%">
                                                     {{ Form::select('OutboundRateTableIdBulkAction',$rateTable,array(), array("id" => "OutboundRateTableIdBulkAction", "class"=>"form-control")) }}
 

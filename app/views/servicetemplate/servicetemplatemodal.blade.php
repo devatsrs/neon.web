@@ -736,7 +736,7 @@
                                         <div class="form-group">
                                             <table width="100%">
                                                 <tr>
-                                                    <td width="15%"><label for="field-5" class="control-label">Outbound RateTable</label></td>
+                                                    <td width="15%"><label for="field-5" class="control-label">Termination RateTable</label></td>
                                                     <td width="30%">
                                                         {{ Form::select('OutboundRateTableId',$rateTable,array(), array("id" => "OutboundRateTableId", "class"=>"form-control")) }}
 
