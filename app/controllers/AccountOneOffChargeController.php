@@ -57,6 +57,12 @@ class AccountOneOffChargeController extends \BaseController {
 	public function store($id)
 	{
         $CompanyID = User::get_companyID();
+        $Account=Account::where(["AccountID" => $id]);
+        if($Account->count() > 0){
+            $Account = $Account->first();
+            $CompanyID = $Account->CompanyId;
+        }
+
 
 		$data = Input::all();
         $ChargeCode = strtolower('One-Off');
@@ -123,8 +129,8 @@ class AccountOneOffChargeController extends \BaseController {
             $temparray=array();
 
             if(intval($data['ProductID']) > 0 && intval($data['Qty']) > 0){
-                $companyID = User::get_companyID();
-                $temparray['CompanyID']=$companyID;
+                //$companyID = User::get_companyID();
+                $temparray['CompanyID']=$CompanyID;
                 $temparray['ProductID']=intval($data['ProductID']);
                 $temparray['InvoiceID']='';
                 $temparray['Qty']=intval($data['Qty']);
@@ -151,12 +157,19 @@ class AccountOneOffChargeController extends \BaseController {
 
 	public function update($AccountID,$AccountOneOffChargeID)
 	{
+        $CompanyID = '';
         if( $AccountID  > 0  && $AccountOneOffChargeID > 0 ) {
             $data = Input::all();
             $AccountOneOffChargeID = $data['AccountOneOffChargeID'];
             $AccountOneOffCharge = AccountOneOffCharge::find($AccountOneOffChargeID);
             $oldQty=intval($AccountOneOffCharge['Qty']);
             $data["AccountID"] = $AccountID;
+            $Account=Account::where(["AccountID" => $AccountID]);
+            if($Account->count() > 0){
+                $Account = $Account->first();
+                $CompanyID = $Account->CompanyId;
+            }
+
             $data["ModifiedBy"] = User::get_user_full_name();
 
             $verifier = App::make('validation.presence');
@@ -184,8 +197,8 @@ class AccountOneOffChargeController extends \BaseController {
                 $StockHistory=array();
                 $temparray=array();
                 if(intval($data['ProductID']) > 0 && intval($data['Qty']) > 0){
-                    $companyID = User::get_companyID();
-                    $temparray['CompanyID']=$companyID;
+
+                    $temparray['CompanyID']=$CompanyID;
                     $temparray['ProductID']=intval($data['ProductID']);
                     $temparray['InvoiceID']='';
                     $temparray['Qty']=intval($data['Qty']);
@@ -216,6 +229,13 @@ class AccountOneOffChargeController extends \BaseController {
 
 	public function delete($AccountID,$AccountOneOffChargeID)
 	{
+        $CompanyID = '';
+        $Account=Account::where(["AccountID" => $AccountID]);
+        if($Account->count() > 0){
+            $Account = $Account->first();
+            $CompanyID = $Account->CompanyId;
+        }
+
         if( intval($AccountOneOffChargeID) > 0){
             try{
                 $AccountOneOffCharge = AccountOneOffCharge::find($AccountOneOffChargeID);
@@ -225,10 +245,10 @@ class AccountOneOffChargeController extends \BaseController {
                 $ProductID=$AccountOneOffCharge->ProductID;
                 $Qty=intval($AccountOneOffCharge->Qty);
                 if($ProductID > 0 && $Qty > 0){
-                    $companyID = User::get_companyID();
+
                     $reason='delete_prodstock';
 
-                    $temparray['CompanyID']=$companyID;
+                    $temparray['CompanyID']=$CompanyID;
                     $temparray['ProductID']=intval($ProductID);
                     $temparray['InvoiceID']='';
                     $temparray['Qty']=$Qty;

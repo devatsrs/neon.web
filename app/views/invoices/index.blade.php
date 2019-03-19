@@ -90,11 +90,11 @@
     <div class="row">
       <div class="col-md-12 action-buttons">
 
-          @if(User::checkCategoryPermission('RecurringProfile','View'))
-              <div class="input-group-btn">
-                  <button href="{{URL::to('/recurringprofiles')}}" onclick="location.href=$(this).attr('href');" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </button>
-              </div>
-          @endif
+          {{--@if(User::checkCategoryPermission('RecurringProfile','View'))--}}
+              {{--<div class="input-group-btn">--}}
+                  {{--<button href="{{URL::to('/recurringprofiles')}}" onclick="location.href=$(this).attr('href');" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </button>--}}
+              {{--</div>--}}
+          {{--@endif--}}
 
           @if(User::checkCategoryPermission('Invoice','Add'))
               <div class="input-group-btn">

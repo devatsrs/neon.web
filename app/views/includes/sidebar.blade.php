@@ -205,9 +205,9 @@
         @if(User::checkCategoryPermission('Disputes','View'))
         <li class="{{ active_url_class("disputes") }}"> <a href="{{URL::to('/disputes')}}">  <span>Disputes</span> </a> </li>
         @endif
-          @if(User::checkCategoryPermission('AccountStatement','All'))
-            <li class="{{ active_url_class("account_statement") }}"> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
-          @endif
+          {{--@if(User::checkCategoryPermission('AccountStatement','All'))--}}
+            {{--<li class="{{ active_url_class("account_statement") }}"> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>--}}
+          {{--@endif--}}
           @if(User::checkCategoryPermission('Service','View'))
             <li class="{{ active_url_class("services") }}"> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
           @endif
