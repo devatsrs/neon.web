@@ -23,7 +23,7 @@ class AccountServiceController extends \BaseController {
             'types' => [RateGenerator::VoiceCall],
             'NotVendor' => true,
         ]);
-        $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
+        //$DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
         $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
         $DiscountPlan = $DiscountPlanVOICECALL;
         $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::DID_ID);

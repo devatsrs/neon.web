@@ -1035,6 +1035,7 @@
                 $("#desablereseller").addClass('deactivate');
                 $('#disableresellerowner select').attr("disabled", "disabled");
             }else {
+                $('#disableresellerowner select').attr("disabled", "disabled");
                 if ($('[name="IsReseller"]').prop("checked") == true) {
                     $('[name="IsCustomer"]').prop("checked", false).trigger('change');
                     $('[name="IsVendor"]').prop("checked", false).trigger('change');
@@ -1046,6 +1047,7 @@
                     $("#desablecustomer").removeClass('deactivate');
                     $("#desablevendor").removeClass('deactivate');
                     $("#desablereseller").removeClass('deactivate');
+                    $('#disableresellerowner select').attr("disabled", "disabled");
                     //$('#disableresellerowner select').removeAttr("disabled");
                 }
             }
@@ -1062,6 +1064,7 @@
                         $("#desablecustomer").removeClass('deactivate');
                         $("#desablevendor").removeClass('deactivate');
                         $('#disableresellerowner select').removeAttr("disabled");
+                        $('#disableresellerowner select').attr("disabled", "disabled");
                     }
                 });
             }
