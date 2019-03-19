@@ -332,8 +332,9 @@ class AccountServiceController extends \BaseController {
 
             /* Package Section Validation */
             if(!empty($data['PackageId']) || !empty($data['RateTableID'])){
-                AccountService::$rules['PackageId'] = 'required';
-                AccountService::$rules['RateTableID'] = 'required';
+                /*AccountService::$rules['PackageId'] = 'required';
+                AccountService::$rules['RateTableID'] = 'required';*/
+
             }
 
             $validator = Validator::make($data, AccountService::$rules, AccountService::$messages);

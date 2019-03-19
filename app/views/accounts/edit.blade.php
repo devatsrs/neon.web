@@ -170,7 +170,7 @@
 
                                 <label class="col-md-2 control-label">Account Partner</label>
                                 <div class="col-md-4" id="disableresellerowner">
-                                    {{Form::select('ResellerOwner',$reseller_owners,(isset($accountreseller)?$accountreseller:'') ,array("class"=>"select2"))}}
+                                    {{Form::select('ResellerOwner',$reseller_owners, isset($accountreseller)?$accountreseller:'' ,array("class"=>"select2"))}}
                                 </div>
                             </div>
                         @endif
@@ -1551,7 +1551,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit"  class="btn btn-primary btn-sm btn-icon icon-left">
+                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                             <i class="entypo-floppy"></i>
                             Add
                         </button>

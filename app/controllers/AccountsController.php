@@ -263,7 +263,7 @@ class AccountsController extends \BaseController {
         }
 
         if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
-            return Response::json(array("status" => "failed", "message" => "One switch between Vendor, Customer and Partner should be on."));
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked in Vendor, Customer and Partner."));
 
         unset($data['ResellerOwner']);
         unset($data['routingprofile']);
@@ -891,8 +891,9 @@ class AccountsController extends \BaseController {
         $dynamicfields = Account::getDynamicfields('account',$id);
         //Log::info("Count for Dynamic fields for Account ." . $id . ' ' . count($dynamicfields));
         $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
-        $reseller_owners = Reseller::getDropdownIDList($companyID);
+        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
+
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $PackageDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::PACKAGE,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
@@ -990,7 +991,7 @@ class AccountsController extends \BaseController {
         }
 
         if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
-            return Response::json(array("status" => "failed", "message" => "One switch between Vendor, Customer and Partner should be on."));
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked in Vendor, Customer and Partner."));
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
