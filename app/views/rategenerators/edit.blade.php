@@ -580,16 +580,20 @@
                                     <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
                                         @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
                                             <td>
-                                                {{ @RateGenerator::$Component[$rategenerator_rule->Component] }}
+                                                @if($rategenerator->SelectType == 3)
+                                                    {{ @DiscountPlan::$RateTablePKGRate_Components[$rategenerator_rule->Component] }}
+                                                @elseif($rategenerator->SelectType == 2)
+                                                    {{ @ DiscountPlan::$RateTableDIDRate_Components[$rategenerator_rule->Component] }}
+                                                @endif
                                                 @if($rategenerator->SelectType == 2)
                                                     <br>
-                                                    Country: {{@$rategenerator_rule->Country->Country}}
+                                                    Country: @if(@$rategenerator_rule->Country != ''){{@$rategenerator_rule->Country->Country}}@else ALL @endif
                                                     <br>
-                                                        Type: {{@$rategenerator_rule->AccessType}}
+                                                        Type: @if(@$rategenerator_rule->AccessType != ''){{@$rategenerator_rule->AccessType}} @else ALL @endif
                                                     <br>
-                                                        Prefix: {{@$rategenerator_rule->Prefix}}
+                                                        Prefix: @if(@$rategenerator_rule->Prefix != ''){{@$rategenerator_rule->Prefix}} @else ALL @endif
                                                     <br>
-                                                        CityTariff: {{@$rategenerator_rule->CityTariff}}
+                                                        CityTariff: @if(@$rategenerator_rule->CityTariff != ''){{@$rategenerator_rule->CityTariff}} @else ALL @endif
                                                 @endif
 
 
@@ -607,20 +611,30 @@
                                                 {{$rategenerator_rule->OriginationCode}}@if(!empty($rategenerator_rule->OriginationCode)) <br/> @endif
                                                 @if($rategenerator_rule->OriginationType != '')
                                                     Type : {{$rategenerator_rule->OriginationType}}
-                                                <br>
+                                                    <br>    
+                                                @else
+                                                    Type : ALL     
+                                                    <br>
                                                 @endif
                                                 @if($rategenerator_rule->OriginationCountryID != '')
                                                     Country : {{Country::getName($rategenerator_rule->OriginationCountryID)}}
+                                                @else
+                                                    Country : ALL    
                                                 @endif
                                             </td>
                                             <td>
                                                 {{$rategenerator_rule->Code}}@if(!empty($rategenerator_rule->Code)) <br/> @endif
                                                 @if($rategenerator_rule->DestinationType != '')
                                                     Type : {{$rategenerator_rule->DestinationType}}
-                                                <br>
+                                                    <br> 
+                                                @else
+                                                    Type : ALL    
+                                                    <br>
                                                 @endif
                                                 @if($rategenerator_rule->DestinationCountryID != '')
                                                     Country : {{Country::getName($rategenerator_rule->DestinationCountryID)}}
+                                                @else
+                                                    Country : ALL    
                                                 @endif
                                             </td>
                                             <td>

@@ -65,11 +65,12 @@
         jQuery(document).ready(function($) {
 
             $(".saveall.btn").click(function(e){
-                        @if($rategenerator->SelectType == 1)
-                var DestinationCode         = $("#rategenerator-code-from input[name='Code']").val();
-                var DestinationDescription  = $("#rategenerator-code-from input[name='Description']").val();
-                var OriginationCode         = $("#rategenerator-code-from input[name='OriginationCode']").val();
-                var OriginationDescription  = $("#rategenerator-code-from input[name='OriginationDescription']").val();
+
+                @if($rategenerator->SelectType == 1)
+                    var DestinationCode         = $("#rategenerator-code-from input[name='Code']").val();
+                    var DestinationDescription  = $("#rategenerator-code-from input[name='Description']").val();
+                    var OriginationCode         = $("#rategenerator-code-from input[name='OriginationCode']").val();
+                    var OriginationDescription  = $("#rategenerator-code-from input[name='OriginationDescription']").val();
 
 //                if((typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
 //
@@ -78,44 +79,37 @@
 //                    return false;
 //
 //                }
-
-                if((typeof DestinationCode  == 'undefined' || DestinationCode.trim() == '' ) && (typeof DestinationDescription  == 'undefined' || DestinationDescription.trim() == '' ) && (typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
-                    setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Enter any one from Origination Code,OriginationDescription,Destination Code,Destination Description", "Error", toastr_opts);
-                    return false;
-
-                }
-
                 if($("#rategenerator-source-from input[name='AccountIds[]']:checked").length == 0 ) {
                     setTimeout(function(){$('.btn').button('reset');},10);
                     toastr.error("Please Select Source", "Error", toastr_opts);
                     return false;
                 }
 
-                        @elseif($rategenerator->SelectType == 2)
+                @elseif($rategenerator->SelectType == 2)
 
-                var Origination = $("#rategenerator-code-from input[name='Origination']").val();
-                var Component = $("#rategenerator-code-from select[name='Component']").val();
-                var TimeOfDay = $("#rategenerator-code-from select[name='TimeOfDay']").val();
+                    var Origination = $("#rategenerator-code-from input[name='Origination']").val();
+                    var Component = $("#rategenerator-code-from select[name='Component']").val();
+                    var TimeOfDay = $("#rategenerator-code-from select[name='TimeOfDay']").val();
 
-                if(Origination == '' && Component == '' && TimeOfDay == ''){
-                    setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Select Origination, Component, Time of Day", "Error", toastr_opts);
-                    return false;
-                }
-                        @elseif($rategenerator->SelectType == 3)
-                var Component = $("#rategenerator-code-from select[name='Component']").val();
-                var TimeOfDay = $("#rategenerator-code-from select[name='TimeOfDay']").val();
+                    if(Origination == '' && Component == '' && TimeOfDay == ''){
+                        setTimeout(function(){$('.btn').button('reset');},10);
+                        toastr.error("Please Select Origination, Component, Time of Day", "Error", toastr_opts);
+                        return false;
+                    }
+                @elseif($rategenerator->SelectType == 3)
+                    var Component = $("#rategenerator-code-from select[name='Component']").val();
+                    var TimeOfDay = $("#rategenerator-code-from select[name='TimeOfDay']").val();
 
-                if(Component == '' && TimeOfDay == ''){
-                    setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Select Component, Time of Day", "Error", toastr_opts);
-                    return false;
-                }
+                    if(Component == '' && TimeOfDay == ''){
+                        setTimeout(function(){$('.btn').button('reset');},10);
+                        toastr.error("Please Select Component, Time of Day", "Error", toastr_opts);
+                        return false;
+                    }
 
-                        @endif
+                @endif
 
                 var _url = $('#rategenerator-code-from').attr("action");
+
                 var formData = $('#rategenerator-code-from').serialize();
 
                 $.post( _url, formData, function( response ) {
@@ -127,7 +121,7 @@
                         return false;
                     }
 
-                    @if($rategenerator->SelectType != 2)
+                    @if($rategenerator->SelectType == 1)
                     //source
                     var _url = $('#rategenerator-source-from').attr("action");
                     var formData = $('#rategenerator-source-from').serialize();
@@ -135,6 +129,7 @@
                     $.post( _url, formData, function( response ) {
                         $(".btn").button('reset');
                         if ( response.status =='success' ) {
+                            alert('success');
                             toastr.success(response.message, "Success", toastr_opts);
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
