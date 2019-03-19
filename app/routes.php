@@ -469,7 +469,7 @@ Route::group(array('before' => 'auth'), function () {
 	//sippy vendor rate pushing - destination set mapping
 	Route::any('/sippy_rate_push/{id}/destinationsetmapping', 'SippyRatePushController@index');
 	Route::any('/sippy_rate_push/{id}/getdestinationsetlist', 'SippyRatePushController@getDestinationSetList');
-	Route::any('/sippy_rate_push/updatedestinationsetlist/{id}', 'SippyRatePushController@updateDestinationSetList'); - 458
+	Route::any('/sippy_rate_push/updatedestinationsetlist/{id}', 'SippyRatePushController@updateDestinationSetList');
 	/*Route::resource('sippy_rate_push', 'SippyRatePushController');
 	Route::controller('sippy_rate_push', 'SippyRatePushController');*/
 
