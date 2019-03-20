@@ -11,12 +11,13 @@ class TaxRatesController extends \BaseController {
         {
              $taxrates = $taxrates->where('Title', 'like', '%'.$data['Title'].'%');
         }
-        if(isset($data['TaxType'])  and $data['TaxType']!=1)
+        if(isset($data['TaxType'])  and !empty($data['TaxType']))
         {
              $taxrates = $taxrates->where('TaxType',  $data['TaxType']);
         }
-        if(isset($data['Country']) and $data['Country']!='All')
+        if(isset($data['Country']) and !empty($data['Country']))
         {
+            //Log::info('country '.$data['Country']);
              $taxrates = $taxrates->where('Country', $data['Country']);
         }
         if(isset($data['FlatStatus']) and $data['FlatStatus']!=0)
@@ -60,6 +61,7 @@ class TaxRatesController extends \BaseController {
             'Amount' => 'required|numeric',
             'TaxType' => 'required|numeric',
             'FlatStatus' => 'required|numeric',
+            'Country' => 'required',
         );
         $validator = Validator::make($data, $rules);
 
