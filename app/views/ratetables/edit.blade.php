@@ -9,6 +9,14 @@
                 Filter
             </h2>
             <form role="form" id="rate-table-search" action="javascript:void(0);"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
+                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                    <div class="form-group">
+                        <label class="control-label">Status</label>
+                        {{ Form::select('ApprovedStatus', RateTable::$RateStatus, RateTable::RATE_STATUS_APPROVED, array("class"=>"select2")) }}
+                    </div>
+                @else
+                    <input type="hidden" name="ApprovedStatus" value="{{RateTable::RATE_STATUS_APPROVED}}" />
+                @endif
                 <div class="form-group">
                     <label class="control-label">Origination Code</label>
                     <input type="text" name="OriginationCode" class="form-control" placeholder="" />
@@ -35,7 +43,7 @@
                     {{ Form::select('Country', $countries, Input::old('Country') , array("class"=>"select2")) }}
                 </div>
 
-                <div class="form-group">
+                <div class="form-group filter_naa">
                     <label for="field-1" class="control-label">Discontinued Codes</label>
                     <p class="make-switch switch-small">
                         {{Form::checkbox('DiscontinuedRates', '1', false, array("id"=>"DiscontinuedRates"))}}
@@ -53,16 +61,16 @@
 
                 @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                     @if($ROUTING_PROFILE == 1)
-                    <div class="form-group">
+                    <div class="form-group filter_naa">
                         <label class="control-label">Routing Category</label>
                         {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
                     </div>
                     @endif
-                    <div class="form-group">
+                    <div class="form-group filter_naa">
                         <label class="control-label">Preference</label>
                         <input type="text" name="Preference" class="form-control" placeholder="">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group filter_naa">
                         <label class="control-label">Blocked</label>
                         <select name="Blocked" class="select2" data-allow-clear="true" data-placeholder="Select Status">
                             <option value="" selected="selected">All</option>
@@ -70,18 +78,6 @@
                             <option value="0">Unblocked</option>
                         </select>
                     </div>
-                @endif
-
-                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                <div class="form-group">
-                    <label class="control-label">Status</label>
-                    <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
-                        <option value="" selected="selected">All</option>
-                        <option value="1">Approved</option>
-                        <option value="2">Rejected</option>
-                        <option value="0">Awaiting Approval</option>
-                    </select>
-                </div>
                 @endif
 
                 <div class="form-group">
@@ -301,6 +297,7 @@
                     }
 
                     var formData = new FormData($('#clear-bulk-rate-form')[0]);
+                    formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
 
                     $.ajax({
                         url: baseurl + '/rate_tables/{{$id}}/clear_rate', //Server script to process data
@@ -379,6 +376,7 @@
         //Bulk Form and Edit Single Form Submit
         $("#bulk-edit-rate-table-form,#edit-rate-table-form").submit(function() {
             var formData = new FormData($(this)[0]);
+            formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
             $.ajax({
                 url: baseurl + '/rate_tables/{{$id}}/update_rate_table_rate', //Server script to process data
                 type: 'POST',
@@ -598,6 +596,14 @@
                 rateDataTable();
             }
         });
+
+        $(document).on('change','#rate-table-search select[name="ApprovedStatus"]',function(ev) {
+            if($(this).val() == {{RateTable::RATE_STATUS_APPROVED}}) {
+                $('.filter_naa').show();
+            } else {
+                $('.filter_naa').hide();
+            }
+        });
     });
 
     function rateDataTable() {
@@ -637,7 +643,7 @@
         $searchFilter.Blocked = Blocked = '';
 
         @endif
-        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val() != undefined ? $("#rate-table-search select[name='ApprovedStatus']").val() : '';
+        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search [name='ApprovedStatus']").val();
         $searchFilter.ratetablepageview = ratetablepageview;
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
@@ -665,11 +671,11 @@
                                 var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[22] == 2) {
+                                if (full[22] == {{RateTable::RATE_STATUS_REJECTED}}) {
                                     html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
-                                } else if (full[22] == 1) {
+                                } else if (full[22] == {{RateTable::RATE_STATUS_APPROVED}}) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
-                                } else if (full[22] == 0) {
+                                } else if (full[22] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                     html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
                                 }
                                 @endif
@@ -791,11 +797,17 @@
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
-                                    action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                    // if reject rates then don't show edit button else show
+                                    if (full[22] != {{RateTable::RATE_STATUS_REJECTED}}) {
+                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                    }
                                 }
                                 <?php } ?>
 
-                                action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
+                                // if approved rates then show history button else hide it
+                                if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
+                                    action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
+                                }
 
                                 if (full[15] != null && full[15] != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
@@ -974,9 +986,9 @@
                 });
 
                 if(Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
-                    $('#change-bulk-rate').hide();
+                    $('#change-bulk-rate,#approve-bulk-rate,#disapprove-bulk-rate').hide();
                 } else {
-                    $('#change-bulk-rate').show();
+                    $('#change-bulk-rate,#approve-bulk-rate,#disapprove-bulk-rate').show();
                 }
 
                 if(DiscontinuedRates == 1) {

@@ -18,6 +18,17 @@ class RateTable extends \Eloquent
     //public static $types = array( self::TYPE_VOICECALL => 'Voice Call',self::TYPE_DID=>'DID');
     public static $AppliedTo = array( self::APPLIED_TO_CUSTOMER => 'Customer',self::APPLIED_TO_VENDOR=>'Vendor',self::APPLIED_TO_RESELLER=>'Partner');
 
+
+    const RATE_STATUS_AWAITING  = 0;
+    const RATE_STATUS_APPROVED  = 1;
+    const RATE_STATUS_REJECTED  = 2;
+
+    public static $RateStatus = array(
+        self::RATE_STATUS_APPROVED  => 'Approved',
+        self::RATE_STATUS_AWAITING  => 'Awaiting Approval',
+   //     self::RATE_STATUS_REJECTED=>'Rejected'
+    );
+
     /*
      * Option = ["TrunkID" = int ,... ]
      * */
