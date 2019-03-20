@@ -165,6 +165,7 @@ class RateGeneratorsController extends \BaseController {
         }
         if($SelectType == 2){
             $rules['RatePosition']='required|numeric';
+            $rules['Category']='required';
         }
 
         $message = array(
@@ -219,16 +220,6 @@ class RateGeneratorsController extends \BaseController {
                                 "status" => "failed",
                                 "message" => "Merge components Value is missing."
                             ));
-                    }
-                    if($SelectType == 2){
-                        if(empty($data['Origination-'. $numberArray[$i]]) ||
-                            empty($data['ToOrigination-'. $numberArray[$i]])
-                        ){
-                            return Response::json(array(
-                                "status" => "failed",
-                                "message" => "Merge Origination Value is missing."
-                            ));
-                        }
                     }
                     $GetAllcomponts[] = 'Component-' . $numberArray[$i];
 
@@ -517,6 +508,7 @@ class RateGeneratorsController extends \BaseController {
                 "CompanyID" => $companyID
             ])->first();
 
+
             $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource', 'Country')->where([
                 "RateGeneratorId" => $id
             ]) ->orderBy("Order", "asc")->get();
@@ -524,7 +516,6 @@ class RateGeneratorsController extends \BaseController {
             //dd($rategenerator_rules);
             $rategeneratorComponents = RateGeneratorComponent::where('RateGeneratorID',$id )->get();
             $rateGeneratorCalculatedRate = RateGeneratorCalculatedRate::where('RateGeneratorID',$id )->get();
-
             $array_op= array();
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $currencylist = Currency::getCurrencyDropdownIDList();
@@ -605,7 +596,7 @@ class RateGeneratorsController extends \BaseController {
         if($SelectType == 1) {
             $rules = array(
                 'CompanyID' => 'required',
-                'RateGeneratorName' => 'required',
+                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
                 'Timezones' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
@@ -616,7 +607,7 @@ class RateGeneratorsController extends \BaseController {
             if($SelectType == 3){
                 $rules = array(
                     'CompanyID' => 'required',
-                    'RateGeneratorName' => 'required',
+                    'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
                     'Timezones' => 'required',
                     'CurrencyID' => 'required',
                     'Policy' => 'required',
@@ -635,7 +626,7 @@ class RateGeneratorsController extends \BaseController {
         } else {
             $rules = array(
                 'CompanyID'         => 'required',
-                'RateGeneratorName' => 'required',
+                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
                 'CurrencyID'        => 'required',
                 'Policy'            => 'required',
                 'DateFrom'          => 'required|date|date_format:Y-m-d',
@@ -657,6 +648,7 @@ class RateGeneratorsController extends \BaseController {
         }
         if($SelectType == 2){
             $rules['RatePosition']='required|numeric';
+            $rules['Category']='required';
         }
         if ($SelectType == 2 || $SelectType == 1) {
                 unset($data['PackageID']);
@@ -716,16 +708,6 @@ class RateGeneratorsController extends \BaseController {
                             "status" => "failed",
                             "message" => "Merge components Value is missing."
                         ));
-                    }
-                    if($SelectType == 2){
-                        if(empty($data['Origination-'. $numberArray[$i]]) ||
-                            empty($data['ToOrigination-'. $numberArray[$i]])
-                        ){
-                            return Response::json(array(
-                                "status" => "failed",
-                                "message" => "Merge Origination Value is missing."
-                            ));
-                        }
                     }
                     $GetAllcomponts[$i] = 'Component-' . $numberArray[$i];
 

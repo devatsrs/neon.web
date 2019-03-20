@@ -48,7 +48,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="field-4" class="control-label">Component*</label>
-                        {{ Form::select('Component', RateGenerator::$Component, '', array("class"=>"select2")) }}
+                        {{ Form::select('Component', DiscountPlan::$RateTableDIDRate_Components, '', array("class"=>"select2")) }}
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -99,7 +99,7 @@
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="field-4" class="control-label">Component*</label>
-                        {{ Form::select('Component', RateGenerator::$Component, '', array("class"=>"select2")) }}
+                        {{ Form::select('Component', DiscountPlan::$RateTablePKGRate_Components, '', array("class"=>"select2")) }}
                     </div>
                 </div>
                 <div class="col-md-5">
@@ -119,8 +119,8 @@
 
                 @if($rateGenerator->SelectType != 1)
                     var Origination = $("#rategenerator-code-from input[name='Origination']").val();
-                    var Component = $("#rategenerator-code-from select[name='Component']").val();
-                    var TimeOfDay = $("#rategenerator-code-from select[name='TimeOfDay']").val();
+                    var Component   = $("#rategenerator-code-from select[name='Component']").val();
+                    var TimeOfDay   = $("#rategenerator-code-from select[name='TimeOfDay']").val();
 
                     if(Origination == '' && Component == '' && TimeOfDay == ''){
                         setTimeout(function(){$('.btn').button('reset');},10);

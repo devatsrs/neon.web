@@ -56,28 +56,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-3 control-label">Rate Prefix</label>
-
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="RatePrefix" data-mask="999999999999" placeholder="Rate Prefix" value="{{Input::old('RatePrefix')}}">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-3 control-label">Area Prefix</label>
-
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" data-mask="999999999999" name="AreaPrefix" placeholder="Area Prefix" value="{{Input::old('AreaPrefix')}}">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-3 control-label">Prefix</label>
-
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" data-mask="999999999999" name="Prefix" placeholder="Prefix" value="{{Input::old('Prefix')}}">
-                        </div>
-                    </div>
+                    
                     <div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Active</label>
                         <div class="col-sm-6">

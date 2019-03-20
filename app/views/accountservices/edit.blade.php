@@ -302,10 +302,11 @@
                             </div>
                         </div>
                     </div>
+                </div>
                     <!-- Service Title For Invoice -->
                     <!-- Service subscription billing cycle start-->
 
-                    <div class="panel panel-primary " data-collapsed="0">
+                    <div class="panel panel-primary hide" data-collapsed="0">
                         <div class="panel-heading">
                             <div class="panel-title">
                                 Service Billing Cycle
@@ -317,7 +318,7 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <label for="field-1" class="col-md-2 control-label">
-                                    Billing Cylce
+                                    Billing Cycle
                                 </label>
                                 <div class="col-md-4">
                                     {{Form::select('SubscriptionBillingCycleType',SortBillingType(3),$AccountService->SubscriptionBillingCycleType,array("class"=>"form-control select2"))}}
@@ -395,8 +396,8 @@
 
                                 <div class="panel-body">
                                     <div class="form-group">
-                                        <label for="field-1" class="col-md-2 control-label">Access</label>
-                                        <div class="col-md-4">
+                                        <label for="field-1" class="col-md-2 control-label hide">Access</label>
+                                        <div class="col-md-4 hide">
                                             {{ Form::select('InboundTariffID', $rate_table , $InboundTariffID , array("class"=>"select2")) }}
                                         </div>
 

@@ -231,6 +231,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/store', array('as' => 'accounts_store', 'uses' => 'AccountsController@store'));
 	Route::any('/accounts/update/{id}', array('as' => 'accounts_update', 'uses' => 'AccountsController@update'));
 	Route::any('/accounts/{id}/show', array('uses' => 'AccountsController@show'));
+	Route::any('/accounts/get_account_partner_info/{id}', array('uses' => 'AccountsController@getAccountPartnerInfo'));
 	Route::any('/accounts/{id}/log', array('uses' => 'AccountsController@log'));
 	Route::any('accounts/{id}/ajax_datagrid_account_logs', 'AccountsController@ajax_datagrid_account_logs');
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));

@@ -91,7 +91,7 @@
             <tr>
                 <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
                 <th width="12%">Number</th>
-                <th width="15%">Number Rate Table</th>
+                <th width="15%">Access Rate Table</th>
                 <th width="12%">Package</th>
                 <th width="15%">Package Rate Table</th>
                 <th width="8%">Type</th>
@@ -145,7 +145,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">Number RateTable</label>
+                                    <label for="field-225" class="control-label">Access RateTable</label>
                                     {{ Form::select('RateTableID', $rate_table , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
