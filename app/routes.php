@@ -1628,13 +1628,15 @@ Route::group(array('before' => 'auth'), function () {
 
 	//Timezones
 	Route::any('/timezones','TimezonesController@index');
+	Route::any('/timezones/vendor_rates/{id}', 'TimezonesController@vednorIndex');
 	Route::any('/timezones/getTimezonesVariables','TimezonesController@getTimezonesVariables');
 	Route::any('/timezones/search_ajax_datagrid/{type}','TimezonesController@search_ajax_datagrid');
 	Route::any('/timezones/changeSelectedStatus/{type}','TimezonesController@changeSelectedStatus');
 	Route::any('/timezones/store','TimezonesController@store');
 	Route::any('/timezones/update/{id}','TimezonesController@update');
-	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
-	Route::controller('timezones', 'TimezonesController');
+
+
+
 
 	//routing category
 	Route::any('/routingcategory/ajax_datagrid', 'RoutingCategoryController@ajax_datagrid');

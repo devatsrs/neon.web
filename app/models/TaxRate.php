@@ -14,7 +14,14 @@ class TaxRate extends \Eloquent {
     const TAX_USAGE =2;
     const TAX_RECURRING =3;
 
+    const ALL = 'All';
+    const NL ='NL';
+    const EU = 'EU';
+     const NEU ='NEU';
+
     public static $tax_array = array(self::TAX_ALL=>'All Charges overall Invoice',self::TAX_USAGE=>'USAGE only',self::TAX_RECURRING=>'Recurring');
+
+    public static $tax_countries_array = array(self::ALL=>'All',self::NL=>'Netherlands',self::EU=>'EU Country',self::NEU=>'Non EU');
 
     static public function checkForeignKeyById($id) {
         /*
