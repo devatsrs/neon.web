@@ -126,6 +126,7 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
+            <th width="10%">Time of Day</th>
             <th width="10%">Package Name</th>
             <th width="5%">One-Off Cost</th>
             <th width="5%">Monthly Cost</th>
@@ -526,56 +527,58 @@
                                 return html;
                             }
                         }, //0Checkbox
-                        {}, //1 Package Name
-                        {
-                            mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[19] + col; else return '';
-                            }
-                        }, //2 OneOffCost,
+                        {}, //1 Timezones Title
+                        {}, //2 Package Name
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[20] + col; else return '';
                             }
-                        }, //3 MonthlyCost,
+                        }, //3 OneOffCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[21] + col; else return '';
                             }
-                        }, //4 PackageCostPerMinute,
+                        }, //4 MonthlyCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[22] + col; else return '';
                             }
-                        }, //5 RecordingCostPerMinute,
-                        {}, //6 Effective Date
+                        }, //5 PackageCostPerMinute,
+                        {
+                            mRender: function(col, type, full) {
+                                if(col != null && col != '') return full[23] + col; else return '';
+                            }
+                        }, //6 RecordingCostPerMinute,
+                        {}, //7 Effective Date
                         {
                             "bVisible" : false
-                        }, //7 End Date
+                        }, //8 End Date
                         {
                             "bVisible" : true,
                             mRender: function(id, type, full) {
-                                full[8] = full[8] != null ? full[8] : '';
                                 full[9] = full[9] != null ? full[9] : '';
-                                if(full[8] != '' && full[9] != '')
-                                    return full[9] + '<br/>' + full[8]; // modified by/modified date
+                                full[10] = full[10] != null ? full[10] : '';
+                                if(full[9] != '' && full[10] != '')
+                                    return full[10] + '<br/>' + full[9]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //9/8 modified by/modified date
+                        }, //10/9 modified by/modified date
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         {
                             "bVisible" : true,
                             mRender: function(id, type, full) {
-                                full[13] = full[13] != null ? full[13] : '';
                                 full[14] = full[14] != null ? full[14] : '';
-                                if(full[13] != '' && full[14] != '')
-                                    return full[13] + '<br/>' + full[14]; // Approved Status Changed By/Approved Date
+                                full[15] = full[15] != null ? full[15] : '';
+                                if(full[14] != '' && full[15] != '')
+                                    return full[14] + '<br/>' + full[15]; // Approved Status Changed By/Approved Date
                                 else
                                     return '';
                             }
-                        }, //13/14 Approved Status Changed By/Approved Date
+                        }, //14/15 Approved Status Changed By/Approved Date
                         @endif
                         {
+                            "bSortable" : false,
                             mRender: function(id, type, full) {
                                 $('#actionheader').attr('width','10%');
                                 var action, edit_, delete_;
@@ -586,12 +589,12 @@
                                 action += '</div>';
 
                                 clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_pkg_rate')}}";
-                                clerRate_ = clerRate_.replace('{id}', full[10]);
+                                clerRate_ = clerRate_.replace('{id}', full[11]);
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
                                     // if reject rates then don't show edit button else show
-                                    if (full[12] != {{RateTable::RATE_STATUS_REJECTED}}) {
+                                    if (full[13] != {{RateTable::RATE_STATUS_REJECTED}}) {
                                         action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
                                     }
                                 }
@@ -602,7 +605,7 @@
                                     action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
                                 }
 
-                                if (full[10] != null && full[10] != 0) {
+                                if (full[11] != null && full[11] != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
                                         action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';

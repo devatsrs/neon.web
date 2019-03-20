@@ -59,13 +59,13 @@ class RateTablesController extends \BaseController {
         $TypeVoiceCall  = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
         $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
 
-        $columns_voicecall  = array('RateTableRateID', 'OriginationCode', 'OriginationDescription', 'Code', 'Description', 'Interval1', 'IntervalN', 'ConnectionFee', 'PreviousRate', 'Rate', 'RateN', 'EffectiveDate', 'EndDate', 'updated_at', 'ModifiedBy', 'RateTableRateID', 'OriginationRateID', 'RateID', 'RoutingCategoryID', 'RoutingCategoryName', 'Preference', 'Blocked', 'ApprovedStatus', 'ApprovedBy', 'ApprovedDate');
-        $columns_did        = array('RateTableRateID', 'Country', 'OriginationCode', 'OriginationDescription', 'Code', 'Description', 'CityTariff', 'OneOffCost', 'MonthlyCost', 'CostPerCall', 'CostPerMinute', 'SurchargePerCall', 'SurchargePerMinute', 'OutpaymentPerCall', 'OutpaymentPerMinute', 'Surcharges', 'Chargeback', 'CollectionCostAmount', 'CollectionCostPercentage', 'RegistrationCostPerNumber', 'EffectiveDate', 'EndDate', 'updated_at', 'ModifiedBy', 'RateTableDIDRateID', 'OriginationRateID', 'RateID', 'ApprovedStatus', 'ApprovedBy', 'ApprovedDate');
-        $columns_pkg        = array('RateTableRateID', 'Code', 'Description', 'OneOffCost', 'MonthlyCost', 'PackageCostPerMinute', 'RecordingCostPerMinute', 'EffectiveDate', 'EndDate', 'updated_at', 'ModifiedBy', 'RateTablePKGRateID', 'RateID', 'ApprovedStatus', 'ApprovedBy', 'ApprovedDate');
+        $columns_voicecall  = array('RateTableRateID', 'TimezoneTitle', 'OriginationCode', 'OriginationDescription', 'Code', 'Description', 'Interval1', 'IntervalN', 'ConnectionFee', 'PreviousRate', 'Rate', 'RateN', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy', 'RoutingCategoryName', 'Preference');
+        $columns_did        = array('RateTableRateID', 'Country', 'TimezoneTitle', 'OriginationCode', 'Code', 'CityTariff', 'OneOffCost', 'MonthlyCost', 'CostPerCall', 'CostPerMinute', 'SurchargePerCall', 'SurchargePerMinute', 'OutpaymentPerCall', 'OutpaymentPerMinute', 'Surcharges', 'Chargeback', 'CollectionCostAmount', 'CollectionCostPercentage', 'RegistrationCostPerNumber', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
+        $columns_pkg        = array('RateTableRateID', 'TimezoneTitle', 'Code', 'OneOffCost', 'MonthlyCost', 'PackageCostPerMinute', 'RecordingCostPerMinute', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
 
-        $sort_column_voicecall  = $columns_voicecall[$data['iSortCol_0']];
-        $sort_column_did        = $columns_did[$data['iSortCol_0']];
-        $sort_column_pkg        = $columns_pkg[$data['iSortCol_0']];
+        $sort_column_voicecall  = @$columns_voicecall[$data['iSortCol_0']];
+        $sort_column_did        = @$columns_did[$data['iSortCol_0']];
+        $sort_column_pkg        = @$columns_pkg[$data['iSortCol_0']];
 
         $rateTable = RateTable::find($id);
 
@@ -78,9 +78,9 @@ class RateTablesController extends \BaseController {
                 }
             } else if($rateTable->Type == $TypeDID) { // did
                 if(!empty($data['DiscontinuedRates'])) {
-                    $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",'".$data['Timezones']."'," . $data['Country'] . ",".$data['OriginationCode'].",".$data['OriginationDescription']."," . $data['Code'] . "," . $data['Description'] . "," . $data['CityTariff'] . ",".$data['ApprovedStatus']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column_did . "','" . $data['sSortDir_0'] . "',0)";
+                    $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode']."," . $data['Code'] . "," . $data['CityTariff'] . ",".$data['ApprovedStatus']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column_did . "','" . $data['sSortDir_0'] . "',0)";
                 } else {
-                    $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['CityTariff'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
+                    $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code'].",".$data['CityTariff'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
                 }
             } else { // package
                 if(!empty($data['DiscontinuedRates'])) {
@@ -93,7 +93,7 @@ class RateTablesController extends \BaseController {
             if($rateTable->Type == $TypeVoiceCall) { // voice call
                 $query = "call prc_GetRateTableRateAA (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_voicecall."','".$data['sSortDir_0']."',0)";
             } else if($rateTable->Type == $TypeDID) { // did
-                $query = "call prc_GetRateTableDIDRateAA (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['CityTariff'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
+                $query = "call prc_GetRateTableDIDRateAA (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code'].",".$data['CityTariff'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
             } else { // package
                 $query = "call prc_GetRateTablePKGRateAA (".$companyID.",".$id.",".$data['Timezones'].",".$data['Code'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_pkg."','".$data['sSortDir_0']."',0)";
             }
