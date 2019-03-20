@@ -61,7 +61,6 @@
             <table id="table-subscription" class="table table-bordered datatable">
                 <thead>
                 <tr>
-                    <th width="3%"></th>
                     <th width="5%">No</th>
                     <th width="5%">Subscription</th>
                     <th width="15%">Invoice Description</th>
@@ -192,15 +191,15 @@
                             "sDom": "<'row'<'col-xs-6 col-left 'l><'col-xs-6 col-right'f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
-                        {  "bSortable": false,
-                            @if(isset($AccountService))
-                                mRender: function(id, type, full) {
-                                    return '<div class="details-control subscription_'+full[0]+'" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
-                                },
-                            @else
-                                "bVisible": false
-                            @endif
-                        },
+                        // {  "bSortable": false,
+                        //     @if(isset($AccountService))
+                        //         mRender: function(id, type, full) {
+                        //             return '<div class="details-control subscription_'+full[0]+'" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
+                        //         },
+                        //     @else
+                        //         "bVisible": false
+                        //     @endif
+                        // },
                         {  "bSortable": true },  // 0 Sequence NO
                         {  "bSortable": true },  // 1 Subscription Name
                         {  "bSortable": true },  // 2 InvoiceDescription
