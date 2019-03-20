@@ -1,5 +1,9 @@
-<?php $emailTemplates = EmailTemplate::getTemplateArray();
-$CompanyID = User::get_companyID();
+<?php 
+$data=array();
+if(isset($CompanyID)){$CompanyID=$CompanyID;}else{$CompanyID=0;}
+$emailTemplates = EmailTemplate::getTemplateArray($data,$CompanyID);
+
+//$CompanyID = User::get_companyID();
 $taxrates = TaxRate::getTaxRateDropdownIDList($CompanyID);
 if(isset($taxrates[""])){unset($taxrates[""]);}
 $type = EmailTemplate::$Type;
@@ -23,12 +27,23 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                 <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel body -->
                         <div class="panel-body">
-                            <div class="form-group"  style="display:none;">
+                             @if(!isset($BillingClass->ResellerID) && isset($BillingClass->Name))
+                             @else
+                            <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Partner</label>
-                                <div class="col-sm-4">
-                                    {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerOwner)?$BillingClass->ResellerOwner:'' ), array("class"=>"select2")) }}
+                                <div class="col-sm-4" >
+                                    
+                                    
+                                    @if(isset($BillingClass->Name))
+                                    {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerID)?$BillingClass->ResellerID:'' ), array("class"=>"select2", 'disabled' => "false")) }}
+                                    @else 
+                                    {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerID)?$BillingClass->ResellerID:'' ), array("class"=>"select2")) }}
+                                    @endif
+                                    
+                                    
                                 </div>
                             </div>
+                            @endif
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Class Name</label>
                                 <div class="col-sm-4">
@@ -78,7 +93,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
                                 <div class="col-sm-4">
-                                    {{Form::SelectControl('invoice_template',1,( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ))}}
+                                    {{Form::SelectControl('invoice_template',1,( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),'','','1',$CompanyID)}}
                                             <!--{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 select2Add small"))}}-->
                                 </div>
                             </div>
@@ -418,8 +433,70 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
 <div id="rowContainer"></div>
 <script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>
 <script>
-    
-    
+    function getInvoicetemplate(id) {
+        return $.ajax({
+            url: '{{URL::to('billing_class/getInvoicetemplate')}}',
+            data: 'type=invoiceemp&id='+id,
+            type: 'POST',
+            dataType: 'json',
+            success: function (response) {
+                if (response.status == 'success') {
+                    var html = '';
+                    var InvoiceTemplate = response.invoicetemplate;
+
+                    for(key in InvoiceTemplate) {
+                        if(InvoiceTemplate[key] == 'Select') {
+                            html += '<option value="'+key+'" selected>'+InvoiceTemplate[key]+'</option>';
+                        } else {
+                            html += '<option value="'+key+'">'+InvoiceTemplate[key]+'</option>';
+                        }
+                    }
+                    $("select[name=InvoiceTemplateID]").html(html).trigger('change');
+                } else {
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            },
+            error: function () {
+                toastr.error("error", "Error", toastr_opts);
+            }
+        });
+    }
+    function getEmailtemplate(id) {
+        return $.ajax({
+            url: '{{URL::to('billing_class/getInvoicetemplate')}}',
+            data: 'type=emailtemp&id='+id,
+            type: 'POST',
+            dataType: 'json',
+            success: function (response) {
+                if (response.status == 'success') {
+                    var html = '<option value="select2-add" disabled="disabled">Add</option>';
+                    var InvoiceTemplate = response.invoicetemplate;
+
+                    for(key in InvoiceTemplate) {
+                        if(InvoiceTemplate[key] == 'Select') {
+                            html += '<option value="'+key+'" selected>'+InvoiceTemplate[key]+'</option>';
+                        } else {
+                            console.log(key);
+                            html +='<optgroup label="'+key+'">';
+                            $.each(InvoiceTemplate[key], function( key1, value1 ) {
+                                console.log( key1 + ": " + value1 );
+                                html += '<option value="'+key1+'">'+value1+'</option>';
+                              });
+                            html +='</optgroup>';  
+                            
+                        }
+                    }
+                    $("select.add-new-template-dp").html(html).trigger('change');
+                    //$("select[name=LowBalanceReminder[TemplateID]]").html(html).trigger('change');
+                } else {
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            },
+            error: function () {
+                toastr.error("error", "Error", toastr_opts);
+            }
+        });
+    }
     var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select22 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}';
     var add_row_html_payment = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
     add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
@@ -427,20 +504,18 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
     $('#rowContainer').append(add_row_html_payment);
     var target = '';
     jQuery(document).ready(function ($) {
-
-        $("[name='ResellerOwner']").on('change', function () {
-            console.log($(this).val()+'ooooooo');
-            var options='<option>a</option><option>b</option>';
-            
-            console.log(options);
+        $("select[name='ResellerOwner']").on('change', function(){
+        //$("[name='ResellerOwner']").on('change', function () {
+            getInvoicetemplate($(this).val());
+            getEmailtemplate($(this).val())
                 
                 //append new table rows here
-                $("[name=InvoiceTemplateID]").empty().append(options);
-
-                //reinitialize the new select box
-                $("[name=InvoiceTemplateID]").select2({
-                 //configuration
-                });
+//                $("[name=InvoiceTemplateID]").empty().append(options);
+//
+//                //reinitialize the new select box
+//                $("[name=InvoiceTemplateID]").select2({
+//                 //configuration
+//                });
 //            $.ajax({
 //                type : 'POST',
 //                url : 'userprofile',

@@ -115,10 +115,10 @@
             <a href="{{URL::to('lcr')}}">Compare Vendor Rate</a>
         </li>
         <li class="active">
-            <strong>Access</strong>
+            <strong id="treeLCR">{{!isset($_REQUEST['lcrType']) ? "Access":$_REQUEST['lcrType']}}</strong>
         </li>
     </ol>
-    <h3 id="headingLCR">Access</h3>
+    <h3 id="headingLCR">{{!isset($_REQUEST['lcrType']) ? "Access":$_REQUEST['lcrType']}}</h3>
     <div class="clear"></div>
     <br>
     <table class="table table-bordered datatable" id="table">
@@ -152,21 +152,50 @@
         
         var $searchFilter = {};
         var data_table;
-       
+
+
         jQuery(document).ready(function($) {
             var accbtnval=$('.didbutton').text();
             var packbtnval=$('.packageoption').text();
+
+            @if($lcrType == "Package")
+            $('#lcr_type').val('Y');
+            $('.didbutton').html(packbtnval+' <span class="caret"></span>');
+            $('.packageoption').html(accbtnval);
+            $('.packagediv').show();
+            $('.productdiv').hide();
+            $('.productcategory').hide();
+            $('#Origination').hide();
+            $('#OriginationPercentage').hide();
+            @endif
+
+            @if($lcrType == "Access")
+             $('#lcr_type').val('N');
+            $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+            $('.packageoption').html(packbtnval);
+            $('.packagediv').hide();
+            $('.productdiv').show();
+            $('.productcategory').show();
+            $('#Origination').show();
+            $('#OriginationPercentage').show();
+            @endif
+
+           // alert(accbtnval);
             $('.packageoption').click(function(){
                 if($('.packageoption').text()=='Package'){
+
                    $('#lcr_type').val('Y');
                    $('.didbutton').html(packbtnval+' <span class="caret"></span>');
-                   $('.packageoption').html(accbtnval); 
+                   $('.packageoption').html(accbtnval);
                    $('.packagediv').show();
                    $('.productdiv').hide();
                    $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
+
+
                 }else{
+
                     $('#lcr_type').val('N');
                    $('.didbutton').html(accbtnval+' <span class="caret"></span>');
                     $('.packageoption').html(packbtnval); 
@@ -175,6 +204,7 @@
                    $('.productcategory').show();
                     $('#Origination').show();
                     $('#OriginationPercentage').show();
+
                 }
                 
             });
@@ -225,7 +255,15 @@
                 
                 $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
                 $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
-                
+                $searchFilter.lcrType = '';
+                if($('#lcr_type').val()=='Y'){
+                    $searchFilter.lcrType = "Package";
+                }else {
+                    $searchFilter.lcrType = "Access";
+                }
+
+
+               // alert($searchFilter.lcrType);
                 
                 var aoColumnDefs, aoColumnDefs;
                 if($searchFilter.LCRPosition=='5'){
@@ -348,7 +386,7 @@
                     "bDestroy":    true,
                     "bProcessing": true,
                     "bServerSide": true,
-                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type",
+                    "sAjaxSource": baseurl + "/did/lcr/search_ajax_datagrid/type" ,
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
@@ -369,6 +407,7 @@
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
                                 {"name": "PackageID", "value": $searchFilter.PackageID}
+
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
@@ -390,6 +429,7 @@
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
                                 {"name": "PackageID", "value": $searchFilter.PackageID},
+
                                 {"name":"Export","value":1}
                         );
 
@@ -481,6 +521,9 @@
                     }
 
                 });
+
+                $('#treeLCR').text($searchFilter.lcrType);
+                $('#headingLCR').text($searchFilter.lcrType);
                 return false;
             });
 

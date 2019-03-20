@@ -4,32 +4,57 @@ class InvoiceTemplatesController extends \BaseController {
 
     public function ajax_datagrid($type) {
         $data = Input::all();
-        $CompanyID = User::get_companyID();
-        $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
-        if(isset($data['Export']) && $data['Export'] == 1) {
-            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency')->get();
-            $invoiceCompanies = json_decode(json_encode($invoiceCompanies),true);
-            if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Template.csv';
-                $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_csv($invoiceCompanies);
-            }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Template.xls';
-                $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_excel($invoiceCompanies);
+        $post_data = Input::all();
+        try {
+            $CompanyID = User::get_companyID();;
+            $p_resellerComapyId='';
+            if (isset($post_data['ResellerOwner']) && !empty($post_data['ResellerOwner'])) {
+                $p_resellerComapyId = $post_data['ResellerOwner'];
             }
+            $rules['iDisplayStart'] = 'required|Min:1';
+            $rules['iDisplayLength'] = 'required';
+            $rules['iDisplayLength'] = 'required';
+            $rules['sSortDir_0'] = 'required';
+            $validator = Validator::make($post_data, $rules);
+            if ($validator->fails()) {
+                return generateResponse($validator->errors(),true);
+            }
+            $post_data['iDisplayStart'] += 1;
+            $columns = ['Name', 'CreatedBy', 'created_at'];
+            $Name = '';
+            if (isset($post_data['Name'])) {
+                $Name = $post_data['Name'];
+            }
+//            $ResellerOwner = 0;
+//            if (isset($post_data['ResellerOwner']) && !empty($post_data['ResellerOwner'])) {
+//                $ResellerOwner = $post_data['ResellerOwner'];
+//            }
+            
+            $sort_column = $columns[$post_data['iSortCol_0']];
+            $query = "call prc_getinvoicetemplate('" . $CompanyID . "','" . $Name . "','" . $p_resellerComapyId . "'," . (ceil($post_data['iDisplayStart'] / $post_data['iDisplayLength'])) . " ," . $post_data['iDisplayLength'] . ",'" . $sort_column . "','" . $post_data['sSortDir_0'] . "'";
+            if (isset($post_data['Export']) && $post_data['Export'] == 1) {
+               // Log::info($query . ',1)');
+                //$result = DB::select($query . ',1)');
+                $query .= ',1)';
+            } else {
+               $query .= ',0)';
+               // Log::info($query);
+                //$result = DataTableSql::of($query)->make();
+            }
+           
+            log::info($query);
+
+            return DataTableSql::of($query,'sqlsrv2')->make();
+        } catch (\Exception $e) {
+            Log::info($e);
+            return $this->response->errorInternal('Internal Server');
         }
-        $defaultDB=DB::connection()->getDatabaseName();
-        
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency',
-                    DB::raw("(SELECT ResellerName FROM ".$defaultDB.".tblReseller WHERE tblInvoiceTemplate.ResellerOwner = tblReseller.ResellerID) as ResellerName"));
-        return Datatables::of($invoiceCompanies)->make();
     }
 
     public function index() {
 
         $countries = Country::getCountryDropdownList();
-        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        $reseller_owners = Reseller::getDropdownIDListAllChildCompanyID();
         return View::make('invoicetemplates.index', compact('countries','reseller_owners'));
 
     }
@@ -109,8 +134,12 @@ class InvoiceTemplatesController extends \BaseController {
 
             $InvoiceTemplates = InvoiceTemplate::find($id);
             $data = Input::all();
+            
             $companyID = User::get_companyID();
-            $data['CompanyID'] = $companyID;
+            $data['CompanyID'] =$companyID;
+            if (isset($data['ResellerOwner']) && !empty($data['ResellerOwner'])) {
+                $data['CompanyID'] = $data['ResellerOwner'];
+            }
             $data['ModifiedBy'] = User::get_user_full_name();
             if(!empty($data['EditPage']) && $data['EditPage']==1){
                 $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
@@ -124,6 +153,7 @@ class InvoiceTemplatesController extends \BaseController {
                 $data['ShowTaxesOnSeparatePage'] = isset($data['ShowTaxesOnSeparatePage']) ? 1 : 0;
                 $data['ShowTotalInMultiCurrency'] = isset($data['ShowTotalInMultiCurrency']) ? 1 : 0;
             }
+            unset($data['ResellerOwner']);
             unset($data['EditPage']);
             unset($data['ServicePage']);
             if(!isset($data['DateFormat'])){
@@ -133,7 +163,6 @@ class InvoiceTemplatesController extends \BaseController {
                 $data['CDRType'] = $InvoiceTemplates->CDRType;
             }
             $rules = array(
-                'CompanyID' => 'required',
                 /*'Pages' => 'required',
                 'Header' => 'required',
                 'Footer' => 'required',
@@ -222,9 +251,14 @@ class InvoiceTemplatesController extends \BaseController {
 
     public function create()
     {
+       
         $data = Input::all();
         $companyID = User::get_companyID();
-        $data['CompanyID'] = $companyID;
+        $data['CompanyID'] =$companyID;
+        if (isset($data['ResellerOwner']) && !empty($data['ResellerOwner'])) {
+            $data['CompanyID'] = $data['ResellerOwner'];
+        }
+        //$data['CompanyID'] = isset($data['ResellerOwner']) ? $data['ResellerOwner'] : $companyID;
         $data['ModifiedBy'] = User::get_user_full_name();
         $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
         $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
@@ -236,12 +270,10 @@ class InvoiceTemplatesController extends \BaseController {
         $data['FooterDisplayOnlyFirstPage'] = isset($data['FooterDisplayOnlyFirstPage']) ? 1 : 0;
         $data['ShowTaxesOnSeparatePage'] = isset($data['ShowTaxesOnSeparatePage']) ? 1 : 0;
         $data['ShowTotalInMultiCurrency'] = isset($data['ShowTotalInMultiCurrency']) ? 1 : 0;
-        
-        $data['ResellerOwner'] = isset($data['ResellerOwner']) ? $data['ResellerOwner'] : 0;
+        unset($data['ResellerOwner']);
         unset($data['InvoiceTemplateID']);
         unset($data['EditPage']);
         $rules = array(
-            'CompanyID' => 'required',
             'Name' => 'required|unique:tblInvoiceTemplate,Name,NULL,InvoiceTemplateID,CompanyID,'.$data['CompanyID'],
             'InvoiceStartNumber' => 'required',
             'CDRType'=> 'required',
@@ -249,7 +281,6 @@ class InvoiceTemplatesController extends \BaseController {
         );
 
         $messages = array(
-            'CompanyID.required' =>'The companyid field is required',
             'Name.required' =>'name field is required',
             'InvoiceStartNumber.required' =>'invoice start number field is required',
             'CDRType.required' =>'cdr format field is required',

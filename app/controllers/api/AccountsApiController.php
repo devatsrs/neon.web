@@ -2795,6 +2795,9 @@ class AccountsApiController extends ApiController {
 	public function CreateCharge(){
 		$post_vars = json_decode(file_get_contents("php://input"));
 		$data=json_decode(json_encode($post_vars),true);
+		//strtolower
+		$data['ChargeCode'] = strtolower('One-Off');
+		$recurringName = 'Recurring';
 
 		$CompanyID=0;
 		$AccountID=0;
@@ -2839,7 +2842,7 @@ class AccountsApiController extends ApiController {
 				if (!empty($CurrencyID)) {
 					// if One-Off Cost
 					if($data['ChargeType'] == 0) {
-						$product = Product::where(["CompanyId" => $CompanyID, "Code" => $data['ChargeCode']])->where("Active", 1);
+						$product = Product::whereRaw('lower(Code) = '. "'". $data['ChargeCode'] . "'")->where("CompanyId", $CompanyID);
 						if ($product->count() > 0) {
 							$product = $product->first();
 							if ($product->Active != 1) {
@@ -2859,18 +2862,23 @@ class AccountsApiController extends ApiController {
 							$product_data['created_at'] 	= $CurrentDate;
 
 							$product = Product::create($product_data);
+
+
 						}
 						$ProductID = $product->ProductID;
 
 						$ChargeData['AccountID'] 	= $AccountID;
 						$ChargeData['ProductID'] 	= $ProductID;
 						$ChargeData['Price'] 		= $product->Amount;
-						$ChargeData['Description']	= $product->Description;
+						$ChargeData['Description']	= $data['Description'];
 						$ChargeData['Qty'] 			= 1;
 						$ChargeData['Date'] 		= $CurrentDate;
 						$ChargeData['CreatedBy'] 	= $CreatedBy;
 						$ChargeData['created_at'] 	= $CurrentDate;
 						$ChargeData['CurrencyID'] 	= $CurrencyID;
+						$ChargeData['AccountServiceID'] 	= 0;
+						$ChargeData['ServiceID'] 	= 0;
+
 
 						if (AccountOneOffCharge::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
@@ -2880,14 +2888,15 @@ class AccountsApiController extends ApiController {
 						}
 					} else {
 						// add subscription/recurring
-						$recurring = BillingSubscription::where(["CompanyId" => $CompanyID, "Name" => $data['ChargeCode']]);
+						$recurring = BillingSubscription::where(["CompanyId" => $CompanyID, "Name" => $recurringName]);
+						Log::info("Account One Off Charge ." . $recurring->count());
 						if ($recurring->count() > 0) {
 							$recurring = $recurring->first();
 						} else {
 							$recurring_data['CompanyId'] 				= $CompanyID;
 							$recurring_data['CurrencyID'] 				= $CurrencyID;
-							$recurring_data['Name'] 					= $data['ChargeCode'];
-							$recurring_data['Description'] 				= $data['ChargeCode'];
+							$recurring_data['Name'] 					= $recurringName;
+							$recurring_data['Description'] 				= $recurringName;
 							$recurring_data['InvoiceLineDescription'] 	= $data['Description'];
 							$recurring_data['CreatedBy'] 				= $CreatedBy;
 							$recurring_data['created_at'] 				= $CurrentDate;
@@ -2902,8 +2911,10 @@ class AccountsApiController extends ApiController {
 							$recurring_data['AnnuallyFee'] 				= $Costs['AnnuallyFee'];
 
 							$recurring = BillingSubscription::create($recurring_data);
+							Log::info("Account One Off Charge created." );
 						}
 						$AccountRecurringID = $recurring->SubscriptionID;
+						Log::info("Account One Off Charge created." . $AccountRecurringID);
 
 						$ChargeData['AccountID'] 		= $AccountID;
 						$ChargeData['SubscriptionID'] 	= $AccountRecurringID;
@@ -2920,7 +2931,10 @@ class AccountsApiController extends ApiController {
 						$ChargeData['MonthlyFee'] 		= $recurring->MonthlyFee;
 						$ChargeData['QuarterlyFee'] 	= $recurring->QuarterlyFee;
 						$ChargeData['AnnuallyFee'] 		= $recurring->AnnuallyFee;
+						$ChargeData['ActivationFee'] 		= 1;
+						$ChargeData['AccountServiceID'] 		= 0;
 
+						Log::info("Account One Off Charge created." . print_r($ChargeData,true));
 						if (AccountSubscription::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
 							return Response::json([],Codes::$Code200[0]);

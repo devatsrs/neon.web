@@ -35,6 +35,11 @@ class Reseller extends \Eloquent
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
         return $DropdownIDList;
     }
+    public static function getDropdownIDListAllChildCompanyID(){
+        $DropdownIDList = Reseller::where(array("Status"=>1))->lists('ResellerName', 'ChildCompanyID');
+        $DropdownIDList = array('' => "Select") + $DropdownIDList;
+        return $DropdownIDList;
+    }
     public static function getResellerDetails($ResellerID){
         return Reseller::where('ResellerID',$ResellerID)->first();
     }
@@ -55,7 +60,9 @@ class Reseller extends \Eloquent
     public static function getResellerAccountID($ChildCompanyID){
         return Reseller::where('ChildCompanyID',$ChildCompanyID)->pluck('AccountID');
     }
-
+     public static function getResellerCompanyID($ResellerID){
+        return Reseller::where('ResellerID',$ResellerID)->pluck('CompanyID');
+    }
     // main admin company id
     public static function get_companyID(){
         return  Reseller::where('ChildCompanyID',Auth::user()->CompanyID)->pluck('CompanyID');

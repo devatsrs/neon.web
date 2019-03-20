@@ -262,8 +262,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-             
+
                  
             @if($ROUTING_PROFILE =='1') 
             <div class="panel panel-primary" data-collapsed="0">
@@ -541,6 +540,7 @@
 
                     </div>
                  </div>
+                @include('accountdiscountplan.index')
 
              </form>
     </div>
@@ -664,13 +664,47 @@
             }
         });
 
+        function getAccountPartnerInfo(id){
+            id = id != "" ? id : 0;
+            $.ajax({
+                url: baseurl + '/accounts/get_account_partner_info/' + id,
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    if(response.status == "success"){
+                        $.each(response.data, function(x, y){
+                            var html = "";
+                            $.each(y, function(ind, val){
+                                html += "<option value='" + ind + "'>" + val + "</option>"
+                            });
+
+                            if(x == "BillingClass"){
+                                $("[name='BillingClassID']").html(html).select2().select2('val','')
+                            } else if(x == "TerminationDiscountPlan"){
+                                $("[name='DiscountPlanID']").html(html).select2().select2('val','')
+                            } else if(x == "AccessDiscountPlan"){
+                                $("[name='InboundDiscountPlanID']").html(html).select2().select2('val','')
+                            } else if(x == "PackageDiscountPlan"){
+                                $("[name='PackageDiscountPlanID']").html(html).select2().select2('val','')
+                            }
+                        });
+
+                    } else
+                        toastr.error(response.message, "Error", toastr_opts);
+                }
+            });
+
+        }
+
+        getAccountPartnerInfo($('[name="ResellerOwner"]').val());
+
         $('[name="ResellerOwner"]').on( "change",function(e){
             if($(this).val()>0) {
                 $("#desablereseller").addClass('deactivate');
             }else{
                 $("#desablereseller").removeClass('deactivate');
             }
-
+            getAccountPartnerInfo($(this).val());
         });
 
         $('[name="BillingStartDate"]').on("change",function(e){
@@ -732,6 +766,7 @@ function ajax_form_success(response){
 </script>
 @include('currencies.currencymodal')
 @include('billingclass.billingclassmodal')
+@include('accountdiscountplan.discountplanmodal')
 @include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => 'accounts/store','update_url'=>'accounts/update/{id}' ))
 @stop
 @section('footer_ext')

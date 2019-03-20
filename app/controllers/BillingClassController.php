@@ -4,7 +4,7 @@ class BillingClassController extends \BaseController {
 
 
     public function index() {
-        $reseller_owners = Reseller::getDropdownIDListAll();
+        $reseller_owners = Reseller::getDropdownIDListAllChildCompanyID();
         return View::make('billingclass.index', compact('reseller_owners'));
     }
     public function create() {
@@ -19,7 +19,8 @@ class BillingClassController extends \BaseController {
         $type = EmailTemplate::$Type;*/
         $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
         $reseller_owners = Reseller::getDropdownIDListAll();
-        return View::make('billingclass.create', compact('BillingClassList','reseller_owners'));
+        $CompanyID = User::get_companyID();
+        return View::make('billingclass.create', compact('BillingClassList','reseller_owners','CompanyID'));
         //return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates','privacy','type'));
     }
     public function edit($id) {
@@ -43,21 +44,57 @@ class BillingClassController extends \BaseController {
             $privacy = EmailTemplate::$privacy;
             $type = EmailTemplate::$Type;*/
             $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
+            //print_r($response->data);
             $BillingClass = $response->data;
             $InvoiceReminders = json_decode($response->data->InvoiceReminderSettings);
             $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
             $BalanceWarning = json_decode($response->data->BalanceWarningSettings);
             $PaymentReminders = json_decode($response->data->PaymentReminderSettings);
-            $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
-            return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','PaymentReminders','LowBalanceReminder','BalanceWarning','accounts','reseller_owners'));
+            //print_r($BillingClass);
+            $CompanyID = User::get_companyID();
+            if(!empty($BillingClass->ResellerID)){
+                $CompanyID = $BillingClass->CompanyID;
+            }
+            $reseller_owners = Reseller::getDropdownIDListAll();
+            return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','PaymentReminders','LowBalanceReminder','BalanceWarning','accounts','reseller_owners','CompanyID'));
             //return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{
             return view_response_api($response);
         }
     }
+    public function getInvoicetemplate() {
+        $response = array();
 
+        $data       = Input::all();
+        $trunks     = array();
+
+        if(!empty($data['id'])) {
+            $id = $data['id'];
+            $ChildCompanyID = Reseller::where('ResellerID',$id)->pluck('ChildCompanyID');
+            if($data['type']=='emailtemp'){
+                $TemplateData     = EmailTemplate::getEmailTemplateDropdownIDList($ChildCompanyID);
+            }else{
+                $TemplateData     = InvoiceTemplate::getInvoiceTemplateDropdownIDList($ChildCompanyID);
+            }
+        }else{
+            $getResellerCompany=User::get_companyID();
+            if($data['type']=='emailtemp'){
+                $TemplateData     = EmailTemplate::getEmailTemplateDropdownIDList($getResellerCompany);
+            }else{
+                $TemplateData     = InvoiceTemplate::getInvoiceTemplateDropdownIDList($getResellerCompany);
+            }
+        }
+
+        $response['status']                     = 'success';
+        $response['invoicetemplate']            = $TemplateData;
+        return json_encode($response);
+    }
     public function ajax_datagrid(){
         $getdata = Input::all();
+        $getdata['is_reseller']=0;
+        if(is_reseller()){
+            $getdata['is_reseller']=1;
+        }
         $response =  NeonAPI::request('billing_class/datagrid',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
             $excel_data = $response->data;
@@ -73,6 +110,10 @@ class BillingClassController extends \BaseController {
 
     public function store($isModal){
         $postdata = Input::all();
+        $postdata['CompanyID'] = User::get_companyID();
+        if (isset($postdata['ResellerOwner']) && !empty($postdata['ResellerOwner'])) {
+            $postdata['CompanyID'] = Reseller::where('ResellerID',$postdata['ResellerOwner'])->pluck('ChildCompanyID');
+        }
         $response =  NeonAPI::request('billing_class/store',$postdata,true,false,false);
 
         if(!empty($response) && $response->status == 'success'){

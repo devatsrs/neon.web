@@ -404,7 +404,7 @@
             ServiceTemplateName = $(this).prev("div.hiddenRowData").find("input[name='ServiceName']").val();
             CurrencyID = $(this).prev("div.hiddenRowData").find("input[name='CurrencyID']").val();
 
-            ServiceId = $(this).prev("div.hiddenRowData").find("input[name='ServiceId']").val();
+            var ServiceId = $(this).prev("div.hiddenRowData").find("input[name='ServiceId']").val();
              var OutboundDiscountPlanID1= $(this).prev("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
              var InboundDiscountPlanID1= $(this).prev("div.hiddenRowData").find("input[name='InboundDiscountPlanID']").val();
              var PackageDiscountPlanId1= $(this).prev("div.hiddenRowData").find("input[name='PackageDiscountPlanId']").val();
@@ -426,11 +426,12 @@
             $("#add-new-service-form [name='CancellationFee']").val(CancellationFee);
             $("#add-new-service-form [name='CancellationCharges'][value='" + CancellationCharges+"']").prop("checked", true).trigger("change");
             $("#add-new-service-form [name='AutomaticRenewal']").prop(':checked', AutomaticRenewal == 1).trigger('change');
-            loadValuesBasedOnCurrency(CurrencyID,true,ServiceId,OutboundTariffId);
+            loadValuesBasedOnCurrency(CurrencyID,true);
             editSelectedTemplateSubscription(CurrencyID,id);
             $("#add-new-service-form [name='ServiceId']").select2().select2('val',ServiceId);
             $("#add-new-service-form [name='PackageDiscountPlanId']").select2().select2('val',PackageDiscountPlanId1);
             $("#add-new-service-form [name='InboundDiscountPlanID123']").select2().select2('val',InboundDiscountPlanID1);
+            $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val',OutboundTariffId);
             $("#add-new-service-form [name='OutboundDiscountPlanID123']").select2().select2('val',OutboundDiscountPlanID1);
             $("#add-new-service-form [name='CompanyGatewayID']").select2().select2('val',CompanyGatewayID);
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));

@@ -17,13 +17,13 @@
                     <label for="field-1" class="control-label">Account</label>
                     {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                 </div>
-                @if(is_reseller())
+<!--                @if(is_reseller())
                 @else
                 <div class="form-group">
                     <label class="control-label" for="field-1">Account Partner</label>
                     {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
                 </div>
-                @endif
+                @endif-->
                 <div class="form-group">
                     <label for="field-1" class="control-label">Status</label>
                     {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
@@ -90,11 +90,11 @@
     <div class="row">
       <div class="col-md-12 action-buttons">
 
-          @if(User::checkCategoryPermission('RecurringProfile','View'))
-              <div class="input-group-btn">
-                  <button href="{{URL::to('/recurringprofiles')}}" onclick="location.href=$(this).attr('href');" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </button>
-              </div>
-          @endif
+          {{--@if(User::checkCategoryPermission('RecurringProfile','View'))--}}
+              {{--<div class="input-group-btn">--}}
+                  {{--<button href="{{URL::to('/recurringprofiles')}}" onclick="location.href=$(this).attr('href');" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </button>--}}
+              {{--</div>--}}
+          {{--@endif--}}
 
           @if(User::checkCategoryPermission('Invoice','Add'))
               <div class="input-group-btn">

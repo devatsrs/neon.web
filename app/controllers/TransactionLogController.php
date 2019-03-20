@@ -103,7 +103,7 @@ class TransactionLogController extends \BaseController {
 
         //echo $query;exit;
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,"")');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,"","")');
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
@@ -116,7 +116,7 @@ class TransactionLogController extends \BaseController {
                 $NeonExcel->download_excel($excel_data);
             }
         }
-        $query .=',0,0,"")';
+        $query .=',0,0,"","")';
 
         return DataTableSql::of($query,'sqlsrv2')->make();
     }

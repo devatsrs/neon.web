@@ -44,7 +44,7 @@ class AccountOneOffChargeController extends \BaseController {
          
         }
         $accountOneOffCharge->select($select);
-
+        Log::info("Account One Off Charge .ajax_datagrid" . $accountOneOffCharge->toSql());
         return Datatables::of($accountOneOffCharge)->make();
     }
 
@@ -56,9 +56,52 @@ class AccountOneOffChargeController extends \BaseController {
 	 */
 	public function store($id)
 	{
+        $CompanyID = User::get_companyID();
+        $Account=Account::where(["AccountID" => $id]);
+        if($Account->count() > 0){
+            $Account = $Account->first();
+            $CompanyID = $Account->CompanyId;
+        }
+
+
 		$data = Input::all();
+        $ChargeCode = strtolower('One-Off');
+        $product = Product::whereRaw('lower(Code) = '. "'". $ChargeCode . "'")->where("CompanyId", $CompanyID);
+        if ($product->count() == 0) {
+            $product = [];
+            $product['CompanyId'] = $CompanyID;
+            $product['Name'] = 'One-Off';
+            $product['Code'] = 'One-Off';
+            $product['Description'] = 'One-Off';
+            $product['Amount'] = '1';
+            $product['Active'] = '1';
+            $product['Note'] = '';
+            $product['AppliedTo'] = '0';
+            $product['ItemTypeID'] = '0';
+            $product['BuyingPrice'] = '0';
+            $product['Quantity'] = '0';
+            $product['LowStockLevel'] = '0';
+            $product['EnableStock'] = '0';
+            $product = Product::create($product);
+            Log::info("Account One Off Charge ." . $product);
+
+        }else {
+            $product = $product->first();
+            if ($product->Active != 1) {
+                $product->Active = 1;
+                $product->save();
+            }
+        }
+        Log::info("Account One Off Charge AccountAdditionChangesProductID1." . $product->count());
+        $AccountAdditionChangesProductID = $product->ProductID;
+        Log::info("Account One Off Charge AccountAdditionChangesProductID." . $AccountAdditionChangesProductID);
+        Log::info("Account One Off Charge AccountAdditionChangesProductID1." . print_r($data,true));
         $data["AccountID"] = $id;
         $data["CreatedBy"] = User::get_user_full_name();
+        if (!isset($data["ProductID"]) || empty($data["ProductID"])) {
+            $data["ProductID"] = $AccountAdditionChangesProductID;
+            Log::info("Set Account One Off Charge AccountAdditionChangesProductID." . $data["ProductID"]);
+        }
 
         $verifier = App::make('validation.presence');
         $verifier->setConnection('sqlsrv2');
@@ -86,8 +129,8 @@ class AccountOneOffChargeController extends \BaseController {
             $temparray=array();
 
             if(intval($data['ProductID']) > 0 && intval($data['Qty']) > 0){
-                $companyID = User::get_companyID();
-                $temparray['CompanyID']=$companyID;
+                //$companyID = User::get_companyID();
+                $temparray['CompanyID']=$CompanyID;
                 $temparray['ProductID']=intval($data['ProductID']);
                 $temparray['InvoiceID']='';
                 $temparray['Qty']=intval($data['Qty']);
@@ -114,12 +157,19 @@ class AccountOneOffChargeController extends \BaseController {
 
 	public function update($AccountID,$AccountOneOffChargeID)
 	{
+        $CompanyID = '';
         if( $AccountID  > 0  && $AccountOneOffChargeID > 0 ) {
             $data = Input::all();
             $AccountOneOffChargeID = $data['AccountOneOffChargeID'];
             $AccountOneOffCharge = AccountOneOffCharge::find($AccountOneOffChargeID);
             $oldQty=intval($AccountOneOffCharge['Qty']);
             $data["AccountID"] = $AccountID;
+            $Account=Account::where(["AccountID" => $AccountID]);
+            if($Account->count() > 0){
+                $Account = $Account->first();
+                $CompanyID = $Account->CompanyId;
+            }
+
             $data["ModifiedBy"] = User::get_user_full_name();
 
             $verifier = App::make('validation.presence');
@@ -147,8 +197,8 @@ class AccountOneOffChargeController extends \BaseController {
                 $StockHistory=array();
                 $temparray=array();
                 if(intval($data['ProductID']) > 0 && intval($data['Qty']) > 0){
-                    $companyID = User::get_companyID();
-                    $temparray['CompanyID']=$companyID;
+
+                    $temparray['CompanyID']=$CompanyID;
                     $temparray['ProductID']=intval($data['ProductID']);
                     $temparray['InvoiceID']='';
                     $temparray['Qty']=intval($data['Qty']);
@@ -179,6 +229,13 @@ class AccountOneOffChargeController extends \BaseController {
 
 	public function delete($AccountID,$AccountOneOffChargeID)
 	{
+        $CompanyID = '';
+        $Account=Account::where(["AccountID" => $AccountID]);
+        if($Account->count() > 0){
+            $Account = $Account->first();
+            $CompanyID = $Account->CompanyId;
+        }
+
         if( intval($AccountOneOffChargeID) > 0){
             try{
                 $AccountOneOffCharge = AccountOneOffCharge::find($AccountOneOffChargeID);
@@ -188,10 +245,10 @@ class AccountOneOffChargeController extends \BaseController {
                 $ProductID=$AccountOneOffCharge->ProductID;
                 $Qty=intval($AccountOneOffCharge->Qty);
                 if($ProductID > 0 && $Qty > 0){
-                    $companyID = User::get_companyID();
+
                     $reason='delete_prodstock';
 
-                    $temparray['CompanyID']=$companyID;
+                    $temparray['CompanyID']=$CompanyID;
                     $temparray['ProductID']=intval($ProductID);
                     $temparray['InvoiceID']='';
                     $temparray['Qty']=$Qty;
