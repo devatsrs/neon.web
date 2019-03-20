@@ -170,7 +170,7 @@
 
                                 <label class="col-md-2 control-label">Account Partner</label>
                                 <div class="col-md-4" id="disableresellerowner">
-                                    {{Form::select('ResellerOwner',$reseller_owners,(isset($accountreseller)?$accountreseller:'') ,array("class"=>"select2"))}}
+                                    {{Form::select('ResellerOwner',$reseller_owners, isset($accountreseller)?$accountreseller:'' ,array("class"=>"select2"))}}
                                 </div>
                             </div>
                         @endif
@@ -1035,6 +1035,7 @@
                 $("#desablereseller").addClass('deactivate');
                 $('#disableresellerowner select').attr("disabled", "disabled");
             }else {
+                $('#disableresellerowner select').attr("disabled", "disabled");
                 if ($('[name="IsReseller"]').prop("checked") == true) {
                     $('[name="IsCustomer"]').prop("checked", false).trigger('change');
                     $('[name="IsVendor"]').prop("checked", false).trigger('change');
@@ -1046,6 +1047,7 @@
                     $("#desablecustomer").removeClass('deactivate');
                     $("#desablevendor").removeClass('deactivate');
                     $("#desablereseller").removeClass('deactivate');
+                    $('#disableresellerowner select').attr("disabled", "disabled");
                     //$('#disableresellerowner select').removeAttr("disabled");
                 }
             }
@@ -1062,6 +1064,7 @@
                         $("#desablecustomer").removeClass('deactivate');
                         $("#desablevendor").removeClass('deactivate');
                         $('#disableresellerowner select').removeAttr("disabled");
+                        $('#disableresellerowner select').attr("disabled", "disabled");
                     }
                 });
             }
@@ -1548,7 +1551,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit"  class="btn btn-primary btn-sm btn-icon icon-left">
+                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                             <i class="entypo-floppy"></i>
                             Add
                         </button>

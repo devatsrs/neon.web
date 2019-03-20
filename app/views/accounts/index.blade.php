@@ -1468,7 +1468,7 @@
                         </p>
                     </div>
                 </div>
-                <div id="" class="col-md-6">
+                <div id="" class="col-md-6 hide">
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox"  name="ResellerOwnerAddCheck">
