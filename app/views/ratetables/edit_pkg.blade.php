@@ -153,7 +153,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','Code','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTablePKGRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'PackageCostPerMinuteCurrency', 'RecordingCostPerMinuteCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'PackageCostPerMinuteCurrencySymbol', 'RecordingCostPerMinuteCurrencySymbol', 'TimezonesID'];
+        var list_fields  = ['ID','TimezoneTitle','Code','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTablePKGRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'PackageCostPerMinuteCurrency', 'RecordingCostPerMinuteCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'PackageCostPerMinuteCurrencySymbol', 'RecordingCostPerMinuteCurrencySymbol', 'TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
