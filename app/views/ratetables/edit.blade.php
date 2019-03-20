@@ -764,7 +764,7 @@
                                 else
                                     return '';
                             }
-                        }, //15/14 ModifiedDate
+                        }, //15/14 modified by/modified date
                         {
                             "bVisible" : bVisibleApprovedStatus,
                             mRender: function(id, type, full) {
