@@ -1234,6 +1234,11 @@ class RateGeneratorsController extends \BaseController {
             $filterdata['CodeDeckId'] = intval($data['CodeDeckId']);
             $filterdata['NotVendor']  = true;
             $rate_table = RateTable::getRateTableCache($filterdata);
+        } elseif(@$data['Type'] == RateGenerator::Package) {
+            $filterdata['Type']       = intval($data['Type']);
+            $filterdata['NotVendor']  = true;
+
+            $rate_table = RateTable::getRateTableCache($filterdata);
         } else {
             $rate_table = ['' => "Select"];
         }
