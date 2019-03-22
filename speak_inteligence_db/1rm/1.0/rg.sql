@@ -1,6 +1,7 @@
+use speakintelligentRM;
 -- --------------------------------------------------------
--- Host:                         188.92.57.86
--- Server version:               5.7.24 - MySQL Community Server (GPL)
+-- Host:                         188.227.186.98
+-- Server version:               5.7.18 - MySQL Community Server (GPL)
 -- Server OS:                    Linux
 -- HeidiSQL Version:             9.5.0.5196
 -- --------------------------------------------------------
@@ -14,7 +15,7 @@
 -- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTable
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTable`;
 DELIMITER //
-CREATE  PROCEDURE `prc_WSGenerateRateTable`(
+CREATE PROCEDURE `prc_WSGenerateRateTable`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
