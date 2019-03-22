@@ -278,7 +278,7 @@ class CodeDecksController extends \BaseController {
                     if(!empty($data['Type'])){
                         $updatedta['Type'] = $data['Type'];
                     }else{
-                        $rules['Type'] = 'required';
+                        $updatedta['Type'] = "";
                     }
                 }
                 if(!empty($data['updateInterval1'])){
@@ -438,6 +438,7 @@ class CodeDecksController extends \BaseController {
 
     }
     public function base_datagrid(){
+
         $CompanyID = User::get_companyID();
         $rate_tables = BaseCodeDeck::where(["CompanyId" => $CompanyID])->select(["CodeDeckName","updated_at","ModifiedBy","CodeDeckId","DefaultCodedeck"]);
         return Datatables::of($rate_tables)->make();
