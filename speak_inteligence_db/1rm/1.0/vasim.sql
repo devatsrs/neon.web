@@ -465,6 +465,7 @@ INSERT INTO `tblIntegrationConfiguration` (`CompanyId`, `IntegrationID`, `Parent
 INSERT INTO `tblDynamicFields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'checkbox', 'Dutch Provider', 'DutchProvider', 'Dutch Provider', 0, 1, '2019-02-28 16:33:11', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
 
 
+UPDATE tblRateTableRate SET OriginationRateID=0 WHERE OriginationRateID IS NULL;
 ALTER TABLE `tblRateTableRate`
 	CHANGE COLUMN `OriginationRateID` `OriginationRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `RateTableRateID`;
 
@@ -1609,9 +1610,7 @@ CREATE PROCEDURE `prc_getDiscontinuedRateTableDIDRateGrid`(
 	IN `p_TimezonesID` INT,
 	IN `p_CountryID` INT,
 	IN `p_origination_code` VARCHAR(50),
-	IN `p_origination_description` VARCHAR(200),
 	IN `p_Code` VARCHAR(50),
-	IN `p_Description` VARCHAR(200),
 	IN `p_CityTariff` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
 	IN `p_PageNumber` INT,
@@ -1630,10 +1629,9 @@ BEGIN
 	CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
 		ID INT,
 		Country VARCHAR(200),
+		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
-		OriginationDescription VARCHAR(200),
 		Code VARCHAR(50),
-		Description VARCHAR(200),
 		CityTariff VARCHAR(50),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
@@ -1682,6 +1680,7 @@ BEGIN
 		ChargebackCurrencySymbol VARCHAR(255),
 		CollectionCostAmountCurrencySymbol VARCHAR(255),
 		RegistrationCostPerNumberCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
 		INDEX tmp_RateTableDIDRate_RateID (`Code`)
 	);
 
@@ -1689,10 +1688,9 @@ BEGIN
 	SELECT
 		vra.RateTableDIDRateID,
 		tblCountry.Country,
+		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
-		OriginationRate.Description AS OriginationDescription,
 		r.Code,
-		r.Description,
 		vra.CityTariff,
 		vra.OneOffCost,
 		vra.MonthlyCost,
@@ -1740,9 +1738,12 @@ BEGIN
 		IFNULL(tblSurchargesCurrency.Symbol,'') AS SurchargesCurrencySymbol,
 		IFNULL(tblChargebackCurrency.Symbol,'') AS ChargebackCurrencySymbol,
 		IFNULL(tblCollectionCostAmountCurrency.Symbol,'') AS CollectionCostAmountCurrencySymbol,
-		IFNULL(tblRegistrationCostPerNumberCurrency.Symbol,'') AS RegistrationCostPerNumberCurrencySymbol
+		IFNULL(tblRegistrationCostPerNumberCurrency.Symbol,'') AS RegistrationCostPerNumberCurrencySymbol,
+		vra.TimezonesID
 	FROM
 		tblRateTableDIDRateArchive vra
+   INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = vra.TimezonesID
 	JOIN
 		tblRate r ON r.RateID=vra.RateId
 	LEFT JOIN
@@ -1782,12 +1783,10 @@ BEGIN
 	WHERE
 		r.CompanyID = p_CompanyID AND
 		vra.RateTableId = p_RateTableID AND
-		vra.TimezonesID = p_TimezonesID AND
+		(p_TimezonesID IS NULL OR vra.TimezonesID = p_TimezonesID) AND
 		(p_CountryID IS NULL OR r.CountryID = p_CountryID) AND
 		(p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%')) AND
-		(p_origination_description is null OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%')) AND
 		(p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%')) AND
-		(p_description IS NULL OR r.Description LIKE REPLACE(p_description, '*', '%')) AND
 		(p_CityTariff is null OR vra.CityTariff LIKE REPLACE(p_CityTariff, '*', '%')) AND
 		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
 		vr.RateTableDIDRateID is NULL;
@@ -1800,10 +1799,22 @@ BEGIN
 		FROM
 			tmp_RateTableDIDRate_ n1, tmp_RateTableDIDRate2_ n2
 		WHERE
-			n1.Code = n2.Code AND (n1.OriginationCode = n2.OriginationCode OR (n1.OriginationCode IS NULL AND n2.OriginationCode IS NULL)) AND n1.RateTableDIDRateID < n2.RateTableDIDRateID;
+			n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID AND n1.CityTariff = n2.CityTariff AND n1.RateTableDIDRateID < n2.RateTableDIDRateID;
 
 		SELECT * FROM tmp_RateTableDIDRate_
 		ORDER BY
+				 CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryDESC') THEN Country
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryASC') THEN Country
+             END ASC,
+				 CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+             END ASC,
 				 CASE
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
              END DESC,
@@ -1811,22 +1822,10 @@ BEGIN
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
              END ASC,
              CASE
-                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionDESC') THEN OriginationDescription
-             END DESC,
-             CASE
-                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN OriginationDescription
-             END ASC,
-				 CASE
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
              END DESC,
              CASE
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
-             END ASC,
-             CASE
-                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN Description
-             END DESC,
-             CASE
-                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
              END ASC,
              CASE
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffDESC') THEN CityTariff
@@ -1931,16 +1930,16 @@ BEGIN
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
              END ASC,
              CASE
-                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN updated_by
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN updated_by
              END DESC,
              CASE
-                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN updated_by
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN updated_by
              END ASC,
              CASE
-                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableDIDRateIDDESC') THEN RateTableDIDRateID
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
              END DESC,
              CASE
-                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableDIDRateIDASC') THEN RateTableDIDRateID
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
              END ASC
 		LIMIT
 			p_RowspPage
@@ -1958,6 +1957,7 @@ BEGIN
 	THEN
 		SELECT
 			Country,
+        	TimezoneTitle AS `Time of Day`,
 			OriginationCode,
 			Code AS DestinationCode,
 			CityTariff,
@@ -1983,10 +1983,9 @@ BEGIN
 	THEN
 		SELECT
 			Country,
+        	TimezoneTitle AS `Time of Day`,
 			OriginationCode,
-			OriginationDescription,
 			Code AS DestinationCode,
-			Description AS DestinationDescription,
 			CityTariff,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
@@ -2053,6 +2052,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
 	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
 		RateTableRateID INT,
+		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
 		OriginationDescription VARCHAR(200),
 		Code VARCHAR(50),
@@ -2080,12 +2080,14 @@ BEGIN
 		ConnectionFeeCurrency INT(11),
 		RateCurrencySymbol VARCHAR(255),
 		ConnectionFeeCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
 		INDEX tmp_RateTableRate_RateID (`Code`)
 	);
 
 	INSERT INTO tmp_RateTableRate_
 	SELECT
 		vra.RateTableRateID,
+		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
 		OriginationRate.Description AS OriginationDescription,
 		r.Code,
@@ -2112,17 +2114,20 @@ BEGIN
 		tblRateCurrency.CurrencyID AS RateCurrency,
 		tblConnectionFeeCurrency.CurrencyID AS ConnectionFeeCurrency,
 		IFNULL(tblRateCurrency.Symbol,'') AS RateCurrencySymbol,
-		IFNULL(tblConnectionFeeCurrency.Symbol,'') AS ConnectionFeeCurrencySymbol
+		IFNULL(tblConnectionFeeCurrency.Symbol,'') AS ConnectionFeeCurrencySymbol,
+		vra.TimezonesID
 	FROM
 		tblRateTableRateArchive vra
 	JOIN
 		tblRate r ON r.RateID=vra.RateId
+   INNER JOIN tblTimezones
+    	ON tblTimezones.TimezonesID = vra.TimezonesID
 	LEFT JOIN
 		tblRate AS OriginationRate ON OriginationRate.RateID = vra.OriginationRateID
-    LEFT JOIN tblCurrency AS tblRateCurrency
-        ON tblRateCurrency.CurrencyID = vra.RateCurrency
-    LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
-        ON tblConnectionFeeCurrency.CurrencyID = vra.ConnectionFeeCurrency
+   LEFT JOIN tblCurrency AS tblRateCurrency
+      ON tblRateCurrency.CurrencyID = vra.RateCurrency
+   LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+      ON tblConnectionFeeCurrency.CurrencyID = vra.ConnectionFeeCurrency
 	LEFT JOIN
 		tblRateTableRate vr ON vr.RateTableId = vra.RateTableId AND vr.RateId = vra.RateId AND vr.OriginationRateID = vra.OriginationRateID AND vr.TimezonesID = vra.TimezonesID
 	LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
@@ -2130,7 +2135,7 @@ BEGIN
 	WHERE
 		r.CompanyID = p_CompanyID AND
 		vra.RateTableId = p_RateTableID AND
-		vra.TimezonesID = p_TimezonesID AND
+		(p_TimezonesID IS NULL OR 	vra.TimezonesID = p_TimezonesID)AND
 		(p_CountryID IS NULL OR r.CountryID = p_CountryID) AND
 		(p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%')) AND
 		(p_origination_description is null OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%')) AND
@@ -2139,7 +2144,7 @@ BEGIN
 		(p_RoutingCategoryID IS NULL OR RC.RoutingCategoryID = p_RoutingCategoryID ) AND
 		(p_Preference IS NULL OR vra.Preference = p_Preference) AND
 		(p_Blocked IS NULL OR vra.Blocked = p_Blocked) AND
-		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
+		-- (p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
 		vr.RateTableRateID is NULL;
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate2_ as (select * from tmp_RateTableRate_);
@@ -2148,7 +2153,7 @@ BEGIN
 	FROM
 		tmp_RateTableRate_ n1, tmp_RateTableRate2_ n2
 	WHERE
-		n1.Code = n2.Code AND (n1.OriginationCode = n2.OriginationCode OR (n1.OriginationCode IS NULL AND n2.OriginationCode IS NULL)) AND n1.RateTableRateID < n2.RateTableRateID;
+		n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID AND n1.RateTableRateID < n2.RateTableRateID;
 
 	IF p_isExport = 0
 	THEN
@@ -2156,6 +2161,7 @@ BEGIN
 		THEN
 			SELECT
 				RateTableRateID AS ID,
+        		TimezoneTitle,
 				OriginationCode,
 				OriginationDescription,
 				Code,
@@ -2183,10 +2189,17 @@ BEGIN
 				RateCurrency,
 				ConnectionFeeCurrency,
 				RateCurrencySymbol,
-				ConnectionFeeCurrencySymbol
+				ConnectionFeeCurrencySymbol,
+				TimezonesID
 			FROM
 				tmp_RateTableRate_
 			ORDER BY
+				CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+            END ASC,
 				CASE
               	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
           	END DESC,
@@ -2260,17 +2273,29 @@ BEGIN
 					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
 				END ASC,
 				CASE
-					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN updated_by
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN updated_by
 				END DESC,
 				CASE
-					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN updated_by
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN updated_by
 				END ASC,
-				CASE
-					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableRateIDDESC') THEN RateTableRateID
-				END DESC,
-				CASE
-					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableRateIDASC') THEN RateTableRateID
-				END ASC
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+            END ASC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN RoutingCategoryName
+	         END DESC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN RoutingCategoryName
+	         END ASC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN Preference
+	         END DESC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN Preference
+	         END ASC
 			LIMIT
 				p_RowspPage
 			OFFSET
@@ -2284,6 +2309,7 @@ BEGIN
 
 			SELECT
 				group_concat(RateTableRateID) AS ID,
+				MAX(TimezoneTitle) AS TimezoneTitle,
 				group_concat(OriginationCode) AS OriginationCode,
 				OriginationDescription,
 				group_concat(Code) AS Code,
@@ -2311,12 +2337,19 @@ BEGIN
 				MAX(RateCurrency) AS RateCurrency,
 				MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency,
 				MAX(RateCurrencySymbol) AS RateCurrencySymbol,
-				MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol
+				MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol,
+				TimezonesID
 			FROM
 				tmp_RateTableRate_
 			GROUP BY
-				Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus
+				Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus, TimezonesID
 			ORDER BY
+				CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+            END ASC,
           	CASE
               	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN ANY_VALUE(OriginationCode)
           	END DESC,
@@ -2384,17 +2417,29 @@ BEGIN
 					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN ANY_VALUE(updated_at)
 				END ASC,
 				CASE
-					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN ANY_VALUE(updated_by)
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ANY_VALUE(updated_by)
 				END DESC,
 				CASE
-					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN ANY_VALUE(updated_by)
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ANY_VALUE(updated_by)
 				END ASC,
-				CASE
-					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableRateIDDESC') THEN ANY_VALUE(RateTableRateID)
-				END DESC,
-				CASE
-					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableRateIDASC') THEN ANY_VALUE(RateTableRateID)
-				END ASC
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ANY_VALUE(ApprovedBy)
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ANY_VALUE(ApprovedBy)
+            END ASC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN ANY_VALUE(RoutingCategoryName)
+	         END DESC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN ANY_VALUE(RoutingCategoryName)
+	         END ASC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN ANY_VALUE(Preference)
+	         END DESC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN ANY_VALUE(Preference)
+	         END ASC
 			LIMIT
 				p_RowspPage
 			OFFSET
@@ -2406,7 +2451,7 @@ BEGIN
 				SELECT
 	            Description
 	        	FROM tmp_RateTableRate_
-					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus
+					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus, TimezonesID
 			) totalcount;
 
 		END IF;
@@ -2421,6 +2466,7 @@ BEGIN
 
 		SET @stm1 = "
 			SELECT
+        		TimezoneTitle AS `Time of Day`,
 				OriginationCode,
 				OriginationDescription,
 				Code AS DestinationCode,
@@ -2523,9 +2569,7 @@ CREATE PROCEDURE `prc_GetRateTableDIDRate`(
 	IN `p_TimezonesID` INT,
 	IN `p_contryID` INT,
 	IN `p_origination_code` VARCHAR(50),
-	IN `p_origination_description` VARCHAR(50),
 	IN `p_code` VARCHAR(50),
-	IN `p_description` VARCHAR(50),
 	IN `p_CityTariff` VARCHAR(50),
 	IN `p_effective` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
@@ -2545,10 +2589,9 @@ BEGIN
 	CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
 		ID INT,
 		Country VARCHAR(200),
+		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
-		OriginationDescription VARCHAR(200),
 		Code VARCHAR(50),
-		Description VARCHAR(200),
 		CityTariff VARCHAR(50),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
@@ -2606,10 +2649,9 @@ BEGIN
     SELECT
 		RateTableDIDRateID AS ID,
 		tblCountry.Country,
+		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
-		OriginationRate.Description AS OriginationDescription,
 		tblRate.Code,
-		tblRate.Description,
 		CityTariff,
 		OneOffCost,
 		MonthlyCost,
@@ -2663,6 +2705,8 @@ BEGIN
     LEFT JOIN tblRateTableDIDRate
         ON tblRateTableDIDRate.RateID = tblRate.RateID
         AND tblRateTableDIDRate.RateTableId = p_RateTableId
+    INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = tblRateTableDIDRate.TimezonesID
     LEFT JOIN tblRate AS OriginationRate
     	  ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
     LEFT JOIN tblCountry
@@ -2698,9 +2742,7 @@ BEGIN
     WHERE		(tblRate.CompanyID = p_companyid)
 		AND (p_contryID is null OR tblRate.CountryID = p_contryID)
 		AND (p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
-		AND (p_origination_description is null OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%'))
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
-		AND (p_description is null OR tblRate.Description LIKE REPLACE(p_description, '*', '%'))
 		AND (p_CityTariff is null OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'))
 		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
@@ -2715,7 +2757,7 @@ BEGIN
 		THEN
 		   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableDIDRate4_ as (select * from tmp_RateTableDIDRate_);
          DELETE n1 FROM tmp_RateTableDIDRate_ n1, tmp_RateTableDIDRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
-		   AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID;
+		   AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID AND n1.CityTariff = n2.CityTariff;
 		END IF;
 
 
@@ -2723,29 +2765,30 @@ BEGIN
     THEN
 
        	SELECT * FROM tmp_RateTableDIDRate_
-					ORDER BY CASE
+					ORDER BY
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryDESC') THEN Country
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryASC') THEN Country
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionDESC') THEN OriginationDescription
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN OriginationDescription
-                END ASC,
-					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN Description
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
                 END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffDESC') THEN CityTariff
@@ -2850,16 +2893,16 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN ModifiedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN ModifiedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableDIDRateIDDESC') THEN RateTableDIDRateID
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableDIDRateIDASC') THEN RateTableDIDRateID
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
                 END ASC
 			LIMIT p_RowspPage OFFSET v_OffSet_;
 
@@ -2874,6 +2917,7 @@ BEGIN
     THEN
         SELECT
 			Country,
+        	TimezoneTitle AS `Time of Day`,
 			OriginationCode,
 			Code AS DestinationCode,
 			CityTariff,
@@ -2901,10 +2945,9 @@ BEGIN
     THEN
         SELECT
 			Country,
+        	TimezoneTitle AS `Time of Day`,
 			OriginationCode,
-			OriginationDescription,
 			Code AS DestinationCode,
-			Description AS DestinationDescription,
 			CityTariff,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
@@ -3175,6 +3218,9 @@ CREATE PROCEDURE `prc_GetRateTableRate`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
+
+
+
 )
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -3193,68 +3239,70 @@ BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
    CREATE TEMPORARY TABLE tmp_RateTableRate_ (
-        ID INT,
-        OriginationCode VARCHAR(50),
-        OriginationDescription VARCHAR(200),
-        Code VARCHAR(50),
-        Description VARCHAR(200),
-        Interval1 INT,
-        IntervalN INT,
+		ID INT,
+		TimezoneTitle VARCHAR(50),
+		OriginationCode VARCHAR(50),
+		OriginationDescription VARCHAR(200),
+		Code VARCHAR(50),
+		Description VARCHAR(200),
+		Interval1 INT,
+		IntervalN INT,
 		ConnectionFee DECIMAL(18, 6),
-        PreviousRate DECIMAL(18, 6),
-        Rate DECIMAL(18, 6),
-        RateN DECIMAL(18, 6),
-        EffectiveDate DATE,
-        EndDate DATE,
-        updated_at DATETIME,
-        ModifiedBy VARCHAR(50),
-        RateTableRateID INT,
-        OriginationRateID INT,
-        RateID INT,
-        RoutingCategoryID INT,
-        RoutingCategoryName VARCHAR(50),
-        Preference INT,
-        Blocked TINYINT,
-        ApprovedStatus TINYINT,
-        ApprovedBy VARCHAR(50),
-        ApprovedDate DATETIME,
+		PreviousRate DECIMAL(18, 6),
+		Rate DECIMAL(18, 6),
+		RateN DECIMAL(18, 6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		ModifiedBy VARCHAR(50),
+		RateTableRateID INT,
+		OriginationRateID INT,
+		RateID INT,
+		RoutingCategoryID INT,
+		RoutingCategoryName VARCHAR(50),
+		Preference INT,
+		Blocked TINYINT,
+		ApprovedStatus TINYINT,
+		ApprovedBy VARCHAR(50),
+		ApprovedDate DATETIME,
 		RateCurrency INT(11),
 		ConnectionFeeCurrency INT(11),
 		RateCurrencySymbol VARCHAR(255),
 		ConnectionFeeCurrencySymbol VARCHAR(255),
 		TimezonesID INT(11),
-        INDEX tmp_RateTableRate_RateID (`RateID`)
+		INDEX tmp_RateTableRate_RateID (`RateID`)
     );
 
 
 
     INSERT INTO tmp_RateTableRate_
     SELECT
-        RateTableRateID AS ID,
-        OriginationRate.Code AS OriginationCode,
-        OriginationRate.Description AS OriginationDescription,
-        tblRate.Code,
-        tblRate.Description,
-        ifnull(tblRateTableRate.Interval1,1) as Interval1,
-        ifnull(tblRateTableRate.IntervalN,1) as IntervalN,
+		RateTableRateID AS ID,
+		tblTimezones.Title AS TimezoneTitle,
+		OriginationRate.Code AS OriginationCode,
+		OriginationRate.Description AS OriginationDescription,
+		tblRate.Code,
+		tblRate.Description,
+		ifnull(tblRateTableRate.Interval1,1) as Interval1,
+		ifnull(tblRateTableRate.IntervalN,1) as IntervalN,
 		tblRateTableRate.ConnectionFee,
-        null as PreviousRate,
-        IFNULL(tblRateTableRate.Rate, 0) as Rate,
-        IFNULL(tblRateTableRate.RateN, 0) as RateN,
-        IFNULL(tblRateTableRate.EffectiveDate, NOW()) as EffectiveDate,
-        tblRateTableRate.EndDate,
-        tblRateTableRate.updated_at,
-        tblRateTableRate.ModifiedBy,
-        RateTableRateID,
-        OriginationRate.RateID AS OriginationRateID,
-        tblRate.RateID,
-        tblRateTableRate.RoutingCategoryID,
-        RC.Name AS RoutingCategoryName,
-        tblRateTableRate.Preference,
-        tblRateTableRate.Blocked,
-        tblRateTableRate.ApprovedStatus,
-        tblRateTableRate.ApprovedBy,
-        tblRateTableRate.ApprovedDate,
+		null as PreviousRate,
+		IFNULL(tblRateTableRate.Rate, 0) as Rate,
+		IFNULL(tblRateTableRate.RateN, 0) as RateN,
+		IFNULL(tblRateTableRate.EffectiveDate, NOW()) as EffectiveDate,
+		tblRateTableRate.EndDate,
+		tblRateTableRate.updated_at,
+		tblRateTableRate.ModifiedBy,
+		RateTableRateID,
+		OriginationRate.RateID AS OriginationRateID,
+		tblRate.RateID,
+		tblRateTableRate.RoutingCategoryID,
+		RC.Name AS RoutingCategoryName,
+		tblRateTableRate.Preference,
+		tblRateTableRate.Blocked,
+		tblRateTableRate.ApprovedStatus,
+		tblRateTableRate.ApprovedBy,
+		tblRateTableRate.ApprovedDate,
 		tblRateCurrency.CurrencyID AS RateCurrency,
 		tblConnectionFeeCurrency.CurrencyID AS ConnectionFeeCurrency,
 		IFNULL(tblRateCurrency.Symbol,'') AS RateCurrencySymbol,
@@ -3264,6 +3312,8 @@ BEGIN
     LEFT JOIN tblRateTableRate
         ON tblRateTableRate.RateID = tblRate.RateID
         AND tblRateTableRate.RateTableId = p_RateTableId
+    INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = tblRateTableRate.TimezonesID
     LEFT JOIN tblCurrency AS tblRateCurrency
         ON tblRateCurrency.CurrencyID = tblRateTableRate.RateCurrency
     LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
@@ -3296,7 +3346,7 @@ BEGIN
 		THEN
 		   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);
          DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
-		   AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID;
+		   AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID;
 		END IF;
 
 
@@ -3318,7 +3368,14 @@ BEGIN
 		IF p_view = 1
 		THEN
        	SELECT * FROM tmp_RateTableRate_
-					ORDER BY CASE
+					ORDER BY
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
                 END DESC,
                 CASE
@@ -3391,22 +3448,34 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN ModifiedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN ModifiedBy
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableRateIDDESC') THEN RateTableRateID
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableRateIDASC') THEN RateTableRateID
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
                 END ASC,
 				    CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ConnectionFee
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN ConnectionFee
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN RoutingCategoryName
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN RoutingCategoryName
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN Preference
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN Preference
                 END ASC
 			LIMIT p_RowspPage OFFSET v_OffSet_;
 
@@ -3415,9 +3484,15 @@ BEGIN
         	FROM tmp_RateTableRate_;
 
 		ELSE
-			SELECT group_concat(ID) AS ID,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,MAX(Description),MAX(Interval1),MAX(Intervaln),MAX(ConnectionFee),MAX(PreviousRate),MAX(Rate),MAX(RateN),MAX(EffectiveDate),MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate, MAX(RateCurrency) AS RateCurrency, MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency, MAX(RateCurrencySymbol) AS RateCurrencySymbol, MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol,TimezonesID FROM tmp_RateTableRate_
+			SELECT group_concat(ID) AS ID,MAX(TimezoneTitle) AS TimezoneTitle,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,MAX(Description),MAX(Interval1),MAX(Intervaln),MAX(ConnectionFee),MAX(PreviousRate),MAX(Rate),MAX(RateN),MAX(EffectiveDate),MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate, MAX(RateCurrency) AS RateCurrency, MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency, MAX(RateCurrencySymbol) AS RateCurrencySymbol, MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol,TimezonesID FROM tmp_RateTableRate_
 					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, ApprovedStatus, TimezonesID
 					ORDER BY
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN ANY_VALUE(OriginationCode)
                 END DESC,
@@ -3485,22 +3560,34 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN ANY_VALUE(updated_at)
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN ANY_VALUE(ModifiedBy)
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ANY_VALUE(ModifiedBy)
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN ANY_VALUE(ModifiedBy)
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ANY_VALUE(ModifiedBy)
                 END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableRateIDDESC') THEN ANY_VALUE(RateTableRateID)
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableRateIDASC') THEN ANY_VALUE(RateTableRateID)
-                END ASC,
-				    CASE
+				        CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ANY_VALUE(ConnectionFee)
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN ANY_VALUE(ConnectionFee)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ANY_VALUE(ApprovedBy)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ANY_VALUE(ApprovedBy)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN ANY_VALUE(RoutingCategoryName)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN ANY_VALUE(RoutingCategoryName)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN ANY_VALUE(Preference)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN ANY_VALUE(Preference)
                 END ASC
 			LIMIT p_RowspPage OFFSET v_OffSet_;
 
@@ -3525,6 +3612,7 @@ BEGIN
 
 		SET @stm1 = "
 			SELECT
+        		TimezoneTitle AS `Time of Day`,
 				OriginationCode,
 				OriginationDescription,
 				Code AS DestinationCode,
@@ -3567,49 +3655,6 @@ BEGIN
 		DEALLOCATE PREPARE stmt;
 
 	END IF;
-
-	 -- basic view
-    /*IF p_isExport = 10
-    THEN
-        SELECT
-            OriginationCode,
-            OriginationDescription,
-            Code AS DestinationCode,
-            Description AS DestinationDescription,
-            CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
-            ConnectionFee,
-            Rate,
-            RateN,
-            EffectiveDate,
-            RoutingCategoryName,
-            Preference,
-            Blocked,
-            ApprovedStatus
-        FROM   tmp_RateTableRate_;
-    END IF;
-
-	 -- advance view
-    IF p_isExport = 11
-    THEN
-        SELECT
-            OriginationCode,
-            OriginationDescription,
-            Code AS DestinationCode,
-            Description AS DestinationDescription,
-            CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
-            ConnectionFee,
-            PreviousRate,
-            Rate,
-            RateN,
-            EffectiveDate,
-            CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
-            RoutingCategoryName,
-            Preference,
-            CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`,
-            Blocked,
-            ApprovedStatus
-        FROM   tmp_RateTableRate_;
-    END IF;*/
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
@@ -11317,6 +11362,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTablePKGRate_;
 	CREATE TEMPORARY TABLE tmp_RateTablePKGRate_ (
 		ID INT,
+		TimezoneTitle VARCHAR(50),
 		Code VARCHAR(50),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
@@ -11325,7 +11371,7 @@ BEGIN
 		EffectiveDate DATE,
 		EndDate DATE,
 		updated_at DATETIME,
-		updated_by VARCHAR(50),
+		ModifiedBy VARCHAR(50),
 		RateTablePKGRateID INT,
 		RateID INT,
 		ApprovedStatus TINYINT,
@@ -11339,12 +11385,14 @@ BEGIN
 		MonthlyCostCurrencySymbol VARCHAR(255),
 		PackageCostPerMinuteCurrencySymbol VARCHAR(255),
 		RecordingCostPerMinuteCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
 		INDEX tmp_RateTablePKGRate_RateID (`Code`)
 	);
 
 	INSERT INTO tmp_RateTablePKGRate_
 	SELECT
 		vra.RateTablePKGRateID,
+		tblTimezones.Title AS TimezoneTitle,
 		r.Code,
 		vra.OneOffCost,
 		vra.MonthlyCost,
@@ -11353,7 +11401,7 @@ BEGIN
 		vra.EffectiveDate,
 		vra.EndDate,
 		vra.created_at AS updated_at,
-		vra.CreatedBy AS updated_by,
+		vra.CreatedBy AS ModifiedBy,
 		vra.RateTablePKGRateID,
 		vra.RateID,
 		vra.ApprovedStatus,
@@ -11366,11 +11414,14 @@ BEGIN
 		IFNULL(tblOneOffCostCurrency.Symbol,'') AS OneOffCostCurrencySymbol,
 		IFNULL(tblMonthlyCostCurrency.Symbol,'') AS MonthlyCostCurrencySymbol,
 		IFNULL(tblPackageCostPerMinuteCurrency.Symbol,'') AS PackageCostPerMinuteCurrencySymbol,
-		IFNULL(tblRecordingCostPerMinuteCurrency.Symbol,'') AS RecordingCostPerMinuteCurrencySymbol
+		IFNULL(tblRecordingCostPerMinuteCurrency.Symbol,'') AS RecordingCostPerMinuteCurrencySymbol,
+		vra.TimezonesID
 	FROM
 		tblRateTablePKGRateArchive vra
 	JOIN
 		tblRate r ON r.RateID=vra.RateId
+   INNER JOIN tblTimezones
+    	ON tblTimezones.TimezonesID = vra.TimezonesID
 	LEFT JOIN
 		tblRateTablePKGRate vr ON vr.RateTableId = vra.RateTableId AND vr.RateId = vra.RateId AND vr.TimezonesID = vra.TimezonesID
 	LEFT JOIN tblCurrency AS tblOneOffCostCurrency
@@ -11386,10 +11437,10 @@ BEGIN
 	WHERE
 		r.CompanyID = p_CompanyID AND
 		vra.RateTableId = p_RateTableID AND
-		vra.TimezonesID = p_TimezonesID AND
+		(p_TimezonesID IS NULL OR vra.TimezonesID = p_TimezonesID) AND
 		(p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%')) AND
 		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
-		vr.RateTablePKGRateID is NULL;
+		vr.RateTablePKGRateID IS NULL;
 
 	IF p_isExport = 0
 	THEN
@@ -11399,10 +11450,16 @@ BEGIN
 		FROM
 			tmp_RateTablePKGRate_ n1, tmp_RateTablePKGRate2_ n2
 		WHERE
-			n1.Code = n2.Code AND n1.RateTablePKGRateID < n2.RateTablePKGRateID;
+			n1.RateID = n2.RateID AND n1.TimezonesID = n2.TimezonesID AND n1.RateTablePKGRateID < n2.RateTablePKGRateID;
 
 		SELECT * FROM tmp_RateTablePKGRate_
 		ORDER BY
+			CASE
+	        	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+	     	END DESC,
+	     	CASE
+	        	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+	     	END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
 			END DESC,
@@ -11451,18 +11508,18 @@ BEGIN
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
 			END ASC,
-			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN updated_by
-			END DESC,
-			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN updated_by
-			END ASC,
-			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTablePKGRateIDDESC') THEN RateTablePKGRateID
-			END DESC,
-			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTablePKGRateIDASC') THEN RateTablePKGRateID
-			END ASC
+       	CASE
+           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
+       	END DESC,
+       	CASE
+           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
+       	END ASC,
+       	CASE
+           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+       	END DESC,
+       	CASE
+           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+       	END ASC
 		LIMIT
 			p_RowspPage
 		OFFSET
@@ -11477,6 +11534,7 @@ BEGIN
 	IF p_isExport = 1
 	THEN
 		SELECT
+        	TimezoneTitle AS `Time of Day`,
 			Code AS DestinationCode,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
@@ -11520,6 +11578,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTablePKGRate_;
 	CREATE TEMPORARY TABLE tmp_RateTablePKGRate_ (
 		ID INT,
+		TimezoneTitle VARCHAR(50),
 		Code VARCHAR(50),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
@@ -11550,6 +11609,7 @@ BEGIN
     INSERT INTO tmp_RateTablePKGRate_
     SELECT
 		RateTablePKGRateID AS ID,
+		tblTimezones.Title AS TimezoneTitle,
 		tblRate.Code,
 		OneOffCost,
 		MonthlyCost,
@@ -11577,6 +11637,8 @@ BEGIN
     LEFT JOIN tblRateTablePKGRate
         ON tblRateTablePKGRate.RateID = tblRate.RateID
         AND tblRateTablePKGRate.RateTableId = p_RateTableId
+    INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = tblRateTablePKGRate.TimezonesID
     LEFT JOIN tblCurrency AS tblOneOffCostCurrency
         ON tblOneOffCostCurrency.CurrencyID = tblRateTablePKGRate.OneOffCostCurrency
     LEFT JOIN tblCurrency AS tblMonthlyCostCurrency
@@ -11602,7 +11664,7 @@ BEGIN
 	THEN
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTablePKGRate4_ as (select * from tmp_RateTablePKGRate_);
 		DELETE n1 FROM tmp_RateTablePKGRate_ n1, tmp_RateTablePKGRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
-			AND  n1.RateID = n2.RateID;
+			AND  n1.RateID = n2.RateID AND n1.TimezonesID = n2.TimezonesID;
 	END IF;
 
 
@@ -11611,7 +11673,13 @@ BEGIN
 
        	SELECT * FROM tmp_RateTablePKGRate_
 			ORDER BY
-				CASE
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
                 END DESC,
                 CASE
@@ -11660,16 +11728,16 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN ModifiedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN ModifiedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTablePKGRateIDDESC') THEN RateTablePKGRateID
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTablePKGRateIDASC') THEN RateTablePKGRateID
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
                 END ASC
 			LIMIT p_RowspPage OFFSET v_OffSet_;
 
@@ -11682,6 +11750,7 @@ BEGIN
     IF p_isExport = 1
     THEN
         SELECT
+        	TimezoneTitle AS `Time of Day`,
 			Code AS PackageName,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
@@ -13966,9 +14035,7 @@ CREATE PROCEDURE `prc_GetRateTableDIDRateAA`(
 	IN `p_TimezonesID` INT,
 	IN `p_contryID` INT,
 	IN `p_origination_code` VARCHAR(50),
-	IN `p_origination_description` VARCHAR(50),
 	IN `p_code` VARCHAR(50),
-	IN `p_description` VARCHAR(50),
 	IN `p_CityTariff` VARCHAR(50),
 	IN `p_effective` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
@@ -13988,10 +14055,9 @@ BEGIN
 	CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
 		ID INT,
 		Country VARCHAR(200),
+		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
-		OriginationDescription VARCHAR(200),
 		Code VARCHAR(50),
-		Description VARCHAR(200),
 		CityTariff VARCHAR(50),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
@@ -14049,10 +14115,9 @@ BEGIN
     SELECT
 		RateTableDIDRateAAID AS ID,
 		tblCountry.Country,
+		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
-		OriginationRate.Description AS OriginationDescription,
 		tblRate.Code,
-		tblRate.Description,
 		CityTariff,
 		OneOffCost,
 		MonthlyCost,
@@ -14106,6 +14171,8 @@ BEGIN
     LEFT JOIN tblRateTableDIDRateAA AS tblRateTableDIDRate
         ON tblRateTableDIDRate.RateID = tblRate.RateID
         AND tblRateTableDIDRate.RateTableId = p_RateTableId
+    INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = tblRateTableDIDRate.TimezonesID
     LEFT JOIN tblRate AS OriginationRate
     	  ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
     LEFT JOIN tblCountry
@@ -14141,9 +14208,7 @@ BEGIN
     WHERE		(tblRate.CompanyID = p_companyid)
 		AND (p_contryID is null OR tblRate.CountryID = p_contryID)
 		AND (p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
-		AND (p_origination_description is null OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%'))
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
-		AND (p_description is null OR tblRate.Description LIKE REPLACE(p_description, '*', '%'))
 		AND (p_CityTariff is null OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'))
 	--	AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
@@ -14166,29 +14231,30 @@ BEGIN
     THEN
 
        	SELECT * FROM tmp_RateTableDIDRate_
-					ORDER BY CASE
+					ORDER BY
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryDESC') THEN Country
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryASC') THEN Country
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionDESC') THEN OriginationDescription
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN OriginationDescription
-                END ASC,
-					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
-                END ASC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN Description
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
                 END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffDESC') THEN CityTariff
@@ -14293,10 +14359,16 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN ModifiedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN ModifiedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
                 END ASC
 			LIMIT p_RowspPage OFFSET v_OffSet_;
 
@@ -14311,6 +14383,7 @@ BEGIN
     THEN
         SELECT
 			Country,
+        	TimezoneTitle AS `Time of Day`,
 			OriginationCode,
 			Code AS DestinationCode,
 			CityTariff,
@@ -14338,10 +14411,9 @@ BEGIN
     THEN
         SELECT
 			Country,
+        	TimezoneTitle AS `Time of Day`,
 			OriginationCode,
-			OriginationDescription,
 			Code AS DestinationCode,
-			Description AS DestinationDescription,
 			CityTariff,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
@@ -14396,6 +14468,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTablePKGRate_;
 	CREATE TEMPORARY TABLE tmp_RateTablePKGRate_ (
 		ID INT,
+		TimezoneTitle VARCHAR(50),
 		Code VARCHAR(50),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
@@ -14426,6 +14499,7 @@ BEGIN
     INSERT INTO tmp_RateTablePKGRate_
     SELECT
 		RateTablePKGRateAAID AS ID,
+		tblTimezones.Title AS TimezoneTitle,
 		tblRate.Code,
 		OneOffCost,
 		MonthlyCost,
@@ -14453,6 +14527,8 @@ BEGIN
     LEFT JOIN tblRateTablePKGRateAA AS tblRateTablePKGRate
         ON tblRateTablePKGRate.RateID = tblRate.RateID
         AND tblRateTablePKGRate.RateTableId = p_RateTableId
+    INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = tblRateTablePKGRate.TimezonesID
     LEFT JOIN tblCurrency AS tblOneOffCostCurrency
         ON tblOneOffCostCurrency.CurrencyID = tblRateTablePKGRate.OneOffCostCurrency
     LEFT JOIN tblCurrency AS tblMonthlyCostCurrency
@@ -14487,7 +14563,13 @@ BEGIN
 
        	SELECT * FROM tmp_RateTablePKGRate_
 			ORDER BY
-				CASE
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
                 END DESC,
                 CASE
@@ -14536,10 +14618,16 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN ModifiedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN ModifiedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
                 END ASC
 			LIMIT p_RowspPage OFFSET v_OffSet_;
 
@@ -14552,6 +14640,7 @@ BEGIN
     IF p_isExport = 1
     THEN
         SELECT
+        	TimezoneTitle AS `Time of Day`,
 			Code AS PackageName,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
@@ -14604,6 +14693,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
 	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
 		ID INT,
+		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
 		OriginationDescription VARCHAR(200),
 		Code VARCHAR(50),
@@ -14641,6 +14731,7 @@ BEGIN
 	INSERT INTO tmp_RateTableRate_
 	SELECT
 		RateTableRateAAID AS ID,
+		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
 		OriginationRate.Description AS OriginationDescription,
 		tblRate.Code,
@@ -14674,6 +14765,8 @@ BEGIN
 	LEFT JOIN tblRateTableRateAA AS tblRateTableRate
 		ON tblRateTableRate.RateID = tblRate.RateID
 		AND tblRateTableRate.RateTableId = p_RateTableId
+   INNER JOIN tblTimezones
+    	ON tblTimezones.TimezonesID = tblRateTableRate.TimezonesID
 	LEFT JOIN tblCurrency AS tblRateCurrency
 		ON tblRateCurrency.CurrencyID = tblRateTableRate.RateCurrency
 	LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
@@ -14701,7 +14794,7 @@ BEGIN
 	THEN
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);
 		DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
-		AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID;
+		AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID;
 	END IF;
 
 
@@ -14709,7 +14802,14 @@ BEGIN
 	THEN
 
 		SELECT * FROM tmp_RateTableRate_
-		ORDER BY CASE
+		ORDER BY
+			CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+         END DESC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+         END ASC,
+			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
 			END DESC,
 			CASE
@@ -14782,23 +14882,35 @@ BEGIN
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
 			END ASC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN ModifiedBy
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
 			END DESC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN ModifiedBy
-			END ASC,
-			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableRateIDDESC') THEN RateTableRateID
-			END DESC,
-			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateTableRateIDASC') THEN RateTableRateID
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ConnectionFee
 			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN ConnectionFee
-			END ASC
+			END ASC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+         END DESC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+         END ASC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN RoutingCategoryName
+         END DESC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN RoutingCategoryName
+         END ASC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN Preference
+         END DESC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN Preference
+         END ASC
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 
 		SELECT
@@ -14815,6 +14927,7 @@ BEGIN
 
 		SET @stm1 = "
 			SELECT
+        		TimezoneTitle AS `Time of Day`,
 				OriginationCode,
 				OriginationDescription,
 				Code AS DestinationCode,

@@ -13,13 +13,13 @@
                     <input type="text" name="title" class="form-control" value="" />
                 </div>
                 
-                            <div class="form-group">
+                            <div class="form-group hidden-xs hidden-sm hidden-md hidden-lg">
                                 <label for="field-5" class="control-label">Tax Type</label>
-                                {{ Form::select('TaxType',TaxRate::$tax_array,'', array("class"=>"select2",'id'=>'TaxTypeID')) }}
+                                {{ Form::select('TaxType',TaxRate::$tax_array_filter,'', array("class"=>"select2",'id'=>'TaxTypeID')) }}
                             </div>
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Country</label>
-                                {{ Form::select('Country',TaxRate::$tax_countries_array,'All', array("class"=>"select2",'id'=>'Country')) }}
+                                {{ Form::select('Country',TaxRate::$tax_countries_filter,'All', array("class"=>"select2",'id'=>'Country')) }}
                             </div>
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Dutch Provider</label>
@@ -38,7 +38,7 @@
                                     </p>
                                     </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group hidden-xs hidden-sm hidden-md hidden-lg">
                                 <label for="field-5" class="control-label">Flat</label>
                                 
                                     <p class="make-switch switch-small">
@@ -80,6 +80,7 @@
     .checkicon{color:green; font-size: 17px;}
     .timesicon{color:red; font-size: 17px;}
     .aligncenter { text-align: center; }
+    
 </style>
 
 <p style="text-align: right !important;">
@@ -95,9 +96,9 @@
     <thead>
     <tr>
         <th width="15%">Title</th>
-        <th width="10%">Tax Type</th>
-        <th width="10%">Amount</th>
-        <th width="10%">Flat</th>
+        
+        <th width="10%">Vat %</th>
+        
         <th width="10%">Country</th>
         <th width="10%">Dutch Provider</th>
         <th width="10%">Dutch Foundation</th>
@@ -148,16 +149,16 @@ var postdata;
              "aoColumns":
             [
                 {  "bSortable": true },  //0  TaxRateTitle', '', '', '
-                {  "bSortable": true, mRender: function ( data, type, full ) {
+                /*{  "bSortable": true, "bVisible":false, mRender: function ( data, type, full ) {
                     if(data == 2) {return "Usage Only";}
                     else if(data == 3){return "Recurring";}
                     else {return "All Charges overall Invoice";}
-                }  }, //1   TaxRateAmount
+                }  }, //1   TaxRateAmount*/
                 {  "bSortable": true},
-                {  "bSortable": true, "sClass":"aligncenter",mRender: function ( data, type, full ) {
+                /*{  "bSortable": true, "sClass":"aligncenter",mRender: function ( data, type, full ) {
                      
                     if(data == 1) {var display = "<i class='fa fa-check-circle checkicon'></i>";} else {var display = "<i class='fa fa-times-circle timesicon'></i>";}
-                    return display;} },
+                    return display;} },*/
                 {  "bSortable": true, mRender: function ( data, type, full ) {
                     if(data == 'NL'){return 'Netherlands';} else if(data == 'EU'){return 'EU Country';} else if(data == 'NEU'){return 'Non EU';} else{return data;}} },
                 {  "bSortable": true,"sClass":"aligncenter", mRender: function ( data, type, full ) {
@@ -171,12 +172,12 @@ var postdata;
                         var action , edit_ , show_ , delete_;
                          action = '<div class = "hiddenRowData" >';
                          action += '<input type = "hidden"  name = "Title" value = "' + full[0] + '" / >';
-                         action += '<input type = "hidden"  name = "Amount" value = "' + full[2] + '" / >';
-                         action += '<input type = "hidden"  name = "TaxType" value = "' + full[1] + '" / >';
-                         action += '<input type = "hidden"  name = "FlatStatus" value = "' + full[3] + '" / >';
-                         action += '<input type = "hidden"  name = "Country" value = "' + full[4] + '" / >';
-                         action += '<input type = "hidden"  name = "DutchProvider" value = "' + full[5] + '" / >';
-                         action += '<input type = "hidden"  name = "DutchFoundation" value = "' + full[6] + '" / >';
+                         action += '<input type = "hidden"  name = "Amount" value = "' + full[1] + '" / >';
+                         action += '<input type = "hidden"  name = "TaxType" value = "1" / >';
+                         action += '<input type = "hidden"  name = "FlatStatus" value = "0" / >';
+                         action += '<input type = "hidden"  name = "Country" value = "' + full[2] + '" / >';
+                         action += '<input type = "hidden"  name = "DutchProvider" value = "' + full[3] + '" / >';
+                         action += '<input type = "hidden"  name = "DutchFoundation" value = "' + full[4] + '" / >';
                          action += '</div>';
                          <?php if(User::checkCategoryPermission('TaxRates','Edit')){ ?>
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-taxrate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
@@ -236,16 +237,22 @@ $('#filter_submit').trigger('click');
 
     $('#add-new-taxrate').click(function(ev){
         ev.preventDefault();
+        $('[name="Country"]').prop('disabled', false);
+        $('p#custom').removeClass('deactivate');
+
         $('#add-new-taxrate-form').trigger("reset");
         $("#add-new-taxrate-form [name='TaxRateID']").val('');
-        $("#add-new-taxrate-form [name='Country']").select2('val','');
-        $("#add-new-taxrate-form [name='TaxType']").select2('val','');
+        
         $('#add-new-modal-taxrate h4').html('Add New TaxRate');
         $('#add-new-modal-taxrate').modal('show');
     });
     $('table tbody').on('click','.edit-taxrate',function(ev){
         ev.preventDefault();
         ev.stopPropagation();
+
+        $('[name="Country"]').prop('disabled', true);
+        $('p#custom').addClass('deactivate');
+
         $('#add-new-taxrate-form').trigger("reset");
         var prevrow = $(this).prev("div.hiddenRowData");
 
@@ -272,6 +279,7 @@ $('#filter_submit').trigger('click');
         }else{
             $('[name="DutchFoundationSt"]').prop('checked',false)
         }
+        
         $("#add-new-taxrate-form [name='TaxRateID']").val($(this).attr('data-id'));
         $('#add-new-modal-taxrate h4').html('Edit TaxRate');
         $('#add-new-modal-taxrate').modal('show');
@@ -402,27 +410,28 @@ function ajax_update(fullurl,data){
                                 <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
                              </div>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-6 hidden-xs hidden-sm hidden-md hidden-lg">
+                            <div class="form-group ">
+                                <label for="field-5" class="control-label">Tax Type</label>
+                                {{ Form::select('TaxType',TaxRate::$tax_array,'1', array("class"=>"select2",'id'=>'TaxTypeID')) }}
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Amount</label>
+                                <label for="field-5" class="control-label">Vat %</label>
                                 <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
                                 <input type="hidden" name="TaxRateID" >
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Tax Type</label>
-                                {{ Form::select('TaxType',TaxRate::$tax_array,'', array("class"=>"select2",'id'=>'TaxTypeID')) }}
-                            </div>
-                        </div>
-                        <div class="col-md-6">
+                        
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Country</label>
-                                {{ Form::select('Country',TaxRate::$tax_countries_array,'All', array("class"=>"select2",'id'=>'Country')) }}
+                                {{ Form::select('Country',TaxRate::$tax_countries_array,'NL', array("class"=>"select2",'id'=>'Country')) }}
                             </div>
                         </div>
                         <div class="clearfix"></div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 hidden-xs hidden-sm hidden-md hidden-lg">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Flat</label>
                                 <div class="clear">
@@ -437,7 +446,7 @@ function ajax_update(fullurl,data){
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Dutch Provider</label>
                                 <div class="clear">
-                                    <p class="make-switch switch-small">
+                                    <p class="make-switch switch-small" id="custom">
                                         <input type="checkbox"  name="DutchProviderSt" value="0">
                                         <input type="hidden"  name="DutchProvider" value="0">
                                     </p>
@@ -449,7 +458,7 @@ function ajax_update(fullurl,data){
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Dutch Foundation</label>
                                 <div class="clear">
-                                    <p class="make-switch switch-small">
+                                    <p class="make-switch switch-small" id="custom">
                                         <input type="checkbox"  name="DutchFoundationSt" value="0">
                                         <input type="hidden"  name="DutchFoundation" value="0">
                                     </p>
