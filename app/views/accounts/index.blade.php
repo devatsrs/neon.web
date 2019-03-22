@@ -502,9 +502,12 @@
                                         action += '&nbsp;<button redirecto="'+connection_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></button>';
                                     <?php } ?>
                                 } 								
-				if(full[27]==1){
-                                    action += '&nbsp;<button redirecto="" title="Partner" class="btn small_icons btn-info btn-xs"><i class="entypo-users"></i></button>';
-                                } 				
+				
+                                try{
+                                    if(full[27]==1){
+                                        action += '&nbsp;<button redirecto="" title="Partner" class="btn small_icons btn-info btn-xs"><i class="entypo-users"></i></button>';
+                                    }
+                                }catch(exe){}
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
                                 action +='<input type="hidden" name="address1" value="'+full[13]+'"/>';
                                 action +='<input type="hidden" name="address2" value="'+full[14]+'"/>';
@@ -1470,7 +1473,7 @@
                         </p>
                     </div>
                 </div>
-                <div id="" class="col-md-6">
+                <div id="" class="col-md-6 hide">
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox"  name="ResellerOwnerAddCheck">
