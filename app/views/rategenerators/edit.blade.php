@@ -286,7 +286,6 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <br>
                         <div class="" style="overflow: auto;">
                             <br/>
                             <input type="hidden" id="getIDs" name="getIDs" value=""/>
@@ -440,7 +439,6 @@
                             </div>
                         </div>
                         <div class="panel-body">
-                            <br>
                             <div class="" style="overflow: auto;">
                                 <br/>
                                 <input type="hidden" id="getRateIDs" name="getRateIDs" value=""/>
