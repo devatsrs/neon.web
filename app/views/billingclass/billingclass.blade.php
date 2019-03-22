@@ -55,10 +55,11 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
+                                <input type="hidden" class="form-control" name="TaxRateID[]" value="" />
+                                <!--<label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                                 <div class="col-sm-4">
                                     {{Form::select('TaxRateID[]', TaxRate::getTaxRateDropdownIDList($CompanyID), (isset($BillingClass->TaxRateID)? explode(',',$BillingClass->TaxRateID) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
-                                </div>
+                                </div>-->
                                 <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)*</label>
                                 <div class="col-sm-4">
                                     <div class="input-spinner">
@@ -156,12 +157,13 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                                 <input type="checkbox" @if( isset($BillingClass->InvoiceReminderStatus) && $BillingClass->InvoiceReminderStatus == 1 )checked="" @endif name="InvoiceReminderStatus" value="1">
                                             </div>
                                         </div>
-                                        <label class="col-sm-2 control-label">Send To Account Owner</label>
+                                        <input type="hidden" name="InvoiceReminder[AccountManager]" value="0">
+                                        <!--<label class="col-sm-2 control-label">Send To Account Owner</label>
                                         <div class="col-sm-4">
                                             <div class="make-switch switch-small">
                                                 <input type="checkbox" @if( isset($InvoiceReminders->AccountManager) && $InvoiceReminders->AccountManager == 1 )checked="" @endif name="InvoiceReminder[AccountManager]" value="1">
                                             </div>
-                                        </div>
+                                        </div>-->
                                     </div>
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">Send Copy To</label>
@@ -226,12 +228,13 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                                 <input type="checkbox" @if( isset($BillingClass->PaymentReminderStatus) && $BillingClass->PaymentReminderStatus == 1 )checked="" @endif name="PaymentReminderStatus" value="1">
                                             </div>
                                         </div>
-                                        <label class="col-sm-2 control-label">Send To Account Owner</label>
+                                        <input type="hidden" name="PaymentReminder[AccountManager]" value="0">
+                                        <!--<label class="col-sm-2 control-label">Send To Account Owner</label>
                                         <div class="col-sm-4">
                                             <div class="make-switch switch-small">
                                                 <input type="checkbox" @if( isset($PaymentReminders->AccountManager) && $PaymentReminders->AccountManager == 1 )checked="" @endif name="PaymentReminder[AccountManager]" value="1">
                                             </div>
-                                        </div>
+                                        </div>-->
                                     </div>
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">Send Copy To</label>
@@ -287,12 +290,13 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                         <input type="checkbox" @if( isset($BillingClass->LowBalanceReminderStatus) && $BillingClass->LowBalanceReminderStatus == 1 )checked="" @endif name="LowBalanceReminderStatus" value="1">
                                     </div>
                                 </div>
-                                <label class="col-sm-2 control-label">Send To Account Owner</label>
+                                <input type="hidden" name="LowBalanceReminder[AccountManager]" value="0">
+                                <!--<label class="col-sm-2 control-label">Send To Account Owner</label>
                                 <div class="col-sm-4">
                                     <div class="make-switch switch-small">
                                         <input type="checkbox" @if( isset($LowBalanceReminder->AccountManager) && $LowBalanceReminder->AccountManager == 1 )checked="" @endif name="LowBalanceReminder[AccountManager]" value="1">
                                     </div>
-                                </div>
+                                </div>-->
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Send Copy To</label>
@@ -347,12 +351,13 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                     <input type="checkbox" @if( isset($BillingClass->BalanceWarningStatus) && $BillingClass->BalanceWarningStatus == 1 )checked="" @endif name="BalanceWarningStatus" value="1">
                                 </div>
                             </div>
-                            <label class="col-sm-2 control-label">Send To Account Owner</label>
+                            <input type="hidden" name="BalanceWarning[AccountManager]" value="0">
+                            <!--<label class="col-sm-2 control-label">Send To Account Owner</label>
                             <div class="col-sm-4">
                                 <div class="make-switch switch-small">
                                     <input type="checkbox" @if( isset($BalanceWarning->AccountManager) && $BalanceWarning->AccountManager == 1 )checked="" @endif name="BalanceWarning[AccountManager]" value="1">
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Send Copy To</label>
