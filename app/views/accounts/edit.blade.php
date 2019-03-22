@@ -321,10 +321,6 @@
                         <div class="col-md-4">
                             {{ddl_language("", "LanguageID", ( isset($account->LanguageID)?$account->LanguageID:Translation::$default_lang_id ),"", "id")}}
                         </div>
-                        <label class="col-md-2 control-label">Taxes</label>
-                        <div class="col-md-4">
-                            {{Form::select('TaxRateID[]', TaxRate::getTaxRateDropdownIDList($account->CompanyId),(isset($account->TaxRateID)? explode(',',$account->TaxRateID) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
-                        </div>
                     </div>
 
                     <script>
@@ -722,6 +718,10 @@
                     <label class="col-md-2 control-label">Send Invoice via Email</label>
                     <div class="col-md-4">
                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
+                    </div>
+                    <label class="col-md-2 control-label">Vat Rates</label>
+                    <div class="col-md-4">
+                        {{Form::select('TaxRateID[]', TaxRate::getTaxRateDropdownIDList($account->CompanyId),(isset($account->TaxRateID)? explode(',',$account->TaxRateID) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
                     </div>
                 </div>
                 @if($hiden_class != '')
@@ -1483,7 +1483,6 @@
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
-                            alert(response.Taxes);
                             $("select[name='TaxRateID[]']").select2().select2('val',response.Taxes);
                         },
                         data: {

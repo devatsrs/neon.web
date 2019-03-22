@@ -252,10 +252,6 @@
                         <div class="col-md-4">
                             {{ddl_language("", "LanguageID", ( isset($AccountBilling->Language)?$AccountBilling->Language:Translation::$default_lang_id ),"", "id")}}
                         </div>
-                        <label class="col-md-2 control-label">Taxes</label>
-                        <div class="col-md-4">
-                            {{Form::select('TaxRateID[]', $TaxRates, array() ,array("class"=>"form-control select2",'multiple'))}}
-                        </div>
                     </div>
 
                     <div class="panel-title desc clear">
@@ -486,6 +482,10 @@
                     <label class="col-md-2 control-label">Send Invoice via Email</label>
                     <div class="col-md-4">
                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, "after_admin_review" ,array("class"=>"form-control select2"))}}
+                    </div>
+                    <label class="col-md-2 control-label">Vat Rates</label>
+                    <div class="col-md-4">
+                        {{Form::select('TaxRateID[]', $TaxRates, array() ,array("class"=>"form-control select2",'multiple'))}}
                     </div>
                 </div>
 
