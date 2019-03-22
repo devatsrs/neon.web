@@ -1,3 +1,4 @@
+use speakintelligentRM;
 -- --------------------------------------------------------
 -- Host:                         188.227.186.98
 -- Server version:               5.7.18 - MySQL Community Server (GPL)
@@ -10,7 +11,6 @@
 /*!50503 SET NAMES utf8mb4 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-use speakintelligentRM;
 
 -- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTableDID
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTableDID`;
@@ -24,6 +24,7 @@ CREATE PROCEDURE `prc_WSGenerateRateTableDID`(
 	IN `p_delete_exiting_rate` INT,
 	IN `p_EffectiveRate` VARCHAR(50),
 	IN `p_ModifiedBy` VARCHAR(50)
+
 )
 GenerateRateTable:BEGIN
 
@@ -628,6 +629,13 @@ GenerateRateTable:BEGIN
 		insert into tmp_timezone_minutes_3 (TimezonesID, minutes) select TimezonesID, minutes from tmp_timezone_minutes;
 
 
+/*
+SET @p_CountryID = '' ;
+SET @p_CityTariff = '' ;
+SET @p_Prefix = '' ;
+SET @p_AccessType = '' ;
+*/
+
 		-- ///////////////////////////////////////////////////// Timezone minutes logic
 
 
@@ -1048,11 +1056,13 @@ GenerateRateTable:BEGIN
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		 		inner join tblCountry c on c.CountryID = r.CountryID
-				inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
-				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
-				AND ( @p_AccessType = '' OR  drtr.AccessType = @p_AccessType  )
-				AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff AND st.city_tariff  =  drtr.CityTariff )
-				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+
+				-- inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
+				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID ) -- AND (st.country IS NOT NULL AND c.Country = st.country) )
+				AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff ) -- AND st.city_tariff  =  drtr.CityTariff )
+				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) ) ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+				AND ( @p_AccessType = '' OR drtr.AccessType = @p_AccessType ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+
 
 				inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
 				left join tmp_origination_minutes tom  on r2.Code = tom.OriginationCode
@@ -1499,11 +1509,12 @@ GenerateRateTable:BEGIN
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		 		inner join tblCountry c on c.CountryID = r.CountryID
-				inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
-				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID AND c.Country = st.country )
-				AND ( @p_AccessType = '' OR  drtr.AccessType = @p_AccessType  )
-				AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff AND st.city_tariff  =  drtr.CityTariff )
-				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+
+				-- inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
+				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID ) -- AND (st.country IS NOT NULL AND c.Country = st.country) )
+				AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff ) -- AND st.city_tariff  =  drtr.CityTariff )
+				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) ) ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+				AND ( @p_AccessType = '' OR drtr.AccessType = @p_AccessType ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
 
 
 				inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
@@ -1887,8 +1898,6 @@ GenerateRateTable:BEGIN
 									ToTimezonesID,
 									Action,
 									MergeTo,
-									updated_at,
-									created_at,
 									FromCountryID,
 									ToCountryID,
 									FromAccessType,
@@ -2434,9 +2443,9 @@ GenerateRateTable:BEGIN
 
 
 	 -- testing output
-		-- select * from tmp_SelectedVendortblRateTableDIDRate;
+	--	 select * from tmp_SelectedVendortblRateTableDIDRate;
 
-	--	 leave GenerateRateTable;
+		-- leave GenerateRateTable;
 
 
 		SET @v_SelectedRateTableID = ( select RateTableID from tmp_SelectedVendortblRateTableDIDRate limit 1 );
