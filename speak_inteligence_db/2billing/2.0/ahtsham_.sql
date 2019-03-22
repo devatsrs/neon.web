@@ -1,6 +1,8 @@
-DELIMITER $$
+USE `speakintelligentRM`;
 
-USE `speakintelligentRM`$$
+ALTER TABLE `tblBillingClass` ADD COLUMN `ResellerID` INT(11) NULL DEFAULT NULL AFTER `ResellerOwner`;
+	
+DELIMITER $$
 
 DROP PROCEDURE IF EXISTS `prc_getBillingClass`$$
 
