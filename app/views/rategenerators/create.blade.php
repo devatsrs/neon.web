@@ -252,11 +252,6 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
-                            <i></i>
-                            +
-                        </button>
-                        <br>
                         <div class="" style="overflow: auto;">
                             <br/>
                             <input type="hidden" id="getIDs" name="getIDs" value=""/>
@@ -278,7 +273,12 @@
                                     <th style="width:250px;" class="DID-Div">To City/Tariff</th>
                                     <th style="width:200px;" class="DID-Div">To Origination</th>
                                     <th style="width:200px;">To Time of Day</th>
-                                    <th style="width:40px !important;">Action</th>
+                                    <th style="width:40px !important;">
+                                        <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
+                                            <i></i>
+                                            +
+                                        </button>
+                                    </th>
                                 </tr>
                                 </thead>
                                 <tbody id="tbody">
@@ -354,11 +354,6 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
-                            <i></i>
-                            +
-                        </button>
-                        <br>
                         <div class="" style=" overflow: auto;">
                             <br/>
                             <input type="hidden" id="getRateIDs" name="getRateIDs" value=""/>
@@ -374,7 +369,12 @@
                                     <th style="width:200px !important;">Time of Day</th>
                                     <th style="width:200px !important;">Calculated Rate</th>
                                     <th style="width:200px !important;">Change Rate To</th>
-                                    <th style="width:40px !important;">Action</th>
+                                    <th style="width:40px !important;">
+                                        <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
+                                            <i></i>
+                                            +
+                                        </button>
+                                    </th>
                                 </tr>
                                 </thead>
                                 <tbody id="ratetbody">
