@@ -202,7 +202,7 @@ class AccountsController extends \BaseController {
         $dynamicfields = Account::getDynamicfields('account',0);
         $reseller_owners = Reseller::getDropdownIDList($company_id);
         //As per new question call the routing profile model for fetch the routing profile list.
-        $routingprofile = RoutingProfiles::getRoutingProfile($company_id);
+        $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
         $TaxRates = TaxRate::getTaxRateDropdownIDList($company_id);
         //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
@@ -264,7 +264,7 @@ class AccountsController extends \BaseController {
         }
 
         if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
-            return Response::json(array("status" => "failed", "message" => "One of the option should be checked in Vendor, Customer and Partner."));
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
         unset($data['ResellerOwner']);
         unset($data['routingprofile']);
@@ -906,7 +906,7 @@ class AccountsController extends \BaseController {
         //----------------------------------------------------------------------
 
         $UserCompanyID = User::get_companyID();
-        $routingprofile = RoutingProfiles::getRoutingProfile($UserCompanyID);
+        $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $UserCompanyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
 
@@ -994,7 +994,7 @@ class AccountsController extends \BaseController {
         }
 
         if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
-            return Response::json(array("status" => "failed", "message" => "One of the option should be checked in Vendor, Customer and Partner."));
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
