@@ -291,6 +291,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 	Route::any('accounts/getNextBillingDate', 'AccountsController@getNextBillingDate');
 	Route::post('paymentprofile/ingenicoadd','AccountsPaymentProfileController@AddIngenico');
+	Route::any('accounts/getAccountTaxes', 'AccountsController@getAccountTaxes');
 	//Account Subscription
 	Route::any('account_subscription', 'AccountSubscriptionController@main');
 	Route::any('account_subscription/ajax_datagrid_page', 'AccountSubscriptionController@ajax_datagrid_page');

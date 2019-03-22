@@ -321,6 +321,10 @@
                         <div class="col-md-4">
                             {{ddl_language("", "LanguageID", ( isset($account->LanguageID)?$account->LanguageID:Translation::$default_lang_id ),"", "id")}}
                         </div>
+                        <label class="col-md-2 control-label">Taxes</label>
+                        <div class="col-md-4">
+                            {{Form::select('TaxRateID[]', TaxRate::getTaxRateDropdownIDList($account->CompanyId),(isset($account->TaxRateID)? explode(',',$account->TaxRateID) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
+                        </div>
                     </div>
 
                     <script>
@@ -1453,6 +1457,44 @@
 
                 });
 
+                return true;
+            }
+            $('[name="Country"]').on( "change",function(e){
+                changeTaxes();
+            });
+            $('[name="RegisterDutchFoundation"]').on( "change",function(e){
+                changeTaxes();
+            });
+            $('[name="DutchProvider"]').on( "change",function(e){
+                changeTaxes();
+            });
+
+            function changeTaxes(){
+                var CompanyID = '{{$account->CompanyId}}';
+                var Country = $('select[name="Country"]').val();
+                var RegisterDutchFoundation = $('[name="RegisterDutchFoundation"]').prop("checked");
+                var DutchProvider = $('[name="DutchProvider"]').prop("checked");
+                if(Country=='' || RegisterDutchFoundation==undefined || DutchProvider==undefined){
+                    $("select[name='TaxRateID[]']").select2().select2('val','');
+                }else{
+                    getAccountTaxes_url =  '{{ URL::to('accounts/getAccountTaxes')}}';
+                    $.ajax({
+                        url: getAccountTaxes_url,
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            alert(response.Taxes);
+                            $("select[name='TaxRateID[]']").select2().select2('val',response.Taxes);
+                        },
+                        data: {
+                            "Country":Country,
+                            "RegisterDutchFoundation":RegisterDutchFoundation,
+                            "DutchProvider":DutchProvider,
+                            "CompanyID":CompanyID
+                        }
+
+                    });
+                }
                 return true;
             }
 
