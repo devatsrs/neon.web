@@ -129,14 +129,15 @@ public function main() {
         $verifier->setConnection('sqlsrv2');
 
         $rules = array(
-            'AccountID'         =>      'required',
+           // 'AccountID'         =>      'required',
             'SubscriptionID'    =>  'required',
             'StartDate'               =>'required',
-			'MonthlyFee' => 'required|numeric',
-            'WeeklyFee' => 'required|numeric',
-            'DailyFee' => 'required|numeric',
-			 'ActivationFee' => 'required|numeric',
-			 'Qty' => 'required|numeric',
+            'EndDate'               =>'required',
+		//	'MonthlyFee' => 'required|numeric',
+           // 'WeeklyFee' => 'required|numeric',
+           // 'DailyFee' => 'required|numeric',
+		//	 'ActivationFee' => 'required|numeric',
+		//	 'Qty' => 'required|numeric',
 
             //'EndDate'               =>'required'
         );
@@ -144,12 +145,12 @@ public function main() {
 //            $rules['StartDate'] = 'required|date|before:EndDate';
 //            $rules['EndDate'] = 'required|date';
 //        }
-//        $validator = Validator::make($data, $rules);
-//        $validator->setPresenceVerifier($verifier);
-//
-//        if ($validator->fails()) {
-//            return json_validator_response($validator);
-//        }
+        $validator = Validator::make($data, $rules);
+        $validator->setPresenceVerifier($verifier);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
         unset($data['Status_name']);
         if(empty($data['SequenceNo'])){
             $SequenceNo = AccountSubscription::where(['AccountID'=>$data["AccountID"]])->max('SequenceNo');
