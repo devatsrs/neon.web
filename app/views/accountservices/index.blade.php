@@ -64,11 +64,11 @@
                                     <i class="entypo-plus"></i>&nbsp;Add New
                                 </a>
                             </li>
-                            <li>
+                            {{-- <li>
                                 <a href="javascript:void(0)" id="clone-services">
                                     <i class="fa fa-clone"></i>&nbsp;&nbsp;&nbsp;Clone
                                 </a>
-                            </li>
+                            </li> --}}
                         @endif
                         @if(User::checkCategoryPermission('AccountService','Edit'))
                             <li>
