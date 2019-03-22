@@ -1624,7 +1624,7 @@ GenerateRateTable:BEGIN
 
 							-- when approval process is on.
 
-							insert into  `tblRateTableRateAA` (
+							insert into  tblRateTableRateAA (
 													OriginationRateID,
 													RateID,
 													RateTableId,
@@ -1744,7 +1744,7 @@ GenerateRateTable:BEGIN
 
 
 
-							insert into  `tblRateTableRateAA` (
+							insert into  tblRateTableRateAA (
 													OriginationRateID,
 													RateID,
 													RateTableId,
@@ -1792,7 +1792,7 @@ GenerateRateTable:BEGIN
 											rtr.RoutingCategoryID,
 											rtr.Preference,
 											rtr.Blocked,
-											rtr.@v_RATE_STATUS_DELETE as ApprovedStatus,
+											@v_RATE_STATUS_DELETE as ApprovedStatus,
 											rtr.ApprovedBy,
 											rtr.ApprovedDate,
 											rtr.RateCurrency,
@@ -1869,7 +1869,7 @@ GenerateRateTable:BEGIN
 			-- when approval process is on.
 
 
-					INSERT INTO tblRateTableRateAA` (
+					INSERT INTO tblRateTableRateAA (
 											OriginationRateID,
 											RateID,
 											RateTableId,
@@ -1933,7 +1933,7 @@ GenerateRateTable:BEGIN
 
 					-- End All rates exists in tblRateTableRate but not exists in 	tmp_Rates_
 
-						insert into  `tblRateTableRateAA` (
+						insert into  tblRateTableRateAA (
 													OriginationRateID,
 													RateID,
 													RateTableId,
@@ -1981,7 +1981,7 @@ GenerateRateTable:BEGIN
 											rtr.RoutingCategoryID,
 											rtr.Preference,
 											rtr.Blocked,
-											rtr.@v_RATE_STATUS_DELETE as ApprovedStatus,
+											@v_RATE_STATUS_DELETE as ApprovedStatus,
 											rtr.ApprovedBy,
 											rtr.ApprovedDate,
 											rtr.RateCurrency,
