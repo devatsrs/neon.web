@@ -9,6 +9,14 @@
                 Filter
             </h2>
             <form role="form" id="rate-table-search" action="javascript:void(0);"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
+                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                    <div class="form-group">
+                        <label class="control-label">Status</label>
+                        {{ Form::select('ApprovedStatus', RateTable::$RateStatus, RateTable::RATE_STATUS_APPROVED, array("class"=>"select2")) }}
+                    </div>
+                @else
+                    <input type="hidden" name="ApprovedStatus" value="{{RateTable::RATE_STATUS_APPROVED}}" />
+                @endif
                 <div class="form-group">
                     <label class="control-label">Origination Code</label>
                     <input type="text" name="OriginationCode" class="form-control" placeholder="" />
@@ -39,7 +47,7 @@
                     {{ Form::select('Country', $countries, Input::old('Country') , array("class"=>"select2")) }}
                 </div>
 
-                <div class="form-group">
+                <div class="form-group filter_naa">
                     <label for="field-1" class="control-label">Discontinued Codes</label>
                     <p class="make-switch switch-small">
                         {{Form::checkbox('DiscontinuedRates', '1', false, array("id"=>"DiscontinuedRates"))}}
@@ -54,18 +62,6 @@
                         <option value="Future">Future</option>
                     </select>
                 </div>
-
-                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                    <div class="form-group">
-                        <label class="control-label">Status</label>
-                        <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
-                            <option value="" selected="selected">All</option>
-                            <option value="1">Approved</option>
-                            <option value="2">Rejected</option>
-                            <option value="0">Awaiting Approval</option>
-                        </select>
-                    </div>
-                @endif
 
                 <div class="form-group">
                     <br/>
@@ -154,10 +150,9 @@
                 </div>
             </th>
             <th width="10%">Country</th>
+            <th width="10%">Time of Day</th>
             <th width="4%">Orig. Code</th>
-            <th width="10%">Orig. Description</th>
             <th width="4%">Code</th>
-            <th width="10%">Description</th>
             <th width="10%">City/Tariff</th>
             <th width="3%">One-Off Cost</th>
             <th width="3%">Monthly Cost</th>
@@ -193,7 +188,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','Country','OriginationCode','OriginationDescription','Code','Description','CityTariff','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'CostPerCallCurrencySymbol', 'CostPerMinuteCurrencySymbol', 'SurchargePerCallCurrencySymbol', 'SurchargePerMinuteCurrencySymbol', 'OutpaymentPerCallCurrencySymbol', 'OutpaymentPerMinuteCurrencySymbol', 'SurchargesCurrencySymbol', 'ChargebackCurrencySymbol', 'CollectionCostAmountCurrencySymbol', 'RegistrationCostPerNumberCurrencySymbol','TimezonesID'];
+        var list_fields  = ['ID','Country','TimezoneTitle','OriginationCode','Code','CityTariff','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'CostPerCallCurrencySymbol', 'CostPerMinuteCurrencySymbol', 'SurchargePerCallCurrencySymbol', 'SurchargePerMinuteCurrencySymbol', 'OutpaymentPerCallCurrencySymbol', 'OutpaymentPerMinuteCurrencySymbol', 'SurchargesCurrencySymbol', 'ChargebackCurrencySymbol', 'CollectionCostAmountCurrencySymbol', 'RegistrationCostPerNumberCurrencySymbol','TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -269,6 +264,7 @@
                     }
 
                     var formData = new FormData($('#clear-bulk-rate-form')[0]);
+                    formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
 
                     $.ajax({
                         url: baseurl + '/rate_tables/{{$id}}/clear_did_rate', //Server script to process data
@@ -347,6 +343,7 @@
         //Bulk Form and Edit Single Form Submit
         $("#bulk-edit-rate-table-form,#edit-rate-table-form").submit(function() {
             var formData = new FormData($(this)[0]);
+            formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
             $.ajax({
                 url: baseurl + '/rate_tables/{{$id}}/update_rate_table_did_rate', //Server script to process data
                 type: 'POST',
@@ -566,6 +563,14 @@
                 rateDataTable();
             }
         });
+
+        $(document).on('change','#rate-table-search select[name="ApprovedStatus"]',function(ev) {
+            if($(this).val() == {{RateTable::RATE_STATUS_APPROVED}}) {
+                $('.filter_naa').show();
+            } else {
+                $('.filter_naa').hide();
+            }
+        });
     });
 
     function rateDataTable() {
@@ -587,7 +592,7 @@
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
-        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val() != undefined ? $("#rate-table-search select[name='ApprovedStatus']").val() : '';
+        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search [name='ApprovedStatus']").val();
         $searchFilter.ratetablepageview = ratetablepageview;
 
         data_table = $("#table-4").DataTable({
@@ -608,7 +613,7 @@
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[3, "asc"]],
+            "aaSorting": [[4, "asc"]],
             "aoColumns":
                     [
                         {"bSortable": false,
@@ -616,11 +621,11 @@
                                 var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[27] == 2) {
+                                if (full[26] == {{RateTable::RATE_STATUS_REJECTED}}) {
                                     html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
-                                } else if (full[27] == 1) {
+                                } else if (full[26] == {{RateTable::RATE_STATUS_APPROVED}}) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
-                                } else if (full[27] == 0) {
+                                } else if (full[26] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                     html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
                                 }
                                 @endif
@@ -629,114 +634,109 @@
                             }
                         }, //0Checkbox
                         {}, //1 Country
+                        {}, //2 Timezones Title
                         {
-                            mRender: function(id, type, full) {
-                                return full[2];
+                            mRender: function(col, type, full) {
+                                return col;
                             },
                             "className":      'details-control',
                             "orderable":      false,
                             "data": null,
                             "defaultContent": ''
-                        }, //2 Origination Code
-                        {"bVisible" : bVisible}, //3 Origination description
+                        }, //3 Origination Code
+                        {}, //4 Destination Code
+                        {}, //5 CityTariff
                         {
-                            "bVisible" : true,
-                            mRender: function(id, type, full) {
-                                return full[4];
+                            mRender: function(col, type, full) {
+                                if(col != null && col != '') return full[41] + col; else return '';
                             }
-                        }, //4 Destination Code
-                        {"bVisible" : bVisible}, //5 Destination description
-                        {}, //6 CityTariff
+                        }, //6 OneOffCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[42] + col; else return '';
                             }
-                        }, //7 OneOffCost,
+                        }, //7 MonthlyCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[43] + col; else return '';
                             }
-                        }, //8 MonthlyCost,
+                        }, //8 CostPerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[44] + col; else return '';
                             }
-                        }, //9 CostPerCall,
+                        }, //9 CostPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[45] + col; else return '';
                             }
-                        }, //10 CostPerMinute,
+                        }, //10 SurchargePerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[46] + col; else return '';
                             }
-                        }, //11 SurchargePerCall,
+                        }, //11 SurchargePerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[47] + col; else return '';
                             }
-                        }, //12 SurchargePerMinute,
+                        }, //12 OutpaymentPerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[48] + col; else return '';
                             }
-                        }, //13 OutpaymentPerCall,
+                        }, //13 OutpaymentPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[49] + col; else return '';
                             }
-                        }, //14 OutpaymentPerMinute,
+                        }, //14 Surcharges,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[50] + col; else return '';
                             }
-                        }, //15 Surcharges,
+                        }, //15 Chargeback,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[51] + col; else return '';
                             }
-                        }, //16 Chargeback,
+                        }, //16 CollectionCostAmount,
+                        {}, //17 CollectionCostPercentage,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[52] + col; else return '';
                             }
-                        }, //17 CollectionCostAmount,
-                        {}, //18 CollectionCostPercentage,
-                        {
-                            mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[53] + col; else return '';
-                            }
-                        }, //19 RegistrationCostPerNumber,
-                        {}, //20 Effective Date
+                        }, //18 RegistrationCostPerNumber,
+                        {}, //19 Effective Date
                         {
                             "bVisible" : false
-                        }, //21 End Date
+                        }, //20 End Date
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
+                                full[21] = full[21] != null ? full[21] : '';
                                 full[22] = full[22] != null ? full[22] : '';
-                                full[23] = full[23] != null ? full[23] : '';
-                                if(full[22] != '' && full[23] != '')
-                                    return full[23] + '<br/>' + full[22]; // modified by/modified date
+                                if(full[21] != '' && full[22] != '')
+                                    return full[22] + '<br/>' + full[21]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //22/23 modified by/modified date
+                        }, //22/21 modified by/modified date
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
+                                full[27] = full[27] != null ? full[27] : '';
                                 full[28] = full[28] != null ? full[28] : '';
-                                full[29] = full[29] != null ? full[29] : '';
-                                if(full[28] != '' && full[29] != '')
-                                    return full[28] + '<br/>' + full[29]; // Approved Status Changed By/Approved Date
+                                if(full[27] != '' && full[28] != '')
+                                    return full[27] + '<br/>' + full[28]; // Approved Status Changed By/Approved Date
                                 else
                                     return '';
                             }
-                        }, //24/25 Approved Status Changed By/Approved Date
+                        }, //27/28 Approved Status Changed By/Approved Date
                         @endif
                         {
+                            "bSortable" : false,
                             mRender: function(id, type, full) {
                                 $('#actionheader').attr('width','10%');
                                 var action, edit_, delete_;
@@ -747,17 +747,23 @@
                                 action += '</div>';
 
                                 clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_did_rate')}}";
-                                clerRate_ = clerRate_.replace('{id}', full[24]);
+                                clerRate_ = clerRate_.replace('{id}', full[23]);
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
-                                    action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                    // if reject rates then don't show edit button else show
+                                    if (full[26] != {{RateTable::RATE_STATUS_REJECTED}}) {
+                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                    }
                                 }
                                 <?php } ?>
 
-                                        action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
+                                // if approved rates then show history button else hide it
+                                if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
+                                    action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
+                                }
 
-                                if (full[24] != null && full[24] != 0) {
+                                if (full[23] != null && full[23] != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
                                         action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
@@ -912,9 +918,9 @@
                 });
 
                 if(Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
-                    $('#change-bulk-rate').hide();
+                    $('#change-bulk-rate,#approve-bulk-rate,#disapprove-bulk-rate').hide();
                 } else {
-                    $('#change-bulk-rate').show();
+                    $('#change-bulk-rate,#approve-bulk-rate,#disapprove-bulk-rate').show();
                 }
 
                 if(DiscontinuedRates == 1) {

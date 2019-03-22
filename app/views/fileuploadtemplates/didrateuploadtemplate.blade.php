@@ -22,8 +22,8 @@
             <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
                 {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection->DialCodeSeparator)?$attrselection->DialCodeSeparator:''),array("class"=>"select2 small dialcodeseperator"))}}
             </div>
-            <label for="field-1" class="col-sm-2 control-label">Description*</label>
-            <div class="col-sm-4">
+            <label for="field-1" class="col-sm-2 control-label" style="display: none">Description*</label>
+            <div class="col-sm-4" style="display: none">
                 {{Form::select('selection[Description]', $columns,(isset($attrselection->Description)?$attrselection->Description:''),array("class"=>"select2 small"))}}
             </div>
         </div>

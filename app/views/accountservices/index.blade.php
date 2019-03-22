@@ -202,7 +202,7 @@
                                     }
                                     action += ' <a href="' + service_edit_url.replace("{id}",full[0]) +'" class="edit-service btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                                     <?php } ?>
-                                            action += ' <a data-id=' +full[0] +' class="clone-service btn-default btn btn-sm tooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i></a>';
+                                            //action += ' <a data-id=' +full[0] +' class="clone-service btn-default btn btn-sm tooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i></a>';
                                     <?php if(User::checkCategoryPermission('AccountService','Delete')) { ?>
                                             action += ' <a href="' + service_delete_url.replace("{id}",full[0]) +'" class="delete-service btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
                                     <?php } ?>

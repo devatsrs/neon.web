@@ -164,7 +164,7 @@
                                     @foreach($InvoiceDetail as $ProductRow)
                                         <tr>
                                             <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
-                                            <td>{{Form::SelectControl('item',0,['Type'=>$ProductRow->ProductType,'ID'=>$ProductRow->ProductID],0,'InvoiceDetail[ProductID][]')}}</td>
+                                            <td>{{Form::SelectControl('item_and_Subscription',0,['Type'=>$ProductRow->ProductType,'ID'=>$ProductRow->ProductID],0,'InvoiceDetail[ProductID][]')}}</td>
                                             <td>{{Form::textarea('InvoiceDetail[Description][]',$ProductRow->Description,array("class"=>"form-control autogrow invoice_estimate_textarea descriptions","rows"=>1))}}</td>
                                             <td class="text-center">{{Form::text('InvoiceDetail[Price][]', number_format($ProductRow->Price,$RoundChargesAmount),array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
                                             <td class="text-center">{{Form::text('InvoiceDetail[Qty][]',$ProductRow->Qty,array("class"=>"form-control Qty"))}}</td>
