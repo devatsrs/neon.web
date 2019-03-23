@@ -102,7 +102,7 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Settings</label>
                             <div class="col-sm-10">
-                                <div class="checkbox ">
+                                <div class="checkbox hidden">
                                     <label>
                                         <input type="hidden" name="checkbox_replace_all" value="0" >
                                         <input type="checkbox" id="rd-1" name="checkbox_replace_all" value="1" > Replace all of the existing rates with the rates from the file
