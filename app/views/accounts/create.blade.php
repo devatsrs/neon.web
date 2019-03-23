@@ -84,9 +84,10 @@
 
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">*Company Name</label>
+                        <label class="col-md-2 control-label">*Account Name</label>
                         <div class="col-md-4">
                             <input type="text" class="form-control" name="AccountName" data-validate="required" data-message-required="This is custom message for required field." placeholder="" value="{{Input::old('AccountName')}}" />
+                            <input type="hidden" class="form-control" name="CompanyID" value="{{$CompanyID}}" />
                         </div>
 
                         <label class="col-md-2 control-label">Phone</label>
@@ -482,6 +483,10 @@
                     <div class="col-md-4">
                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, "after_admin_review" ,array("class"=>"form-control select2"))}}
                     </div>
+                    <label class="col-md-2 control-label">Vat Rates</label>
+                    <div class="col-md-4">
+                        {{Form::select('TaxRateID[]', $TaxRates, array() ,array("class"=>"form-control select2",'multiple'))}}
+                    </div>
                 </div>
 
                 </div>
@@ -672,13 +677,15 @@
                 dataType: 'json',
                 success: function (response) {
                     if(response.status == "success"){
+                        $("[name='CompanyID']").val(response.CompanyID);
                         $.each(response.data, function(x, y){
                             var html = "";
                             $.each(y, function(ind, val){
                                 html += "<option value='" + ind + "'>" + val + "</option>"
                             });
-
-                            if(x == "BillingClass"){
+                             if(x == "TaxRates"){
+                                $("select[name='TaxRateID[]']").html(html).select2().select2('val','')
+                            } else if(x == "BillingClass"){
                                 $("[name='BillingClassID']").html(html).select2().select2('val','')
                             } else if(x == "TerminationDiscountPlan"){
                                 $("[name='DiscountPlanID']").html(html).select2().select2('val','')
@@ -688,6 +695,7 @@
                                 $("[name='PackageDiscountPlanID']").html(html).select2().select2('val','')
                             }
                         });
+                        changeTaxes();
 
                     } else
                         toastr.error(response.message, "Error", toastr_opts);
@@ -746,6 +754,45 @@
 
             });
 
+            return true;
+        }
+        $('[name="Country"]').trigger('change');
+        $('[name="Country"]').on( "change",function(e){
+            changeTaxes();
+        });
+        $('[name="RegisterDutchFoundation"]').on( "change",function(e){
+            changeTaxes();
+        });
+        $('[name="DutchProvider"]').on( "change",function(e){
+            changeTaxes();
+        });
+
+        function changeTaxes(){
+            var CompanyID = $("[name='CompanyID']").val();
+            var Country = $('select[name="Country"]').val();
+            var RegisterDutchFoundation = $('[name="RegisterDutchFoundation"]').prop("checked");
+            var DutchProvider = $('[name="DutchProvider"]').prop("checked");
+            if(Country=='' || RegisterDutchFoundation==undefined || DutchProvider==undefined){
+                $("select[name='TaxRateID[]']").select2().select2('val','');
+            }else{
+                getAccountTaxes_url =  '{{ URL::to('accounts/getAccountTaxes')}}';
+                $.ajax({
+                    url: getAccountTaxes_url,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(response) {
+                        $("select[name='TaxRateID[]']").select2().select2('val',response.Taxes);
+
+                    },
+                    data: {
+                        "Country":Country,
+                        "RegisterDutchFoundation":RegisterDutchFoundation,
+                        "DutchProvider":DutchProvider,
+                        "CompanyID":CompanyID
+                    }
+
+                });
+            }
             return true;
         }
 

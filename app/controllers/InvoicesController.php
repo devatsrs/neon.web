@@ -65,7 +65,7 @@ class InvoicesController extends \BaseController {
 		{
             $query .=',0,0,0,"",'.$userID.',"'.$data['tag'].'")';
         }
-
+        Log::info(json_encode($query));
 		$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
 		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
 		$result4  = array(
@@ -126,7 +126,7 @@ class InvoicesController extends \BaseController {
         }else{
             $query .=',0,0,0,"",'.$userID.',"'.$data['tag'].'")';
         }
-
+        
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
     /**
@@ -637,9 +637,18 @@ public function store_inv_in(){
 
                         if( in_array($field,["Price","Discount","TaxAmount","LineTotal"])){
                             $InvoiceDetailData[$i][$field] = str_replace(",","",$value);
+                        }else if($field == "ProductID"){
+                            if(!empty($value)) {
+                                $pid = explode('-', $value);
+                                $InvoiceDetailData[$i][$field] = $pid[1];
+                            } else {
+                                $InvoiceDetailData[$i][$field] = "";
+                            }
                         }else{
                             $InvoiceDetailData[$i][$field] = $value;
                         }
+
+
                         $InvoiceDetailData[$i]['StartDate'] = date('Y-m-d H:i:s', strtotime($data['StartDate']));
                         $InvoiceDetailData[$i]['EndDate'] = date('Y-m-d H:i:s', strtotime($data['EndDate']));
                         $InvoiceDetailData[$i]['TotalMinutes'] = $data['TotalMinutes'];
@@ -1110,7 +1119,15 @@ public function store_inv_in(){
                             foreach ($detail as $value) {                               
                                 if( in_array($field,["Price","Discount","TaxAmount","LineTotal"])){
                                     $InvoiceDetailData[$i][$field] = str_replace(",","",$value);
-                                }else{
+                                }
+                                else if($field == "ProductID"){
+                            if(!empty($value)) {
+                                $pid = explode('-', $value);
+                                $InvoiceDetailData[$i][$field] = $pid[1];
+                            } else {
+                                $InvoiceDetailData[$i][$field] = "";
+                            }
+                        }else{
                                     $InvoiceDetailData[$i][$field] = $value;
                                     $StockHistoryData[$i][$field] = $value;
                                 }

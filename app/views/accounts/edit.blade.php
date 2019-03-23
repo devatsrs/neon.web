@@ -121,7 +121,7 @@
 
                         </div>
                         <div class="form-group">
-                            <label class="col-md-2 control-label">*Company Name</label>
+                            <label class="col-md-2 control-label">*Account Name</label>
                             <div class="col-md-4">
                                 <input type="text" class="form-control" name="AccountName" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder=""  value="{{$account->AccountName}}"/>
                             </div>
@@ -718,6 +718,10 @@
                     <label class="col-md-2 control-label">Send Invoice via Email</label>
                     <div class="col-md-4">
                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
+                    </div>
+                    <label class="col-md-2 control-label">Vat Rates</label>
+                    <div class="col-md-4">
+                        {{Form::select('TaxRateID[]', TaxRate::getTaxRateDropdownIDList($account->CompanyId),(isset($account->TaxRateID)? explode(',',$account->TaxRateID) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
                     </div>
                 </div>
                 @if($hiden_class != '')
@@ -1453,6 +1457,43 @@
 
                 });
 
+                return true;
+            }
+            $('[name="Country"]').on( "change",function(e){
+                changeTaxes();
+            });
+            $('[name="RegisterDutchFoundation"]').on( "change",function(e){
+                changeTaxes();
+            });
+            $('[name="DutchProvider"]').on( "change",function(e){
+                changeTaxes();
+            });
+
+            function changeTaxes(){
+                var CompanyID = '{{$account->CompanyId}}';
+                var Country = $('select[name="Country"]').val();
+                var RegisterDutchFoundation = $('[name="RegisterDutchFoundation"]').prop("checked");
+                var DutchProvider = $('[name="DutchProvider"]').prop("checked");
+                if(Country=='' || RegisterDutchFoundation==undefined || DutchProvider==undefined){
+                    $("select[name='TaxRateID[]']").select2().select2('val','');
+                }else{
+                    getAccountTaxes_url =  '{{ URL::to('accounts/getAccountTaxes')}}';
+                    $.ajax({
+                        url: getAccountTaxes_url,
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            $("select[name='TaxRateID[]']").select2().select2('val',response.Taxes);
+                        },
+                        data: {
+                            "Country":Country,
+                            "RegisterDutchFoundation":RegisterDutchFoundation,
+                            "DutchProvider":DutchProvider,
+                            "CompanyID":CompanyID
+                        }
+
+                    });
+                }
                 return true;
             }
 

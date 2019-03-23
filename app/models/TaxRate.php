@@ -33,8 +33,9 @@ class TaxRate extends \Eloquent {
 
         $hasInBillingClass = BillingClass::whereRaw('FIND_IN_SET(?,TaxRateID)', [$id])->count();
         $hasInInvoiceTaxRate = InvoiceTaxRate::where("TaxRateID",$id)->count();
+        $hasInAccountTaxRate = Account::whereRaw('FIND_IN_SET(?,TaxRateID)', [$id])->count();
 
-        if( intval($hasInBillingClass) > 0 || intval($hasInInvoiceTaxRate) > 0 ){
+        if( intval($hasInBillingClass) > 0 || intval($hasInInvoiceTaxRate) > 0 || intval($hasInAccountTaxRate) > 0){
             return true;
         }else{
             return false;
@@ -56,6 +57,11 @@ class TaxRate extends \Eloquent {
     }
     public static function getTaxRateDropdownIDList($CompanyID){
 
+        $Taxes = TaxRate::where(array('CompanyID'=>$CompanyID))->lists('Title','TaxRateID');
+        $Taxes = array('' => "Select")+ $Taxes;
+        return $Taxes;
+
+        /** remove catch logic due to companyid problem
         if (self::$enable_cache && Cache::has('taxrate_dropdown1_cache')) {
             $admin_defaults = Cache::get('taxrate_dropdown1_cache');
             self::$cache['taxrate_dropdown1_cache'] = $admin_defaults['taxrate_dropdown1_cache'];
@@ -65,8 +71,7 @@ class TaxRate extends \Eloquent {
 
             Cache::forever('taxrate_dropdown1_cache', array('taxrate_dropdown1_cache' => self::$cache['taxrate_dropdown1_cache']));
         }
-
-        return self::$cache['taxrate_dropdown1_cache'];
+        return self::$cache['taxrate_dropdown1_cache']; */
     }
 
     public static function getTaxRateDropdownIDListForInvoice($TaxRateID=0,$CompanyID){

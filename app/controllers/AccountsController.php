@@ -202,11 +202,12 @@ class AccountsController extends \BaseController {
         $dynamicfields = Account::getDynamicfields('account',0);
         $reseller_owners = Reseller::getDropdownIDList($company_id);
         //As per new question call the routing profile model for fetch the routing profile list.
-        $routingprofile = RoutingProfiles::getRoutingProfile($company_id);
+        $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
+        $TaxRates = TaxRate::getTaxRateDropdownIDList($company_id);
         //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
-        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID'));
+        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID','TaxRates'));
     }
 
     /**
@@ -263,7 +264,7 @@ class AccountsController extends \BaseController {
         }
 
         if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
-            return Response::json(array("status" => "failed", "message" => "One of the option should be checked in Vendor, Customer and Partner."));
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
         unset($data['ResellerOwner']);
         unset($data['routingprofile']);
@@ -495,9 +496,10 @@ class AccountsController extends \BaseController {
             $data['BillingPostCode'] = $data['PostCode'];
             $data['BillingCountry']  = $data['Country'];
         }
+        $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
 
         if ($account = Account::create($data)) {
-
+            /*
             $DynamicData = array();
             $DynamicData['CompanyID']= $companyID;
             $DynamicData['AccountID']= $account->AccountID;
@@ -633,6 +635,7 @@ class AccountsController extends \BaseController {
 
 
             $account->update($data);
+            */
             return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
@@ -903,7 +906,7 @@ class AccountsController extends \BaseController {
         //----------------------------------------------------------------------
 
         $UserCompanyID = User::get_companyID();
-        $routingprofile = RoutingProfiles::getRoutingProfile($UserCompanyID);
+        $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $UserCompanyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
 
@@ -991,7 +994,7 @@ class AccountsController extends \BaseController {
         }
 
         if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
-            return Response::json(array("status" => "failed", "message" => "One of the option should be checked in Vendor, Customer and Partner."));
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
@@ -1251,7 +1254,7 @@ class AccountsController extends \BaseController {
             $data['BillingPostCode'] = $data['PostCode'];
             $data['BillingCountry']  = $data['Country'];
         }
-
+        $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -1427,8 +1430,10 @@ class AccountsController extends \BaseController {
         $data['TerminationDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::VOICECALL_ID);
         $data['AccessDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::DID_ID);
         $data['PackageDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::PACKAGE_ID);
+        $data['TaxRates'] = TaxRate::getTaxRateDropdownIDList($CompanyID);
+        //log::info(print_r($data['TaxRates'],true));
 
-        return Response::json(array("status" => "success", "data" => json_decode(json_encode($data), true)));
+        return Response::json(array("status" => "success","CompanyID"=>$CompanyID, "data" => json_decode(json_encode($data), true)));
     }
 
     /**
@@ -2706,5 +2711,37 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
         }
         return Response::json(array("status" => "success", "NextBillingDate" => $NextBillingDate,"NextChargedDate" => $NextChargedDate));
+    }
+
+    public function getAccountTaxes(){
+        $data = Input::all();
+        $Taxes = '';
+        $CompanyID = $data['CompanyID'];
+        $Country = $data['Country'];
+        $RegisterDutchFoundation = 0;
+        $DutchProvider = 0;
+        if(isset($data['RegisterDutchFoundation']) && $data['RegisterDutchFoundation']=='true'){
+            $RegisterDutchFoundation=1;
+        }
+        if(isset($data['DutchProvider']) && $data['DutchProvider']=='true'){
+            $DutchProvider=1;
+        }
+        if($Country=='NETHERLANDS'){
+            $EUCountry = 'NL';
+        }else{
+            $EUCountry = Country::where('Country',$Country)->pluck('EUCountry');
+            $EUCountry = empty($EUCountry) ? 'NEU' : 'EU';
+        }
+        $Results = TaxRate::where(['DutchProvider'=>$DutchProvider,'DutchFoundation'=>$RegisterDutchFoundation,'Country'=>$EUCountry,'CompanyId'=>$CompanyID,'Status'=>1])->get();
+        //log::info(print_r($Results,true));
+        if(!empty($Results)){
+            foreach($Results as $result){
+                $Taxes.=$result->TaxRateId.',';
+            }
+            $Taxes = rtrim($Taxes, ',');
+        }
+        $Taxes = explode(",", $Taxes);
+
+        return Response::json(array("status" => "success", "Taxes" => $Taxes));
     }
 }

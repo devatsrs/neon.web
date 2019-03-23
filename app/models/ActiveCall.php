@@ -55,6 +55,9 @@ class ActiveCall extends \Eloquent {
         /** calculation outbound cost */
 
         if($CallType=='Outbound'){
+            $CostPerMinute = 0;
+            $CostPerCall = 0;
+            $MinimumCallCharge = 0;
             $RateTableRateID = $ActiveCall->RateTableRateID;
             if($RateTableRateID>0){
                 $RateTableRate = RateTableRate::find($RateTableRateID);
@@ -77,10 +80,17 @@ class ActiveCall extends \Eloquent {
                 /** cost update */
                 if($Duration>=$Interval1){
                     $Cost = ($Rate/60.0)*$Interval1+ceil(($Duration-$Interval1)/$IntervalN)*($RateN/60.0)*$IntervalN+$ConnectionFee;
+                    $CostPerMinute = ($Rate/60.0)*$Interval1+ceil(($Duration-$Interval1)/$IntervalN)*($RateN/60.0)*$IntervalN;
+                    $CostPerCall = $ConnectionFee;
+
                 }elseif($Duration > 0){
                     $Cost = $Rate+$ConnectionFee;
+                    $CostPerMinute = $Rate;
+                    $CostPerCall = $ConnectionFee;
                 }else{
                     $Cost = 0;
+                    $CostPerMinute = 0;
+                    $CostPerCall = 0;
                 }
                 /** Billed Duration */
                 if($Duration>=$Interval1){
@@ -107,6 +117,7 @@ class ActiveCall extends \Eloquent {
                     }
                     if ($MinimumCallCharge > $Cost) {
                         $Cost = $MinimumCallCharge;
+                        $MinimumCallCharge = 1;
                     }
                 }
             }
@@ -116,6 +127,9 @@ class ActiveCall extends \Eloquent {
             $UpdateData = array();
             $UpdateData['billed_duration'] = $BilledDuration;
             $UpdateData['Cost'] = $Cost;
+            $UpdateData['CostPerCall'] = $CostPerCall;
+            $UpdateData['CostPerMinute'] = $CostPerMinute;
+            $UpdateData['MinimumCallCharge'] = $MinimumCallCharge;
             $UpdateData['PackageCostPerMinute'] = $PackageCostPerMinute;
             $UpdateData['RecordingCostPerMinute'] = $RecordingCostPerMinute;
             $UpdateData['updated_at'] = date('Y-m-d H:i:s');
@@ -210,7 +224,7 @@ class ActiveCall extends \Eloquent {
                         }
                     }
 
-                    $Cost = $PackageCostPerMinute + $RecordingCostPerMinute + $CostPerCall + $CostPerMinute + $SurchargePerCall + $SurchargePerMinute + $Surcharges +$CollectionCostAmount - $OutpaymentPerCall - $OutpaymentPerMinute;
+                    $Cost = $PackageCostPerMinute + $RecordingCostPerMinute + $CostPerCall + $CostPerMinute + $SurchargePerCall + $SurchargePerMinute + $Surcharges +$CollectionCostAmount;
 
                     $CollectionCostPercentage = isset($RateTableDIDRate->CollectionCostPercentage)?$RateTableDIDRate->CollectionCostPercentage:0;
                     if(!empty($CollectionCostPercentage)){
@@ -260,6 +274,7 @@ class ActiveCall extends \Eloquent {
         $AccountServiceID = 0;
         $RateTablePKGRateID = 0;
         $CallRecordingDuration = 0;
+        $MinimumCallCharge = 0;
         //$AccountServiceID = AccountService::getFirstAccountServiceID($AccountID);
         /**
          * update gateway account
@@ -275,6 +290,7 @@ class ActiveCall extends \Eloquent {
         $CLD=$ActiveCall->CLD;
         $CityTariff = '';
         $NoType = '';
+        $OutPaymentVendorID = 0;
 
         /**
          * CLI Authentication compulsory for api
@@ -293,6 +309,7 @@ class ActiveCall extends \Eloquent {
             $PackageRateTableID =  empty($CLIRateTable->PackageRateTableID)?0:$CLIRateTable->PackageRateTableID;
             $AreaPrefix = empty($CLIRateTable->Prefix)?'':$CLIRateTable->Prefix;
             $NoType = empty($CLIRateTable->NoType)?'':$CLIRateTable->NoType;
+            $OutPaymentVendorID = empty($CLIRateTable->VendorID)?'':$CLIRateTable->VendorID;
         }
 
         //log::info('Account Service ID '.$AccountServiceID);
@@ -401,6 +418,8 @@ class ActiveCall extends \Eloquent {
             $UpdateData['PackageTimezonesID'] = $PackageTimezonesID;
             $UpdateData['CityTariff'] = $CityTariff;
             $UpdateData['NoType'] = $NoType;
+            $UpdateData['MinimumCallCharge'] = $MinimumCallCharge;
+            $UpdateData['OutPaymentVendorID'] = $OutPaymentVendorID;
             $UpdateData['updated_at'] = date('Y-m-d H:i:s');
             $ActiveCall->update($UpdateData);
         }
@@ -469,6 +488,8 @@ class ActiveCall extends \Eloquent {
             $UpdateData['PackageTimezonesID'] = $PackageTimezonesID;
             $UpdateData['CityTariff'] = $CityTariff;
             $UpdateData['NoType'] = $NoType;
+            $UpdateData['MinimumCallCharge'] = $MinimumCallCharge;
+            $UpdateData['OutPaymentVendorID'] = $OutPaymentVendorID;
             $UpdateData['updated_at'] = date('Y-m-d H:i:s');
             $ActiveCall->update($UpdateData);
 
@@ -553,6 +574,7 @@ class ActiveCall extends \Eloquent {
         $detaildata['CostPerMinute'] = $ActiveCall->CostPerMinute;
         $detaildata['SurchargePerCall'] = $ActiveCall->SurchargePerCall;
         $detaildata['SurchargePerMinute'] = $ActiveCall->SurchargePerMinute;
+        $detaildata['MinimumCallCharge'] = $ActiveCall->MinimumCallCharge;
 
         $UsageDetails = UsageDetail::create($detaildata);
         $UsageDetailID = $UsageDetails->UsageDetailID;
@@ -620,6 +642,17 @@ class ActiveCall extends \Eloquent {
             $vendordetaildata['trunk']=$trunk;
             VendorCDR::create($vendordetaildata);
         }
+
+        //OutPayment Insert start
+        if(!empty($ActiveCall->OutPaymentVendorID) && $ActiveCall->CallType=='Inbound'){
+            $OutpaymentPerCall = $ActiveCall->OutpaymentPerCall;
+            $OutpaymentPerMinute = $ActiveCall->OutpaymentPerMinute;
+            $Amount = $OutpaymentPerCall + $OutpaymentPerMinute;
+            if(!empty($Amount)){
+                ActiveCall::insertOutPayment($ActiveCall,$Amount);
+            }
+
+        }
     }
 
     public static function getRateTablePKGRateID($CompanyID,$RateTableID,$TimezonesID,$PackageId){
@@ -643,10 +676,11 @@ class ActiveCall extends \Eloquent {
 
     /** Get Usage and all over taxes of account */
     public static function getAccountTaxes($AccountID){
-        $BillingClassID = AccountBilling::getBillingClassID($AccountID);
+        //$BillingClassID = AccountBilling::getBillingClassID($AccountID);
         $final = '';
-        if(!empty($BillingClassID)) {
-            $result = BillingClass::where('BillingClassID', $BillingClassID)->pluck('TaxRateID');
+        //if(!empty($BillingClassID)) {
+            //$result = BillingClass::where('BillingClassID', $BillingClassID)->pluck('TaxRateID');
+            $result = Account::where('AccountID', $AccountID)->pluck('TaxRateID');
             $resultarray = explode(",", $result);
             if(!empty($resultarray) && count($resultarray)>0) {
                 foreach ($resultarray as $resultdata) {
@@ -660,7 +694,7 @@ class ActiveCall extends \Eloquent {
                 }
                 $final = rtrim($final, ',');
             }
-        }
+        //}
         return $final;
     }
     public static function getCostWithTaxes($Cost,$TaxRateIDs){
@@ -678,5 +712,32 @@ class ActiveCall extends \Eloquent {
         $Total = $Cost + $TaxGrandTotal;
 
         return $Total;
+    }
+
+    public static function insertOutPayment($ActiveCall,$Amount){
+        $AccountID = $ActiveCall->AccountID;
+        $CompanyID = $ActiveCall->CompanyID;
+        $VendorID = $ActiveCall->OutPaymentVendorID;
+        $CLI = $ActiveCall->CLI;
+        $Date = date('Y-m-d',strtotime($ActiveCall->ConnectTime));
+        $OutPaymentLog = OutPaymentLog::where(['AccountID'=>$AccountID,'VendorID'=>$VendorID,'CLI'=>$CLI,'Date'=>$Date])->first();
+        if(!empty($OutPaymentLog)){
+            // if already amount than plus
+            $OutPaymentLogAmount = $OutPaymentLog->Amount + $Amount;
+            $data=array();
+            $data['Amount'] = $OutPaymentLogAmount;
+            $OutPaymentLog->update($data);
+        }else{
+            $data=array();
+            $data['CompanyID'] = $CompanyID;
+            $data['AccountID'] = $AccountID;
+            $data['VendorID'] = $VendorID;
+            $data['CLI'] = $CLI;
+            $data['Date'] = $Date;
+            $data['Amount'] = $Amount;
+            $data['Status'] = 0;
+            $data['created_at'] = date('Y-m-d H:i:s');
+            OutPaymentLog::insert($data);
+        }
     }
 }

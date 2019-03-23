@@ -39,7 +39,7 @@ class BillingDashboard extends \BaseController {
             $CurrencyCode = Currency::getCurrency($CurrencyID);
             $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
-        if($data['date-span']==0){
+        if($data['date-span'] != 0){
             $Closingdate		=	explode(' - ',$data['Closingdate']);
             $Startdate			=   $Closingdate[0];
             $Enddate			=	$Closingdate[1];
@@ -336,5 +336,49 @@ class BillingDashboard extends \BaseController {
        // dd($AccountEmaillog->toSql());
         //( AccountEmailLog.EmailType IN (4,3) ) AND
         return Datatables::of($AccountEmaillog)->make();
+    }
+
+    public function outpayment_ajax_datagrid() {
+
+        $companyID = User::get_companyID();
+        $data = Input::all();
+
+        //dd($data);
+        if($data['DateRange']!=''){
+            $Closingdate =	explode(' - ',$data['DateRange']);
+            $Startdate	 =   $Closingdate[0];
+            $Enddate	 =	$Closingdate[1];
+            $from        = trim($Startdate).' 00:00:00';
+            $to          = trim($Enddate).' 23:59:59';
+        }else{
+            $from = $data['DateRange'];
+            $to=0;
+        }
+
+        $countQryString="";
+        if(!empty($data['AccountID'])){
+            $countQryString = ' (acc.AccountID='.$data['AccountID'].') AND ';
+        }
+        if(!empty($data['VendorID'])){
+            if(!empty($data['AccountID'])){
+                $countQryString .='  ';
+            }
+            $countQryString .= ' (vend.AccountID='.$data['VendorID'].') AND ';
+        }
+        if(!empty($data['InvoiceNumber'])){
+            if(!empty($countQryString)){
+                $countQryString .='  ';
+            }
+            $countQryString .= ' (tblInv.FullInvoiceNumber Like "%'.$data['InvoiceNumber'].'%") AND ';
+        }
+
+        if (User::is('AccountManager')) {
+            echo $userID = User::get_userID();
+            die();
+        }
+            $OutPaymentLog = ApprovedOutPaymentLog::join('tblAccount as acc', 'acc.AccountID', '=', 'tblApprovedOutPaymentLog.AccountID')->join('tblAccount as vend', 'vend.AccountID', '=', 'tblApprovedOutPaymentLog.VendorID')->join('speakintelligentBilling.tblInvoice as tblInv', 'tblInv.InvoiceID', '=', 'tblApprovedOutPaymentLog.InvoiceID')
+                ->select(["tblInv.FullInvoiceNumber","vend.AccountName as Vendor","acc.AccountName as Account", "tblApprovedOutPaymentLog.StartDate","tblApprovedOutPaymentLog.EndDate", "tblApprovedOutPaymentLog.Amount", "tblApprovedOutPaymentLog.created_at"])->WhereRaw(" $countQryString (tblApprovedOutPaymentLog.created_at between '$from' AND '$to')")->orderBy('tblApprovedOutPaymentLog.created_at', 'desc');
+
+        return Datatables::of($OutPaymentLog)->make();
     }
 }

@@ -6,7 +6,7 @@ class TaxRatesController extends \BaseController {
     public function ajax_datagrid() {
        $data = Input::all();
         $CompanyID = User::get_companyID();
-        $taxrates = TaxRate::select('Title','TaxType','Amount','FlatStatus','Country','DutchProvider','DutchFoundation','TaxRateId')->where("CompanyID", $CompanyID);
+        $taxrates = TaxRate::select('Title','Amount','Country','DutchProvider','DutchFoundation','TaxRateId')->where("CompanyID", $CompanyID);
         if(isset($data['Title']) and !empty($data['Title']))
         {
              $taxrates = $taxrates->where('Title', 'like', '%'.$data['Title'].'%');
@@ -62,8 +62,13 @@ class TaxRatesController extends \BaseController {
             'TaxType' => 'required|numeric',
             'FlatStatus' => 'required|numeric',
             'Country' => 'required',
-        );
+        ); 
+        $attributeNames = array(
+   'Amount' => 'VAT',     
+);
+
         $validator = Validator::make($data, $rules);
+        $validator->setAttributeNames($attributeNames);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
