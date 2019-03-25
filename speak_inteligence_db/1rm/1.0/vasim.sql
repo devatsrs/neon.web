@@ -755,8 +755,12 @@ CREATE PROCEDURE `prc_RateTableRateUpdateDelete`(
 ThisSP:BEGIN
 
 	DECLARE v_RateApprovalProcess_ INT;
-
 	DECLARE v_RateTableAppliedTo_ INT;
+
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -900,72 +904,75 @@ ThisSP:BEGIN
 			((rtr.RateCurrency IS NULL && temp.RateCurrency IS NULL) || rtr.RateCurrency = temp.RateCurrency) AND
 			((rtr.ConnectionFeeCurrency IS NULL && temp.ConnectionFeeCurrency IS NULL) || rtr.ConnectionFeeCurrency = temp.ConnectionFeeCurrency);
 
-		-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
-		IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
-		THEN
-			UPDATE
-				tmp_TempRateTableRate_
-			SET
-				ApprovedStatus = 0,
-				ApprovedBy = NULL,
-				ApprovedDate = NULL;
+	END IF;
 
 
-			INSERT INTO tblRateTableRateAA (
-				OriginationRateID,
-				RateId,
-				RateTableId,
-				TimezonesID,
-				Rate,
-				RateN,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				Interval1,
-				IntervalN,
-				ConnectionFee,
-				RoutingCategoryID,
-				Preference,
-				Blocked,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate,
-				RateCurrency,
-				ConnectionFeeCurrency
-			)
-			SELECT
-				OriginationRateID,
-				RateId,
-				RateTableId,
-				TimezonesID,
-				Rate,
-				RateN,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				Interval1,
-				IntervalN,
-				ConnectionFee,
-				RoutingCategoryID,
-				Preference,
-				Blocked,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate,
-				RateCurrency,
-				ConnectionFeeCurrency
-			FROM
-				tmp_TempRateTableRate_;
+	-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+	IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+	THEN
+		UPDATE
+			tmp_TempRateTableRate_
+		SET
+			ApprovedStatus = 0,
+			ApprovedBy = NULL,
+			ApprovedDate = NULL;
 
-			LEAVE ThisSP;
 
-		END IF;
+		INSERT INTO tblRateTableRateAA (
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency,
+			RateTableRateID
+		)
+		SELECT
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			IF(p_action=1,v_StatusAwaitingApproval_,v_StatusDelete_) AS ApprovedStatus, -- if action=update then status=aa else status=aadelete
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency,
+			RateTableRateID
+		FROM
+			tmp_TempRateTableRate_;
+
+		LEAVE ThisSP;
 
 	END IF;
 
@@ -1097,6 +1104,11 @@ ThisSP:BEGIN
 
 	DECLARE v_RateApprovalProcess_ INT;
 	DECLARE v_RateTableAppliedTo_ INT;
+
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -1288,104 +1300,105 @@ ThisSP:BEGIN
 			((rtr.CollectionCostAmountCurrency IS NULL && temp.CollectionCostAmountCurrency IS NULL) || rtr.CollectionCostAmountCurrency = temp.CollectionCostAmountCurrency) AND
 			((rtr.RegistrationCostPerNumberCurrency IS NULL && temp.RegistrationCostPerNumberCurrency IS NULL) || rtr.RegistrationCostPerNumberCurrency = temp.RegistrationCostPerNumberCurrency);
 
-		-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
-		IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
-		THEN
-			UPDATE
-				tmp_TempRateTableDIDRate_
-			SET
-				ApprovedStatus = 0,
-				ApprovedBy = NULL,
-				ApprovedDate = NULL;
+	END IF;
 
 
-			INSERT INTO tblRateTableDIDRateAA (
-				OriginationRateID,
-				RateId,
-				RateTableId,
-				TimezonesID,
-				CityTariff,
-				OneOffCost,
-				MonthlyCost,
-				CostPerCall,
-				CostPerMinute,
-				SurchargePerCall,
-				SurchargePerMinute,
-				OutpaymentPerCall,
-				OutpaymentPerMinute,
-				Surcharges,
-				Chargeback,
-				CollectionCostAmount,
-				CollectionCostPercentage,
-				RegistrationCostPerNumber,
-				OneOffCostCurrency,
-				MonthlyCostCurrency,
-				CostPerCallCurrency,
-				CostPerMinuteCurrency,
-				SurchargePerCallCurrency,
-				SurchargePerMinuteCurrency,
-				OutpaymentPerCallCurrency,
-				OutpaymentPerMinuteCurrency,
-				SurchargesCurrency,
-				ChargebackCurrency,
-				CollectionCostAmountCurrency,
-				RegistrationCostPerNumberCurrency,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate
-			)
-			SELECT
-				OriginationRateID,
-				RateId,
-				RateTableId,
-				TimezonesID,
-				CityTariff,
-				OneOffCost,
-				MonthlyCost,
-				CostPerCall,
-				CostPerMinute,
-				SurchargePerCall,
-				SurchargePerMinute,
-				OutpaymentPerCall,
-				OutpaymentPerMinute,
-				Surcharges,
-				Chargeback,
-				CollectionCostAmount,
-				CollectionCostPercentage,
-				RegistrationCostPerNumber,
-				OneOffCostCurrency,
-				MonthlyCostCurrency,
-				CostPerCallCurrency,
-				CostPerMinuteCurrency,
-				SurchargePerCallCurrency,
-				SurchargePerMinuteCurrency,
-				OutpaymentPerCallCurrency,
-				OutpaymentPerMinuteCurrency,
-				SurchargesCurrency,
-				ChargebackCurrency,
-				CollectionCostAmountCurrency,
-				RegistrationCostPerNumberCurrency,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate
-			FROM
-				tmp_TempRateTableDIDRate_;
+	-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+	IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+	THEN
+		UPDATE
+			tmp_TempRateTableDIDRate_
+		SET
+			ApprovedStatus = v_StatusAwaitingApproval_,
+			ApprovedBy = NULL,
+			ApprovedDate = NULL;
 
-			LEAVE ThisSP;
 
-		END IF;
+		INSERT INTO tblRateTableDIDRateAA (
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			CityTariff,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			CostPerCallCurrency,
+			CostPerMinuteCurrency,
+			SurchargePerCallCurrency,
+			SurchargePerMinuteCurrency,
+			OutpaymentPerCallCurrency,
+			OutpaymentPerMinuteCurrency,
+			SurchargesCurrency,
+			ChargebackCurrency,
+			CollectionCostAmountCurrency,
+			RegistrationCostPerNumberCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		)
+		SELECT
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			CityTariff,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			CostPerCallCurrency,
+			CostPerMinuteCurrency,
+			SurchargePerCallCurrency,
+			SurchargePerMinuteCurrency,
+			OutpaymentPerCallCurrency,
+			OutpaymentPerMinuteCurrency,
+			SurchargesCurrency,
+			ChargebackCurrency,
+			CollectionCostAmountCurrency,
+			RegistrationCostPerNumberCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			IF(p_action=1,v_StatusAwaitingApproval_,v_StatusDelete_) AS ApprovedStatus, -- if action=update then status=aa else status=aadelete
+			ApprovedBy,
+			ApprovedDate
+		FROM
+			tmp_TempRateTableDIDRate_;
+
+		LEAVE ThisSP;
 
 	END IF;
 
@@ -12645,6 +12658,11 @@ ThisSP:BEGIN
 	DECLARE v_RateApprovalProcess_ INT;
 	DECLARE v_RateTableAppliedTo_ INT;
 
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = (SELECT CompanyId FROM tblRateTable WHERE RateTableID = p_RateTableId) AND `Key`='RateApprovalProcess';
@@ -12771,65 +12789,66 @@ ThisSP:BEGIN
 			((rtr.PackageCostPerMinuteCurrency IS NULL && temp.PackageCostPerMinuteCurrency IS NULL) || rtr.PackageCostPerMinuteCurrency = temp.PackageCostPerMinuteCurrency) AND
 			((rtr.RecordingCostPerMinuteCurrency IS NULL && temp.RecordingCostPerMinuteCurrency IS NULL) || rtr.RecordingCostPerMinuteCurrency = temp.RecordingCostPerMinuteCurrency);
 
-		-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
-		IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
-		THEN
-			UPDATE
-				tmp_TempRateTablePKGRate_
-			SET
-				ApprovedStatus = 0,
-				ApprovedBy = NULL,
-				ApprovedDate = NULL;
+	END IF;
 
-			INSERT INTO tblRateTablePKGRateAA (
-				RateId,
-				RateTableId,
-				TimezonesID,
-				OneOffCost,
-				MonthlyCost,
-				PackageCostPerMinute,
-				RecordingCostPerMinute,
-				OneOffCostCurrency,
-				MonthlyCostCurrency,
-				PackageCostPerMinuteCurrency,
-				RecordingCostPerMinuteCurrency,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate
-			)
-			SELECT
-				RateId,
-				RateTableId,
-				TimezonesID,
-				OneOffCost,
-				MonthlyCost,
-				PackageCostPerMinute,
-				RecordingCostPerMinute,
-				OneOffCostCurrency,
-				MonthlyCostCurrency,
-				PackageCostPerMinuteCurrency,
-				RecordingCostPerMinuteCurrency,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate
-			FROM
-				tmp_TempRateTablePKGRate_;
 
-			LEAVE ThisSP;
+	-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+	IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+	THEN
+		UPDATE
+			tmp_TempRateTablePKGRate_
+		SET
+			ApprovedStatus = 0,
+			ApprovedBy = NULL,
+			ApprovedDate = NULL;
 
-		END IF;
+		INSERT INTO tblRateTablePKGRateAA (
+			RateId,
+			RateTableId,
+			TimezonesID,
+			OneOffCost,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			PackageCostPerMinuteCurrency,
+			RecordingCostPerMinuteCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		)
+		SELECT
+			RateId,
+			RateTableId,
+			TimezonesID,
+			OneOffCost,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			PackageCostPerMinuteCurrency,
+			RecordingCostPerMinuteCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			IF(p_action=1,v_StatusAwaitingApproval_,v_StatusDelete_) AS ApprovedStatus, -- if action=update then status=aa else status=aadelete
+			ApprovedBy,
+			ApprovedDate
+		FROM
+			tmp_TempRateTablePKGRate_;
+
+		LEAVE ThisSP;
 
 	END IF;
 
