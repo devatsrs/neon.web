@@ -6768,6 +6768,8 @@ ThisSP:BEGIN
 		INNER JOIN
 			tmp_RateTableDIDRate_ AS temp ON temp.RateTableDIDRateAAID = AA.RateTableDIDRateAAID;
 
+		CALL prc_ArchiveOldRateTableDIDRate(p_RateTableId, NULL,p_ApprovedBy);
+
 	ELSE -- reject/disapprove rates
 
 		UPDATE
@@ -12479,6 +12481,8 @@ ThisSP:BEGIN
 			tblRateTablePKGRateAA AS AA
 		INNER JOIN
 			tmp_RateTablePKGRate_ AS temp ON temp.RateTablePKGRateAAID = AA.RateTablePKGRateAAID;
+
+		CALL prc_ArchiveOldRateTablePKGRate(p_RateTableId, NULL,p_ApprovedBy);
 
 	ELSE -- reject/disapprove rates
 
