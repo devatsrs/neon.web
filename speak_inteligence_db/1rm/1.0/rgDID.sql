@@ -419,7 +419,7 @@ GenerateRateTable:BEGIN
 
 		SELECT CurrencyId INTO @v_CompanyCurrencyID_ FROM  tblCompany WHERE CompanyID = @v_CompanyId_;
 
-		SELECT IFNULL(Value,0) INTO @v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = v_CompanyId_ AND `Key`='RateApprovalProcess';
+		SELECT IFNULL(Value,0) INTO @v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = @v_CompanyId_ AND `Key`='RateApprovalProcess';
 
 
 		INSERT INTO tmp_Raterules_(
@@ -439,7 +439,7 @@ GenerateRateTable:BEGIN
 				Component,
 				OriginationDescription as Origination ,
 				TimeOfDay as TimezonesID,
-				CountryID ,
+				IF(CountryID ='',NULL,CountryID) as CountryID,
 				AccessType,
 				Prefix ,
 				CityTariff,
@@ -472,7 +472,7 @@ GenerateRateTable:BEGIN
 			TimezonesID ,
 			RateLessThen	,
 			ChangeRateTo ,
-			CountryID ,
+			IF(CountryID ='',NULL,CountryID) as CountryID,
 			AccessType,
 			Prefix ,
 			CityTariff,
@@ -1899,8 +1899,8 @@ SET @p_AccessType = '' ;
 									ToTimezonesID,
 									Action,
 									MergeTo,
-									FromCountryID,
-									ToCountryID,
+									IF(FromCountryID ='',NULL,FromCountryID) as FromCountryID,
+									IF(ToCountryID ='',NULL,ToCountryID) as ToCountryID,
 									FromAccessType,
 									ToAccessType,
 									FromPrefix,
@@ -2006,7 +2006,7 @@ SET @p_AccessType = '' ;
 								AND (  @v_ToCityTariff =  '' OR srt.CityTariff = 	@v_ToCityTariff )
 						set
 
-						' , 'new_', @v_MergeToComponent , ' = tmp.componentValue;
+						' , 'new_', @v_MergeTo , ' = tmp.componentValue;
 				');
 				PREPARE stm1 FROM @stm1;
 				EXECUTE stm1;
@@ -2446,7 +2446,7 @@ SET @p_AccessType = '' ;
 	 -- testing output
 	--	 select * from tmp_SelectedVendortblRateTableDIDRate;
 
-		-- leave GenerateRateTable;
+--		 leave GenerateRateTable;
 
 
 		SET @v_SelectedRateTableID = ( select RateTableID from tmp_SelectedVendortblRateTableDIDRate limit 1 );
