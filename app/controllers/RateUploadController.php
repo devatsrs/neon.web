@@ -3,7 +3,9 @@
 class RateUploadController extends \BaseController {
 
     public function index($id=0,$RateUploadType='') {
+        $CompanyID = User::get_companyID();
         $VendorID = $CustomerID = $RatetableID = 0;
+        $rateTable = NULL;
         $Type = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL); // default upload page voice call rate upload
 
         $Vendors            = Account::getOnlyVendorIDList();
@@ -22,7 +24,10 @@ class RateUploadController extends \BaseController {
             $RatetableID    = $id;
 
             if(empty($RatetableID) && count($Ratetables) > 0) {
-                $RatetableID = key($Ratetables);
+                $RatetableID    = key($Ratetables);
+            }
+            if(!empty($RatetableID)) {
+                $rateTable      = RateTable::find($RatetableID);
             }
             if(!empty($RatetableID)) {
                 $Type = Ratetable::find($RatetableID)->Type;
@@ -36,12 +41,13 @@ class RateUploadController extends \BaseController {
         $AllTimezones       = Timezones::getTimezonesIDList();//all timezones
         $RoutingCategory    = RoutingCategory::getCategoryDropdownIDList();//all timezones
         $TypeVoiceCall      = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $ROUTING_PROFILE    = CompanyConfiguration::get('ROUTING_PROFILE', $CompanyID);
 
         $component_currencies = Currency::getCurrencyDropdownIDList();
         $component_currencies = array('Currency'=>$component_currencies);
 
         if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) { // voice call
-            return View::make('rateupload.index', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall', 'component_currencies'));
+            return View::make('rateupload.index', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall', 'component_currencies', 'rateTable', 'ROUTING_PROFILE'));
         } else if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) { // did
             return View::make('rateupload.index_did', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'TypeVoiceCall', 'component_currencies'));
         } else { // package
