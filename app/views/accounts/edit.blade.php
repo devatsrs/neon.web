@@ -121,7 +121,7 @@
 
                         </div>
                         <div class="form-group">
-                            <label class="col-md-2 control-label">*Company Name</label>
+                            <label class="col-md-2 control-label">*Account Name</label>
                             <div class="col-md-4">
                                 <input type="text" class="form-control" name="AccountName" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder=""  value="{{$account->AccountName}}"/>
                             </div>
