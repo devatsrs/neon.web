@@ -166,6 +166,13 @@
             padding-right: 0;
         }
 
+        .not-active {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+  color: black;
+}
+
     </style>
 
     <ol class="breadcrumb bc-3">
@@ -504,7 +511,7 @@
                     ];
 
                     aoColumnDefs = [
-                        {    "sClass": "destination", "aTargets": [ 0 ] },
+                        {    "sClass": "destination not-active", "aTargets": [ 0 ] },
                         {    "sClass": "rate1_class", "aTargets": [ 1 ] },
                         {    "sClass": "rate2_class", "aTargets": [ 2 ] },
                         {    "sClass": "rate3_class", "aTargets": [ 3 ] },
