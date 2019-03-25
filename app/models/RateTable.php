@@ -32,6 +32,7 @@ class RateTable extends \Eloquent
     );
 
     public static $DDRateStatus2 = array(
+        ""                          => 'All',
         self::RATE_STATUS_AWAITING  => 'Awaiting Approval',
         self::RATE_STATUS_REJECTED  => 'Rejected',
         self::RATE_STATUS_DELETE    => 'Awaiting Approval Delete'

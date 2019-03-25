@@ -5521,8 +5521,8 @@ ThisSP:BEGIN
 			LEFT JOIN tblRate AS OriginationRate
 				ON OriginationRate.RateID = tblRateTableRate.OriginationRateID
 				AND OriginationRate.CompanyID = p_companyId
-		  	JOIN tmp_TempTimezones_
-		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableRate.TimezonesID
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableRate.TimezonesID*/
 			LEFT JOIN tmp_TempRateTableRate_ as tblTempRateTableRate
 				ON tblTempRateTableRate.Code = tblRate.Code
 				AND ((tblTempRateTableRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableRate.OriginationCode = OriginationRate.Code))
@@ -6314,7 +6314,10 @@ ThisSP:BEGIN
 			AND temp1.RateID = temp2.RateID
 			AND temp1.RateTableId = temp2.RateTableId
 			AND temp1.TimezonesID = temp2.TimezonesID
-			AND temp1.EffectiveDate = temp2.EffectiveDate
+			AND (
+					temp1.EffectiveDate = temp2.EffectiveDate OR
+					(temp1.EffectiveDate <= NOW() AND temp2.EffectiveDate <= NOW())
+				)
 		WHERE
 			temp2.RateTableRateAAID < temp1.RateTableRateAAID;
 
@@ -6394,6 +6397,10 @@ ThisSP:BEGIN
 			tblRateTableRateAA AS AA
 		INNER JOIN
 			tmp_RateTableRate_ AS temp ON temp.RateTableRateAAID = AA.RateTableRateAAID;
+
+
+		CALL prc_RateTableRateUpdatePreviousRate(p_RateTableId,'');
+		CALL prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_ApprovedBy);
 
 	ELSE -- reject/disapprove rates
 
@@ -6579,7 +6586,10 @@ ThisSP:BEGIN
 			AND temp1.RateTableId = temp2.RateTableId
 			AND temp1.TimezonesID = temp2.TimezonesID
 			AND temp1.CityTariff = temp2.CityTariff
-			AND temp1.EffectiveDate = temp2.EffectiveDate
+			AND (
+					temp1.EffectiveDate = temp2.EffectiveDate OR
+					(temp1.EffectiveDate <= NOW() AND temp2.EffectiveDate <= NOW())
+				)
 		WHERE
 			temp2.RateTableDIDRateAAID < temp1.RateTableDIDRateAAID;
 
@@ -10765,8 +10775,8 @@ ThisSP:BEGIN
 			LEFT JOIN tblRate AS OriginationRate
 				ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
 				AND OriginationRate.CompanyID = p_companyId
-		  	JOIN tmp_TempTimezones_
-		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableDIDRate.TimezonesID
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableDIDRate.TimezonesID*/
 			LEFT JOIN tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
 				ON tblTempRateTableDIDRate.Code = tblRate.Code
 				AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
@@ -12289,7 +12299,10 @@ ThisSP:BEGIN
 			tmp_RateTablePKGRate_ temp1 ON temp1.RateID = temp2.RateID
 			AND temp1.RateTableId = temp2.RateTableId
 			AND temp1.TimezonesID = temp2.TimezonesID
-			AND temp1.EffectiveDate = temp2.EffectiveDate
+			AND (
+					temp1.EffectiveDate = temp2.EffectiveDate OR
+					(temp1.EffectiveDate <= NOW() AND temp2.EffectiveDate <= NOW())
+				)
 		WHERE
 			temp2.RateTablePKGRateAAID < temp1.RateTablePKGRateAAID;
 
@@ -13010,8 +13023,8 @@ ThisSP:BEGIN
 			JOIN tblRate
 				ON tblRate.RateID = tblRateTablePKGRate.RateId
 				AND tblRate.CompanyID = p_companyId
-		  	JOIN tmp_TempTimezones_
-		  		ON tmp_TempTimezones_.TimezonesID = tblRateTablePKGRate.TimezonesID
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTablePKGRate.TimezonesID*/
 			LEFT JOIN tmp_TempRateTablePKGRate_ as tblTempRateTablePKGRate
 				ON tblTempRateTablePKGRate.Code = tblRate.Code
 				AND tblTempRateTablePKGRate.TimezonesID = tblRateTablePKGRate.TimezonesID
@@ -15215,6 +15228,7 @@ CREATE PROCEDURE `prc_RateTableDIDRateAAUpdateDelete`(
 	IN `p_Critearea_OriginationDescription` VARCHAR(200),
 	IN `p_Critearea_Effective` VARCHAR(50),
 	IN `p_TimezonesID` INT,
+	IN `p_Critearea_ApprovedStatus` TINYINT,
 	IN `p_ModifiedBy` varchar(50),
 	IN `p_Critearea` INT,
 	IN `p_action` INT
@@ -15342,7 +15356,7 @@ ThisSP:BEGIN
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
 					((p_Critearea_CityTariff IS NULL) OR (p_Critearea_CityTariff IS NOT NULL AND rtr.CityTariff LIKE REPLACE(p_Critearea_CityTariff,'*', '%'))) AND
-				--	(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
@@ -15625,7 +15639,7 @@ ThisSP:BEGIN
 				p_Critearea = 1 AND
 				(
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
-				--	(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
@@ -15772,6 +15786,7 @@ CREATE PROCEDURE `prc_RateTableRateAAUpdateDelete`(
 	IN `p_Critearea_OriginationDescription` VARCHAR(200),
 	IN `p_Critearea_Effective` VARCHAR(50),
 	IN `p_TimezonesID` INT,
+	IN `p_Critearea_ApprovedStatus` TINYINT,
 	IN `p_ModifiedBy` VARCHAR(50),
 	IN `p_Critearea` INT,
 	IN `p_action` INT
@@ -15866,7 +15881,7 @@ ThisSP:BEGIN
 					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
-				--	(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
@@ -16284,8 +16299,8 @@ ThisSP:BEGIN
 			LEFT JOIN tblRate AS OriginationRate
 				ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
 				AND OriginationRate.CompanyID = p_companyId
-		  	JOIN tmp_TempTimezones_
-		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableDIDRate.TimezonesID
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableDIDRate.TimezonesID*/
 			LEFT JOIN tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
 				ON tblTempRateTableDIDRate.Code = tblRate.Code
 				AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
@@ -16884,8 +16899,8 @@ ThisSP:BEGIN
 			JOIN tblRate
 				ON tblRate.RateID = tblRateTablePKGRate.RateId
 				AND tblRate.CompanyID = p_companyId
-		  	JOIN tmp_TempTimezones_
-		  		ON tmp_TempTimezones_.TimezonesID = tblRateTablePKGRate.TimezonesID
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTablePKGRate.TimezonesID*/
 			LEFT JOIN tmp_TempRateTablePKGRate_ as tblTempRateTablePKGRate
 				ON tblTempRateTablePKGRate.Code = tblRate.Code
 				AND tblTempRateTablePKGRate.TimezonesID = tblRateTablePKGRate.TimezonesID
@@ -17380,8 +17395,8 @@ ThisSP:BEGIN
 			LEFT JOIN tblRate AS OriginationRate
 				ON OriginationRate.RateID = tblRateTableRate.OriginationRateID
 				AND OriginationRate.CompanyID = p_companyId
-		  	JOIN tmp_TempTimezones_
-		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableRate.TimezonesID
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableRate.TimezonesID*/
 			LEFT JOIN tmp_TempRateTableRate_ as tblTempRateTableRate
 				ON tblTempRateTableRate.Code = tblRate.Code
 				AND ((tblTempRateTableRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableRate.OriginationCode = OriginationRate.Code))
