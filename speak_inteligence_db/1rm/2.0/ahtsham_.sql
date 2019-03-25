@@ -1,6 +1,8 @@
 USE `speakintelligentRM`;
 
-ALTER TABLE `tblBillingClass` ADD COLUMN `ResellerID` INT(11) NULL DEFAULT NULL AFTER `ResellerOwner`;
+ALTER TABLE `tblBillingClass` DROP COLUMN `ResellerOwner`;
+	
+ALTER TABLE `tblBillingClass` ADD COLUMN `ResellerID` INT NULL AFTER `UpdatedBy`;
 	
 DELIMITER $$
 
