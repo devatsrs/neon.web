@@ -243,7 +243,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                         </div>
                                         <label class="col-sm-2 control-label">Template</label>
                                         <div class="col-sm-4">
-                                            {{Form::select('PaymentReminder[TemplateID]', $emailTemplates, (isset($PaymentReminders->TemplateID)?$PaymentReminders->TemplateID:'') ,array("class"=>"select2 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
+                                            {{Form::select('PaymentReminder[TemplateID]', $emailTemplates, (isset($PaymentReminders->TemplateID)?$PaymentReminders->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
                                         </div>
                                     </div>
                                     <div class="form-group">
