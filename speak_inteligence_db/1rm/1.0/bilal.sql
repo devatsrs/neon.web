@@ -1,8 +1,4 @@
-ALTER TABLE `tblInvoice`
-	ADD COLUMN `UblInvoice` VARCHAR(500) NULL DEFAULT NULL AFTER `PDF`
-
-
-CREATE TABLE `tblApprovedOutPaymentLog` (
+CREATE TABLE IF NOT EXISTS `tblApprovedOutPaymentLog` (
 	`ApprovedOutPaymentLogID` INT(11) NOT NULL AUTO_INCREMENT,
 	`AccountID` INT(11) NOT NULL,
 	`VendorID` INT(11) NOT NULL,
