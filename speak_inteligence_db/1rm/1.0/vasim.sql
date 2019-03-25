@@ -607,6 +607,8 @@ ALTER TABLE `tblRateTableDIDRateAA`
 ALTER TABLE `tblRateTablePKGRateAA`
 	ADD COLUMN `RateTablePKGRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `RateTablePKGRateAAID`;
 
+ALTER TABLE `tblRateTableDIDRateAA`
+	ADD COLUMN `AccessType` VARCHAR(200) NULL DEFAULT NULL AFTER `CityTariff`;
 
 
 
@@ -6359,8 +6361,34 @@ ThisSP:BEGIN
 
 		-- insert approved rates to tblRateTableRate
 		INSERT INTO	tblRateTableRate
+		(
+			OriginationRateID,
+			RateID,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			PreviousRate,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency,
+			VendorID
+		)
 		SELECT
-			NULL,
 			OriginationRateID,
 			RateID,
 			RateTableId,
@@ -6632,8 +6660,49 @@ ThisSP:BEGIN
 
 		-- insert approved rates to tblRateTableDIDRate
 		INSERT INTO	tblRateTableDIDRate
+		(
+			OriginationRateID,
+			RateID,
+			RateTableId,
+			TimezonesID,
+			EffectiveDate,
+			EndDate,
+			CityTariff,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			CostPerCallCurrency,
+			CostPerMinuteCurrency,
+			SurchargePerCallCurrency,
+			SurchargePerMinuteCurrency,
+			OutpaymentPerCallCurrency,
+			OutpaymentPerMinuteCurrency,
+			SurchargesCurrency,
+			ChargebackCurrency,
+			CollectionCostAmountCurrency,
+			RegistrationCostPerNumberCurrency,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			VendorID
+		)
 		SELECT
-			NULL,
 			OriginationRateID,
 			RateID,
 			RateTableId,
@@ -12343,8 +12412,29 @@ ThisSP:BEGIN
 
 		-- insert approved rates to tblRateTablePKGRate
 		INSERT INTO	tblRateTablePKGRate
+		(
+			RateID,
+			RateTableId,
+			TimezonesID,
+			EffectiveDate,
+			EndDate,
+			OneOffCost,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			PackageCostPerMinuteCurrency,
+			RecordingCostPerMinuteCurrency,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		)
 		SELECT
-			NULL,
 			RateID,
 			RateTableId,
 			TimezonesID,
