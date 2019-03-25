@@ -129,7 +129,6 @@
                     $.post( _url, formData, function( response ) {
                         $(".btn").button('reset');
                         if ( response.status =='success' ) {
-                            alert('success');
                             toastr.success(response.message, "Success", toastr_opts);
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);

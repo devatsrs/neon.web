@@ -59,10 +59,10 @@ class RateGeneratorRuleController extends \BaseController {
             $rategenerator_rule = RateRule::where(["RateRuleId" => $RateRuleID])->get()->first()->toArray();
             $OriginationCode        = $rategenerator_rule["OriginationCode"];
             $OriginationType        = $rategenerator_rule["OriginationType"];
-            $OriginationCountryID        = $rategenerator_rule["OriginationCountryID"];
+            $OriginationCountryID   = $rategenerator_rule["OriginationCountryID"];
             $DestinationCode        = $rategenerator_rule["Code"];
             $DestinationType        = $rategenerator_rule["DestinationType"];
-            $DestinationCountryID        = $rategenerator_rule["DestinationCountryID"];
+            $DestinationCountryID   = $rategenerator_rule["DestinationCountryID"];
 
 
             $type = Rate::where("CompanyID",User::get_companyID())->whereRaw('Type IS NOT NULL')->lists('Type','Type');
@@ -195,7 +195,16 @@ class RateGeneratorRuleController extends \BaseController {
                     }
                 }
             }
-
+            if(isset($data['CountryID']) && $data['CountryID'] == ''){
+                $data['CountryID'] = null;
+            }
+            if(isset($data['DestinationCountryID']) && $data['DestinationCountryID'] == ''){
+                $data['DestinationCountryID'] = null;
+            }
+            if(isset($data['OriginationCountryID']) && $data['OriginationCountryID'] == ''){
+                $data['OriginationCountryID'] = null;
+            }
+           
             if ($rule_id = RateRule::insertGetId($data)) {
 
                 // If type is not DID
@@ -242,8 +251,7 @@ class RateGeneratorRuleController extends \BaseController {
         if ($id > 0 && $RateRuleID > 0) {
             $data = Input::all();
             $rules = array();
-            //dd($data);
-//             $companyID = User::get_companyID();
+          
             $rategenerator_rules = RateRule::findOrFail($RateRuleID); // RateRule::where([ "RateRuleID" => $RateRuleID])->get();
             $rateGenerator = RateGenerator::findOrFail($id);
             $data ['ModifiedBy'] = User::get_user_full_name();
@@ -265,6 +273,16 @@ class RateGeneratorRuleController extends \BaseController {
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
+            }
+
+            if(isset($data['CountryID']) && $data['CountryID'] == ''){
+                $data['CountryID'] = null;
+            }
+            if(isset($data['DestinationCountryID']) && $data['DestinationCountryID'] == ''){
+                $data['DestinationCountryID'] = null;
+            }
+            if(isset($data['OriginationCountryID']) && $data['OriginationCountryID'] == ''){
+                $data['OriginationCountryID'] = null;
             }
 
 
