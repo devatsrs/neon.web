@@ -22,11 +22,20 @@ class RateTable extends \Eloquent
     const RATE_STATUS_AWAITING  = 0;
     const RATE_STATUS_APPROVED  = 1;
     const RATE_STATUS_REJECTED  = 2;
+    const RATE_STATUS_DELETE    = 3;
 
-    public static $RateStatus = array(
-        self::RATE_STATUS_APPROVED  => 'Approved',
+    const RATE_STATUS_NOT_APPROVED  = 11;
+
+    public static $DDRateStatus1 = array(
+        self::RATE_STATUS_APPROVED      => 'Approved',
+        self::RATE_STATUS_NOT_APPROVED  => 'Not Approved'
+    );
+
+    public static $DDRateStatus2 = array(
+        ""                          => 'All',
         self::RATE_STATUS_AWAITING  => 'Awaiting Approval',
-   //     self::RATE_STATUS_REJECTED=>'Rejected'
+        self::RATE_STATUS_REJECTED  => 'Rejected',
+        self::RATE_STATUS_DELETE    => 'Awaiting Approval Delete'
     );
 
     /*

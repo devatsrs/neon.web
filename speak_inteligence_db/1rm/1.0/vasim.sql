@@ -589,6 +589,35 @@ CREATE TABLE IF NOT EXISTS `tblRateTablePKGRateAA` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
+ALTER TABLE `tblRateTableRateAA`
+	DROP INDEX `IX_AA_Unique_RateID_ORateID_RateTableId_TimezonesID_Effective`;
+
+ALTER TABLE `tblRateTableDIDRateAA`
+	DROP INDEX `IX_AA_Unique_RateID_ORateID_RateTableId_Timezone_Effective_CityT`;
+
+ALTER TABLE `tblRateTablePKGRateAA`
+	DROP INDEX `IX_AA_Unique_RateID_RateTableId_Timezone_Effective`;
+
+ALTER TABLE `tblRateTableRateAA`
+	ADD COLUMN `RateTableRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `RateTableRateAAID`;
+
+ALTER TABLE `tblRateTableDIDRateAA`
+	ADD COLUMN `RateTableDIDRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `RateTableDIDRateAAID`;
+
+ALTER TABLE `tblRateTablePKGRateAA`
+	ADD COLUMN `RateTablePKGRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `RateTablePKGRateAAID`;
+
+ALTER TABLE `tblRateTableDIDRateAA`
+	ADD COLUMN `AccessType` VARCHAR(200) NULL DEFAULT NULL AFTER `CityTariff`;
+
+
+
+
+
+
+
+
+
 
 
 
@@ -726,8 +755,12 @@ CREATE PROCEDURE `prc_RateTableRateUpdateDelete`(
 ThisSP:BEGIN
 
 	DECLARE v_RateApprovalProcess_ INT;
-
 	DECLARE v_RateTableAppliedTo_ INT;
+
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -871,72 +904,75 @@ ThisSP:BEGIN
 			((rtr.RateCurrency IS NULL && temp.RateCurrency IS NULL) || rtr.RateCurrency = temp.RateCurrency) AND
 			((rtr.ConnectionFeeCurrency IS NULL && temp.ConnectionFeeCurrency IS NULL) || rtr.ConnectionFeeCurrency = temp.ConnectionFeeCurrency);
 
-		-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
-		IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
-		THEN
-			UPDATE
-				tmp_TempRateTableRate_
-			SET
-				ApprovedStatus = 0,
-				ApprovedBy = NULL,
-				ApprovedDate = NULL;
+	END IF;
 
 
-			INSERT INTO tblRateTableRateAA (
-				OriginationRateID,
-				RateId,
-				RateTableId,
-				TimezonesID,
-				Rate,
-				RateN,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				Interval1,
-				IntervalN,
-				ConnectionFee,
-				RoutingCategoryID,
-				Preference,
-				Blocked,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate,
-				RateCurrency,
-				ConnectionFeeCurrency
-			)
-			SELECT
-				OriginationRateID,
-				RateId,
-				RateTableId,
-				TimezonesID,
-				Rate,
-				RateN,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				Interval1,
-				IntervalN,
-				ConnectionFee,
-				RoutingCategoryID,
-				Preference,
-				Blocked,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate,
-				RateCurrency,
-				ConnectionFeeCurrency
-			FROM
-				tmp_TempRateTableRate_;
+	-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+	IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+	THEN
+		UPDATE
+			tmp_TempRateTableRate_
+		SET
+			ApprovedStatus = 0,
+			ApprovedBy = NULL,
+			ApprovedDate = NULL;
 
-			LEAVE ThisSP;
 
-		END IF;
+		INSERT INTO tblRateTableRateAA (
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency,
+			RateTableRateID
+		)
+		SELECT
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			IF(p_action=1,v_StatusAwaitingApproval_,v_StatusDelete_) AS ApprovedStatus, -- if action=update then status=aa else status=aadelete
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency,
+			RateTableRateID
+		FROM
+			tmp_TempRateTableRate_;
+
+		LEAVE ThisSP;
 
 	END IF;
 
@@ -1068,6 +1104,11 @@ ThisSP:BEGIN
 
 	DECLARE v_RateApprovalProcess_ INT;
 	DECLARE v_RateTableAppliedTo_ INT;
+
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -1259,104 +1300,105 @@ ThisSP:BEGIN
 			((rtr.CollectionCostAmountCurrency IS NULL && temp.CollectionCostAmountCurrency IS NULL) || rtr.CollectionCostAmountCurrency = temp.CollectionCostAmountCurrency) AND
 			((rtr.RegistrationCostPerNumberCurrency IS NULL && temp.RegistrationCostPerNumberCurrency IS NULL) || rtr.RegistrationCostPerNumberCurrency = temp.RegistrationCostPerNumberCurrency);
 
-		-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
-		IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
-		THEN
-			UPDATE
-				tmp_TempRateTableDIDRate_
-			SET
-				ApprovedStatus = 0,
-				ApprovedBy = NULL,
-				ApprovedDate = NULL;
+	END IF;
 
 
-			INSERT INTO tblRateTableDIDRateAA (
-				OriginationRateID,
-				RateId,
-				RateTableId,
-				TimezonesID,
-				CityTariff,
-				OneOffCost,
-				MonthlyCost,
-				CostPerCall,
-				CostPerMinute,
-				SurchargePerCall,
-				SurchargePerMinute,
-				OutpaymentPerCall,
-				OutpaymentPerMinute,
-				Surcharges,
-				Chargeback,
-				CollectionCostAmount,
-				CollectionCostPercentage,
-				RegistrationCostPerNumber,
-				OneOffCostCurrency,
-				MonthlyCostCurrency,
-				CostPerCallCurrency,
-				CostPerMinuteCurrency,
-				SurchargePerCallCurrency,
-				SurchargePerMinuteCurrency,
-				OutpaymentPerCallCurrency,
-				OutpaymentPerMinuteCurrency,
-				SurchargesCurrency,
-				ChargebackCurrency,
-				CollectionCostAmountCurrency,
-				RegistrationCostPerNumberCurrency,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate
-			)
-			SELECT
-				OriginationRateID,
-				RateId,
-				RateTableId,
-				TimezonesID,
-				CityTariff,
-				OneOffCost,
-				MonthlyCost,
-				CostPerCall,
-				CostPerMinute,
-				SurchargePerCall,
-				SurchargePerMinute,
-				OutpaymentPerCall,
-				OutpaymentPerMinute,
-				Surcharges,
-				Chargeback,
-				CollectionCostAmount,
-				CollectionCostPercentage,
-				RegistrationCostPerNumber,
-				OneOffCostCurrency,
-				MonthlyCostCurrency,
-				CostPerCallCurrency,
-				CostPerMinuteCurrency,
-				SurchargePerCallCurrency,
-				SurchargePerMinuteCurrency,
-				OutpaymentPerCallCurrency,
-				OutpaymentPerMinuteCurrency,
-				SurchargesCurrency,
-				ChargebackCurrency,
-				CollectionCostAmountCurrency,
-				RegistrationCostPerNumberCurrency,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate
-			FROM
-				tmp_TempRateTableDIDRate_;
+	-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+	IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+	THEN
+		UPDATE
+			tmp_TempRateTableDIDRate_
+		SET
+			ApprovedStatus = v_StatusAwaitingApproval_,
+			ApprovedBy = NULL,
+			ApprovedDate = NULL;
 
-			LEAVE ThisSP;
 
-		END IF;
+		INSERT INTO tblRateTableDIDRateAA (
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			CityTariff,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			CostPerCallCurrency,
+			CostPerMinuteCurrency,
+			SurchargePerCallCurrency,
+			SurchargePerMinuteCurrency,
+			OutpaymentPerCallCurrency,
+			OutpaymentPerMinuteCurrency,
+			SurchargesCurrency,
+			ChargebackCurrency,
+			CollectionCostAmountCurrency,
+			RegistrationCostPerNumberCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		)
+		SELECT
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			CityTariff,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			CostPerCallCurrency,
+			CostPerMinuteCurrency,
+			SurchargePerCallCurrency,
+			SurchargePerMinuteCurrency,
+			OutpaymentPerCallCurrency,
+			OutpaymentPerMinuteCurrency,
+			SurchargesCurrency,
+			ChargebackCurrency,
+			CollectionCostAmountCurrency,
+			RegistrationCostPerNumberCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			IF(p_action=1,v_StatusAwaitingApproval_,v_StatusDelete_) AS ApprovedStatus, -- if action=update then status=aa else status=aadelete
+			ApprovedBy,
+			ApprovedDate
+		FROM
+			tmp_TempRateTableDIDRate_;
+
+		LEAVE ThisSP;
 
 	END IF;
 
@@ -5494,8 +5536,8 @@ ThisSP:BEGIN
 			LEFT JOIN tblRate AS OriginationRate
 				ON OriginationRate.RateID = tblRateTableRate.OriginationRateID
 				AND OriginationRate.CompanyID = p_companyId
-		  	JOIN tmp_TempTimezones_
-		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableRate.TimezonesID
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableRate.TimezonesID*/
 			LEFT JOIN tmp_TempRateTableRate_ as tblTempRateTableRate
 				ON tblTempRateTableRate.Code = tblRate.Code
 				AND ((tblTempRateTableRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableRate.OriginationCode = OriginationRate.Code))
@@ -5806,8 +5848,13 @@ ThisSP:BEGIN
 			ON tblRate.Code = tblTempRateTableRate.Code
 			AND tblRate.CompanyID = p_companyId
 			AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
+		LEFT JOIN tblRate AS OriginationRate
+			ON OriginationRate.Code = tblTempRateTableRate.OriginationCode
+			AND OriginationRate.CompanyID = p_companyId
+			AND OriginationRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
 		JOIN tblRateTableRate
 			ON tblRateTableRate.RateId = tblRate.RateId
+			AND ((IFNULL(tblRateTableRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableRate.OriginationRateID = OriginationRate.RateID))
 			AND tblRateTableRate.RateTableId = p_RateTableId
 			AND tblRateTableRate.TimezonesID = tblTempRateTableRate.TimezonesID
 		SET tblRateTableRate.EndDate = NOW()
@@ -6167,6 +6214,11 @@ CREATE PROCEDURE `prc_RateTableRateApprove`(
 )
 ThisSP:BEGIN
 
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
@@ -6197,6 +6249,7 @@ ThisSP:BEGIN
 		`RateCurrency` INT(11),
 		`ConnectionFeeCurrency` INT(11),
 		`VendorID` INT(11),
+		`RateTableRateID` INT(11),
 		INDEX tmp_RateTableRate_RateID (`RateID`,`OriginationRateID`,`TimezonesID`,`EffectiveDate`)
 	);
 
@@ -6222,12 +6275,13 @@ ThisSP:BEGIN
 		rtr.RoutingCategoryID,
 		rtr.Preference,
 		rtr.Blocked,
-		p_ApprovedStatus AS ApprovedStatus,
+		rtr.ApprovedStatus AS ApprovedStatus,
 		p_ApprovedBy AS ApprovedBy,
 		NOW() AS ApprovedDate,
 		rtr.RateCurrency,
 		rtr.ConnectionFeeCurrency,
-		rtr.VendorID
+		rtr.VendorID,
+		rtr.RateTableRateID
 	FROM
 		tblRateTableRateAA rtr
 	INNER JOIN
@@ -6245,7 +6299,7 @@ ThisSP:BEGIN
 					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
-					-- (p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
@@ -6256,37 +6310,71 @@ ThisSP:BEGIN
 		) AND
 		rtr.RateTableId = p_RateTableId AND
 		(p_TimezonesID IS NULL OR rtr.TimezonesID = p_TimezonesID) AND
-		rtr.ApprovedStatus = 0;
+		rtr.ApprovedStatus IN (v_StatusAwaitingApproval_,v_StatusDelete_); -- only awaitng approval and awaitng approval delete rates
 
-	IF p_ApprovedStatus = 1 -- approve rates
+
+
+	IF p_ApprovedStatus = v_StatusApproved_ -- approve rates
 	THEN
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate2_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate2_ AS (SELECT * FROM tmp_RateTableRate_);
+
+		-- delete all duplicate records, keep only one - only last aa rate will be approved and all other will be ignored
+		DELETE temp2
+		FROM
+			tmp_RateTableRate2_ temp2
+		INNER JOIN
+			tmp_RateTableRate_ temp1 ON temp1.OriginationRateID = temp2.OriginationRateID
+			AND temp1.RateID = temp2.RateID
+			AND temp1.RateTableId = temp2.RateTableId
+			AND temp1.TimezonesID = temp2.TimezonesID
+			AND (
+					temp1.EffectiveDate = temp2.EffectiveDate OR
+					(temp1.EffectiveDate <= NOW() AND temp2.EffectiveDate <= NOW())
+				)
+		WHERE
+			temp2.RateTableRateAAID < temp1.RateTableRateAAID;
 
 		-- set EndDate to archive rates which needs to approve and exist with same effective date
 		UPDATE
 			tblRateTableRate rtr
 		INNER JOIN
-			tmp_RateTableRate_ temp ON temp.RateId = rtr.RateId AND temp.OriginationRateID = rtr.OriginationRateID AND temp.TimezonesID = rtr.TimezonesID AND temp.EffectiveDate = rtr.EffectiveDate
+			tmp_RateTableRate2_ temp ON temp.RateId = rtr.RateId AND temp.OriginationRateID = rtr.OriginationRateID AND temp.TimezonesID = rtr.TimezonesID AND temp.EffectiveDate = rtr.EffectiveDate
 		SET
-			rtr.EndDate = NOW();
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusAwaitingApproval_;
 
 		-- set EndDate to archive rates which needs to approve and exist with old effective date new rate is <=now() effective date
 		UPDATE
 			tblRateTableRate rtr
 		INNER JOIN
-			tmp_RateTableRate_ temp ON temp.RateId = rtr.RateId AND
+			tmp_RateTableRate2_ temp ON temp.RateId = rtr.RateId AND
 			temp.OriginationRateID = rtr.OriginationRateID AND
 			temp.TimezonesID = rtr.TimezonesID AND
 			(temp.EffectiveDate <= NOW() AND rtr.EffectiveDate <= temp.EffectiveDate)
 		SET
-			rtr.EndDate = NOW();
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusAwaitingApproval_;
+
+		-- set EndDate to archive rates which rate's status is - awaiting approval delete
+		UPDATE
+			tblRateTableRate rtr
+		INNER JOIN
+			tmp_RateTableRate2_ temp ON temp.RateTableRateID = rtr.RateTableRateID
+		SET
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusDelete_;
 
 		--	archive rates
 		CALL prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_ApprovedBy);
 
 		-- insert approved rates to tblRateTableRate
 		INSERT INTO	tblRateTableRate
-		SELECT
-			NULL,
+		(
 			OriginationRateID,
 			RateID,
 			RateTableId,
@@ -6312,8 +6400,37 @@ ThisSP:BEGIN
 			RateCurrency,
 			ConnectionFeeCurrency,
 			VendorID
+		)
+		SELECT
+			OriginationRateID,
+			RateID,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			PreviousRate,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			v_StatusApproved_ AS ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency,
+			VendorID
 		FROM
-			tmp_RateTableRate_;
+			tmp_RateTableRate2_
+		WHERE
+			ApprovedStatus = v_StatusAwaitingApproval_;
 
 		-- delete from Awaiting Approval table after inserting into tblRateTableRate
 		DELETE AA
@@ -6322,6 +6439,10 @@ ThisSP:BEGIN
 		INNER JOIN
 			tmp_RateTableRate_ AS temp ON temp.RateTableRateAAID = AA.RateTableRateAAID;
 
+
+		CALL prc_RateTableRateUpdatePreviousRate(p_RateTableId,'');
+		CALL prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_ApprovedBy);
+
 	ELSE -- reject/disapprove rates
 
 		UPDATE
@@ -6329,7 +6450,7 @@ ThisSP:BEGIN
 		INNER JOIN
 			tmp_RateTableRate_ temp ON temp.RateTableRateAAID = rtr.RateTableRateAAID
 		SET
-			rtr.ApprovedStatus = temp.ApprovedStatus, rtr.ApprovedBy = temp.ApprovedBy, rtr.ApprovedDate = temp.ApprovedDate;
+			rtr.ApprovedStatus = p_ApprovedStatus, rtr.ApprovedBy = temp.ApprovedBy, rtr.ApprovedDate = temp.ApprovedDate;
 
 	END IF;
 
@@ -6361,6 +6482,11 @@ CREATE PROCEDURE `prc_RateTableDIDRateApprove`(
 	IN `p_action` INT
 )
 ThisSP:BEGIN
+
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -6407,6 +6533,7 @@ ThisSP:BEGIN
 		`ApprovedBy` VARCHAR(50),
 		`ApprovedDate` DATETIME,
 		`VendorID` INT(11),
+		`RateTableDIDRateID` BIGINT(20),
 		INDEX tmp_RateTableDIDRate_RateID (`RateID`,`OriginationRateID`,`TimezonesID`,`EffectiveDate`,`CityTariff`)
 	);
 
@@ -6449,10 +6576,11 @@ ThisSP:BEGIN
 		rtr.updated_at,
 		rtr.CreatedBy,
 		rtr.ModifiedBy,
-		p_ApprovedStatus AS ApprovedStatus,
+		rtr.ApprovedStatus AS ApprovedStatus,
 		p_ApprovedBy AS ApprovedBy,
 		NOW() AS ApprovedDate,
-		rtr.VendorID
+		rtr.VendorID,
+		rtr.RateTableDIDRateID
 	FROM
 		tblRateTableDIDRateAA rtr
 	INNER JOIN
@@ -6470,7 +6598,7 @@ ThisSP:BEGIN
 					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
-					-- (p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
@@ -6481,38 +6609,71 @@ ThisSP:BEGIN
 		) AND
 		rtr.RateTableId = p_RateTableId AND
 		(p_TimezonesID IS NULL OR rtr.TimezonesID = p_TimezonesID) AND
-		rtr.ApprovedStatus = 0;
+		rtr.ApprovedStatus IN (v_StatusAwaitingApproval_,v_StatusDelete_); -- only awaitng approval and awaitng approval delete rates
 
-	IF p_ApprovedStatus = 1 -- approve rates
+	IF p_ApprovedStatus = v_StatusApproved_ -- approve rates
 	THEN
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRate2_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableDIDRate2_ AS (SELECT * FROM tmp_RateTableDIDRate_);
+
+		-- delete all duplicate records, keep only one - only last aa rate will be approved and all other will be ignored
+		DELETE temp2
+		FROM
+			tmp_RateTableDIDRate2_ temp2
+		INNER JOIN
+			tmp_RateTableDIDRate_ temp1 ON temp1.OriginationRateID = temp2.OriginationRateID
+			AND temp1.RateID = temp2.RateID
+			AND temp1.RateTableId = temp2.RateTableId
+			AND temp1.TimezonesID = temp2.TimezonesID
+			AND temp1.CityTariff = temp2.CityTariff
+			AND (
+					temp1.EffectiveDate = temp2.EffectiveDate OR
+					(temp1.EffectiveDate <= NOW() AND temp2.EffectiveDate <= NOW())
+				)
+		WHERE
+			temp2.RateTableDIDRateAAID < temp1.RateTableDIDRateAAID;
 
 		-- set EndDate to archive rates which needs to approve and exist with same effective date
 		UPDATE
 			tblRateTableDIDRate rtr
 		INNER JOIN
-			tmp_RateTableDIDRate_ temp ON temp.RateId = rtr.RateId AND temp.OriginationRateID = rtr.OriginationRateID AND temp.TimezonesID = rtr.TimezonesID AND temp.EffectiveDate = rtr.EffectiveDate AND temp.CityTariff = rtr.CityTariff
+			tmp_RateTableDIDRate2_ temp ON temp.RateId = rtr.RateId AND temp.OriginationRateID = rtr.OriginationRateID AND temp.TimezonesID = rtr.TimezonesID AND temp.EffectiveDate = rtr.EffectiveDate AND temp.CityTariff = rtr.CityTariff
 		SET
-			rtr.EndDate = NOW();
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusAwaitingApproval_;
 
 		-- set EndDate to archive rates which needs to approve and exist with old effective date new rate is <=now() effective date
 		UPDATE
 			tblRateTableDIDRate rtr
 		INNER JOIN
-			tmp_RateTableDIDRate_ temp ON temp.RateId = rtr.RateId AND
+			tmp_RateTableDIDRate2_ temp ON temp.RateId = rtr.RateId AND
 			temp.OriginationRateID = rtr.OriginationRateID AND
 			temp.TimezonesID = rtr.TimezonesID AND
 			(temp.EffectiveDate <= NOW() AND rtr.EffectiveDate <= temp.EffectiveDate) AND
 			temp.CityTariff = rtr.CityTariff
 		SET
-			rtr.EndDate = NOW();
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusAwaitingApproval_;
+
+		-- set EndDate to archive rates which rate's status is - awaiting approval delete
+		UPDATE
+			tblRateTableDIDRate rtr
+		INNER JOIN
+			tmp_RateTableDIDRate2_ temp ON temp.RateTableDIDRateID = rtr.RateTableDIDRateID
+		SET
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusDelete_;
 
 		--	archive rates
 		CALL prc_ArchiveOldRateTableDIDRate(p_RateTableId, NULL,p_ApprovedBy);
 
 		-- insert approved rates to tblRateTableDIDRate
 		INSERT INTO	tblRateTableDIDRate
-		SELECT
-			NULL,
+		(
 			OriginationRateID,
 			RateID,
 			RateTableId,
@@ -6553,8 +6714,52 @@ ThisSP:BEGIN
 			ApprovedBy,
 			ApprovedDate,
 			VendorID
+		)
+		SELECT
+			OriginationRateID,
+			RateID,
+			RateTableId,
+			TimezonesID,
+			EffectiveDate,
+			EndDate,
+			CityTariff,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			CostPerCallCurrency,
+			CostPerMinuteCurrency,
+			SurchargePerCallCurrency,
+			SurchargePerMinuteCurrency,
+			OutpaymentPerCallCurrency,
+			OutpaymentPerMinuteCurrency,
+			SurchargesCurrency,
+			ChargebackCurrency,
+			CollectionCostAmountCurrency,
+			RegistrationCostPerNumberCurrency,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			v_StatusApproved_ AS ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			VendorID
 		FROM
-			tmp_RateTableDIDRate_;
+			tmp_RateTableDIDRate2_
+		WHERE
+			ApprovedStatus = v_StatusAwaitingApproval_;
 
 		-- delete from Awaiting Approval table after inserting into tblRateTableDIDRate
 		DELETE AA
@@ -6563,6 +6768,8 @@ ThisSP:BEGIN
 		INNER JOIN
 			tmp_RateTableDIDRate_ AS temp ON temp.RateTableDIDRateAAID = AA.RateTableDIDRateAAID;
 
+		CALL prc_ArchiveOldRateTableDIDRate(p_RateTableId, NULL,p_ApprovedBy);
+
 	ELSE -- reject/disapprove rates
 
 		UPDATE
@@ -6570,7 +6777,7 @@ ThisSP:BEGIN
 		INNER JOIN
 			tmp_RateTableDIDRate_ temp ON temp.RateTableDIDRateAAID = rtr.RateTableDIDRateAAID
 		SET
-			rtr.ApprovedStatus = temp.ApprovedStatus, rtr.ApprovedBy = temp.ApprovedBy, rtr.ApprovedDate = temp.ApprovedDate;
+			rtr.ApprovedStatus = p_ApprovedStatus, rtr.ApprovedBy = temp.ApprovedBy, rtr.ApprovedDate = temp.ApprovedDate;
 
 	END IF;
 
@@ -6879,6 +7086,46 @@ ThisSP:BEGIN
 		n1.ProcessId = p_processId;
 
 	INSERT INTO tmp_TempRateTableDIDRate_
+	(
+		`TempRateTableDIDRateID`,
+		CodeDeckId,
+		TimezonesID,
+		OriginationCode,
+		OriginationDescription,
+		Code,
+		Description,
+		CityTariff,
+		OneOffCost,
+		MonthlyCost,
+		CostPerCall,
+		CostPerMinute,
+		SurchargePerCall,
+		SurchargePerMinute,
+		OutpaymentPerCall,
+		OutpaymentPerMinute,
+		Surcharges,
+		Chargeback,
+		CollectionCostAmount,
+		CollectionCostPercentage,
+		RegistrationCostPerNumber,
+		OneOffCostCurrency,
+		MonthlyCostCurrency,
+		CostPerCallCurrency,
+		CostPerMinuteCurrency,
+		SurchargePerCallCurrency,
+		SurchargePerMinuteCurrency,
+		OutpaymentPerCallCurrency,
+		OutpaymentPerMinuteCurrency,
+		SurchargesCurrency,
+		ChargebackCurrency,
+		CollectionCostAmountCurrency,
+		RegistrationCostPerNumberCurrency,
+		EffectiveDate,
+		EndDate,
+		`Change`,
+		ProcessId,
+		DialStringPrefix
+	)
 	SELECT DISTINCT
 		`TempRateTableDIDRateID`,
 		`CodeDeckId`,
@@ -10612,8 +10859,8 @@ ThisSP:BEGIN
 			LEFT JOIN tblRate AS OriginationRate
 				ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
 				AND OriginationRate.CompanyID = p_companyId
-		  	JOIN tmp_TempTimezones_
-		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableDIDRate.TimezonesID
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableDIDRate.TimezonesID*/
 			LEFT JOIN tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
 				ON tblTempRateTableDIDRate.Code = tblRate.Code
 				AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
@@ -12040,6 +12287,11 @@ CREATE PROCEDURE `prc_RateTablePKGRateApprove`(
 )
 ThisSP:BEGIN
 
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTablePKGRate_;
@@ -12065,6 +12317,7 @@ ThisSP:BEGIN
 		`ApprovedStatus` TINYINT(4),
 		`ApprovedBy` VARCHAR(50),
 		`ApprovedDate` DATETIME,
+		`RateTablePKGRateID` INT(11),
 		INDEX tmp_RateTablePKGRate_RateID (`RateID`,`TimezonesID`,`EffectiveDate`)
 	);
 
@@ -12088,9 +12341,10 @@ ThisSP:BEGIN
 		rtr.updated_at,
 		rtr.CreatedBy,
 		rtr.ModifiedBy,
-		p_ApprovedStatus AS ApprovedStatus,
+		rtr.ApprovedStatus AS ApprovedStatus,
 		p_ApprovedBy AS ApprovedBy,
-		NOW() AS ApprovedDate
+		NOW() AS ApprovedDate,
+		rtr.RateTablePKGRateID
 	FROM
 		tblRateTablePKGRateAA rtr
 	INNER JOIN
@@ -12102,7 +12356,7 @@ ThisSP:BEGIN
 				p_Critearea = 1 AND
 				(
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
-					-- (p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
@@ -12113,36 +12367,67 @@ ThisSP:BEGIN
 		) AND
 		rtr.RateTableId = p_RateTableId AND
 		(p_TimezonesID IS NULL OR rtr.TimezonesID = p_TimezonesID) AND
-		rtr.ApprovedStatus = 0;
+		rtr.ApprovedStatus IN (v_StatusAwaitingApproval_,v_StatusDelete_); -- only awaitng approval and awaitng approval delete rates
 
-	IF p_ApprovedStatus = 1 -- approve rates
+	IF p_ApprovedStatus = v_StatusApproved_ -- approve rates
 	THEN
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateTablePKGRate2_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTablePKGRate2_ AS (SELECT * FROM tmp_RateTablePKGRate_);
+
+		-- delete all duplicate records, keep only one - only last aa rate will be approved and all other will be ignored
+		DELETE temp2
+		FROM
+			tmp_RateTablePKGRate2_ temp2
+		INNER JOIN
+			tmp_RateTablePKGRate_ temp1 ON temp1.RateID = temp2.RateID
+			AND temp1.RateTableId = temp2.RateTableId
+			AND temp1.TimezonesID = temp2.TimezonesID
+			AND (
+					temp1.EffectiveDate = temp2.EffectiveDate OR
+					(temp1.EffectiveDate <= NOW() AND temp2.EffectiveDate <= NOW())
+				)
+		WHERE
+			temp2.RateTablePKGRateAAID < temp1.RateTablePKGRateAAID;
 
 		-- set EndDate to archive rates which needs to approve and exist with same effective date
 		UPDATE
 			tblRateTablePKGRate rtr
 		INNER JOIN
-			tmp_RateTablePKGRate_ temp ON temp.RateId = rtr.RateId AND temp.TimezonesID = rtr.TimezonesID AND temp.EffectiveDate = rtr.EffectiveDate
+			tmp_RateTablePKGRate2_ temp ON temp.RateId = rtr.RateId AND temp.TimezonesID = rtr.TimezonesID AND temp.EffectiveDate = rtr.EffectiveDate
 		SET
-			rtr.EndDate = NOW();
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusAwaitingApproval_;
 
 		-- set EndDate to archive rates which needs to approve and exist with old effective date new rate is <=now() effective date
 		UPDATE
 			tblRateTablePKGRate rtr
 		INNER JOIN
-			tmp_RateTablePKGRate_ temp ON temp.RateId = rtr.RateId AND
+			tmp_RateTablePKGRate2_ temp ON temp.RateId = rtr.RateId AND
 			temp.TimezonesID = rtr.TimezonesID AND
 			(temp.EffectiveDate <= NOW() AND rtr.EffectiveDate <= temp.EffectiveDate)
 		SET
-			rtr.EndDate = NOW();
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusAwaitingApproval_;
+
+		-- set EndDate to archive rates which rate's status is - awaiting approval delete
+		UPDATE
+			tblRateTablePKGRate rtr
+		INNER JOIN
+			tmp_RateTablePKGRate2_ temp ON temp.RateTablePKGRateID = rtr.RateTablePKGRateID
+		SET
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusDelete_;
 
 		--	archive rates
 		CALL prc_ArchiveOldRateTablePKGRate(p_RateTableId, NULL,p_ApprovedBy);
 
 		-- insert approved rates to tblRateTablePKGRate
 		INSERT INTO	tblRateTablePKGRate
-		SELECT
-			NULL,
+		(
 			RateID,
 			RateTableId,
 			TimezonesID,
@@ -12163,8 +12448,32 @@ ThisSP:BEGIN
 			ApprovedStatus,
 			ApprovedBy,
 			ApprovedDate
+		)
+		SELECT
+			RateID,
+			RateTableId,
+			TimezonesID,
+			EffectiveDate,
+			EndDate,
+			OneOffCost,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			PackageCostPerMinuteCurrency,
+			RecordingCostPerMinuteCurrency,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			v_StatusApproved_ AS ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
 		FROM
-			tmp_RateTablePKGRate_;
+			tmp_RateTablePKGRate_
+		WHERE
+			ApprovedStatus = v_StatusAwaitingApproval_;
 
 		-- delete from Awaiting Approval table after inserting into tblRateTablePKGRate
 		DELETE AA
@@ -12173,6 +12482,8 @@ ThisSP:BEGIN
 		INNER JOIN
 			tmp_RateTablePKGRate_ AS temp ON temp.RateTablePKGRateAAID = AA.RateTablePKGRateAAID;
 
+		CALL prc_ArchiveOldRateTablePKGRate(p_RateTableId, NULL,p_ApprovedBy);
+
 	ELSE -- reject/disapprove rates
 
 		UPDATE
@@ -12180,7 +12491,7 @@ ThisSP:BEGIN
 		INNER JOIN
 			tmp_RateTablePKGRate_ temp ON temp.RateTablePKGRateAAID = rtr.RateTablePKGRateAAID
 		SET
-			rtr.ApprovedStatus = temp.ApprovedStatus, rtr.ApprovedBy = temp.ApprovedBy, rtr.ApprovedDate = temp.ApprovedDate;
+			rtr.ApprovedStatus = p_ApprovedStatus, rtr.ApprovedBy = temp.ApprovedBy, rtr.ApprovedDate = temp.ApprovedDate;
 
 	END IF;
 
@@ -12249,6 +12560,25 @@ ThisSP:BEGIN
 		n1.ProcessId = p_processId;
 
 	INSERT INTO tmp_TempRateTablePKGRate_
+	(
+		`TempRateTablePKGRateID`,
+		`CodeDeckId`,
+		`TimezonesID`,
+		`Code`,
+		`Description`,
+		`OneOffCost`,
+		`MonthlyCost`,
+		`PackageCostPerMinute`,
+		`RecordingCostPerMinute`,
+		`OneOffCostCurrency`,
+		`MonthlyCostCurrency`,
+		`PackageCostPerMinuteCurrency`,
+		`RecordingCostPerMinuteCurrency`,
+		`EffectiveDate`,
+		`EndDate`,
+		`Change`,
+		`ProcessId`
+	)
 	SELECT DISTINCT
 		`TempRateTablePKGRateID`,
 		`CodeDeckId`,
@@ -12331,6 +12661,11 @@ ThisSP:BEGIN
 
 	DECLARE v_RateApprovalProcess_ INT;
 	DECLARE v_RateTableAppliedTo_ INT;
+
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -12458,65 +12793,66 @@ ThisSP:BEGIN
 			((rtr.PackageCostPerMinuteCurrency IS NULL && temp.PackageCostPerMinuteCurrency IS NULL) || rtr.PackageCostPerMinuteCurrency = temp.PackageCostPerMinuteCurrency) AND
 			((rtr.RecordingCostPerMinuteCurrency IS NULL && temp.RecordingCostPerMinuteCurrency IS NULL) || rtr.RecordingCostPerMinuteCurrency = temp.RecordingCostPerMinuteCurrency);
 
-		-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
-		IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
-		THEN
-			UPDATE
-				tmp_TempRateTablePKGRate_
-			SET
-				ApprovedStatus = 0,
-				ApprovedBy = NULL,
-				ApprovedDate = NULL;
+	END IF;
 
-			INSERT INTO tblRateTablePKGRateAA (
-				RateId,
-				RateTableId,
-				TimezonesID,
-				OneOffCost,
-				MonthlyCost,
-				PackageCostPerMinute,
-				RecordingCostPerMinute,
-				OneOffCostCurrency,
-				MonthlyCostCurrency,
-				PackageCostPerMinuteCurrency,
-				RecordingCostPerMinuteCurrency,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate
-			)
-			SELECT
-				RateId,
-				RateTableId,
-				TimezonesID,
-				OneOffCost,
-				MonthlyCost,
-				PackageCostPerMinute,
-				RecordingCostPerMinute,
-				OneOffCostCurrency,
-				MonthlyCostCurrency,
-				PackageCostPerMinuteCurrency,
-				RecordingCostPerMinuteCurrency,
-				EffectiveDate,
-				EndDate,
-				created_at,
-				updated_at,
-				CreatedBy,
-				ModifiedBy,
-				ApprovedStatus,
-				ApprovedBy,
-				ApprovedDate
-			FROM
-				tmp_TempRateTablePKGRate_;
 
-			LEAVE ThisSP;
+	-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+	IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+	THEN
+		UPDATE
+			tmp_TempRateTablePKGRate_
+		SET
+			ApprovedStatus = 0,
+			ApprovedBy = NULL,
+			ApprovedDate = NULL;
 
-		END IF;
+		INSERT INTO tblRateTablePKGRateAA (
+			RateId,
+			RateTableId,
+			TimezonesID,
+			OneOffCost,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			PackageCostPerMinuteCurrency,
+			RecordingCostPerMinuteCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		)
+		SELECT
+			RateId,
+			RateTableId,
+			TimezonesID,
+			OneOffCost,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			PackageCostPerMinuteCurrency,
+			RecordingCostPerMinuteCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			IF(p_action=1,v_StatusAwaitingApproval_,v_StatusDelete_) AS ApprovedStatus, -- if action=update then status=aa else status=aadelete
+			ApprovedBy,
+			ApprovedDate
+		FROM
+			tmp_TempRateTablePKGRate_;
+
+		LEAVE ThisSP;
 
 	END IF;
 
@@ -12800,8 +13136,8 @@ ThisSP:BEGIN
 			JOIN tblRate
 				ON tblRate.RateID = tblRateTablePKGRate.RateId
 				AND tblRate.CompanyID = p_companyId
-		  	JOIN tmp_TempTimezones_
-		  		ON tmp_TempTimezones_.TimezonesID = tblRateTablePKGRate.TimezonesID
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTablePKGRate.TimezonesID*/
 			LEFT JOIN tmp_TempRateTablePKGRate_ as tblTempRateTablePKGRate
 				ON tblTempRateTablePKGRate.Code = tblRate.Code
 				AND tblTempRateTablePKGRate.TimezonesID = tblRateTablePKGRate.TimezonesID
@@ -13705,6 +14041,7 @@ BEGIN
 		ON rtr2.RateTableId = rtr.RateTableId
 		AND rtr2.RateID = rtr.RateID
 		AND rtr2.OriginationRateID = rtr.OriginationRateID
+		AND rtr2.CityTariff = rtr.CityTariff
 		AND rtr2.TimezonesID = rtr.TimezonesID
 	SET
 		rtr.EndDate=NOW()
@@ -14210,7 +14547,7 @@ BEGIN
 		AND (p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
 		AND (p_CityTariff is null OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'))
-	--	AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
+		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND (p_TimezonesID IS NULL OR tblRateTableDIDRate.TimezonesID = p_TimezonesID)
 		AND (
@@ -14542,7 +14879,7 @@ BEGIN
     WHERE
 		(tblRate.CompanyID = p_companyid)
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
-	--	AND (p_ApprovedStatus IS NULL OR tblRateTablePKGRate.ApprovedStatus = p_ApprovedStatus)
+		AND (p_ApprovedStatus IS NULL OR tblRateTablePKGRate.ApprovedStatus = p_ApprovedStatus)
 		AND (p_TimezonesID IS NULL OR tblRateTablePKGRate.TimezonesID = p_TimezonesID)
 		AND (
 				p_effective = 'All'
@@ -14781,7 +15118,7 @@ BEGIN
 		AND (p_origination_description IS NULL OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%'))
 		AND (p_code IS NULL OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
 		AND (p_description IS NULL OR tblRate.Description LIKE REPLACE(p_description, '*', '%'))
-	--	AND (p_ApprovedStatus IS NULL OR tblRateTableRate.ApprovedStatus = p_ApprovedStatus)
+		AND (p_ApprovedStatus IS NULL OR tblRateTableRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND (p_TimezonesID IS NULL OR tblRateTableRate.TimezonesID = p_TimezonesID)
 		AND (
@@ -15004,6 +15341,7 @@ CREATE PROCEDURE `prc_RateTableDIDRateAAUpdateDelete`(
 	IN `p_Critearea_OriginationDescription` VARCHAR(200),
 	IN `p_Critearea_Effective` VARCHAR(50),
 	IN `p_TimezonesID` INT,
+	IN `p_Critearea_ApprovedStatus` TINYINT,
 	IN `p_ModifiedBy` varchar(50),
 	IN `p_Critearea` INT,
 	IN `p_action` INT
@@ -15131,7 +15469,7 @@ ThisSP:BEGIN
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
 					((p_Critearea_CityTariff IS NULL) OR (p_Critearea_CityTariff IS NOT NULL AND rtr.CityTariff LIKE REPLACE(p_Critearea_CityTariff,'*', '%'))) AND
-				--	(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
@@ -15414,7 +15752,7 @@ ThisSP:BEGIN
 				p_Critearea = 1 AND
 				(
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
-				--	(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
@@ -15561,6 +15899,7 @@ CREATE PROCEDURE `prc_RateTableRateAAUpdateDelete`(
 	IN `p_Critearea_OriginationDescription` VARCHAR(200),
 	IN `p_Critearea_Effective` VARCHAR(50),
 	IN `p_TimezonesID` INT,
+	IN `p_Critearea_ApprovedStatus` TINYINT,
 	IN `p_ModifiedBy` VARCHAR(50),
 	IN `p_Critearea` INT,
 	IN `p_action` INT
@@ -15655,7 +15994,7 @@ ThisSP:BEGIN
 					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
-				--	(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
@@ -15877,8 +16216,9 @@ ThisSP:BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableDIDRate_;
 	CREATE TEMPORARY TABLE tmp_TempRateTableDIDRate_ (
-		TempRateTableDIDRateID int,
-		`CodeDeckId` int ,
+		TempRateTableDIDRateID INT,
+		RateTableDIDRateID INT DEFAULT 0,
+		`CodeDeckId` INT ,
 		`TimezonesID` INT,
 		`OriginationCode` varchar(50) NULL DEFAULT NULL,
 		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
@@ -15915,6 +16255,7 @@ ThisSP:BEGIN
 		`Change` varchar(100) ,
 		`ProcessId` varchar(200) ,
 		`DialStringPrefix` varchar(500) ,
+		`ApprovedStatus` TINYINT(4) DEFAULT 0,
 		INDEX tmp_EffectiveDate (`EffectiveDate`),
 		INDEX tmp_OriginationCode (`OriginationCode`),
 		INDEX tmp_Code (`Code`),
@@ -15924,44 +16265,46 @@ ThisSP:BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_Delete_RateTableDIDRate;
 	CREATE TEMPORARY TABLE tmp_Delete_RateTableDIDRate (
+		TempRateTableDIDRateID INT DEFAULT 0,
 		RateTableDIDRateID INT,
-		RateTableId INT,
-		TimezonesID INT,
-		OriginationRateID INT,
-		OriginationCode VARCHAR(50),
-		OriginationDescription VARCHAR(200),
-		RateId INT,
-		Code VARCHAR(50),
-		Description VARCHAR(200),
-		CityTariff varchar(50),
-		OneOffCost decimal(18,6) DEFAULT NULL,
-	  	MonthlyCost decimal(18,6) DEFAULT NULL,
-	  	CostPerCall decimal(18,6) DEFAULT NULL,
-	  	CostPerMinute decimal(18,6) DEFAULT NULL,
-	  	SurchargePerCall decimal(18,6) DEFAULT NULL,
-	  	SurchargePerMinute decimal(18,6) DEFAULT NULL,
-	  	OutpaymentPerCall decimal(18,6) DEFAULT NULL,
-	  	OutpaymentPerMinute decimal(18,6) DEFAULT NULL,
-	  	Surcharges decimal(18,6) DEFAULT NULL,
-	  	Chargeback decimal(18,6) DEFAULT NULL,
-	  	CollectionCostAmount decimal(18,6) DEFAULT NULL,
-	  	CollectionCostPercentage decimal(18,6) DEFAULT NULL,
-	  	RegistrationCostPerNumber decimal(18,6) DEFAULT NULL,
-		OneOffCostCurrency INT(11) NULL DEFAULT NULL,
-		MonthlyCostCurrency INT(11) NULL DEFAULT NULL,
-		CostPerCallCurrency INT(11) NULL DEFAULT NULL,
-		CostPerMinuteCurrency INT(11) NULL DEFAULT NULL,
-		SurchargePerCallCurrency INT(11) NULL DEFAULT NULL,
-		SurchargePerMinuteCurrency INT(11) NULL DEFAULT NULL,
-		OutpaymentPerCallCurrency INT(11) NULL DEFAULT NULL,
-		OutpaymentPerMinuteCurrency INT(11) NULL DEFAULT NULL,
-		SurchargesCurrency INT(11) NULL DEFAULT NULL,
-		ChargebackCurrency INT(11) NULL DEFAULT NULL,
-		CollectionCostAmountCurrency INT(11) NULL DEFAULT NULL,
-		RegistrationCostPerNumberCurrency INT(11) NULL DEFAULT NULL,
-		EffectiveDate DATETIME,
-		EndDate Datetime ,
-		deleted_at DATETIME,
+		`CodeDeckId` INT ,
+		`TimezonesID` INT,
+		`OriginationCode` varchar(50) NULL DEFAULT NULL,
+		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
+		`Code` varchar(50) ,
+		`Description` varchar(200) ,
+		`CityTariff` varchar(50),
+		`OneOffCost` decimal(18,6) DEFAULT NULL,
+	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
+	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
+	  	`CostPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerCall` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerMinute` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerCall` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`Surcharges` decimal(18,6) DEFAULT NULL,
+	  	`Chargeback` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostAmount` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
+	  	`RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
+		`OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
+		`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
+		`CostPerCallCurrency` INT(11) NULL DEFAULT NULL,
+		`CostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
+		`SurchargePerCallCurrency` INT(11) NULL DEFAULT NULL,
+		`SurchargePerMinuteCurrency` INT(11) NULL DEFAULT NULL,
+		`OutpaymentPerCallCurrency` INT(11) NULL DEFAULT NULL,
+		`OutpaymentPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
+		`SurchargesCurrency` INT(11) NULL DEFAULT NULL,
+		`ChargebackCurrency` INT(11) NULL DEFAULT NULL,
+		`CollectionCostAmountCurrency` INT(11) NULL DEFAULT NULL,
+		`RegistrationCostPerNumberCurrency` INT(11) NULL DEFAULT NULL,
+		`EffectiveDate` Datetime ,
+		`EndDate` Datetime ,
+		`Change` varchar(100) ,
+		`ProcessId` varchar(200) ,
+		`DialStringPrefix` varchar(500) ,
+		`ApprovedStatus` TINYINT(4) DEFAULT 0,
 		INDEX tmp_RateTableDIDRateDiscontinued_RateTableDIDRateID (`RateTableDIDRateID`)
 	);
 
@@ -15974,6 +16317,120 @@ ThisSP:BEGIN
 
 	IF newstringcode = 0
 	THEN
+
+
+		IF p_list_option = 1
+		THEN
+
+			INSERT INTO tmp_Delete_RateTableDIDRate(
+				RateTableDIDRateID,
+				CodeDeckId,
+				TimezonesID,
+				OriginationCode,
+				OriginationDescription,
+				Code,
+				Description,
+				CityTariff,
+				OneOffCost,
+				MonthlyCost,
+				CostPerCall,
+				CostPerMinute,
+				SurchargePerCall,
+				SurchargePerMinute,
+				OutpaymentPerCall,
+				OutpaymentPerMinute,
+				Surcharges,
+				Chargeback,
+				CollectionCostAmount,
+				CollectionCostPercentage,
+				RegistrationCostPerNumber,
+				OneOffCostCurrency,
+				MonthlyCostCurrency,
+				CostPerCallCurrency,
+				CostPerMinuteCurrency,
+				SurchargePerCallCurrency,
+				SurchargePerMinuteCurrency,
+				OutpaymentPerCallCurrency,
+				OutpaymentPerMinuteCurrency,
+				SurchargesCurrency,
+				ChargebackCurrency,
+				CollectionCostAmountCurrency,
+				RegistrationCostPerNumberCurrency,
+				EffectiveDate,
+				EndDate,
+				`Change`,
+				ProcessId,
+				DialStringPrefix,
+				ApprovedStatus
+			)
+			SELECT DISTINCT
+				tblRateTableDIDRate.RateTableDIDRateID,
+				tblRateTable.CodeDeckId AS CodeDeckId,
+				tblRateTableDIDRate.TimezonesID,
+				OriginationRate.Code AS OriginationCode,
+				OriginationRate.Description AS OriginationDescription,
+				tblRate.Code,
+				tblRate.Description,
+				tblRateTableDIDRate.CityTariff,
+				tblRateTableDIDRate.OneOffCost,
+				tblRateTableDIDRate.MonthlyCost,
+				tblRateTableDIDRate.CostPerCall,
+				tblRateTableDIDRate.CostPerMinute,
+				tblRateTableDIDRate.SurchargePerCall,
+				tblRateTableDIDRate.SurchargePerMinute,
+				tblRateTableDIDRate.OutpaymentPerCall,
+				tblRateTableDIDRate.OutpaymentPerMinute,
+				tblRateTableDIDRate.Surcharges,
+				tblRateTableDIDRate.Chargeback,
+				tblRateTableDIDRate.CollectionCostAmount,
+				tblRateTableDIDRate.CollectionCostPercentage,
+				tblRateTableDIDRate.RegistrationCostPerNumber,
+				tblRateTableDIDRate.OneOffCostCurrency,
+				tblRateTableDIDRate.MonthlyCostCurrency,
+				tblRateTableDIDRate.CostPerCallCurrency,
+				tblRateTableDIDRate.CostPerMinuteCurrency,
+				tblRateTableDIDRate.SurchargePerCallCurrency,
+				tblRateTableDIDRate.SurchargePerMinuteCurrency,
+				tblRateTableDIDRate.OutpaymentPerCallCurrency,
+				tblRateTableDIDRate.OutpaymentPerMinuteCurrency,
+				tblRateTableDIDRate.SurchargesCurrency,
+				tblRateTableDIDRate.ChargebackCurrency,
+				tblRateTableDIDRate.CollectionCostAmountCurrency,
+				tblRateTableDIDRate.RegistrationCostPerNumberCurrency,
+				tblRateTableDIDRate.EffectiveDate,
+				NULL AS EndDate,
+				'Delete' AS `Change`,
+				p_processId AS ProcessId,
+				'' AS DialStringPrefix,
+				3 AS ApprovedStatus
+			FROM tblRateTableDIDRate
+			JOIN tblRateTable
+				ON tblRateTable.RateTableId = tblRateTableDIDRate.RateTableId
+			JOIN tblRate
+				ON tblRate.RateID = tblRateTableDIDRate.RateId
+				AND tblRate.CompanyID = p_companyId
+			LEFT JOIN tblRate AS OriginationRate
+				ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
+				AND OriginationRate.CompanyID = p_companyId
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableDIDRate.TimezonesID*/
+			LEFT JOIN tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+				ON tblTempRateTableDIDRate.Code = tblRate.Code
+				AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
+				AND tblTempRateTableDIDRate.TimezonesID = tblRateTableDIDRate.TimezonesID
+				AND tblTempRateTableDIDRate.CityTariff = tblRateTableDIDRate.CityTariff
+				AND  tblTempRateTableDIDRate.ProcessId = p_processId
+				AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
+			WHERE tblRateTableDIDRate.RateTableId = p_RateTableId
+				AND tblTempRateTableDIDRate.Code IS NULL
+				AND ( tblRateTableDIDRate.EndDate is NULL OR tblRateTableDIDRate.EndDate <= date(now()) )
+			ORDER BY RateTableDIDRateID ASC;
+
+
+		END IF;
+
+
+
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableDIDRate_2;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableDIDRate_2 AS (SELECT * FROM tmp_TempRateTableDIDRate_);
@@ -16253,7 +16710,8 @@ ThisSP:BEGIN
 				RegistrationCostPerNumberCurrency,
 				EffectiveDate,
 				EndDate,
-				ApprovedStatus
+				ApprovedStatus,
+				RateTableDIDRateID
 			)
 			SELECT DISTINCT
 				',p_RateTableId,' AS RateTableId,
@@ -16333,8 +16791,19 @@ ThisSP:BEGIN
 				tblTempRateTableDIDRate.RegistrationCostPerNumberCurrency,
 				tblTempRateTableDIDRate.EffectiveDate,
 				tblTempRateTableDIDRate.EndDate,
-				0 AS ApprovedStatus
-			FROM tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+				tblTempRateTableDIDRate.ApprovedStatus,
+				tblTempRateTableDIDRate.RateTableDIDRateID
+			FROM
+			(
+				SELECT * FROM tmp_TempRateTableDIDRate_
+				WHERE tmp_TempRateTableDIDRate_.Change NOT IN ("Delete", "R", "D", "Blocked","Block")
+				AND tmp_TempRateTableDIDRate_.EffectiveDate >= DATE_FORMAT (NOW(), "%Y-%m-%d")
+
+				UNION
+
+				SELECT * FROM tmp_Delete_RateTableDIDRate
+
+			) as tblTempRateTableDIDRate
 			JOIN tblRate
 				ON tblRate.Code = tblTempRateTableDIDRate.Code
 				AND tblRate.CompanyID = ',p_companyId,'
@@ -16342,17 +16811,7 @@ ThisSP:BEGIN
 			LEFT JOIN tblRate AS OriginationRate
 				ON OriginationRate.Code = tblTempRateTableDIDRate.OriginationCode
 				AND OriginationRate.CompanyID = ',p_companyId,'
-				AND OriginationRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
-			LEFT JOIN tblRateTableDIDRateAA AS tblRateTableDIDRate
-				ON tblRate.RateID = tblRateTableDIDRate.RateId
-				AND ((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID))
-				AND tblRateTableDIDRate.RateTableId = ',p_RateTableId,'
-				AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
-				AND tblRateTableDIDRate.CityTariff = tblTempRateTableDIDRate.CityTariff
-				AND tblTempRateTableDIDRate.EffectiveDate = tblRateTableDIDRate.EffectiveDate
-			WHERE tblRateTableDIDRate.RateTableDIDRateAAID IS NULL
-				AND tblTempRateTableDIDRate.Change NOT IN ("Delete", "R", "D", "Blocked","Block")
-				AND tblTempRateTableDIDRate.EffectiveDate >= DATE_FORMAT (NOW(), "%Y-%m-%d");
+				AND OriginationRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId;
 		');
 
 		SET @stm4 = CONCAT(@stm1,@stm2,@stm3);
@@ -16447,6 +16906,7 @@ ThisSP:BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTablePKGRate_;
 	CREATE TEMPORARY TABLE tmp_TempRateTablePKGRate_ (
 		TempRateTablePKGRateID int,
+		RateTablePKGRateID INT DEFAULT 0,
 		`CodeDeckId` int ,
 		`TimezonesID` INT,
 		`Code` varchar(50) ,
@@ -16463,6 +16923,7 @@ ThisSP:BEGIN
 		`EndDate` Datetime ,
 		`Change` varchar(100) ,
 		`ProcessId` varchar(200) ,
+		`ApprovedStatus` TINYINT(4) DEFAULT 0,
 		INDEX tmp_EffectiveDate (`EffectiveDate`),
 		INDEX tmp_Code (`Code`),
 		INDEX tmp_CC (`Code`,`Change`),
@@ -16471,23 +16932,25 @@ ThisSP:BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_Delete_RateTablePKGRate;
 	CREATE TEMPORARY TABLE tmp_Delete_RateTablePKGRate (
+		TempRateTablePKGRateID INT DEFAULT 0,
 		RateTablePKGRateID INT,
-		RateTableId INT,
-		TimezonesID INT,
-		RateId INT,
-		Code VARCHAR(50),
-		Description VARCHAR(200),
-		OneOffCost decimal(18,6) DEFAULT NULL,
-	  	MonthlyCost decimal(18,6) DEFAULT NULL,
-	  	PackageCostPerMinute decimal(18,6) DEFAULT NULL,
-	  	RecordingCostPerMinute decimal(18,6) DEFAULT NULL,
-	  	OneOffCostCurrency INT(11) NULL DEFAULT NULL,
-		MonthlyCostCurrency INT(11) NULL DEFAULT NULL,
-		PackageCostPerMinuteCurrency INT(11) NULL DEFAULT NULL,
-		RecordingCostPerMinuteCurrency INT(11) NULL DEFAULT NULL,
-		EffectiveDate DATETIME,
-		EndDate Datetime ,
-		deleted_at DATETIME,
+		`CodeDeckId` int ,
+		`TimezonesID` INT,
+		`Code` varchar(50) ,
+		`Description` varchar(200) ,
+		`OneOffCost` decimal(18,6) DEFAULT NULL,
+	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
+	  	`PackageCostPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`RecordingCostPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
+		`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
+		`PackageCostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
+		`RecordingCostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
+		`EffectiveDate` Datetime ,
+		`EndDate` Datetime ,
+		`Change` varchar(100) ,
+		`ProcessId` varchar(200) ,
+		`ApprovedStatus` TINYINT(4) DEFAULT 0,
 		INDEX tmp_RateTablePKGRateDiscontinued_RateTablePKGRateID (`RateTablePKGRateID`)
 	);
 
@@ -16500,6 +16963,70 @@ ThisSP:BEGIN
 
 	IF newstringcode = 0
 	THEN
+
+		IF p_list_option = 1
+		THEN
+
+			INSERT INTO tmp_Delete_RateTablePKGRate(
+				RateTablePKGRateID,
+				CodeDeckId,
+				TimezonesID,
+				Code,
+				Description,
+				OneOffCost,
+				MonthlyCost,
+				PackageCostPerMinute,
+				RecordingCostPerMinute,
+				OneOffCostCurrency,
+				MonthlyCostCurrency,
+				PackageCostPerMinuteCurrency,
+				RecordingCostPerMinuteCurrency,
+				EffectiveDate,
+				EndDate,
+				`Change`,
+				ProcessId,
+				ApprovedStatus
+			)
+			SELECT DISTINCT
+				tblRateTablePKGRate.RateTablePKGRateID,
+				tblRateTable.CodeDeckId AS CodeDeckId,
+				tblRateTablePKGRate.TimezonesID,
+				tblRate.Code,
+				tblRate.Description,
+				tblRateTablePKGRate.OneOffCost,
+				tblRateTablePKGRate.MonthlyCost,
+				tblRateTablePKGRate.PackageCostPerMinute,
+				tblRateTablePKGRate.RecordingCostPerMinute,
+				tblRateTablePKGRate.OneOffCostCurrency,
+				tblRateTablePKGRate.MonthlyCostCurrency,
+				tblRateTablePKGRate.PackageCostPerMinuteCurrency,
+				tblRateTablePKGRate.RecordingCostPerMinuteCurrency,
+				tblRateTablePKGRate.EffectiveDate,
+				NULL AS EndDate,
+				'Delete' AS `Change`,
+				p_processId AS ProcessId,
+				3 AS ApprovedStatus
+			FROM tblRateTablePKGRate
+			JOIN tblRateTable
+				ON tblRateTable.RateTableId = tblRateTablePKGRate.RateTableId
+			JOIN tblRate
+				ON tblRate.RateID = tblRateTablePKGRate.RateId
+				AND tblRate.CompanyID = p_companyId
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTablePKGRate.TimezonesID*/
+			LEFT JOIN tmp_TempRateTablePKGRate_ as tblTempRateTablePKGRate
+				ON tblTempRateTablePKGRate.Code = tblRate.Code
+				AND tblTempRateTablePKGRate.TimezonesID = tblRateTablePKGRate.TimezonesID
+				AND  tblTempRateTablePKGRate.ProcessId = p_processId
+				AND tblTempRateTablePKGRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
+			WHERE tblRateTablePKGRate.RateTableId = p_RateTableId
+				AND tblTempRateTablePKGRate.Code IS NULL
+				AND ( tblRateTablePKGRate.EndDate is NULL OR tblRateTablePKGRate.EndDate <= date(now()) )
+			ORDER BY RateTablePKGRateID ASC;
+
+
+		END IF;
+
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTablePKGRate_2;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTablePKGRate_2 AS (SELECT * FROM tmp_TempRateTablePKGRate_);
@@ -16663,7 +17190,8 @@ ThisSP:BEGIN
 				RecordingCostPerMinuteCurrency,
 				EffectiveDate,
 				EndDate,
-				ApprovedStatus
+				ApprovedStatus,
+				RateTablePKGRateID
 			)
 			SELECT DISTINCT
 				',p_RateTableId,' AS RateTableId,
@@ -16706,8 +17234,19 @@ ThisSP:BEGIN
 				tblTempRateTablePKGRate.RecordingCostPerMinuteCurrency,
 				tblTempRateTablePKGRate.EffectiveDate,
 				tblTempRateTablePKGRate.EndDate,
-				0 AS ApprovedStatus
-			FROM tmp_TempRateTablePKGRate_ as tblTempRateTablePKGRate
+				tblTempRateTablePKGRate.ApprovedStatus,
+				tblTempRateTablePKGRate.RateTablePKGRateID
+			FROM
+			(
+				SELECT * FROM tmp_TempRateTablePKGRate_
+				WHERE tmp_TempRateTablePKGRate_.Change NOT IN ("Delete", "R", "D", "Blocked","Block")
+				AND tmp_TempRateTablePKGRate_.EffectiveDate >= DATE_FORMAT (NOW(), "%Y-%m-%d")
+
+				UNION
+
+				SELECT * FROM tmp_Delete_RateTablePKGRate
+
+			) as tblTempRateTablePKGRate
 			JOIN tblRate
 				ON tblRate.Code = tblTempRateTablePKGRate.Code
 				AND tblRate.CompanyID = ',p_companyId,'
@@ -16716,10 +17255,7 @@ ThisSP:BEGIN
 				ON tblRate.RateID = tblRateTablePKGRate.RateId
 				AND tblRateTablePKGRate.RateTableId = ',p_RateTableId,'
 				AND tblRateTablePKGRate.TimezonesID = tblTempRateTablePKGRate.TimezonesID
-				AND tblTempRateTablePKGRate.EffectiveDate = tblRateTablePKGRate.EffectiveDate
-			WHERE tblRateTablePKGRate.RateTablePKGRateAAID IS NULL
-				AND tblTempRateTablePKGRate.Change NOT IN ("Delete", "R", "D", "Blocked","Block")
-				AND tblTempRateTablePKGRate.EffectiveDate >= DATE_FORMAT (NOW(), "%Y-%m-%d");
+				AND tblTempRateTablePKGRate.EffectiveDate = tblRateTablePKGRate.EffectiveDate;
 		');
 
 		SET @stm4 = CONCAT(@stm1,@stm2,@stm3);
@@ -16857,27 +17393,27 @@ ThisSP:BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_Delete_RateTableRate;
 	CREATE TEMPORARY TABLE tmp_Delete_RateTableRate (
 		RateTableRateID INT,
-		RateTableId INT,
-		TimezonesID INT,
-		OriginationRateID INT,
-		OriginationCode VARCHAR(50),
-		OriginationDescription VARCHAR(200),
-		RateId INT,
-		Code VARCHAR(50),
-		Description VARCHAR(200),
-		Rate DECIMAL(18, 6),
-		RateN DECIMAL(18, 6),
-		EffectiveDate DATETIME,
-		EndDate Datetime ,
-		Interval1 INT,
-		IntervalN INT,
-		ConnectionFee DECIMAL(18, 6),
-		Preference varchar(100) ,
-		Blocked tinyint,
-		RoutingCategoryID int,
-		RateCurrency INT(11) NULL DEFAULT NULL,
-		ConnectionFeeCurrency INT(11) NULL DEFAULT NULL,
-		deleted_at DATETIME,
+		`CodeDeckId` int ,
+		`TimezonesID` INT,
+		`OriginationCode` varchar(50) NULL DEFAULT NULL,
+		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
+		`Code` varchar(50) ,
+		`Description` varchar(200) ,
+		`Rate` decimal(18, 6) ,
+		`RateN` decimal(18, 6) ,
+		`EffectiveDate` Datetime ,
+		`EndDate` Datetime ,
+		`Change` varchar(100) ,
+		`ProcessId` varchar(200) ,
+		`Preference` varchar(100) ,
+		`ConnectionFee` decimal(18, 6),
+		`Interval1` int,
+		`IntervalN` int,
+		`Blocked` tinyint,
+		`RoutingCategoryID` int,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
+		`DialStringPrefix` varchar(500) ,
 		INDEX tmp_RateTableRateDiscontinued_RateTableRateID (`RateTableRateID`)
 	);
 
@@ -16911,6 +17447,84 @@ ThisSP:BEGIN
 				AND vrcl.IntervalN IS NOT NULL ;
 
 		END IF;
+
+
+		IF p_list_option = 1
+		THEN
+
+			INSERT INTO tmp_Delete_RateTableRate(
+				RateTableRateID,
+				CodeDeckId,
+				TimezonesID,
+				OriginationCode,
+				OriginationDescription,
+				Code,
+				Description,
+				Rate,
+				RateN,
+				EffectiveDate,
+				EndDate,
+				`Change`,
+				ProcessId,
+				Preference,
+				ConnectionFee,
+				Interval1,
+				IntervalN,
+				Blocked,
+				RoutingCategoryID,
+				RateCurrency,
+				ConnectionFeeCurrency,
+				DialStringPrefix
+			)
+			SELECT DISTINCT
+				tblRateTableRate.RateTableRateID,
+				tblRateTable.CodeDeckId,
+				tblRateTableRate.TimezonesID,
+				OriginationRate.Code AS OriginationCode,
+				OriginationRate.Description AS OriginationDescription,
+				tblRate.Code,
+				tblRate.Description,
+				tblRateTableRate.Rate,
+				tblRateTableRate.RateN,
+				tblRateTableRate.EffectiveDate,
+				NULL AS EndDate,
+				'Delete' AS `Change`,
+				p_processId AS ProcessId,
+				tblRateTableRate.Preference,
+				tblRateTableRate.ConnectionFee,
+				tblRateTableRate.Interval1,
+				tblRateTableRate.IntervalN,
+				tblRateTableRate.Blocked,
+				tblRateTableRate.RoutingCategoryID,
+				tblRateTableRate.RateCurrency,
+				tblRateTableRate.ConnectionFeeCurrency,
+				'' AS DialStringPrefix
+			FROM tblRateTableRate
+			JOIN tblRateTable
+				ON tblRateTable.RateTableId = tblRateTableRate.RateTableId
+			JOIN tblRate
+				ON tblRate.RateID = tblRateTableRate.RateId
+				AND tblRate.CompanyID = p_companyId
+			LEFT JOIN tblRate AS OriginationRate
+				ON OriginationRate.RateID = tblRateTableRate.OriginationRateID
+				AND OriginationRate.CompanyID = p_companyId
+		  	/*JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableRate.TimezonesID*/
+			LEFT JOIN tmp_TempRateTableRate_ as tblTempRateTableRate
+				ON tblTempRateTableRate.Code = tblRate.Code
+				AND ((tblTempRateTableRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableRate.OriginationCode = OriginationRate.Code))
+				AND tblTempRateTableRate.TimezonesID = tblRateTableRate.TimezonesID
+				AND  tblTempRateTableRate.ProcessId = p_processId
+				AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
+			WHERE tblRateTableRate.RateTableId = p_RateTableId
+				AND tblTempRateTableRate.Code IS NULL
+				AND ( tblRateTableRate.EndDate is NULL OR tblRateTableRate.EndDate <= date(now()) )
+			ORDER BY RateTableRateID ASC;
+
+
+
+		END IF;
+
 
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableRate_2;
@@ -17129,8 +17743,8 @@ ThisSP:BEGIN
 		SELECT CurrencyID into v_CompanyCurrencyID_ FROM tblCurrency WHERE CurrencyID=(SELECT CurrencyId FROM tblCompany WHERE CompanyID=p_companyId);
 
 
-
-		UPDATE tmp_TempRateTableRate_ as tblTempRateTableRate
+		-- delete from live table if code is already exist but rate is different
+		/*UPDATE tmp_TempRateTableRate_ as tblTempRateTableRate
 		JOIN tblRate
 			ON tblRate.Code = tblTempRateTableRate.Code
 			AND tblRate.CompanyID = p_companyId
@@ -17142,10 +17756,11 @@ ThisSP:BEGIN
 		SET tblRateTableRate.EndDate = NOW()
 		WHERE tblTempRateTableRate.Rate <> tblRateTableRate.Rate
 			AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
-			AND DATE_FORMAT (tblRateTableRate.EffectiveDate, '%Y-%m-%d') = DATE_FORMAT (tblTempRateTableRate.EffectiveDate, '%Y-%m-%d');
+			AND DATE_FORMAT (tblRateTableRate.EffectiveDate, '%Y-%m-%d') = DATE_FORMAT (tblTempRateTableRate.EffectiveDate, '%Y-%m-%d');*/
 
 
-		call prc_ArchiveOldRateTableRateAA(p_RateTableId, NULL,p_UserName);
+		-- call prc_ArchiveOldRateTableRateAA(p_RateTableId, NULL,p_UserName);
+
 
 
 		INSERT INTO tblRateTableRateAA (
@@ -17232,21 +17847,117 @@ ThisSP:BEGIN
 			ON OriginationRate.Code = tblTempRateTableRate.OriginationCode
 			AND OriginationRate.CompanyID = p_companyId
 			AND OriginationRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
-		LEFT JOIN tblRateTableRateAA AS tblRateTableRate
+		/*LEFT JOIN tblRateTableRateAA AS tblRateTableRate
 			ON tblRate.RateID = tblRateTableRate.RateId
 			AND ((IFNULL(tblRateTableRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableRate.OriginationRateID = OriginationRate.RateID))
 			AND tblRateTableRate.RateTableId = p_RateTableId
 			AND tblRateTableRate.TimezonesID = tblTempRateTableRate.TimezonesID
-			AND tblTempRateTableRate.EffectiveDate = tblRateTableRate.EffectiveDate
-		WHERE tblRateTableRate.RateTableRateAAID IS NULL
-			AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
+			AND tblTempRateTableRate.EffectiveDate = tblRateTableRate.EffectiveDate*/
+		WHERE /*tblRateTableRate.RateTableRateAAID IS NULL
+			AND*/ tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
 			AND tblTempRateTableRate.EffectiveDate >= DATE_FORMAT (NOW(), '%Y-%m-%d');
 
 		SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
 
-	END IF;
 
-	INSERT INTO tmp_JobLog_ (Message) 	 	SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded ' );
+		IF((SELECT COUNT(*) FROM tmp_Delete_RateTableRate) > 0)
+		THEN
+			-- rates which needs to deleted
+			INSERT INTO tblRateTableRateAA (
+				RateTableRateID,
+				RateTableId,
+				TimezonesID,
+				OriginationRateID,
+				RateId,
+				Rate,
+				RateN,
+				EffectiveDate,
+				EndDate,
+				ConnectionFee,
+				Interval1,
+				IntervalN,
+				Preference,
+				Blocked,
+				RoutingCategoryID,
+				PreviousRate,
+				ApprovedStatus,
+				RateCurrency,
+				ConnectionFeeCurrency
+			)
+			SELECT DISTINCT
+				tblTempRateTableRate.RateTableRateID,
+				p_RateTableId,
+				tblTempRateTableRate.TimezonesID,
+				IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
+				tblRate.RateID,
+				IF (
+					p_CurrencyID > 0,
+					CASE WHEN p_CurrencyID = v_RateTableCurrencyID_
+					THEN
+						tblTempRateTableRate.Rate
+					WHEN  p_CurrencyID = v_CompanyCurrencyID_
+					THEN
+					(
+						( tblTempRateTableRate.Rate  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ and CompanyID = p_companyId ) )
+					)
+					ELSE
+					(
+						(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId )
+						*
+						(tblTempRateTableRate.Rate  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))
+					)
+					END ,
+					tblTempRateTableRate.Rate
+				) AS Rate,
+				IF (
+					p_CurrencyID > 0,
+					CASE WHEN p_CurrencyID = v_RateTableCurrencyID_
+					THEN
+						tblTempRateTableRate.RateN
+					WHEN  p_CurrencyID = v_CompanyCurrencyID_
+					THEN
+					(
+						( tblTempRateTableRate.RateN  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ and CompanyID = p_companyId ) )
+					)
+					ELSE
+					(
+						(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId )
+						*
+						(tblTempRateTableRate.RateN  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))
+					)
+					END ,
+					tblTempRateTableRate.Rate
+				) AS RateN,
+				tblTempRateTableRate.EffectiveDate,
+				tblTempRateTableRate.EndDate,
+				tblTempRateTableRate.ConnectionFee,
+				tblTempRateTableRate.Interval1,
+				tblTempRateTableRate.IntervalN,
+				tblTempRateTableRate.Preference,
+				tblTempRateTableRate.Blocked,
+				tblTempRateTableRate.RoutingCategoryID,
+				0 AS PreviousRate,
+				3 AS ApprovedStatus, -- delete status
+				tblTempRateTableRate.RateCurrency,
+				tblTempRateTableRate.ConnectionFeeCurrency
+			FROM tmp_Delete_RateTableRate as tblTempRateTableRate
+			JOIN tblRate
+				ON tblRate.Code = tblTempRateTableRate.Code
+				AND tblRate.CompanyID = p_companyId
+				AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
+			LEFT JOIN tblRate AS OriginationRate
+				ON OriginationRate.Code = tblTempRateTableRate.OriginationCode
+				AND OriginationRate.CompanyID = p_companyId
+				AND OriginationRate.CodeDeckId = tblTempRateTableRate.CodeDeckId;
+
+
+			SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
+
+		END IF; -- END IF((SELECT COUNT(*) FROM tmp_Delete_RateTableRate) > 0)
+
+	END IF; -- IF newstringcode = 0
+
+	INSERT INTO tmp_JobLog_ (Message) 	 	SELECT CONCAT(v_AffectedRecords_ , ' Records Affected ' );
 
 	call prc_ArchiveOldRateTableRateAA(p_RateTableId, NULL,p_UserName);
 

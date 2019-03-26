@@ -12,26 +12,22 @@
                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                     <div class="form-group">
                         <label class="control-label">Status</label>
-                        {{ Form::select('ApprovedStatus', RateTable::$RateStatus, RateTable::RATE_STATUS_APPROVED, array("class"=>"select2")) }}
+                        {{ Form::select('ApprovedStatus1', RateTable::$DDRateStatus1, RateTable::RATE_STATUS_APPROVED, array("class"=>"select2")) }}
                     </div>
-                @else
-                    <input type="hidden" name="ApprovedStatus" value="{{RateTable::RATE_STATUS_APPROVED}}" />
+                    <div class="form-group" id="ApprovedStatus2-Box" style="display: none;">
+                        <label class="control-label">Status</label>
+                        {{ Form::select('ApprovedStatus2', RateTable::$DDRateStatus2, RateTable::RATE_STATUS_APPROVED, array("class"=>"select2")) }}
+                    </div>
                 @endif
+                <input type="hidden" name="ApprovedStatus" value="{{RateTable::RATE_STATUS_APPROVED}}" />
+
                 <div class="form-group">
                     <label class="control-label">Origination Code</label>
                     <input type="text" name="OriginationCode" class="form-control" placeholder="" />
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Origination Description</label>
-                    <input type="text" name="OriginationDescription" class="form-control" placeholder="" />
-                </div>
-                <div class="form-group">
                     <label for="field-1" class="control-label">Code</label>
                     <input type="text" name="Code" class="form-control" id="field-1" placeholder="" />
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Description</label>
-                    <input type="text" name="Description" class="form-control" id="field-1" placeholder="" />
                     <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
                 </div>
                 <div class="form-group">
@@ -564,12 +560,18 @@
             }
         });
 
-        $(document).on('change','#rate-table-search select[name="ApprovedStatus"]',function(ev) {
-            if($(this).val() == {{RateTable::RATE_STATUS_APPROVED}}) {
+        $(document).on('change','#rate-table-search select[name="ApprovedStatus1"],#rate-table-search select[name="ApprovedStatus2"]',function(ev) {
+            var Status;
+            if($('#rate-table-search select[name="ApprovedStatus1"]').val() == {{RateTable::RATE_STATUS_APPROVED}}) {
+                Status = $('#rate-table-search select[name="ApprovedStatus1"]').val();
+                $('#ApprovedStatus2-Box').hide();
                 $('.filter_naa').show();
             } else {
+                Status = $('#rate-table-search select[name="ApprovedStatus2"]').val();
+                $('#ApprovedStatus2-Box').show();
                 $('.filter_naa').hide();
             }
+            $('#rate-table-search [name="ApprovedStatus"]').val(Status);
         });
     });
 
@@ -627,6 +629,8 @@
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
                                 } else if (full[26] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                     html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
+                                } else if (full[26] == {{RateTable::RATE_STATUS_DELETE}}) {
+                                    html += '<i class="fa fa-trash" title="Awaiting Approval Delete" style="color: red; "></i>';
                                 }
                                 @endif
 
@@ -636,8 +640,8 @@
                         {}, //1 Country
                         {}, //2 Timezones Title
                         {
-                            mRender: function(col, type, full) {
-                                return col;
+                            mRender: function(id, type, full) {
+                                return full[3];
                             },
                             "className":      'details-control',
                             "orderable":      false,
@@ -751,8 +755,8 @@
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
-                                    // if reject rates then don't show edit button else show
-                                    if (full[26] != {{RateTable::RATE_STATUS_REJECTED}}) {
+                                    // if approved rates then show Edit button else hide it
+                                    if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
                                         action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
                                     }
                                 }
@@ -917,10 +921,17 @@
                     }
                 });
 
-                if(Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
-                    $('#change-bulk-rate,#approve-bulk-rate,#disapprove-bulk-rate').hide();
+                // if approved rates then show Bulk update button else hide it
+                if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
+                    if (Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
+                        $('#change-bulk-rate').hide();
+                    } else {
+                        $('#change-bulk-rate').show();
+                    }
+                    $('#approve-bulk-rate,#disapprove-bulk-rate').hide();
                 } else {
-                    $('#change-bulk-rate,#approve-bulk-rate,#disapprove-bulk-rate').show();
+                    $('#change-bulk-rate').hide();
+                    $('#approve-bulk-rate,#disapprove-bulk-rate').show();
                 }
 
                 if(DiscontinuedRates == 1) {

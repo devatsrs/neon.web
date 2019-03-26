@@ -62,8 +62,13 @@ class TaxRatesController extends \BaseController {
             'TaxType' => 'required|numeric',
             'FlatStatus' => 'required|numeric',
             'Country' => 'required',
-        );
+        ); 
+        $attributeNames = array(
+   'Amount' => 'VAT',     
+);
+
         $validator = Validator::make($data, $rules);
+        $validator->setAttributeNames($attributeNames);
 
         if ($validator->fails()) {
             return json_validator_response($validator);

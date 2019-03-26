@@ -19,7 +19,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Country</label>
-                                {{ Form::select('Country',TaxRate::$tax_countries_filter,'All', array("class"=>"select2",'id'=>'Country')) }}
+                                {{ Form::select('ftCountry',TaxRate::$tax_countries_filter,'All', array("class"=>"select2",'id'=>'Country')) }}
                             </div>
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Dutch Provider</label>
@@ -97,7 +97,7 @@
     <tr>
         <th width="15%">Title</th>
         
-        <th width="10%">Vat %</th>
+        <th width="10%">VAT %</th>
         
         <th width="10%">Country</th>
         <th width="10%">Dutch Provider</th>
@@ -122,7 +122,7 @@ var postdata;
                 e.preventDefault();
         $searchFilter.Title = $("#table_filter").find('[name="title"]').val();
         $searchFilter.TaxType = $("#table_filter").find('[name="TaxType"]').val();
-        $searchFilter.Country = $("#table_filter").find('[name="Country"]').val();
+        $searchFilter.ftCountry = $("#table_filter").find('[name="ftCountry"]').val();
         $searchFilter.FlatStatus = $("#table_filter").find('[name="ftFlatStatus"]').val();
         $searchFilter.ftDutchProvider = $("#table_filter").find('[name="ftDutchProvider"]').val();
         $searchFilter.ftDutchFoundation = $("#table_filter").find('[name="ftDutchFoundation"]').val();
@@ -140,7 +140,7 @@ var postdata;
                         aoData.push(
                                 {"name": "Title", "value": $searchFilter.Title},
                                 {"name": "TaxType", "value": $searchFilter.TaxType},
-                                {"name": "Country", "value": $searchFilter.Country},
+                                {"name": "Country", "value": $searchFilter.ftCountry},
                                 {"name": "FlatStatus", "value": $searchFilter.FlatStatus},
                                 {"name": "ftDutchProvider", "value": $searchFilter.ftDutchProvider},
                                 {"name": "ftDutchFoundation", "value": $searchFilter.ftDutchFoundation}
@@ -413,13 +413,13 @@ function ajax_update(fullurl,data){
                         <div class="col-md-6 hidden-xs hidden-sm hidden-md hidden-lg">
                             <div class="form-group ">
                                 <label for="field-5" class="control-label">Tax Type</label>
-                                {{ Form::select('TaxType',TaxRate::$tax_array,'1', array("class"=>"select2",'id'=>'TaxTypeID')) }}
+                                {{ Form::select('TaxType',TaxRate::$tax_array,TaxRate::TAX_ALL, array("class"=>"select2",'id'=>'TaxTypeID')) }}
                             </div>
                         </div>
                         <div class="col-md-12 ">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Vat %</label>
-                                <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
+                                <label for="field-5" class="control-label">VAT %</label>
+                                <input type="number" step="0.01" min="0.01" max="1000" name="Amount" class="form-control" id="field-5" placeholder="">
                                 <input type="hidden" name="TaxRateID" >
                             </div>
                         </div>
@@ -427,7 +427,7 @@ function ajax_update(fullurl,data){
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Country</label>
-                                {{ Form::select('Country',TaxRate::$tax_countries_array,'NL', array("class"=>"select2",'id'=>'Country')) }}
+                                {{ Form::select('Country',TaxRate::$tax_countries_array,TaxRate::NL, array("class"=>"select2",'id'=>'Country')) }}
                             </div>
                         </div>
                         <div class="clearfix"></div>

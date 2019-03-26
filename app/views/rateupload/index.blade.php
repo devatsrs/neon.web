@@ -1,6 +1,13 @@
 @extends('layout.main')
 @section('content')
-
+<?php
+    $bVisibleRoutingCategory = "hidden";
+    if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR) {
+        if($ROUTING_PROFILE == 1) {
+            $bVisibleRoutingCategory = "";
+        }
+    }
+?>
     <link rel="stylesheet" type="text/css" href="<?php echo URL::to('/').'/assets/Bootstrap-Dual-Listbox/bootstrap-duallistbox.css'; ?>">
     <script src="<?php echo URL::to('/').'/assets/Bootstrap-Dual-Listbox/jquery.bootstrap-duallistbox.min.js'; ?>" ></script>
 
@@ -102,7 +109,7 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Settings</label>
                             <div class="col-sm-10">
-                                <div class="checkbox ">
+                                <div class="checkbox hidden">
                                     <label>
                                         <input type="hidden" name="checkbox_replace_all" value="0" >
                                         <input type="checkbox" id="rd-1" name="checkbox_replace_all" value="1" > Replace all of the existing rates with the rates from the file
@@ -338,6 +345,16 @@
         }
     </style>
     <script type="text/javascript">
+
+        var bVisibleRoutingCategory = false;
+        var bVisiblePreferenceBlock = false;
+        @if($rateTable != NULL && $rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+            @if($ROUTING_PROFILE == 1)
+                bVisibleRoutingCategory = true;
+            @endif
+            bVisiblePreferenceBlock = true;
+        @endif
+
         var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
         var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
         var all_occupied_fields     = [];
@@ -1388,9 +1405,18 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
-                            { "bSortable": false},//13 Preference
-                            { "bSortable": false},//14 Blocked
-                            { "bSortable": false},//15 Routing Category
+                            {
+                                "bVisible" : bVisiblePreferenceBlock,
+                                "bSortable": false
+                            },//13 Preference
+                            {
+                                "bVisible" : bVisiblePreferenceBlock,
+                                "bSortable": false
+                            },//14 Blocked
+                            {
+                                "bVisible" : bVisibleRoutingCategory,
+                                "bSortable": false
+                            },//15 Routing Category
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1533,9 +1559,18 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
-                            { "bSortable": false},//13 Preference
-                            { "bSortable": false},//14 Blocked
-                            { "bSortable": false},//15 Routing Category
+                            {
+                                "bVisible" : bVisiblePreferenceBlock,
+                                "bSortable": false
+                            },//13 Preference
+                            {
+                                "bVisible" : bVisiblePreferenceBlock,
+                                "bSortable": false
+                            },//14 Blocked
+                            {
+                                "bVisible" : bVisibleRoutingCategory,
+                                "bSortable": false
+                            },//15 Routing Category
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1631,9 +1666,18 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
-                            { "bSortable": false},//13 Preference
-                            { "bSortable": false},//14 Blocked
-                            { "bSortable": false},//15 Routing Category
+                            {
+                                "bVisible" : bVisiblePreferenceBlock,
+                                "bSortable": false
+                            },//13 Preference
+                            {
+                                "bVisible" : bVisiblePreferenceBlock,
+                                "bSortable": false
+                            },//14 Blocked
+                            {
+                                "bVisible" : bVisibleRoutingCategory,
+                                "bSortable": false
+                            },//15 Routing Category
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1734,9 +1778,18 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
-                            { "bSortable": false},//13 Preference
-                            { "bSortable": false},//14 Blocked
-                            { "bSortable": false},//15 Routing Category
+                            {
+                                "bVisible" : bVisiblePreferenceBlock,
+                                "bSortable": false
+                            },//13 Preference
+                            {
+                                "bVisible" : bVisiblePreferenceBlock,
+                                "bSortable": false
+                            },//14 Blocked
+                            {
+                                "bVisible" : bVisibleRoutingCategory,
+                                "bSortable": false
+                            },//15 Routing Category
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -2180,8 +2233,8 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" placeholder="" value="" />
                                                     </div>
-                                                    <label class="col-sm-1 control-label">Routing Category</label>
-                                                    <div class="col-sm-3">
+                                                    <label class="col-sm-1 control-label {{$bVisibleRoutingCategory}}">Routing Category</label>
+                                                    <div class="col-sm-3 {{$bVisibleRoutingCategory}}">
                                                         {{Form::select('RoutingCategory', $RoutingCategory,'',array("class"=>"select2 small"))}}
                                                     </div>
                                                 </div>
@@ -2264,8 +2317,8 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" placeholder="" value="" />
                                                     </div>
-                                                    <label class="col-sm-1 control-label">Routing Category</label>
-                                                    <div class="col-sm-3">
+                                                    <label class="col-sm-1 control-label {{$bVisibleRoutingCategory}}">Routing Category</label>
+                                                    <div class="col-sm-3 {{$bVisibleRoutingCategory}}">
                                                         {{Form::select('RoutingCategory', $RoutingCategory,'',array("class"=>"select2 small"))}}
                                                     </div>
                                                 </div>
@@ -2348,8 +2401,8 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" placeholder="" value="" />
                                                     </div>
-                                                    <label class="col-sm-1 control-label">Routing Category</label>
-                                                    <div class="col-sm-3">
+                                                    <label class="col-sm-1 control-label {{$bVisibleRoutingCategory}}">Routing Category</label>
+                                                    <div class="col-sm-3 {{$bVisibleRoutingCategory}}">
                                                         {{Form::select('RoutingCategory', $RoutingCategory,'',array("class"=>"select2 small"))}}
                                                     </div>
                                                 </div>
@@ -2432,8 +2485,8 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" placeholder="" value="" />
                                                     </div>
-                                                    <label class="col-sm-1 control-label">Routing Category</label>
-                                                    <div class="col-sm-3">
+                                                    <label class="col-sm-1 control-label {{$bVisibleRoutingCategory}}">Routing Category</label>
+                                                    <div class="col-sm-3 {{$bVisibleRoutingCategory}}">
                                                         {{Form::select('RoutingCategory', $RoutingCategory,'',array("class"=>"select2 small"))}}
                                                     </div>
                                                 </div>
