@@ -661,4 +661,16 @@ class CompanyGateway extends \Eloquent {
 
     }
 
+    public static function getSettingFieldByCompanyGateWayID($Field,$CompanyGatewayID){
+        $CompanyGateway = CompanyGateway::where(['CompanyGatewayID'=>$CompanyGatewayID,'Status'=>1])->first();
+        $FieldValue="";
+        if(!empty($CompanyGateway)){
+            $Settings=json_decode($CompanyGateway->Settings);
+            if(!empty($Settings->$Field)){
+                $FieldValue=$Settings->$Field;
+            }
+        }
+        return $FieldValue;
+    }
+
 }

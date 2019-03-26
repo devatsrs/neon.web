@@ -67,6 +67,20 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/cdr', 'CDRCustomerController@index');
 	Route::any('customer/cdr/ajax_datagrid/{type}', 'CDRCustomerController@ajax_datagrid');
 
+	//ActiveCall
+	Route::any('/ActiveCalls', 'ActiveCallController@index');
+	Route::any('/ActiveCalls/ajax_datagrid/{type}', 'ActiveCallController@ajax_datagrid');
+
+	//vendorActiveCall
+	Route::any('/Vendor_ActiveCalls', 'VendorActiveCallController@index');
+	Route::any('/Vendor_ActiveCalls/ajax_datagrid/{type}', 'VendorActiveCallController@ajax_datagrid');
+	Route::any('/Vendor_ActiveCalls/API/GetGatewayRoutingOnline', 'VendorActiveCallController@GetGatewayRoutingOnline');
+
+	//VOS ActiveCall
+	Route::any('/VOS_ActiveCalls', 'VOSActiveCallController@index');
+	Route::any('/VOS_ActiveCalls/ajax_datagrid/{type}', 'VOSActiveCallController@ajax_datagrid');
+	Route::any('/VOS_ActiveCalls/API/GetCurrentCall', 'VOSActiveCallController@GetCurrentCall');
+
 	//commercial
 
 	Route::any('customer/customers_rates', 'RateCustomerController@settings');
@@ -455,6 +469,7 @@ Route::group(array('before' => 'auth'), function () {
 	//sippy vendor rate pushing - destination set mapping
 	Route::any('/sippy_rate_push/{id}/destinationsetmapping', 'SippyRatePushController@index');
 	Route::any('/sippy_rate_push/{id}/getdestinationsetlist', 'SippyRatePushController@getDestinationSetList');
+	Route::any('/sippy_rate_push/updatedestinationsetlist/{id}', 'SippyRatePushController@updateDestinationSetList');
 	/*Route::resource('sippy_rate_push', 'SippyRatePushController');
 	Route::controller('sippy_rate_push', 'SippyRatePushController');*/
 
@@ -770,6 +785,12 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('/auto_rate_import/account_setting','AutoRateImportController@accountSetting');
 	Route::any('/auto_rate_import/account_setting/store','AutoRateImportController@accountSettingStore');
+
+	Route::any('/sippy_vendor_destination/','SippyVendorDestiController@index');
+	Route::any('/sippy_vendor_destination/store','SippyVendorDestiController@Store');
+	Route::any('/sippy_vendor_destination/ajax_datagrid/{type}','SippyVendorDestiController@ajax_datagrid');
+	Route::any('/sippy_vendor_destination/{id}/update','SippyVendorDestiController@update');
+	Route::any('/sippy_vendor_destination/{id}/delete','SippyVendorDestiController@delete');
 
 	Route::any('/auto_rate_import/rateTable_setting/store','AutoRateImportController@RateTableSettingStore');
 	Route::any('/auto_rate_import/ratetable_setting','AutoRateImportController@ratetableSetting');
@@ -1266,7 +1287,8 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');
 	Route::any('/billing_dashboard/GetDashboardPR', 'BillingDashboard@GetDashboardPR');
 	Route::any('/billing_dashboard/GetDashboardPL', 'BillingDashboard@GetDashboardPL');
-
+	Route::any('/billing_dashboard/VOS_AccountIP/ajax_datagrid/{type}', 'BillingDashboard@VOSIP_ajax_datagrid');
+	Route::any('/billing_dashboard/VOS_AccountBalance/ajax_datagrid/{type}', 'BillingDashboard@VOSAccountBalance_ajax_datagrid');
 
     //AccountPaymentProfile
     Route::any('/paymentprofile/create', 'AccountsPaymentProfileController@create');
