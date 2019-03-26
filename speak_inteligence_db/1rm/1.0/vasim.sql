@@ -12471,7 +12471,7 @@ ThisSP:BEGIN
 			ApprovedBy,
 			ApprovedDate
 		FROM
-			tmp_RateTablePKGRate_
+			tmp_RateTablePKGRate2_
 		WHERE
 			ApprovedStatus = v_StatusAwaitingApproval_;
 
