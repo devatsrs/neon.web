@@ -413,7 +413,7 @@ function ajax_update(fullurl,data){
                         <div class="col-md-6 hidden-xs hidden-sm hidden-md hidden-lg">
                             <div class="form-group ">
                                 <label for="field-5" class="control-label">Tax Type</label>
-                                {{ Form::select('TaxType',TaxRate::$tax_array,'', array("class"=>"select2",'id'=>'TaxTypeID')) }}
+                                {{ Form::select('TaxType',TaxRate::$tax_array,TaxRate::TAX_ALL, array("class"=>"select2",'id'=>'TaxTypeID')) }}
                             </div>
                         </div>
                         <div class="col-md-12 ">
@@ -427,7 +427,7 @@ function ajax_update(fullurl,data){
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Country</label>
-                                {{ Form::select('Country',TaxRate::$tax_countries_array,'', array("class"=>"select2",'id'=>'Country')) }}
+                                {{ Form::select('Country',TaxRate::$tax_countries_array,TaxRate::NL, array("class"=>"select2",'id'=>'Country')) }}
                             </div>
                         </div>
                         <div class="clearfix"></div>
