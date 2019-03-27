@@ -223,7 +223,7 @@ class PaymentApiController extends ApiController {
 
 				$resp = AccountPayout::createPayoutInvoice($data);
 				if($resp['status'] == "failed")
-					return Response::json(array("ErrorMessage" => "Problem Creating Out Payment Invoice."),Codes::$Code500[0]);
+					return Response::json(array("ErrorMessage" => $resp['message']),Codes::$Code500[0]);
 
 				$AccountBalance::where('AccountID', $AccountID)->update([
 					'OutPaymentAvailable' => $newAvailable,
