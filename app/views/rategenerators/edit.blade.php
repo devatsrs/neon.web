@@ -209,12 +209,24 @@
                                     <div class="col-sm-4">
                                         {{ Form::select('Prefix', $Prefix, $rategenerators->Prefix, array("class"=>"select2")) }}
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label">City/Tariff</label>
+                                    <label for="field-1" class="col-sm-2 control-label">City*</label>
                                     <div class="col-sm-4">
-                                        {{ Form::select('CityTariff', $CityTariff, $rategenerators->CityTariff, array("class"=>"select2")) }}
+                                        {{ Form::select('City', $CityTariff, $rategenerators->City, array("class"=>"select2")) }}
                                     </div>
                                 </div>
                             @endif
+                            @if($rategenerator->SelectType == 2)
+                                <div class="form-group" id="DIDCategoryDiv">
+                                    <label for="field-1" class="col-sm-2 control-label">Tariff*</label>
+                                    <div class="col-sm-4">
+                                        {{ Form::select('Tariff', $CityTariffFilter,$rategenerators->Tariff, array("class"=>"select2")) }}
+                                    </div>
+                                    <label for="field-1" class="col-sm-2 control-label">Category*</label>
+                                    <div class="col-sm-4">
+                                        {{ Form::select('Category', $Categories, $rategenerators->DIDCategoryID , array("class"=>"select2")) }}
+                                    </div>
+                                </div>
+                        @endif
 
                             <div class="form-group DID-Div Package-Div1">
                                 <label for="DateFrom" class="col-sm-2 control-label">Date From*</label>
@@ -257,14 +269,6 @@
                                 </div>
                             </div>
                         @endif
-                        @if($rategenerator->SelectType == 1 || $rategenerator->SelectType == 2)
-                        <div class="form-group" id="DIDCategoryDiv">
-                            <label for="field-1" class="col-sm-2 control-label">Category*</label>
-                            <div class="col-sm-4">
-                                {{ Form::select('Category', $Categories, $rategenerators->DIDCategoryID , array("class"=>"select2")) }}
-                            </div>
-                        </div>
-                        @endif
                         @if($rategenerator->SelectType == 3)
                             <div class="form-group Package-Div" >
                                 <label for="field-1" class="col-sm-2 control-label">Package*</label>
@@ -292,11 +296,12 @@
                             <table id="servicetableSubBox" class="table table-bordered datatable">
                                 <thead>
                                 <tr>
-                                    <th style="width:200px !important;">Component</th>
+                                    <th style="width:250px !important;">Component</th>
                                     <th style="width:250px !important;" class="DID-Div">From Country</th>
                                     <th style="width:250px !important;" class="DID-Div">From Type</th>
                                     <th style="width:250px !important;" class="DID-Div">From Prefix</th>
-                                    <th style="width:250px !important;" class="DID-Div">From City/Tariff</th>
+                                    <th style="width:250px !important;" class="DID-Div">From City</th>
+                                    <th style="width:250px !important;" class="DID-Div">From Tariff</th>
                                     <th style="width:200px !important;" class="DID-Div">Origination</th>
                                     <th style="width:200px !important;">Time of Day</th>
                                     <th style="width:200px !important;">Action</th>
@@ -304,7 +309,8 @@
                                     <th style="width:250px !important;" class="DID-Div">To Country</th>
                                     <th style="width:250px !important;" class="DID-Div">To Type</th>
                                     <th style="width:250px !important;" class="DID-Div">To Prefix</th>
-                                    <th style="width:250px !important;" class="DID-Div">To City/Tariff</th>
+                                    <th style="width:250px !important;" class="DID-Div">To City</th>
+                                    <th style="width:250px !important;" class="DID-Div">To Tariff</th>
                                     <th style="width:200px !important;" class="DID-Div">To Origination</th>
                                     <th style="width:200px !important;">To Time of Day</th>
                                     <th style="width:40px !important;">
@@ -373,7 +379,10 @@
                                             {{ Form::select('FPrefix-'.$a, $Prefix, $Component->FromPrefix, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
-                                            {{ Form::select('FCity_Tariff-'.$a, $CityTariff, $Component->FromCityTariff, array("class"=>"select2")) }}
+                                            {{ Form::select('FCity-'.$a, $CityTariff, $Component->FromCity, array("class"=>"select2")) }}
+                                        </td>
+                                        <td class="DID-Div">
+                                            {{ Form::select('FTariff-'.$a, $CityTariffFilter, $Component->FromTariff, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
                                             <input type="text" class="form-control" value="{{$Component->Origination}}" name="Origination-{{$a}}"/>
@@ -402,7 +411,10 @@
                                             {{ Form::select('TPrefix-'.$a, $Prefix, $Component->ToPrefix, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
-                                            {{ Form::select('TCity_Tariff-'.$a, $CityTariff, $Component->ToCityTariff, array("class"=>"select2")) }}
+                                            {{ Form::select('TCity-'.$a, $CityTariff, $Component->ToCity, array("class"=>"select2")) }}
+                                        </td>
+                                        <td class="DID-Div">
+                                            {{ Form::select('TTariff-'.$a, $CityTariffFilter, $Component->ToTariff, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
                                             <input type="text" class="form-control" value="{{$Component->ToOrigination}}" name="ToOrigination-{{$a}}"/>
@@ -445,11 +457,12 @@
                                 <table id="ratetableSubBox" class="table table-bordered datatable">
                                     <thead>
                                     <tr>
-                                        <th style="width:200px !important;">Component</th>
+                                        <th style="width:250px !important;">Component</th>
                                         <th style="width:250px !important;" class="DID-Div">Country</th>
                                         <th style="width:250px !important;" class="DID-Div">Type</th>
                                         <th style="width:250px !important;" class="DID-Div">Prefix</th>
-                                        <th style="width:250px !important;" class="DID-Div">City/Tariff</th>
+                                        <th style="width:250px !important;" class="DID-Div">City</th>
+                                        <th style="width:250px !important;" class="DID-Div">Tariff</th>
                                         <th style="width:200px !important;" class="DID-Div">Origination</th>
                                         <th style="width:200px !important;">Time of Day</th>
                                         <th style="width:200px !important;">Calculated Rate</th>
@@ -498,7 +511,10 @@
                                                 {{ Form::select('Prefix1-'.$a, $Prefix, $calculatedRate->Prefix, array("class"=>"select2")) }}
                                             </td>
                                             <td  class="DID-Div">
-                                                {{ Form::select('City_Tariff1-'.$a, $CityTariff, $calculatedRate->CityTariff, array("class"=>"select2")) }}
+                                                {{ Form::select('City1-'.$a, $CityTariff, $calculatedRate->City, array("class"=>"select2")) }}
+                                            </td>
+                                            <td  class="DID-Div">
+                                                {{ Form::select('Tariff1-'.$a, $CityTariffFilter, $calculatedRate->Tariff, array("class"=>"select2")) }}
                                             </td>
                                             <td class="DID-Div">
                                                 <input type="text" class="form-control" value="{{$calculatedRate->Origination}}" name="RateOrigination-{{$a}}"/>
@@ -593,7 +609,9 @@
                                                     <br>
                                                         Prefix: @if(@$rategenerator_rule->Prefix != ''){{@$rategenerator_rule->Prefix}} @else ALL @endif
                                                     <br>
-                                                        CityTariff: @if(@$rategenerator_rule->CityTariff != ''){{@$rategenerator_rule->CityTariff}} @else ALL @endif
+                                                        City: @if(@$rategenerator_rule->City != ''){{@$rategenerator_rule->City}} @else ALL @endif
+                                                    <br>
+                                                        Tariff: @if(@$rategenerator_rule->Tariff != ''){{@$rategenerator_rule->Tariff}} @else ALL @endif    
                                                 @endif
 
 
@@ -696,8 +714,12 @@
                     {{ Form::select('FPrefix-1', $Prefix, '', array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('FCity_Tariff-1', $CityTariff, null, array("class"=>"select2")) }}
+                    {{ Form::select('FCity-1', $CityTariff, null, array("class"=>"select2")) }}
                 </td>
+                <td class="DID-Div">
+                    {{ Form::select('FTariff-1', $CityTariffFilter, null, array("class"=>"select2")) }}
+                </td>
+                
                 <td class="DID-Div">
                     <input type="text" class="form-control" name="Origination-1"/>
                 </td>
@@ -722,7 +744,10 @@
                     {{ Form::select('TPrefix-1', $Prefix, '', array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('TCity_Tariff-1', $CityTariff, null, array("class"=>"select2")) }}
+                    {{ Form::select('TCity-1', $CityTariff, null, array("class"=>"select2")) }}
+                </td>
+                <td class="DID-Div">
+                    {{ Form::select('TTariff-1', $CityTariffFilter, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
                     <input type="text" class="form-control" name="ToOrigination-1"/>
@@ -754,7 +779,10 @@
                     {{ Form::select('Prefix1-1', $Prefix, '', array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('City_Tariff1-1', $CityTariff, null, array("class"=>"select2")) }}
+                    {{ Form::select('City1-1', $CityTariff, null, array("class"=>"select2")) }}
+                </td>
+                <td class="DID-Div">
+                    {{ Form::select('Tariff1-1', $CityTariffFilter, null, array("class"=>"select2")) }}
                 </td>
                 <td  class="DID-Div">
                     <input type="text" class="form-control" name="RateOrigination-1"/>
@@ -786,11 +814,11 @@
             display: none;
         }
         #servicetableSubBox {
-            width:3000px;
+            width:3200px;
             overflow-x: auto;
         }
         #ratetableSubBox{
-            width:1800px;
+            width:1900px;
             overflow-x: auto;
         }
     </style>
@@ -863,6 +891,23 @@
                 $("#hide-components").hide();
                 $(".DID-Div").hide();
                 $(".NonDID-Div").show();
+            }else if(TypeValue == 3) {
+                $(".DID-Div").hide();
+                $(".Package-Div1").show();
+                $(".NonDID-Div").hide();
+                $(".Package-Div").show();
+                $("#rate-ostion-trunk-div").hide();
+                $("#rate-aveg-div").hide();
+                $("#group-preference-div").hide();
+                $("#DIDCategoryDiv").hide();
+                $("#Merge-components").show();
+                $('#servicetableSubBox').css('width','1025px');
+                $('#ratetableSubBox').css('width','1025px');
+                $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
+                $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
+                $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "id"=>"MergeTo-1")) }}');
+
+                $('.PKG').select2();
             } else {
                 $(".DID-Div").hide();
                 $(".NonDID-Div").show();
@@ -969,6 +1014,7 @@
                 $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "id"=>"MergeTo-1")) }}');
+               
 
                 $('.PKG').select2();
             }
@@ -1425,17 +1471,19 @@
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'FCountry-' + numb).attr('id', 'FCountry-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'FAccessType-' + numb).attr('id', 'FAccessType-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'FPrefix-' + numb).attr('id', 'FPrefix-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'FCity_Tariff-' + numb).attr('id', 'FCity_Tariff-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(5)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', 'OneOffCost');
-                $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(12)').children('select').attr('name', 'TCity_Tariff-' + numb).attr('id', 'TCity_Tariff-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(13)').children('input').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(14)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'FCity-' + numb).attr('id', 'FCity-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'FTariff-' + numb).attr('id', 'FTariff-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', 'OneOffCost');
+                $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(12)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(13)').children('select').attr('name', 'TCity-' + numb).attr('id', 'TCity-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(14)').children('select').attr('name', 'TTariff-' + numb).attr('id', 'TTariff-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(15)').children('input').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(16)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
 
 
             } else {
@@ -1443,11 +1491,12 @@
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'Country1-' + numb).attr('id', 'Country1-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'AccessType1-' + numb).attr('id', 'AccessType1-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Prefix1-' + numb).attr('id', 'Prefix1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'City_Tariff1-' + numb).attr('id', 'City_Tariff1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(5)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(7)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'City1-' + numb).attr('id', 'City1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'Tariff1-' + numb).attr('id', 'Tariff1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(8)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(9)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
             }
             if ($('#' + idInp).val() == '') {
                 $('#' + idInp).val(numb + ',');
@@ -1467,9 +1516,9 @@
              });
              }*/
             if (tblID == "servicetableSubBox") {
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(15)').children('a').attr('id', "merge-" + numb);
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(17)').children('a').attr('id', "merge-" + numb);
             } else {
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(9)').children('a').attr('id', "rateCal-" + numb);
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(10)').children('a').attr('id', "rateCal-" + numb);
             }
 
 
@@ -1490,14 +1539,17 @@
                 $('#' + tblID + ' tr:last').children('td:eq(12)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(13)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(14)').find('div:first').remove();
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(15)').find('a').removeClass('hidden');
+                $('#' + tblID + ' tr:last').children('td:eq(15)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(16)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(17)').find('a').removeClass('hidden');
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(7)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(8)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(9)').find('div:first').remove();
 
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(9)').find('a').removeClass('hidden');
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(10)').find('a').removeClass('hidden');
             }
         }
 

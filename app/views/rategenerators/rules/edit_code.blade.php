@@ -21,13 +21,13 @@
                             <h5 align="center"><b>Origination</b></h5><br>
                             <label for="field-1" class="col-sm-1 control-label">Type</label>
                             <div class="col-sm-3">
-                                {{Form::select('OriginationType',$type, $OriginationType ,array("class"=>"form-control select2 small"))}}
+                                {{Form::select('OriginationType',$type, $OriginationType ,array("class"=>"select2"))}}
 
                                 {{--<input type="text" class="form-control popover-primary" name="OriginationCode"  id="field-1" placeholder="" value="{{$OriginationCode}}" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Origination Code Or Origination Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Origination Code/Description" />--}}
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">Country</label>
                             <div class="col-sm-3">
-                                {{Form::select('OriginationCountryID',$countryForRule, $OriginationCountryID ,array("class"=>"form-control select2 small"))}}
+                                {{Form::select('OriginationCountryID',$countryForRule, $OriginationCountryID ,array("class"=>"select2"))}}
 
                                 {{--<input type="text" class="form-control popover-primary" name="OriginationCode"  id="field-1" placeholder="" value="{{$OriginationCode}}" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Origination Code Or Origination Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Origination Code/Description" />--}}
                             </div>
@@ -47,13 +47,13 @@
                             <h5 align="center"><b>Destination</b></h5><br>
                             <label for="field-1" class="col-sm-1 control-label">Type</label>
                             <div class="col-sm-3">
-                                {{Form::select('DestinationType',$type, $DestinationType ,array("class"=>"form-control select2 small"))}}
+                                {{Form::select('DestinationType',$type, $DestinationType ,array("class"=>"select2"))}}
 
                                 {{--<input type="text" class="form-control popover-primary" name="OriginationCode"  id="field-1" placeholder="" value="{{$OriginationCode}}" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Origination Code Or Origination Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Origination Code/Description" />--}}
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">Country</label>
                             <div class="col-sm-3">
-                                {{Form::select('DestinationCountryID',$countryForRule, $DestinationCountryID ,array("class"=>"form-control select2 small"))}}
+                                {{Form::select('DestinationCountryID',$countryForRule, $DestinationCountryID ,array("class"=>"select2"))}}
 
                                 {{--<input type="text" class="form-control popover-primary" name="OriginationCode"  id="field-1" placeholder="" value="{{$OriginationCode}}" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Origination Code Or Origination Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Origination Code/Description" />--}}
                             </div>
