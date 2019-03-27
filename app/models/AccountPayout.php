@@ -162,7 +162,7 @@ class AccountPayout extends \Eloquent
             return [
                 "status"  => "success",
                 "message" => $SuccessMsg,
-                'LastID'  => $Invoice->InvoiceID
+                'LastID'  => $InvoiceID
             ];
 
         } catch (Exception $e){

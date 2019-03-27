@@ -204,7 +204,18 @@ class RateGeneratorRuleController extends \BaseController {
             if(isset($data['OriginationCountryID']) && $data['OriginationCountryID'] == ''){
                 $data['OriginationCountryID'] = null;
             }
-           
+
+            // Checking if any other rule exist with same condition
+            $whereArr = [];
+            foreach($data as $key => $item){
+                if($key != "CreatedBy" && $key != "Order")
+                    $whereArr[$key] = $item;
+            }
+
+            $check = RateRule::where($whereArr)->count();
+            if($check > 0)
+                return Response::json(array("status" => "failed", "message" => "Margin rule already exist with same condition."));
+
             if ($rule_id = RateRule::insertGetId($data)) {
 
                 // If type is not DID
@@ -285,6 +296,16 @@ class RateGeneratorRuleController extends \BaseController {
                 $data['OriginationCountryID'] = null;
             }
 
+            // Checking if any other rule exist with same condition
+            $whereArr = [];
+            foreach($data as $key => $item){
+                if($key != "CreatedBy" && $key != "Order" && $key != "ModifiedBy")
+                    $whereArr[$key] = $item;
+            }
+            $whereArr['RateGeneratorId'] = $id;
+            $check = RateRule::where('RateRuleId','!=',$RateRuleID)->where($whereArr)->count();
+            if($check > 0)
+                return Response::json(array("status" => "failed", "message" => "Margin rule already exist with same condition."));
 
             if ($rategenerator_rules->update($data)) {
                 return Response::json(array(
