@@ -226,19 +226,40 @@ class PaymentApiController extends ApiController {
 				$AccountBalance = AccountBalance::where('AccountID', $AccountID)->first();
 				if($AccountBalance != false && $AccountBalance->OutPaymentAvailable >= $data['Amount']){
 
+					$newAvailable = $AccountBalance->OutPaymentAvailable - (float)$data['Amount'];
+					$newPaid = $AccountBalance->OutPaymentPaid + (float)$data['Amount'];
+
 					$resp = AccountPayout::createPayoutInvoice($data);
 					if($resp['status'] == "failed")
 						return Response::json(array("ErrorMessage" => "Problem Creating Out Payment Invoice."),Codes::$Code500[0]);
 
-					$newAvailable = $AccountBalance->OutPaymentAvailable - (float)$data['Amount'];
-					$newPaid = $AccountBalance->OutPaymentPaid + (float)$data['Amount'];
-
 					$AccountBalance::where('AccountID', $AccountID)->update([
-							'OutPaymentAvailable' => $newAvailable,
-							'OutPaymentPaid' 	  => $newPaid,
-						]);
+						'OutPaymentAvailable' => $newAvailable,
+						'OutPaymentPaid' 	  => $newPaid,
+					]);
 
-					AccountPayout::successPayoutCustomerEmail($data);
+					// Sending Invoice Email
+					$Message = "Out Payment Invoice Successfully Created. Please view the invoice from the link send to you." ;
+					$InvoiceID 				= $resp["LastID"];
+					$Subject 				= "Out Payment Invoice";
+					$Invoice 				= Invoice::find($InvoiceID);
+					$Account 				= Account::find($Invoice->AccountID);
+					$emailData['EmailTo']  	= $Account->BillingEmail;
+					$singleemail 			= $Account->BillingEmail;
+					$emailData['InvoiceURL']=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+					$body = $Message . $emailData['InvoiceURL'];
+					$emailData['Subject']		=	$Subject;
+
+					if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+						$emailData['EmailFrom']	=	$postdata['email_from'];
+					else
+						$emailData['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
+
+					$status = 	$this->sendInvoiceMail($body, $emailData, 0);
+					Log::info('OutPayment:. Email Send.' . $emailData['InvoiceURL']);
+
+
+					//AccountPayout::successPayoutCustomerEmail($data);
 					//$transactionID = @$resp['response']['balance_transaction'];
 					//$payoutID = @$resp['response']['balance_transaction'];
 					//$note = "Stripe payout_id: {$transactionID}, transaction_id: {$payoutID}";
