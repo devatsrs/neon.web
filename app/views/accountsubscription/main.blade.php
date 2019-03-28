@@ -425,6 +425,7 @@
 
                     $(document).on("change","#AccountID_add_change SubscriptionID",function(){
 					var account_change = $(this).val();
+
 					if(account_change){
 						/*var UrlGetSubscription1 	= 	"<?php echo URL::to('/account_subscription/{id}/get_services'); ?>";
 						var UrlGetSubscription		=	UrlGetSubscription1.replace( '{id}', account_change );
@@ -582,6 +583,9 @@
                                             $("#subscription-form [name='WeeklyFee']").val(response.WeeklyFee);
                                             $("#subscription-form [name='DailyFee']").val(response.DailyFee);
                                             $("#subscription-form [name='ActivationFee']").val(response.ActivationFee);
+                                             $("#subscription-form [name='OneOffCurrencyID']").select2('val',response.OneOffCurrencyID);
+                                            $("#subscription-form [name='RecurringCurrencyID']").select2('val',response.RecurringCurrencyID);
+
                                         }
                                     }
                             });

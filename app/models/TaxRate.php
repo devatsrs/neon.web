@@ -22,7 +22,9 @@ class TaxRate extends \Eloquent {
     const NEU ='NEU';
 
     public static $tax_array = array(self::TAX_ALL=>'All Charges overall Invoice',self::TAX_USAGE=>'USAGE only',self::TAX_RECURRING=>'Recurring');
+
   public static $tax_array_filter = array(self::ALL_TAX_FILTER=>'All',self::TAX_ALL=>'All Charges overall Invoice',self::TAX_USAGE=>'USAGE only',self::TAX_RECURRING=>'Recurring');
+  
     public static $tax_countries_array = array(self::NL=>'Netherlands',self::EU=>'EU Country',self::NEU=>'Non EU');
     public static $tax_countries_filter = array(self::ALL=>'All',self::NL=>'Netherlands',self::EU=>'EU Country',self::NEU=>'Non EU');
 
