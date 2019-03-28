@@ -31,12 +31,12 @@ class SippySFTP {
            self::$cli->setSSLVerifyHost(2);
            self::$cli->setCredentials(self::$config['api_username'], self::$config['api_password'], CURLAUTH_DIGEST);
        }
-       if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])){
+       if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['username']) && isset(self::$config['password'])){
            Config::set('remote.connections.sippy',self::$config);
        }
     }
    public static function testConnection(){
-       if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])){
+       if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['username']) && isset(self::$config['password'])){
            try {
                $response = ['result'=>'OK'];
                SSH::into('sippy')->run('ls -l', function ($line) {
