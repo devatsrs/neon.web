@@ -817,8 +817,8 @@
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
-                                    // if approved rates then show Edit button else hide it
-                                    if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
+                                    // if awaiting approval rates then show Edit button else hide it
+                                    if(full[23] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                         action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
                                     }
                                 }
@@ -1006,15 +1006,18 @@
                 });
 
                 // if approved rates then show Bulk update button else hide it
-                if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
+                if($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}}) {
                     if (Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
                         $('#change-bulk-rate').hide();
                     } else {
                         $('#change-bulk-rate').show();
                     }
-                    $('#approve-bulk-rate,#disapprove-bulk-rate').hide();
                 } else {
                     $('#change-bulk-rate').hide();
+                }
+                if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
+                    $('#approve-bulk-rate,#disapprove-bulk-rate').hide();
+                } else {
                     $('#approve-bulk-rate,#disapprove-bulk-rate').show();
                 }
 

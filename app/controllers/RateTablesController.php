@@ -837,7 +837,7 @@ class RateTablesController extends \BaseController {
         if($rateTable->Type == $TypeVoiceCall) {
             $rules                          = $RateTableRateModel::$rules;
 
-            if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR) {
+            if(!($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)) {
                 $rules['RateID'] = 'required|unique:tblRateTableRate,RateID,NULL,RateTableRateId,RateTableId,' . $id . ',TimezonesID,' . $RateTableRate['TimezonesID'] . ',EffectiveDate,' . $RateTableRate['EffectiveDate'] . ',OriginationRateID,' . $RateTableRate['OriginationRateID'];
                 //$rules['OriginationRateID']   = 'unique:'.$table.',OriginationRateID,NULL,'.$col_id.',RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'].',RateID,'.$data['RateID'];
                 $message['RateID.unique'] = 'This combination of Origination Rate and Destination Rate on given Effective Date is already exist!';
@@ -847,7 +847,7 @@ class RateTablesController extends \BaseController {
             $message                        = $RateTableDIDRateModel::$message;
             $RateTableRate['CityTariff']    = !empty($data['CityTariff']) ? $data['CityTariff'] : '';
 
-            if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR) {
+            if(!($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)) {
                 $rules['RateID'] = 'required|unique:tblRateTableDIDRate,RateID,NULL,RateTableDIDRateID,RateTableId,' . $id . ',TimezonesID,' . $RateTableRate['TimezonesID'] . ',EffectiveDate,' . $RateTableRate['EffectiveDate'] . ',OriginationRateID,' . $RateTableRate['OriginationRateID'] . ',CityTariff,' . $RateTableRate['CityTariff'];
                 $message['RateID.unique'] = 'This combination of Origination Rate and Destination Rate on given Effective Date is already exist!';
             }
@@ -855,7 +855,7 @@ class RateTablesController extends \BaseController {
             $rules                          = $RateTablePKGRateModel::$rules;
             $message                        = $RateTablePKGRateModel::$message;
 
-            if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR) {
+            if(!($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)) {
                 $rules['RateID'] = 'required|unique:tblRateTablePKGRate,RateID,NULL,RateTablePKGRateID,RateTableId,' . $id . ',TimezonesID,' . $RateTableRate['TimezonesID'] . ',EffectiveDate,' . $RateTableRate['EffectiveDate'];
                 $message['RateID.unique'] = 'This Package Name on given Effective Date is already exist!';
             }
