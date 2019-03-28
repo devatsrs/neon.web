@@ -1030,16 +1030,16 @@ SET @p_AccessType = '' ;
 								(Collection Cost amount *Minutes)
 								*/
 
-								@Total1 := (
+									@Total1 := (
 
 									(	IFNULL(@MonthlyCost,0) 				)				+
-									(IFNULL(@CostPerMinute,0) * (select minutes from tmp_timezone_minutes tm where tm.TimezonesID = t.TimezonesID ))	+
+									(IFNULL(@CostPerMinute,0) * IFNULL((select minutes from tmp_timezone_minutes tm where tm.TimezonesID = t.TimezonesID ),0))	+
 									(IFNULL(@CostPerCall,0) * @p_Calls)		+
 									(IFNULL(@SurchargePerCall,0) * IFNULL(tom.minutes,0)) +
-									(IFNULL(@OutpaymentPerMinute,0) *  (select minutes from tmp_timezone_minutes_2 tm2 where tm2.TimezonesID = t.TimezonesID ))	+
+									(IFNULL(@OutpaymentPerMinute,0) *  IFNULL((select minutes from tmp_timezone_minutes_2 tm2 where tm2.TimezonesID = t.TimezonesID ),0))	+
 									(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
 									-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
-									(IFNULL(@CollectionCostAmount,0) * (select minutes from tmp_timezone_minutes_3 tm3 where tm3.TimezonesID = t.TimezonesID ) )
+									(IFNULL(@CollectionCostAmount,0) * IFNULL((select minutes from tmp_timezone_minutes_3 tm3 where tm3.TimezonesID = t.TimezonesID ),0) )
 
 
 								)
@@ -2788,7 +2788,7 @@ SET @p_AccessType = '' ;
 								drtr.VendorID,
 								@p_RateTableId as RateTableId,
 								drtr.TimezonesID,
-								rr.RateID as OriginationRateID,
+								IFNULL(rr.RateID,0) as OriginationRateID,
 								r.RateId,
 								drtr.CityTariff,
 								drtr.AccessType,
@@ -3184,7 +3184,7 @@ SET @p_AccessType = '' ;
 								drtr.VendorID,
 								@p_RateTableId as RateTableId,
 								drtr.TimezonesID,
-								rr.RateID as OriginationRateID,
+								IFNULL(rr.RateID,0) as OriginationRateID,
 								r.RateId,
 								drtr.CityTariff,
 								drtr.AccessType,
