@@ -139,15 +139,23 @@ class DestinationGroupSetController extends \BaseController {
         $CityTariffs = DestinationGroupSet::getCityTarrifs();
         $Packages = DestinationGroupSet::getPackages();
         $Prefix = DestinationGroupSet::getAccessPrefixNames();
+        $CityTariffFilter = [];
+            foreach($CityTariffs as $key => $City){
+                if(strpos($City, " per ")){
+                    $CityTariffFilter[$City] = $City;
+                    unset($CityTariffs[$key]);
+                }
+            }
+        $CityTariffFilter = array('' => 'All') + $CityTariffFilter;    
         //$codes = DB::select("call prc_getDestinationCode(6,0,'0','','0','','1','50')");
         $discountplanapplied = DiscountPlan::isDiscountPlanApplied('DestinationGroupSet',$id,0);
         if($typename == 'Access'){
-        	return View::make('destinationgroup.access', compact('DestinationGroupSetID','countries','name','discountplanapplied','typename','terminationtype', 'AccessTypes','CityTariffs','Packages','Prefix'));
+        	return View::make('destinationgroup.access', compact('DestinationGroupSetID','countries','name','discountplanapplied','typename','terminationtype', 'AccessTypes','CityTariffs','Packages','Prefix','CityTariffFilter'));
 
         }  elseif($typename == 'Package'){
-        return View::make('destinationgroup.package', compact('DestinationGroupSetID','countries','name','discountplanapplied','typename','terminationtype', 'AccessTypes','CityTariffs','Packages','Prefix'));
+        return View::make('destinationgroup.package', compact('DestinationGroupSetID','countries','name','discountplanapplied','typename','terminationtype', 'AccessTypes','CityTariffs','Packages','Prefix','CityTariffFilter'));
     } else{
-        return View::make('destinationgroup.show', compact('DestinationGroupSetID','countries','name','discountplanapplied','typename','terminationtype', 'AccessTypes','CityTariffs','Packages','Prefix'));
+        return View::make('destinationgroup.show', compact('DestinationGroupSetID','countries','name','discountplanapplied','typename','terminationtype', 'AccessTypes','CityTariffs','Packages','Prefix','CityTariffFilter'));
 
     }
     }

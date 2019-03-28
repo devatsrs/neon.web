@@ -47,9 +47,10 @@ class RateGeneratorRuleController extends \BaseController {
             $Prefix = array('' => "All") + $Prefix;
             $CityTariff = array('' => "All") + $CityTariff;
             $type = array('' => "All") + $type;
+            $CityTariffFilter = array('' => "All") + $CityTariffFilter;
             $countryForRule = array('' => "All") + $countryForRule;
 
-            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff','type','countryForRule'));
+            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff','type','countryForRule','CityTariffFilter'));
         }
     }
     public function edit($id, $RateRuleID) {
@@ -88,6 +89,7 @@ class RateGeneratorRuleController extends \BaseController {
             $Prefix = array('' => "All") + $Prefix;
             $CityTariff = array('' => "All") + $CityTariff;
             $type = array('' => "All") + $type;
+            $CityTariffFilter = array('' => "All") + $CityTariffFilter;
             $countryForRule = array('' => "All") + $countryForRule;
 
             $Timezones = Timezones::getTimezonesIDList();
@@ -106,7 +108,7 @@ class RateGeneratorRuleController extends \BaseController {
                 "RateRuleID" => $RateRuleID
             ])->get();
 
-            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','CityTariff','type','countryForRule','OriginationType','OriginationCountryID','DestinationType','DestinationCountryID'));
+            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','CityTariff','type','countryForRule','OriginationType','OriginationCountryID','DestinationType','DestinationCountryID','CityTariffFilter'));
 
 
 
