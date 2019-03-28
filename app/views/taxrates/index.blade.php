@@ -68,10 +68,10 @@
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li class="active">
-        <strong>Tax Rates</strong>
+        <strong>VAT Rates</strong>
     </li>
 </ol>
-<h3>Tax Rates</h3>
+<h3>VAT Rates</h3>
 
 @include('includes.errors')
 @include('includes.success')
@@ -243,7 +243,7 @@ $('#filter_submit').trigger('click');
         $('#add-new-taxrate-form').trigger("reset");
         $("#add-new-taxrate-form [name='TaxRateID']").val('');
         
-        $('#add-new-modal-taxrate h4').html('Add New TaxRate');
+        $('#add-new-modal-taxrate h4').html('Add New VAT Rate');
         $('#add-new-modal-taxrate').modal('show');
     });
     $('table tbody').on('click','.edit-taxrate',function(ev){
@@ -281,7 +281,7 @@ $('#filter_submit').trigger('click');
         }
         
         $("#add-new-taxrate-form [name='TaxRateID']").val($(this).attr('data-id'));
-        $('#add-new-modal-taxrate h4').html('Edit TaxRate');
+        $('#add-new-modal-taxrate h4').html('Edit VAT Rate');
         $('#add-new-modal-taxrate').modal('show');
     })
 
@@ -400,7 +400,7 @@ function ajax_update(fullurl,data){
             <form id="add-new-taxrate-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add New TaxRate</h4>
+                    <h4 class="modal-title">Add New VAT Rate</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
