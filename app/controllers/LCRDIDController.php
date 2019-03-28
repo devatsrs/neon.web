@@ -8,6 +8,7 @@ class LCRDIDController extends \BaseController {
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
+        //dd($data);
         Log::info('LCRDIDController:search_ajax_datagrid' . print_r($data, true));
         $data['ComponentAction']=empty($data['ComponentAction'])?'':$data['ComponentAction'];
         $data['DIDCategoryID']=empty($data['DIDCategoryID'])?0:$data['DIDCategoryID'];
@@ -55,7 +56,7 @@ if($data['lcr_type']=='Y'){
                 }
                 $query .=',0)';
 }else{
-        $query = "call prc_GetDIDLCR(".$companyID.", '".$data['CountryID']."', '".$data['AccessType']."', '".$data['CityTariff']."', '".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+        $query = "call prc_GetDIDLCR(".$companyID.", '".$data['CountryID']."', '".$data['AccessType']."', '".$data['City']."','".$data['Tariff']."' ,'".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
@@ -118,12 +119,13 @@ if($data['lcr_type']=='Y'){
                 unset($CityTariff[$key]);
             }
         }
-        $CityTariff = array_merge($CityTariff, $CityTariffFilter);
+        //$CityTariff = array_merge($CityTariff, $CityTariffFilter);
 
         $country = array('' => "All") + $country;
         $AccessType =array('' => "All") + $AccessType;
         $Prefix = array('' => "All") + $Prefix;
         $CityTariff = array('' => 'All') + $CityTariff;
+        $CityTariffFilter = array('' => 'All') + $CityTariffFilter;
 
         $Package = Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
 

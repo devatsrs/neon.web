@@ -94,7 +94,7 @@ class AccountPayout extends \Eloquent
                 $ProductData['Name'] = 'OutPayment';
                 $ProductData['Amount'] = '0.00';
                 $ProductData['Description'] = 'Out Payment';
-                $ProductData['Code'] = 'outpayment';
+                $ProductData['Code'] = Product::OutPaymentCode;
                 $product = Product::create($ProductData);
                 $ProductID = $product->ProductID;
             }
@@ -162,7 +162,7 @@ class AccountPayout extends \Eloquent
             return [
                 "status"  => "success",
                 "message" => $SuccessMsg,
-                'LastID'  => $Invoice->InvoiceID
+                'LastID'  => $InvoiceID
             ];
 
         } catch (Exception $e){

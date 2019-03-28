@@ -38,8 +38,12 @@
                     {{ Form::select('Prefix', $Prefix, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group productdiv">
-                    <label class="control-label">City/Tariff</label>
-                    {{ Form::select('CityTariff', $CityTariff, '', array("class"=>"select2")) }}
+                    <label class="control-label">City</label>
+                    {{ Form::select('City', $CityTariff, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group productdiv">
+                    <label class="control-label">Tariff</label>
+                    {{ Form::select('Tariff', $CityTariffFilter, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group packagediv" style="display:none;">
                     <label class="control-label">Package</label>
@@ -239,7 +243,8 @@
                 $searchFilter.Country                   = $("#did-search-form select[name='CountryID']").val();
                 $searchFilter.AccessType                = $("#did-search-form select[name='AccessType']").val();
                 $searchFilter.Prefix                    = $("#did-search-form select[name='Prefix']").val();
-                $searchFilter.CityTariff                    = $("#did-search-form select[name='CityTariff']").val();
+                $searchFilter.City                = $("#did-search-form select[name='City']").val();
+                $searchFilter.Tariff                = $("#did-search-form select[name='Tariff']").val();
                 $searchFilter.Currency                   = $("#did-search-form select[name='Currency']").val();
                 $searchFilter.LCRPosition                 = $("#did-search-form select[name='LCRPosition']").val();
                 $searchFilter.DIDCategoryID              = $("#did-search-form select[name='DIDCategoryID']").val();
@@ -394,7 +399,8 @@
                                 {"name": "CountryID","value": $searchFilter.Country},
                                 {"name": "AccessType","value": $searchFilter.AccessType},
                                 {"name": "Prefix","value": $searchFilter.Prefix},
-                                {"name": "CityTariff","value": $searchFilter.CityTariff},
+                                {"name": "City","value": $searchFilter.City},
+                                {"name": "Tariff","value": $searchFilter.Tariff},
                                 {"name": "LCRPosition","value": $searchFilter.LCRPosition},
                                 {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},
                                 {"name": "Calls","value": $searchFilter.Calls},
@@ -415,7 +421,8 @@
                                 {"name": "CountryID","value": $searchFilter.Country},
                                 {"name": "AccessType","value": $searchFilter.AccessType},
                                 {"name": "Prefix","value": $searchFilter.Prefix},
-                                {"name": "CityTariff","value": $searchFilter.CityTariff},
+                                {"name": "City","value": $searchFilter.City},
+                                {"name": "Tariff","value": $searchFilter.Tariff},
                                 {"name": "Currency","value": $searchFilter.Currency},
                                 {"name": "LCRPosition","value": $searchFilter.LCRPosition},
                                 {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},

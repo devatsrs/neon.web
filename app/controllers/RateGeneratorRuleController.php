@@ -47,9 +47,10 @@ class RateGeneratorRuleController extends \BaseController {
             $Prefix = array('' => "All") + $Prefix;
             $CityTariff = array('' => "All") + $CityTariff;
             $type = array('' => "All") + $type;
+            $CityTariffFilter = array('' => "All") + $CityTariffFilter;
             $countryForRule = array('' => "All") + $countryForRule;
 
-            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff','type','countryForRule'));
+            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff','type','countryForRule','CityTariffFilter'));
         }
     }
     public function edit($id, $RateRuleID) {
@@ -88,6 +89,7 @@ class RateGeneratorRuleController extends \BaseController {
             $Prefix = array('' => "All") + $Prefix;
             $CityTariff = array('' => "All") + $CityTariff;
             $type = array('' => "All") + $type;
+            $CityTariffFilter = array('' => "All") + $CityTariffFilter;
             $countryForRule = array('' => "All") + $countryForRule;
 
             $Timezones = Timezones::getTimezonesIDList();
@@ -106,7 +108,7 @@ class RateGeneratorRuleController extends \BaseController {
                 "RateRuleID" => $RateRuleID
             ])->get();
 
-            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','CityTariff','type','countryForRule','OriginationType','OriginationCountryID','DestinationType','DestinationCountryID'));
+            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','CityTariff','type','countryForRule','OriginationType','OriginationCountryID','DestinationType','DestinationCountryID','CityTariffFilter'));
 
 
 
@@ -204,7 +206,18 @@ class RateGeneratorRuleController extends \BaseController {
             if(isset($data['OriginationCountryID']) && $data['OriginationCountryID'] == ''){
                 $data['OriginationCountryID'] = null;
             }
-           
+
+            // Checking if any other rule exist with same condition
+            $whereArr = [];
+            foreach($data as $key => $item){
+                if($key != "CreatedBy" && $key != "Order")
+                    $whereArr[$key] = $item;
+            }
+
+            $check = RateRule::where($whereArr)->count();
+            if($check > 0)
+                return Response::json(array("status" => "failed", "message" => "Margin rule already exist with same condition."));
+
             if ($rule_id = RateRule::insertGetId($data)) {
 
                 // If type is not DID
@@ -285,6 +298,16 @@ class RateGeneratorRuleController extends \BaseController {
                 $data['OriginationCountryID'] = null;
             }
 
+            // Checking if any other rule exist with same condition
+            $whereArr = [];
+            foreach($data as $key => $item){
+                if($key != "CreatedBy" && $key != "Order" && $key != "ModifiedBy")
+                    $whereArr[$key] = $item;
+            }
+            $whereArr['RateGeneratorId'] = $id;
+            $check = RateRule::where('RateRuleId','!=',$RateRuleID)->where($whereArr)->count();
+            if($check > 0)
+                return Response::json(array("status" => "failed", "message" => "Margin rule already exist with same condition."));
 
             if ($rategenerator_rules->update($data)) {
                 return Response::json(array(

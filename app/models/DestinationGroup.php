@@ -57,7 +57,8 @@ public static function getCountryName($id)
             $CountryName = '';
             $Type = '';
             $Prefix = '';
-            $CityTariff = '';
+            $City = '';
+            $Tariff = '';
             $PackageID='';
             if (isset($post_data['Name'])) {
                 $Name = $post_data['Name'];
@@ -75,16 +76,20 @@ public static function getCountryName($id)
             if (isset($post_data['Prefix'])) {
                 $Prefix = $post_data['Prefix'];
             }
-            if (isset($post_data['CityTariff'])) {
-                $CityTariff = $post_data['CityTariff'];
+            if (isset($post_data['City'])) {
+                $City = $post_data['City'];
+            }
+            if (isset($post_data['Tariff'])) {
+                $Tariff = $post_data['Tariff'];
             }
             if (isset($post_data['PackageID'])) {
                 $PackageID = $post_data['PackageID'];
             }
 
-            $sort_column = $columns[$post_data['iSortCol_0']];
-            $query = "call prc_getDestinationGroup(" . $CompanyID . ",'" . intval($DestinationGroupSetID) . "','" . $Name . "'," . (ceil($post_data['iDisplayStart'] / $post_data['iDisplayLength'])) . " ," . $post_data['iDisplayLength'] . ",'" . $sort_column . "','" . $post_data['sSortDir_0'] ."', '". $CountryName. "', '". $Type. "', '". $Prefix. "', '". $CityTariff. "', '". $PackageID ."', '".$gettypeid."'";
+            
 
+            $sort_column = $columns[$post_data['iSortCol_0']];
+            $query = "call prc_getDestinationGroup(" . $CompanyID . ",'" . intval($DestinationGroupSetID) . "','" . $Name . "'," . (ceil($post_data['iDisplayStart'] / $post_data['iDisplayLength'])) . " ," . $post_data['iDisplayLength'] . ",'" . $sort_column . "','" . $post_data['sSortDir_0'] ."', '". $CountryName. "', '". $Type. "', '". $Prefix. "', '". $City. "','". $Tariff. "', '". $PackageID ."', '".$gettypeid."'";
             if (isset($post_data['Export']) && $post_data['Export'] == 1) {
                 $result = DB::select($query . ',1)');
                 Log::info(json_encode($query));

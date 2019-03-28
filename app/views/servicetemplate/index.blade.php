@@ -30,9 +30,15 @@
                     {{ Form::select('Prefix', $Prefix, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">City/Tariff</label>
-                    {{ Form::select('CityTariff', $CityTariff, '', array("class"=>"select2")) }}
+                    <label for="field-1" class="control-label">City</label>
+                    {{ Form::select('City', $CityTariff, '', array("class"=>"select2")) }}
                 </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Tariff</label>
+                    {{ Form::select('Tariff', $CityTariffFilter, '', array("class"=>"select2")) }}
+                </div>
+
+               
                 {{--<div class="form-group">--}}
                     {{--<label for="field-1" class="control-label">Currency</label><br/>--}}
                         {{--{{ Form::select('FilterCurrencyId',Currency::getCurrencyDropdownIDList(),'', array("class"=>"select2 small")) }}--}}
@@ -194,14 +200,17 @@
                 $searchFilter.CountryID = $("#service_filter [name='CountryID']").val();
                 $searchFilter.AccessType = $("#service_filter [name='AccessType']").val();
                 $searchFilter.Prefix = $("#service_filter [name='Prefix']").val();
-                $searchFilter.CityTariff = $("#service_filter [name='CityTariff']").val();
+                $searchFilter.City = $("#service_filter [name='City']").val();
+                $searchFilter.Tariff = $("#service_filter [name='Tariff']").val();
+
+                
 
 
 
                 //alert($searchFilter.ServiceId);//{"name":"sSearch_0","value":""}
-                aoData.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"sSearch_0","value":""},{"name":"ServiceId","value":$searchFilter.ServiceId},{"name":"FilterCurrencyId","value":$searchFilter.FilterCurrencyId},{"name":"CountryID","value":$searchFilter.CountryID},{"name":"AccessType","value":$searchFilter.AccessType},{"name":"Prefix","value":$searchFilter.Prefix},{"name":"CityTariff","value":$searchFilter.CityTariff});
+                aoData.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"sSearch_0","value":""},{"name":"ServiceId","value":$searchFilter.ServiceId},{"name":"FilterCurrencyId","value":$searchFilter.FilterCurrencyId},{"name":"CountryID","value":$searchFilter.CountryID},{"name":"AccessType","value":$searchFilter.AccessType},{"name":"Prefix","value":$searchFilter.Prefix},{"name":"City","value":$searchFilter.City},{"name":"Tariff","value":$searchFilter.Tariff});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"CountryID","value":$searchFilter.CountryID},{"name":"AccessType","value":$searchFilter.AccessType},{"name":"Prefix","value":$searchFilter.Prefix},{"name":"CityTariff","value":$searchFilter.CityTariff},{"name":"sSearch_0","value":""},{"name":"ServiceId","value":$searchFilter.ServiceId},{"name":"FilterCurrencyId","value":$searchFilter.FilterCurrencyId},{ "name": "Export", "value": 1});
+                data_table_extra_params.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"CountryID","value":$searchFilter.CountryID},{"name":"AccessType","value":$searchFilter.AccessType},{"name":"Prefix","value":$searchFilter.Prefix},{"name":"City","value":$searchFilter.City},{"name":"Tariff","value":$searchFilter.Tariff},{"name":"sSearch_0","value":""},{"name":"ServiceId","value":$searchFilter.ServiceId},{"name":"FilterCurrencyId","value":$searchFilter.FilterCurrencyId},{ "name": "Export", "value": 1});
             },
             "aoColumns": 
              [
@@ -320,7 +329,8 @@
             $searchFilter.CountryID = $("#service_filter [name='CountryID']").val();
             $searchFilter.AccessType = $("#service_filter [name='AccessType']").val();
             $searchFilter.Prefix = $("#service_filter [name='Prefix']").val();
-            $searchFilter.CityTariff = $("#service_filter [name='CityTariff']").val();
+            $searchFilter.City = $("#service_filter [name='City']").val();
+            $searchFilter.Tariff = $("#service_filter [name='Tariff']").val();
 
             data_table.fnFilter('', 0);
             return false;

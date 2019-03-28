@@ -51,7 +51,12 @@
                         
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">City Tarrif</label>
-                                   {{ Form::select('CityTariff', $CityTariffs , '' , array("class"=>"select2")) }}
+                                   {{ Form::select('City', $CityTariffs , '' , array("class"=>"select2")) }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">City Tarrif</label>
+                                   {{ Form::select('Tariff', $CityTariffFilter , '' , array("class"=>"select2")) }}
                                 </div>
                             
 
@@ -157,7 +162,8 @@
                 $search.CountryID = $("#table_filter").find('[name="CountryID"]').val();
                 $search.Type = $("#table_filter").find('[name="Type"]').val();
                 $search.Prefix = $("#table_filter").find('[name="Prefix"]').val();
-                $search.CityTariff = $("#table_filter").find('[name="CityTariff"]').val();
+                $search.City = $("#table_filter").find('[name="City"]').val();
+                $search.Tariff = $("#table_filter").find('[name="Tariff"]').val();
                 $search.PackageID = $("#table_filter").find('[name="PackageID"]').val();
 
                 data_table = $("#table-list").dataTable({
@@ -176,7 +182,8 @@
                                 {"name": "CountryID", "value": $search.CountryID},
                                 {"name": "Type", "value": $search.Type},
                                 {"name": "Prefix", "value": $search.Prefix},
-                                {"name": "CityTariff", "value": $search.CityTariff},
+                                {"name": "City", "value": $search.City},
+                                {"name": "Tariff", "value": $search.Tariff},
                                 {"name": "PackageID", "value": $search.PackageID},
                                 {"name": "DestinationGroupSetID", "value": '{{$DestinationGroupSetID}}'}
 
