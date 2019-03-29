@@ -230,7 +230,7 @@
             <li class="{{ active_url_class("invoice_template") }}"> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('TaxRates','View'))
-            <li class="{{ active_url_class("taxrate") }}"> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li>
+            <li class="{{ active_url_class("taxrate") }}"> <a href="{{URL::to('/taxrate')}}">  <span>VAT Rate</span> </a> </li>
           @endif
           @if( User::checkCategoryPermission('BillingClass','View'))
             <li class="{{ active_url_class("billing_class") }}"> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
