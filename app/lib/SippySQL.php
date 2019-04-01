@@ -26,7 +26,7 @@ class SippySQL{
 
     public static function testConnection(){
         $response = array();
-        if (count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])) {
+        if (count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])) {
 
             try {
                 if (DB::connection('pgsql')->getDatabaseName()) {
@@ -45,7 +45,7 @@ class SippySQL{
 
     public static function getAccountByIP($addparams = array()){
         $response = array();
-        if (count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])) {
+        if (count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])) {
             try {
                 $qry = "select i_account from authentications where remote_ip in (" . $addparams['remote_ip'] . ") limit 1";
                 $response = DB::connection('pgsql')->select($qry);
@@ -62,7 +62,7 @@ class SippySQL{
 
     public static function getVendorByIP($addparams = array()){
         $response = array();
-        if (count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])) {
+        if (count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])) {
             try {
                 $qry = "select i_vendor from connections where destination in (" . $addparams['remote_ip'] . ") limit 1";
                 $response = DB::connection('pgsql')->select($qry);
@@ -79,7 +79,7 @@ class SippySQL{
 
     public static function getTariffID($addparams = array()){
         $response = array();
-        if (count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])) {
+        if (count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])) {
             try {
                 $qry = "select i_tariff from billing_plans where i_billing_plan = " . $addparams['i_billing_plan'] . " limit 1";
                 $response = DB::connection('pgsql')->select($qry);
@@ -96,7 +96,7 @@ class SippySQL{
 
     public static function getDestinationSetList($addparams = array()){
         $response = array();
-        if (count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])) {
+        if (count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])) {
             try {
                 $qry = "select
                             distinct m.i_destination_set,d.name

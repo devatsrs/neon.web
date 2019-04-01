@@ -480,12 +480,13 @@ class CreditNotesController extends \BaseController {
                 $i=0;
                 foreach($CreditNotesDetailData as $idata)
                 {
-                    if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
-                    {
-                        $CreditNotesDetailData[$i]["DiscountAmount"] = "";
-                        $CreditNotesDetailData[$i]["DiscountType"] = null;
-                    }
                     $CreditNotesDetailData[$i]["DiscountLineAmount"] = ($CreditNotesDetailData[$i]["Price"] * $CreditNotesDetailData[$i]["Qty"]) - $CreditNotesDetailData[$i]["LineTotal"];
+                    if(!isset($idata["DiscountAmount"]) || $idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                    {
+                        unset($CreditNotesDetailData[$i]["DiscountAmount"]);
+                        unset($CreditNotesDetailData[$i]["DiscountType"]);
+                        unset($CreditNotesDetailData[$i]["DiscountLineAmount"]);
+                    }
                     $i++;
                 }
 
@@ -672,12 +673,13 @@ class CreditNotesController extends \BaseController {
                         $i=0;
                         foreach($CreditNotesDetailData as $idata)
                         {
-                            if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
-                            {
-                                $CreditNotesDetailData[$i]["DiscountAmount"] = "";
-                                $CreditNotesDetailData[$i]["DiscountType"] = null;
-                            }
                             $CreditNotesDetailData[$i]["DiscountLineAmount"] = ($CreditNotesDetailData[$i]["Price"] * $CreditNotesDetailData[$i]["Qty"]) - $CreditNotesDetailData[$i]["LineTotal"];
+                            if(!isset($idata["DiscountAmount"]) || $idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                            {
+                                unset($CreditNotesDetailData[$i]["DiscountAmount"]);
+                                unset($CreditNotesDetailData[$i]["DiscountType"]);
+                                unset($CreditNotesDetailData[$i]["DiscountLineAmount"]);
+                            }
                             $i++;
                         }
 
