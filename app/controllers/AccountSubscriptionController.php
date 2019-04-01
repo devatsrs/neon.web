@@ -727,7 +727,8 @@ public function main() {
 	
 	function GetAccountSubscriptions($id){
 		$account = Account::find($id);
-		$subscriptions =  BillingSubscription::getSubscriptionsArray($account->CompanyId,$account->CurrencyId);	
+		$subscriptions =  BillingSubscription::getSubscriptionsArray($account->CompanyId,$account->CurrencyId);
+
 		return $subscriptions;
 	}
 

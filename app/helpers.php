@@ -400,6 +400,16 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
         $name = 'CurrencyID';
         $modal = 'add-new-modal-currency';
         $data = Currency::getCurrencyDropdownIDList();
+    }
+    elseif($type=='OneOffCurrencyID') {
+        $name = 'OneOffCurrencyID';
+        $modal = 'add-new-modal-currency';
+        $data = Currency::getCurrencyDropdownIDList();
+    }
+    elseif($type=='RecurringCurrencyID') {
+        $name = 'RecurringCurrencyID';
+        $modal = 'add-new-modal-currency';
+        $data = Currency::getCurrencyDropdownIDList();
     }elseif($type=='invoice_template'){
         $name = 'InvoiceTemplateID';
         $modal = 'add-new-modal-invoice_template';
