@@ -555,18 +555,16 @@ INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `
 INSERT INTO `tblCronJob` (`CompanyID`, `CronJobCommandID`, `Settings`, `Status`, `LastRunTime`, `NextRunTime`, `created_at`, `created_by`, `updated_at`, `updated_by`, `Active`, `JobTitle`, `DownloadActive`, `PID`, `EmailSendTime`, `CdrBehindEmailSendTime`, `CdrBehindDuration`, `ProcessID`, `MysqlPID`) VALUES (1, 604, '{"ThresholdTime":"","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["DAILY","SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":"31"}', 1, NULL, '2019-02-20 14:06:00', '2019-02-20 00:00:00', 'Sumera Saeed', '2019-02-20 14:05:22', NULL, 0, 'Import VOS Account', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 
 
-
-DROP PROCEDURE IF EXISTS `prc_getVOSAccountBalance`;
 DELIMITER //
 CREATE PROCEDURE `prc_getVOSAccountBalance`(
 	IN `p_CompanyID` INT,
-	IN `p_AccountBalanceSearch` VARCHAR(255),
+	IN `p_AccountName` VARCHAR(255),
+	IN `p_AccountNumber` VARCHAR(255),
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_Export` INT
-
 
 )
 BEGIN
@@ -590,8 +588,8 @@ BEGIN
 						
 		FROM tblVOSAccountBalance vab		
         WHERE vab.CompanyID = p_CompanyID
-        AND(p_AccountBalanceSearch ='' OR (vab.AccountName like Concat('%',p_AccountBalanceSearch,'%') OR vab.AccountNumber like Concat(p_AccountBalanceSearch,'%')))
-				
+        AND(p_AccountName ='' OR (vab.AccountName like Concat(p_AccountName,'%') ))
+		  AND(p_AccountNumber ='' OR (vab.AccountNumber like Concat(p_AccountNumber,'%') ))				
          ORDER BY
 				CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN vab.AccountName
@@ -618,7 +616,8 @@ BEGIN
 				COUNT(vab.VOSAccountBalanceID) AS totalcount
 			FROM tblVOSAccountBalance vab		
 			WHERE vab.CompanyID = p_CompanyID
-			AND(p_AccountBalanceSearch ='' OR (vab.AccountName like Concat('%',p_AccountBalanceSearch,'%') OR vab.AccountNumber like Concat(p_AccountBalanceSearch,'%')));
+			AND(p_AccountName ='' OR (vab.AccountName like Concat(p_AccountName,'%') ))
+		  AND(p_AccountNumber ='' OR (vab.AccountNumber like Concat(p_AccountNumber,'%') ));
 
 	ELSE
 
@@ -629,7 +628,8 @@ BEGIN
 						
 		FROM tblVOSAccountBalance vab		
         WHERE vab.CompanyID = p_CompanyID
-		  AND(p_AccountBalanceSearch ='' OR (vab.AccountName like Concat('%',p_AccountBalanceSearch,'%') OR vab.AccountNumber like Concat(p_AccountBalanceSearch,'%')));
+		  AND(p_AccountName ='' OR (vab.AccountName like Concat(p_AccountName,'%') ))
+		  AND(p_AccountNumber ='' OR (vab.AccountNumber like Concat(p_AccountNumber,'%') ));
 
 	END IF;
 
@@ -637,6 +637,7 @@ BEGIN
 	
 END//
 DELIMITER ;
+
 
 
 CREATE TABLE IF NOT EXISTS `tblVosIP` (
@@ -688,7 +689,7 @@ BEGIN
 	     
     SET v_CustomerType=0;
     SET v_VendorType = 2;
-    
+    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
      
 	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	  
@@ -738,7 +739,7 @@ BEGIN
 			AccountName,
 			AccountType,
 			null
-		FROM tblVOSAccount;
+		FROM tblVosAccount;
 		
 		
 		UPDATE tmp_vos_account tva1
@@ -918,14 +919,14 @@ BEGIN
 						
 						CASE WHEN
 							
-							 (SELECT count(*) FROM tblVOSAccount d WHERE d.AccountType=v_VendorType AND d.AccountName=a.AccountName) > 0
+							 (SELECT count(*) FROM tblVosAccount d WHERE d.AccountType=v_VendorType AND d.AccountName=a.AccountName) > 0
 						THEN 1 
 						ELSE 0
 						END as IsVendor,
 						
 						CASE WHEN
 							
-							 (SELECT count(*) FROM tblVOSAccount c WHERE c.AccountType=v_CustomerType AND c.AccountName=a.AccountName) > 0
+							 (SELECT count(*) FROM tblVosAccount c WHERE c.AccountType=v_CustomerType AND c.AccountName=a.AccountName) > 0
 						THEN 1 
 						ELSE 0
 						END as IsCustomer,
@@ -940,7 +941,7 @@ BEGIN
 						'VOSAPI' as created_by
 						
 					FROM tmp_create_account a 
-					JOIN tblVOSAccount b ON a.AccountName = b.AccountName 
+					JOIN tblVosAccount b ON a.AccountName = b.AccountName 
 					GROUP BY b.AccountName;
 								
 		
@@ -960,18 +961,17 @@ END//
 DELIMITER ;
 
 
-
 DROP PROCEDURE IF EXISTS `prc_getVOSAccountIP`;
 DELIMITER //
 CREATE PROCEDURE `prc_getVOSAccountIP`(
 	IN `p_CompanyID` INT,
-	IN `p_AccountIPSearch` VARCHAR(255),
+	IN `p_AccountName` VARCHAR(255),
+	IN `p_RemoteIps` VARCHAR(255),
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_Export` INT
-
 
 
 )
@@ -984,21 +984,28 @@ BEGIN
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	
+	DROP TEMPORARY TABLE IF EXISTS tmp_VOSIPCount;
+				CREATE TEMPORARY TABLE tmp_VOSIPCount (
+					VosIPID int
+				);
+	
 
 	if p_Export = 0
 	THEN
 
 		SELECT   
-			DISTINCT
+			
 			vi.AccountName,
 			vi.RemoteIps,
 			CASE WHEN vi.IPType=1 THEN 'Vendor' ELSE 'Customer' END as IPType
 									
-		FROM tblVOSIP vi		
+		FROM tblVosIP vi		
         WHERE vi.CompanyID = p_CompanyID
         AND vi.AccountName!=''
-        AND(p_AccountIPSearch ='' OR (vi.AccountName like Concat('%',p_AccountIPSearch,'%') OR vi.RemoteIps like Concat(p_AccountIPSearch,'%')))
-				
+        AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
+        AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
+		  group by  vi.AccountName,vi.RemoteIps,vi.IPType	
+		  
          ORDER BY
 				CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN vi.AccountName
@@ -1014,12 +1021,20 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IPTypeASC') THEN vi.IPType
                 END ASC
             LIMIT p_RowspPage OFFSET v_OffSet_;
+            
+            INSERT INTO tmp_VOSIPCount
+            	SELECT
+						vi.VOSIPID
+            	FROM tblVosIP vi		
+			WHERE vi.CompanyID = p_CompanyID
+			AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
+        AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
+		  GROUP BY  vi.AccountName,vi.RemoteIps,vi.IPType;
+            
 
 			SELECT
-				COUNT(vi.VOSIPID) AS totalcount
-			FROM tblVOSIP vi		
-			WHERE vi.CompanyID = p_CompanyID
-			AND(p_AccountIPSearch ='' OR (vi.AccountName like Concat('%',p_AccountIPSearch,'%') OR vi.RemoteIps like Concat(p_AccountIPSearch,'%')));
+				COUNT(*) AS totalcount
+			FROM tmp_VOSIPCount;
 
 	ELSE
 
@@ -1028,9 +1043,11 @@ BEGIN
 				vi.RemoteIps,
 				CASE WHEN vi.IPType=1 THEN 'Vendor' ELSE 'Customer' END as IPType
 									
-			FROM tblVOSIP vi		
+			FROM tblVosIP vi		
 			WHERE vi.CompanyID = p_CompanyID
-			AND(p_AccountIPSearch ='' OR (vi.AccountName like Concat('%',p_AccountIPSearch,'%') OR vi.RemoteIps like Concat(p_AccountIPSearch,'%')));
+			AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
+        AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
+		  GROUP BY  vi.AccountName,vi.RemoteIps,vi.IPType;
 
 	END IF;
 
@@ -1038,6 +1055,7 @@ BEGIN
 	
 END//
 DELIMITER ;
+
 
 
 
@@ -1056,3 +1074,707 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'BillingDashboard@VOSIP_ajax_datagrid', 'BillingDashboard.VOSIP_ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-26 16:00:13.000', '2019-02-26 16:00:13.000', 1379);
 
 
+
+/* Above Done ON LIVE */
+
+INSERT INTO `tblresourcecategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1382, 'VOSAccountIP.View', 1, 7);
+INSERT INTO `tblresourcecategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1381, 'VOSAccountBalance.View', 1, 7);
+
+
+INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2726, 'VOSAccountIP.ajax_datagrid', 'VOSAccountIPController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
+INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2725, 'VOSAccountIP.*', 'VOSAccountIPController.*', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
+INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2724, 'VOSAccountIP.index', 'VOSAccountIPController.index', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
+INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2723, 'VOSAccountBalance.ajax_datagrid', 'VOSAccountBalanceController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
+INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2722, 'VOSAccountBalance.*', 'VOSAccountBalanceController.*', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
+INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2721, 'VOSAccountBalance.index', 'VOSAccountBalanceController.index', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
+
+
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 14, 'Import VOS Customer Rate', 'getvoscustomerrate', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2019-02-18 13:45:49', 'RateManagementSystem');
+
+INSERT INTO `tblCronJob` (`CompanyID`, `CronJobCommandID`, `Settings`, `Status`, `LastRunTime`, `NextRunTime`, `created_at`, `created_by`, `updated_at`, `updated_by`, `Active`, `JobTitle`, `DownloadActive`, `PID`, `EmailSendTime`, `CdrBehindEmailSendTime`, `CdrBehindDuration`, `ProcessID`, `MysqlPID`) VALUES (1, 605, '{"ThresholdTime":"","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["DAILY","SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":"31"}', 1, '2019-03-08 10:57:00', '2019-03-09 00:00:00', '2019-03-06 00:00:00', 'Sumera Saeed', '2019-03-08 10:57:56', NULL, 0, 'Import VOS Customer Rate', 0, '', NULL, NULL, NULL, '', '');
+
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 14, 'Import VOS Vendor Rate', 'getvosvendorrate', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2019-02-18 13:45:49', 'RateManagementSystem');
+
+INSERT INTO `tblCronJob` (`CompanyID`, `CronJobCommandID`, `Settings`, `Status`, `LastRunTime`, `NextRunTime`, `created_at`, `created_by`, `updated_at`, `updated_by`, `Active`, `JobTitle`, `DownloadActive`, `PID`, `EmailSendTime`, `CdrBehindEmailSendTime`, `CdrBehindDuration`, `ProcessID`, `MysqlPID`) VALUES (1, 606, '{"ThresholdTime":"","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":"31"}', 1, NULL, '2019-03-09 00:00:00', '2019-03-08 00:00:00', 'Sumera Saeed', '2019-03-08 11:23:30', NULL, 0, 'Import VOS Vendor Rate', 0, '', NULL, NULL, NULL, NULL, NULL);
+
+
+
+DROP TABLE IF EXISTS `tblVOSCustomerFeeRateGroup`;
+CREATE TABLE IF NOT EXISTS `tblVOSCustomerFeeRateGroup` (
+  `VOSCustomerFeeRateGroupID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) DEFAULT NULL,
+  `FeePrefix` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AreaCode` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AreaName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Fee` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Period` int(11) DEFAULT NULL,
+  `Type` int(11) DEFAULT NULL,
+  `IvrFee` int(11) DEFAULT NULL,
+  `IvrPeriod` int(11) DEFAULT NULL,
+  `FeeRateGroup` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`VOSCustomerFeeRateGroupID`)
+) ENGINE=InnoDB AUTO_INCREMENT=67182 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+DROP TABLE IF EXISTS `tblVOSVendorFreeRateGroup`;
+CREATE TABLE IF NOT EXISTS `tblVOSVendorFreeRateGroup` (
+  `VOSVendorFreeRateGroupID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) DEFAULT NULL,
+  `FeePrefix` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AreaCode` varchar(255) DEFAULT NULL,
+  `AreaName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Fee` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Period` int(11) DEFAULT NULL,
+  `Type` int(11) DEFAULT NULL,
+  `IvrFee` int(11) DEFAULT NULL,
+  `IvrPeriod` int(11) DEFAULT NULL,
+  `FeeRateGroup` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`VOSVendorFreeRateGroupID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_VOSImportCustomerFeeRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_VOSImportCustomerFeeRate`(
+	IN `p_CompanyID` INT	
+
+)
+BEGIN
+	DECLARE v_AccountIds LONGTEXT;
+	DECLARE v_TrunkIds LONGTEXT; 
+	DECLARE v_TimezoneIds LONGTEXT;
+	  
+    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+    
+             
+	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	  
+	  DROP TEMPORARY TABLE IF EXISTS tmp_customer_VOSData;
+				CREATE TEMPORARY TABLE tmp_customer_VOSData (
+					`VOSCustomerFeeRateGroupID` int(11),
+					`FeePrefix` varchar(255) DEFAULT NULL,
+					`AreaCode` varchar(50) DEFAULT NULL,
+					`AreaName` varchar(255) DEFAULT NULL,
+					`Fee` varchar(255) DEFAULT NULL,
+					`Period` int(11) DEFAULT NULL,
+					`Type` int(11) DEFAULT NULL,
+					`FeeRateGroup` VARCHAR(255) DEFAULT NULL	,
+					`TrunkID` INT(11),
+					`CodeDeckId` INT(11),
+					`AccountID` INT(11),
+					INDEX IX_AreaCode (AreaCode),
+					INDEX IX_FeeRateGroup (FeeRateGroup)
+					
+				);
+				
+				DROP TEMPORARY TABLE IF EXISTS tmp_customer_feerate_group;
+				CREATE TEMPORARY TABLE tmp_customer_feerate_group (
+					`VOSCustomerFeeRateGroupID` int(11),
+					`FeePrefix` varchar(255) DEFAULT NULL,
+					`AreaCode` varchar(50) DEFAULT NULL,
+					`AreaName` varchar(255) DEFAULT NULL,
+					`Fee` varchar(255) DEFAULT NULL,
+					`Period` int(11) DEFAULT NULL,
+					`Type` int(11) DEFAULT NULL,
+					`FeeRateGroup` VARCHAR(255) DEFAULT NULL	,
+					`TrunkID` INT(11),
+					`CodeDeckId` INT(11),
+					`RateID` INT(11),
+					`AccountID` INT(11),
+					INDEX IX_AreaCode (AreaCode),
+					INDEX IX_FeeRateGroup (FeeRateGroup)
+					
+				);
+				
+					-- Load VOS Data in tempTable
+					
+					INSERT INTO tmp_customer_VOSData
+						SELECT 
+						cfg.VOSCustomerFeeRateGroupID,
+						cfg.FeePrefix,
+						cfg.AreaCode,
+						cfg.AreaName,
+						cast(cfg.Fee as decimal(18,6)) as Fee,
+						cfg.Period,
+						cfg.Type,
+						cfg.FeeRateGroup,
+						ct.TrunkID,
+						ct.CodeDeckId,
+						ct.AccountID
+					FROM tblVOSCustomerFeeRateGroup cfg
+					inner join tblCustomerTrunk ct 
+						on cfg.FeeRateGroup = ct.Prefix 
+				--	inner join tblRate r 
+				--		on r.CompanyID = ct.CompanyID  
+				--		and r.CodedeckID = ct.CodedeckID 
+				--		and r.Code = cfg.AreaCode
+					WHERE ct.CompanyID=p_CompanyID
+					GROUP BY cfg.AreaCode,cfg.FeeRateGroup 
+					ORDER BY cfg.VOSCustomerFeeRateGroupID;	
+					
+				-- Not Found AreaCode imported	
+				INSERT INTO tblRate
+				(
+					CompanyID,
+					CodeDeckId,
+					Code,
+					Description,
+					updated_at,
+					created_at,
+					CreatedBy,
+					Interval1,
+					IntervalN
+				)
+				SELECT
+				DISTINCT 
+					p_CompanyID,
+					tbl1.CodeDeckId,
+					tbl1.AreaCode,
+					tbl1.AreaName,
+					NOW(),
+					NOW(),
+					'VOS-System',
+					tbl1.Period,
+					tbl1.Period
+					
+				FROM (
+						SELECT 
+							a.AreaCode,
+							a.CodeDeckId,
+							a.Period,
+							a.AreaName 
+						from tmp_customer_VOSData a 
+						left join tblRate b 
+						on b.CompanyID=p_CompanyID
+						and b.Code=a.AreaCode 
+						and b.CodeDeckId=a.CodeDeckId 
+						WHERE 
+							b.RateID is NULL
+					) tbl1;
+					
+					
+				INSERT INTO tmp_customer_feerate_group
+				SELECT 
+						cfg.VOSCustomerFeeRateGroupID,
+						cfg.FeePrefix,
+						cfg.AreaCode,
+						cfg.AreaName,
+						cfg.Fee,
+						cfg.Period,
+						cfg.Type,
+						cfg.FeeRateGroup,
+						cfg.TrunkID,
+						cfg.CodeDeckId,
+						r.RateID,
+						cfg.AccountID
+				FROM tmp_customer_VOSData cfg
+				inner join tblRate r 
+						on r.CompanyID = p_CompanyID 
+						and r.CodedeckID = cfg.CodedeckID 
+						and r.Code = cfg.AreaCode;		
+				
+			
+		--	SELECT * FROM tmp_customer_feerate_group;
+			
+
+			CALL prc_LoadVOSCustomerRates(p_CompanyID);
+			
+			-- SELECT * FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID JOIN tblRate c ON c.RateID=a.RateID;
+		
+					
+			/*select *
+			FROM 
+			tmp_customer_feerate_group a 
+			INNER join tblRate b 
+				ON a.AreaCode=b.Code  
+				AND b.CompanyID = p_CompanyID
+				AND b.CodeDeckId = a.CodeDeckId
+			join tblCustomerRate c ON c.RateID=b.RateID AND c.Rate=a.Fee AND c.RatePrefix=a.FeePrefix
+			join tmp_customer_rates_id d ON d.CustomerRateID=c.CustomerRateID;*/
+		
+			--  Delete from vos table which rates and Code matches 
+			DELETE a
+			FROM 
+			tmp_customer_feerate_group a 
+			INNER join tblRate b 
+				ON a.AreaCode=b.Code  
+				AND b.CompanyID = p_CompanyID
+				AND b.CodeDeckId = a.CodeDeckId
+			join tblCustomerRate c ON c.RateID=b.RateID AND c.Rate=a.Fee AND c.RatePrefix=a.FeePrefix
+			join tmp_customer_rates_id d ON d.CustomerRateID=c.CustomerRateID;
+			
+			-- Load TempTable
+			CALL prc_LoadVOSCustomerRates(p_CompanyID);
+			
+			
+			SELECT GROUP_CONCAT(a.CustomerID) INTO v_AccountIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID GROUP BY a.CustomerID;
+			SELECT GROUP_CONCAT(a.TrunkID) INTO v_TrunkIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID GROUP BY a.TrunkID;
+			SELECT GROUP_CONCAT(a.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID GROUP BY a.TimezonesID;	
+			
+					
+			UPDATE tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID set a.EndDate=NOW();
+			
+			select count(*) As TotalArchivedRates from tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID;
+		
+		--	select v_AccountIds;
+		--	select v_TrunkIds;
+			
+			IF v_AccountIds != '' AND v_TrunkIds != '' THEN
+				
+				CALL prc_ArchiveOldCustomerRate(v_AccountIds,v_TrunkIds,v_TimezoneIds,'System-VOS');
+				
+			END IF;
+			
+			--  Import Rates 
+			--	select * from tmp_customer_feerate_group a INNER JOIN tblCustomerTrunk b on a.FeeRateGroup=b.Prefix;		
+			-- select * from tmp_customer_feerate_group a INNER JOIN tblCustomerTrunk b on a.FeeRateGroup=b.Prefix INNER JOIN tblRate c on c.CodeDeckId=b.CodeDeckId;
+			
+			INSERT INTO tblCustomerRate
+			(
+				RateID,
+				CustomerID,
+				LastModifiedDate,
+				LastModifiedBy,
+				CreatedDate,
+				CreatedBy,
+				TrunkID,
+				TimezonesID,
+				Rate,
+				RateN,
+				EffectiveDate,
+				EndDate,
+				PreviousRate,
+				Interval1,
+				IntervalN,
+				RoutinePlan,
+				ConnectionFee,
+				RatePrefix
+			)
+				SELECT 
+					DISTINCT
+					RateID,
+					AccountID,
+					CURDATE(),
+					'VOS-System',
+					NOW(),
+					'VOS-System',
+					TrunkID,
+					1,
+					Fee,
+					Fee,
+					CURDATE(),
+					NULL,
+					'0.000000',
+					Period,
+					Period,
+					NULL,
+					NULL,
+					FeePrefix
+					
+				FROM 
+				tmp_customer_feerate_group;
+				
+				select FOUND_ROWS() as TotalCustomerRatesImport;
+				 
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_LoadVOSCustomerRates`;
+DELIMITER //
+CREATE PROCEDURE `prc_LoadVOSCustomerRates`(
+	IN `p_CompanyID` INT	
+
+
+)
+BEGIN
+
+    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+            
+	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	  
+				
+			DROP TEMPORARY TABLE IF EXISTS tmp_customer_trunk;
+			CREATE TEMPORARY TABLE tmp_customer_trunk (
+				`CodeDeckId` int(11),
+				`AccountID` int(11),
+				`TrunkID` int(11),
+				`Prefix` VARCHAR(255)						
+			);
+				
+			DROP TEMPORARY TABLE IF EXISTS tmp_customer_rates_id;
+			CREATE TEMPORARY TABLE tmp_customer_rates_id (
+				`CustomerRateID` int(11)			
+			);
+				
+			
+			/*INSERT INTO tmp_customer_trunk
+			 SELECT a.CodeDeckId,a.AccountID,a.TrunkID,a.Prefix 
+			FROM tblCustomerTrunk a 
+			JOIN tmp_customer_feerate_group b 
+			ON a.Prefix=b.FeeRateGroup 
+			GROUP BY a.CustomerTrunkID;*/
+			
+			INSERT INTO tmp_customer_trunk
+			SELECT CodeDeckId,AccountID,TrunkID,FeeRateGroup
+			FROM
+			tmp_customer_feerate_group group by TrunkID;
+			
+			INSERT INTO tmp_customer_rates_id
+				SELECT a.CustomerRateID 
+				FROM tblCustomerRate a 
+				JOIN tmp_customer_trunk b 
+					ON a.CustomerID=b.AccountID 
+					AND a.TrunkID=b.TrunkID
+					;
+			
+			
+		--	SELECT * FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID;
+			
+			 			 
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
+
+
+
+
+
+ALTER TABLE `tblCustomerRate`
+	ADD COLUMN `RatePrefix` VARCHAR(255) NULL DEFAULT NULL AFTER `ConnectionFee`;
+
+ALTER TABLE `tblVendorRate`
+	ADD COLUMN `RatePrefix` VARCHAR(255) NULL DEFAULT NULL AFTER `MinimumCost`;	
+	
+
+
+	
+DROP PROCEDURE IF EXISTS `prc_VOSImportVendorFeeRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_VOSImportVendorFeeRate`(
+	IN `p_CompanyID` INT	
+
+)
+BEGIN
+	DECLARE v_AccountIds LONGTEXT;
+	DECLARE v_TrunkIds LONGTEXT; 
+	DECLARE v_TimezoneIds LONGTEXT;
+	  
+    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+    
+             
+	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	  
+	  DROP TEMPORARY TABLE IF EXISTS tmp_vendor_VOSData;
+				CREATE TEMPORARY TABLE tmp_vendor_VOSData (
+					`VOSVendorFeeRateGroupID` int(11),
+					`FeePrefix` varchar(255) DEFAULT NULL,
+					`AreaCode` varchar(50) DEFAULT NULL,
+					`AreaName` varchar(255) DEFAULT NULL,
+					`Fee` varchar(255) DEFAULT NULL,
+					`Period` int(11) DEFAULT NULL,
+					`Type` int(11) DEFAULT NULL,
+					`FeeRateGroup` VARCHAR(255) DEFAULT NULL	,
+					`TrunkID` INT(11),
+					`CodeDeckId` INT(11),
+					`AccountID` INT(11),
+					INDEX IX_AreaCode (AreaCode),
+					INDEX IX_FeeRateGroup (FeeRateGroup)
+					
+				);
+				
+				DROP TEMPORARY TABLE IF EXISTS tmp_vendor_feerate_group;
+				CREATE TEMPORARY TABLE tmp_vendor_feerate_group (
+					`VOSVendorFeeRateGroupID` int(11),
+					`FeePrefix` varchar(255) DEFAULT NULL,
+					`AreaCode` varchar(50) DEFAULT NULL,
+					`AreaName` varchar(255) DEFAULT NULL,
+					`Fee` varchar(255) DEFAULT NULL,
+					`Period` int(11) DEFAULT NULL,
+					`Type` int(11) DEFAULT NULL,
+					`FeeRateGroup` VARCHAR(255) DEFAULT NULL	,
+					`TrunkID` INT(11),
+					`CodeDeckId` INT(11),
+					`RateID` INT(11),
+					`AccountID` INT(11),
+					INDEX IX_AreaCode (AreaCode),
+					INDEX IX_FeeRateGroup (FeeRateGroup)
+					
+				);
+			
+					-- Load VOS Data in tempTable
+					INSERT INTO tmp_vendor_VOSData
+						SELECT 
+						vfg.VOSVendorFeeRateGroupID,
+						vfg.FeePrefix,
+						vfg.AreaCode,
+						vfg.AreaName,
+						cast(vfg.Fee as decimal(18,6)) as Fee,
+						vfg.Period,
+						vfg.Type,
+						vfg.FeeRateGroup,
+						ct.TrunkID,
+						ct.CodeDeckId,
+						ct.AccountID
+					FROM tblVOSVendorFeeRateGroup vfg
+					inner join tblVendorTrunk ct 
+						on vfg.FeeRateGroup = ct.Prefix 
+				--	inner join tblRate r 
+				--		on r.CompanyID = ct.CompanyID  
+				--		and r.CodedeckID = ct.CodedeckID 
+				--		and r.Code = cfg.AreaCode
+					WHERE ct.CompanyID=p_CompanyID
+					GROUP BY vfg.AreaCode,vfg.FeeRateGroup 
+					ORDER BY vfg.VOSVendorFeeRateGroupID;
+				
+				
+				-- Not Found AreaCode imported	
+				INSERT INTO tblRate
+				(
+					CompanyID,
+					CodeDeckId,
+					Code,
+					Description,
+					updated_at,
+					created_at,
+					CreatedBy,
+					Interval1,
+					IntervalN
+				)
+				SELECT
+				DISTINCT 
+					p_CompanyID,
+					tbl1.CodeDeckId,
+					tbl1.AreaCode,
+					tbl1.AreaName,
+					NOW(),
+					NOW(),
+					'VOS-System',
+					tbl1.Period,
+					tbl1.Period
+					
+				FROM (
+						SELECT 
+							a.AreaCode,
+							a.CodeDeckId,
+							a.Period,
+							a.AreaName 
+						from tmp_vendor_VOSData a 
+						left join tblRate b 
+						on b.CompanyID=p_CompanyID
+						and b.Code=a.AreaCode 
+						and b.CodeDeckId=a.CodeDeckId 
+						WHERE 
+							b.RateID is NULL
+					) tbl1;
+				
+				
+					INSERT INTO tmp_vendor_feerate_group
+						SELECT 
+						cfg.VOSVendorFeeRateGroupID,
+						cfg.FeePrefix,
+						cfg.AreaCode,
+						cfg.AreaName,
+						cast(cfg.Fee as decimal(18,6)) as Fee,
+						cfg.Period,
+						cfg.Type,
+						cfg.FeeRateGroup,
+						ct.TrunkID,
+						ct.CodeDeckId,
+						r.RateID,
+						ct.AccountID
+					FROM tblVOSVendorFeeRateGroup cfg
+					inner join tblVendorTrunk ct 
+						on cfg.FeeRateGroup = ct.Prefix 
+					inner join tblRate r 
+						on r.CompanyID = ct.CompanyID  
+						and r.CodedeckID = ct.CodeDeckId 
+						and r.Code = cfg.AreaCode
+					WHERE ct.CompanyID=p_CompanyID
+				--	GROUP BY cfg.AreaCode 
+					ORDER BY cfg.VOSVendorFeeRateGroupID;	
+				
+					
+		--	SELECT * FROM tmp_vendor_feerate_group;
+
+			CALL prc_LoadVOSVendorRates(p_CompanyID);
+			
+			 -- SELECT * FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID JOIN tblRate c ON c.RateID=a.RateID;
+					
+			--  Delete from vos table which rates and Code matches 
+			DELETE a
+			FROM 
+			tmp_vendor_feerate_group a 
+			INNER join tblRate b 
+				ON a.AreaCode=b.Code  
+				AND b.CompanyID = p_CompanyID
+				AND b.CodeDeckId = a.CodeDeckId
+			join tblVendorRate c ON c.RateID=b.RateID AND c.Rate=a.Fee AND c.RatePrefix=a.FeePrefix
+			join tmp_vendor_rates_id d ON d.VendorRateID=c.VendorRateID;
+			
+			-- Load TempTable 
+			
+			CALL prc_LoadVOSVendorRates(p_CompanyID);
+			
+			
+			SELECT GROUP_CONCAT(a.AccountId) INTO v_AccountIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID GROUP BY a.AccountId;
+			SELECT GROUP_CONCAT(a.TrunkID) INTO v_TrunkIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID GROUP BY a.TrunkID;
+			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID; -- GROUP BY a.TimezonesID;	
+			
+			
+			UPDATE tblVendorRate a INNER JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID set a.EndDate=NOW();
+			
+			select count(*) As TotalArchivedRates from tblVendorRate a INNER JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID;
+		
+		--	select v_AccountIds;
+		--	select v_TrunkIds;
+			
+			IF v_AccountIds != '' AND v_TrunkIds != '' THEN
+				
+				CALL prc_ArchiveOldVendorRate(v_AccountIds,v_TrunkIds,v_TimezoneIds,'System-VOS');
+				
+			END IF;
+			
+			--  Import Rates 
+			--	select * from tmp_vendor_feerate_group a INNER JOIN tblCustomerTrunk b on a.FeeRateGroup=b.Prefix;		
+			-- select * from tmp_vendor_feerate_group a INNER JOIN tblCustomerTrunk b on a.FeeRateGroup=b.Prefix INNER JOIN tblRate c on c.CodeDeckId=b.CodeDeckId;
+			
+			INSERT INTO tblVendorRate
+			(
+				AccountId,
+				TrunkID,
+				TimezonesID,
+				RateId,
+				Rate,
+				RateN,
+				EffectiveDate,
+				EndDate,
+				updated_at,
+				created_at,
+				created_by,
+				updated_by,
+				Interval1,
+				IntervalN,
+				ConnectionFee,
+				MinimumCost,
+				RatePrefix
+			)
+				SELECT 
+					AccountID,
+					TrunkID,
+					1,
+					RateID,
+					Fee,
+					Fee,
+					NOW(),
+					NULL,
+					NOW(),
+					NOW(),
+					'VOS-System',
+					'VOS-System',
+					Period,
+					NULL,
+					NULL,
+					NULL,
+					FeePrefix
+					
+				FROM 
+				tmp_vendor_feerate_group;
+				
+				select FOUND_ROWS() as TotalVendorRatesImport;
+				 
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_LoadVOSVendorRates`;
+DELIMITER //
+CREATE PROCEDURE `prc_LoadVOSVendorRates`(
+	IN `p_CompanyID` INT	
+
+
+)
+BEGIN
+
+    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+            
+	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	  
+				
+			DROP TEMPORARY TABLE IF EXISTS tmp_vendor_trunk;
+			CREATE TEMPORARY TABLE tmp_vendor_trunk (
+				`CodeDeckId` int(11),
+				`AccountID` int(11),
+				`TrunkID` int(11),
+				`Prefix` VARCHAR(255)						
+			);
+				
+			DROP TEMPORARY TABLE IF EXISTS tmp_vendor_rates_id;
+			CREATE TEMPORARY TABLE tmp_vendor_rates_id (
+				`VendorRateID` int(11)			
+			);
+				
+						
+			INSERT INTO tmp_vendor_trunk
+			SELECT CodeDeckId,AccountID,TrunkID,FeeRateGroup
+			FROM
+			tmp_vendor_feerate_group group by TrunkID;
+			
+			
+			INSERT INTO tmp_vendor_rates_id
+			SELECT a.VendorRateID 
+			FROM tblVendorRate a 
+			JOIN tmp_vendor_trunk b 
+				ON a.AccountId=b.AccountID 
+				AND a.TrunkID=b.TrunkID
+					;
+			
+			
+		--	SELECT * FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID;
+			
+			 			 
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
+
+
+
+
+DROP TABLE IF EXISTS `tblVOSVendorFeeRateGroup`;
+CREATE TABLE IF NOT EXISTS `tblVOSVendorFeeRateGroup` (
+  `VOSVendorFeeRateGroupID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) DEFAULT NULL,
+  `FeePrefix` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AreaCode` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AreaName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Fee` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Period` int(11) DEFAULT NULL,
+  `Type` int(11) DEFAULT NULL,
+  `IvrFee` int(11) DEFAULT NULL,
+  `IvrPeriod` int(11) DEFAULT NULL,
+  `FeeRateGroup` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`VOSVendorFeeRateGroupID`)
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+	
+
+	ALTER TABLE `tblCustomerRate`
+	DROP INDEX `RatePrefix`,
+	DROP INDEX `IXUnique_RateId_CustomerId_TrunkId_TimezonesID_EffectiveDate`,
+	ADD UNIQUE INDEX `IXUnique_RateId_CustomerId_TrunkId_TimezonesID_EffectiveDate` (`RateID`, `CustomerID`, `TrunkID`, `TimezonesID`, `EffectiveDate`, `RatePrefix`);
+
+	
+	ALTER TABLE `tblVendorRate`
+	DROP INDEX `IXUnique_AccountId_TrunkId_TimezonesID_RateId_EffectiveDate`,
+	ADD UNIQUE INDEX `IXUnique_AccountId_TrunkId_TimezonesID_RateId_EffectiveDate` (`AccountId`, `TrunkID`, `TimezonesID`, `RateId`, `EffectiveDate`, `RatePrefix`);
