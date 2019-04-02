@@ -432,6 +432,8 @@
 									$("#subscription-form [name='WeeklyFee']").val(response.WeeklyFee);
 									$("#subscription-form [name='DailyFee']").val(response.DailyFee);
 									$("#subscription-form [name='ActivationFee']").val(response.ActivationFee);
+                                    $("#subscription-form [name='OneOffCurrencyID']").select2('val',response.OneOffCurrencyID);
+                                            $("#subscription-form [name='RecurringCurrencyID']").select2('val',response.RecurringCurrencyID);
 								}
 							}
 					});
