@@ -340,8 +340,8 @@
     <script type="text/javascript">
         var AllTimezones = JSON.parse('{{json_encode($AllTimezones)}}');
 
-        var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode','CityTariff'];
-        var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode','CityTariff'];
+        var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode','City','Tariff','AccessType'];
+        var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode','City','Tariff','AccessType'];
         // FromCurrency is removed from above 2 variables as we don't need it in did upload
         var all_occupied_fields     = [];
         var relational_columns      = {
@@ -355,7 +355,9 @@
             OriginationCode         : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
             OriginationDescription  : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
             CountryCode             : ['CountryCode'],
-            CityTariff              : ['CityTariff']
+            City                    : ['City'],
+            Tariff                  : ['Tariff'],
+            AccessType              : ['AccessType']
         };
         var columns_text            = {
             EndDate                 : 'End Date',
@@ -368,13 +370,18 @@
             OriginationCode         : 'Origination Code',
             OriginationDescription  : 'Origination Description',
             CountryCode             : 'Country Code',
-            CityTariff              : 'City/Tariff'
+            City                    : 'City',
+            Tariff                  : 'Tariff',
+            AccessType              : 'Access Type'
         };
 
         var all_selectable_timezone_fields   = ['CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber'];
         var all_available_timezone_fields    = ['CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber'];
         var all_occupied_timezone_fields     = [];
         var all_occupied_timezone_fields2    = [];
+        var dual_mapping_columns_all         = ['Code','OriginationCode','AccessType','CountryCode','OriginationCountryCode','City','Tariff'];
+        var dual_mapping_columns_static      = ['Code'];
+        var dual_mapping_columns_dynamic     = ['OriginationCode','AccessType','CountryCode','OriginationCountryCode','City','Tariff'];
         var relational_columns_timezone      = {
             CostPerCall                 : [],
             CostPerMinute               : [],
@@ -500,6 +507,16 @@
                 link = link.replace('[id]',id);
                 location.href = link;
             });
+            $(document).on('change','#add-template-form select[name="selection[City]"],#add-template-form select[name="selection[Tariff]"]', function() {
+                var name = $(this).attr('name');
+                if($(this).val() != '') {
+                    if(name == "selection[City]") {
+                        $('#add-template-form select[name="selection[Tariff]"]').val('').trigger('change');
+                    } else {
+                        $('#add-template-form select[name="selection[City]"]').val('').trigger('change');
+                    }
+                }
+            });
 
             setTimeout(function(){getRateTableDetails()},100);
             /*$("select[name=Ratetable]").on('change', function(){
@@ -509,7 +526,7 @@
              });*/
 
             $('select[name="selection[Code]"]').on('change', function() {
-                $('select[name="selection[Description]"]').select2("val",$(this).val());
+                $('[name="selection[Description]"]').select2("val",$(this).val());
             });
 
             $(document).on('change','#excel', function() {
@@ -983,6 +1000,8 @@
                     $searchFilter.Code = Code = $("#reviewrates-new-search input[name='Code']").val();
                     $searchFilter.Description = Description = $("#reviewrates-new-search input[name='Description']").val();
                     $searchFilter.Timezone = Timezone = $("#reviewrates-new-search select[name='Timezone']").val();
+                    $searchFilter.City = City = $("#reviewrates-new-search input[name='City']").val();
+                    $searchFilter.Tariff = Tariff = $("#reviewrates-new-search input[name='Tariff']").val();
                     getNewRates($ProcessID, $searchFilter);
                 } else if($(this).attr('id') == 'reviewrates-increased-decreased-search') {
                     $searchFilter.OriginationCode = OriginationCode = $("#reviewrates-increased-decreased-search input[name='OriginationCode']").val();
@@ -990,6 +1009,8 @@
                     $searchFilter.Code = Code = $("#reviewrates-increased-decreased-search input[name='Code']").val();
                     $searchFilter.Description = Description = $("#reviewrates-increased-decreased-search input[name='Description']").val();
                     $searchFilter.Timezone = Timezone = $("#reviewrates-increased-decreased-search select[name='Timezone']").val();
+                    $searchFilter.City = City = $("#reviewrates-new-search input[name='City']").val();
+                    $searchFilter.Tariff = Tariff = $("#reviewrates-new-search input[name='Tariff']").val();
                     getIncreasedDecreasedRates($ProcessID, $searchFilter);
                 } else if($(this).attr('id') == 'reviewrates-deleted-search') {
                     $searchFilter.OriginationCode = OriginationCode = $("#reviewrates-deleted-search input[name='OriginationCode']").val();
@@ -997,6 +1018,8 @@
                     $searchFilter.Code = Code = $("#reviewrates-deleted-search input[name='Code']").val();
                     $searchFilter.Description = Description = $("#reviewrates-deleted-search input[name='Description']").val();
                     $searchFilter.Timezone = Timezone = $("#reviewrates-deleted-search select[name='Timezone']").val();
+                    $searchFilter.City = City = $("#reviewrates-new-search input[name='City']").val();
+                    $searchFilter.Tariff = Tariff = $("#reviewrates-new-search input[name='Tariff']").val();
                     getDeleteRates($ProcessID, $searchFilter);
                 }
             });
@@ -1092,6 +1115,20 @@
                 }
             });
 
+            // generate select2 with both value from file and from database for selected columns
+            $('.DualMapping').each(function(i, el){
+                var self = $(this);
+                var label = 'Map From File';
+                if(el.name != undefined) {
+                    var dual_mapping_column = el.name.replace('selection[', '').replace(']', '');
+                    if (dual_mapping_columns_static.indexOf(dual_mapping_column) != -1) {
+                        self.select2('destroy');
+                        self.select2();
+                    }
+                    rebuildSelectComposite(self, fileData.columns, label);
+                }
+            });
+
             $.each( data.rows, function(key, row) {
                 var tr = '<tr>';
 
@@ -1108,9 +1145,9 @@
             });
             $("#mapping #tab1 select").each(function(i, el){
                 if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[OriginationDialCodeSeparator]' && el.name != 'selection[FromCurrency]'){
-                    var currency_static_column = el.name.replace('selection[', '').replace(']', '');
+                    var this_column = el.name.replace('selection[', '').replace(']', '');
                     // if not component currency field then
-                    if (searchKeyByValue(currency_static_column, currency_static_columns_timezone) === false) {
+                    if (searchKeyByValue(this_column, currency_static_columns_timezone) === false && dual_mapping_columns_static.indexOf(this_column) == -1) {
                         var self = $('#add-template-form [name="' + el.name + '"]');
                         rebuildSelect2(self, data.columns, 'Skip loading');
                     }
@@ -1157,7 +1194,14 @@
                                 if ($.inArray(key, all_selectable_fields) != -1 && $.inArray(key, occupied_fields) != -1) {
                                     addFieldToMapping(key);
                                     // reinitialize dynamic select2
-                                    reinitializeDynamicSelect(key, value);
+                                    // if not dual mapping columns then use reinitializeDynamicSelect
+                                    if(dual_mapping_columns_dynamic.indexOf(key) == -1) {
+                                        reinitializeDynamicSelect(key, value);
+                                    }
+                                    // if dual mapping columns then use reinitializeDynamicSelectDual
+                                    if(dual_mapping_columns_dynamic.indexOf(key) != -1) {
+                                        reinitializeDynamicSelectDual(key, value);
+                                    }
                                 }
                             }
                             if(option_value.occupied_timezone_fields != undefined && option_value.occupied_timezone_fields != '') {
@@ -1169,7 +1213,7 @@
                                 }
                                 if(currency_columns_timezone[key] != undefined) {
                                     // reinitialize dynamic currency select2
-                                    reinitializeDynamicSelectCurrency(currency_columns_timezone[key]);
+                                    reinitializeDynamicSelectDual(currency_columns_timezone[key]);
                                 }
                             }
 
@@ -1271,7 +1315,8 @@
             var OriginationDescription  = '';
             var Code                    = '';
             var Description             = '';
-            var CityTariff              = '';
+            var City                    = '';
+            var Tariff                  = '';
             var Timezone                = 1;
             var RateTableID             = $('#ratetable').val();
             var RateUploadType          = $("input[name=RateUploadType]:checked").val();
@@ -1291,8 +1336,11 @@
             if($searchFilter.Timezone != 'undefined' && $searchFilter.Timezone != undefined) {
                 Timezone = $searchFilter.Timezone;
             }
-            if($searchFilter.CityTariff != 'undefined' && $searchFilter.CityTariff != undefined) {
-                CityTariff = $searchFilter.CityTariff;
+            if($searchFilter.City != 'undefined' && $searchFilter.City != undefined) {
+                City = $searchFilter.City;
+            }
+            if($searchFilter.Tariff != 'undefined' && $searchFilter.Tariff != undefined) {
+                Tariff = $searchFilter.Tariff;
             }
 
             data_table_new = $("#table-reviewrates-new").dataTable({
@@ -1304,9 +1352,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-new'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"CityTariff","value":CityTariff});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"City","value":City},{"name":"Tariff","value":Tariff});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"CityTariff","value":CityTariff});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"City","value":City},{"name":"Tariff","value":Tariff});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1350,22 +1398,23 @@
                             { "bSortable": true },//3 Code
                             { "bSortable": true },//4 Description
                             { "bSortable": false},//5 Timezones
-                            { "bSortable": false},//6 CityTariff
-                            { "bSortable": true },//7 OneOffCost
-                            { "bSortable": true },//8 MonthlyCost
-                            { "bSortable": true },//9 CostPerCall
-                            { "bSortable": true },//10 CostPerMinute
-                            { "bSortable": true },//11 SurchargePerCall
-                            { "bSortable": true },//12 SurchargePerMinute
-                            { "bSortable": true },//13 OutpaymentPerCall
-                            { "bSortable": true },//14 OutpaymentPerMinute
-                            { "bSortable": true },//15 Surcharges
-                            { "bSortable": true },//16 Chargeback
-                            { "bSortable": true },//17 CollectionCostAmount
-                            { "bSortable": true },//18 CollectionCostPercentage
-                            { "bSortable": true },//19 RegistrationCostPerNumber
-                            { "bSortable": true },//20 EffectiveDate
-                            { "bSortable": true },//21 EndDate
+                            { "bSortable": true},//6 CityTariff
+                            { "bSortable": true},//7 AccessType
+                            { "bSortable": true },//8 OneOffCost
+                            { "bSortable": true },//9 MonthlyCost
+                            { "bSortable": true },//10 CostPerCall
+                            { "bSortable": true },//11 CostPerMinute
+                            { "bSortable": true },//12 SurchargePerCall
+                            { "bSortable": true },//13 SurchargePerMinute
+                            { "bSortable": true },//14 OutpaymentPerCall
+                            { "bSortable": true },//15 OutpaymentPerMinute
+                            { "bSortable": true },//16 Surcharges
+                            { "bSortable": true },//17 Chargeback
+                            { "bSortable": true },//18 CollectionCostAmount
+                            { "bSortable": true },//19 CollectionCostPercentage
+                            { "bSortable": true },//20 RegistrationCostPerNumber
+                            { "bSortable": true },//21 EffectiveDate
+                            { "bSortable": true },//22 EndDate
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1425,7 +1474,8 @@
             var OriginationDescription  = '';
             var Code                    = '';
             var Description             = '';
-            var CityTariff              = '';
+            var City                    = '';
+            var Tariff                  = '';
             var Timezone                = 1;
             var RateTableID             = $('#ratetable').val();
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
@@ -1445,8 +1495,11 @@
             if($searchFilter.Timezone != 'undefined' && $searchFilter.Timezone != undefined) {
                 Timezone = $searchFilter.Timezone;
             }
-            if($searchFilter.CityTariff != 'undefined' && $searchFilter.CityTariff != undefined) {
-                CityTariff = $searchFilter.CityTariff;
+            if($searchFilter.City != 'undefined' && $searchFilter.City != undefined) {
+                City = $searchFilter.City;
+            }
+            if($searchFilter.Tariff != 'undefined' && $searchFilter.Tariff != undefined) {
+                Tariff = $searchFilter.Tariff;
             }
 
             data_table_increased_decreased = $("#table-reviewrates-increased-decreased").dataTable({
@@ -1458,9 +1511,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"IncreasedDecreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"CityTariff","value":CityTariff});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"IncreasedDecreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"City","value":City},{"name":"Tariff","value":Tariff});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"IncreasedDecreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"CityTariff","value":CityTariff});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"IncreasedDecreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"City","value":City},{"name":"Tariff","value":Tariff});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1499,22 +1552,23 @@
                             { "bSortable": true },//3 Code
                             { "bSortable": true },//4 Description
                             { "bSortable": false},//5 Timezones
-                            { "bSortable": false},//6 CityTariff
-                            { "bSortable": true },//7 OneOffCost
-                            { "bSortable": true },//8 MonthlyCost
-                            { "bSortable": true },//9 CostPerCall
-                            { "bSortable": true },//10 CostPerMinute
-                            { "bSortable": true },//11 SurchargePerCall
-                            { "bSortable": true },//12 SurchargePerMinute
-                            { "bSortable": true },//13 OutpaymentPerCall
-                            { "bSortable": true },//14 OutpaymentPerMinute
-                            { "bSortable": true },//15 Surcharges
-                            { "bSortable": true },//16 Chargeback
-                            { "bSortable": true },//17 CollectionCostAmount
-                            { "bSortable": true },//18 CollectionCostPercentage
-                            { "bSortable": true },//19 RegistrationCostPerNumber
-                            { "bSortable": true },//20 EffectiveDate
-                            { "bSortable": true },//21 EndDate
+                            { "bSortable": true},//6 CityTariff
+                            { "bSortable": true},//7 AccessType
+                            { "bSortable": true },//8 OneOffCost
+                            { "bSortable": true },//9 MonthlyCost
+                            { "bSortable": true },//10 CostPerCall
+                            { "bSortable": true },//11 CostPerMinute
+                            { "bSortable": true },//12 SurchargePerCall
+                            { "bSortable": true },//13 SurchargePerMinute
+                            { "bSortable": true },//14 OutpaymentPerCall
+                            { "bSortable": true },//15 OutpaymentPerMinute
+                            { "bSortable": true },//16 Surcharges
+                            { "bSortable": true },//17 Chargeback
+                            { "bSortable": true },//18 CollectionCostAmount
+                            { "bSortable": true },//19 CollectionCostPercentage
+                            { "bSortable": true },//20 RegistrationCostPerNumber
+                            { "bSortable": true },//21 EffectiveDate
+                            { "bSortable": true },//22 EndDate
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1530,7 +1584,8 @@
             var OriginationDescription  = '';
             var Code                    = '';
             var Description             = '';
-            var CityTariff              = '';
+            var City                    = '';
+            var Tariff                  = '';
             var Timezone                = 1;
             var RateTableID             = $('#ratetable').val();
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
@@ -1550,8 +1605,11 @@
             if($searchFilter.Timezone != 'undefined' && $searchFilter.Timezone != undefined) {
                 Timezone = $searchFilter.Timezone;
             }
-            if($searchFilter.CityTariff != 'undefined' && $searchFilter.CityTariff != undefined) {
-                CityTariff = $searchFilter.CityTariff;
+            if($searchFilter.City != 'undefined' && $searchFilter.City != undefined) {
+                City = $searchFilter.City;
+            }
+            if($searchFilter.Tariff != 'undefined' && $searchFilter.Tariff != undefined) {
+                Tariff = $searchFilter.Tariff;
             }
 
             data_table_deleted = $("#table-reviewrates-deleted").dataTable({
@@ -1563,9 +1621,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-deleted.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-deleted'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"CityTariff","value":CityTariff});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"City","value":City},{"name":"Tariff","value":Tariff});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"CityTariff","value":CityTariff});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID},{"name":"City","value":City},{"name":"Tariff","value":Tariff});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1609,22 +1667,23 @@
                             { "bSortable": true },//3 Code
                             { "bSortable": true },//4 Description
                             { "bSortable": false},//5 Timezones
-                            { "bSortable": false},//6 CityTariff
-                            { "bSortable": true },//7 OneOffCost
-                            { "bSortable": true },//8 MonthlyCost
-                            { "bSortable": true },//9 CostPerCall
-                            { "bSortable": true },//10 CostPerMinute
-                            { "bSortable": true },//11 SurchargePerCall
-                            { "bSortable": true },//12 SurchargePerMinute
-                            { "bSortable": true },//13 OutpaymentPerCall
-                            { "bSortable": true },//14 OutpaymentPerMinute
-                            { "bSortable": true },//15 Surcharges
-                            { "bSortable": true },//16 Chargeback
-                            { "bSortable": true },//17 CollectionCostAmount
-                            { "bSortable": true },//18 CollectionCostPercentage
-                            { "bSortable": true },//19 RegistrationCostPerNumber
-                            { "bSortable": true },//20 EffectiveDate
-                            { "bSortable": true },//21 EndDate
+                            { "bSortable": true},//6 CityTariff
+                            { "bSortable": true},//7 AccessType
+                            { "bSortable": true },//8 OneOffCost
+                            { "bSortable": true },//9 MonthlyCost
+                            { "bSortable": true },//10 CostPerCall
+                            { "bSortable": true },//11 CostPerMinute
+                            { "bSortable": true },//12 SurchargePerCall
+                            { "bSortable": true },//13 SurchargePerMinute
+                            { "bSortable": true },//14 OutpaymentPerCall
+                            { "bSortable": true },//15 OutpaymentPerMinute
+                            { "bSortable": true },//16 Surcharges
+                            { "bSortable": true },//17 Chargeback
+                            { "bSortable": true },//18 CollectionCostAmount
+                            { "bSortable": true },//19 CollectionCostPercentage
+                            { "bSortable": true },//20 RegistrationCostPerNumber
+                            { "bSortable": true },//21 EffectiveDate
+                            { "bSortable": true },//22 EndDate
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1832,7 +1891,15 @@
                         all_available_fields.splice(all_available_fields.indexOf($FieldName), 1);
                         all_occupied_fields.push($FieldName);
                         $('#occupied_fields').val(all_occupied_fields);
-                        reinitializeDynamicSelect($FieldName);
+
+                        // if not dual mapping columns then use reinitializeDynamicSelect
+                        if(dual_mapping_columns_dynamic.indexOf($FieldName) == -1) {
+                            reinitializeDynamicSelect($FieldName);
+                        }
+                        // if dual mapping columns then use reinitializeDynamicSelectDual
+                        if(dual_mapping_columns_dynamic.indexOf($FieldName) != -1) {
+                            reinitializeDynamicSelectDual($FieldName);
+                        }
                     }
                 }
             }
@@ -1870,7 +1937,7 @@
                                 reinitializeDynamicSelect($FieldName2);
 
                                 if(currency_columns_timezone[$FieldName2] != undefined) {
-                                    reinitializeDynamicSelectCurrency(currency_columns_timezone[$FieldName2]);
+                                    reinitializeDynamicSelectDual(currency_columns_timezone[$FieldName2]);
                                 }
                             }
                         });
@@ -1896,7 +1963,15 @@
                             all_available_fields.push($FieldName);
                             $('#occupied_fields').val(all_occupied_fields);
                         }
-                        reinitializeDynamicSelect($FieldName);
+
+                        // if not dual mapping columns then use reinitializeDynamicSelect
+                        if(dual_mapping_columns_dynamic.indexOf($FieldName) == -1) {
+                            reinitializeDynamicSelect($FieldName);
+                        }
+                        // if dual mapping columns then use reinitializeDynamicSelectDual
+                        if(dual_mapping_columns_dynamic.indexOf($FieldName) != -1) {
+                            reinitializeDynamicSelectDual($FieldName);
+                        }
                     }
                 }
             }
@@ -1923,7 +1998,7 @@
                                 reinitializeDynamicSelect($FieldName);
 
                                 if(currency_columns_timezone[$FieldName2] != undefined) {
-                                    reinitializeDynamicSelectCurrency(currency_columns_timezone[$FieldName2]);
+                                    reinitializeDynamicSelectDual(currency_columns_timezone[$FieldName2]);
                                 }
                             }
                         });
@@ -1966,7 +2041,7 @@
             }
         }
 
-        function reinitializeDynamicSelectCurrency(name,value) {
+        function reinitializeDynamicSelectDual(name,value) {
             $("#add-template-form .managable select[name='selection["+name+"]']").select2('destroy');
             $("#add-template-form .managable select[name='selection["+name+"]']").select2();
 
@@ -1976,6 +2051,10 @@
 
             if(value) {
                 $("#add-template-form .managable select[name='selection["+name+"]']").val(value).trigger("change");
+            }
+            if(name=='OriginationCode') {
+                $("#add-template-form .managable select[name='selection[OriginationDialCodeSeparator]']").select2('destroy');
+                $("#add-template-form .managable select[name='selection[OriginationDialCodeSeparator]']").select2();
             }
         }
 
@@ -2223,9 +2302,15 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" placeholder="" value="" />
                                                     </div>
-                                                    <label class="col-sm-1 control-label">City/Tariff</label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-1 control-label">City</label>
                                                     <div class="col-sm-3">
-                                                        <input type="text" name="CityTariff" class="form-control" placeholder="" value="" />
+                                                        <input type="text" name="City" class="form-control" placeholder="" value="" />
+                                                    </div>
+                                                    <label class="col-sm-1 control-label">Tariff</label>
+                                                    <div class="col-sm-3">
+                                                        <input type="text" name="Tariff" class="form-control" placeholder="" value="" />
                                                     </div>
                                                 </div>
                                                 <p style="text-align: right; margin: 0;">
@@ -2251,6 +2336,7 @@
                                             <th width="15%" >Dest. Description</th>
                                             <th width="15%" >Timezones</th>
                                             <th width="15%" >City/Tariff</th>
+                                            <th width="15%" >Access Type</th>
                                             <th width="15%" >One-Off Cost</th>
                                             <th width="15%" >Monthly Cost</th>
                                             <th width="15%" >Cost Per Call</th>
@@ -2313,9 +2399,15 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" placeholder="" value="" />
                                                     </div>
-                                                    <label class="col-sm-1 control-label">City/Tariff</label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-1 control-label">City</label>
                                                     <div class="col-sm-3">
-                                                        <input type="text" name="CityTariff" class="form-control" placeholder="" value="" />
+                                                        <input type="text" name="City" class="form-control" placeholder="" value="" />
+                                                    </div>
+                                                    <label class="col-sm-1 control-label">Tariff</label>
+                                                    <div class="col-sm-3">
+                                                        <input type="text" name="Tariff" class="form-control" placeholder="" value="" />
                                                     </div>
                                                 </div>
                                                 <p style="text-align: right; margin: 0;">
@@ -2340,6 +2432,8 @@
                                             <th width="15%" >Dest. Code</th>
                                             <th width="15%" >Dest. Description</th>
                                             <th width="15%" >Timezones</th>
+                                            <th width="15%" >City/Tariff</th>
+                                            <th width="15%" >Access Type</th>
                                             <th width="15%" >One-Off Cost</th>
                                             <th width="15%" >Monthly Cost</th>
                                             <th width="15%" >Cost Per Call</th>
@@ -2402,9 +2496,15 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" placeholder="" value="" />
                                                     </div>
-                                                    <label class="col-sm-1 control-label">City/Tariff</label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-1 control-label">City</label>
                                                     <div class="col-sm-3">
-                                                        <input type="text" name="CityTariff" class="form-control" placeholder="" value="" />
+                                                        <input type="text" name="City" class="form-control" placeholder="" value="" />
+                                                    </div>
+                                                    <label class="col-sm-1 control-label">Tariff</label>
+                                                    <div class="col-sm-3">
+                                                        <input type="text" name="Tariff" class="form-control" placeholder="" value="" />
                                                     </div>
                                                 </div>
                                                 <p style="text-align: right; margin: 0;">
@@ -2430,6 +2530,7 @@
                                             <th width="15%" >Dest. Description</th>
                                             <th width="15%" >Timezones</th>
                                             <th width="15%" >City/Tariff</th>
+                                            <th width="15%" >Access Type</th>
                                             <th width="15%" >OneOffCost</th>
                                             <th width="15%" >MonthlyCost</th>
                                             <th width="15%" >CostPerCall</th>

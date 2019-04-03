@@ -31,8 +31,12 @@
                     <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
                 </div>
                 <div class="form-group">
-                    <label class="control-label">City/Tariff</label>
-                    <input type="text" name="CityTariff" class="form-control" placeholder="" />
+                    <label class="control-label">City</label>
+                    <input type="text" name="City" class="form-control" placeholder="" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Tariff</label>
+                    <input type="text" name="Tariff" class="form-control" placeholder="" />
                 </div>
                 <div class="form-group">
                     <label class="control-label">Time Of Day</label>
@@ -150,6 +154,7 @@
             <th width="4%">Orig. Code</th>
             <th width="4%">Code</th>
             <th width="10%">City/Tariff</th>
+            <th width="10%">Access Type</th>
             <th width="3%">One-Off Cost</th>
             <th width="3%">Monthly Cost</th>
             <th width="5%">Cost Per Call</th>
@@ -184,7 +189,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','Country','TimezoneTitle','OriginationCode','Code','CityTariff','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'CostPerCallCurrencySymbol', 'CostPerMinuteCurrencySymbol', 'SurchargePerCallCurrencySymbol', 'SurchargePerMinuteCurrencySymbol', 'OutpaymentPerCallCurrencySymbol', 'OutpaymentPerMinuteCurrencySymbol', 'SurchargesCurrencySymbol', 'ChargebackCurrencySymbol', 'CollectionCostAmountCurrencySymbol', 'RegistrationCostPerNumberCurrencySymbol','TimezonesID'];
+        var list_fields  = ['ID','Country','TimezoneTitle','OriginationCode','Code','CityTariff','AccessType','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'CostPerCallCurrencySymbol', 'CostPerMinuteCurrencySymbol', 'SurchargePerCallCurrencySymbol', 'SurchargePerMinuteCurrencySymbol', 'OutpaymentPerCallCurrencySymbol', 'OutpaymentPerMinuteCurrencySymbol', 'SurchargesCurrencySymbol', 'ChargebackCurrencySymbol', 'CollectionCostAmountCurrencySymbol', 'RegistrationCostPerNumberCurrencySymbol','TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -588,7 +593,8 @@
         $searchFilter.OriginationDescription = $("#rate-table-search input[name='OriginationDescription']").val();
         $searchFilter.Code = $("#rate-table-search input[name='Code']").val();
         $searchFilter.Description = $("#rate-table-search input[name='Description']").val();
-        $searchFilter.CityTariff = $("#rate-table-search input[name='CityTariff']").val();
+        $searchFilter.City = $("#rate-table-search input[name='City']").val();
+        $searchFilter.Tariff = $("#rate-table-search input[name='Tariff']").val();
         $searchFilter.Country = $("#rate-table-search select[name='Country']").val();
         $searchFilter.TrunkID = $("#rate-table-search [name='TrunkID']").val();
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
@@ -608,9 +614,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "CityTariff", "value": $searchFilter.CityTariff});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "City", "value": $searchFilter.City},{"name": "Tariff", "value": $searchFilter.Tariff});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "CityTariff", "value": $searchFilter.CityTariff});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "City", "value": $searchFilter.City},{"name": "Tariff", "value": $searchFilter.Tariff});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -623,13 +629,13 @@
                                 var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[26] == {{RateTable::RATE_STATUS_REJECTED}}) {
+                                if (full[27] == {{RateTable::RATE_STATUS_REJECTED}}) {
                                     html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
-                                } else if (full[26] == {{RateTable::RATE_STATUS_APPROVED}}) {
+                                } else if (full[27] == {{RateTable::RATE_STATUS_APPROVED}}) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
-                                } else if (full[26] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                } else if (full[27] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                     html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
-                                } else if (full[26] == {{RateTable::RATE_STATUS_DELETE}}) {
+                                } else if (full[27] == {{RateTable::RATE_STATUS_DELETE}}) {
                                     html += '<i class="fa fa-trash" title="Awaiting Approval Delete" style="color: red; "></i>';
                                 }
                                 @endif
@@ -650,94 +656,95 @@
                         }, //3 Origination Code
                         {}, //4 Destination Code
                         {}, //5 CityTariff
-                        {
-                            mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[41] + col; else return '';
-                            }
-                        }, //6 OneOffCost,
+                        {}, //6 AccessType
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[42] + col; else return '';
                             }
-                        }, //7 MonthlyCost,
+                        }, //7 OneOffCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[43] + col; else return '';
                             }
-                        }, //8 CostPerCall,
+                        }, //8 MonthlyCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[44] + col; else return '';
                             }
-                        }, //9 CostPerMinute,
+                        }, //9 CostPerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[45] + col; else return '';
                             }
-                        }, //10 SurchargePerCall,
+                        }, //10 CostPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[46] + col; else return '';
                             }
-                        }, //11 SurchargePerMinute,
+                        }, //11 SurchargePerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[47] + col; else return '';
                             }
-                        }, //12 OutpaymentPerCall,
+                        }, //12 SurchargePerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[48] + col; else return '';
                             }
-                        }, //13 OutpaymentPerMinute,
+                        }, //13 OutpaymentPerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[49] + col; else return '';
                             }
-                        }, //14 Surcharges,
+                        }, //14 OutpaymentPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[50] + col; else return '';
                             }
-                        }, //15 Chargeback,
+                        }, //15 Surcharges,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[51] + col; else return '';
                             }
-                        }, //16 CollectionCostAmount,
-                        {}, //17 CollectionCostPercentage,
+                        }, //16 Chargeback,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[52] + col; else return '';
                             }
-                        }, //18 RegistrationCostPerNumber,
-                        {}, //19 Effective Date
+                        }, //17 CollectionCostAmount,
+                        {}, //18 CollectionCostPercentage,
+                        {
+                            mRender: function(col, type, full) {
+                                if(col != null && col != '') return full[53] + col; else return '';
+                            }
+                        }, //19 RegistrationCostPerNumber,
+                        {}, //20 Effective Date
                         {
                             "bVisible" : false
-                        }, //20 End Date
+                        }, //21 End Date
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[21] = full[21] != null ? full[21] : '';
                                 full[22] = full[22] != null ? full[22] : '';
-                                if(full[21] != '' && full[22] != '')
-                                    return full[22] + '<br/>' + full[21]; // modified by/modified date
+                                full[23] = full[23] != null ? full[23] : '';
+                                if(full[22] != '' && full[23] != '')
+                                    return full[23] + '<br/>' + full[22]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //22/21 modified by/modified date
+                        }, //23/22 modified by/modified date
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[27] = full[27] != null ? full[27] : '';
                                 full[28] = full[28] != null ? full[28] : '';
-                                if(full[27] != '' && full[28] != '')
-                                    return full[27] + '<br/>' + full[28]; // Approved Status Changed By/Approved Date
+                                full[29] = full[29] != null ? full[29] : '';
+                                if(full[28] != '' && full[29] != '')
+                                    return full[28] + '<br/>' + full[29]; // Approved Status Changed By/Approved Date
                                 else
                                     return '';
                             }
-                        }, //27/28 Approved Status Changed By/Approved Date
+                        }, //28/29 Approved Status Changed By/Approved Date
                         @endif
                         {
                             "bSortable" : false,
@@ -751,12 +758,12 @@
                                 action += '</div>';
 
                                 clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_did_rate')}}";
-                                clerRate_ = clerRate_.replace('{id}', full[23]);
+                                clerRate_ = clerRate_.replace('{id}', full[24]);
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
                                     // if approved rates then show Edit button else hide it
-                                    if(full[26] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                    if(full[27] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                         action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
                                     }
                                 }
@@ -767,7 +774,7 @@
                                     action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
                                 }
 
-                                if (full[23] != null && full[23] != 0) {
+                                if (full[24] != null && full[24] != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
                                         action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
@@ -997,7 +1004,7 @@
                     if(ratetablepageview == 'AdvanceView') {
                         header += "<th>Description</th>";
                     }
-                    header += "<th>City/Tariff</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th>";
+                    header += "<th>City/Tariff</th><th>Access Type</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th>";
                     if(ratetablepageview == 'AdvanceView') {
                         header += "<th>Modified By/Date</th>";
                     }
@@ -1110,6 +1117,12 @@
                             <div class="form-group">
                                 <label class="control-label">City/Tariff</label>
                                 <input type="text" name="CityTariff" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Access Type</label>
+                                <input type="text" name="AccessType" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1257,6 +1270,7 @@
                     <input type="hidden" name="updateEffectiveDate" value="on">
                     <input type="hidden" name="updateOriginationRateID" value="on">
                     <input type="hidden" name="updateCityTariff" value="on">
+                    <input type="hidden" name="updateAccessType" value="on">
                     <input type="hidden" name="updateOneOffCost" value="on">
                     <input type="hidden" name="updateMonthlyCost" value="on">
                     <input type="hidden" name="updateCostPerCall" value="on">
@@ -1336,6 +1350,13 @@
                                 <input type="checkbox" name="updateCityTariff" class="" />
                                 <label class="control-label">City/Tariff</label>
                                 <input type="text" name="CityTariff" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateAccessType" class="" />
+                                <label class="control-label">Access Type</label>
+                                <input type="text" name="AccessType" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1558,6 +1579,12 @@
                             <div class="form-group">
                                 <label class="control-label">City/Tariff</label>
                                 <input type="text" name="CityTariff" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Access Type</label>
+                                <input type="text" name="AccessType" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">

@@ -610,6 +610,8 @@ ALTER TABLE `tblRateTablePKGRateAA`
 ALTER TABLE `tblRateTableDIDRateAA`
 	ADD COLUMN `AccessType` VARCHAR(200) NULL DEFAULT NULL AFTER `CityTariff`;
 
+ALTER TABLE `tblTempRateTableDIDRate`
+	ADD COLUMN `AccessType` VARCHAR(200) NULL DEFAULT NULL AFTER `CityTariff`;
 
 
 
@@ -1062,6 +1064,7 @@ CREATE PROCEDURE `prc_RateTableDIDRateUpdateDelete`(
 	IN `p_EffectiveDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_CityTariff` VARCHAR(50),
+	IN `p_AccessType` VARCHAR(200),
 	IN `p_OneOffCost` VARCHAR(255),
 	IN `p_MonthlyCost` VARCHAR(255),
 	IN `p_CostPerCall` VARCHAR(255),
@@ -1090,7 +1093,8 @@ CREATE PROCEDURE `prc_RateTableDIDRateUpdateDelete`(
 	IN `p_Critearea_CountryId` INT,
 	IN `p_Critearea_Code` varchar(50),
 	IN `p_Critearea_Description` varchar(200),
-	IN `p_Critearea_CityTariff` VARCHAR(50),
+	IN `p_Critearea_City` VARCHAR(50),
+	IN `p_Critearea_Tariff` VARCHAR(50),
 	IN `p_Critearea_OriginationCode` VARCHAR(50),
 	IN `p_Critearea_OriginationDescription` VARCHAR(200),
 	IN `p_Critearea_Effective` VARCHAR(50),
@@ -1123,6 +1127,7 @@ ThisSP:BEGIN
 		`RateTableId` int(11) NOT NULL,
 		`TimezonesID` int(11) NOT NULL,
 		`CityTariff` VARCHAR(50) NOT NULL DEFAULT '',
+		`AccessType` VARCHAR(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) NULL DEFAULT NULL,
 		`MonthlyCost` decimal(18,6) NULL DEFAULT NULL,
 		`CostPerCall` decimal(18,6) NULL DEFAULT NULL,
@@ -1167,6 +1172,7 @@ ThisSP:BEGIN
 		rtr.RateTableId,
 		rtr.TimezonesID,
 		IFNULL(p_CityTariff,rtr.CityTariff) AS CityTariff,
+		IFNULL(p_AccessType,rtr.AccessType) AS AccessType,
 		IF(p_OneOffCost IS NOT NULL,IF(p_OneOffCost='NULL',NULL,p_OneOffCost),rtr.OneOffCost) AS OneOffCost,
 		IF(p_MonthlyCost IS NOT NULL,IF(p_MonthlyCost='NULL',NULL,p_MonthlyCost),rtr.MonthlyCost) AS MonthlyCost,
 		IF(p_CostPerCall IS NOT NULL,IF(p_CostPerCall='NULL',NULL,p_CostPerCall),rtr.CostPerCall) AS CostPerCall,
@@ -1233,7 +1239,8 @@ ThisSP:BEGIN
 					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
-					((p_Critearea_CityTariff IS NULL) OR (p_Critearea_CityTariff IS NOT NULL AND rtr.CityTariff LIKE REPLACE(p_Critearea_CityTariff,'*', '%'))) AND
+					(p_Critearea_City IS NULL OR rtr.CityTariff LIKE REPLACE(p_Critearea_City, '*', '%')) AND
+					(p_Critearea_Tariff IS NULL OR rtr.CityTariff LIKE REPLACE(p_Critearea_Tariff, '*', '%')) AND
 					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
@@ -1274,6 +1281,7 @@ ThisSP:BEGIN
 			(rtr.EffectiveDate = temp.EffectiveDate) AND
 			(rtr.TimezonesID = temp.TimezonesID) AND
 			((rtr.CityTariff IS NULL && temp.CityTariff IS NULL) || rtr.CityTariff = temp.CityTariff) AND
+			((rtr.AccessType IS NULL && temp.AccessType IS NULL) || rtr.AccessType = temp.AccessType) AND
 			((rtr.OneOffCost IS NULL && temp.OneOffCost IS NULL) || rtr.OneOffCost = temp.OneOffCost) AND
 			((rtr.MonthlyCost IS NULL && temp.MonthlyCost IS NULL) || rtr.MonthlyCost = temp.MonthlyCost) AND
 			((rtr.CostPerCall IS NULL && temp.CostPerCall IS NULL) || rtr.CostPerCall = temp.CostPerCall) AND
@@ -1320,6 +1328,7 @@ ThisSP:BEGIN
 			RateTableId,
 			TimezonesID,
 			CityTariff,
+			AccessType,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -1361,6 +1370,7 @@ ThisSP:BEGIN
 			RateTableId,
 			TimezonesID,
 			CityTariff,
+			AccessType,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -1423,6 +1433,7 @@ ThisSP:BEGIN
 			RateTableId,
 			TimezonesID,
 			CityTariff,
+			AccessType,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -1464,6 +1475,7 @@ ThisSP:BEGIN
 			RateTableId,
 			TimezonesID,
 			CityTariff,
+			AccessType,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -1547,6 +1559,7 @@ BEGIN
 		EffectiveDate,
 		EndDate,
 		CityTariff,
+		AccessType,
 		OneOffCost,
 		MonthlyCost,
 		CostPerCall,
@@ -1590,6 +1603,7 @@ BEGIN
 		`EffectiveDate`,
 		IFNULL(`EndDate`,date(now())) as EndDate,
 		`CityTariff`,
+		`AccessType`,
 		`OneOffCost`,
 		`MonthlyCost`,
 		`CostPerCall`,
@@ -1653,7 +1667,8 @@ CREATE PROCEDURE `prc_getDiscontinuedRateTableDIDRateGrid`(
 	IN `p_CountryID` INT,
 	IN `p_origination_code` VARCHAR(50),
 	IN `p_Code` VARCHAR(50),
-	IN `p_CityTariff` VARCHAR(50),
+	IN `p_City` VARCHAR(50),
+	IN `p_Tariff` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
@@ -1675,6 +1690,7 @@ BEGIN
 		OriginationCode VARCHAR(50),
 		Code VARCHAR(50),
 		CityTariff VARCHAR(50),
+		AccessType varchar(200),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
 		CostPerCall DECIMAL(18,6),
@@ -1734,6 +1750,7 @@ BEGIN
 		OriginationRate.Code AS OriginationCode,
 		r.Code,
 		vra.CityTariff,
+		vra.AccessType,
 		vra.OneOffCost,
 		vra.MonthlyCost,
 		vra.CostPerCall,
@@ -1829,7 +1846,8 @@ BEGIN
 		(p_CountryID IS NULL OR r.CountryID = p_CountryID) AND
 		(p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%')) AND
 		(p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%')) AND
-		(p_CityTariff is null OR vra.CityTariff LIKE REPLACE(p_CityTariff, '*', '%')) AND
+		(p_City IS NULL OR vra.CityTariff LIKE REPLACE(p_City, '*', '%')) AND
+		(p_Tariff IS NULL OR vra.CityTariff LIKE REPLACE(p_Tariff, '*', '%')) AND
 		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
 		vr.RateTableDIDRateID is NULL;
 
@@ -1874,6 +1892,12 @@ BEGIN
              END DESC,
              CASE
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffASC') THEN CityTariff
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeDESC') THEN AccessType
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeASC') THEN AccessType
              END ASC,
              CASE
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
@@ -2003,6 +2027,7 @@ BEGIN
 			OriginationCode,
 			Code AS DestinationCode,
 			CityTariff,
+			AccessType,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -2029,6 +2054,7 @@ BEGIN
 			OriginationCode,
 			Code AS DestinationCode,
 			CityTariff,
+			AccessType,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -2612,7 +2638,8 @@ CREATE PROCEDURE `prc_GetRateTableDIDRate`(
 	IN `p_contryID` INT,
 	IN `p_origination_code` VARCHAR(50),
 	IN `p_code` VARCHAR(50),
-	IN `p_CityTariff` VARCHAR(50),
+	IN `p_City` VARCHAR(50),
+	IN `p_Tariff` VARCHAR(50),
 	IN `p_effective` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
 	IN `p_PageNumber` INT,
@@ -2635,6 +2662,7 @@ BEGIN
 		OriginationCode VARCHAR(50),
 		Code VARCHAR(50),
 		CityTariff VARCHAR(50),
+		AccessType varchar(200),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
 		CostPerCall DECIMAL(18,6),
@@ -2695,6 +2723,7 @@ BEGIN
 		OriginationRate.Code AS OriginationCode,
 		tblRate.Code,
 		CityTariff,
+		AccessType,
 		OneOffCost,
 		MonthlyCost,
 		CostPerCall,
@@ -2785,7 +2814,8 @@ BEGIN
 		AND (p_contryID is null OR tblRate.CountryID = p_contryID)
 		AND (p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
-		AND (p_CityTariff is null OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'))
+		AND (p_City IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_City, '*', '%'))
+		AND (p_Tariff IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_Tariff, '*', '%'))
 		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND (p_TimezonesID IS NULL OR tblRateTableDIDRate.TimezonesID = p_TimezonesID)
@@ -2837,6 +2867,12 @@ BEGIN
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffASC') THEN CityTariff
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeDESC') THEN AccessType
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeASC') THEN AccessType
                 END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
@@ -2963,6 +2999,7 @@ BEGIN
 			OriginationCode,
 			Code AS DestinationCode,
 			CityTariff,
+			AccessType,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -2991,6 +3028,7 @@ BEGIN
 			OriginationCode,
 			Code AS DestinationCode,
 			CityTariff,
+			AccessType,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -3041,6 +3079,7 @@ BEGIN
 		Code VARCHAR(50),
 		Description VARCHAR(200),
 		CityTariff VARCHAR(50),
+		AccessType varchar(200),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
 		CostPerCall DECIMAL(18,6),
@@ -3082,6 +3121,7 @@ BEGIN
 		Code,
 		Description,
 		CityTariff,
+		AccessType,
 		OneOffCost,
 		MonthlyCost,
 		CostPerCall,
@@ -3122,6 +3162,7 @@ BEGIN
 		r.Code,
 		r.Description,
 		vra.CityTariff,
+		vra.AccessType,
 		vra.OneOffCost,
 		vra.MonthlyCost,
 		vra.CostPerCall,
@@ -3210,6 +3251,7 @@ BEGIN
 		Code,
 		Description,
 		CityTariff,
+		AccessType,
 		CONCAT(IFNULL(OneOffCostCurrency,''), OneOffCost) AS OneOffCost,
 		CONCAT(IFNULL(MonthlyCostCurrency,''), MonthlyCost) AS MonthlyCost,
 		CONCAT(IFNULL(CostPerCallCurrency,''), CostPerCall) AS CostPerCall,
@@ -6471,12 +6513,12 @@ CREATE PROCEDURE `prc_RateTableDIDRateApprove`(
 	IN `p_ApprovedStatus` TINYINT,
 	IN `p_Critearea_CountryId` INT,
 	IN `p_Critearea_Code` VARCHAR(50),
-	IN `p_Critearea_Description` VARCHAR(200),
 	IN `p_Critearea_OriginationCode` VARCHAR(50),
-	IN `p_Critearea_OriginationDescription` VARCHAR(200),
 	IN `p_Critearea_Effective` VARCHAR(50),
 	IN `p_TimezonesID` INT,
 	IN `p_Critearea_ApprovedStatus` TINYINT,
+	IN `p_Critearea_City` VARCHAR(50),
+	IN `p_Critearea_Tariff` VARCHAR(50),
 	IN `p_ApprovedBy` VARCHAR(50),
 	IN `p_Critearea` INT,
 	IN `p_action` INT
@@ -6500,6 +6542,7 @@ ThisSP:BEGIN
 		`EffectiveDate` DATE,
 		`EndDate` DATE,
 		`CityTariff` VARCHAR(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` DECIMAL(18,6),
 		`MonthlyCost` DECIMAL(18,6),
 		`CostPerCall` DECIMAL(18,6),
@@ -6547,6 +6590,7 @@ ThisSP:BEGIN
 		IF(rtr.EffectiveDate < CURDATE(), CURDATE(), rtr.EffectiveDate) AS EffectiveDate,
 		rtr.EndDate,
 		rtr.CityTariff,
+		rtr.AccessType,
 		rtr.OneOffCost,
 		rtr.MonthlyCost,
 		rtr.CostPerCall,
@@ -6595,9 +6639,9 @@ ThisSP:BEGIN
 				(
 					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
 					((p_Critearea_OriginationCode IS NULL) OR (p_Critearea_OriginationCode IS NOT NULL AND r2.Code LIKE REPLACE(p_Critearea_OriginationCode,'*', '%'))) AND
-					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
-					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
+					(p_Critearea_City IS NULL OR rtr.CityTariff LIKE REPLACE(p_Critearea_City, '*', '%')) AND
+					(p_Critearea_Tariff IS NULL OR rtr.CityTariff LIKE REPLACE(p_Critearea_Tariff, '*', '%')) AND
 					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
@@ -6681,6 +6725,7 @@ ThisSP:BEGIN
 			EffectiveDate,
 			EndDate,
 			CityTariff,
+			AccessType,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -6723,6 +6768,7 @@ ThisSP:BEGIN
 			EffectiveDate,
 			EndDate,
 			CityTariff,
+			AccessType,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -6895,6 +6941,7 @@ ThisSP:BEGIN
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
 		`CityTariff` varchar(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -6944,6 +6991,7 @@ ThisSP:BEGIN
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
 		`CityTariff` varchar(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -6993,6 +7041,7 @@ ThisSP:BEGIN
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
 		`CityTariff` varchar(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -7052,12 +7101,12 @@ ThisSP:BEGIN
 	DELETE n1 FROM tmp_split_RateTableDIDRate_ n1
 	INNER JOIN
 	(
-		SELECT MAX(TempRateTableDIDRateID) AS TempRateTableDIDRateID,EffectiveDate,OriginationCode,Code,DialStringPrefix,TimezonesID,CityTariff,
+		SELECT MAX(TempRateTableDIDRateID) AS TempRateTableDIDRateID,EffectiveDate,OriginationCode,Code,DialStringPrefix,TimezonesID,CityTariff,AccessType,
 			OneOffCost, MonthlyCost, CostPerCall, CostPerMinute, SurchargePerCall, SurchargePerMinute, OutpaymentPerCall,
 			OutpaymentPerMinute, Surcharges, Chargeback, CollectionCostAmount, CollectionCostPercentage, RegistrationCostPerNumber
 		FROM tmp_split_RateTableDIDRate_2 WHERE ProcessId = p_processId
 		GROUP BY
-			OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID,CityTariff,
+			OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID,CityTariff,AccessType,
 			OneOffCost, MonthlyCost, CostPerCall, CostPerMinute, SurchargePerCall, SurchargePerMinute, OutpaymentPerCall,
 			OutpaymentPerMinute, Surcharges, Chargeback, CollectionCostAmount, CollectionCostPercentage, RegistrationCostPerNumber
 		HAVING COUNT(*)>1
@@ -7068,6 +7117,7 @@ ThisSP:BEGIN
 		AND ((n2.DialStringPrefix IS NULL AND n1.DialStringPrefix IS NULL) OR (n2.DialStringPrefix = n1.DialStringPrefix))
 		AND n2.TimezonesID = n1.TimezonesID
 		AND ((n2.CityTariff IS NULL AND n1.CityTariff IS NULL) OR n2.CityTariff = n1.CityTariff)
+		AND ((n2.AccessType IS NULL AND n1.AccessType IS NULL) OR n2.AccessType = n1.AccessType)
 		AND ((n2.OneOffCost IS NULL AND n1.OneOffCost IS NULL) OR n2.OneOffCost = n1.OneOffCost)
 		AND ((n2.MonthlyCost IS NULL AND n1.MonthlyCost IS NULL) OR n2.MonthlyCost = n1.MonthlyCost)
 		AND ((n2.CostPerCall IS NULL AND n1.CostPerCall IS NULL) OR n2.CostPerCall = n1.CostPerCall)
@@ -7095,6 +7145,7 @@ ThisSP:BEGIN
 		Code,
 		Description,
 		CityTariff,
+		AccessType,
 		OneOffCost,
 		MonthlyCost,
 		CostPerCall,
@@ -7135,6 +7186,7 @@ ThisSP:BEGIN
 		`Code`,
 		`Description`,
 		`CityTariff`,
+		`AccessType`,
 		`OneOffCost`,
 		`MonthlyCost`,
 		`CostPerCall`,
@@ -7291,6 +7343,7 @@ ThisSP:BEGIN
 					END
 					AS Description,
 					`CityTariff`,
+					`AccessType`,
 					`OneOffCost`,
 					`MonthlyCost`,
 					`CostPerCall`,
@@ -7350,6 +7403,7 @@ ThisSP:BEGIN
 					Code,
 					Description,
 					CityTariff,
+					AccessType,
 					OneOffCost,
 					MonthlyCost,
 					CostPerCall,
@@ -7390,6 +7444,7 @@ ThisSP:BEGIN
 					`Code`,
 					`Description`,
 					`CityTariff`,
+					`AccessType`,
 					`OneOffCost`,
 					`MonthlyCost`,
 					`CostPerCall`,
@@ -7559,6 +7614,7 @@ ThisSP:BEGIN
 			`Description`,
 			`CityTariff`,
 			`OneOffCost`,
+			`AccessType`,
 			`MonthlyCost`,
 			`CostPerCall`,
 			`CostPerMinute`,
@@ -7608,6 +7664,7 @@ ThisSP:BEGIN
 			CONCAT(IFNULL(tblTempRateTableDIDRate.CountryCode,''),tblTempRateTableDIDRate.Code) as Code,
 			`Description`,
 			`CityTariff`,
+			`AccessType`,
 			`OneOffCost`,
 			`MonthlyCost`,
 			`CostPerCall`,
@@ -7708,7 +7765,8 @@ CREATE PROCEDURE `prc_getReviewRateTableDIDRates`(
 	IN `p_Code` VARCHAR(50),
 	IN `p_Description` VARCHAR(200),
 	IN `p_Timezone` INT,
-	IN `p_CityTariff` VARCHAR(50),
+	IN `p_City` VARCHAR(50),
+	IN `p_Tariff` VARCHAR(50),
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
@@ -7732,6 +7790,7 @@ BEGIN
 			RTCL.Description,
 			tz.Title,
 			RTCL.CityTariff,
+			RTCL.AccessType,
 			CONCAT(IFNULL(tblOneOffCostCurrency.Symbol,''), IFNULL(OneOffCost,'')) AS OneOffCost,
 			CONCAT(IFNULL(tblMonthlyCostCurrency.Symbol,''), IFNULL(MonthlyCost,'')) AS MonthlyCost,
 			CONCAT(IFNULL(tblCostPerCallCurrency.Symbol,''), IFNULL(CostPerCall,'')) AS CostPerCall,
@@ -7782,7 +7841,8 @@ BEGIN
 			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
 			(p_Code IS NULL OR p_Code = '' OR RTCL.Code LIKE REPLACE(p_Code, '*', '%')) AND
 			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
-			(p_CityTariff IS NULL OR p_CityTariff = '' OR RTCL.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'))
+			(p_City IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_City, '*', '%')) AND
+			(p_Tariff IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_Tariff, '*', '%'))
 		ORDER BY
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
@@ -7813,6 +7873,12 @@ BEGIN
 			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffASC') THEN RTCL.CityTariff
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeDESC') THEN RTCL.AccessType
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeASC') THEN RTCL.AccessType
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
@@ -7919,7 +7985,10 @@ BEGIN
 			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
 			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%')) AND
 			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
-			(p_CityTariff IS NULL OR p_CityTariff = '' OR RTCL.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'));
+			(
+				(p_City IS NULL OR p_City = '' OR RTCL.CityTariff LIKE REPLACE(p_City, '*', '%')) OR
+				(p_Tariff IS NULL OR p_Tariff = '' OR RTCL.CityTariff LIKE REPLACE(p_Tariff, '*', '%'))
+			);
 	END IF;
 
 	IF p_isExport = 1
@@ -7932,6 +8001,7 @@ BEGIN
 			RTCL.Description,
 			tz.Title,
 			RTCL.CityTariff,
+			RTCL.AccessType,
 			CONCAT(IFNULL(tblOneOffCostCurrency.Symbol,''), IFNULL(OneOffCost,'')) AS OneOffCost,
 			CONCAT(IFNULL(tblMonthlyCostCurrency.Symbol,''), IFNULL(MonthlyCost,'')) AS MonthlyCost,
 			CONCAT(IFNULL(tblCostPerCallCurrency.Symbol,''), IFNULL(CostPerCall,'')) AS CostPerCall,
@@ -7982,7 +8052,10 @@ BEGIN
 			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
 			(p_Code IS NULL OR p_Code = '' OR RTCL.Code LIKE REPLACE(p_Code, '*', '%')) AND
 			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
-			(p_CityTariff IS NULL OR p_CityTariff = '' OR RTCL.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'));
+			(
+				(p_City IS NULL OR p_City = '' OR RTCL.CityTariff LIKE REPLACE(p_City, '*', '%')) OR
+				(p_Tariff IS NULL OR p_Tariff = '' OR RTCL.CityTariff LIKE REPLACE(p_Tariff, '*', '%'))
+			);
 	END IF;
 
 
@@ -8034,6 +8107,7 @@ ThisSP:BEGIN
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
 		`CityTariff` varchar(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -8081,6 +8155,7 @@ ThisSP:BEGIN
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
 		`CityTariff` varchar(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -8217,6 +8292,7 @@ ThisSP:BEGIN
             Code,
             Description,
             CityTariff,
+            AccessType,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -8260,6 +8336,7 @@ ThisSP:BEGIN
 			tblTempRateTableDIDRate.Code,
 			tblTempRateTableDIDRate.Description,
 			tblTempRateTableDIDRate.CityTariff,
+			tblTempRateTableDIDRate.AccessType,
 			tblTempRateTableDIDRate.NewOneOffCost,
 			tblTempRateTableDIDRate.NewMonthlyCost,
 			tblTempRateTableDIDRate.NewCostPerCall,
@@ -8346,6 +8423,7 @@ ThisSP:BEGIN
 					Code,
 					Description,
 					CityTariff,
+					AccessType,
 					OneOffCost,
 					MonthlyCost,
 					CostPerCall,
@@ -8390,6 +8468,7 @@ ThisSP:BEGIN
 					tblRate.Code,
 					tblRate.Description,
 					tblTempRateTableDIDRate.CityTariff,
+					tblTempRateTableDIDRate.AccessType,
 					CONCAT(tblTempRateTableDIDRate.NewOneOffCost, IF(tblTempRateTableDIDRate.NewOneOffCost > RateTableDIDRate.OneOffCost, '<span style="color: green;" data-toggle="tooltip" data-title="OneOffCost Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOneOffCost < RateTableDIDRate.OneOffCost, '<span style="color: red;" data-toggle="tooltip" data-title="OneOffCost Decrease" data-placement="top">&#9660;</span>',''))) AS `OneOffCost`,
 					CONCAT(tblTempRateTableDIDRate.NewMonthlyCost, IF(tblTempRateTableDIDRate.NewMonthlyCost > RateTableDIDRate.MonthlyCost, '<span style="color: green;" data-toggle="tooltip" data-title="MonthlyCost Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewMonthlyCost < RateTableDIDRate.MonthlyCost, '<span style="color: red;" data-toggle="tooltip" data-title="MonthlyCost Decrease" data-placement="top">&#9660;</span>',''))) AS `MonthlyCost`,
 					CONCAT(tblTempRateTableDIDRate.NewCostPerCall, IF(tblTempRateTableDIDRate.NewCostPerCall > RateTableDIDRate.CostPerCall, '<span style="color: green;" data-toggle="tooltip" data-title="CostPerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCostPerCall < RateTableDIDRate.CostPerCall, '<span style="color: red;" data-toggle="tooltip" data-title="CostPerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `CostPerCall`,
@@ -8487,6 +8566,7 @@ ThisSP:BEGIN
 				Code,
 				Description,
 				CityTariff,
+				AccessType,
 				OneOffCost,
 				MonthlyCost,
 				CostPerCall,
@@ -8529,6 +8609,7 @@ ThisSP:BEGIN
                 tblRate.Code,
                 tblRate.Description,
                 tblRateTableDIDRate.CityTariff,
+                tblRateTableDIDRate.AccessType,
 				tblRateTableDIDRate.OneOffCost,
 				tblRateTableDIDRate.MonthlyCost,
 				tblRateTableDIDRate.CostPerCall,
@@ -8594,6 +8675,7 @@ ThisSP:BEGIN
             Code,
             Description,
             CityTariff,
+            AccessType,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -8636,6 +8718,7 @@ ThisSP:BEGIN
             tblRate.Code,
             tblRate.Description,
             tblRateTableDIDRate.CityTariff,
+            tblRateTableDIDRate.AccessType,
 			tblRateTableDIDRate.OneOffCost,
 			tblRateTableDIDRate.MonthlyCost,
 			tblRateTableDIDRate.CostPerCall,
@@ -10594,6 +10677,7 @@ ThisSP:BEGIN
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
 		`CityTariff` varchar(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -10641,6 +10725,7 @@ ThisSP:BEGIN
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
 		`CityTariff` varchar(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -10690,6 +10775,7 @@ ThisSP:BEGIN
 		Code VARCHAR(50),
 		Description VARCHAR(200),
 		CityTariff varchar(50),
+		AccessType varchar(200) NULL DEFAULT NULL,
 		OneOffCost decimal(18,6) DEFAULT NULL,
 	  	MonthlyCost decimal(18,6) DEFAULT NULL,
 	  	CostPerCall decimal(18,6) DEFAULT NULL,
@@ -10784,6 +10870,7 @@ ThisSP:BEGIN
 				Code,
 				Description,
 				CityTariff,
+            AccessType,
 				OneOffCost,
 				MonthlyCost,
 				CostPerCall,
@@ -10824,6 +10911,7 @@ ThisSP:BEGIN
 				tblRate.Code,
 				tblRate.Description,
 				tblRateTableDIDRate.CityTariff,
+            tblRateTableDIDRate.AccessType,
 				tblRateTableDIDRate.OneOffCost,
 				tblRateTableDIDRate.MonthlyCost,
 				tblRateTableDIDRate.CostPerCall,
@@ -11087,6 +11175,7 @@ ThisSP:BEGIN
 			AND tblRateTableDIDRate.RateTableId = p_RateTableId
 			AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
 			AND tblRateTableDIDRate.CityTariff = tblTempRateTableDIDRate.CityTariff
+			AND tblRateTableDIDRate.AccessType = tblTempRateTableDIDRate.AccessType
 			AND IFNULL(tblTempRateTableDIDRate.OneOffCost,0) = IFNULL(tblRateTableDIDRate.OneOffCost,0)
         	AND IFNULL(tblTempRateTableDIDRate.MonthlyCost,0) = IFNULL(tblRateTableDIDRate.MonthlyCost,0)
         	AND IFNULL(tblTempRateTableDIDRate.CostPerCall,0) = IFNULL(tblRateTableDIDRate.CostPerCall,0)
@@ -11130,6 +11219,7 @@ ThisSP:BEGIN
 			AND ((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID))
 			AND (
 				tblTempRateTableDIDRate.CityTariff <> tblRateTableDIDRate.CityTariff
+				OR tblTempRateTableDIDRate.AccessType <> tblRateTableDIDRate.AccessType
 				OR tblTempRateTableDIDRate.OneOffCost <> tblRateTableDIDRate.OneOffCost
 				OR tblTempRateTableDIDRate.MonthlyCost <> tblRateTableDIDRate.MonthlyCost
 				OR tblTempRateTableDIDRate.CostPerCall <> tblRateTableDIDRate.CostPerCall
@@ -11157,6 +11247,7 @@ ThisSP:BEGIN
 				OriginationRateID,
 				RateId,
 				CityTariff,
+				AccessType,
 				OneOffCost,
 				MonthlyCost,
 				CostPerCall,
@@ -11192,6 +11283,7 @@ ThisSP:BEGIN
 				IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
 				tblRate.RateID,
 				tblTempRateTableDIDRate.CityTariff,
+				tblTempRateTableDIDRate.AccessType,
 		');
 
 		SET @stm2 = '';
@@ -14061,6 +14153,7 @@ BEGIN
 		EffectiveDate,
 		EndDate,
 		CityTariff,
+		AccessType,
 		OneOffCost,
 		MonthlyCost,
 		CostPerCall,
@@ -14104,6 +14197,7 @@ BEGIN
 		`EffectiveDate`,
 		IFNULL(`EndDate`,date(now())) as EndDate,
 		`CityTariff`,
+		`AccessType`,
 		`OneOffCost`,
 		`MonthlyCost`,
 		`CostPerCall`,
@@ -14373,7 +14467,8 @@ CREATE PROCEDURE `prc_GetRateTableDIDRateAA`(
 	IN `p_contryID` INT,
 	IN `p_origination_code` VARCHAR(50),
 	IN `p_code` VARCHAR(50),
-	IN `p_CityTariff` VARCHAR(50),
+	IN `p_City` VARCHAR(50),
+	IN `p_Tariff` VARCHAR(50),
 	IN `p_effective` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
 	IN `p_PageNumber` INT,
@@ -14396,6 +14491,7 @@ BEGIN
 		OriginationCode VARCHAR(50),
 		Code VARCHAR(50),
 		CityTariff VARCHAR(50),
+		AccessType varchar(200),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
 		CostPerCall DECIMAL(18,6),
@@ -14456,6 +14552,7 @@ BEGIN
 		OriginationRate.Code AS OriginationCode,
 		tblRate.Code,
 		CityTariff,
+		AccessType,
 		OneOffCost,
 		MonthlyCost,
 		CostPerCall,
@@ -14546,7 +14643,8 @@ BEGIN
 		AND (p_contryID is null OR tblRate.CountryID = p_contryID)
 		AND (p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
-		AND (p_CityTariff is null OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'))
+		AND (p_City IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_City, '*', '%'))
+		AND (p_Tariff IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_Tariff, '*', '%'))
 		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND (p_TimezonesID IS NULL OR tblRateTableDIDRate.TimezonesID = p_TimezonesID)
@@ -14599,6 +14697,12 @@ BEGIN
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffASC') THEN CityTariff
                 END ASC,
+	             CASE
+	                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeDESC') THEN AccessType
+	             END DESC,
+	             CASE
+	                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeASC') THEN AccessType
+	             END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
                 END DESC,
@@ -14724,6 +14828,7 @@ BEGIN
 			OriginationCode,
 			Code AS DestinationCode,
 			CityTariff,
+			AccessType,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -14752,6 +14857,7 @@ BEGIN
 			OriginationCode,
 			Code AS DestinationCode,
 			CityTariff,
+			AccessType,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -15308,6 +15414,7 @@ CREATE PROCEDURE `prc_RateTableDIDRateAAUpdateDelete`(
 	IN `p_EffectiveDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_CityTariff` VARCHAR(50),
+	IN `p_AccessType` VARCHAR(200),
 	IN `p_OneOffCost` VARCHAR(255),
 	IN `p_MonthlyCost` VARCHAR(255),
 	IN `p_CostPerCall` VARCHAR(255),
@@ -15336,7 +15443,8 @@ CREATE PROCEDURE `prc_RateTableDIDRateAAUpdateDelete`(
 	IN `p_Critearea_CountryId` INT,
 	IN `p_Critearea_Code` varchar(50),
 	IN `p_Critearea_Description` varchar(200),
-	IN `p_Critearea_CityTariff` VARCHAR(50),
+	IN `p_Critearea_City` VARCHAR(50),
+	IN `p_Critearea_Tariff` VARCHAR(50),
 	IN `p_Critearea_OriginationCode` VARCHAR(50),
 	IN `p_Critearea_OriginationDescription` VARCHAR(200),
 	IN `p_Critearea_Effective` VARCHAR(50),
@@ -15358,6 +15466,7 @@ ThisSP:BEGIN
 		`RateTableId` int(11) NOT NULL,
 		`TimezonesID` int(11) NOT NULL,
 		`CityTariff` VARCHAR(50) NOT NULL DEFAULT '',
+		`AccessType` VARCHAR(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) NULL DEFAULT NULL,
 		`MonthlyCost` decimal(18,6) NULL DEFAULT NULL,
 		`CostPerCall` decimal(18,6) NULL DEFAULT NULL,
@@ -15402,6 +15511,7 @@ ThisSP:BEGIN
 		rtr.RateTableId,
 		rtr.TimezonesID,
 		IFNULL(p_CityTariff,rtr.CityTariff) AS CityTariff,
+		IFNULL(p_AccessType,rtr.AccessType) AS AccessType,
 		IF(p_OneOffCost IS NOT NULL,IF(p_OneOffCost='NULL',NULL,p_OneOffCost),rtr.OneOffCost) AS OneOffCost,
 		IF(p_MonthlyCost IS NOT NULL,IF(p_MonthlyCost='NULL',NULL,p_MonthlyCost),rtr.MonthlyCost) AS MonthlyCost,
 		IF(p_CostPerCall IS NOT NULL,IF(p_CostPerCall='NULL',NULL,p_CostPerCall),rtr.CostPerCall) AS CostPerCall,
@@ -15468,7 +15578,8 @@ ThisSP:BEGIN
 					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
-					((p_Critearea_CityTariff IS NULL) OR (p_Critearea_CityTariff IS NOT NULL AND rtr.CityTariff LIKE REPLACE(p_Critearea_CityTariff,'*', '%'))) AND
+					(p_Critearea_City IS NULL OR rtr.CityTariff LIKE REPLACE(p_Critearea_City, '*', '%')) AND
+					(p_Critearea_Tariff IS NULL OR rtr.CityTariff LIKE REPLACE(p_Critearea_Tariff, '*', '%')) AND
 					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
@@ -15512,6 +15623,7 @@ ThisSP:BEGIN
 			(rtr.EffectiveDate = temp.EffectiveDate) AND
 			(rtr.TimezonesID = temp.TimezonesID) AND
 			((rtr.CityTariff IS NULL && temp.CityTariff IS NULL) || rtr.CityTariff = temp.CityTariff) AND
+			((rtr.AccessType IS NULL && temp.AccessType IS NULL) || rtr.AccessType = temp.AccessType) AND
 			((rtr.OneOffCost IS NULL && temp.OneOffCost IS NULL) || rtr.OneOffCost = temp.OneOffCost) AND
 			((rtr.MonthlyCost IS NULL && temp.MonthlyCost IS NULL) || rtr.MonthlyCost = temp.MonthlyCost) AND
 			((rtr.CostPerCall IS NULL && temp.CostPerCall IS NULL) || rtr.CostPerCall = temp.CostPerCall) AND
@@ -15561,6 +15673,7 @@ ThisSP:BEGIN
 			RateTableId,
 			TimezonesID,
 			CityTariff,
+			AccessType,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -15602,6 +15715,7 @@ ThisSP:BEGIN
 			RateTableId,
 			TimezonesID,
 			CityTariff,
+			AccessType,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -16177,6 +16291,7 @@ ThisSP:BEGIN
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
 		`CityTariff` varchar(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -16225,6 +16340,7 @@ ThisSP:BEGIN
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
 		`CityTariff` varchar(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -16274,6 +16390,7 @@ ThisSP:BEGIN
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
 		`CityTariff` varchar(50),
+		`AccessType` varchar(200) NULL DEFAULT NULL,
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -16331,6 +16448,7 @@ ThisSP:BEGIN
 				Code,
 				Description,
 				CityTariff,
+				AccessType,
 				OneOffCost,
 				MonthlyCost,
 				CostPerCall,
@@ -16372,6 +16490,7 @@ ThisSP:BEGIN
 				tblRate.Code,
 				tblRate.Description,
 				tblRateTableDIDRate.CityTariff,
+				tblRateTableDIDRate.AccessType,
 				tblRateTableDIDRate.OneOffCost,
 				tblRateTableDIDRate.MonthlyCost,
 				tblRateTableDIDRate.CostPerCall,
@@ -16613,6 +16732,7 @@ ThisSP:BEGIN
 			AND tblRateTableDIDRate.RateTableId = p_RateTableId
 			AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
 			AND tblRateTableDIDRate.CityTariff = tblTempRateTableDIDRate.CityTariff
+			AND tblRateTableDIDRate.AccessType = tblTempRateTableDIDRate.AccessType
 			AND IFNULL(tblTempRateTableDIDRate.OneOffCost,0) = IFNULL(tblRateTableDIDRate.OneOffCost,0)
         	AND IFNULL(tblTempRateTableDIDRate.MonthlyCost,0) = IFNULL(tblRateTableDIDRate.MonthlyCost,0)
         	AND IFNULL(tblTempRateTableDIDRate.CostPerCall,0) = IFNULL(tblRateTableDIDRate.CostPerCall,0)
@@ -16656,6 +16776,7 @@ ThisSP:BEGIN
 			AND ((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID))
 			AND (
 				tblTempRateTableDIDRate.CityTariff <> tblRateTableDIDRate.CityTariff
+				OR tblTempRateTableDIDRate.AccessType <> tblRateTableDIDRate.AccessType
 				OR tblTempRateTableDIDRate.OneOffCost <> tblRateTableDIDRate.OneOffCost
 				OR tblTempRateTableDIDRate.MonthlyCost <> tblRateTableDIDRate.MonthlyCost
 				OR tblTempRateTableDIDRate.CostPerCall <> tblRateTableDIDRate.CostPerCall
@@ -16683,6 +16804,7 @@ ThisSP:BEGIN
 				OriginationRateID,
 				RateId,
 				CityTariff,
+				AccessType,
 				OneOffCost,
 				MonthlyCost,
 				CostPerCall,
@@ -16719,6 +16841,7 @@ ThisSP:BEGIN
 				IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
 				tblRate.RateID,
 				tblTempRateTableDIDRate.CityTariff,
+				tblTempRateTableDIDRate.AccessType,
 		');
 
 		SET @stm2 = '';
