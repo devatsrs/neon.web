@@ -55,6 +55,9 @@ class RateUploadController extends \BaseController {
         }
         $City               = array('' => 'Skip loading') + $CityTariff;
         $Tariff             = array('' => 'Skip loading') + $CityTariffFilter;
+        $CityFilter         = array('' => "All") + $CityTariff;
+        $TariffFilter       = array('' => "All") + $CityTariffFilter;
+        $AccessTypeFilter   = array('' => "All") + ServiceTemplate::getAccessTypeDD($CompanyID);
 
         $CountryPrefix      = array('Map From Database'=>$CountryPrefix);
         $AccessTypes        = array('Map From Database'=>$AccessTypes);
@@ -68,7 +71,7 @@ class RateUploadController extends \BaseController {
         if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) { // voice call
             return View::make('rateupload.index', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall', 'component_currencies', 'rateTable', 'ROUTING_PROFILE'));
         } else if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) { // did
-            return View::make('rateupload.index_did', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'TypeVoiceCall', 'component_currencies', 'AccessTypes', 'Codes', 'City', 'Tariff', 'CountryPrefix'));
+            return View::make('rateupload.index_did', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'TypeVoiceCall', 'component_currencies', 'AccessTypes', 'Codes', 'City', 'Tariff', 'CountryPrefix', 'AccessTypeFilter', 'CityFilter', 'TariffFilter'));
         } else { // package
             return View::make('rateupload.index_pkg', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'TypeVoiceCall', 'component_currencies'));
         }
@@ -2025,18 +2028,17 @@ class RateUploadController extends \BaseController {
         $data['iDisplayStart'] +=1;
 
         $columns                        = array('TempVendorRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','Rate','RateN','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN','Preference','Blocked','RoutingCategory');
-        $columns_did                    = array('TempRateTableDIDRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','CityTariff','AccessType','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate');
+        $columns_did                    = array('TempRateTableDIDRateID','AccessType','OriginationCode','Code','CityTariff','Timezones','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate');
         $columns_pkg                    = array('TempRateTablePKGRateID','Code','Timezones','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate');
         $sort_column                    = $columns[$data['iSortCol_0']];
         $sort_column_did                = $columns_did[$data['iSortCol_0']];
         $sort_column_pkg                = $columns_pkg[$data['iSortCol_0']];
         $data['OriginationCode']        = !empty($data['OriginationCode']) ? "'".$data['OriginationCode']."'" : 'NULL';
-        $data['OriginationDescription'] = !empty($data['OriginationDescription']) ? "'".$data['OriginationDescription']."'" : 'NULL';
         $data['Code']                   = !empty($data['Code']) ? "'".$data['Code']."'" : 'NULL';
-        $data['Description']            = !empty($data['Description']) ? "'".$data['Description']."'" : 'NULL';
         $data['RoutingCategory']        = !empty($data['RoutingCategory']) ? $data['RoutingCategory'] : 'NULL';
         $data['City']                   = !empty($data['City']) ? "'".$data['City']."'" : 'NULL';
         $data['Tariff']                 = !empty($data['Tariff']) ? "'".$data['Tariff']."'" : 'NULL';
+        $data['AccessType']             = !empty($data['AccessType']) ? "'".$data['AccessType']."'" : 'NULL';
 
         if($data['RateUploadType'] == RateUpload::ratetable && !empty($data['RateTableID'])) {
             $RateTable = RateTable::find($data['RateTableID']);
@@ -2049,7 +2051,7 @@ class RateUploadController extends \BaseController {
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
             $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
-            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['City'].",".$data['Tariff'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
+            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['Code'].",".$data['Timezone'].",".$data['City'].",".$data['Tariff'].",".$data['AccessType'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
             $query = "call prc_getReviewRateTablePKGRates ('".$data['ProcessID']."','".$data['Action']."',".$data['Code'].",".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_pkg."','".$data['sSortDir_0']."',0)";
         }
@@ -2063,12 +2065,11 @@ class RateUploadController extends \BaseController {
         $data = Input::all();
 
         $data['OriginationCode']        = !empty($data['OriginationCode']) ? "'".$data['OriginationCode']."'" : 'NULL';
-        $data['OriginationDescription'] = !empty($data['OriginationDescription']) ? "'".$data['OriginationDescription']."'" : 'NULL';
         $data['Code']                   = !empty($data['Code']) ? "'".$data['Code']."'" : 'NULL';
-        $data['Description']            = !empty($data['Description']) ? "'".$data['Description']."'" : 'NULL';
         $data['RoutingCategory']        = !empty($data['RoutingCategory']) ? $data['RoutingCategory'] : 'NULL';
         $data['City']                   = !empty($data['City']) ? $data['City'] : 'NULL';
         $data['Tariff']                 = !empty($data['Tariff']) ? $data['Tariff'] : 'NULL';
+        $data['AccessType']             = !empty($data['AccessType']) ? "'".$data['AccessType']."'" : 'NULL';
 
         if($data['RateUploadType'] == RateUpload::vendor) {
             $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",0 ,0,'','',1)";

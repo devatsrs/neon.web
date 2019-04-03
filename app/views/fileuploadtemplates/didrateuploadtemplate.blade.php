@@ -15,6 +15,24 @@
             </div>
         </div>
         <div class="form-group ">
+            <label class="col-sm-2 control-label">Access Type</label>
+            <div class="col-sm-4">
+                {{Form::select('selection[AccessType]', $AccessTypes ,(isset($attrselection->AccessType)?$attrselection->AccessType:''),array("class"=>"DualMapping small"))}}
+            </div>
+
+            <label class="col-sm-2 control-label control-CountryCode-controls">
+                Country
+                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Country only requires when you have seperate columns for Country Codes and City Codes in your rate file." data-original-title="Country Code">?</span>
+            </label>
+            <div class="col-sm-3 control-CountryCode-controls">
+                {{Form::select('selection[CountryCode]', $CountryPrefix,(isset($attrselection->CountryCode)?$attrselection->CountryCode:''),array("class"=>"DualMapping small"))}}
+            </div>
+            <div class="col-sm-1 control-CountryCode-controls">
+                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Tick this box if you are mapping country description e.g. USA. Leave it un tick if you are mapping country code e.g. 1" data-original-title="Country Mapping">?</span>
+                {{Form::checkbox('selection[CountryMapping]', '1', false, array("class"=>"CountryMapping"))}}
+            </div>
+        </div>
+        <div class="form-group">
             <label for="field-1" class="col-sm-2 control-label">Prefix* </label>
             <div class="col-sm-2">
                 {{Form::select('selection[Code]', $Codes,(isset($attrselection->Code)?$attrselection->Code:''),array("class"=>"DualMapping select2 small"))}}
@@ -26,6 +44,16 @@
             <div class="col-sm-4" style="display: none">
                 {{--{{Form::select('selection[Description]', $columns,(isset($attrselection->Description)?$attrselection->Description:''),array("class"=>"select2 small"))}}--}}
                 <input type="hidden" name="selection[Description]" value="">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">City</label>
+            <div class="col-sm-4">
+                {{Form::select('selection[City]', $City ,(isset($attrselection->City)?$attrselection->City:''),array("class"=>"DualMapping small"))}}
+            </div>
+            <label class="col-sm-2 control-label">Tariff</label>
+            <div class="col-sm-4">
+                {{Form::select('selection[Tariff]', $Tariff ,(isset($attrselection->Tariff)?$attrselection->Tariff:''),array("class"=>"DualMapping small"))}}
             </div>
         </div>
         <div class="form-group duo">
@@ -215,37 +243,6 @@
         <label class="col-sm-2 control-label control-OriginationDescription-controls">Origination Description</label>
         <div class="col-sm-4 control-OriginationDescription-controls">
             {{Form::select('selection[OriginationDescription]', $columns,(isset($attrselection->OriginationDescription)?$attrselection->OriginationDescription:''),array("class"=>" small"))}}
-        </div>
-    </div>
-    <div class="control-CountryCode">
-        <label class="col-sm-2 control-label control-CountryCode-controls">
-            Country Code
-            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Country Code only requires when you have seperate columns for Country Codes and City Codes in your rate file." data-original-title="Country Code">?</span>
-        </label>
-        <div class="col-sm-3 control-CountryCode-controls">
-            {{Form::select('selection[CountryCode]', $CountryPrefix,(isset($attrselection->CountryCode)?$attrselection->CountryCode:''),array("class"=>"DualMapping small"))}}
-        </div>
-        <div class="col-sm-1 control-CountryCode-controls">
-            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Tick this box if you are mapping country description e.g. USA. Leave it un tick if you are mapping country code e.g. 1" data-original-title="Country Mapping">?</span>
-            {{Form::checkbox('selection[CountryMapping]', '1', false, array("class"=>"CountryMapping"))}}
-        </div>
-    </div>
-    <div class="control-City">
-        <label class="col-sm-2 control-label control-City-controls">City</label>
-        <div class="col-sm-4 control-City-controls">
-            {{Form::select('selection[City]', $City ,(isset($attrselection->City)?$attrselection->City:''),array("class"=>"DualMapping small"))}}
-        </div>
-    </div>
-    <div class="control-Tariff">
-        <label class="col-sm-2 control-label control-Tariff-controls">Tariff</label>
-        <div class="col-sm-4 control-Tariff-controls">
-            {{Form::select('selection[Tariff]', $Tariff ,(isset($attrselection->Tariff)?$attrselection->Tariff:''),array("class"=>"DualMapping small"))}}
-        </div>
-    </div>
-    <div class="control-AccessType">
-        <label class="col-sm-2 control-label control-AccessType-controls">Access Type</label>
-        <div class="col-sm-4 control-AccessType-controls">
-            {{Form::select('selection[AccessType]', $AccessTypes ,(isset($attrselection->AccessType)?$attrselection->AccessType:''),array("class"=>"DualMapping small"))}}
         </div>
     </div>
 

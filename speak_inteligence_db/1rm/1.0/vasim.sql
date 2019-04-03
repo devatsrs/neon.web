@@ -1669,6 +1669,7 @@ CREATE PROCEDURE `prc_getDiscontinuedRateTableDIDRateGrid`(
 	IN `p_Code` VARCHAR(50),
 	IN `p_City` VARCHAR(50),
 	IN `p_Tariff` VARCHAR(50),
+	IN `p_AccessType` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
@@ -1685,12 +1686,12 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRate_;
 	CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
 		ID INT,
+		AccessType varchar(200),
 		Country VARCHAR(200),
-		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
 		Code VARCHAR(50),
 		CityTariff VARCHAR(50),
-		AccessType varchar(200),
+		TimezoneTitle VARCHAR(50),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
 		CostPerCall DECIMAL(18,6),
@@ -1745,12 +1746,12 @@ BEGIN
 	INSERT INTO tmp_RateTableDIDRate_
 	SELECT
 		vra.RateTableDIDRateID,
+		vra.AccessType,
 		tblCountry.Country,
-		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
 		r.Code,
 		vra.CityTariff,
-		vra.AccessType,
+		tblTimezones.Title AS TimezoneTitle,
 		vra.OneOffCost,
 		vra.MonthlyCost,
 		vra.CostPerCall,
@@ -1848,6 +1849,7 @@ BEGIN
 		(p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%')) AND
 		(p_City IS NULL OR vra.CityTariff LIKE REPLACE(p_City, '*', '%')) AND
 		(p_Tariff IS NULL OR vra.CityTariff LIKE REPLACE(p_Tariff, '*', '%')) AND
+		(p_AccessType IS NULL OR vra.AccessType LIKE REPLACE(p_AccessType, '*', '%')) AND
 		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
 		vr.RateTableDIDRateID is NULL;
 
@@ -2022,12 +2024,12 @@ BEGIN
 	IF p_isExport = 10
 	THEN
 		SELECT
-			Country,
-        	TimezoneTitle AS `Time of Day`,
-			OriginationCode,
-			Code AS DestinationCode,
-			CityTariff,
 			AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			CityTariff,
+        	TimezoneTitle AS `Time of Day`,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -2049,12 +2051,12 @@ BEGIN
 	IF p_isExport = 11
 	THEN
 		SELECT
-			Country,
-        	TimezoneTitle AS `Time of Day`,
-			OriginationCode,
-			Code AS DestinationCode,
-			CityTariff,
 			AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			CityTariff,
+        	TimezoneTitle AS `Time of Day`,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -2640,6 +2642,7 @@ CREATE PROCEDURE `prc_GetRateTableDIDRate`(
 	IN `p_code` VARCHAR(50),
 	IN `p_City` VARCHAR(50),
 	IN `p_Tariff` VARCHAR(50),
+	IN `p_AccessType` VARCHAR(50),
 	IN `p_effective` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
 	IN `p_PageNumber` INT,
@@ -2657,12 +2660,12 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRate_;
 	CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
 		ID INT,
+		AccessType varchar(200),
 		Country VARCHAR(200),
-		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
 		Code VARCHAR(50),
 		CityTariff VARCHAR(50),
-		AccessType varchar(200),
+		TimezoneTitle VARCHAR(50),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
 		CostPerCall DECIMAL(18,6),
@@ -2718,12 +2721,12 @@ BEGIN
     INSERT INTO tmp_RateTableDIDRate_
     SELECT
 		RateTableDIDRateID AS ID,
+		AccessType,
 		tblCountry.Country,
-		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
 		tblRate.Code,
 		CityTariff,
-		AccessType,
+		tblTimezones.Title AS TimezoneTitle,
 		OneOffCost,
 		MonthlyCost,
 		CostPerCall,
@@ -2816,6 +2819,7 @@ BEGIN
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
 		AND (p_City IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_City, '*', '%'))
 		AND (p_Tariff IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_Tariff, '*', '%'))
+		AND (p_AccessType IS NULL OR tblRateTableDIDRate.AccessType LIKE REPLACE(p_AccessType, '*', '%'))
 		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND (p_TimezonesID IS NULL OR tblRateTableDIDRate.TimezonesID = p_TimezonesID)
@@ -2994,12 +2998,12 @@ BEGIN
     IF p_isExport = 10
     THEN
         SELECT
-			Country,
-        	TimezoneTitle AS `Time of Day`,
-			OriginationCode,
-			Code AS DestinationCode,
-			CityTariff,
 			AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			CityTariff,
+        	TimezoneTitle AS `Time of Day`,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -3023,12 +3027,12 @@ BEGIN
     IF p_isExport = 11
     THEN
         SELECT
+        	AccessType,
 			Country,
-        	TimezoneTitle AS `Time of Day`,
-			OriginationCode,
-			Code AS DestinationCode,
+			OriginationCode AS Origination,
+			Code AS Prefix,
 			CityTariff,
-			AccessType,
+        	TimezoneTitle AS `Time of Day`,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -3073,13 +3077,11 @@ BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
 	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
+		AccessType varchar(200),
 		Country VARCHAR(50),
 		OriginationCode VARCHAR(50),
-		OriginationDescription VARCHAR(200),
 		Code VARCHAR(50),
-		Description VARCHAR(200),
 		CityTariff VARCHAR(50),
-		AccessType varchar(200),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
 		CostPerCall DECIMAL(18,6),
@@ -3115,13 +3117,11 @@ BEGIN
 	);
 
 	INSERT INTO tmp_RateTableRate_ (
+		AccessType,
 		Country,
 		OriginationCode,
-		OriginationDescription,
 		Code,
-		Description,
 		CityTariff,
-		AccessType,
 		OneOffCost,
 		MonthlyCost,
 		CostPerCall,
@@ -3156,13 +3156,11 @@ BEGIN
 		RegistrationCostPerNumberCurrency
 	)
 	SELECT
+		vra.AccessType,
 		tblCountry.Country,
 		o_r.Code AS OriginationCode,
-		o_r.Description AS OriginationDescription,
 		r.Code,
-		r.Description,
 		vra.CityTariff,
-		vra.AccessType,
 		vra.OneOffCost,
 		vra.MonthlyCost,
 		vra.CostPerCall,
@@ -3245,13 +3243,11 @@ BEGIN
 		vra.EffectiveDate DESC, vra.created_at DESC;
 
 	SELECT
+		AccessType,
 		Country,
 		OriginationCode,
-		OriginationDescription,
 		Code,
-		Description,
 		CityTariff,
-		AccessType,
 		CONCAT(IFNULL(OneOffCostCurrency,''), OneOffCost) AS OneOffCost,
 		CONCAT(IFNULL(MonthlyCostCurrency,''), MonthlyCost) AS MonthlyCost,
 		CONCAT(IFNULL(CostPerCallCurrency,''), CostPerCall) AS CostPerCall,
@@ -7761,12 +7757,11 @@ CREATE PROCEDURE `prc_getReviewRateTableDIDRates`(
 	IN `p_ProcessID` VARCHAR(50),
 	IN `p_Action` VARCHAR(50),
 	IN `p_Origination_Code` VARCHAR(50),
-	IN `p_Origination_Description` VARCHAR(200),
 	IN `p_Code` VARCHAR(50),
-	IN `p_Description` VARCHAR(200),
 	IN `p_Timezone` INT,
 	IN `p_City` VARCHAR(50),
 	IN `p_Tariff` VARCHAR(50),
+	IN `p_AccessType` VARCHAR(200),
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
@@ -7784,13 +7779,11 @@ BEGIN
 
 		SELECT
 			IF(p_Action='Deleted',RateTableDIDRateID,TempRateTableDIDRateID) AS RateTableDIDRateID,
-			OriginationCode,
-			OriginationDescription,
-			RTCL.Code,
-			RTCL.Description,
-			tz.Title,
-			RTCL.CityTariff,
 			RTCL.AccessType,
+			OriginationCode,
+			RTCL.Code,
+			RTCL.CityTariff,
+			tz.Title,
 			CONCAT(IFNULL(tblOneOffCostCurrency.Symbol,''), IFNULL(OneOffCost,'')) AS OneOffCost,
 			CONCAT(IFNULL(tblMonthlyCostCurrency.Symbol,''), IFNULL(MonthlyCost,'')) AS MonthlyCost,
 			CONCAT(IFNULL(tblCostPerCallCurrency.Symbol,''), IFNULL(CostPerCall,'')) AS CostPerCall,
@@ -7838,11 +7831,10 @@ BEGIN
 			ProcessID = p_ProcessID AND Action = p_Action AND
 			RTCL.TimezonesID = p_Timezone AND
 			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
-			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
 			(p_Code IS NULL OR p_Code = '' OR RTCL.Code LIKE REPLACE(p_Code, '*', '%')) AND
-			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
-			(p_City IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_City, '*', '%')) AND
-			(p_Tariff IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_Tariff, '*', '%'))
+			(p_City IS NULL OR RTCL.CityTariff LIKE REPLACE(p_City, '*', '%')) AND
+			(p_Tariff IS NULL OR RTCL.CityTariff LIKE REPLACE(p_Tariff, '*', '%')) AND
+			(p_AccessType IS NULL OR RTCL.AccessType LIKE REPLACE(p_AccessType, '*', '%'))
 		ORDER BY
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
@@ -7851,23 +7843,11 @@ BEGIN
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
 			END DESC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionDESC') THEN OriginationDescription
-			END DESC,
-			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN OriginationDescription
-			END ASC,
-			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN RTCL.Code
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN RTCL.Code
 			END DESC,
-			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN RTCL.Description
-			END DESC,
-			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN RTCL.Description
-			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffDESC') THEN RTCL.CityTariff
 			END DESC,
@@ -7982,26 +7962,21 @@ BEGIN
 			ProcessID = p_ProcessID AND Action = p_Action AND
 			RTCL.TimezonesID = p_Timezone AND
 			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
-			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
 			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%')) AND
-			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
-			(
-				(p_City IS NULL OR p_City = '' OR RTCL.CityTariff LIKE REPLACE(p_City, '*', '%')) OR
-				(p_Tariff IS NULL OR p_Tariff = '' OR RTCL.CityTariff LIKE REPLACE(p_Tariff, '*', '%'))
-			);
+			(p_City IS NULL OR RTCL.CityTariff LIKE REPLACE(p_City, '*', '%')) AND
+			(p_Tariff IS NULL OR RTCL.CityTariff LIKE REPLACE(p_Tariff, '*', '%')) AND
+			(p_AccessType IS NULL OR RTCL.AccessType LIKE REPLACE(p_AccessType, '*', '%'));
 	END IF;
 
 	IF p_isExport = 1
 	THEN
 		SELECT
 			distinct
-			OriginationCode,
-			OriginationDescription,
-			RTCL.Code,
-			RTCL.Description,
-			tz.Title,
-			RTCL.CityTariff,
 			RTCL.AccessType,
+			OriginationCode AS Origination,
+			RTCL.Code AS Prefix,
+			RTCL.CityTariff AS `City/Tariff`,
+			tz.Title AS `Time Of Day`,
 			CONCAT(IFNULL(tblOneOffCostCurrency.Symbol,''), IFNULL(OneOffCost,'')) AS OneOffCost,
 			CONCAT(IFNULL(tblMonthlyCostCurrency.Symbol,''), IFNULL(MonthlyCost,'')) AS MonthlyCost,
 			CONCAT(IFNULL(tblCostPerCallCurrency.Symbol,''), IFNULL(CostPerCall,'')) AS CostPerCall,
@@ -8049,13 +8024,10 @@ BEGIN
 			ProcessID = p_ProcessID AND Action = p_Action AND
 			RTCL.TimezonesID = p_Timezone AND
 			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
-			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
 			(p_Code IS NULL OR p_Code = '' OR RTCL.Code LIKE REPLACE(p_Code, '*', '%')) AND
-			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
-			(
-				(p_City IS NULL OR p_City = '' OR RTCL.CityTariff LIKE REPLACE(p_City, '*', '%')) OR
-				(p_Tariff IS NULL OR p_Tariff = '' OR RTCL.CityTariff LIKE REPLACE(p_Tariff, '*', '%'))
-			);
+			(p_City IS NULL OR RTCL.CityTariff LIKE REPLACE(p_City, '*', '%')) AND
+			(p_Tariff IS NULL OR RTCL.CityTariff LIKE REPLACE(p_Tariff, '*', '%')) AND
+			(p_AccessType IS NULL OR RTCL.AccessType LIKE REPLACE(p_AccessType, '*', '%'));
 	END IF;
 
 
@@ -14469,6 +14441,7 @@ CREATE PROCEDURE `prc_GetRateTableDIDRateAA`(
 	IN `p_code` VARCHAR(50),
 	IN `p_City` VARCHAR(50),
 	IN `p_Tariff` VARCHAR(50),
+	IN `p_AccessType` VARCHAR(50),
 	IN `p_effective` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
 	IN `p_PageNumber` INT,
@@ -14486,12 +14459,12 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRate_;
 	CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
 		ID INT,
+		AccessType varchar(200),
 		Country VARCHAR(200),
-		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
 		Code VARCHAR(50),
 		CityTariff VARCHAR(50),
-		AccessType varchar(200),
+		TimezoneTitle VARCHAR(50),
 		OneOffCost DECIMAL(18,6),
 		MonthlyCost DECIMAL(18,6),
 		CostPerCall DECIMAL(18,6),
@@ -14547,12 +14520,12 @@ BEGIN
     INSERT INTO tmp_RateTableDIDRate_
     SELECT
 		RateTableDIDRateAAID AS ID,
+		AccessType,
 		tblCountry.Country,
-		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
 		tblRate.Code,
 		CityTariff,
-		AccessType,
+		tblTimezones.Title AS TimezoneTitle,
 		OneOffCost,
 		MonthlyCost,
 		CostPerCall,
@@ -14645,6 +14618,7 @@ BEGIN
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
 		AND (p_City IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_City, '*', '%'))
 		AND (p_Tariff IS NULL OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_Tariff, '*', '%'))
+		AND (p_AccessType IS NULL OR tblRateTableDIDRate.AccessType LIKE REPLACE(p_AccessType, '*', '%'))
 		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND (p_TimezonesID IS NULL OR tblRateTableDIDRate.TimezonesID = p_TimezonesID)
@@ -14823,12 +14797,12 @@ BEGIN
     IF p_isExport = 10
     THEN
         SELECT
-			Country,
-        	TimezoneTitle AS `Time of Day`,
-			OriginationCode,
-			Code AS DestinationCode,
-			CityTariff,
 			AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			CityTariff,
+        	TimezoneTitle AS `Time of Day`,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
@@ -14852,12 +14826,12 @@ BEGIN
     IF p_isExport = 11
     THEN
         SELECT
-			Country,
-        	TimezoneTitle AS `Time of Day`,
-			OriginationCode,
-			Code AS DestinationCode,
-			CityTariff,
 			AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			CityTariff,
+        	TimezoneTitle AS `Time of Day`,
 			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
