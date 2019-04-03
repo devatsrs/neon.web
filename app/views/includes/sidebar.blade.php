@@ -227,24 +227,6 @@
         @endif
 
 
-          <?php
-            $ActiveCallPath='';
-
-          if(CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1'){
-            $ActiveCallPath=URL::to('/Vendor_ActiveCalls');
-          }
-          if(CompanyConfiguration::getValueConfigurationByKey('VOS_ACTIVECALL_MENU',User::get_companyID()) == '1'){
-            $ActiveCallPath=URL::to('/VOS_ActiveCalls');
-          }
-          if(CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1'){
-            $ActiveCallPath=URL::to('/ActiveCalls');
-          }
-
-          ?>
-        @if((CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1' || CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1') && User::checkCategoryPermission('ActiveCall','View'))
-          <li> <a href="{{$ActiveCallPath}}">  <span>Active Calls</span> </a> </li>
-          @endif
-
         <!--<li>
 <a href="{{URL::to('/cdr_recal')}}">
   <i class="entypo-pencil"></i>
@@ -260,6 +242,35 @@
       </ul>
     </li>
     @endif
+
+      <?php
+      $ActiveCallPath='';
+
+      if(CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+        $ActiveCallPath=URL::to('/Vendor_ActiveCalls');
+      }
+      if(CompanyConfiguration::getValueConfigurationByKey('VOS_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+        $ActiveCallPath=URL::to('/VOS_ActiveCalls');
+      }
+      if(CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+        $ActiveCallPath=URL::to('/ActiveCalls');
+      }
+
+      ?>
+      @if((CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1' || CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1') && User::checkCategoryPermission('ActiveCall','View'))
+        <li >  <a href="{{$ActiveCallPath}}"> <i class="fa fa-phone"></i> <span>Active Calls</span> </a> </li>
+      @endif
+
+    @if(User::checkCategoryPermission('VOSAccountIP','View'))
+      <li class=""> <a href="#"> <i class="fa fa-credit-card" ></i> <span>VOS</span> </a>
+        <ul>
+          {{--<li >  <a href="{{Url::to('/VOS/AccountBalance')}}"> <span>Account Balance</span> </a> </li>--}}
+          <li >  <a href="{{Url::to('/VOS/AccountIP')}}"> <span>Account IP</span> </a> </li>
+
+        </ul>
+      </li>
+    @endif
+
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('Analysis','All') || User::checkCategoryPermission('Analysis','Customer')  || User::checkCategoryPermission('Analysis','Vendor')  || User::checkCategoryPermission('Analysis','AccountManager') )

@@ -1287,8 +1287,14 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');
 	Route::any('/billing_dashboard/GetDashboardPR', 'BillingDashboard@GetDashboardPR');
 	Route::any('/billing_dashboard/GetDashboardPL', 'BillingDashboard@GetDashboardPL');
-	Route::any('/billing_dashboard/VOS_AccountIP/ajax_datagrid/{type}', 'BillingDashboard@VOSIP_ajax_datagrid');
-	Route::any('/billing_dashboard/VOS_AccountBalance/ajax_datagrid/{type}', 'BillingDashboard@VOSAccountBalance_ajax_datagrid');
+
+	//VOS AccountBalance
+	Route::any('/VOS/AccountBalance', 'VOSAccountBalanceController@index');
+	Route::any('/VOS/AccountBalance/ajax_datagrid/{type}', 'VOSAccountBalanceController@ajax_datagrid');
+
+	//VOS AccountIP
+	Route::any('/VOS/AccountIP', 'VOSAccountIPController@index');
+	Route::any('/VOS/AccountIP/ajax_datagrid/{type}', 'VOSAccountIPController@ajax_datagrid');
 
     //AccountPaymentProfile
     Route::any('/paymentprofile/create', 'AccountsPaymentProfileController@create');
