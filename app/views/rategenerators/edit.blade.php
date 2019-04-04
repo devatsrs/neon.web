@@ -296,6 +296,7 @@
                             <table id="servicetableSubBox" class="table table-bordered datatable">
                                 <thead>
                                 <tr>
+                                    <th style="width:250px;" class="Package-Div">Package</th>
                                     <th style="width:250px !important;">Component</th>
                                     <th style="width:250px !important;" class="DID-Div">From Country</th>
                                     <th style="width:250px !important;" class="DID-Div">From Type</th>
@@ -361,6 +362,12 @@
 
                                     ?>
                                     <tr id="selectedRow-{{$a}}">
+                                    {{-- @if($rategenerators->SelectType == 3)
+                                        
+                                    @endif --}}
+                                        <td class="Package-Div">
+                                            {{ Form::select('Package-'.$a, $Package, $Component->Package, array("class"=>"select2")) }}
+                                        </td>
                                         <td id="testValues">
                                             @if($rategenerators->SelectType == 2)
                                             {{ Form::select('Component-'.$a.'[]', DiscountPlan::$RateTableDIDRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
@@ -457,6 +464,7 @@
                                 <table id="ratetableSubBox" class="table table-bordered datatable">
                                     <thead>
                                     <tr>
+                                        <th style="width:250px;" class="Package-Div">Package</th>
                                         <th style="width:250px !important;">Component</th>
                                         <th style="width:250px !important;" class="DID-Div">Country</th>
                                         <th style="width:250px !important;" class="DID-Div">Type</th>
@@ -494,6 +502,9 @@
                                         }
                                         ?>
                                         <tr id="selectedRateRow-{{$a}}">
+                                            <td class="Package-Div">
+                                                {{ Form::select('Package1-'.$a, $Package, '', array("class"=>"select2")) }}
+                                            </td>
                                             <td>
                                                 @if($rategenerators->SelectType == 2)
                                                 {{ Form::select('RateComponent-'.$a.'[]',DiscountPlan::$RateTableDIDRate_Components, explode("," ,$calculatedRate->Component), array("class"=>"select2 selected-RComponents" ,'multiple', "id"=>"RateComponent-".$a)) }}
@@ -613,6 +624,11 @@
                                                     <br>
                                                         Tariff: @if(@$rategenerator_rule->Tariff != ''){{@$rategenerator_rule->Tariff}} @else ALL @endif    
                                                 @endif
+                                                @if($rategenerator->SelectType == 3)
+                                                        <br>
+                                                        Package: @if(@$rategenerator_rule->Package != '') {{Package::getServiceNameByID($rategenerator_rule->Package)}} @else ALL @endif
+                                                @endif
+                                                
 
 
                                             </td>
@@ -655,6 +671,8 @@
                                                     Country : ALL    
                                                 @endif
                                             </td>
+
+                                            
                                             <td>
                                                 @if(count($rategenerator_rule['RateRuleSource']))
                                                     @foreach($rategenerator_rule['RateRuleSource'] as $rateruleSource )
@@ -701,6 +719,9 @@
     <div class="hidden">
         <table id="table-1">
             <tr id="selectedRow-">
+                <td class="Package-Div">
+                    {{ Form::select('Package-1', $Package, '', array("class"=>"select2")) }}
+                </td>
                 <td id="testValuess">
                     {{--{{ Form::select('Component-1[]', RateGenerator::$Component, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}--}}
                 </td>
@@ -766,6 +787,9 @@
         </table>
         <table id="table-2">
             <tr id="selectedRateRow-0">
+                <td class="Package-Div">
+                    {{ Form::select('Package1-1', $Package, '', array("class"=>"select2")) }}
+                </td>
                 <td id="testRateValues">
                     {{--{{ Form::select('RateComponent-1[]', RateGenerator::$Component, '', array("class"=>"select2 selected-Components" ,'multiple', "id"=>"RateComponent-1")) }}--}}
                 </td>
@@ -901,7 +925,7 @@
                 $("#group-preference-div").hide();
                 $("#DIDCategoryDiv").hide();
                 $("#Merge-components").show();
-                $('#servicetableSubBox').css('width','1025px');
+                $('#servicetableSubBox').css('width','1225px');
                 $('#ratetableSubBox').css('width','1025px');
                 $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
@@ -1009,7 +1033,7 @@
                 $("#group-preference-div").hide();
                 $("#DIDCategoryDiv").hide();
                 $("#Merge-components").show();
-                $('#servicetableSubBox').css('width','1025px');
+                $('#servicetableSubBox').css('width','1225px');
                 $('#ratetableSubBox').css('width','1025px');
                 $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
@@ -1467,36 +1491,38 @@
 
             $('#' + tblID + ' tr:last').attr('id', row + '-' + numb);
             if (tblID == "servicetableSubBox") {
-                $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Component-' + numb + '[]').attr('id', 'Component-' + numb).select2().select2('val', '');
-                $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'FCountry-' + numb).attr('id', 'FCountry-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'FAccessType-' + numb).attr('id', 'FAccessType-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'FPrefix-' + numb).attr('id', 'FPrefix-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'FCity-' + numb).attr('id', 'FCity-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'FTariff-' + numb).attr('id', 'FTariff-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(6)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', 'OneOffCost');
-                $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(12)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(13)').children('select').attr('name', 'TCity-' + numb).attr('id', 'TCity-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(14)').children('select').attr('name', 'TTariff-' + numb).attr('id', 'TTariff-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(15)').children('input').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(16)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Package-' + numb).attr('id', 'Package-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'Component-' + numb + '[]').attr('id', 'Component-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'FCountry-' + numb).attr('id', 'FCountry-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'FAccessType-' + numb).attr('id', 'FAccessType-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'FPrefix-' + numb).attr('id', 'FPrefix-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'FCity-' + numb).attr('id', 'FCity-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'FTariff-' + numb).attr('id', 'FTariff-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(7)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', 'OneOffCost');
+                $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(12)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(13)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(14)').children('select').attr('name', 'TCity-' + numb).attr('id', 'TCity-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(15)').children('select').attr('name', 'TTariff-' + numb).attr('id', 'TTariff-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(16)').children('input').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(17)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
 
 
             } else {
-                $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
-                $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'Country1-' + numb).attr('id', 'Country1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'AccessType1-' + numb).attr('id', 'AccessType1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Prefix1-' + numb).attr('id', 'Prefix1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'City1-' + numb).attr('id', 'City1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'Tariff1-' + numb).attr('id', 'Tariff1-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(6)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(9)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Package1-' + numb).attr('id', 'Package1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'Country1-' + numb).attr('id', 'Country1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'AccessType1-' + numb).attr('id', 'AccessType1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'Prefix1-' + numb).attr('id', 'Prefix1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'City1-' + numb).attr('id', 'City1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'Tariff1-' + numb).attr('id', 'Tariff1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(7)').children('input').attr('name', 'RateOrigination-' + numb).attr('id', 'RateOrigination-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'RateTimeOfDay-' + numb).attr('id', 'RateTimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(9)').children('input').attr('name', 'RateLessThen-' + numb).attr('id', 'RateLessThen-' + numb).val('');
+                $('#' + tblID + ' tr:last').children('td:eq(10)').children('input').attr('name', 'ChangeRateTo-' + numb).attr('id', 'ChangeRateTo-' + numb).val('');
             }
             if ($('#' + idInp).val() == '') {
                 $('#' + idInp).val(numb + ',');
@@ -1541,15 +1567,17 @@
                 $('#' + tblID + ' tr:last').children('td:eq(14)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(15)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(16)').find('div:first').remove();
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(17)').find('a').removeClass('hidden');
+                $('#' + tblID + ' tr:last').children('td:eq(17)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(18)').find('a').removeClass('hidden');
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(7)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(8)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(9)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(10)').find('div:first').remove();
 
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(10)').find('a').removeClass('hidden');
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(11)').find('a').removeClass('hidden');
             }
         }
 

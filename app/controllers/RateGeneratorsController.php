@@ -85,7 +85,7 @@ class RateGeneratorsController extends \BaseController {
         $CityTariff = array('' => "All") + $CityTariff;
         $CityTariffFilter = array('' => "All") +  $CityTariffFilter;
 
-        $Package = Package::where([
+        $Package = array('' => "All") + Package::where([
                 "status" => 1,
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "PackageId");
@@ -99,8 +99,6 @@ class RateGeneratorsController extends \BaseController {
 
     public function store() {
         $data = Input::all();
-        //dd($data);
-
         $companyID = User::get_companyID();
         $data ['CompanyID'] = $companyID;
         $data ['UseAverage'] = isset($data ['UseAverage']) ? 1 : 0;
@@ -228,6 +226,7 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['TCity-' . $numberArray[$i]]);
                         unset($data['FTariff-' . $numberArray[$i]]);
                         unset($data['TTariff-' . $numberArray[$i]]);
+                        unset($data['Package-' . $numberArray[$i]]);
 
                         
                     } else {
@@ -256,6 +255,7 @@ class RateGeneratorsController extends \BaseController {
                         $tcity[]          = $data['TCity-' . $numberArray[$i]];
                         $ftariif[]        = $data['FTariff-' . $numberArray[$i]];
                         $ttariif[]        = $data['TTariff-' . $numberArray[$i]];
+                        $PackageComponent[]  = $data['Package-' . $numberArray[$i]];
 
                         
                     }
@@ -277,6 +277,7 @@ class RateGeneratorsController extends \BaseController {
                     unset($data['TCity-' . $numberArray[$i]]);
                     unset($data['FTariff-' . $numberArray[$i]]);
                     unset($data['TTariff-' . $numberArray[$i]]);
+                    unset($data['Package-' . $numberArray[$i]]);
 
                 }
 
@@ -304,6 +305,7 @@ class RateGeneratorsController extends \BaseController {
                             unset($data['Prefix1-' . $calculatedRates[$i]]);
                             unset($data['City1-' . $calculatedRates[$i]]);
                             unset($data['Tariff1-' . $calculatedRates[$i]]);
+                            unset($data['Package1-' . $calculatedRates[$i]]);
                         } else {
                             if (!isset($data['RateComponent-' . $calculatedRates[$i]]) ||
                                 empty($data['RateTimeOfDay-' . $calculatedRates[$i]]) ||
@@ -321,16 +323,17 @@ class RateGeneratorsController extends \BaseController {
                                 $data['Country1-' . $calculatedRates[$i]] = null;
                             } 
 
-                            $rComponent[] = $data['RateComponent-' . $calculatedRates[$i]];
-                            $rOrigination[] = @$data['RateOrigination-' . $calculatedRates[$i]];
-                            $rTimeOfDay[] = $data['RateTimeOfDay-' . $calculatedRates[$i]];
+                            $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
+                            $rOrigination[]  = @$data['RateOrigination-' . $calculatedRates[$i]];
+                            $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
                             $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
                             $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
-                            $rCountry[] = $data['Country1-' . $calculatedRates[$i]];
-                            $rAccessType[] = $data['AccessType1-' . $calculatedRates[$i]];
-                            $rPrefix[] = $data['Prefix1-' . $calculatedRates[$i]];
-                            $rCity[] = $data['City1-' . $calculatedRates[$i]];
-                            $rTarrif[] = $data['Tariff1-' . $calculatedRates[$i]];
+                            $rCountry[]      = $data['Country1-' . $calculatedRates[$i]];
+                            $rAccessType[]   = $data['AccessType1-' . $calculatedRates[$i]];
+                            $rPrefix[]       = $data['Prefix1-' . $calculatedRates[$i]];
+                            $rCity[]         = $data['City1-' . $calculatedRates[$i]];
+                            $rTarrif[]       = $data['Tariff1-' . $calculatedRates[$i]];
+                            $rPackage[]      = $data['Package1-' . $calculatedRates[$i]];
                         }
 
                         unset($data['RateComponent-' . $calculatedRates[$i]]);
@@ -343,6 +346,7 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['Prefix1-' . $calculatedRates[$i]]);
                         unset($data['City1-' . $calculatedRates[$i]]);
                         unset($data['Tariff1-' . $calculatedRates[$i]]);
+                        unset($data['Package1-' . $calculatedRates[$i]]);
                     }
                 }
                 unset($data['RateComponent-1']);
@@ -356,6 +360,7 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['City1-1']);
                 unset($data['Tariff1-1']);
                 unset($data['getRateIDs']);
+                unset($data['Package1-1']);
                
             } else {
 
@@ -389,6 +394,8 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['Prefix1-1' ]);
                 unset($data['City1-1']);
                 unset($data['Tariff1-1']);
+                unset($data['Package1-1']);
+                unset($data['Package-1']);
             }
             if ($SelectType == 2 || $SelectType == 1) {
                  unset($data['PackageID']);
@@ -434,6 +441,7 @@ class RateGeneratorsController extends \BaseController {
                         $GetTPrefix    = $tprefix[$i];
                         $GetTCity    = $tcity[$i];
                         $GetTTarif    = $ttariif[$i];
+                        $GetPackage    =  $PackageComponent[$i];
 
 
                         $addComponents['Component'] = implode(",", $GetComponent);
@@ -454,6 +462,7 @@ class RateGeneratorsController extends \BaseController {
                         $addComponents['ToPrefix'] = $GetTPrefix;
                         $addComponents['ToCity'] = $GetTCity;
                         $addComponents['ToTariff'] = $GetTTarif;
+                        $addComponents['Package'] = $GetPackage;
 
 
                         if (RateGeneratorComponent::create($addComponents)) {
@@ -479,6 +488,7 @@ class RateGeneratorsController extends \BaseController {
                         $addCalRate['Prefix']          = $rPrefix[$i];
                         $addCalRate['City']            = $rCity[$i];
                         $addCalRate['Tariff']          = $rTarrif[$i];
+                        $addCalRate['Package']         =  $rPackage[$i];
 
 
 
@@ -575,7 +585,7 @@ class RateGeneratorsController extends \BaseController {
             $CityTariffFilter = array('' => "All") +  $CityTariffFilter;
            
             //unset($AllTypes[3]);
-            $Package = Package::where([
+            $Package = array('' => "All") + Package::where([
                 "status" => 1,
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "PackageId");
@@ -742,6 +752,7 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['TCity-' . $numberArray[$i]]);
                         unset($data['FTariff-' . $numberArray[$i]]);
                         unset($data['TTariff-' . $numberArray[$i]]);
+                        unset($data['Package-' . $numberArray[$i]]);
                     } else {                       
                         if(isset($data['FCountry-' . $numberArray[$i]]) && $data['FCountry-' . $numberArray[$i]] == ''){
                             $data['FCountry-' . $numberArray[$i]] = null;
@@ -768,6 +779,9 @@ class RateGeneratorsController extends \BaseController {
                         $tcity[]          = $data['TCity-' . $numberArray[$i]];
                         $ftariif[]        = $data['FTariff-' . $numberArray[$i]];
                         $ttariif[]        = $data['TTariff-' . $numberArray[$i]];
+                        $PackageComponent[]  = $data['Package-' . $numberArray[$i]];
+
+                       
                     }
 
                     unset($data['Component-' . $numberArray[$i]]);
@@ -787,6 +801,7 @@ class RateGeneratorsController extends \BaseController {
                     unset($data['TCity-' . $numberArray[$i]]);
                     unset($data['FTariff-' . $numberArray[$i]]);
                     unset($data['TTariff-' . $numberArray[$i]]);
+                    unset($data['Package-' . $numberArray[$i]]);
                 }
 
                 unset($data['getIDs']);
@@ -811,6 +826,7 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['Prefix1-' . $calculatedRates[$i]]);
                         unset($data['City1-' . $calculatedRates[$i]]);
                         unset($data['Tariff1-' . $calculatedRates[$i]]);
+                        unset($data['Package1-' . $calculatedRates[$i]]);
                     } else {
                         if(!isset($data['RateComponent-'. $calculatedRates[$i]]) ||
                             empty($data['RateTimeOfDay-'. $calculatedRates[$i]]) ||
@@ -834,6 +850,7 @@ class RateGeneratorsController extends \BaseController {
                         $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
                         $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
                         $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
+                        $rPackage[]      = $data['Package1-' . $calculatedRates[$i]];
 
 
                         $rCountry[] = $data['Country1-' . $calculatedRates[$i]];
@@ -853,6 +870,7 @@ class RateGeneratorsController extends \BaseController {
                     unset($data['Prefix1-' . $calculatedRates[$i]]);
                     unset($data['City1-' . $calculatedRates[$i]]);
                     unset($data['Tariff1-' . $calculatedRates[$i]]);
+                    unset($data['Package1-' . $calculatedRates[$i]]);
                 }
 
                 unset($data['getRateIDs']);
@@ -866,6 +884,7 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['Prefix1-1' ]);
                 unset($data['City1-1']);
                 unset($data['Tariff1-1']);
+                unset($data['Package1-1']);
             } else {
                 unset($data['getIDs']);
                 unset($data['Component-1']);
@@ -897,6 +916,9 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['Prefix1-1' ]);
                 unset($data['City1-1']);
                 unset($data['Tariff1-1']);
+                unset($data['Package1-1']);
+                unset($data['Package-1']);
+                
             }
 
             unset($data['AllComponent']);
@@ -939,6 +961,7 @@ class RateGeneratorsController extends \BaseController {
                         $GetTPrefix    = $tprefix[$i];
                         $GetTCity    = $tcity[$i];
                         $GetTTarif    = $ttariif[$i];
+                        $GetPackage    =  $PackageComponent[$i];
 
                         $addComponents['Component'] = implode(",", $GetComponent);
                         $addComponents['Origination'] = $GetOrigination;
@@ -958,6 +981,7 @@ class RateGeneratorsController extends \BaseController {
                         $addComponents['ToPrefix'] = $GetTPrefix;
                         $addComponents['ToCity'] = $GetTCity;
                         $addComponents['ToTariff'] = $GetTTarif;
+                        $addComponents['Package'] = $GetPackage;
 
                         if (RateGeneratorComponent::create($addComponents)) {
                             $CostComponentSaved = "and Cost component Updated";
@@ -983,6 +1007,7 @@ class RateGeneratorsController extends \BaseController {
                         $addCalRate['Prefix']          = $rPrefix[$i];
                         $addCalRate['City']            = $rCity[$i];
                         $addCalRate['Tariff']          = $rTarrif[$i];
+                        $addCalRate['Package']         =  $rPackage[$i];
 
                         if (RateGeneratorCalculatedRate::create($addCalRate)) {
                             $CostComponentSaved = "and Calculated Rate Updated";
