@@ -2180,7 +2180,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rate_tables = AccountServicePackage::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblAccountServicePackage.RateTableID')->
             leftJoin('tblPackage as package','package.PackageId','=','tblAccountServicePackage.PackageId')
-            ->select(['AccountServicePackageID', 'package.Name','rt.RateTableName',DB::raw("(select name from tblDiscountPlan dplan where dPlan.DiscountPlanID = tblAccountServicePackage.PackageDiscountPlanID ) as PackageDiscountPlan"),'tblAccountServicePackage.ContractID', 'tblAccountServicePackage.PackageStartDate', 'tblAccountServicePackage.PackageEndDate', 'tblAccountServicePackage.Status',
+            ->select(['AccountServicePackageID', 'package.Name','rt.RateTableName',DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblAccountServicePackage.PackageDiscountPlanID ) as PackageDiscountPlan"),'tblAccountServicePackage.ContractID', 'tblAccountServicePackage.PackageStartDate', 'tblAccountServicePackage.PackageEndDate', 'tblAccountServicePackage.Status',
                 'tblAccountServicePackage.PackageId','tblAccountServicePackage.RateTableID','tblAccountServicePackage.PackageDiscountPlanID'])
             ->where("tblAccountServicePackage.CompanyID",$CompanyID)
             ->where("tblAccountServicePackage.AccountID",$id);
