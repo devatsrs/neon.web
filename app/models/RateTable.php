@@ -38,6 +38,10 @@ class RateTable extends \Eloquent
         self::RATE_STATUS_DELETE    => 'Awaiting Approval Delete'
     );
 
+    const RATE_TABLE_TYPE_TERMINATION   = 1;
+    const RATE_TABLE_TYPE_ACCESS        = 2;
+    const RATE_TABLE_TYPE_PACKAGE       = 3;
+
     /*
      * Option = ["TrunkID" = int ,... ]
      * */

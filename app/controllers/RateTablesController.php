@@ -55,13 +55,14 @@ class RateTablesController extends \BaseController {
         $data['Timezones']              = isset($data['Timezones']) && $data['Timezones'] != '' ? "'".$data['Timezones']."'" : 'null';
         $data['City']                   = !empty($data['City']) ? "'".$data['City']."'" : 'NULL';
         $data['Tariff']                 = !empty($data['Tariff']) ? "'".$data['Tariff']."'" : 'NULL';
+        $data['AccessType']             = !empty($data['AccessType']) ? "'".$data['AccessType']."'" : 'NULL';
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
         $TypeVoiceCall  = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
         $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
 
         $columns_voicecall  = array('RateTableRateID', 'TimezoneTitle', 'OriginationCode', 'OriginationDescription', 'Code', 'Description', 'Interval1', 'IntervalN', 'ConnectionFee', 'PreviousRate', 'Rate', 'RateN', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy', 'RoutingCategoryName', 'Preference');
-        $columns_did        = array('RateTableRateID', 'Country', 'TimezoneTitle', 'OriginationCode', 'Code', 'CityTariff', 'AccessType', 'OneOffCost', 'MonthlyCost', 'CostPerCall', 'CostPerMinute', 'SurchargePerCall', 'SurchargePerMinute', 'OutpaymentPerCall', 'OutpaymentPerMinute', 'Surcharges', 'Chargeback', 'CollectionCostAmount', 'CollectionCostPercentage', 'RegistrationCostPerNumber', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
+        $columns_did        = array('RateTableRateID', 'AccessType', 'Country', 'OriginationCode', 'Code', 'CityTariff', 'TimezoneTitle', 'OneOffCost', 'MonthlyCost', 'CostPerCall', 'CostPerMinute', 'SurchargePerCall', 'SurchargePerMinute', 'OutpaymentPerCall', 'OutpaymentPerMinute', 'Surcharges', 'Chargeback', 'CollectionCostAmount', 'CollectionCostPercentage', 'RegistrationCostPerNumber', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
         $columns_pkg        = array('RateTableRateID', 'TimezoneTitle', 'Code', 'OneOffCost', 'MonthlyCost', 'PackageCostPerMinute', 'RecordingCostPerMinute', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
 
         $sort_column_voicecall  = @$columns_voicecall[$data['iSortCol_0']];
@@ -79,9 +80,9 @@ class RateTablesController extends \BaseController {
                 }
             } else if($rateTable->Type == $TypeDID) { // did
                 if(!empty($data['DiscontinuedRates'])) {
-                    $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode']."," . $data['Code'] . "," . $data['City'] . "," . $data['Tariff'] . ",".$data['ApprovedStatus']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column_did . "','" . $data['sSortDir_0'] . "',0)";
+                    $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode']."," . $data['Code'] . "," . $data['City'] . "," . $data['Tariff'] . "," . $data['AccessType'] . ",".$data['ApprovedStatus']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column_did . "','" . $data['sSortDir_0'] . "',0)";
                 } else {
-                    $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code'].",".$data['City'].",".$data['Tariff'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
+                    $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code'].",".$data['City'].",".$data['Tariff'].",".$data['AccessType'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
                 }
             } else { // package
                 if(!empty($data['DiscontinuedRates'])) {
@@ -94,7 +95,7 @@ class RateTablesController extends \BaseController {
             if($rateTable->Type == $TypeVoiceCall) { // voice call
                 $query = "call prc_GetRateTableRateAA (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_voicecall."','".$data['sSortDir_0']."',0)";
             } else if($rateTable->Type == $TypeDID) { // did
-                $query = "call prc_GetRateTableDIDRateAA (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code'].",".$data['City'].",".$data['Tariff'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
+                $query = "call prc_GetRateTableDIDRateAA (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code'].",".$data['City'].",".$data['Tariff'].",".$data['AccessType'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
             } else { // package
                 $query = "call prc_GetRateTablePKGRateAA (".$companyID.",".$id.",".$data['Timezones'].",".$data['Code'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_pkg."','".$data['sSortDir_0']."',0)";
             }
@@ -224,11 +225,22 @@ class RateTablesController extends \BaseController {
         $TypeDID = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $CompanyID);
         $CurrencyDropDown = Currency::getCurrencyDropdownIDList();
+        $AccessType         = ServiceTemplate::getAccessTypeDD($CompanyID);
+        $CityTariff         = ServiceTemplate::getCityTariffDD($CompanyID);
+        $CityTariffFilter   = [];
+        foreach($CityTariff as $key => $City){
+            if(strpos($City, " per ")){
+                $CityTariffFilter[$City] = $City;
+                unset($CityTariff[$key]);
+            }
+        }
+        $City               = $CityTariff;
+        $Tariff             = $CityTariffFilter;
 
         if($rateTable->Type == $TypeVoiceCall) {
             return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE','CurrencyDropDown','Timezone'));
         } else if($rateTable->Type == $TypeDID) {
-            return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown','Timezone'));
+            return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown','Timezone','AccessType','City','Tariff'));
         } else {
             return View::make('ratetables.edit_pkg', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown','Timezone'));
         }
@@ -848,7 +860,7 @@ class RateTablesController extends \BaseController {
         } else if($rateTable->Type == $TypeDID) {
             $rules                          = $RateTableDIDRateModel::$rules;
             $message                        = $RateTableDIDRateModel::$message;
-            $RateTableRate['CityTariff']    = !empty($data['CityTariff']) ? $data['CityTariff'] : '';
+            $RateTableRate['CityTariff']    = !empty($data['City']) ? $data['City'] : $data['Tariff'];
             $RateTableRate['AccessType']    = !empty($data['AccessType']) ? $data['AccessType'] : '';
 
             if(!($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)) {
@@ -1205,7 +1217,7 @@ class RateTablesController extends \BaseController {
 
             $EffectiveDate = $EndDate = $OriginationRateID = $CityTariff = $AccessType = $OneOffCost = $MonthlyCost = $CostPerCall = $CostPerMinute = $SurchargePerCall = $SurchargePerMinute = $OutpaymentPerCall = $OutpaymentPerMinute = $Surcharges = $Chargeback = $CollectionCostAmount = $CollectionCostPercentage = $RegistrationCostPerNumber = $OneOffCostCurrency = $MonthlyCostCurrency = $CostPerCallCurrency = $CostPerMinuteCurrency = $SurchargePerCallCurrency = $SurchargePerMinuteCurrency = $OutpaymentPerCallCurrency = $OutpaymentPerMinuteCurrency = $SurchargesCurrency = $ChargebackCurrency = $CollectionCostAmountCurrency = $RegistrationCostPerNumberCurrency = 'null';
 
-            if(!empty($data['updateEffectiveDate']) || !empty($data['updateCityTariff']) || !empty($data['updateAccessType']) || !empty($data['updateOneOffCost']) || !empty($data['updateMonthlyCost']) || !empty($data['updateCostPerCall']) || !empty($data['updateCostPerMinute']) || !empty($data['updateSurchargePerCall']) || !empty($data['updateSurchargePerMinute']) || !empty($data['updateOutpaymentPerCall']) || !empty($data['updateOutpaymentPerMinute']) || !empty($data['updateSurcharges']) || !empty($data['updateChargeback']) || !empty($data['updateCollectionCostAmount']) || !empty($data['updateCollectionCostPercentage']) || !empty($data['updateRegistrationCostPerNumber']) || !empty($data['updateOneOffCostCurrency']) || !empty($data['updateMonthlyCostCurrency']) || !empty($data['updateCostPerCallCurrency']) || !empty($data['updateCostPerMinuteCurrency']) || !empty($data['updateSurchargePerCallCurrency']) || !empty($data['updateSurchargePerMinuteCurrency']) || !empty($data['updateOutpaymentPerCallCurrency']) || !empty($data['updateOutpaymentPerMinuteCurrency']) || !empty($data['updateSurchargesCurrency']) || !empty($data['updateChargebackCurrency']) || !empty($data['updateCollectionCostAmountCurrency']) || !empty($data['updateRegistrationCostPerNumberCurrency']) || !empty($data['updateOriginationRateID'])) {// || !empty($data['EndDate'])
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateCity']) || !empty($data['updateTariff']) || !empty($data['updateAccessType']) || !empty($data['updateOneOffCost']) || !empty($data['updateMonthlyCost']) || !empty($data['updateCostPerCall']) || !empty($data['updateCostPerMinute']) || !empty($data['updateSurchargePerCall']) || !empty($data['updateSurchargePerMinute']) || !empty($data['updateOutpaymentPerCall']) || !empty($data['updateOutpaymentPerMinute']) || !empty($data['updateSurcharges']) || !empty($data['updateChargeback']) || !empty($data['updateCollectionCostAmount']) || !empty($data['updateCollectionCostPercentage']) || !empty($data['updateRegistrationCostPerNumber']) || !empty($data['updateOneOffCostCurrency']) || !empty($data['updateMonthlyCostCurrency']) || !empty($data['updateCostPerCallCurrency']) || !empty($data['updateCostPerMinuteCurrency']) || !empty($data['updateSurchargePerCallCurrency']) || !empty($data['updateSurchargePerMinuteCurrency']) || !empty($data['updateOutpaymentPerCallCurrency']) || !empty($data['updateOutpaymentPerMinuteCurrency']) || !empty($data['updateSurchargesCurrency']) || !empty($data['updateChargebackCurrency']) || !empty($data['updateCollectionCostAmountCurrency']) || !empty($data['updateRegistrationCostPerNumberCurrency']) || !empty($data['updateOriginationRateID'])) {// || !empty($data['EndDate'])
                 if(!empty($data['updateEffectiveDate'])) {
                     if(!empty($data['EffectiveDate'])) {
                         $EffectiveDate = "'".$data['EffectiveDate']."'";
@@ -1213,13 +1225,28 @@ class RateTablesController extends \BaseController {
                         $error=1;
                     }
                 }
-                if(!empty($data['updateCityTariff'])) {
-                    if(!empty($data['CityTariff'])) {
-                        $CityTariff = "'".$data['CityTariff']."'";
+                if(!empty($data['updateCity'])) {
+                    if(!empty($data['City'])) {
+                        $City = $data['City'];
                     } else {
-                        $CityTariff = "''";
+                        $City = "";
                     }
                 }
+                if(!empty($data['updateTariff'])) {
+                    if(!empty($data['Tariff'])) {
+                        $Tariff = $data['Tariff'];
+                    } else {
+                        $Tariff = "";
+                    }
+                }
+                if(isset($City) && isset($Tariff)) {
+                    $CityTariff = "'" . $City . $Tariff . "'";
+                } else if(isset($City)) {
+                    $CityTariff = "'" . $City . "'";
+                } else if(isset($Tariff)) {
+                    $CityTariff = "'" . $Tariff . "'";
+                }
+
                 if(!empty($data['updateAccessType'])) {
                     if(!empty($data['AccessType'])) {
                         $AccessType = "'".$data['AccessType']."'";
