@@ -30,26 +30,27 @@
                     </div>
                 </div>
                 <div class="panel-body" style="display: none;">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Number</label>
-                        <div class="col-sm-2">
-                            <input type="text" name="Number" class="form-control" value="" />
-                        </div>
-                        <label for="field-1" class="col-sm-1 control-label">Active</label>
-                        <div class="col-sm-2">
-                            <p class="make-switch switch-small">
-                                <input id="ServiceActive" name="ServiceActive" type="checkbox" value="1" checked="checked" >
-                            </p>
-                        </div>
-                        <div class="col-sm-6">
-                            <p style="text-align: right">
+                    <table width="100%">
+                        <tr>
+                            <td><label for="field-1" class="col-sm-1 control-label">Number</label></td>
+                            <td><input type="text" name="Number" class="form-control" value="" /></td>
+                            <td><label for="field-1" class="col-sm-1 control-label">Package</label></td>
+                            <td width="15%">{{ Form::select('PackageName', $Packages , '' , array("class"=>"select2")) }}</td>
+                            <td><label for="field-1" class="col-sm-1 control-label">OrderID</label></td>
+                            <td><input type="text" name="AccountServiceOrderID" class="form-control" value="" /></td>
+                            <td><label for="field-1" class="col-sm-1 control-label">Active</label></td>
+                            <td><p class="make-switch switch-small">
+                                    <input id="ServiceActive" name="ServiceActive" type="checkbox" value="1" checked="checked" >
+                                </p></td>
+                            <td>
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" id="service_submit">
                                     <i class="entypo-search"></i>
                                     Search
                                 </button>
-                            </p>
-                        </div>
-                    </div>
+                            </td>
+                        </tr>
+                    </table>
+
                 </div>
             </div>
         </div>
@@ -70,18 +71,7 @@
                                 </a>
                             </li> --}}
                         @endif
-                        @if(User::checkCategoryPermission('AccountService','Edit'))
-                            <li>
-                                <a href="javascript:void(0)" data-name="active" id="active-services">
-                                    <i class="entypo-check"></i>&nbsp;Active
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript:void(0)" data-name="deactive" id="deactive-services">
-                                    <i class="entypo-minus-circled"></i>&nbsp;Deactivate
-                                </a>
-                            </li>
-                        @endif
+
                         @if(User::checkCategoryPermission('AccountService','Delete'))
                             <li>
                                 <a href="javascript:void(0)" data-name="delete" id="delete-services">
@@ -104,8 +94,7 @@
                     <th>Number</th>
                     <th>Status</th>
                     <th>Package</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
+                    <th>Order ID</th>
                     <th width="20%">Action</th>
                 </tr>
                 </thead>
@@ -140,6 +129,8 @@
                     e.preventDefault();
 
                     $searchService.ServiceNumber = $("#service_filter").find('[name="Number"]').val();
+                    $searchService.PackageName = $("#service_filter").find('[name="PackageName"]').val();
+                    $searchService.AccountServiceOrderID = $("#service_filter").find('[name="AccountServiceOrderID"]').val();
                     $searchService.ServiceActive = $("#service_filter").find("[name='ServiceActive']").prop("checked");
                     data_table_service = $("#table-service").dataTable({
                         "bDestroy": true,
@@ -149,11 +140,15 @@
                         "fnServerParams": function (aoData) {
                             aoData.push({"name": "account_id", "value": account_id},
                                     {"name": "Number", "value": $searchService.ServiceNumber},
+                                    {"name": "PackageName", "value": $searchService.PackageName},
+                                    {"name": "AccountServiceOrderID", "value": $searchService.AccountServiceOrderID},
                                     {"name": "ServiceActive", "value": $searchService.ServiceActive});
 
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push({"name": "account_id", "value": account_id},
                                     {"name": "Number", "value": $searchService.ServiceNumber},
+                                    {"name": "PackageName", "value": $searchService.PackageName},
+                                    {"name": "AccountServiceOrderID", "value": $searchService.AccountServiceOrderID},
                                     {"name": "ServiceActive", "value": $searchService.ServiceActive},
                                     {"name":"Export","value":1});
 
@@ -185,8 +180,14 @@
                                 }
                             },
                             { "bSortable": false },  // 1 Package
-                            { "bSortable": false },  // 2 Service ID
-                            {  "bSortable": false },
+                            {
+                                "bSortable": false,
+                                mRender: function (id, type, full) {
+                                    return full[7];
+                                }
+
+                            },  // Order ID
+
                             //{  "bSortable": false }, // 3 Account Service ID
                             {                        // 10 Action
                                 "bSortable": false,
@@ -195,11 +196,6 @@
                                     var DeActive_Card = baseurl + "/accountservices/{id}/changestatus/deactive";
                                     action = '';
                                     <?php if(User::checkCategoryPermission('AccountService','Edit')) { ?>
-                                    if (full[3]=="1") {
-                                        action += ' <button href="' + DeActive_Card.replace("{id}",full[0]) + '" title=""  class="btn activeservice btn-danger btn-sm tooltip-primary" data-original-title="Deactivate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></button>';
-                                    } else {
-                                        action += ' <button href="' + Active_Card.replace("{id}",full[0]) + '" title="" class="btn deactiveservice btn-success btn-sm tooltip-primary" data-original-title="Activate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-check"></i></button>';
-                                    }
                                     action += ' <a href="' + service_edit_url.replace("{id}",full[0]) +'" class="edit-service btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                                     <?php } ?>
                                             //action += ' <a data-id=' +full[0] +' class="clone-service btn-default btn btn-sm tooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i></a>';
