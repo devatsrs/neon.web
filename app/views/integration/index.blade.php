@@ -3,7 +3,7 @@
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-  <li class="active"> <strong>Integration</strong> </li>
+  <li class="active"> <strong>Integration///</strong> </li>
 </ol>
 <h3>Integration</h3>
 @include('includes.errors')
