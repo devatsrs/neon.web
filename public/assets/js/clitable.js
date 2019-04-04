@@ -1,5 +1,103 @@
 var update_new_url;
 var postdata;
+
+$(document).on('click', '.btn-history', function() {
+    var $this   = $(this);
+    getArchiveRateTableDIDRates1($this,'1','2','2','5');
+});
+
+function getArchiveRateTableDIDRates1($clickedButton,RateID,OriginationRateID,TimezonesID,CityTariff) {
+    //var Codes = new Array();
+    var ArchiveRates;
+    /*$("#table-4 tr td:nth-child(2)").each(function(){
+     Codes.push($(this).html());
+     });*/
+
+    var tr  = $clickedButton.closest('tr');
+    var row = data_table.row(tr);
+
+    if (row.child.isShown()) {
+        tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+        row.child.hide();
+        tr.removeClass('shown');
+    } else {
+        tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+        $clickedButton.attr('disabled','disabled');
+
+        $.ajax({
+            url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
+            type: 'POST',
+            data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&TimezonesID=" + TimezonesID + "&CityTariff=" + CityTariff,
+            dataType: 'json',
+            cache: false,
+            success: function (response) {
+                $clickedButton.removeAttr('disabled');
+
+                if (response.status == 'success') {
+                    ArchiveRates = response.data;
+                    //$('.details-control').show();
+                } else {
+                    ArchiveRates = {};
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+
+                $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                var hiddenRowData = tr.find('.hiddenRowData');
+                var Code = hiddenRowData.find('input[name="Code"]').val();
+                var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
+
+                var header = "<thead><tr><th>Country</th><th>Orig. Code</th>";
+
+                header += "<th>City/Tariff</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th>";
+                if(ratetablepageview == 'AdvanceView') {
+                    header += "<th>Modified By/Date</th>";
+                }
+
+                header += "</tr></thead>";
+
+                table.append(header);
+                //table.append("<thead><tr><th>Code</th><th>Description</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                var tbody = $("<tbody></tbody>");
+
+
+                    //if (data['Code'] == Code) {
+
+                    var html = "";
+                    html += "<tr class='no-selection'>";
+                    html += "<td>" + "Pakistan" + "</td>";
+                    html += "<td>" + "1234" + "</td>";
+
+                    html += "<td>" + 'CityTariff' + "</td>";
+                    html += "<td>" + "1" + "</td>";
+                    html += "<td>" + "2" + "</td>";
+                    html += "<td>" + "3" + "</td>";
+                    html += "<td>" + "4" + "</td>";
+                    html += "<td>" + "5" + "</td>";
+                    html += "<td>" + "6" + "</td>";
+                    html += "<td>" + "7" + "</td>";
+                    html += "<td>" + "8" + "</td>";
+                    html += "<td>" + "9" + "</td>";
+                    html += "<td>" + "10" + "</td>";
+                    html += "<td>" + "11" + "</td>";
+                    html += "<td>" + "12" + "</td>";
+                    html += "<td>" + "13" + "</td>";
+                    html += "<td>" + "01/09/12" + "</td>";
+                    html += "<td>" + "12/12/12" + "</td>";
+
+
+                    html += "</tr>";
+                    table.append(html);
+
+                    //}
+
+                table.append(tbody);
+                row.child(table).show();
+                row.child().addClass('no-selection child-row');
+                tr.addClass('shown');
+            }
+        });
+    }
+}
 jQuery(document).ready(function ($) {
     var cli_list_fields = ["CLIRateTableID", "CLI", "CLI Rate Table", 'Package', 'Package Rate Table', 'Type', 'Prefix', 'CityTariff', 'Status', 'RateTableID', 'PackageID', 'PackageRateTableID'];
     public_vars.$body = $("body");
@@ -8,6 +106,8 @@ jQuery(document).ready(function ($) {
     var clitable_update_url = baseurl + "/clitable/update";
     var clitable_delete_url = baseurl + "/clitable/delete/{id}";
     var clitable_datagrid_url = baseurl + "/clitable/ajax_datagrid/" + AccountID;
+
+
     $("#clitable_submit").click(function (e) {
         e.preventDefault();
         $searchcli.CLIName = $("#clitable_filter").find('[name="CLIName"]').val();
@@ -105,6 +205,7 @@ jQuery(document).ready(function ($) {
                         action += '</div>';
                         action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                         action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
+                        action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
                         return action;
                     }
                 }
