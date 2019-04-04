@@ -90,7 +90,11 @@
                             <div class="col-md-4">
                                 <textarea class="form-control" name="ServiceDescription" rows="5" placeholder="Description">{{$ServiceDescription}}</textarea>
                             </div>
-
+                            <label for="field-1" class="col-md-2 control-label">Order ID
+                            </label>
+                            <div class="col-md-4">
+                                <input type="text" name="ServiceOrderID" value="{{$AccountService->ServiceOrderID}}" class="form-control" id="field-5" placeholder="">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -121,7 +125,7 @@
                         </div>
                     </div>
                 @endif
-                <div class="panel panel-primary auto-payment-hide" data-collapsed="0">
+                <div class="panel panel-primary auto-payment-hide hide" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
                             Contract
@@ -364,13 +368,16 @@
                     <!-- Package Section End -->
 
                     <!-- Service subscription billing cycle end-->
+                <div class="hide" data-collapsed="0">
                     @include('accountsubscription.index')
                     @include('accountoneoffcharge.index')
+                </div>
                     @include('accounts.cli_tables')
+                    @include('accounts.packages_tables')
 
                             <!-- Account Option start -->
 
-                    <div class="panel panel-primary additional-optional-section-hide" data-collapsed="0">
+                    <div class="panel panel-primary additional-optional-section-hide hide" data-collapsed="0">
                         <div class="panel-heading">
                             <div class="panel-title">
                                 Additional Options
