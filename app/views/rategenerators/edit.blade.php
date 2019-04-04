@@ -503,7 +503,7 @@
                                         ?>
                                         <tr id="selectedRateRow-{{$a}}">
                                             <td class="Package-Div">
-                                                {{ Form::select('Package1-'.$a, $Package, '', array("class"=>"select2")) }}
+                                                {{ Form::select('Package1-'.$a, $Package, $calculatedRate->Package, array("class"=>"select2")) }}
                                             </td>
                                             <td>
                                                 @if($rategenerators->SelectType == 2)
@@ -1010,6 +1010,7 @@
                 $("#Merge-components").show();
                 $(".DID-Div").show();
                 $(".NonDID-Div").hide();
+                $(".Package-Div").hide();
                 $('#testValuess').html('{{ Form::select("Component-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID", "id"=>"MergeTo-1")) }}');
