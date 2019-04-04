@@ -1209,6 +1209,27 @@ class RateTablesController extends \BaseController {
         return json_encode($response);
     }
 
+    public function search_ajax_datagrid_rates_account_service() {
+
+        $data       = Input::all();
+        $companyID  = User::get_companyID();
+        Log::info("search_ajax_datagrid_rates_account_service " . print_r($data,true));
+
+        if(!empty($data['AccessRateTable'])) {
+                $query = 'call prc_getRateTablesRateForAccountService (' . $data['AccessRateTable'] . ')';
+            Log::info("search_ajax_datagrid_rates_account_service " . $query);
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = DB::select($query);
+        } else {
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = [];
+        }
+
+        return json_encode($response);
+    }
+
     // update rate table did rate
     public function update_rate_table_did_rate($id) {
         if ($id > 0) {
