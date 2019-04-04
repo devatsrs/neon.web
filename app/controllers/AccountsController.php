@@ -2133,7 +2133,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function clitable_ajax_datagrid($id){
         $CompanyID = User::get_companyID();
         $data = Input::all();
-        Log::info("clitable_ajax_datagrid " . print_r($data,true));
+        Log::info("clitable_ajax_datagrid_query " . print_r($data,true));
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblCLIRateTable.RateTableID')
             ->leftJoin('tblRateTable as termination','termination.RateTableId','=','tblCLIRateTable.TerminationRateTableID')
