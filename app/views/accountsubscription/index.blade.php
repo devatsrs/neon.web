@@ -209,7 +209,9 @@
                         {                        // 14 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
-                                console.log(id);console.log(list_fields[0])console.log(list_fields[1]);
+                                console.log(id);
+                                console.log(list_fields[0]);
+                                console.log(list_fields[1]);
                                  action = '<div class = "hiddenRowData" >';
                                  for(var i = 0 ; i< list_fields.length; i++){
 									list_fields[i] =  list_fields[i].replace("tblBillingSubscription.",'');
