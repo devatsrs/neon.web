@@ -120,6 +120,14 @@
 
     </div>
 </div>
+<style>
+    .btn-default.btn-icon.btn-sm {
+        padding-right: 36px;
+    }
+    .btn-sm1{
+        padding:2px 5px;font-size:12px;line-height:1.5;border-radius:3px
+    }
+</style>
 <script type="text/javascript">
     var AccountID = '{{$account->AccountID}}';
     var ServiceID='{{$ServiceID}}';
@@ -129,22 +137,27 @@
     var postdata;
     $('table tbody').on('click', '.history-clitable', function (ev) {
         var $this   = $(this);
+
         var AccessRateTable   = $this.prevAll("div.hiddenRowData").find("input[name='RateTableID']").val();
         var TerminationRateTable = $this.prevAll("div.hiddenRowData").find("input[name='TerminationRateTableID']").val();
-        getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,'2','5');
+        var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
+        var Country = $this.prevAll("div.hiddenRowData").find("input[name='CountryID']").val();
+        var City = $this.prevAll("div.hiddenRowData").find("input[name='City']").val();
+        var Tariff = $this.prevAll("div.hiddenRowData").find("input[name='Tariff']").val();
+        getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff);
     });
 
-    function getArchiveRateTableDIDRates12($clickedButton,AccessRateTable,TerminationRateTable,TimezonesID,CityTariff) {
+    function getArchiveRateTableDIDRates12($clickedButton,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff) {
        data_table_clitable = $("#table-clitable").DataTable();
-
-        // alert($("#table-clitable").DataTable().rows().count());
+       // alert($("#table-clitable").DataTable().rows().count());
         var tr = $clickedButton.closest('tr');
         // alert('Called 1' + data_table_clitable + "1" + tr.id);
         //alert(data_table_clitable.rows().count());
         var row = data_table_clitable.row(tr);
         if (row.child.isShown()) {
 
-            tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+            tr.find('.details-control i').toggleClass('entypo-minus-squared entypo-plus-squared');
+            $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
             row.child.hide();
             tr.removeClass('shown');
         } else {
@@ -152,7 +165,8 @@
             $.ajax({
                 url: baseurl + "/rate_tables/search_ajax_datagrid_rates_account_service",
                 type: 'POST',
-                data: "AccessRateTable=" + AccessRateTable + "&TerminationRateTable=" + TerminationRateTable,
+                data: "AccessRateTable=" + AccessRateTable + "&TerminationRateTable=" + TerminationRateTable
+                + "&Type=" + Type + "&Country=" + Country + "&City=" + City+ "&Tariff=" + Tariff,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -162,7 +176,7 @@
                         $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
-                        var header = "<thead><tr>";
+                        var header = "<thead><tr><th>OriginationCode</th><th>Day Time</th>";
                         header += "<th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th>" +
                                 "<th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th>" +
                                 "<th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th>" +
@@ -176,7 +190,8 @@
                             var html = "";
                             html += "<tr class='no-selection'>";
 
-
+                            html += "<td>" + (data['OriginationCode'] != null ? data['OriginationCode'] : '') + "</td>";
+                            html += "<td>" + (data['TimeTitle'] != null ? data['TimeTitle'] : '') + "</td>";
                             html += "<td>" + (data['OneOffCost'] != null ? data['OneOffCost'] : '') + "</td>";
                             html += "<td>" + (data['MonthlyCost'] != null ? data['MonthlyCost'] : '') + "</td>";
                             html += "<td>" + (data['CostPerCall'] != null ? data['CostPerCall'] : '') + "</td>";
@@ -368,9 +383,9 @@
                                 action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
                             }
                             action += '</div>';
-                            action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
-                            action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
-                            action += ' <a href="javascript:;" title="History" class="history-clitable btn btn-primary btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-plus"></i></a>';
+                            action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
+                            action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
+                            action += ' <a href="javascript:;" title="History" class="history-clitable btn btn-primary btn-sm1 tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-plus"></i></a>';
                             return action;
                         }
                     }
@@ -389,13 +404,12 @@
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
-
+                    $('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
                     default_row_selected('table-clitable','selectall','selectallbutton');
                     select_all_top('selectallbutton','table-clitable','selectall');
                 }
             });
             setTimeout(function () {
-
                 $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
             }, 10);
 
@@ -428,10 +442,10 @@
             $("#clitable-form [name=NumberStartDate]").val("");
             $("#clitable-form [name=NumberEndDate]").val("");
             $("#clitable-form [name=ContractID]").val("");
-            $("#clitable-form [name=City]").val("");
-            $("#clitable-form [name=Tariff]").val("");
-            $("#clitable-form [name=Prefix]").val("");
-            $("#clitable-form [name=NoType]").val("");
+            $("#clitable-form [name=City]").select2().select2('val', "");
+            $("#clitable-form [name=Tariff]").select2().select2('val', "");
+            $("#clitable-form [name=Prefix]").select2().select2('val', "");
+            $("#clitable-form [name=NoType]").select2().select2('val', "");
             $("#clitable-form [name=Status]").prop("checked", 1 == 1).trigger("change");
             $("#clitable-form [name=TerminationRateTableID]").select2().select2('val', "");
             $("#clitable-form [name=AccessDiscountPlanID]").select2().select2('val', "");
@@ -486,10 +500,10 @@
             $("#clitable-form [name=NumberStartDate]").val(NumberStartDate);
             $("#clitable-form [name=NumberEndDate]").val(NumberEndDate);
             $("#clitable-form [name=ContractID]").val(ContractID);
-            $("#clitable-form [name=City]").val(City);
-            $("#clitable-form [name=Tariff]").val(Tariff);
-            $("#clitable-form [name=Prefix]").val(Prefix);
-            $("#clitable-form [name=NoType]").val(NoType);
+            $("#clitable-form [name=City]").select2().select2('val', City);
+            $("#clitable-form [name=Tariff]").select2().select2('val', Tariff);
+            $("#clitable-form [name=Prefix]").select2().select2('val', Prefix);
+            $("#clitable-form [name=NoType]").select2().select2('val', NoType);
             $("#clitable-form [name=Status]").prop("checked", Status == 1).trigger("change");
             $("#clitable-form [name=TerminationRateTableID]").select2().select2('val', TerminationRateTableID);
             $("#clitable-form [name=AccessDiscountPlanID]").select2().select2('val', AccessDiscountPlanID);
@@ -517,11 +531,44 @@
             return false;
         });
 
+        function submit_ajax_datatable1(fullurl,data,refreshjob,data_table_reload){
+            $.ajax({
+                url:fullurl, //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $(".btn").button('reset');
+                    data_table_reload.fnFilter('', 0);
+                    if (response.status == 'success') {
+                        $('.modal').modal('hide');
+                        toastr.success(response.message, "Success", toastr_opts);
+                        if( typeof data_table_reload !=  'undefined'){
+                            data_table_reload.fnFilter('', 0);
+
+                        }
+                        if(refreshjob){
+                            reloadJobsDrodown(0);
+                            reloadMsgDrodown(0);
+                        }
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                data: data,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false
+            });
+           // alert($('.dataTables_scrollBody thead tr').css());
+           // $('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
+           // data_table_clitable.initComplete('','');
+        }
         $("#clitable-form").submit(function (e) {
             e.preventDefault();
             var _url = $(this).attr("action");
+            submit_ajax_datatable1(_url, $(this).serialize(), 0, data_table_clitable);
 
-            submit_ajax_datatable(_url, $(this).serialize(), 0, data_table_clitable);
+            //data_table_clitable = $("#table-clitable").DataTable();
+            //data_table_clitable.initComplete('','');
         });
 
         $("#bulk-delete-cli").click(function (ev) {
@@ -650,7 +697,7 @@
                         <div class="row edit_show">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-3216" class="control-label">Number</label>
+                                    <label for="field-3216" class="control-label">Number*</label>
                                     <input name="CLI" class="form-control cli-field">
                                 </div>
                             </div>
@@ -699,7 +746,8 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-2315" class="control-label">Type</label>
-                                    <input type="text" value="" class="form-control" id="NoType" name="NoType" placeholder="">
+                                    {{ Form::select('NoType', $AccessType , '' , array("class"=>"select2")) }}
+
                                 </div>
                             </div>
                         </div>
@@ -707,7 +755,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-115" class="control-label">Prefix</label>
-                                    <input type="text" name="Prefix" value="" class="form-control" id="Prefix" name="Prefix" placeholder="">
+                                    {{ Form::select('Prefix', $Prefix , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>
@@ -717,7 +765,7 @@
                                     <label for="field-115" class="control-label">City
                                         <span class="label hidden label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span>
                                     </label>
-                                    <input type="text" name="City" value="" class="form-control" id="City"  placeholder="">
+                                    {{ Form::select('City', $CityTariff , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>
@@ -727,14 +775,14 @@
                                     <label for="field-115" class="control-label">Tariff
                                         <span class="label hidden label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span>
                                     </label>
-                                    <input type="text" name="Tariff" value="" class="form-control" id="Tariff"  placeholder="">
+                                    {{ Form::select('Tariff', $CityTariff , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">Start Date</label>
+                                    <label for="field-225" class="control-label">Start Date*</label>
                                     <input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="StartDate" name="NumberStartDate">
                                 </div>
                             </div>
@@ -742,7 +790,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">End Date</label>
+                                    <label for="field-225" class="control-label">End Date*</label>
                                     <input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="StartDate" name="NumberEndDate">
                                 </div>
                             </div>

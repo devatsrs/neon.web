@@ -2228,22 +2228,27 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        if (strtotime($data['NumberEndDate']) <= strtotime($data['NumberStartDate'])) {
+            return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+        }
+
         $clis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['CLI']),function($var){return trim($var)!='';});
 
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
         $insertArr = [];
         $cli = $data['CLI'];
-            $check = CLIRateTable::where([
-                'CompanyID'=>$CompanyID,
-                'AccountID'=>$data['AccountID'],
-                'CLI'=>$cli,
-                'NumberStartDate'       =>  $data['NumberStartDate'],
-                'NumberEndDate'       =>  $data['NumberEndDate'],
-                'Status'=>1
-            ])->count();
+        $check = CLIRateTable::where([
+            'CompanyID' =>  $CompanyID,
+            'AccountID' =>  $data['AccountID'],
+            'Status'    =>  1
+        ])->where("NumberStartDate", ">=", $data['NumberStartDate'])
+            ->where("NumberEndDate", "<=", $data['NumberEndDate'])->count();
+
+
             if($check){
-                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'AccountID'=>$data['AccountID'],'CLI'=>$cli,'Status'=>1))->pluck('AccountID');
-                $message .= $cli.' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
+                $message = 'Number '. $data['CLI'] . ' already exist between start date '.
+                    $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
+                return Response::json(array("status" => "error", "message" => $message));
             } else {
                 $rate_tables['CLI'] = $data['CLI'];
                 $rate_tables['RateTableID'] = $data['RateTableID'];
@@ -2278,7 +2283,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return Response::json(array("status" => "error", "message" => $message));
         }else{
             CLIRateTable::insert($insertArr);
-            return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));
+            return Response::json(array("status" => "success", "message" => "Number Successfully Added"));
         }
 
     }
@@ -2301,18 +2306,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return json_validator_response($validator);
         }
 
+        if (strtotime($data['PackageEndDate']) <= strtotime($data['PackageStartDate'])) {
+            return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+        }
+
         $insertArr = [];
         $PackageId = $data['PackageID'];
         $check = AccountServicePackage::where([
             'CompanyID'=>$CompanyID,
             'AccountID'=>$data['AccountID'],
-            'PackageId'=>$PackageId,
-            'PackageStartDate'       =>  $data['PackageStartDate'],
-            'PackageEndDate'       =>  $data['PackageEndDate'],
             'Status'=>1
-        ])->count();
+        ])->where("PackageStartDate", ">=", $data['PackageStartDate'])
+            ->where("PackageEndDate", "<=", $data['PackageEndDate'])->count();
+
         if($check){
-            $message .= $PackageId.' already exist against '.Account::getCompanyNameByID($data['AccountID']).'.<br>';
+            $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
         } else {
             $rate_tables['PackageID'] = $data['PackageID'];
             $rate_tables['RateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
@@ -2336,7 +2344,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 
         if(!empty($message)){
-            $message = 'Following Packge already exists.<br>'.$message;
+
             return Response::json(array("status" => "error", "message" => $message));
         }else{
             AccountServicePackage::insert($insertArr);
@@ -2435,6 +2443,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+
+        if (strtotime($data['NumberEndDate']) <= strtotime($data['NumberStartDate'])) {
+                return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+       }
+
         $cli = $data['CLI'];
         $CompanyID = User::get_companyID();
         if(!empty($data['ServiceID'])){
@@ -2485,21 +2498,23 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $check = CLIRateTable::where([
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
-                    'CLI'       =>  $data['CLI'],
-                    'NumberStartDate'       =>  $data['NumberStartDate'],
-                    'NumberEndDate'       =>  $data['NumberEndDate'],
                     'Status'    =>  1
-                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->count();
+                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])
+                    ->where("NumberStartDate", ">=", $data['NumberStartDate'])
+                    ->where("NumberEndDate", "<=", $data['NumberEndDate'])->count();
+
+
+
 
             if($check){
-                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'AccountID'=>$data['AccountID'],'CLI'=>$data['CLI'],'Status'=>1))->pluck('AccountID');
-                $message = 'Following CLI '. $data['CLI'] . ' already exist with active status against '.Account::getCompanyNameByID($AccountID).'.<br>';
+                $message = 'Number '. $data['CLI'] . ' already exist between start date '.
+                    $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
 
             $oldCLI->update($rate_tables);
         }
-        return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
+        return Response::json(array("status" => "success", "message" => "Number Updated Successfully"));
     }
 
     public function packagetable_update(){
@@ -2517,6 +2532,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+        if (strtotime($data['PackageEndDate']) <= strtotime($data['PackageStartDate'])) {
+            return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
         }
         $rate_tables['PackageID'] = $data['PackageID'];
         $rate_tables['RateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
@@ -2554,16 +2572,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $check = AccountServicePackage::where([
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
-                    'PackageId'       =>  $data['PackageID'],
-                    'PackageStartDate'       =>  $data['PackageStartDate'],
-                    'PackageEndDate'       =>  $data['PackageEndDate'],
                     'Status'    =>  1
-                ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])->count();
+                ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])
+                    ->where("PackageStartDate", ">=", $data['PackageStartDate'])
+                    ->where("PackageEndDate", "<=", $data['PackageEndDate'])->count();
+
 
             if($check){
-                $AccountID = $data['AccountID'];
-                $Package = Package::findOrFail($data['PackageID']);
-                $message = 'Following Package '. $Package->Name . ' already exist with active status against '.Account::getCompanyNameByID($AccountID).'.<br>';
+                $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
 
