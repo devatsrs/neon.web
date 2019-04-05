@@ -21,6 +21,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
             <li ><a href="#tab2" data-toggle="tab">Payment Reminder</a></li>
             <li ><a href="#tab3" data-toggle="tab">Low Balance Reminder</a></li>
             <li ><a href="#tab4" data-toggle="tab">Account Balance Warning</a></li>
+            
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="tab1" >
@@ -180,7 +181,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                                     <th width="5%" ><button type="button" id="payment-add-row" class="btn btn-primary btn-xs ">+</button></th>
                                                     <th width="30%" >Days<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Send reminder based on due dates. ex. send reminder before one day of due date(-1),send reminder after two day of due date(2)" data-original-title="Due Days">?</span></th>
                                                     <th width="30%" >Account Age<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="System will not send reminder if account age is less then specified no of Days" data-original-title="Account Age">?</span></th>
-                                                    <th width="30%" >Template </th>
+                                                    <!--<th width="30%" >Template </th>-->
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -204,9 +205,10 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                                                 </div>
 
                                                             </td>
-                                                            <td>
+                                                            <!--<td>
                                                                 {{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, $InvoiceReminders->TemplateID[$InvoiceReminder] ,array("class"=>"select2 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
-                                                            </td>
+                                                            </td>-->
+                                                            <input type="hidden" name="InvoiceReminder[TemplateID][]" value="0">
                                                         </tr>
                                                     @endforeach
                                                 @endif
@@ -241,10 +243,11 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                         <div class="col-sm-4">
                                             <input type="text" name="PaymentReminder[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="{{$PaymentReminders->ReminderEmail or ''}}" />
                                         </div>
-                                        <label class="col-sm-2 control-label">Template</label>
+                                        <!--<label class="col-sm-2 control-label">Template</label>
                                         <div class="col-sm-4">
                                             {{Form::select('PaymentReminder[TemplateID]', $emailTemplates, (isset($PaymentReminders->TemplateID)?$PaymentReminders->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
-                                        </div>
+                                        </div>-->
+                                        <input type="hidden" name="PaymentReminder[TemplateID]" value="0">
                                     </div>
                                     <div class="form-group">
                                         <label for="field-5" class="col-sm-2 control-label">Period</label>
@@ -303,10 +306,11 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                 <div class="col-sm-4">
                                     <input type="text" name="LowBalanceReminder[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="{{$LowBalanceReminder->ReminderEmail or ''}}" />
                                 </div>
-                                <label class="col-sm-2 control-label">Email Template</label>
+                                <!--<label class="col-sm-2 control-label">Email Template</label>
                                 <div class="col-sm-4">
                                     {{Form::select('LowBalanceReminder[TemplateID]', $emailTemplates, (isset($LowBalanceReminder->TemplateID)?$LowBalanceReminder->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
-                                </div>
+                                </div>-->
+                                <input type="hidden" name="LowBalanceReminder[TemplateID]" value="0">
                             </div>
                             <div class="form-group">
                                 <label for="field-5" class="col-sm-2 control-label">Period</label>
@@ -364,10 +368,11 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                             <div class="col-sm-4">
                                 <input type="text" name="BalanceWarning[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="{{$BalanceWarning->ReminderEmail or ''}}" />
                             </div>
-                            <label class="col-sm-2 control-label">Email Template</label>
+                            <!--<label class="col-sm-2 control-label">Email Template</label>
                             <div class="col-sm-4">
                                 {{Form::select('BalanceWarning[TemplateID]', $emailTemplates, (isset($BalanceWarning->TemplateID)?$BalanceWarning->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
-                            </div>
+                            </div>-->
+                            <input type="hidden" name="BalanceWarning[TemplateID]" value="0">
                         </div>
                         <div class="form-group">
                             <label for="field-5" class="col-sm-2 control-label">Days Before Next Invoice Date
@@ -410,6 +415,9 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                     </div>
                 </div>
             </div>
+
+            
+
         </div>
     </div>
     @if(isset($accounts) && count($accounts))
@@ -505,7 +513,8 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
     var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select22 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}';
     var add_row_html_payment = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
     add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
-    add_row_html_payment += '<td>'+template_dp_html+'</td><tr>';
+    /*add_row_html_payment += '<td>'+template_dp_html+'</td><tr>';*/
+    add_row_html_payment += '<td><input type="hidden" name="InvoiceReminder[TemplateID][]" value="0"></td><tr>';
     $('#rowContainer').append(add_row_html_payment);
     var target = '';
     jQuery(document).ready(function ($) {
@@ -546,6 +555,23 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
             }
             //alert($("[name='BalanceWarning[Time]']").val());
         });
+        $("[name='ZeroBalanceWarning[StartDay]']").keyup(function(){
+            
+            var days = $("[name='ZeroBalanceWarning[StartDay]']").val();
+            if(days == 1)
+            {
+                $("[name='ZeroBalanceWarning[Time]']").select2().select2('val','HOUR');
+            }
+            else if(days >1 && days < 30)
+            {
+                $("[name='ZeroBalanceWarning[Time]']").select2().select2('val','DAILY');
+            }
+            else if(days >= 30)
+            {
+                $("[name='ZeroBalanceWarning[Time]']").select2().select2('val','MONTHLY');
+            }
+            //alert($("[name='BalanceWarning[Time]']").val());
+        });
             setTimeout(function(){
                 $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
                 $("#billing-form [name='LowBalanceReminder[Time]']").trigger('change');
@@ -558,6 +584,9 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                 @endif
                  @if(isset($BalanceWarning->Interval))
                 $("#billing-form [name='BalanceWarning[Interval]']").val('{{$BalanceWarning->Interval}}').trigger('change');
+                @endif
+                @if(isset($ZeroBalanceWarning->Interval))
+                $("#billing-form [name='ZeroBalanceWarning[Interval]']").val('{{$ZeroBalanceWarning->Interval}}').trigger('change');
                 @endif
             },50);
     });
