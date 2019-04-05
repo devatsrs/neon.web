@@ -30,12 +30,12 @@
         </table>
 
         <script type="text/javascript">
-            var update_new_url;
-            var postdata;
+            var update_new_url_payout;
+            var postdata_payout;
             var deletePayoutMethod_url = "{{ URL::to('customer/Payout/{id}/delete')}}";
 
             jQuery(document).ready(function ($) {
-                data_table = $("#table-55").dataTable({
+                data_table_payout = $("#table-55").dataTable({
                     "oLanguage": {
                         "sUrl": baseurl + "/translate/datatable_Label"
                     },
@@ -123,7 +123,7 @@
 
                             if (response.status == 'success') {
                                 ShowToastr("success",response.message);
-                                data_table.fnFilter('', 0);
+                                data_table_payout.fnFilter('', 0);
                             }else{
                                 ShowToastr("error",response.message);
                             }
@@ -202,11 +202,11 @@
                     $('#table-55_processing').css('visibility','visible');
                     var payoutAccountID = $("#add-payout-form").find('[name="payoutAccountID"]').val();
                     if(payoutAccountID!=""){
-                        update_new_url = baseurl + '/customer/Payout/update';
+                        update_new_url_payout = baseurl + '/customer/Payout/update';
                     }else{
-                        update_new_url = baseurl + '/customer/Payout/create';
+                        update_new_url_payout = baseurl + '/customer/Payout/create';
                     }
-                    ajax_Add_Update_Payout(update_new_url);
+                    ajax_Add_Update_Payout(update_new_url_payout);
                 });
 
             });
@@ -227,8 +227,8 @@
                             $('#add-modal-payout').modal('hide');
                             toastr.success(response.message, "Success", toastr_opts);
                             $('#add-modal-payout').modal('hide');
-                            if( typeof data_table !=  'undefined'){
-                                data_table.fnFilter('', 0);
+                            if( typeof data_table_payout !=  'undefined'){
+                                data_table_payout.fnFilter('', 0);
                             }
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
