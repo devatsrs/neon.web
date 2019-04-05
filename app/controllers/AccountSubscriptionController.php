@@ -22,12 +22,12 @@ public function main() {
         $data = Input::all();        
         $id = $data['account_id'];
         $select = [
-            "tblAccountSubscription.AccountSubscriptionID as AID",
+            "tblAccountSubscription.SubscriptionID",
             "tblBillingSubscription.Name",
             "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",
             DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),
             "tblAccountSubscription.ActivationFee",
-            "tblAccountSubscription.MonthlyFee","tblAccountSubscription.SubscriptionID"
+            "tblAccountSubscription.MonthlyFee",
             
           //  "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
           //  "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
