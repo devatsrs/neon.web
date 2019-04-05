@@ -99,10 +99,10 @@
                 <th width="15%">Rate Table</th>
                 <th width="15%">Discount Plan</th>
                 <th width="15%">Contract ID</th>
-                <th width="15%">Start Date</th>
-                <th width="15%">End Date</th>
-                <th width="5%">Status</th>
-                <th width="20%">Action</th>
+                <th width="10%">Start Date</th>
+                <th width="10%">End Date</th>
+                <th width="2%">Status</th>
+                <th width="30%">Action</th>
 
             </tr>
             </thead>
@@ -122,10 +122,11 @@
     $('table tbody').on('click', '.history-packagetable', function (ev) {
         var $this   = $(this);
         var RateTableID   = $this.prevAll("div.hiddenRowData").find("input[name='RateTableID']").val();
-        getArchiveRateTableDIDRates1($this,RateTableID,'','2','5');
+        var PackageId   = $this.prevAll("div.hiddenRowData").find("input[name='PackageId']").val();
+        getArchiveRateTableDIDRates1($this,RateTableID,'',PackageId,'5');
     });
 
-    function getArchiveRateTableDIDRates1($clickedButton,RateTableID,TerminationRateTable,TimezonesID,CityTariff) {
+    function getArchiveRateTableDIDRates1($clickedButton,RateTableID,TerminationRateTable,PackageId,CityTariff) {
         data_table_packagetable = $("#table-packagetable").DataTable();
         // alert($("#table-packagetable").DataTable().rows().count());
         var tr = $clickedButton.closest('tr');
@@ -134,13 +135,14 @@
         var row = data_table_packagetable.row(tr);
         if (row.child.isShown()) {
             tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+            $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
             row.child.hide();
             tr.removeClass('shown');
         } else {
             $.ajax({
                 url: baseurl + "/rate_tables/search_ajax_datagrid_rates_account_service",
                 type: 'POST',
-                data: "AccessRateTable=" + RateTableID,
+                data: "AccessRateTable=" + RateTableID + "&PackageID=" + PackageId,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -150,7 +152,7 @@
                         $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
-                        var header = "<thead><tr><th>One Off Cost</th><th>Monthly Cost</th><th>Cost/Minute</th><th>RecordingCost/Minute</th>" +
+                        var header = "<thead><tr><th>One Off Cost</th><th>Monthly Cost</th><th>Cost Per Minute</th><th>Recording Cost per Minute</th>" +
                                 "<th>Effective Date</th><th>End Date</th>";
                         header += "</tr></thead>";
                         table.append(header);
@@ -333,9 +335,9 @@
                                 action += '<input disabled type = "hidden"  name = "' + package_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
                             }
                             action += '</div>';
-                            action += ' <a href="javascript:;" title="Edit" class="edit-packagetable btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
-                            action += ' <a href="' + packagetable_delete_url.replace("{id}", full[0]) + '" class="delete-packagetable btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
-                            action += ' <a href="javascript:;" title="History" class="history-packagetable btn btn-primary btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-plus"></i></a>';
+                            action += ' <a href="javascript:;" title="Edit" class="edit-packagetable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
+                            action += ' <a href="' + packagetable_delete_url.replace("{id}", full[0]) + '" class="delete-packagetable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
+                            action += ' <a href="javascript:;" title="History" class="history-packagetable btn btn-primary btn-sm1 tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-plus"></i></a>';
                             return action;
                         }
                     }
@@ -563,7 +565,14 @@
         });
     }
 </script>
-
+<style>
+    .btn-default.btn-icon.btn-sm {
+        padding-right: 36px;
+    }
+    .btn-sm1{
+        padding:2px 5px;font-size:12px;line-height:1.5;border-radius:3px
+    }
+</style>
 @section('footer_ext')
     @parent
 
@@ -581,7 +590,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">Package</label>
+                                    <label for="field-225" class="control-label">Package*</label>
                                     {{ Form::select('PackageID', $Packages , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
@@ -606,7 +615,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">Start Date</label>
+                                    <label for="field-225" class="control-label">Start Date*</label>
                                     <input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="PackageStartDate" name="PackageStartDate">
                                 </div>
                             </div>
@@ -614,7 +623,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">End Date</label>
+                                    <label for="field-225" class="control-label">End Date*</label>
                                     <input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="PackageEndDate" name="PackageEndDate">
                                 </div>
                             </div>

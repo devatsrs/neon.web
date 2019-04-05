@@ -91,8 +91,17 @@ class AccountServiceController extends \BaseController {
             $PackageId=$AccountServicePackage->PackageId;
             $RateTableID=$AccountServicePackage->RateTableID;
         }
+
+
+        $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
+        $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
+        $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+        $AccessType = array('' => "Select") + $AccessType;
+        $Prefix = array('' => "Select") + $Prefix;
+        $CityTariff = array('' => "Select") + $CityTariff;
+
         return View::make('accountservices.edit', compact('CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table', 'termination_rate_table',
-            'package_rate_table','countries','DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
+            'AccessType','Prefix','CityTariff','package_rate_table','countries','DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
 
     }
 
@@ -207,8 +216,8 @@ class AccountServiceController extends \BaseController {
         ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
         ->leftjoin('tblAccountServicePackage', 'tblAccountService.AccountServiceID', '=' , 'tblAccountServicePackage.AccountServiceID')
         ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
-         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID` AND `tblCLIRateTable`.`Status` = 1) as Clis"),
-            DB::raw("fnGetServiceStatusForAccountService(tblAccountService.AccountID,tblAccountService.AccountServiceID," . $ServiceActive . ") as Status"), DB::raw("(select GROUP_CONCAT(tblPackage.Name) as Package from tblAccountServicePackage join tblPackage on tblAccountServicePackage.PackageId = tblPackage.PackageId  where tblAccountServicePackage.AccountServiceID= tblAccountService.AccountServiceID AND tblAccountServicePackage.Status = 1) as Packages"), "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate","tblAccountService.ServiceOrderID"])
+         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID` AND `tblCLIRateTable`.`Status` = " . $ServiceActive .") as Clis"),
+            DB::raw("fnGetServiceStatusForAccountService(tblAccountService.AccountID,tblAccountService.AccountServiceID," . $ServiceActive . ") as Status"), DB::raw("(select GROUP_CONCAT(tblPackage.Name) as Package from tblAccountServicePackage join tblPackage on tblAccountServicePackage.PackageId = tblPackage.PackageId  where tblAccountServicePackage.AccountServiceID= tblAccountService.AccountServiceID AND tblAccountServicePackage.Status = " . $ServiceActive . ") as Packages"), "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate","tblAccountService.ServiceOrderID"])
         ->where("tblAccountService.AccountID",$id);
 
         //Log::debug($services->toSql());

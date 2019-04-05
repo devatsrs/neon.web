@@ -15,7 +15,7 @@
                     {{Form::select('Type',$TypeFilter,'',array("class"=>"form-control select2 small"))}}
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Timezone</label>
+                    <label class="control-label">Time Of Day</label>
                     {{Form::select('TimeZoneID',$TimeZonesFilter,'',array("class"=>"form-control select2 small"))}}
                 </div>
                 <div class="form-group">
