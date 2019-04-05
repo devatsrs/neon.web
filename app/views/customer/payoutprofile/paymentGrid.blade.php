@@ -96,9 +96,9 @@
                                 action += ' <a data-id="'+ id +'" class="delete-payout btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
 
                                 if (full[1]=="1") {
-                                    action += ' <button href="' + DeActive_Cardx + '"  class="btn change_status btn-danger btn-sm disablepayout" data-loading-text="{{ cus_lang('BUTTON_LOADING_CAPTION') }}">{{ cus_lang('BUTTON_DEACTIVATE_CAPTION') }}</button>';
+                                    action += ' <button href="' + DeActive_Cardx + '"  class="btn  btn-danger btn-sm disablepayout" data-loading-text="{{ cus_lang('BUTTON_LOADING_CAPTION') }}">{{ cus_lang('BUTTON_DEACTIVATE_CAPTION') }}</button>';
                                 } else {
-                                    action += ' <button href="' + Active_Cardx+ '"    class="btn change_status btn-success btn-sm activepayout" data-loading-text="{{ cus_lang('BUTTON_LOADING_CAPTION') }}">{{ cus_lang('BUTTON_ACTIVATE_CAPTION') }}</button>';
+                                    action += ' <button href="' + Active_Cardx+ '"    class="btn  btn-success btn-sm activepayout" data-loading-text="{{ cus_lang('BUTTON_LOADING_CAPTION') }}">{{ cus_lang('BUTTON_ACTIVATE_CAPTION') }}</button>';
                                 }
 
                                 if(full[2]!=1){
