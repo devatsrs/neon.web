@@ -49,7 +49,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="ActivationFee" class="control-label">Activation Fee</label>
+                                        <label for="ActivationFee" class="control-label">Activation Fee*</label>
                                         <input type="text" name="ActivationFee" id="ActivationFee" class="form-control" value="" />
                                     </div>
                                 </div>
@@ -57,7 +57,7 @@
                              <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="WeeklyFee" class="control-label">Weekly Fee</label>
+                                        <label for="WeeklyFee" class="control-label">Weekly Fee*</label>
                                         <input type="text" name="WeeklyFee" id="WeeklyFee" class="form-control" value="" />
                                     </div>
                                 </div>
@@ -65,7 +65,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="QuarterlyFee" class="control-label">Quarterly Fee</label>
+                                        <label for="QuarterlyFee" class="control-label">Quarterly Fee*</label>
                                         <input type="text" name="QuarterlyFee" class="form-control"   maxlength="10" id="QuarterlyFee" placeholder="" value="" />
                                     </div>
                                 </div>
@@ -81,8 +81,8 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="field-5" class="control-label">Start Date</label>
-                                        <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
+                                        <label for="field-5" class="control-label">Start Date*</label>
+                                        <input type="text" name="StartDate" id="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""    />
                                     </div>
                                 </div>
                             </div>
@@ -128,7 +128,7 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label for="field-5" class="control-label">Qty</label>
-                                        <input type="text" name="Qty" class="form-control" value="" />
+                                        <input type="text" name="Qty" class="form-control" value="1" />
                                     </div>
                                 </div>
                             </div>
@@ -136,7 +136,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="DailyFee" class="control-label">Daily Fee</label>
+                                        <label for="DailyFee" class="control-label">Daily Fee*</label>
                                         <input type="text" name="DailyFee" id="DailyFee" class="form-control" value="" />
                                     </div>
                                 </div>
@@ -144,7 +144,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="MonthlyFee" class="control-label">Monthly Fee</label>
+                                        <label for="MonthlyFee" class="control-label">Monthly Fee*</label>
                                         <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
                                     </div>
                                 </div>
@@ -152,7 +152,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="AnnuallyFee" class="control-label">Yearly Fee</label>
+                                        <label for="AnnuallyFee" class="control-label">Yearly Fee*</label>
                                         <input type="text" name="AnnuallyFee" class="form-control"   maxlength="10" id="AnnuallyFee" placeholder="" value="" />
                                     </div>
                                 </div>
@@ -170,8 +170,8 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="field-5" class="control-label">End Date</label>
-                                        <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""  />
+                                        <label for="field-5" class="control-label">End Date*</label>
+                                        <input type="text" name="EndDate" id="EndDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""  />
                                     </div>
                                 </div>
                             </div>
