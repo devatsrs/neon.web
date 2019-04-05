@@ -27,7 +27,7 @@ public function main() {
             "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",
             DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),
             "tblAccountSubscription.ActivationFee",
-            "tblAccountSubscription.MonthlyFee",
+            "tblAccountSubscription.MonthlyFee","tblAccountSubscription.SubscriptionID"
             
           //  "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
           //  "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",

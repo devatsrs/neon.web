@@ -209,14 +209,15 @@
                         {                        // 14 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
+                                console.log(id);console.log(list_fields[8])console.log(list_fields[9]);
                                  action = '<div class = "hiddenRowData" >';
                                  for(var i = 0 ; i< list_fields.length; i++){
 									list_fields[i] =  list_fields[i].replace("tblBillingSubscription.",'');
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                  }
                                  action += '</div>';
-                                 action += ' <a href="' + subscription_edit_url.replace("{id}",id) +'" title="Edit" class="edit-subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
-                                 action += ' <a href="' + subscription_delete_url.replace("{id}",id) +'" title="Delete" class="delete-subscription btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
+                                 action += ' <a href="' + subscription_edit_url.replace("{id}",list_fields[8]) +'" title="Edit" class="edit-subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                 action += ' <a href="' + subscription_delete_url.replace("{id}",list_fields[8]) +'" title="Delete" class="delete-subscription btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                  return action;
                             }
                           }
