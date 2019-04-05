@@ -127,7 +127,7 @@ if($data['lcr_type']=='Y'){
         $CityTariff = array('' => 'All') + $CityTariff;
         $CityTariffFilter = array('' => 'All') + $CityTariffFilter;
 
-        $Package = Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
+        $Package = array('' => "All") + Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
 
         $RateTypes = RateType::getRateTypeDropDownList();
         $data=array();

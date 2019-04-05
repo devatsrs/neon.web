@@ -909,9 +909,10 @@ class AccountsController extends \BaseController {
         $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $UserCompanyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
+        $Packages = Package::getDropdownIDList();
 
         return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
-            'DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
+            'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
     /**
@@ -2132,12 +2133,15 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function clitable_ajax_datagrid($id){
         $CompanyID = User::get_companyID();
         $data = Input::all();
+        Log::info("clitable_ajax_datagrid_query " . print_r($data,true));
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblCLIRateTable.RateTableID')
-            ->leftJoin('tblRateTable as prt','prt.RateTableId','=','tblCLIRateTable.PackageRateTableID')
+            ->leftJoin('tblRateTable as termination','termination.RateTableId','=','tblCLIRateTable.TerminationRateTableID')
             ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
-            ->leftJoin('tblPackage','tblPackage.PackageId','=','tblCLIRateTable.PackageID')
-            ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName', 'tblCLIRateTable.NoType', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.CityTariff', 'tblCLIRateTable.Status', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID'])
+            ->leftJoin('tblCountry','tblCountry.CountryID','=','tblCLIRateTable.CountryID')
+            ->select(['CLIRateTableID', 'CLI', 'rt.RateTableName as AccessRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.AccessDiscountPlanID ) as AccessDiscountPlan"), 'termination.RateTableName as TerminationRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.TerminationDiscountPlanID ) as TerminationDiscountPlan"), 'tblCLIRateTable.ContractID', 'tblCLIRateTable.NoType',
+                'tblCountry.Country as Country', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
+                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
@@ -2149,6 +2153,15 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($data['ServiceID'])){
             $rate_tables->where('tblCLIRateTable.ServiceID','=',$data['ServiceID']);
         }
+        if(!empty($data['NumberContractID'])){
+            $rate_tables->where('tblCLIRateTable.ContractID','=',$data['NumberContractID']);
+        }
+        if(!empty($data['NumberStartDate'])){
+            $rate_tables->where('tblCLIRateTable.NumberStartDate','>=',$data['NumberStartDate']);
+        }
+        if(!empty($data['NumberEndDate'])){
+            $rate_tables->where('tblCLIRateTable.NumberEndDate','<=',$data['NumberEndDate']);
+        }
         if(!empty($data['AccountServiceID'])){
             $rate_tables->where('tblCLIRateTable.AccountServiceID','=',$data['AccountServiceID']);
         }
@@ -2156,6 +2169,45 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         else{
             $rate_tables->where('tblCLIRateTable.ServiceID','=',0);
         }*/
+        Log::info($rate_tables->toSql());
+        return Datatables::of($rate_tables)->make();
+    }
+
+    public function packagetable_ajax_datagrid($id){
+        $CompanyID = User::get_companyID();
+        $data = Input::all();
+        Log::info("packagetable_ajax_datagrid" . print_r($data,true));
+        $rate_tables = AccountServicePackage::
+        leftJoin('tblRateTable as rt','rt.RateTableId','=','tblAccountServicePackage.RateTableID')->
+            leftJoin('tblPackage as package','package.PackageId','=','tblAccountServicePackage.PackageId')
+            ->select(['AccountServicePackageID', 'package.Name','rt.RateTableName',DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblAccountServicePackage.PackageDiscountPlanID ) as PackageDiscountPlan"),'tblAccountServicePackage.ContractID', 'tblAccountServicePackage.PackageStartDate', 'tblAccountServicePackage.PackageEndDate', 'tblAccountServicePackage.Status',
+                'tblAccountServicePackage.PackageId','tblAccountServicePackage.RateTableID','tblAccountServicePackage.PackageDiscountPlanID'])
+            ->where("tblAccountServicePackage.CompanyID",$CompanyID)
+            ->where("tblAccountServicePackage.AccountID",$id);
+
+        if(isset($data['PackageStatus']) && $data['PackageStatus'] != ""){
+            $rate_tables->where('tblAccountServicePackage.Status',"=",$data['PackageStatus']);
+        }
+        if(!empty($data['PackageName'])){
+            $rate_tables->where('tblAccountServicePackage.PackageId','=',$data['PackageName']);
+        }
+        if(!empty($data['AccountServiceID'])){
+            $rate_tables->where('tblAccountServicePackage.AccountServiceID','=',$data['AccountServiceID']);
+        }
+        if(!empty($data['PackageContractID'])){
+            $rate_tables->where('tblAccountServicePackage.ContractID','=',$data['PackageContractID']);
+        }
+        if(!empty($data['PackageStartDate'])){
+            $rate_tables->where('tblAccountServicePackage.PackageStartDate','>=',$data['PackageStartDate']);
+        }
+        if(!empty($data['PackageEndDate'])){
+            $rate_tables->where('tblAccountServicePackage.PackageEndDate','<=',$data['PackageEndDate']);
+        }
+        /*
+        else{
+            $rate_tables->where('tblCLIRateTable.ServiceID','=',0);
+        }*/
+        Log::info("packagetable_ajax_datagrid" . $rate_tables->toSql());
         return Datatables::of($rate_tables)->make();
     }
     public function clitable_store(){
@@ -2163,43 +2215,58 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = User::get_companyID();
         $message = '';
 
+        Log::info("clitable_store " . print_r($data,true));
         $rules['CLI'] = 'required';
-        $rules['PackageID'] = 'required_with:PackageRateTableID';
-        $rules['PackageRateTableID'] = 'required_with:PackageID';
+        $rules['NumberStartDate'] = 'required';
+        $rules['NumberEndDate'] = 'required';
+
 
         $validator = Validator::make($data, $rules, [
             'CLI.required' => "Number is required.",
-            'PackageID.required_with' => "Package is required.",
-            'PackageRateTableID.required_with' => "Package Rate Table is required."
         ]);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        if (strtotime($data['NumberEndDate']) <= strtotime($data['NumberStartDate'])) {
+            return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+        }
+
         $clis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['CLI']),function($var){return trim($var)!='';});
 
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
         $insertArr = [];
-        foreach($clis as $cli){
-            $check = CLIRateTable::where([
-                'CompanyID'=>$CompanyID,
-                'AccountID'=>$data['AccountID'],
-                'CLI'=>$cli,
-                'Status'=>1
-            ])->count();
+        $cli = $data['CLI'];
+        $check = CLIRateTable::where([
+            'CompanyID' =>  $CompanyID,
+            'AccountID' =>  $data['AccountID'],
+            'Status'    =>  1
+        ])->where("NumberStartDate", ">=", $data['NumberStartDate'])
+            ->where("NumberEndDate", "<=", $data['NumberEndDate'])->count();
+
+
             if($check){
-                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'AccountID'=>$data['AccountID'],'CLI'=>$cli,'Status'=>1))->pluck('AccountID');
-                $message .= $cli.' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
+                $message = 'Number '. $data['CLI'] . ' already exist between start date '.
+                    $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
+                return Response::json(array("status" => "error", "message" => $message));
             } else {
-                $rate_tables['CLI'] = $cli;
+                $rate_tables['CLI'] = $data['CLI'];
                 $rate_tables['RateTableID'] = $data['RateTableID'];
-                $rate_tables['PackageID'] = !empty($data['PackageID']) ? $data['PackageID'] : 0;
-                $rate_tables['PackageRateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
+                $rate_tables['AccessDiscountPlanID'] = !empty($data['AccessDiscountPlanID']) ? $data['AccessDiscountPlanID'] : 0;
+                $rate_tables['TerminationRateTableID'] = !empty($data['TerminationRateTableID']) ? $data['TerminationRateTableID'] : 0;
+                $rate_tables['TerminationDiscountPlanID'] = !empty($data['TerminationDiscountPlanID']) ? $data['TerminationDiscountPlanID'] : 0;
+                $rate_tables['CountryID'] = !empty($data['CountryID']) ? $data['CountryID'] : 0;
+                $rate_tables['NumberStartDate'] = !empty($data['NumberStartDate']) ? $data['NumberStartDate'] : '';
+                $rate_tables['NumberEndDate'] = !empty($data['NumberEndDate']) ? $data['NumberEndDate'] : '';
+                $rate_tables['NoType'] = !empty($data['NoType']) ? $data['NoType'] : '';
+                $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
+                $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
+                $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
+                $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
                 $rate_tables['AccountID'] = $data['AccountID'];
                 $rate_tables['CompanyID'] = $CompanyID;
-                $rate_tables['CityTariff'] = !empty($data['CityTariff'])?$data['CityTariff']:'';
-                $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
-                $rate_tables['NoType'] = !empty($data['Type'])?$data['Type']:'';
+
+
                 $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
                 if(!empty($data['ServiceID'])) {
                     $rate_tables['ServiceID'] = $data['ServiceID'];
@@ -2209,19 +2276,85 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 }
                 $insertArr[] = $rate_tables;
             }
-        }
+
 
         if(!empty($message)){
             $message = 'Following CLI already exists.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
         }else{
             CLIRateTable::insert($insertArr);
-            return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));
+            return Response::json(array("status" => "success", "message" => "Number Successfully Added"));
+        }
+
+    }
+    public function packagetable_store(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $message = '';
+
+        Log::info("packagetable_store " . print_r($data,true));
+        $rules['PackageID'] = 'required';
+        $rules['PackageStartDate'] = 'required';
+        $rules['PackageEndDate'] = 'required';
+
+
+        $validator = Validator::make($data, $rules, [
+            'PackageID.required' => "PackageID is required.",
+        ]);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        if (strtotime($data['PackageEndDate']) <= strtotime($data['PackageStartDate'])) {
+            return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+        }
+
+        $insertArr = [];
+        $PackageId = $data['PackageID'];
+        $check = AccountServicePackage::where([
+            'CompanyID'=>$CompanyID,
+            'AccountID'=>$data['AccountID'],
+            'Status'=>1
+        ])->where("PackageStartDate", ">=", $data['PackageStartDate'])
+            ->where("PackageEndDate", "<=", $data['PackageEndDate'])->count();
+
+        if($check){
+            $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
+        } else {
+            $rate_tables['PackageID'] = $data['PackageID'];
+            $rate_tables['RateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
+            $rate_tables['PackageDiscountPlanID'] = !empty($data['AccountPackageDiscountPlanID']) ? $data['AccountPackageDiscountPlanID'] : 0;
+            $rate_tables['PackageStartDate'] = !empty($data['PackageStartDate']) ? $data['PackageStartDate'] : '';
+            $rate_tables['PackageEndDate'] = !empty($data['PackageEndDate']) ? $data['PackageEndDate'] : '';
+            $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
+            $rate_tables['AccountID'] = $data['AccountID'];
+            $rate_tables['CompanyID'] = $CompanyID;
+
+
+            $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
+            if(!empty($data['ServiceID'])) {
+                $rate_tables['ServiceID'] = $data['ServiceID'];
+            }
+            if(!empty($data['AccountServiceID'])) {
+                $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
+            }
+            $insertArr[] = $rate_tables;
+        }
+
+
+        if(!empty($message)){
+
+            return Response::json(array("status" => "error", "message" => $message));
+        }else{
+            AccountServicePackage::insert($insertArr);
+            return Response::json(array("status" => "success", "message" => "Package Successfully Added"));
         }
 
     }
     public function clitable_delete($CLIRateTableID){
         $data = Input::all();
+        Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
         $CompanyID = User::get_companyID();
         $Date = '';
         $Confirm = 0;
@@ -2241,8 +2374,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $AccountServiceID = 0;
         }
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
+
         if ($CLIRateTableID > 0) {
             $CLIs = CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->pluck('CLI');
+            $data['CLIRateTableIDs'] = $CLIRateTableID + ",";
         } else if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
             $CLIRateTables = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')
@@ -2265,15 +2400,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if($recordFound[0]->Status>0){
             return Response::json(array("status" => "check","check"=>1));
         }
-        if ($CLIRateTableID > 0) {
-            //CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->where(array('ServiceID' => $ServiceID))->delete();
-            CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->delete();
-        } else if (!empty($data['criteria'])) {
-            $criteria = json_decode($data['criteria'], true);
-            CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')
-                //->where(array('ServiceID' => $ServiceID))
-                ->where(array('AccountID' => $data['AccountID']))->delete();
-        } else if (!empty($data['CLIRateTableIDs'])) {
+
+        Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
+
+         if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
             //CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->delete();
             CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->delete();
@@ -2282,23 +2412,43 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         return Response::json(array("status" => "success", "message" => "CLI Deleted Successfully"));
     }
 
+    public function packagetable_delete($AccountServicePackageID){
+        $data = Input::all();
+        Log::info("packagetable_delete " . print_r($data,true) . '' . $AccountServicePackageID);
+        $CompanyID = User::get_companyID();
+        if ($AccountServicePackageID > 0) {
+            $data['AccountServicePackageIDs'] = $AccountServicePackageID + ",";
+        }
+        if (!empty($data['AccountServicePackageIDs'])) {
+            $CLIRateTableIDs = explode(',', $data['AccountServicePackageIDs']);
+            AccountServicePackage::whereIn('AccountServicePackageID', $CLIRateTableIDs)->delete();
+        }
+
+        return Response::json(array("status" => "success", "message" => "Package Deleted Successfully"));
+    }
+
     public function clitable_update(){
         $data = Input::all();
 
         $rules['CLI'] = 'required';
-        $rules['PackageID'] = 'required_with:PackageRateTableID';
-        $rules['PackageRateTableID'] = 'required_with:PackageID';
+        $rules['NumberStartDate'] = 'required';
+        $rules['NumberEndDate'] = 'required';
+        Log::info("clitable_store " . print_r($data,true));
 
         $validator = Validator::make($data, $rules, [
             'CLI.required' => "Number is required.",
-            'PackageID.required_with' => "Package is required.",
-            'PackageRateTableID.required_with' => "Package Rate Table is required."
+
         ]);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
 
+        if (strtotime($data['NumberEndDate']) <= strtotime($data['NumberStartDate'])) {
+                return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+       }
+
+        $cli = $data['CLI'];
         $CompanyID = User::get_companyID();
         if(!empty($data['ServiceID'])){
             $ServiceID = $data['ServiceID'];
@@ -2311,49 +2461,131 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $AccountServiceID = 0;
         }
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
-        $UpdateData=array();
-        $UpdateData['CityTariff']   = !empty($data['CityTariff'])?$data['CityTariff']:'';
-        $UpdateData['Prefix']       = !empty($data['Prefix'])?$data['Prefix']:'';
-        $UpdateData['NoType']       = !empty($data['Type'])?$data['Type']:'';
-        $UpdateData['RateTableID']  = @$data['RateTableID'];
-        $UpdateData['CLI']          = $data['CLI'];
-        $UpdateData['PackageID']    = !empty($data['PackageID']) ? $data['PackageID'] : 0;
-        $UpdateData['PackageRateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
-        $UpdateData['Status']       = isset($data['Status']) ? 1 : 0;
+        $rate_tables['CLI'] = $cli;
+        $rate_tables['RateTableID'] = $data['RateTableID'];
+        $rate_tables['AccessDiscountPlanID'] = !empty($data['AccessDiscountPlanID']) ? $data['AccessDiscountPlanID'] : 0;
+        $rate_tables['TerminationRateTableID'] = !empty($data['TerminationRateTableID']) ? $data['TerminationRateTableID'] : 0;
+        $rate_tables['TerminationDiscountPlanID'] = !empty($data['TerminationDiscountPlanID']) ? $data['TerminationDiscountPlanID'] : 0;
+        $rate_tables['CountryID'] = !empty($data['CountryID']) ? $data['CountryID'] : 0;
+        $rate_tables['NumberStartDate'] = !empty($data['NumberStartDate']) ? $data['NumberStartDate'] : '';
+        $rate_tables['NumberEndDate'] = !empty($data['NumberEndDate']) ? $data['NumberEndDate'] : '';
+        $rate_tables['NoType'] = !empty($data['NoType']) ? $data['NoType'] : '';
+        $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
+        $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
+        $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
+        $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
+        $rate_tables['AccountID'] = $data['AccountID'];
+        $rate_tables['CompanyID'] = $CompanyID;
 
-        if (!empty($data['criteria'])) {
-            $criteria = json_decode($data['criteria'], true);
-            $query = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"');
-            //$query->where(array('ServiceID' => $ServiceID));
-            $query->where(array('AccountID' => $data['AccountID']));
-            $query->update($UpdateData);
-        } else if (!empty($data['CLIRateTableIDs'])) {
-            $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
-            $query = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs);
-            // $query->where(array('ServiceID' => $ServiceID));
-            $query->update($UpdateData);
-        } else if (!empty($data['CLIRateTableID'])) {
+
+        $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
+        if(!empty($data['ServiceID'])) {
+            $rate_tables['ServiceID'] = $data['ServiceID'];
+        }
+        if(!empty($data['AccountServiceID'])) {
+            $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
+        }
+       // $UpdateData[] = $rate_tables;
+
+
+
+         if (!empty($data['CLIRateTableID'])) {
             $oldCLI = CLIRateTable::findOrFail($data['CLIRateTableID']);
 
             // if this cli already exist in table
             $check = false;
-            if($UpdateData['Status'] == 1 || $data['CLI'] != $oldCLI->CLI)
+            if($rate_tables['Status'] == 1 || $data['CLI'] != $oldCLI->CLI)
                 $check = CLIRateTable::where([
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
-                    'CLI'       =>  $data['CLI'],
                     'Status'    =>  1
-                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->count();
+                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])
+                    ->where("NumberStartDate", ">=", $data['NumberStartDate'])
+                    ->where("NumberEndDate", "<=", $data['NumberEndDate'])->count();
+
+
+
 
             if($check){
-                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'AccountID'=>$data['AccountID'],'CLI'=>$data['CLI'],'Status'=>1))->pluck('AccountID');
-                $message = 'Following CLI '. $data['CLI'] . ' already exist with active status against '.Account::getCompanyNameByID($AccountID).'.<br>';
+                $message = 'Number '. $data['CLI'] . ' already exist between start date '.
+                    $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
 
-            $oldCLI->update($UpdateData);
+            $oldCLI->update($rate_tables);
         }
-        return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
+        return Response::json(array("status" => "success", "message" => "Number Updated Successfully"));
+    }
+
+    public function packagetable_update(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $rules['PackageID'] = 'required';
+        $rules['PackageStartDate'] = 'required';
+        $rules['PackageEndDate'] = 'required';
+        Log::info("packagetable_update " . print_r($data,true));
+
+        $validator = Validator::make($data, $rules, [
+            'PackageID.required' => "Package is required.",
+
+        ]);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        if (strtotime($data['PackageEndDate']) <= strtotime($data['PackageStartDate'])) {
+            return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+        }
+        $rate_tables['PackageID'] = $data['PackageID'];
+        $rate_tables['RateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
+        $rate_tables['PackageDiscountPlanID'] = !empty($data['AccountPackageDiscountPlanID']) ? $data['AccountPackageDiscountPlanID'] : 0;
+        $rate_tables['PackageStartDate'] = !empty($data['PackageStartDate']) ? $data['PackageStartDate'] : '';
+        $rate_tables['PackageEndDate'] = !empty($data['PackageEndDate']) ? $data['PackageEndDate'] : '';
+        $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
+        $rate_tables['AccountID'] = $data['AccountID'];
+        $rate_tables['CompanyID'] = $CompanyID;
+
+
+        $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
+        if(!empty($data['ServiceID'])) {
+            $rate_tables['ServiceID'] = $data['ServiceID'];
+        }
+        if(!empty($data['AccountServiceID'])) {
+            $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
+        }
+        /* $PackageId = $data['PackageID'];
+        $check = AccountServicePackage::where([
+            'CompanyID'=>$CompanyID,
+            'AccountID'=>$data['AccountID'],
+            'PackageId'=>$PackageId,
+            'Status'=>1
+        ])->count();*/
+
+
+
+        if (!empty($data['AccountServicePackageID'])) {
+            $oldAccountServicePackage = AccountServicePackage::findOrFail($data['AccountServicePackageID']);
+
+            // if this cli already exist in table
+            $check = false;
+            if($rate_tables['Status'] == 1 || $data['PackageID'] != $oldAccountServicePackage->PackageId)
+                $check = AccountServicePackage::where([
+                    'CompanyID' =>  $CompanyID,
+                    'AccountID' =>  $data['AccountID'],
+                    'Status'    =>  1
+                ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])
+                    ->where("PackageStartDate", ">=", $data['PackageStartDate'])
+                    ->where("PackageEndDate", "<=", $data['PackageEndDate'])->count();
+
+
+            if($check){
+                $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
+                return Response::json(array("status" => "error", "message" => $message));
+            }
+
+            $oldAccountServicePackage->update($rate_tables);
+        }
+        return Response::json(array("status" => "success", "message" => "Package Updated Successfully"));
     }
 
     public function BulkAction(){

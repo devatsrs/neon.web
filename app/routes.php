@@ -743,6 +743,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/apply_rate_table/store', 'RateTablesMultiAccController@store');
 	Route::any('/rate_tables/apply_rate_table/ajax_datagrid/{type}', 'RateTablesMultiAccController@ajax_datagrid');
 	Route::any('/rate_tables/apply_rate_table/ajax_getRateTableAndAccountByCurrency', 'RateTablesMultiAccController@getRateTableAndAccountByCurrency');
+	Route::any('/rate_tables/search_ajax_datagrid_rates_account_service', 'RateTablesController@search_ajax_datagrid_rates_account_service');
 	Route::any('/rate_tables/{id}/search_ajax_datagrid_archive_rates', 'RateTablesController@search_ajax_datagrid_archive_rates'); // get archive rates for vendor rates grid
 	Route::any('/rate_tables', array('as' => 'customer_rates', 'uses' => 'RateTablesController@index'));
 	Route::any('/rate_tables/{id}/search_ajax_datagrid', array('as' => 'customer_rates_search', 'uses' => 'RateTablesController@search_ajax_datagrid'));
@@ -1518,9 +1519,14 @@ Route::group(array('before' => 'auth'), function () {
 
 	// cli tables
 	Route::any('/clitable/ajax_datagrid/{id}','AccountsController@clitable_ajax_datagrid');
+	Route::any('/packagetable/ajax_package_datagrid/{id}','AccountsController@packagetable_ajax_datagrid');
 	Route::any('/clitable/store','AccountsController@clitable_store');
+	Route::any('/packagetable/store','AccountsController@packagetable_store');
+
 	Route::any('/clitable/delete/{id}','AccountsController@clitable_delete');
+	Route::any('/packagetable/delete/{id}','AccountsController@packagetable_delete');
 	Route::any('/clitable/update','AccountsController@clitable_update');
+	Route::any('/packagetable/update','AccountsController@packagetable_update');
 
 	// services
 	Route::any('servicesTemplate', 'ServicesTemplateController@index');

@@ -321,7 +321,7 @@ class TimezonesController extends BaseController {
             }
             $VendorCheck = VendorTimeZone::where(['Type' => $data['Type'],'Country' => $data['Country'],'TimeZoneID'=> $data['TimeZoneID'],'VendorID' => $data['VendorID']])->first();
             if(Count($VendorCheck) > 0){
-                return  Response::json(array("status" => "failed", "message" => "Vendor Time Zone Already Exist!"));
+                return  Response::json(array("status" => "failed", "message" => "Vendor Time Of Day Already Exist!"));
             }
 
             if($data['Country'] == ''){
@@ -344,9 +344,9 @@ class TimezonesController extends BaseController {
             $save['updated_at']     = date('Y-m-d H:i:s');
 
             if($Timezones = VendorTimeZone::create($save)){
-                return  Response::json(array("status" => "success", "message" => "Timezone Successfully Created"));
+                return  Response::json(array("status" => "success", "message" => "Time Of Day Successfully Created"));
             } else {
-                return  Response::json(array("status" => "failed", "message" => "Problem Creating Timezone."));
+                return  Response::json(array("status" => "failed", "message" => "Problem Creating Time Of Day."));
             }
 
         } else {
@@ -358,9 +358,9 @@ class TimezonesController extends BaseController {
 
         $delete = VendorTimeZone::where('VendorTimezoneID',$id)->delete();
         if($delete){    
-            return Response::json(array("status" => "success", "message" => "Vendor TimeZone Successfully Deleted"));
+            return Response::json(array("status" => "success", "message" => "Vendor Time Of Day Successfully Deleted"));
         }else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Timezone."));
+            return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Time Of Day."));
         }
 
     }
@@ -400,7 +400,7 @@ class TimezonesController extends BaseController {
 
                     $VendorCheck = VendorTimeZone::where(['Type' => $data['Type'],'Country' => $data['Country'],'TimeZoneID'=> $data['TimeZoneID'],'VendorID'=>$data['VendorID']])->where('VendorTimezoneID', '!=' , $id)->first();
                     if(Count($VendorCheck) > 0){
-                        return  Response::json(array("status" => "failed", "message" => "Vendor Time Zone Already Exist!"));
+                        return  Response::json(array("status" => "failed", "message" => "Vendor Time Of Day Already Exist!"));
                     }
                     
                     if($data['Country'] == ''){
@@ -422,15 +422,15 @@ class TimezonesController extends BaseController {
                     $save['updated_by'] = User::get_user_full_name();
 
                     if ($VendorTimeZone = $VendorTimeZone->update($save)) {
-                        return Response::json(array("status" => "success", "message" => "Timezone Successfully Updated"));
+                        return Response::json(array("status" => "success", "message" => "Time Of Day Successfully Updated"));
                     } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Updating Timezone."));
+                        return Response::json(array("status" => "failed", "message" => "Problem Updating Time Of Day."));
                     }
                 } else {
-                    return Response::json(array("status" => "failed", "message" => "Requested Timezone not exist."));
+                    return Response::json(array("status" => "failed", "message" => "Requested Time Of Day not exist."));
                 }
             } else {
-                return Response::json(array("status" => "failed", "message" => "Can't Edit Default Timezone."));
+                return Response::json(array("status" => "failed", "message" => "Can't Edit Default Time Of Day."));
             }
         } else {
             return  Response::json(array("status" => "failed", "message" => "Invalid Request."));
@@ -450,9 +450,9 @@ class TimezonesController extends BaseController {
                     ->update(['Status'=>$status,'updated_at'=>date('Y-m-d H:i:s'),'updated_by'=>$username]);
 
             if ($update) {
-                return Response::json(array("status" => "success", "message" => "Timezones Status Successfully Changed"));
+                return Response::json(array("status" => "success", "message" => "Time Of Day Status Successfully Changed"));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Changing Timezones Status."));
+                return Response::json(array("status" => "failed", "message" => "Problem Changing Time Of Day Status."));
             }
         } else {
             return  Response::json(array("status" => "failed", "message" => "Invalid Request."));

@@ -28,7 +28,10 @@ class RateGeneratorRuleController extends \BaseController {
             })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
                 ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
-
+            $Package = array('' => "All") + Package::where([
+                "status" => 1,
+                "CompanyID" => User::get_companyID()
+            ])->lists("Name", "PackageId");
 
 
             $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
@@ -50,7 +53,7 @@ class RateGeneratorRuleController extends \BaseController {
             $CityTariffFilter = array('' => "All") + $CityTariffFilter;
             $countryForRule = array('' => "All") + $countryForRule;
 
-            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff','type','countryForRule','CityTariffFilter'));
+            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff','type','countryForRule','CityTariffFilter','Package'));
         }
     }
     public function edit($id, $RateRuleID) {
@@ -72,6 +75,11 @@ class RateGeneratorRuleController extends \BaseController {
                 $join->on('tblServiceTemplate.country','=','tblCountry.country');
             })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
                 ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+
+            $Package = array('' => "All") + Package::where([
+                "status" => 1,
+                "CompanyID" => User::get_companyID()
+            ])->lists("Name", "PackageId");
 
             $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
             $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
@@ -108,7 +116,7 @@ class RateGeneratorRuleController extends \BaseController {
                 "RateRuleID" => $RateRuleID
             ])->get();
 
-            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','CityTariff','type','countryForRule','OriginationType','OriginationCountryID','DestinationType','DestinationCountryID','CityTariffFilter'));
+            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','CityTariff','type','countryForRule','OriginationType','OriginationCountryID','DestinationType','DestinationCountryID','CityTariffFilter','Package'));
 
 
 

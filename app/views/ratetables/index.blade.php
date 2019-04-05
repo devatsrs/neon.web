@@ -21,11 +21,11 @@
                     <label class="control-label">Applied To</label>
                     {{Form::select('AppliedTo', [""=>"select"]+RateTable::$AppliedTo, '',array("class"=>"form-control select2"))}}
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="filter-TrunkID-box">
                     <label class="control-label" for="field-1">Trunk</label>
                     {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="filter-DIDCategoryID-box">
                     <label class="control-label">Access Category</label>
                     {{Form::select('DIDCategoryID', $DIDCategory, '',array("class"=>"form-control select2"))}}
                 </div>
@@ -287,7 +287,7 @@ jQuery(document).ready(function($) {
         if($(this).attr('data-Type') == 1) {
             $('#box-edit-DIDCategory').hide();
             $('#box-edit-Trunk').show();
-            $('#box-edit-MinimumCallCharge').show();
+            $('#box-edit-MinimumCallCharge').hide();//$('#box-edit-MinimumCallCharge').show();
         } else {
             $('#box-edit-Trunk').hide();
             $('#box-edit-MinimumCallCharge').hide();
@@ -337,13 +337,30 @@ jQuery(document).ready(function($) {
         } else if(val == 1) { // voicecall
             $('#box-DIDCategory').hide();
             $('#box-Trunk').show();
-            $('#box-MinimumCallCharge').show();
+            $('#box-MinimumCallCharge').hide();//$('#box-MinimumCallCharge').show();
         } else { // did
             $('#box-Trunk').hide();
             $('#box-MinimumCallCharge').hide();
             $('#box-DIDCategory').show();
         }
     });
+
+    $('#ratetable_filter select[name="Type"]').on('change', function() {
+        var val = $(this).val();
+
+        $('#ratetable_filter select[name="TrunkID"]').val('').trigger('change');
+        $('#ratetable_filter select[name="DIDCategoryID"]').val('').trigger('change');
+        $('#filter-TrunkID-box').hide();
+        $('#filter-DIDCategoryID-box').hide();
+
+        if(val == {{RateTable::RATE_TABLE_TYPE_TERMINATION}}) {
+            $('#filter-TrunkID-box').show();
+        }
+        if(val == {{RateTable::RATE_TABLE_TYPE_ACCESS}}) {
+            $('#filter-DIDCategoryID-box').show();
+        }
+    });
+    $('#ratetable_filter select[name="Type"]').trigger('change');
 });
 
 </script>

@@ -59,7 +59,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="field-5" class="control-label">Type*</label>
+                        <label for="field-5" class="control-label">Access Type*</label>
                         {{ Form::select('AccessType', $AccessType, '', array("class"=>"select2")) }}
                     </div>
                 </div>
@@ -101,20 +101,24 @@
     @if($rateGenerator->SelectType == 3)
         <form role="form" id="rategenerator-code-from" method="post" action="{{URL::to('rategenerators/'.$id.'/rule/store_code')}}">
             <div class="row">
-                <div class="col-md-1"></div>
-                <div class="col-md-5">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="field-4" class="control-label">Package*</label>
+                        {{ Form::select('Package', $Package, '', array("class"=>"select2")) }}
+                    </div>
+                </div>
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="field-4" class="control-label">Component*</label>
                         {{ Form::select('Component', DiscountPlan::$RateTablePKGRate_Components, '', array("class"=>"select2")) }}
                     </div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="field-5" class="control-label">Time of Day*</label>
                         {{ Form::select('TimeOfDay', $Timezones, '', array("class"=>"select2")) }}
                     </div>
                 </div>
-                <div class="col-md-1"></div>
             </div>
            </form>
     @endif
