@@ -293,13 +293,14 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                         <input type="checkbox" @if( isset($BillingClass->LowBalanceReminderStatus) && $BillingClass->LowBalanceReminderStatus == 1 )checked="" @endif name="LowBalanceReminderStatus" value="1">
                                     </div>
                                 </div>
-                                <input type="hidden" name="LowBalanceReminder[AccountManager]" value="0">
+                                <input type="hidden" name="LowBalanceReminder[TemplateID]" value="0">
                                 <!--<label class="col-sm-2 control-label">Send To Account Owner</label>
                                 <div class="col-sm-4">
                                     <div class="make-switch switch-small">
                                         <input type="checkbox" @if( isset($LowBalanceReminder->AccountManager) && $LowBalanceReminder->AccountManager == 1 )checked="" @endif name="LowBalanceReminder[AccountManager]" value="1">
                                     </div>
                                 </div>-->
+                               
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Send Copy To</label>
