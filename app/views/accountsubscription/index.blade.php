@@ -68,13 +68,7 @@
                     <th width="10%">Start Date</th>
                     <th width="10%">End Date</th>
                     <th width="5%">Activation Fee</th>
-                    <th width="4%">Currency</th>
-                    <th width="5%">Daily Fee</th>
-                    <th width="5%">Weekly Fee</th>
                     <th width="10%">Monthly Fee</th>
-                    <th width="4%">Currency</th>
-                    <th width="10%">Quarterly Fee</th>
-                    <th width="10%">Yearly Fee</th>
                     <th width="20%">Action</th>
                 </tr>
                 </thead>
@@ -142,14 +136,17 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["AID","SequenceNo", "Name", "InvoiceDescription", "Qty",
-                "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee", "OneOffCurrency",
-                "tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
-                "tblBillingSubscription.MonthlyFee", "RecurringCurrency",
-                "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
-                "AccountSubscriptionID","SubscriptionID","ExemptTax","Status","DiscountAmount",
-                "DiscountType","OneOffCurrencyID","RecurringCurrencyID","AnnuallyFee","QuarterlyFee",
-                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee"];
+            var list_fields  = ["AID","Name", "InvoiceDescription", "Qty",
+                "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee", 
+                //"OneOffCurrency",
+                //"tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
+                "tblBillingSubscription.MonthlyFee", 
+                //"RecurringCurrency",
+                //"tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
+               // "AccountSubscriptionID","SubscriptionID","ExemptTax","Status","DiscountAmount",
+               // "DiscountType","OneOffCurrencyID","RecurringCurrencyID","AnnuallyFee","QuarterlyFee",
+                //"MonthlyFee","WeeklyFee","DailyFee", "ActivationFee"
+            ];
 
             public_vars.$body = $("body");
             var $search = {};
@@ -202,18 +199,13 @@
                         // },
                         {  "bSortable": true },  // 0 Sequence NO
                         {  "bSortable": true },  // 1 Subscription Name
+                        
                         {  "bSortable": true },  // 2 InvoiceDescription
                         {  "bSortable": true },  // 3 Qty
                         {  "bSortable": true },  // 4 StartDate
                         {  "bSortable": true },  // 5 EndDate
                         {  "bSortable": true },  // 6 ActivationFee
                         {  "bSortable": true },  // 7 ActivationFee
-                        {  "bSortable": true },  // 8 DailyFee
-                        {  "bSortable": true },  // 9 WeeklyFee
-                        {  "bSortable": true },  // 10 MonthlyFee
-                        {  "bSortable": true },  // 11 MonthlyFee
-                        {  "bSortable": true },  // 12 QuarterlyFee
-                        {  "bSortable": true },  // 13 AnnuallyFee
                         {                        // 14 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
@@ -563,6 +555,7 @@
                     todayBtn:  1,
                     autoclose: true
                 }).on('changeDate', function (selected) {
+                    
                     var minDate = new Date(selected.date.valueOf());
                     var endDate = $('#EndDate');
                     endDate.datepicker('setStartDate', minDate);
@@ -578,6 +571,26 @@
                             //$('#StartDate').datepicker('setEndDate', maxDate);
                         });
 
+
+                        $("#StartDate").datepicker({
+                todayBtn:  1,
+                autoclose: true
+            }).on('changeDate', function (selected) {
+                var minDate = new Date(selected.date.valueOf());
+                var endDate = $('#EndDate');
+                endDate.datepicker('setStartDate', minDate);
+                if(endDate.val() && new Date(endDate.val()) != undefined) {
+                    if(minDate > new Date(endDate.val()))
+                        endDate.datepicker("setDate", minDate)
+                }
+            });
+
+            $("#EndDate").datepicker({autoclose: true})
+                    .on('changeDate', function (selected) {
+                        var maxDate = new Date(selected.date.valueOf());
+                        //$('#StartDate').datepicker('setEndDate', maxDate);
+                    });
+                    
                 if(new Date($('#StartDate').val()) != undefined){
                     $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
                 }
