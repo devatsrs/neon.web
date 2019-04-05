@@ -266,7 +266,7 @@
                                     <th style="width:250px;" class="Package-Div">Package</th>
                                     <th style="width:250px;">Component</th>
                                     <th style="width:250px;" class="DID-Div">From Country</th>
-                                    <th style="width:250px;" class="DID-Div">From Type</th>
+                                    <th style="width:250px;" class="DID-Div">From Access Type</th>
                                     <th style="width:250px;" class="DID-Div">From Prefix</th>
                                     <th style="width:250px;" class="DID-Div">From City</th>
                                     <th style="width:250px;" class="DID-Div">From Tariff</th>
@@ -275,7 +275,7 @@
                                     <th style="width:200px;">Action</th>
                                     <th style="width:300px;">Merge To</th>
                                     <th style="width:250px;" class="DID-Div">To Country</th>
-                                    <th style="width:250px;" class="DID-Div">To Type</th>
+                                    <th style="width:250px;" class="DID-Div">To Access Type</th>
                                     <th style="width:250px;" class="DID-Div">To Prefix</th>
                                     <th style="width:250px;" class="DID-Div">To City</th>
                                     <th style="width:250px;" class="DID-Div">To Tariff</th>
@@ -371,7 +371,7 @@
                                     <th style="width:250px;" class="Package-Div">Package</th>
                                     <th style="width:250px !important;">Component</th>
                                     <th style="width:250px !important;">Country</th>
-                                    <th style="width:250px !important;">Type</th>
+                                    <th style="width:250px !important;">Access Type</th>
                                     <th style="width:250px !important;">Prefix</th>
                                     <th style="width:250px !important;">City</th>
                                     <th style="width:250px !important;">Tariff</th>
