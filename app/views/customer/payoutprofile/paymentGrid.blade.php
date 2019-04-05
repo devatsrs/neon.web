@@ -102,7 +102,7 @@
                                 }
 
                                 if(full[2]!=1){
-                                    action += ' <a href="' + set_defaultx + '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>{{ cus_lang('CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') }}</a> ';
+                                    action += ' <a href="' + set_defaultx + '" class="set-default-payout btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>{{ cus_lang('CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') }}</a> ';
                                 }
                                 return action;
                             }
@@ -171,7 +171,7 @@
                     return false;
                 });
 
-                $('table tbody').on('click', '.set-default', function (e) {
+                $('table tbody').on('click', '.set-default-payout', function (e) {
                     e.preventDefault();
                     var self = $(this);
                     if (!confirm("{{ cus_lang('CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT_CARD_MSG') }}")) {
