@@ -140,7 +140,7 @@
                 "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee", 
                 //"OneOffCurrency",
                 //"tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
-                "tblBillingSubscription.MonthlyFee", 
+                "tblBillingSubscription.MonthlyFee", "AccountSubscriptionID","SubscriptionID",
                 //"RecurringCurrency",
                 //"tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
                // "AccountSubscriptionID","SubscriptionID","ExemptTax","Status","DiscountAmount",

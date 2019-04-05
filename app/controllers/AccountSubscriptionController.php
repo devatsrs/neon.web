@@ -28,7 +28,7 @@ public function main() {
             DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),
             "tblAccountSubscription.ActivationFee",
             "tblAccountSubscription.MonthlyFee",
-            
+            "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
           //  "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
           //  "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
           //  "tblAccountSubscription.ExemptTax","tblAccountSubscription.Status",
