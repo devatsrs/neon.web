@@ -22,7 +22,7 @@ public function main() {
         $data = Input::all();        
         $id = $data['account_id'];
         $select = [
-            "tblAccountSubscription.SubscriptionID",
+            "tblAccountSubscription.AccountSubscriptionID as AID",
             "tblBillingSubscription.Name",
             "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",
             DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),
