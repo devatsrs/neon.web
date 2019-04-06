@@ -1213,10 +1213,16 @@ class RateTablesController extends \BaseController {
 
         $data       = Input::all();
         $companyID  = User::get_companyID();
+        $Type = isset($data['Type']) ? $data['Type'] : "";
+        $Country = isset($data['Country']) ? $data['Country'] : "0";
+        $City = isset($data['City']) ? $data['City'] : "";
+        $Tariff = isset($data['Tariff']) ? $data['Tariff'] : "";
+        $PackageID = isset($data['PackageID']) ? $data['PackageID'] : "0";
         Log::info("search_ajax_datagrid_rates_account_service " . print_r($data,true));
 
         if(!empty($data['AccessRateTable'])) {
-                $query = 'call prc_getRateTablesRateForAccountService (' . $data['AccessRateTable'] . ')';
+                $query = 'call prc_getRateTablesRateForAccountService (' . $data['AccessRateTable'] .",'" .
+                    $Type . "','" . $City. "','" . $Tariff. "','" . $Country . "','" . $PackageID . "'" . ')';
             Log::info("search_ajax_datagrid_rates_account_service " . $query);
             $response['status']     = "success";
             $response['message']    = "Data fetched successfully!";

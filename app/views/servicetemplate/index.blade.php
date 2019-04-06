@@ -22,7 +22,7 @@
                     {{ Form::select('CountryID', $country,'', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">Type</label>
+                    <label for="field-1" class="control-label">Access Type</label>
                     {{ Form::select('AccessType', $AccessType, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
@@ -97,7 +97,7 @@
         <th>Service Name</th>
         <th>Country</th>
         <th>Prefix</th>
-        <th>Type</th>
+        <th>Access Type</th>
         <th>City/Tariff</th>
         {{--<th>Currency</th>--}}
         <th>Actions</th>

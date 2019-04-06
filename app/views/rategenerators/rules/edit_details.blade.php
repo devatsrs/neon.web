@@ -31,7 +31,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="field-5" class="control-label">Type*</label>
+                        <label for="field-5" class="control-label">Access Type*</label>
                         {{ Form::select('AccessType', $AccessType, @$rategenerator_rule['AccessType'], array("class"=>"select2")) }}
                     </div>
                 </div>
