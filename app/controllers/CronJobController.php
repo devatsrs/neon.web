@@ -156,9 +156,8 @@ class CronJobController extends \BaseController {
                 $day_limit= 2;
                 $rateTableList = RateTable::where(["CompanyId" => $companyID])
                     ->lists('RateTableName', 'RateTableId');
-                if(!empty($rateTableList)){
+                if(!empty($rateTableList))
                     $rateTableList = array(""=> "Select")+$rateTableList;
-                }
             }else if($CronJobCommand->Command == 'rategenerator'){
                 $day_limit= 2;
                 $rateGenerators = RateGenerator::rateGeneratorList($companyID);
@@ -190,7 +189,7 @@ class CronJobController extends \BaseController {
 
             $commandconfig = json_decode($commandconfig,true);
 
-            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors','StartDateMessage'));
+            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors','StartDateMessage','rateTableList'));
         }
         return '';
     }
