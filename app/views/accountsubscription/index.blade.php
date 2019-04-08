@@ -138,14 +138,14 @@
 
             var list_fields  = ["AID","Name", "InvoiceDescription", "Qty",
                 "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee", 
-                //"OneOffCurrency",
-                //"tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
+                "OneOffCurrency",
+                "tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
                 "tblBillingSubscription.MonthlyFee", "AccountSubscriptionID","SubscriptionID",
-                //"RecurringCurrency",
-                //"tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
-               // "AccountSubscriptionID","SubscriptionID","ExemptTax","Status","DiscountAmount",
-               // "DiscountType","OneOffCurrencyID","RecurringCurrencyID","AnnuallyFee","QuarterlyFee",
-                //"MonthlyFee","WeeklyFee","DailyFee", "ActivationFee"
+                "RecurringCurrency",
+                "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
+              "AccountSubscriptionID","SubscriptionID","ExemptTax","Status","DiscountAmount",
+              "DiscountType","OneOffCurrencyID","RecurringCurrencyID","AnnuallyFee","QuarterlyFee",
+                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee"
             ];
 
             public_vars.$body = $("body");
