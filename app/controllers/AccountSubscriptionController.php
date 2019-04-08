@@ -24,22 +24,21 @@ public function main() {
         
         $select = [
             "tblAccountSubscription.AccountSubscriptionID as AID",
-            
-            
-            
             "tblBillingSubscription.Name",
             "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",
             DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),            
             "tblAccountSubscription.ActivationFee",
-            "tblAccountSubscription.MonthlyFee",
-            "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
             
+            "tblAccountSubscription.MonthlyFee",
+            
+            "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
             "tblAccountSubscription.SequenceNo",
             "CurrencyTbl1.Code as OneOffCurrency",
+            
             "tblAccountSubscription.DailyFee", "tblAccountSubscription.WeeklyFee",
             "CurrencyTbl2.Code as RecurringCurrency",
-            "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
             
+            "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
             "tblAccountSubscription.ExemptTax","tblAccountSubscription.Status",
             "tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType",
             "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID"

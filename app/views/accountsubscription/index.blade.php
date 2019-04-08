@@ -136,17 +136,15 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["AID","Name", "InvoiceDescription", "Qty",
-                "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee", 
-                "OneOffCurrency",
-                "tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
-                "tblBillingSubscription.MonthlyFee", "AccountSubscriptionID","SubscriptionID",
-                "RecurringCurrency",
-                "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
-              "AccountSubscriptionID","SubscriptionID","ExemptTax","Status","DiscountAmount",
-              "DiscountType","OneOffCurrencyID","RecurringCurrencyID","AnnuallyFee","QuarterlyFee",
-                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee"
-            ];
+            var list_fields  = ["AID", "Name", "InvoiceDescription", "Qty",
+                "StartDate", "EndDate" , "tblBillingSubscription.ActivationFee",
+            "tblBillingSubscription.MonthlyFee","AccountSubscriptionID","SubscriptionID",
+            "SequenceNo",  "OneOffCurrency","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
+                 "RecurringCurrency",  "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
+                "ExemptTax","Status","DiscountAmount",
+                "DiscountType","OneOffCurrencyID","RecurringCurrencyID",
+                "AnnuallyFee","QuarterlyFee",
+                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee"];
 
             public_vars.$body = $("body");
             var $search = {};
