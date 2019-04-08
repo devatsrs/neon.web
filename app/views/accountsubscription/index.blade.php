@@ -195,7 +195,13 @@
                         //         "bVisible": false
                         //     @endif
                         // },
-                        {  "bSortable": true },  // 0 Sequence NO
+                        {                        // 14 Action
+                           "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                 action = full[10];
+                                return action;
+                            }
+                        },  // 0 Sequence NO
                         {  "bSortable": true },  // 1 Subscription Name
                         
                         {  "bSortable": true },  // 2 InvoiceDescription
@@ -208,7 +214,7 @@
                                  action = full[23]+full[6];
                                 return action;
                             }
-                          },
+                        },
                         {                        // 14 Action
                            "bSortable": true,
                             mRender: function ( id, type, full ) {

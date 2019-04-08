@@ -623,7 +623,64 @@
         </div>
       <!-- PeleCard End -->
 
-      <!-- Mandril start -->
+        <!-- Ingenico Start -->
+        <?php
+        $IngenicoDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$IngenicoSlug);
+        $IngenicoData   = isset($IngenicoDbData->Settings)?json_decode($IngenicoDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$IngenicoDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">* Merchant ID:</label>
+                        <input type="text"  class="form-control" name="MerchantID" value="{{isset($IngenicoData->MerchantID)?$IngenicoData->MerchantID:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">* API Key ID:</label>
+                        <input type="text" class="form-control" name="APIKeyID" value="{{isset($IngenicoData->APIKeyID)?$IngenicoData->APIKeyID:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">* API Secret:</label>
+                        <input type="text" class="form-control" name="APISecret" value="{{isset($IngenicoData->APISecret)?$IngenicoData->APISecret:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">* Integrator:</label>
+                        <input type="text" class="form-control" name="Integrator" value="{{isset($IngenicoData->Integrator)?$IngenicoData->Integrator:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Live:</label>
+                        <div id="IngenicoLiveDiv">
+                            <input id="IngenicoLive" class="subcatstatus" Divid="IngenicoLiveDiv" name="IngenicoLive" type="checkbox" value="1" <?php if(isset($IngenicoDbData->IngenicoLive) && $IngenicoDbData->IngenicoLive==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:</label>
+                        <div id="IngenicoStatusDiv">
+                            <input id="IngenicoStatus" class="subcatstatus" Divid="IngenicoStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($IngenicoDbData->Status) && $IngenicoDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- Ingenico End -->
+
+
+        <!-- Mandril start -->
        <?php 
 	   		$ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$mandrillSlug);
 			$ManrdilData     = isset($ManrdilDbData->Settings)?json_decode($ManrdilDbData->Settings):"";
