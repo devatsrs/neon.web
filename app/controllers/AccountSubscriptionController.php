@@ -28,12 +28,11 @@ public function main() {
             DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),
             "tblAccountSubscription.ActivationFee",
             "tblAccountSubscription.MonthlyFee",
+            "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
             "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
-          //  "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
-          //  "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
-          //  "tblAccountSubscription.ExemptTax","tblAccountSubscription.Status",
-          //  "tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType",
-          //  "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID"
+            "tblAccountSubscription.ExemptTax","tblAccountSubscription.Status",
+            "tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType",
+            "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID"
         ];
 
         $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);
