@@ -62,6 +62,9 @@ $("#billing-form [name='LowBalanceReminder[Time]']").change(function(){
 $("#billing-form [name='BalanceWarning[Time]']").change(function(){
     populateInterval($(this).val(),'BalanceWarning','billing-form');
 });
+$("#billing-form [name='ZeroBalanceWarning[Time]']").change(function(){
+    populateInterval($(this).val(),'ZeroBalanceWarning','billing-form');
+});
 $("#billing-form [name='QosAlert[Time]']").change(function(){
     populateInterval($(this).val(),'QosAlert','billing-form');
 });
