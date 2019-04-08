@@ -1077,16 +1077,16 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 
 /* Above Done ON LIVE */
 
-INSERT INTO `tblresourcecategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1382, 'VOSAccountIP.View', 1, 7);
-INSERT INTO `tblresourcecategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1381, 'VOSAccountBalance.View', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1382, 'VOSAccountIP.View', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1381, 'VOSAccountBalance.View', 1, 7);
 
 
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2726, 'VOSAccountIP.ajax_datagrid', 'VOSAccountIPController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2725, 'VOSAccountIP.*', 'VOSAccountIPController.*', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2724, 'VOSAccountIP.index', 'VOSAccountIPController.index', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2723, 'VOSAccountBalance.ajax_datagrid', 'VOSAccountBalanceController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2722, 'VOSAccountBalance.*', 'VOSAccountBalanceController.*', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2721, 'VOSAccountBalance.index', 'VOSAccountBalanceController.index', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2726, 'VOSAccountIP.ajax_datagrid', 'VOSAccountIPController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2725, 'VOSAccountIP.*', 'VOSAccountIPController.*', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2724, 'VOSAccountIP.index', 'VOSAccountIPController.index', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2723, 'VOSAccountBalance.ajax_datagrid', 'VOSAccountBalanceController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2722, 'VOSAccountBalance.*', 'VOSAccountBalanceController.*', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2721, 'VOSAccountBalance.index', 'VOSAccountBalanceController.index', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
 
 
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 14, 'Import VOS Customer Rate', 'getvoscustomerrate', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2019-02-18 13:45:49', 'RateManagementSystem');
@@ -1113,23 +1113,24 @@ CREATE TABLE IF NOT EXISTS `tblVOSCustomerFeeRateGroup` (
   `IvrPeriod` int(11) DEFAULT NULL,
   `FeeRateGroup` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`VOSCustomerFeeRateGroupID`)
-) ENGINE=InnoDB AUTO_INCREMENT=67182 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
-DROP TABLE IF EXISTS `tblVOSVendorFreeRateGroup`;
-CREATE TABLE IF NOT EXISTS `tblVOSVendorFreeRateGroup` (
-  `VOSVendorFreeRateGroupID` int(11) NOT NULL AUTO_INCREMENT,
+
+DROP TABLE IF EXISTS `tblVOSVendorFeeRateGroup`;
+CREATE TABLE IF NOT EXISTS `tblVOSVendorFeeRateGroup` (
+  `VOSVendorFeeRateGroupID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) DEFAULT NULL,
   `FeePrefix` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `AreaCode` varchar(255) DEFAULT NULL,
+  `AreaCode` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `AreaName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Fee` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Period` int(11) DEFAULT NULL,
   `Type` int(11) DEFAULT NULL,
   `IvrFee` int(11) DEFAULT NULL,
   `IvrPeriod` int(11) DEFAULT NULL,
-  `FeeRateGroup` VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY (`VOSVendorFreeRateGroupID`)
+  `FeeRateGroup` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`VOSVendorFeeRateGroupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -1140,16 +1141,18 @@ DELIMITER //
 CREATE PROCEDURE `prc_VOSImportCustomerFeeRate`(
 	IN `p_CompanyID` INT	
 
+
 )
-BEGIN
+sp:BEGIN
 	DECLARE v_AccountIds LONGTEXT;
 	DECLARE v_TrunkIds LONGTEXT; 
 	DECLARE v_TimezoneIds LONGTEXT;
 	  
-    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
     
+    SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
              
 	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	  
 	  
 	  DROP TEMPORARY TABLE IF EXISTS tmp_customer_VOSData;
 				CREATE TEMPORARY TABLE tmp_customer_VOSData (
@@ -1212,7 +1215,8 @@ BEGIN
 				--		and r.Code = cfg.AreaCode
 					WHERE ct.CompanyID=p_CompanyID
 					GROUP BY cfg.AreaCode,cfg.FeeRateGroup 
-					ORDER BY cfg.VOSCustomerFeeRateGroupID;	
+					ORDER BY cfg.VOSCustomerFeeRateGroupID
+					;	
 					
 				-- Not Found AreaCode imported	
 				INSERT INTO tblRate
@@ -1252,7 +1256,8 @@ BEGIN
 						and b.CodeDeckId=a.CodeDeckId 
 						WHERE 
 							b.RateID is NULL
-					) tbl1;
+						group by a.CodeDeckId,a.AreaCode
+					) tbl1 ;
 					
 					
 				INSERT INTO tmp_customer_feerate_group
@@ -1281,6 +1286,7 @@ BEGIN
 
 			CALL prc_LoadVOSCustomerRates(p_CompanyID);
 			
+						
 			-- SELECT * FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID JOIN tblRate c ON c.RateID=a.RateID;
 		
 					
@@ -1309,9 +1315,10 @@ BEGIN
 			CALL prc_LoadVOSCustomerRates(p_CompanyID);
 			
 			
-			SELECT GROUP_CONCAT(a.CustomerID) INTO v_AccountIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID GROUP BY a.CustomerID;
-			SELECT GROUP_CONCAT(a.TrunkID) INTO v_TrunkIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID GROUP BY a.TrunkID;
-			SELECT GROUP_CONCAT(a.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID GROUP BY a.TimezonesID;	
+			
+			SELECT GROUP_CONCAT(distinct a.CustomerID) INTO v_AccountIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.CustomerID;
+			SELECT GROUP_CONCAT(distinct a.TrunkID) INTO v_TrunkIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.TrunkID;
+			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.TimezonesID;	
 			
 					
 			UPDATE tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID set a.EndDate=NOW();
@@ -1330,6 +1337,8 @@ BEGIN
 			--  Import Rates 
 			--	select * from tmp_customer_feerate_group a INNER JOIN tblCustomerTrunk b on a.FeeRateGroup=b.Prefix;		
 			-- select * from tmp_customer_feerate_group a INNER JOIN tblCustomerTrunk b on a.FeeRateGroup=b.Prefix INNER JOIN tblRate c on c.CodeDeckId=b.CodeDeckId;
+			
+			-- select * from tmp_customer_feerate_group;
 			
 			INSERT INTO tblCustomerRate
 			(
@@ -1361,10 +1370,10 @@ BEGIN
 					NOW(),
 					'VOS-System',
 					TrunkID,
-					1,
+					1 as TimezonesID,
 					Fee,
 					Fee,
-					CURDATE(),
+					CURDATE() as EffectiveDate,
 					NULL,
 					'0.000000',
 					Period,
@@ -1374,7 +1383,9 @@ BEGIN
 					FeePrefix
 					
 				FROM 
-				tmp_customer_feerate_group;
+				tmp_customer_feerate_group
+				group by RateID,AccountID,TrunkID,TimezonesID,EffectiveDate,FeePrefix
+				;
 				
 				select FOUND_ROWS() as TotalCustomerRatesImport;
 				 
@@ -1382,6 +1393,7 @@ BEGIN
 	
 END//
 DELIMITER ;
+
 
 
 
@@ -1394,7 +1406,7 @@ CREATE PROCEDURE `prc_LoadVOSCustomerRates`(
 )
 BEGIN
 
-    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+    SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
             
 	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	  
@@ -1446,6 +1458,7 @@ DELIMITER ;
 
 
 
+
 ALTER TABLE `tblCustomerRate`
 	ADD COLUMN `RatePrefix` VARCHAR(255) NULL DEFAULT NULL AFTER `ConnectionFee`;
 
@@ -1454,19 +1467,18 @@ ALTER TABLE `tblVendorRate`
 	
 
 
-	
 DROP PROCEDURE IF EXISTS `prc_VOSImportVendorFeeRate`;
 DELIMITER //
 CREATE PROCEDURE `prc_VOSImportVendorFeeRate`(
 	IN `p_CompanyID` INT	
 
 )
-BEGIN
+sp:BEGIN
 	DECLARE v_AccountIds LONGTEXT;
 	DECLARE v_TrunkIds LONGTEXT; 
 	DECLARE v_TimezoneIds LONGTEXT;
 	  
-    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+    SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
     
              
 	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -1531,7 +1543,8 @@ BEGIN
 				--		and r.Code = cfg.AreaCode
 					WHERE ct.CompanyID=p_CompanyID
 					GROUP BY vfg.AreaCode,vfg.FeeRateGroup 
-					ORDER BY vfg.VOSVendorFeeRateGroupID;
+					ORDER BY vfg.VOSVendorFeeRateGroupID
+					;
 				
 				
 				-- Not Found AreaCode imported	
@@ -1572,6 +1585,7 @@ BEGIN
 						and b.CodeDeckId=a.CodeDeckId 
 						WHERE 
 							b.RateID is NULL
+							group by a.CodeDeckId,a.AreaCode
 					) tbl1;
 				
 				
@@ -1602,7 +1616,8 @@ BEGIN
 				
 					
 		--	SELECT * FROM tmp_vendor_feerate_group;
-
+		
+			
 			CALL prc_LoadVOSVendorRates(p_CompanyID);
 			
 			 -- SELECT * FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID JOIN tblRate c ON c.RateID=a.RateID;
@@ -1619,12 +1634,13 @@ BEGIN
 			join tmp_vendor_rates_id d ON d.VendorRateID=c.VendorRateID;
 			
 			-- Load TempTable 
+				
 			
 			CALL prc_LoadVOSVendorRates(p_CompanyID);
 			
-			
-			SELECT GROUP_CONCAT(a.AccountId) INTO v_AccountIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID GROUP BY a.AccountId;
-			SELECT GROUP_CONCAT(a.TrunkID) INTO v_TrunkIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID GROUP BY a.TrunkID;
+						
+			SELECT GROUP_CONCAT( distinct a.AccountId) INTO v_AccountIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID; -- GROUP BY a.AccountId;
+			SELECT GROUP_CONCAT(distinct a.TrunkID) INTO v_TrunkIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID; -- GROUP BY a.TrunkID;
 			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID; -- GROUP BY a.TimezonesID;	
 			
 			
@@ -1634,6 +1650,7 @@ BEGIN
 		
 		--	select v_AccountIds;
 		--	select v_TrunkIds;
+		
 			
 			IF v_AccountIds != '' AND v_TrunkIds != '' THEN
 				
@@ -1668,11 +1685,11 @@ BEGIN
 				SELECT 
 					AccountID,
 					TrunkID,
-					1,
+					1 as TimezonesID,
 					RateID,
 					Fee,
 					Fee,
-					NOW(),
+					NOW() as EffectiveDate,
 					NULL,
 					NOW(),
 					NOW(),
@@ -1685,7 +1702,9 @@ BEGIN
 					FeePrefix
 					
 				FROM 
-				tmp_vendor_feerate_group;
+				tmp_vendor_feerate_group
+				group by AccountID,TrunkID,RateID,EffectiveDate,TimezonesID,FeePrefix
+				;
 				
 				select FOUND_ROWS() as TotalVendorRatesImport;
 				 
@@ -1696,17 +1715,15 @@ DELIMITER ;
 
 
 
-
 DROP PROCEDURE IF EXISTS `prc_LoadVOSVendorRates`;
 DELIMITER //
 CREATE PROCEDURE `prc_LoadVOSVendorRates`(
 	IN `p_CompanyID` INT	
 
-
 )
 BEGIN
 
-    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+    SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
             
 	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	  
@@ -1747,6 +1764,8 @@ BEGIN
 	
 END//
 DELIMITER ;
+
+
 
 
 
