@@ -202,7 +202,13 @@
                         {  "bSortable": true },  // 3 Qty
                         {  "bSortable": true },  // 4 StartDate
                         {  "bSortable": true },  // 5 EndDate
-                        {  "bSortable": true },  // 6 ActivationFee
+                        {                        // 14 Action
+                           "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                 action = full[24]+full[6];
+                                return action;
+                            }
+                          },
                         {                        // 14 Action
                            "bSortable": true,
                             mRender: function ( id, type, full ) {
