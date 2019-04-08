@@ -143,7 +143,7 @@ class CronJobController extends \BaseController {
             }
             $hour_limit = 24;
             $day_limit = 32;
-            if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'sippyratefilestatus'){
+            if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'sippyratefilestatus' || $CronJobCommand->Command == 'updatepbxcustomerrate'){
                 $CompanyGateway = CompanyGateway::getCompanyGatewayIdList();
             } else if($CronJobCommand->GatewayID > 0){
                 $CompanyGateway = CompanyGateway::getGatewayIDList($CronJobCommand->GatewayID);
@@ -152,6 +152,13 @@ class CronJobController extends \BaseController {
                 $hour_limit = 3;
             }else if($CronJobCommand->Command == 'portaaccountusage'){
                 $day_limit= 2;
+            }else if($CronJobCommand->Command == 'updatepbxcustomerrate'){
+                $day_limit= 2;
+                $rateTables = RateTable::where(["CompanyId" => $companyID])
+                    ->lists('RateTableName', 'RateTableId');
+                if(!empty($rateTables)){
+                    $rateTables = array(""=> "Select")+$rateTables;
+                }
             }else if($CronJobCommand->Command == 'rategenerator'){
                 $day_limit= 2;
                 $rateGenerators = RateGenerator::rateGeneratorList($companyID);
