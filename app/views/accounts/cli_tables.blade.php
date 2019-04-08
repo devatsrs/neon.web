@@ -135,16 +135,53 @@
 
     var update_new_url;
     var postdata;
-    $('table tbody').on('click', '.history-clitable', function (ev) {
+
+    $('table tbody').on('click', '.history-Termination-clitable', function (ev) {
         var $this   = $(this);
 
         var AccessRateTable   = $this.prevAll("div.hiddenRowData").find("input[name='RateTableID']").val();
         var TerminationRateTable = $this.prevAll("div.hiddenRowData").find("input[name='TerminationRateTableID']").val();
+        if (TerminationRateTable == 0) {
+            alert("Please add termination rate table against the Number");
+            return;
+        }
         var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
         var Country = $this.prevAll("div.hiddenRowData").find("input[name='CountryID']").val();
         var City = $this.prevAll("div.hiddenRowData").find("input[name='City']").val();
         var Tariff = $this.prevAll("div.hiddenRowData").find("input[name='Tariff']").val();
-        getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff);
+        var accessURL = baseurl + "/rate_tables/" + TerminationRateTable + "/view?AccessType=" + Type;
+        accessURL += "&Country=" +Country;
+        accessURL += "&City=" +City;
+        accessURL += "&Tariff=" +Tariff;
+        location.href = accessURL;
+        /* var TerminationRateTable = $this.prevAll("div.hiddenRowData").find("input[name='TerminationRateTableID']").val();
+         var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
+
+
+         getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff);*/
+    });
+    $('table tbody').on('click', '.history-clitable', function (ev) {
+        var $this   = $(this);
+
+        var AccessRateTable   = $this.prevAll("div.hiddenRowData").find("input[name='RateTableID']").val();
+        if (AccessRateTable == 0) {
+            alert("Please add Access rate table against the Number");
+            return;
+        }
+        var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
+        var Country = $this.prevAll("div.hiddenRowData").find("input[name='CountryID']").val();
+        var City = $this.prevAll("div.hiddenRowData").find("input[name='City']").val();
+        var Tariff = $this.prevAll("div.hiddenRowData").find("input[name='Tariff']").val();
+        var accessURL = baseurl + "/rate_tables/" + AccessRateTable + "/view?AccessType=" + Type;
+        accessURL += "&Country=" +Country;
+        accessURL += "&City=" +City;
+        accessURL += "&Tariff=" +Tariff;
+        location.href = accessURL;
+       /* var TerminationRateTable = $this.prevAll("div.hiddenRowData").find("input[name='TerminationRateTableID']").val();
+        var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
+
+
+        getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff);*/
     });
 
     function getArchiveRateTableDIDRates12($clickedButton,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff) {
@@ -240,7 +277,8 @@
         var clitable_datagrid_url = baseurl + "/clitable/ajax_datagrid/" + AccountID;
 
 
-        $("#clitable_submit").click(function (e) {
+
+                $("#clitable_submit").click(function (e) {
             e.preventDefault();
             $searchcli.CLIName = $("#clitable_filter").find('[name="CLIName"]').val();
             $searchcli.NumberContractID = $("#clitable_filter").find('[name="NumberContractID"]').val();
@@ -385,7 +423,8 @@
                             action += '</div>';
                             action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                             action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
-                            action += ' <a href="javascript:;" title="History" class="history-clitable btn btn-primary btn-sm1 tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-plus"></i></a>';
+                            action += ' <a href="javascript:;" title="Access Table" class="history-clitable btn btn-primary btn-sm1 tooltip-primary" data-original-title="Access Table" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>';
+                            action += ' <a href="javascript:;" title="Termination Table" class="history-Termination-clitable btn btn-primary btn-sm1 tooltip-primary" data-original-title="Termination Table" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>';
                             return action;
                         }
                     }
@@ -765,7 +804,7 @@
                                     <label for="field-115" class="control-label">City
                                         <span class="label hidden label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span>
                                     </label>
-                                    {{ Form::select('City', $CityTariff , '' , array("class"=>"select2")) }}
+                                    {{ Form::select('City', $City , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>
@@ -775,7 +814,7 @@
                                     <label for="field-115" class="control-label">Tariff
                                         <span class="label hidden label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span>
                                     </label>
-                                    {{ Form::select('Tariff', $CityTariff , '' , array("class"=>"select2")) }}
+                                    {{ Form::select('Tariff', $Tariff , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>

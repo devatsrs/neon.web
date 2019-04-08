@@ -44,7 +44,7 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Country</label>
-                    {{ Form::select('Country', $countries, Input::old('Country') , array("class"=>"select2")) }}
+                    {{ Form::select('Country', $countries, Helper::getFormValue('Country') , array("class"=>"select2")) }}
                 </div>
 
                 <div class="form-group filter_naa">

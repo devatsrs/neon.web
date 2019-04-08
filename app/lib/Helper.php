@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\View;
 
 class Helper{
 
+    public static function getFormValue($Key) {
+        if (empty(Input::old($Key))) {
+            return  !empty($_REQUEST[$Key]) ? $_REQUEST[$Key] : "";
+        }
+        return Input::old($Key);
+    }
     public static function FileSizeConvert($bytes)
     {
         $bytes = floatval($bytes);
