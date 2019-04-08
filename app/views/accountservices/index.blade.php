@@ -38,10 +38,6 @@
                             <td width="15%">{{ Form::select('PackageName', $Packages , '' , array("class"=>"select2")) }}</td>
                             <td><label for="field-1" class="col-sm-1 control-label">OrderID</label></td>
                             <td><input type="text" name="AccountServiceOrderID" class="form-control" value="" /></td>
-                            <td><label for="field-1" class="col-sm-1 control-label">Active</label></td>
-                            <td><p class="make-switch switch-small">
-                                    <input id="ServiceActive" name="ServiceActive" type="checkbox" value="1" checked="checked" >
-                                </p></td>
                             <td>
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" id="service_submit">
                                     <i class="entypo-search"></i>
