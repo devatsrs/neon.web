@@ -13,14 +13,14 @@
                     <label for="field-1" class="control-label">Name</label>
                     <input type="text" name="FilterName" class="form-control" id="field-5" placeholder="">
                 </div>
-                <div class="form-group">
+                <!--<div class="form-group">
                     <label for="field-1" class="control-label">Recurring Fee Currency</label>
                     {{Form::select('FilterCurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Activation Fee Currency</label>
                     {{Form::select('FilterOneOffCurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}
-                </div>
+                </div>-->
                 <div class="form-group">
                     <label for="field-1" class="control-label">Advance Subscription</label>
                     <!-- <input id="FilterAdvance" name="FilterAdvance" type="checkbox" value="1" >-->

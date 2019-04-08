@@ -238,12 +238,12 @@ class InvoicesController extends \BaseController {
 
 public function edit_inv_in($id){
 
-
         //$str = preg_replace('/^INV/', '', 'INV021000');;
         if($id > 0) {
 
             $Invoice = Invoice::find($id);
             $CompanyID = $Invoice->CompanyID;
+           
             $InvoiceDetailFirst = InvoiceDetail::where(["InvoiceID"=>$id])->first();        
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID"=>$id])->get();
             $accounts = Account::getAccountIDList();
@@ -1394,6 +1394,7 @@ public function store_inv_in(){
     public function getAccountInfo()
     {
         $data = Input::all();
+        $currencies =   Currency::getCurrencyDropdownIDList();
         if (isset($data['account_id']) && $data['account_id'] > 0 ) {
             $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
@@ -1443,6 +1444,7 @@ public function store_inv_in(){
             $InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
             $Terms = $FooterTerm = $InvoiceToAddress ='';						
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+            $currencies =   Currency::getCurrencyDropdownIDList();
                 /* for item invoice generate - invoice to address as invoice template */
 				
 			if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
@@ -1520,6 +1522,7 @@ public function store_inv_in(){
             if(empty($ShowAllPaymentMethod)){
                 $PaymentMethod = $Account->PaymentMethod;
             }
+            $currencies =   Currency::getCurrencyDropdownIDList();
             $InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
             $InvoiceTemplateID = BillingClass::getInvoiceTemplateID($InvoiceBillingClass);
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
@@ -1570,7 +1573,7 @@ public function store_inv_in(){
 
             }
 
-            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount','ShowAllPaymentMethod','PaymentMethod','InvoiceTemplate'));
+            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount','ShowAllPaymentMethod','PaymentMethod','InvoiceTemplate','currencies'));
         }
     }
 
@@ -4390,6 +4393,7 @@ public function store_inv_in(){
     {
         $companyID  =   User::get_companyID();
         $accounts   =   Account::getAccountIDList();
+        $currencies =   Currency::getCurrencyDropdownIDList();
         //$products   =   Product::getProductDropdownList($companyID);
         $products   =   Product::where(['Active' => 1, 'CompanyId' => $companyID ])->get();
         $taxes      =   TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
@@ -4402,7 +4406,7 @@ public function store_inv_in(){
         $DynamicFields = $productsControllerObj->getDynamicFields($companyID,$Type);
         $itemtypes  =   ItemType::getItemTypeDropdownList($companyID);
 
-        return View::make('invoices.create_inv_in',compact('accounts','products','taxes','BillingClass','DynamicFields','itemtypes'));
+        return View::make('invoices.create_inv_in',compact('accounts','products','taxes','BillingClass','DynamicFields','itemtypes','currencies'));
     }
 
 

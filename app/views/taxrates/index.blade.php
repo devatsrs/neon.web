@@ -80,6 +80,7 @@
     .checkicon{color:green; font-size: 17px;}
     .timesicon{color:red; font-size: 17px;}
     .aligncenter { text-align: center; }
+    .export-data { display: none; }
     
 </style>
 

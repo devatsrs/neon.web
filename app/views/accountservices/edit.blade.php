@@ -92,7 +92,7 @@
                             </div>
                             <label for="field-1" class="col-md-2 control-label">Order ID
                             </label>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <input type="text" name="ServiceOrderID" value="{{$AccountService->ServiceOrderID}}" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
