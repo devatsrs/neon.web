@@ -36,6 +36,15 @@
             </div>
         @endif
 
+        @if (!isset($rateGenerators) && isset($rateTables) && count($rateTables) > 0)
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">Rate Table</label>
+
+                    {{Form::select('rateTables', $rateTables,(isset($commandconfigval)?$commandconfigval->RateTableID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"select2 small form-control"))}}
+                </div>
+            </div>
+        @endif
         @if (isset($rateGenerators) && count($rateGenerators) > 0 && isset($rateTables) && count($rateTables) > 0 )
             <div class="col-md-6">
                 <div class="form-group">
