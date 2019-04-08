@@ -41,7 +41,7 @@
                 <div class="form-group">
                     <label for="drp_rateGenerators" class="control-label ">Rate Table</label>
 
-                    {{Form::select('rateTables', $rateTableList,(isset($commandconfigval)? @$commandconfigval->RateTableID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"select2 small form-control"))}}
+                    {{Form::select('rateTables', $rateTableList,(isset($commandconfigval)? @$commandconfigval->rateTables:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"select2 small form-control"))}}
                 </div>
             </div>
         @endif
