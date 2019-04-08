@@ -122,8 +122,16 @@
     $('table tbody').on('click', '.history-packagetable', function (ev) {
         var $this   = $(this);
         var RateTableID   = $this.prevAll("div.hiddenRowData").find("input[name='RateTableID']").val();
+        if (RateTableID == 0) {
+            alert("Please add rate table against the package");
+            return;
+        }
         var PackageId   = $this.prevAll("div.hiddenRowData").find("input[name='PackageId']").val();
-        getArchiveRateTableDIDRates1($this,RateTableID,'',PackageId,'5');
+        var Code   = $this.prevAll("div.hiddenRowData").find("input[name='PackageName']").val();
+        var accessURL = baseurl + "/rate_tables/" + RateTableID + "/view?Code=" + Code;
+        location.href = accessURL;
+
+       // getArchiveRateTableDIDRates1($this,RateTableID,'',PackageId,'5');
     });
 
     function getArchiveRateTableDIDRates1($clickedButton,RateTableID,TerminationRateTable,PackageId,CityTariff) {
@@ -337,7 +345,7 @@
                             action += '</div>';
                             action += ' <a href="javascript:;" title="Edit" class="edit-packagetable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                             action += ' <a href="' + packagetable_delete_url.replace("{id}", full[0]) + '" class="delete-packagetable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
-                            action += ' <a href="javascript:;" title="History" class="history-packagetable btn btn-primary btn-sm1 tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-plus"></i></a>';
+                            action += ' <a href="javascript:;" title="Package Rate Table" class="history-packagetable btn btn-primary btn-sm1 tooltip-primary" data-original-title="Package Rate Table" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>';
                             return action;
                         }
                     }
