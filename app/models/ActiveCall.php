@@ -119,6 +119,8 @@ class ActiveCall extends \Eloquent {
                         $Cost = $MinimumCallCharge;
                         $MinimumCallCharge = 1;
                     }
+                }else{
+                    $MinimumCallCharge = 0;
                 }
             }
 
@@ -264,6 +266,7 @@ class ActiveCall extends \Eloquent {
         $AccountID = $ActiveCall->AccountID;
         $CompanyID = $ActiveCall->CompanyID;
         $CLIRateTableID = 0;
+        $OutBoundRateTableID = 0;
         $OutBoundRateTableRateID = 0;
         $CLIPrefix = 'Other';
         $CLDPrefix = 'Other';
@@ -299,17 +302,28 @@ class ActiveCall extends \Eloquent {
 
         $AccountServicePackageID = 0;
         $PackageRateTableID = 0;
-        $CLIRateTable = CLIRateTable::where(['AccountID'=>$AccountID,'CLI'=>$CLD,'Status'=>1])->first();
+        //$CLIRateTable = CLIRateTable::where(['AccountID'=>$AccountID,'CLI'=>$CLD,'Status'=>1])->first();
+        $ConnectTime = $ActiveCall->ConnectTime;
+        $ConnectTime = date('Y-m-d',strtotime($ConnectTime));
+        $CLIRateTable = CLIRateTable::where(['AccountID'=>$AccountID,'CLI'=>$CLD,'Status'=>1])->where('NumberStartDate','<=',$ConnectTime)->where('NumberEndDate','>=',$ConnectTime)->first();
         $AreaPrefix = '';
         if(!empty($CLIRateTable) && count($CLIRateTable)>0){
             $AccountServiceID = empty($CLIRateTable->AccountServiceID)?0:$CLIRateTable->AccountServiceID;
+            //Access RateTable = Inbound Rate Table
             $CLIRateTableID = empty($CLIRateTable->RateTableID)?0:$CLIRateTable->RateTableID;
-            $CityTariff = empty($CLIRateTable->CityTariff)?0:$CLIRateTable->CityTariff;
-            $AccountServicePackageID =  empty($CLIRateTable->PackageID)?0:$CLIRateTable->PackageID;
-            $PackageRateTableID =  empty($CLIRateTable->PackageRateTableID)?0:$CLIRateTable->PackageRateTableID;
+            $City = empty($CLIRateTable->City)?'':$CLIRateTable->City;
+            $Tariff = empty($CLIRateTable->Tariff)?'':$CLIRateTable->Tariff;
+            $CityTariff = $City.$Tariff;
+            if(empty($City) && empty($Tariff)){
+                $CityTariff='';
+            }
+            //$AccountServicePackageID =  empty($CLIRateTable->PackageID)?0:$CLIRateTable->PackageID;
+            //$PackageRateTableID =  empty($CLIRateTable->PackageRateTableID)?0:$CLIRateTable->PackageRateTableID;
             $AreaPrefix = empty($CLIRateTable->Prefix)?'':$CLIRateTable->Prefix;
             $NoType = empty($CLIRateTable->NoType)?'':$CLIRateTable->NoType;
             $OutPaymentVendorID = empty($CLIRateTable->VendorID)?'':$CLIRateTable->VendorID;
+            //TerminationRateTableID = outbound rate table id
+            $OutBoundRateTableID = empty($CLIRateTable->TerminationRateTableID)?0:$CLIRateTable->TerminationRateTableID;
         }
 
         //log::info('Account Service ID '.$AccountServiceID);
@@ -349,10 +363,16 @@ class ActiveCall extends \Eloquent {
 
         $CallType = $ActiveCall->CallType;
         $PackageTimezonesID = 0;
-        if($AccountServicePackageID > 0 && $PackageRateTableID > 0){
-            $RateTablePKGRateID = ActiveCall::getRateTablePKGRateID($CompanyID,$PackageRateTableID,$TimezonesID,$AccountServicePackageID);
-            if(!empty($RateTablePKGRateID)){
-                $PackageTimezonesID = DB::table('tblRateTablePKGRate')->where(['RateTablePKGRateID'=>$RateTablePKGRateID])->pluck('TimezonesID');
+        /* Package Rate Table find start */
+        $AccountServicePackage = AccountServicePackage::where(['AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID,'Status'=>1])->where('PackageStartDate','<=',$ConnectTime)->where('PackageEndDate','>=',$ConnectTime)->first();
+        if(!empty($AccountServicePackage)) {
+            $AccountServicePackageID = $AccountServicePackage->PackageId;
+            $PackageRateTableID = $AccountServicePackage->RateTableID;
+            if ($AccountServicePackageID > 0 && $PackageRateTableID > 0) {
+                $RateTablePKGRateID = ActiveCall::getRateTablePKGRateID($CompanyID, $PackageRateTableID, $TimezonesID, $AccountServicePackageID);
+                if (!empty($RateTablePKGRateID)) {
+                    $PackageTimezonesID = DB::table('tblRateTablePKGRate')->where(['RateTablePKGRateID' => $RateTablePKGRateID])->pluck('TimezonesID');
+                }
             }
         }
 
@@ -366,7 +386,7 @@ class ActiveCall extends \Eloquent {
         /** outbound Field Update */
         if($CallType=='Outbound'){
 
-            $OutBoundRateTableID =  AccountTariff::where(['AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountTariff::OUTBOUND])->pluck('RateTableID');
+            //$OutBoundRateTableID =  AccountTariff::where(['AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountTariff::OUTBOUND])->pluck('RateTableID');
             if(empty($OutBoundRateTableID)){
                 $Response['Status'] = 'Failed';
                 $Response['Message'] = 'Outbound Rate Table not found';
@@ -394,8 +414,6 @@ class ActiveCall extends \Eloquent {
                 $Response['Message'] = 'Outbound Rate not found';
                 return $Response;
             }
-
-
 
             $UpdateData = array();
             $UpdateData['CompanyGatewayID'] = $CompanyGatewayID;
@@ -431,12 +449,16 @@ class ActiveCall extends \Eloquent {
                 return $Response;
             }
             if(empty($CLIRateTableID)) {
+                $Response['Status'] = 'Failed';
+                $Response['Message'] = 'Inbound Rate Table not found';
+                return $Response;
+                /*
                 $InboundRateTableID = AccountTariff::where(['AccountID' => $AccountID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::INBOUND])->pluck('RateTableID');
                 if(empty($InboundRateTableID)){
                     $Response['Status'] = 'Failed';
                     $Response['Message'] = 'Inbound Rate Table not found';
                     return $Response;
-                }
+                }*/
             }else{
                 $InboundRateTableID = $CLIRateTableID;
             }
@@ -467,6 +489,7 @@ class ActiveCall extends \Eloquent {
             $RateTableDIDRate = RateTableDIDRate::find($RateTableDIDRateID);
             $InboundRateTableID = $RateTableDIDRate->RateTableId;
             $TimezonesID = $RateTableDIDRate->TimezonesID;
+
             $UpdateData = array();
             $UpdateData['CompanyGatewayID'] = $CompanyGatewayID;
             $UpdateData['GatewayAccountPKID'] = $GatewayAccountPKID;
@@ -658,8 +681,8 @@ class ActiveCall extends \Eloquent {
     public static function getRateTablePKGRateID($CompanyID,$RateTableID,$TimezonesID,$PackageId){
         $RateTablePKGRateID = 0;
         $Code = Package::where('PackageId',$PackageId)->pluck('Name');
-        $CodeDeckID = RateTable::where(['CompanyId'=>$CompanyID,'RateTableId'=>$RateTableID])->pluck('CodeDeckId');
-        $RateID = CodeDeck::where(['CompanyID'=>$CompanyID,'CodeDeckId'=>$CodeDeckID,'Code'=>$Code])->pluck('RateID');
+        $CodeDeckID = RateTable::where(['RateTableId'=>$RateTableID])->pluck('CodeDeckId');
+        $RateID = CodeDeck::where(['CodeDeckId'=>$CodeDeckID,'Code'=>$Code])->pluck('RateID');
         if(!empty($RateID)){
             $RateTableRateCount = DB::table('tblRateTablePKGRate')->where(['RateTableId'=>$RateTableID,'TimezonesID'=>$TimezonesID])->count();
             if($RateTableRateCount==0){

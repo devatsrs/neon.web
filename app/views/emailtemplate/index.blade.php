@@ -259,6 +259,9 @@ var popup_type  = 0;
     $('table tbody').on('click','.edit-template',function(ev){
         ev.preventDefault();
         ev.stopPropagation();
+
+       
+        
         $('#add-new-template-form').trigger("reset");
 
         templateID = $(this).prev("div.hiddenRowData").find("input[name='templateID']").val();
@@ -281,7 +284,7 @@ var popup_type  = 0;
           $("#add-new-template-form #email_from").val(data['email_from']).trigger('change');
           $("#add-new-template-form .email_from").removeClass('hidden');  
           $("#add-new-template-form #TemplateName").attr('readonly','readonly');
-                    $("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', false);
+          $("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', false);
 
           if(data['TicketTemplate']){
             $("#add-new-template-form .email_from").addClass('hidden');
@@ -290,7 +293,7 @@ var popup_type  = 0;
           //$("#add-new-template-form .email_from").hide();     
           $("#add-new-template-form .email_from").addClass('hidden');  
           $("#add-new-template-form #TemplateName").removeAttr('readonly');
-                    $("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', true);
+          $("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', true);
         }
         if(data['StatusDisabled'])
         {   
@@ -309,22 +312,22 @@ var popup_type  = 0;
         }else{ 
           $('.status_switch').bootstrapSwitch('setState', false);
         }
-        
-                $('#add-new-modal-template h4').html('Edit template');
-        template_type_val = $('#add-new-modal-template').find('.template_type').val();        
-              //  $('#add-new-modal-template').modal('show');
+            $('#add-new-modal-template h4').html('Edit template');
+            template_type_val = $('#add-new-modal-template').find('.template_type').val();        
+            //  $('#add-new-modal-template').modal('show');
 
-                $("#add-new-template-form [name='templateID']").val($(this).attr('data-id'));
-                $('#add-new-modal-template h4').html('Edit template');
-                $('#add-new-modal-template').modal('show');
-                replaceCheckboxes();
+            $("#add-new-template-form [name='templateID']").val($(this).attr('data-id'));
+            $('#add-new-modal-template h4').html('Edit template');
+            $('#add-new-modal-template').modal('show');
+            replaceCheckboxes();
 
             }else{
                 toastr.error(status, "Error", toastr_opts);
             }
         });
-
-
+         
+        $(".email_from").show();
+       
     });
   $('.unclick').click(function(e) {
     e.preventDefault();

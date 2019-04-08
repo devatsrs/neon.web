@@ -199,7 +199,7 @@
                                     <div class="col-sm-4">
                                         {{ Form::select('CountryID', $country, $rategenerators->CountryID, array("class"=>"select2")) }}
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Type*</label>
+                                    <label for="field-1" class="col-sm-2 control-label">Access Type*</label>
                                     <div class="col-sm-4">
                                         {{ Form::select('AccessType', $AccessType, $rategenerators->AccessType, array("class"=>"select2")) }}
                                     </div>
@@ -299,7 +299,7 @@
                                     <th style="width:250px;" class="Package-Div">Package</th>
                                     <th style="width:250px !important;">Component</th>
                                     <th style="width:250px !important;" class="DID-Div">From Country</th>
-                                    <th style="width:250px !important;" class="DID-Div">From Type</th>
+                                    <th style="width:250px !important;" class="DID-Div">From Access Type</th>
                                     <th style="width:250px !important;" class="DID-Div">From Prefix</th>
                                     <th style="width:250px !important;" class="DID-Div">From City</th>
                                     <th style="width:250px !important;" class="DID-Div">From Tariff</th>
@@ -308,7 +308,7 @@
                                     <th style="width:200px !important;">Action</th>
                                     <th style="width:200px !important;">Merge To</th>
                                     <th style="width:250px !important;" class="DID-Div">To Country</th>
-                                    <th style="width:250px !important;" class="DID-Div">To Type</th>
+                                    <th style="width:250px !important;" class="DID-Div">To Access Type</th>
                                     <th style="width:250px !important;" class="DID-Div">To Prefix</th>
                                     <th style="width:250px !important;" class="DID-Div">To City</th>
                                     <th style="width:250px !important;" class="DID-Div">To Tariff</th>
@@ -467,7 +467,7 @@
                                         <th style="width:250px;" class="Package-Div">Package</th>
                                         <th style="width:250px !important;">Component</th>
                                         <th style="width:250px !important;" class="DID-Div">Country</th>
-                                        <th style="width:250px !important;" class="DID-Div">Type</th>
+                                        <th style="width:250px !important;" class="DID-Div">Access Type</th>
                                         <th style="width:250px !important;" class="DID-Div">Prefix</th>
                                         <th style="width:250px !important;" class="DID-Div">City</th>
                                         <th style="width:250px !important;" class="DID-Div">Tariff</th>
@@ -587,6 +587,9 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                 <tr>
+                                    @if($rategenerator->SelectType == 3)
+                                        <th width="15%">Package</th>
+                                    @endif
                                     @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
                                         <th width="25%">Component</th>
                                         @if($rategenerator->SelectType == 2)
@@ -605,6 +608,11 @@
                                 <tbody id="sortable">
                                 @foreach($rategenerator_rules as $rategenerator_rule)
                                     <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
+                                        @if($rategenerator->SelectType == 3)
+                                            <td>
+                                                @if(@$rategenerator_rule->Package != '') {{Package::getServiceNameByID($rategenerator_rule->Package)}} @else ALL @endif
+                                            </td>    
+                                        @endif
                                         @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
                                             <td>
                                                 @if($rategenerator->SelectType == 3)
@@ -623,14 +631,7 @@
                                                         City: @if(@$rategenerator_rule->City != ''){{@$rategenerator_rule->City}} @else ALL @endif
                                                     <br>
                                                         Tariff: @if(@$rategenerator_rule->Tariff != ''){{@$rategenerator_rule->Tariff}} @else ALL @endif    
-                                                @endif
-                                                @if($rategenerator->SelectType == 3)
-                                                        <br>
-                                                        Package: @if(@$rategenerator_rule->Package != '') {{Package::getServiceNameByID($rategenerator_rule->Package)}} @else ALL @endif
-                                                @endif
-                                                
-
-
+                                                @endif                                               
                                             </td>
                                             @if($rategenerator->SelectType == 2)
                                             <td>

@@ -125,11 +125,16 @@ class BillingSubscriptionController extends \BaseController {
             'RecurringCurrencyID' => 'required',
             'OneOffCurrencyID' => 'required'
         );
+        $messages = array(
+            'OneOffCurrencyID.required' => "Activation Fee Currency is Required", 
+            'RecurringCurrencyID.required' => "Recurring Fee Currency is Required",
+            'ActivationFee.required' => 'Activation Fee Required'
+        );
         $data['Advance'] = isset($data['Advance']) ? 1 : 0;
         $verifier = App::make('validation.presence');
         $verifier->setConnection('sqlsrv2');
 
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, $rules, $messages);
         $validator->setPresenceVerifier($verifier);
 
         if ($validator->fails()) {
@@ -281,12 +286,20 @@ class BillingSubscriptionController extends \BaseController {
                // 'CurrencyID' => 'required',
                 'InvoiceLineDescription' => 'required',
                 'ActivationFee' => 'required|numeric',
+                'RecurringCurrencyID' => 'required',
+                'OneOffCurrencyID' => 'required'
+
+            );
+            $messages = array(
+            'OneOffCurrencyID.required' => "Activation Fee Currency is Required", 
+            'RecurringCurrencyID.required' => "Recurring Fee Currency is Required",
+            'ActivationFee.required' => 'Activation Fee Required'
             );
             $data['Advance'] = isset($data['Advance']) ? 1 : 0;
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
 
-            $validator = Validator::make($data, $rules);
+            $validator = Validator::make($data, $rules, $messages);
             $validator->setPresenceVerifier($verifier);
 
             if ($validator->fails()) {

@@ -155,9 +155,9 @@
       });
 
      $("select[name='SystemType']").change(function(){
-        
         if($(this).val() != ''){
          $(".email_from").show();
+         $(".email_from").removeClass('hidden');
         } else {
             $("select[name='email_from']").select2('val',"");
             $(".email_from").hide();
