@@ -49,7 +49,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                 <label for="drp_rateGenerators" class="control-label ">Rate Generator</label>
-                    {{Form::select('rateGenerators', $rateGenerators, (isset($commandconfigval)?$commandconfigval->rateGeneratorID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"select2 small form-control"))}}
+                    {{Form::select('rateGenerators', $rateGenerators, (isset($commandconfigval)? @$commandconfigval->rateGeneratorID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"select2 small form-control"))}}
                 </div>
             </div>
             <div class="col-md-6">
