@@ -21,21 +21,31 @@ public function main() {
     public function ajax_datagrid($id){
         $data = Input::all();        
         $id = $data['account_id'];
+        
         $select = [
             "tblAccountSubscription.AccountSubscriptionID as AID",
+            
+            
+            
             "tblBillingSubscription.Name",
             "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",
-            DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),
+            DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),            
             "tblAccountSubscription.ActivationFee",
             "tblAccountSubscription.MonthlyFee",
             "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
-          //  "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
-          //  "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
-          //  "tblAccountSubscription.ExemptTax","tblAccountSubscription.Status",
-          //  "tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType",
-          //  "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID"
+            
+            "tblAccountSubscription.SequenceNo",
+            "CurrencyTbl1.Code as OneOffCurrency",
+            "tblAccountSubscription.DailyFee", "tblAccountSubscription.WeeklyFee",
+            "CurrencyTbl2.Code as RecurringCurrency",
+            "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
+            
+            "tblAccountSubscription.ExemptTax","tblAccountSubscription.Status",
+            "tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType",
+            "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID"
         ];
-
+        
+        
         $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);
 
         $subscriptions->leftJoin('speakintelligentRM.tblCurrency as CurrencyTbl1', 'tblAccountSubscription.OneOffCurrencyID', '=', 'CurrencyTbl1.CurrencyID');
