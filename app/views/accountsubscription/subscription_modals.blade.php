@@ -24,7 +24,7 @@
             <form id="subscription-form" method="post" enctype="multipart/form-data">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Subscription*</h4>
+                    <h4 class="modal-title">Subscription</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -32,7 +32,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="field-5" class="control-label">Subscription</label>
+                                        <label for="field-5" class="control-label">Subscription*</label>
                                         {{ Form::select('SubscriptionID', BillingSubscription::getSubscriptionsList(User::get_companyID(), Account::getAccountTypeForSubscriptions($account->AccountID)), '' , array("class"=>"select2")) }}
                                     </div>
                                 </div>
