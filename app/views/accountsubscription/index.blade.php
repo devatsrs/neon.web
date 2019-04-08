@@ -144,7 +144,7 @@
                 "ExemptTax","Status","DiscountAmount",
                 "DiscountType","OneOffCurrencyID","RecurringCurrencyID",
                 "AnnuallyFee","QuarterlyFee",
-                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee"];
+                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee", "OneOffCurrencySymbol", "RecurringCurrencySymbol"];
 
             public_vars.$body = $("body");
             var $search = {};
@@ -205,7 +205,7 @@
                         {                        // 14 Action
                            "bSortable": true,
                             mRender: function ( id, type, full ) {
-                                 action = full[22]+full[6];
+                                 action = full[24]+full[6];
                                 return action;
                             }
                           },

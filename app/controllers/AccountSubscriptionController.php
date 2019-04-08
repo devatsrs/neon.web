@@ -42,7 +42,7 @@ public function main() {
             "tblAccountSubscription.ExemptTax","tblAccountSubscription.Status",
             "tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType",
             "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID",
-            "CurrencyTbl1.Symbol as Symbol","CurrencyTbl2.Symbol as Symbol",
+            "CurrencyTbl1.Symbol as OneOffCurrencySymbol","CurrencyTbl2.Symbol as RecurringCurrencySymbol",
         ];
         
         
