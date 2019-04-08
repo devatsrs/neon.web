@@ -205,7 +205,7 @@
                         {                        // 14 Action
                            "bSortable": true,
                             mRender: function ( id, type, full ) {
-                                 action = full[24]+full[6];
+                                 action = full[22]+full[6];
                                 return action;
                             }
                           },
