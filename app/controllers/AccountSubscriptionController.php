@@ -41,7 +41,8 @@ public function main() {
             "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
             "tblAccountSubscription.ExemptTax","tblAccountSubscription.Status",
             "tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType",
-            "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID"
+            "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID",
+            "CurrencyTbl1.Symbol as Symbol","CurrencyTbl2.Symbol as Symbol",
         ];
         
         
