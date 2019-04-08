@@ -154,10 +154,10 @@ class CronJobController extends \BaseController {
                 $day_limit= 2;
             }else if($CronJobCommand->Command == 'updatepbxcustomerrate'){
                 $day_limit= 2;
-                $rateTables = RateTable::where(["CompanyId" => $companyID])
+                $rateTableList = RateTable::where(["CompanyId" => $companyID])
                     ->lists('RateTableName', 'RateTableId');
-                if(!empty($rateTables)){
-                    $rateTables = array(""=> "Select")+$rateTables;
+                if(!empty($rateTableList)){
+                    $rateTableList = array(""=> "Select")+$rateTableList;
                 }
             }else if($CronJobCommand->Command == 'rategenerator'){
                 $day_limit= 2;
