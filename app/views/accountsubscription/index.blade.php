@@ -205,14 +205,14 @@
                         {                        // 14 Action
                            "bSortable": true,
                             mRender: function ( id, type, full ) {
-                                 action = full[24]+full[6];
+                                 action = full[23]+full[6];
                                 return action;
                             }
                           },
                         {                        // 14 Action
                            "bSortable": true,
                             mRender: function ( id, type, full ) {
-                                 action = full[23]+full[7];
+                                 action = full[24]+full[7];
                                 return action;
                             }
                           },
