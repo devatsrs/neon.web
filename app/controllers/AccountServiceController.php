@@ -722,7 +722,7 @@ class AccountServiceController extends \BaseController {
             ->leftjoin('tblAccountServicePackage', 'tblAccountService.AccountServiceID', '=' , 'tblAccountServicePackage.AccountServiceID')
             ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
          from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"),
-                DB::raw("fnGetServiceStatusForAccountService(tblAccountService.AccountID,tblAccountService.AccountServiceID," . $ServiceActive . ") as Status"), DB::raw("(select GROUP_CONCAT(tblPackage.Name) as Package from tblAccountServicePackage join tblPackage on tblAccountServicePackage.PackageId = tblPackage.PackageId  where tblAccountServicePackage.AccountServiceID= tblAccountService.AccountServiceID) as Packages"), "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate","tblAccountService.ServiceOrderID"])
+                DB::raw("fnGetServiceStatusForAccountService(tblAccountService.AccountID,tblAccountService.AccountServiceID," . $ServiceActive . ") as Status"), DB::raw("(select GROUP_CONCAT(tblPackage.Name) as Package from tblAccountServicePackage join tblPackage on tblAccountServicePackage.PackageId = tblPackage.PackageId  where tblAccountServicePackage.AccountServiceID= tblAccountService.AccountServiceID) as Packages"), "tblAccountService.ServiceOrderID"])
             ->where("tblAccountService.AccountID",$id);
 
         //Log::debug($services->toSql());
