@@ -2358,7 +2358,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function clitable_delete($CLIRateTableID){
         $data = Input::all();
-        Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
+        
         $CompanyID = User::get_companyID();
         $Date = '';
         $Confirm = 0;
