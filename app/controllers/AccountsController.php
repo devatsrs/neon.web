@@ -2291,8 +2291,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $message = '';
+        $date = date('Y-m-d H:i:s');
+        $CreatedBy = User::get_user_full_name();
 
-        Log::info("packagetable_store " . print_r($data,true));
         $rules['PackageID'] = 'required';
         $rules['PackageStartDate'] = 'required';
         $rules['PackageEndDate'] = 'required';
@@ -2330,7 +2331,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
             $rate_tables['AccountID'] = $data['AccountID'];
             $rate_tables['CompanyID'] = $CompanyID;
-
+            $rate_tables['created_at'] = $date;
+            $rate_tables['created_by'] = $CreatedBy;
+            $rate_tables['updated_at'] = $date;
+            $rate_tables['updated_by'] = $CreatedBy;
 
             $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
             if(!empty($data['ServiceID'])) {
@@ -2354,7 +2358,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function clitable_delete($CLIRateTableID){
         $data = Input::all();
-        Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
+        
         $CompanyID = User::get_companyID();
         $Date = '';
         $Confirm = 0;
@@ -2523,7 +2527,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['PackageID'] = 'required';
         $rules['PackageStartDate'] = 'required';
         $rules['PackageEndDate'] = 'required';
-        Log::info("packagetable_update " . print_r($data,true));
+        $date = date('Y-m-d H:i:s');
+        $CreatedBy = User::get_user_full_name();
+
 
         $validator = Validator::make($data, $rules, [
             'PackageID.required' => "Package is required.",
@@ -2544,7 +2550,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
         $rate_tables['AccountID'] = $data['AccountID'];
         $rate_tables['CompanyID'] = $CompanyID;
-
+        $rate_tables['updated_at'] = $date;
+        $rate_tables['updated_by'] = $CreatedBy;
 
         $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
         if(!empty($data['ServiceID'])) {

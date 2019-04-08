@@ -21,6 +21,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
             <li ><a href="#tab2" data-toggle="tab">Payment Reminder</a></li>
             <li ><a href="#tab3" data-toggle="tab">Low Balance Reminder</a></li>
             <li ><a href="#tab4" data-toggle="tab">Account Balance Warning</a></li>
+           <!-- <li ><a href="#tab5" data-toggle="tab">Zero Balance Warning</a></li>-->
             
         </ul>
         <div class="tab-content">
@@ -417,6 +418,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                 </div>
             </div>
 
+            
             
 
         </div>
