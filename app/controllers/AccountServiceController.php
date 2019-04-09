@@ -240,7 +240,7 @@ class AccountServiceController extends \BaseController {
         }
 
         $iDisplayLength = $data['iDisplayLength'];
-        $p_PageNumber = (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) == 0 ? 1 : (ceil($data['iDisplayStart'] / $data['iDisplayLength']));
+        $p_PageNumber = ceil($data['iDisplayStart'] / $data['iDisplayLength']);
 
         $query = "call prcGetAccountServiceData('" . $id . "','" . $ServiceNumber . "','" . $ServicePackageId . "'," . $AccountServiceOrderID . "," . $iDisplayLength . " ," . $p_PageNumber . ",0" . ")";
 
