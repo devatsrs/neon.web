@@ -526,6 +526,53 @@ class IntegrationController extends \BaseController
 				}
 				return Response::json(array("status" => "success", "message" => "PeleCard Settings Successfully Updated"));
 			}
+
+			if($data['secondcategory']=='Ingenico')
+			{
+				$IngenicoDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($IngenicoDbData)>0) { // update
+					$rules = array(
+						'MerchantID' 	=> 'required',
+						'APIKeyID' 		=> 'required',
+						'APISecret' 	=> 'required',
+						'Integrator' 	=> 'required'
+					);
+				} else { // create
+					$rules = array(
+						'MerchantID' 	=> 'required',
+						'APIKeyID' 		=> 'required',
+						'APISecret' 	=> 'required',
+						'Integrator' 	=> 'required'
+					);
+				}
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['IngenicoLive'] 	= 	isset($data['IngenicoLive'])?1:0;
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				$IngenicoData = array(
+					"MerchantID"	=>	$data['MerchantID'],
+					"APIKeyID"		=>	$data['APIKeyID'],
+					"APISecret"		=>	$data['APISecret'],
+					"Integrator"	=>	$data['Integrator'],
+					"IngenicoLive"	=>	$data['IngenicoLive']
+				);
+
+				if(count($IngenicoDbData)>0) {
+					$SaveData = array("Settings"=>json_encode($IngenicoData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$IngenicoDbData->IntegrationConfigurationID))->update($SaveData);
+				} else {
+					$SaveData = array("Settings"=>json_encode($IngenicoData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "Ingenico Settings Successfully Updated"));
+			}
 		}
 		
 		if($data['firstcategory']=='email') {

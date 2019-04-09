@@ -22,8 +22,18 @@
 	@endif
 @endif
 @if( $account->PaymentMethod == 'Ingenico')
-	
+	@if(is_ingenico($account->CompanyId))
 		@include('customer.paymentprofile.ingenicogrid')
-	
+	@endif
+@endif
+@if( $account->PaymentMethod == 'WireTransfer')
+	@if(is_wiretransfer($account->CompanyId))
+		@include('customer.paymentprofile.wiretransfergrid')
+	@endif
+@endif
+@if( $account->PaymentMethod == 'DirectDebit')
+	@if(is_directdebit($account->CompanyId))
+		@include('customer.paymentprofile.directdebitgrid')
+	@endif
 @endif
 

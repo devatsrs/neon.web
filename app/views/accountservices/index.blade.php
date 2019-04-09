@@ -36,12 +36,8 @@
                             <td><input type="text" name="Number" class="form-control" value="" /></td>
                             <td><label for="field-1" class="col-sm-1 control-label">Package</label></td>
                             <td width="15%">{{ Form::select('PackageName', $Packages , '' , array("class"=>"select2")) }}</td>
-                            <td><label for="field-1" class="col-sm-1 control-label">OrderID</label></td>
-                            <td><input type="text" name="AccountServiceOrderID" class="form-control" value="" /></td>
-                            <td><label for="field-1" class="col-sm-1 control-label">Active</label></td>
-                            <td><p class="make-switch switch-small">
-                                    <input id="ServiceActive" name="ServiceActive" type="checkbox" value="1" checked="checked" >
-                                </p></td>
+                            <td width="5%"><label for="field-1" class="col-sm-1 control-label">OrderID</label></td>
+                            <td width="15%"><input type="text" name="AccountServiceOrderID" class="form-control" value="" /></td>
                             <td>
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" id="service_submit">
                                     <i class="entypo-search"></i>
@@ -90,9 +86,7 @@
                 <thead>
                 <tr>
                     <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                    <th>Service Name</th>
                     <th>Number</th>
-                    <th>Status</th>
                     <th>Package</th>
                     <th>Order ID</th>
                     <th width="20%">Action</th>
@@ -168,22 +162,13 @@
                                     return chackbox;
                                 }
                             }, //1   CurrencyDescription
-                            { "bSortable": true, "bVisible": false },  // 0 Service Name
                             { "bSortable": false },  // 0 Service Name
-                            {// 1 Service Status
-                                "bSortable": false,
-                                mRender: function (id, type, full) {
-                                    if (full[3] == 1)
-                                        return '<i style="font-size:22px;color:green" class="entypo-check"></i>';
-                                    else
-                                        return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
-                                }
-                            },
+
                             { "bSortable": false },  // 1 Package
                             {
                                 "bSortable": false,
                                 mRender: function (id, type, full) {
-                                    return full[7];
+                                    return full[3];
                                 }
 
                             },  // Order ID

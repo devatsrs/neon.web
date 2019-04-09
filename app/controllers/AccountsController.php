@@ -909,7 +909,7 @@ class AccountsController extends \BaseController {
         $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $UserCompanyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
-        $Packages = Package::getDropdownIDList();
+        $Packages = Package::getDropdownIDListByCompany($companyID);
 
         return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
             'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
@@ -1392,24 +1392,6 @@ class AccountsController extends \BaseController {
                             return Response::json(array("status" => "success", "message" => "Payment Method Not Integrated"));
                         }
                     }
-                }
-
-                if ($data['PaymentMethod'] == 'Ingenico')
-                {
-                    $method = $data['PaymentMethod'];
-                    $value = $data['Ingenico'];
-                    $options = [
-                        'CardID' => $value
-                    ];
-                    $isDefault = 1;
-
-                    $PaymentGatewayID = PaymentGateway::where(['title' => $method,'Status' =>1])->first();
-                    if(!empty($PaymentGatewayID->PaymentGatewayID)){$payGID = $PaymentGatewayID->PaymentGatewayID;} else {$payGID = 0; }
-                    AccountPaymentProfile::updateOrCreate([
-                        'CompanyID' => $companyID, 'AccountID' => $id, 'PaymentGatewayID' => $payGID
-                    ],[
-                        'Options' => json_encode($options), 'Status' => 1, 'isDefault' => $isDefault
-                    ]);
                 }
             }
 
@@ -2131,8 +2113,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 
     public function clitable_ajax_datagrid($id){
-        $CompanyID = User::get_companyID();
+
         $data = Input::all();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
         Log::info("clitable_ajax_datagrid_query " . print_r($data,true));
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblCLIRateTable.RateTableID')
@@ -2143,6 +2127,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 'tblCountry.Country as Country', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
                 'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
+            ->where("tblCLIRateTable.AccountServiceID",$data['AccountServiceID'])
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
             $rate_tables->WhereRaw('CLI like "%'.$data['CLIName'].'%"');
@@ -2174,8 +2159,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 
     public function packagetable_ajax_datagrid($id){
-        $CompanyID = User::get_companyID();
+
+
         $data = Input::all();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
         Log::info("packagetable_ajax_datagrid" . print_r($data,true));
         $rate_tables = AccountServicePackage::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblAccountServicePackage.RateTableID')->
@@ -2183,6 +2171,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             ->select(['AccountServicePackageID', 'package.Name','rt.RateTableName',DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblAccountServicePackage.PackageDiscountPlanID ) as PackageDiscountPlan"),'tblAccountServicePackage.ContractID', 'tblAccountServicePackage.PackageStartDate', 'tblAccountServicePackage.PackageEndDate', 'tblAccountServicePackage.Status',
                 'tblAccountServicePackage.PackageId','tblAccountServicePackage.RateTableID','tblAccountServicePackage.PackageDiscountPlanID'])
             ->where("tblAccountServicePackage.CompanyID",$CompanyID)
+            ->where("tblAccountServicePackage.AccountServiceID",$data['AccountServiceID'])
             ->where("tblAccountServicePackage.AccountID",$id);
 
         if(isset($data['PackageStatus']) && $data['PackageStatus'] != ""){
@@ -2212,7 +2201,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function clitable_store(){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
         $message = '';
 
         Log::info("clitable_store " . print_r($data,true));
@@ -2232,6 +2222,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
         }
 
+
+
         $clis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['CLI']),function($var){return trim($var)!='';});
 
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
@@ -2240,12 +2232,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $check = CLIRateTable::where([
             'CompanyID' =>  $CompanyID,
             'AccountID' =>  $data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
             'Status'    =>  1
-        ])->where("NumberStartDate", ">=", $data['NumberStartDate'])
-            ->where("NumberEndDate", "<=", $data['NumberEndDate'])->count();
+        ])->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
+            ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
 
-
-            if($check){
+            if($check->count() > 0){
                 $message = 'Number '. $data['CLI'] . ' already exist between start date '.
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
@@ -2289,7 +2281,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function packagetable_store(){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
         $message = '';
         $date = date('Y-m-d H:i:s');
         $CreatedBy = User::get_user_full_name();
@@ -2316,11 +2309,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $check = AccountServicePackage::where([
             'CompanyID'=>$CompanyID,
             'AccountID'=>$data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
             'Status'=>1
-        ])->where("PackageStartDate", ">=", $data['PackageStartDate'])
-            ->where("PackageEndDate", "<=", $data['PackageEndDate'])->count();
+        ])->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
+            ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
 
-        if($check){
+        if($check->count() > 0){
             $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
         } else {
             $rate_tables['PackageID'] = $data['PackageID'];
@@ -2358,7 +2352,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function clitable_delete($CLIRateTableID){
         $data = Input::all();
-        
+
         $CompanyID = User::get_companyID();
         $Date = '';
         $Confirm = 0;
@@ -2433,7 +2427,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function clitable_update(){
         $data = Input::all();
-
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
         $rules['CLI'] = 'required';
         $rules['NumberStartDate'] = 'required';
         $rules['NumberEndDate'] = 'required';
@@ -2453,7 +2448,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
        }
 
         $cli = $data['CLI'];
-        $CompanyID = User::get_companyID();
+
         if(!empty($data['ServiceID'])){
             $ServiceID = $data['ServiceID'];
         }else{
@@ -2502,15 +2497,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $check = CLIRateTable::where([
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
+                    'AccountServiceID' =>  $data['AccountServiceID'],
                     'Status'    =>  1
                 ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])
-                    ->where("NumberStartDate", ">=", $data['NumberStartDate'])
-                    ->where("NumberEndDate", "<=", $data['NumberEndDate'])->count();
+                    ->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
+                    ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
 
-
-
-
-            if($check){
+             if($check->count() > 0){
                 $message = 'Number '. $data['CLI'] . ' already exist between start date '.
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
@@ -2523,7 +2516,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function packagetable_update(){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
+
         $rules['PackageID'] = 'required';
         $rules['PackageStartDate'] = 'required';
         $rules['PackageEndDate'] = 'required';
@@ -2579,13 +2574,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $check = AccountServicePackage::where([
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
+                    'AccountServiceID' =>  $data['AccountServiceID'],
                     'Status'    =>  1
                 ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])
-                    ->where("PackageStartDate", ">=", $data['PackageStartDate'])
-                    ->where("PackageEndDate", "<=", $data['PackageEndDate'])->count();
+                    ->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
+                    ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
 
-
-            if($check){
+            if($check->count() > 0){
                 $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }

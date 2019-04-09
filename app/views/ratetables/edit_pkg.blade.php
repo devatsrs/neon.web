@@ -23,7 +23,7 @@
 
                 <div class="form-group">
                     <label for="field-1" class="control-label">Package Name</label>
-                    <input type="text" name="Code" class="form-control" id="field-1" placeholder="" />
+                    <input type="text" name="Code" value="{{Helper::getFormValue('Code')}}" class="form-control" id="field-1" placeholder="" />
                 </div>
                 <div class="form-group">
                     <label class="control-label">Time Of Day</label>

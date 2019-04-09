@@ -925,58 +925,90 @@
                         <h4>Preferred Payment Method</h4>
 
                         <ul class="icheck-list">
+                            @if(is_authorize($account->CompanyId))
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-3-11" name="PaymentMethod" value="AuthorizeNet" @if( $account->PaymentMethod == 'AuthorizeNet' ) checked="" @endif />
                                 <label for="minimal-radio-3-11">AuthorizeNet</label>
                             </li>
+                            @endif
+                            @if(is_authorize($account->CompanyId))
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-12-11" name="PaymentMethod" value="AuthorizeNetEcheck" @if( $account->PaymentMethod == 'AuthorizeNetEcheck' ) checked="" @endif />
                                 <label for="minimal-radio-12-11">AuthorizeNet Echeck</label>
                             </li>
+                            @endif
+                            @if(is_FideliPay($account->CompanyId))
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-9-11" name="PaymentMethod" value="FideliPay" @if( $account->PaymentMethod == 'FideliPay' ) checked="" @endif />
                                 <label for="minimal-radio-9-11">FideliPay</label>
                             </li>
+                            @endif
+                            @if(is_paypal($account->CompanyId))
                             <li>
                                 <input class="icheck-11" type="radio" id="minimal-radio-1-11" name="PaymentMethod" value="Paypal" @if( $account->PaymentMethod == 'Paypal' ) checked="" @endif />
                                 <label for="minimal-radio-1-11">Paypal</label>
                             </li>
+                            @endif
+                            @if(is_PeleCard($account->CompanyId))
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-10-11" name="PaymentMethod" value="PeleCard" @if( $account->PaymentMethod == 'PeleCard' ) checked="" @endif />
                                 <label for="minimal-radio-10-11">PeleCard</label>
                             </li>
+                            @endif
+                            @if(is_sagepay($account->CompanyId))
                             <li>
                                 <input class="icheck-11" type="radio" id="minimal-radio-7-11" name="PaymentMethod" value="SagePay" @if( $account->PaymentMethod == 'SagePay' ) checked="" @endif />
                                 <label for="minimal-radio-7-11">SagePay</label>
                             </li>
+                            @endif
+                            @if(is_SagePayDirectDebit($account->CompanyId))
                             <li>
                                 <input class="icheck-11" type="radio" id="minimal-radio-8-11" name="PaymentMethod" value="SagePayDirectDebit" @if( $account->PaymentMethod == 'SagePayDirectDebit' ) checked="" @endif />
                                 <label for="minimal-radio-8-11">SagePay Direct Debit</label>
                             </li>
+                            @endif
+                            @if(is_Stripe($account->CompanyId))
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-4-11" name="PaymentMethod" value="Stripe" @if( $account->PaymentMethod == 'Stripe' ) checked="" @endif />
                                 <label for="minimal-radio-4-11">Stripe</label>
                             </li>
+                            @endif
+                            @if(is_StripeACH($account->CompanyId))
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-6-11" name="PaymentMethod" value="StripeACH" @if( $account->PaymentMethod == 'StripeACH' ) checked="" @endif />
                                 <label for="minimal-radio-6-11">Stripe ACH</label>
                             </li>
+                            @endif
+                            @if(is_FastPay($account->CompanyId))
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-13-11" name="PaymentMethod" value="FastPay" @if( $account->PaymentMethod == 'FastPay' ) checked="" @endif />
                                 <label for="minimal-radio-13-11">Fast Pay</label>
                             </li>
+                            @endif
+                            @if(is_merchantwarrior($account->CompanyId))
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-11-11" name="PaymentMethod" value="MerchantWarrior" @if( $account->PaymentMethod == 'MerchantWarrior' ) checked="" @endif />
                                 <label for="minimal-radio-11-11">MerchantWarrior</label>
                             </li>
+                            @endif
+                            @if(is_wiretransfer($account->CompanyId))
                             <li>
-                                <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="Wire Transfer" @if( $account->PaymentMethod == 'Wire Transfer' ) checked="" @endif />
-                                <label for="minimal-radio-2-11">Wire Transfer</label>
+                                <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="WireTransfer" @if( $account->PaymentMethod == 'WireTransfer' ) checked="" @endif />
+                                <label for="minimal-radio-2-11">Bank Transfer</label>
                             </li>
+                            @endif
+                            @if(is_directdebit($account->CompanyId))
+                            <li>
+                                <input class="icheck-11" type="radio" id="minimal-radio-22-11" name="PaymentMethod" value="DirectDebit" @if( $account->PaymentMethod == 'DirectDebit' ) checked="" @endif />
+                                <label for="minimal-radio-22-11">Direct Debit</label>
+                            </li>
+                            @endif
+                            @if(is_ingenico($account->CompanyId))
                             <li>
                                 <input type="radio" class="icheck-11 ingenico" id="minimal-radio-14-11" name="PaymentMethod" value="Ingenico" @if( $account->PaymentMethod == 'Ingenico' ) checked="" @endif />
                                 <label for="minimal-radio-14-11">Ingenico</label>
                             </li>
+                            @endif
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
                                 <label for="minimal-radio-5-11">Other</label>
@@ -1009,11 +1041,17 @@
                         <h4>@lang('routes.CUST_PANEL_PAGE_PAYOUT_PREFERRED_PAYOUT_METHOD')</h4>
 
                         <ul class="icheck-list">
-                            <li>
+                            {{--<li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-24-11" name="PayoutMethod" value="Stripe"
                                        checked=""/>
                                 <label for="minimal-radio-24-11">Stripe</label>
-                            </li>
+                            </li>--}}
+                            @if(is_wiretransfer($account->CompanyId))
+                                <li>
+                                    <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-24-12" name="PayoutMethod" value="WireTransfer" @if( $account->PayoutMethod == 'WireTransfer' ) checked="" @endif />
+                                    <label for="minimal-radio-24-12">Wire Transfer</label>
+                                </li>
+                            @endif
                         </ul>
                     </div>
                     <div class="col-md-9">
@@ -1505,32 +1543,6 @@
                 }
             });
             $('#DifferentBillingAddress').trigger('change');
-        });
-
-        var cardvalue = '{{AccountsPaymentProfileController::getCardValue($account->AccountID,"Ingenico")}}';
-        if(cardvalue.lenght == 0 ){cardvalue = 0;}
-        var htmlgrid = '<div class="panel panel-primary" data-collapsed="0"><div class="panel-heading"><div class="panel-title">Ingenico Payment Profile</div><div class="panel-options"><a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a></div></div><div class="panel-body"><div class="form-group row"><div class="col-sm-2"><label class="control-label">Card Token</label></div><div class="col-sm-6"><input type="text" name="Ingenico" value="'+cardvalue+'" id="ingenico_card" class="form-control"></div></div></div></div>';
-
-        $("input.ingenico").unbind('click').click(function(){
-            $("div#loadGrid").empty();
-            $("div#loadGrid").html(htmlgrid);
-
-            $("#ingenicoadd").unbind("click").click(function(e){
-                e.preventDefault();
-
-                var value = $("input#ingenico_card").val();
-                var accountId = '{{$account->AccountID}}';
-                var companyId = '{{$account->CompanyId}}';
-                var method = 'Ingenico';
-                if(value.length == 0){
-                    alert('please enter card detail');
-                    return false;
-                }
-                $.post("{{url('/paymentprofile/ingenicoadd')}}", {method:method,value:value, accountId:accountId,companyId:companyId}, function(data){
-                    $("#ingenicostatus").html(data);
-                });
-            });
-
         });
 
     </script>
