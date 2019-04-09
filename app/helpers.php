@@ -558,6 +558,15 @@ function is_wiretransfer($CompanyID){
     return false;
 }
 
+function is_directdebit($CompanyID){
+
+    $directdebit = new DirectDebit($CompanyID);
+    if($directdebit->status){
+        return true;
+    }
+    return false;
+}
+
 function is_sagepay($CompanyID){
 
     $sagepay = new SagePay($CompanyID);

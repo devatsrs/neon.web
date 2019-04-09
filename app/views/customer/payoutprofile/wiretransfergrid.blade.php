@@ -13,7 +13,7 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a  id="add-new-payout" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_TITLE')</a>
+            <a  id="add-new-payout" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_BANK_AC_TITLE')</a>
             <div class="clear clearfix"><br></div>
         </div>
         <table class="table table-bordered datatable" id="table-55">
@@ -252,7 +252,7 @@
                     ev.preventDefault();
                     var pgid = '{{PaymentGateway::getPayoutGatewayIDBYAccount($account->AccountID)}}';
                     $("#add-payout-form")[0].reset();
-                    $('#add-modal-payout .modal-title').text("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_TITLE')");
+                    $('#add-modal-payout .modal-title').text("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_BANK_AC_TITLE')");
                     $("#add-payout-form").find('[name="AccountPayoutID"]').val('');
                     $("#add-payout-form").find('input[name="PaymentGatewayID"]').val(pgid);
                     $("#add-payout-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
@@ -358,7 +358,7 @@
                 <form id="add-payout-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_TITLE')</h4>
+                        <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_BANK_AC_TITLE')</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
