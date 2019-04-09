@@ -421,9 +421,9 @@
                                 action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
                             }
                             action += '</div>';
-                            action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
-                            action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
-                            action += ' <a href="javascript:;" title="Access Table" class="history-clitable btn btn-primary btn-sm1 tooltip-primary" data-original-title="Access Table" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>';
+                            action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>&nbsp;';
+                            action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>&nbsp;'
+                            action += ' <a href="javascript:;" title="Access Table" class="history-clitable btn btn-primary btn-sm1 tooltip-primary" data-original-title="Access Table" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>&nbsp;';
                             action += ' <a href="javascript:;" title="Termination Table" class="history-Termination-clitable btn btn-primary btn-sm1 tooltip-primary" data-original-title="Termination Table" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>';
                             return action;
                         }

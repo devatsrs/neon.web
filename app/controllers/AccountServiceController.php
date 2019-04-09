@@ -220,40 +220,35 @@ class AccountServiceController extends \BaseController {
         $id=$data['account_id'];
         $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $ServiceActive = 0;
+        $ServiceNumber = 0;
+        $ServicePackageId = 0;
+        $AccountServiceOrderID = 0;
+        $iDisplayLength = 0;
         if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
             $ServiceActive = 1;
         }
-        $services = AccountService::leftjoin('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')
-        ->leftjoin('tblAccountServiceContract', 'tblAccountService.AccountServiceID', '=', 'tblAccountServiceContract.AccountServiceID')
-        ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
-        ->leftjoin('tblAccountServicePackage', 'tblAccountService.AccountServiceID', '=' , 'tblAccountServicePackage.AccountServiceID')
-        ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
-         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"),
-            DB::raw("fnGetServiceStatusForAccountService(tblAccountService.AccountID,tblAccountService.AccountServiceID," . $ServiceActive . ") as Status"), DB::raw("(select GROUP_CONCAT(tblPackage.Name) as Package from tblAccountServicePackage join tblPackage on tblAccountServicePackage.PackageId = tblPackage.PackageId  where tblAccountServicePackage.AccountServiceID= tblAccountService.AccountServiceID) as Packages"), "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate","tblAccountService.ServiceOrderID"])
-        ->where("tblAccountService.AccountID",$id);
-
-        //Log::debug($services->toSql());
-
         if(!empty($data['Number'])){
-            $services->where('tblCLIRateTable.CLI','Like','%'.trim($data['Number']).'%');
+            $ServiceNumber = $data['Number'];
         }
 
         if(!empty($data['PackageName'])){
-            $services->where('tblAccountServicePackage.PackageId','=',$data['PackageName']);
+            $ServicePackageId = $data['PackageName'];
         }
 
         if(!empty($data['AccountServiceOrderID'])){
-            $services->where('tblAccountService.ServiceOrderID','=',$data['AccountServiceOrderID']);
+            $AccountServiceOrderID = $data['AccountServiceOrderID'];
         }
 
+        $iDisplayLength = $data['iDisplayLength'];
+        $p_PageNumber = (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) == 0 ? 1 : (ceil($data['iDisplayStart'] / $data['iDisplayLength']));
 
+        $query = "call prcGetAccountServiceData('" . $id . "','" . $ServiceNumber . "','" . $ServicePackageId . "'," . $AccountServiceOrderID . "," . $iDisplayLength . " ," . $p_PageNumber . ",0" . ")";
 
-
-
+        //$result = DB::select($query);
         //$services->select($select);
-        Log::info("Account Service SQL " .  $services->toSql());
+        Log::info("Account Service SQL " .  $query);
 
-        return Datatables::of($services)->make();
+        return DataTableSql::of($query)->make();
     }
 
     // account service edit page data store and update
@@ -712,45 +707,49 @@ class AccountServiceController extends \BaseController {
 
     public function exports($id,$type){
         $data = Input::all();
+        Log::info("Account ajax_datagrid " .  print_r($data,true));
+        $id=$data['account_id'];
+        $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $ServiceActive = 0;
+        $ServiceNumber = 0;
+        $ServicePackageId = 0;
+        $AccountServiceOrderID = 0;
+        $iDisplayLength = 0;
         if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
             $ServiceActive = 1;
         }
-        $services = AccountService::leftjoin('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')
-            ->leftjoin('tblAccountServiceContract', 'tblAccountService.AccountServiceID', '=', 'tblAccountServiceContract.AccountServiceID')
-            ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
-            ->leftjoin('tblAccountServicePackage', 'tblAccountService.AccountServiceID', '=' , 'tblAccountServicePackage.AccountServiceID')
-            ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
-         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"),
-                DB::raw("fnGetServiceStatusForAccountService(tblAccountService.AccountID,tblAccountService.AccountServiceID," . $ServiceActive . ") as Status"), DB::raw("(select GROUP_CONCAT(tblPackage.Name) as Package from tblAccountServicePackage join tblPackage on tblAccountServicePackage.PackageId = tblPackage.PackageId  where tblAccountServicePackage.AccountServiceID= tblAccountService.AccountServiceID) as Packages"), "tblAccountService.ServiceOrderID"])
-            ->where("tblAccountService.AccountID",$id);
-
-        //Log::debug($services->toSql());
-
         if(!empty($data['Number'])){
-            $services->where('tblCLIRateTable.CLI','Like','%'.trim($data['Number']).'%');
+            $ServiceNumber = $data['Number'];
         }
 
         if(!empty($data['PackageName'])){
-            $services->where('tblAccountServicePackage.PackageId','=',$data['PackageName']);
+            $ServicePackageId = $data['PackageName'];
         }
 
         if(!empty($data['AccountServiceOrderID'])){
-            $services->where('tblAccountService.ServiceOrderID','=',$data['AccountServiceOrderID']);
+            $AccountServiceOrderID = $data['AccountServiceOrderID'];
         }
 
+        $iDisplayLength = $data['iDisplayLength'];
+        $p_PageNumber = (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) == 0 ? 1 : (ceil($data['iDisplayStart'] / $data['iDisplayLength']));
+
+        $query = "call prcGetAccountServiceData('" . $id . "','" . $ServiceNumber . "','" . $ServicePackageId . "'," . $AccountServiceOrderID . "," . $iDisplayLength . " ," . $p_PageNumber . ",1" . ")";
+
+        $result = DB::select($query);
+        //$services->select($select);
+        Log::info("Account Service SQL " .  $query);
 
 
 
 
         //$services->select($select);
-        Log::info("Account Service SQL " .  $services->toSql());
+        Log::info("Account Service SQL " .  $query);
        // $services->select($select);
 
-        $servicedata =  $services->get();
 
 
-        $servicedata = json_decode(json_encode($servicedata),true);
+
+        $servicedata = json_decode(json_encode($result),true);
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AccountServices.csv';
             $NeonExcel = new NeonExcelIO($file_path);
