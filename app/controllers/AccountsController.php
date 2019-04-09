@@ -2113,8 +2113,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 
     public function clitable_ajax_datagrid($id){
-        $CompanyID = User::get_companyID();
+
         $data = Input::all();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
         Log::info("clitable_ajax_datagrid_query " . print_r($data,true));
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblCLIRateTable.RateTableID')
@@ -2125,6 +2127,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 'tblCountry.Country as Country', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
                 'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
+            ->where("tblCLIRateTable.AccountServiceID",$data['AccountServiceID'])
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
             $rate_tables->WhereRaw('CLI like "%'.$data['CLIName'].'%"');
@@ -2156,8 +2159,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 
     public function packagetable_ajax_datagrid($id){
-        $CompanyID = User::get_companyID();
+
+
         $data = Input::all();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
         Log::info("packagetable_ajax_datagrid" . print_r($data,true));
         $rate_tables = AccountServicePackage::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblAccountServicePackage.RateTableID')->
@@ -2165,6 +2171,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             ->select(['AccountServicePackageID', 'package.Name','rt.RateTableName',DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblAccountServicePackage.PackageDiscountPlanID ) as PackageDiscountPlan"),'tblAccountServicePackage.ContractID', 'tblAccountServicePackage.PackageStartDate', 'tblAccountServicePackage.PackageEndDate', 'tblAccountServicePackage.Status',
                 'tblAccountServicePackage.PackageId','tblAccountServicePackage.RateTableID','tblAccountServicePackage.PackageDiscountPlanID'])
             ->where("tblAccountServicePackage.CompanyID",$CompanyID)
+            ->where("tblAccountServicePackage.AccountServiceID",$data['AccountServiceID'])
             ->where("tblAccountServicePackage.AccountID",$id);
 
         if(isset($data['PackageStatus']) && $data['PackageStatus'] != ""){

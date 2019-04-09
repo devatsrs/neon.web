@@ -129,9 +129,9 @@
         var PackageId   = $this.prevAll("div.hiddenRowData").find("input[name='PackageId']").val();
         var Code   = $this.prevAll("div.hiddenRowData").find("input[name='PackageName']").val();
         var accessURL = baseurl + "/rate_tables/" + RateTableID + "/view?Code=" + Code;
-        location.href = accessURL;
+       // location.href = accessURL;
 
-       // getArchiveRateTableDIDRates1($this,RateTableID,'',PackageId,'5');
+        getArchiveRateTableDIDRates1($this,RateTableID,'',PackageId,'5');
     });
 
     function getArchiveRateTableDIDRates1($clickedButton,RateTableID,TerminationRateTable,PackageId,CityTariff) {
@@ -217,6 +217,14 @@
             $searchcli.PackageStartDate = $("#packagetable_filter").find('[name="PackageStartDate"]').val();
             $searchcli.PackageEndDate = $("#packagetable_filter").find('[name="PackageEndDate"]').val();
             $searchcli.PackageStatus = $("#packagetable_filter").find('[name="PackageStatus"]').is(":checked") ? 1 : 0;
+
+            if((typeof $searchcli.PackageEndDate  != 'undefined' && $searchcli.PackageEndDate != '')
+                    && (typeof $searchcli.PackageStartDate  != 'undefined' && $searchcli.PackageStartDate != '')
+                    && ($searchcli.PackageEndDate  <  $searchcli.PackageStartDate)){
+                toastr.error("End Date for Package must be greater then start date", "Error", toastr_opts);
+                return false;
+            }
+
             data_table_packagetable = $("#table-packagetable").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
