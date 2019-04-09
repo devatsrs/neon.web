@@ -217,6 +217,14 @@
             $searchcli.PackageStartDate = $("#packagetable_filter").find('[name="PackageStartDate"]').val();
             $searchcli.PackageEndDate = $("#packagetable_filter").find('[name="PackageEndDate"]').val();
             $searchcli.PackageStatus = $("#packagetable_filter").find('[name="PackageStatus"]').is(":checked") ? 1 : 0;
+
+            if((typeof $searchcli.PackageEndDate  != 'undefined' && $searchcli.PackageEndDate != '')
+                    && (typeof $searchcli.PackageStartDate  != 'undefined' && $searchcli.PackageStartDate != '')
+                    && ($searchcli.PackageEndDate  <  $searchcli.PackageStartDate)){
+                toastr.error("End Date for Package must be greater then start date", "Error", toastr_opts);
+                return false;
+            }
+
             data_table_packagetable = $("#table-packagetable").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
