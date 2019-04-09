@@ -2225,6 +2225,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $check = CLIRateTable::where([
             'CompanyID' =>  $CompanyID,
             'AccountID' =>  $data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
             'Status'    =>  1
         ])->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
             ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
@@ -2301,6 +2302,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $check = AccountServicePackage::where([
             'CompanyID'=>$CompanyID,
             'AccountID'=>$data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
             'Status'=>1
         ])->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
             ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
@@ -2488,6 +2490,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $check = CLIRateTable::where([
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
+                    'AccountServiceID' =>  $data['AccountServiceID'],
                     'Status'    =>  1
                 ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])
                     ->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
@@ -2564,6 +2567,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $check = AccountServicePackage::where([
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
+                    'AccountServiceID' =>  $data['AccountServiceID'],
                     'Status'    =>  1
                 ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])
                     ->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
