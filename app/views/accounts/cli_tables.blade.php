@@ -207,6 +207,7 @@
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
+                    alert(response);
                     if (response.status == 'success') {
                         ArchiveRates = response.data;
                        // alert(ArchiveRates);
