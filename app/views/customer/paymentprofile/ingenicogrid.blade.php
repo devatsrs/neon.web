@@ -124,7 +124,8 @@
                             }
                         },
                         {
-                            "bSortable": true, //Gateway
+                            "bVisible": false, //Gateway
+                            "bSortable": true,
                             mRender: function (isDefault, type, full) {
                                 return full[3]
                             }
@@ -161,16 +162,16 @@
                                 action += '</div>';
 
                                 action += ' <a class="edit-card btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
-                                action += ' <a data-id="'+ full[5] +'" class="delete-card btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                action += ' <a data-id="'+ full[5] +'" class="delete-card btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-trash"></i>Delete </a>';
 
                                 if (full[1]=="1") {
-                                    action += ' <button href="' + DeActive_Card + '" class="btn change_status btn-danger btn-sm disablecard" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_DEACTIVATE_CAPTION')</button>';
+                                    action += ' <button href="' + DeActive_Card + '" class="btn change_status btn-orange btn-sm btn-icon icon-left disablecard" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"><i class="entypo-block"></i>@lang('routes.BUTTON_DEACTIVATE_CAPTION')</button>';
                                 } else {
-                                    action += ' <button href="' + Active_Card + '" class="btn change_status btn-success btn-sm activecard" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_ACTIVATE_CAPTION')</button>';
+                                    action += ' <button href="' + Active_Card + '" class="btn change_status btn-success btn-sm btn-icon icon-left activecard" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"><i class="entypo-check"></i>@lang('routes.BUTTON_ACTIVATE_CAPTION')</button>';
                                 }
 
                                 if(full[2]!=1){
-                                    action += ' <a href="' + set_default+ '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') </a> ';
+                                    action += ' <a href="' + set_default+ '" class="set-default btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') </a> ';
                                 }
 
                                 return action;
