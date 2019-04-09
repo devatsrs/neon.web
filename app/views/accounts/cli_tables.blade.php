@@ -176,12 +176,12 @@
         accessURL += "&Country=" +Country;
         accessURL += "&City=" +City;
         accessURL += "&Tariff=" +Tariff;
-        location.href = accessURL;
-       /* var TerminationRateTable = $this.prevAll("div.hiddenRowData").find("input[name='TerminationRateTableID']").val();
+       // location.href = accessURL;
+        var TerminationRateTable = $this.prevAll("div.hiddenRowData").find("input[name='TerminationRateTableID']").val();
         var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
 
 
-        getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff);*/
+        getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff);
     });
 
     function getArchiveRateTableDIDRates12($clickedButton,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff) {
