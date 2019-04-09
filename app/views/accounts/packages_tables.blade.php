@@ -129,9 +129,9 @@
         var PackageId   = $this.prevAll("div.hiddenRowData").find("input[name='PackageId']").val();
         var Code   = $this.prevAll("div.hiddenRowData").find("input[name='PackageName']").val();
         var accessURL = baseurl + "/rate_tables/" + RateTableID + "/view?Code=" + Code;
-        location.href = accessURL;
+       // location.href = accessURL;
 
-       // getArchiveRateTableDIDRates1($this,RateTableID,'',PackageId,'5');
+        getArchiveRateTableDIDRates1($this,RateTableID,'',PackageId,'5');
     });
 
     function getArchiveRateTableDIDRates1($clickedButton,RateTableID,TerminationRateTable,PackageId,CityTariff) {
