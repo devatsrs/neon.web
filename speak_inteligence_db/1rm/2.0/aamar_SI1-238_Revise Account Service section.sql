@@ -21,6 +21,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getRateTablesRateForAccountServ
 
 
 
+,
+	IN `p_Type` VARCHAR(50),
+	IN `p_City` VARCHAR(50),
+	IN `p_Tariff` VARCHAR(50),
+	IN `p_Country` INT
+
+
+,
+	IN `p_Package` INT
 )
 BEGIN
 
@@ -38,11 +47,16 @@ SELECT Type INTO v_RateTableType FROM  tblRateTable WHERE RateTableID = p_rateTa
 
 
 IF v_RateTableType = 2  THEN
-	select rate.Code as OriginationCode, didRate.* from tblRateTableDIDRate didRate left join tblRate rate on rate.RateID = didRate.OriginationRateID  where RateTableID = p_rateTableID and EffectiveDate >= NOW() order by RateTableDIDRateID desc;
+	select rate.Code as OriginationCode,ratetimeZone.Title as TimeTitle, didRate.* from tblRateTableDIDRate didRate
+  join tblRate rate on rate.RateID = didRate.RateID
+  join tblTimezones ratetimeZone on ratetimeZone.TimezonesID = didRate.TimezonesID and rate.CountryID = p_Country
+  where RateTableID = p_rateTableID and IFNULL(rate.Type,'')=p_Type and IFNULL(didRate.CityTariff,'') = p_City and  EffectiveDate >= NOW() order by RateTableDIDRateID desc;
 END IF;
 
 IF v_RateTableType = 3  THEN
-	select pkgRate.* from tblRateTablePKGRate pkgRate  where RateTableID = p_rateTableID order by RateTablePKGRateID and EffectiveDate >= NOW() desc ;
+	select name into @packageName from tblPackage where PackageId = p_Package;
+	select pkgRate.* from tblRateTablePKGRate pkgRate join tblRate rate on rate.RateID = pkgRate.RateID
+	  where rate.Code = @packageName and RateTableID = p_rateTableID order by RateTablePKGRateID and EffectiveDate >= NOW() desc ;
 END IF;
 
 END//
@@ -51,6 +65,7 @@ DELIMITER ;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
 
 
 ALTER TABLE `tblCLIRateTable`
@@ -81,6 +96,9 @@ ALTER TABLE `tblAccountServicePackage`
 	
 	ALTER TABLE `tblAccountService`
 	ADD COLUMN `ServiceOrderID` VARCHAR(50) NULL ;
+	
+	ALTER TABLE `tblCLIRateTable`
+	ADD COLUMN `AccessDiscountPlanID` INT(11) NULL DEFAULT NULL AFTER `CLI`;
 	
 	-- --------------------------------------------------------
 -- Host:                         78.129.140.6
