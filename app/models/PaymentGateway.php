@@ -16,6 +16,7 @@ class PaymentGateway extends \Eloquent {
     const  FastPay	            =	9;
     const  Ingenico	            =	10;
     const  WireTransfer	        =	11;
+    const  DirectDebit	        =	12;
     public static $paymentgateway_name = array(''=>'' ,
         self::AuthorizeNet => 'AuthorizeNet',
         self::Stripe=>'Stripe',
@@ -27,7 +28,8 @@ class PaymentGateway extends \Eloquent {
         self::AuthorizeNetEcheck=>'AuthorizeNetEcheck',
         self::FastPay=>'FastPay',
         self::Ingenico=>'Ingenico',
-        self::WireTransfer=>'WireTransfer'
+        self::WireTransfer=>'WireTransfer',
+        self::DirectDebit=>'DirectDebit'
     );
 
     public static function getName($PaymentGatewayID)

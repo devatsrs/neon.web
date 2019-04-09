@@ -31,4 +31,9 @@
 		@include('customer.paymentprofile.wiretransfergrid')
 	@endif
 @endif
+@if( $account->PaymentMethod == 'DirectDebit')
+	@if(is_directdebit($account->CompanyId))
+		@include('customer.paymentprofile.directdebitgrid')
+	@endif
+@endif
 
