@@ -286,6 +286,13 @@
             $searchcli.NumberStartDate = $("#clitable_filter").find('[name="NumberStartDate"]').val();
             $searchcli.AccountServiceOrderID = $("#clitable_filter").find('[name="AccountServiceOrderID"]').val();
             $searchcli.CLIStatus = $("#clitable_filter").find('[name="CLIStatus"]').is(":checked") ? 1 : 0;
+
+            if((typeof $searchcli.NumberEndDate  != 'undefined' && $searchcli.NumberEndDate != '')
+                    && (typeof $searchcli.NumberStartDate  != 'undefined' && $searchcli.NumberStartDate != '')
+                    && ($searchcli.NumberEndDate  <  $searchcli.NumberStartDate)){
+                        toastr.error("End Date for Number must be greater then start date", "Error", toastr_opts);
+                        return false;
+            }
             data_table_clitable = $("#table-clitable").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
