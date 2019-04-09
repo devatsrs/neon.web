@@ -23,11 +23,11 @@
 
                 <div class="form-group">
                     <label class="control-label">Access Type</label>
-                    {{ Form::select('AccessType', array('' => "All") + $AccessType, Input::old('AccessType') , array("class"=>"select2")) }}
+                    {{ Form::select('AccessType', array('' => "All") + $AccessType, Helper::getFormValue('AccessType') , array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label class="control-label">Country</label>
-                    {{ Form::select('Country', $countries, Input::old('Country') , array("class"=>"select2")) }}
+                    {{ Form::select('Country', $countries, Helper::getFormValue('Country') , array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label class="control-label">Origination</label>
@@ -40,11 +40,11 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label">City</label>
-                    {{ Form::select('City', array('' => "All") + $City, Input::old('City') , array("class"=>"select2")) }}
+                    {{ Form::select('City', array('' => "All") + $City, Helper::getFormValue('City') , array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label class="control-label">Tariff</label>
-                    {{ Form::select('Tariff', array('' => "All") + $Tariff, Input::old('Tariff') , array("class"=>"select2")) }}
+                    {{ Form::select('Tariff', array('' => "All") + $Tariff, Helper::getFormValue('Tariff') , array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label class="control-label">Time Of Day</label>

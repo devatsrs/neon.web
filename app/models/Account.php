@@ -55,7 +55,7 @@ class Account extends \Eloquent {
         'ResellerPassword', 'Picture', 'AutorizeProfileID','tags','Autopay',
         'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing','ShowAllPaymentMethod',
         'DisplayRates',
-        'DifferentBillingAddress','BillingAddress1','BillingAddress2','BillingAddress3','BillingCity','BillingPostCode','BillingCountry','TaxRateID'
+        'DifferentBillingAddress','BillingAddress1','BillingAddress2','BillingAddress3','BillingCity','BillingPostCode','BillingCountry','TaxRateID','PayoutMethod'
     );
 
     public static $messages = array(

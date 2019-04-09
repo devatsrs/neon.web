@@ -144,7 +144,7 @@
                 "ExemptTax","Status","DiscountAmount",
                 "DiscountType","OneOffCurrencyID","RecurringCurrencyID",
                 "AnnuallyFee","QuarterlyFee",
-                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee"];
+                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee", "OneOffCurrencySymbol", "RecurringCurrencySymbol"];
 
             public_vars.$body = $("body");
             var $search = {};
@@ -195,15 +195,33 @@
                         //         "bVisible": false
                         //     @endif
                         // },
-                        {  "bSortable": true },  // 0 Sequence NO
+                        {                        // 14 Action
+                           "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                 action = full[10];
+                                return action;
+                            }
+                        },  // 0 Sequence NO
                         {  "bSortable": true },  // 1 Subscription Name
                         
                         {  "bSortable": true },  // 2 InvoiceDescription
                         {  "bSortable": true },  // 3 Qty
                         {  "bSortable": true },  // 4 StartDate
                         {  "bSortable": true },  // 5 EndDate
-                        {  "bSortable": true },  // 6 ActivationFee
-                        {  "bSortable": true },  // 7 ActivationFee
+                        {                        // 14 Action
+                           "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                 action = full[23]+full[6];
+                                return action;
+                            }
+                        },
+                        {                        // 14 Action
+                           "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                 action = full[24]+full[7];
+                                return action;
+                            }
+                          },
                         {                        // 14 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {

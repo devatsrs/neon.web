@@ -75,32 +75,4 @@ class AccountsPaymentProfileController extends \BaseController {
         return $json->CardID; } else {return '0';}
     }
 
-    // public function AddIngenico()
-    // {
-    //     $data = Input::all();
-    //     $value = $data['value'];
-    //     $accountId = $data['accountId'];
-    //     $companyId = $data['companyId'];
-    //     $method = $data['method'];
-    //     $PaymentGatewayID = 0;
-    //     $Account = Account::find($accountId);
-    //     $options = [
-    //       'CardID' => $value
-    //     ];
-
-    //     if($Account->PaymentMethod == $method) {
-    //         AccountPaymentProfile::where('AccountID',$accountId)->update(['isDefault' =>0]);
-    //         $isDefault = 1;} else {$isDefault = 0;}
-    //     $PaymentGatewayID = PaymentGateway::where(['title' => $method,'Status' =>1])->first();
-    //     if(!empty($PaymentGatewayID->PaymentGatewayID)){$payGID = $PaymentGatewayID->PaymentGatewayID;} else {$payGID = 0; }
-    //     AccountPaymentProfile::updateOrCreate([
-    //     'CompanyID' => $companyId, 'AccountID' => $accountId, 'PaymentGatewayID' => $payGID
-    //     ],[
-    //         'Options' => json_encode($options), 'Status' => 1, 'isDefault' => $isDefault
-    //     ]);
-
-    //       return '<span style="background-color:green;color:white;padding:5px;"><i class"entypo-check"></i> Updated</span>';
-
-        
-    // }
 }

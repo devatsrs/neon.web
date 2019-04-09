@@ -32,7 +32,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="field-5" class="control-label">Subscription</label>
+                                        <label for="field-5" class="control-label">Subscription*</label>
                                         {{ Form::select('SubscriptionID', BillingSubscription::getSubscriptionsList(User::get_companyID(), Account::getAccountTypeForSubscriptions($account->AccountID)), '' , array("class"=>"select2")) }}
                                     </div>
                                 </div>

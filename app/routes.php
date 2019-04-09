@@ -52,6 +52,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/PaymentMethodProfiles/paynow/{id}', 'PaymentProfileCustomerController@paynow');
 	Route::any('/customer/PaymentMethodProfiles', 'PaymentProfileCustomerController@index');
 	Route::any('/customer/PaymentMethodProfiles/create', 'PaymentProfileCustomerController@create');
+	Route::any('/customer/PaymentMethodProfiles/update_profile', 'PaymentProfileCustomerController@update_profile');
 	Route::any('/customer/PaymentMethodProfiles/{id}/delete', 'PaymentProfileCustomerController@delete');
 	Route::any('/customer/PaymentMethodProfiles/update', 'PaymentProfileCustomerController@update');
 	Route::any('/customer/PaymentMethodProfiles/ajax_datagrid/{id}', 'PaymentProfileCustomerController@ajax_datagrid');
@@ -63,6 +64,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customer/Payout/create', 'PayoutController@create');
 	Route::any('/customer/Payout/{id}/delete', 'PayoutController@delete');
 	Route::any('/customer/Payout/update', 'PayoutController@update');
+	Route::any('/customer/Payout/update_profile', 'PayoutController@update_profile');
 	Route::any('/customer/Payout/{id}/set_default', 'PayoutController@set_default');
 	Route::any('/customer/Payout/verify_bankaccount', 'PayoutController@verify_bankaccount');
 	Route::any('/customer/Payout/{id}/payout_status/{active_deactive}', array(
@@ -290,7 +292,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/prepaidunbilledreport/{id}', 'AccountsController@prepaidunbilledreport');
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 	Route::any('accounts/getNextBillingDate', 'AccountsController@getNextBillingDate');
-	Route::post('paymentprofile/ingenicoadd','AccountsPaymentProfileController@AddIngenico');
 	Route::any('accounts/getAccountTaxes', 'AccountsController@getAccountTaxes');
 	//Account Subscription
 	Route::any('account_subscription', 'AccountSubscriptionController@main');
