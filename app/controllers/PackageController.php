@@ -41,8 +41,7 @@ class PackageController extends BaseController {
     }
 
     public function index() {
-        $rateTables = RateTable::where('Type' , 3)->lists("RateTableName", "RateTableId");
-        $rateTables = array('' => "Select") + $rateTables;
+        $rateTables = RateTable::getRateTablesForPackage();
         $CompanyID  = User::get_companyID();
         $defaultCurrencyId = Company::getCompanyField($CompanyID, "CurrencyId");
 

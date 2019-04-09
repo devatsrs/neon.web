@@ -131,6 +131,16 @@ class RateTable extends \Eloquent
         }
         return $RateTables;
     }
+
+    public static function getRateTablesForPackage($data=array()){
+        $compantID = User::get_companyID();
+        $RateTables = RateTable::select(['RateTableName','RateTableId'])->where(['CompanyID' => $compantID,'Type' => '3'])->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        if(!empty($RateTables)){
+            $RateTables = [''=>'Select'] + $RateTables;
+        }
+        return $RateTables;
+    }
+
     public static function getCurrencyCode($RateTableId){
         $CurrencyID = RateTable::where(["RateTableId" => $RateTableId])->pluck('CurrencyID');
         return Currency::getCurrencySymbol($CurrencyID);
