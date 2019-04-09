@@ -353,7 +353,7 @@
                             action += '</div>';
                             action += ' <a href="javascript:;" title="Edit" class="edit-packagetable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                             action += ' <a href="' + packagetable_delete_url.replace("{id}", full[0]) + '" class="delete-packagetable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
-                            action += ' <a href="javascript:;" title="Package Rate Table" class="history-packagetable btn btn-primary btn-sm1 tooltip-primary" data-original-title="Package Rate Table" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>';
+                            action += '<a title="Package Rate Table" href="javascript:;" class="history-packagetable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
                             return action;
                         }
                     }
