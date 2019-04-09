@@ -3,7 +3,7 @@
     <div class="panel-heading">
         <div class="panel-title">
             <?php
-            $title = 'Bank Transfer';
+            $title = 'Direct Debit';
             ?>
             {{$title}} @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TITLE')
         </div>
@@ -13,17 +13,17 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a  id="add-new-bank" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_BANK_AC_TITLE')</a>
+            <a  id="add-new-bank" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_DIRECT_DEBIT_TITLE')</a>
             <div class="clear clearfix"><br></div>
         </div>
         <table class="table table-bordered datatable" id="table-4">
             <thead>
             <tr>
                 <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_TITLE')</th>
-                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_BANK_AC_FIELD_BANK_ACCOUNT')</th>
-                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_BANK_AC_FIELD_BIC')</th>
-                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_BANK_AC_FIELD_ACCOUNT_HOLDER_NAME')</th>
-                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_BANK_AC_FIELD_MANDATE_CODE')</th>
+                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_DIRECT_DEBIT_FIELD_BANK_ACCOUNT')</th>
+                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_DIRECT_DEBIT_FIELD_BIC')</th>
+                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_DIRECT_DEBIT_FIELD_ACCOUNT_HOLDER_NAME')</th>
+                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_DIRECT_DEBIT_FIELD_MANDATE_CODE')</th>
                 <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_STATUS')</th>
                 <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_DEFAULT')</th>
                 <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_PAYMENT_METHOD')</th>
@@ -252,7 +252,7 @@
                     ev.preventDefault();
                     var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
                     $("#add-bank-form")[0].reset();
-                    $('#add-modal-card .modal-title').text("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_BANK_AC_TITLE')");
+                    $('#add-modal-card .modal-title').text("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_DIRECT_DEBIT_TITLE')");
                     $("#add-bank-form").find('[name="AccountPaymentProfileID"]').val('');
                     $("#add-bank-form").find('input[name="PaymentGatewayID"]').val(pgid);
                     $("#add-bank-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
@@ -277,7 +277,7 @@
                     ev.preventDefault();
                     ev.stopPropagation();
                     $("#add-bank-form")[0].reset();
-                    $('#add-modal-card .modal-title').text("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_UPDATE_BANK_AC_TITLE')");
+                    $('#add-modal-card .modal-title').text("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_UPDATE_DIRECT_DEBIT_TITLE')");
 
                     AccountPaymentProfileID = $(this).prev("div.hiddenRowData").find("input[name='AccountPaymentProfileID']").val();
                     Title                   = $(this).prev("div.hiddenRowData").find("input[name='Title']").val();
@@ -358,7 +358,7 @@
                 <form id="add-bank-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_BANK_AC_TITLE')</h4>
+                        <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_DIRECT_DEBIT_TITLE')</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -370,25 +370,25 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_BANK_AC_FIELD_BANK_ACCOUNT')</label>
+                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_DIRECT_DEBIT_FIELD_BANK_ACCOUNT')</label>
                                     <input type="text" name="BankAccount" autocomplete="off" class="form-control" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_BANK_AC_FIELD_BIC')</label>
+                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_DIRECT_DEBIT_FIELD_BIC')</label>
                                     <input type="text" name="BIC" autocomplete="off" class="form-control" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_BANK_AC_FIELD_ACCOUNT_HOLDER_NAME')</label>
+                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_DIRECT_DEBIT_FIELD_ACCOUNT_HOLDER_NAME')</label>
                                     <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12 clear">
                                 <div class="form-group">
-                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_BANK_AC_FIELD_MANDATE_CODE')</label>
+                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_DIRECT_DEBIT_FIELD_MANDATE_CODE')</label>
                                     <input type="text" name="MandateCode" autocomplete="off" class="form-control" placeholder="">
                                 </div>
                             </div>

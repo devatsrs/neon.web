@@ -994,7 +994,13 @@
                             @if(is_wiretransfer($account->CompanyId))
                             <li>
                                 <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="WireTransfer" @if( $account->PaymentMethod == 'WireTransfer' ) checked="" @endif />
-                                <label for="minimal-radio-2-11">Wire Transfer</label>
+                                <label for="minimal-radio-2-11">Bank Transfer</label>
+                            </li>
+                            @endif
+                            @if(is_directdebit($account->CompanyId))
+                            <li>
+                                <input class="icheck-11" type="radio" id="minimal-radio-22-11" name="PaymentMethod" value="DirectDebit" @if( $account->PaymentMethod == 'DirectDebit' ) checked="" @endif />
+                                <label for="minimal-radio-22-11">Direct Debit</label>
                             </li>
                             @endif
                             @if(is_ingenico($account->CompanyId))
