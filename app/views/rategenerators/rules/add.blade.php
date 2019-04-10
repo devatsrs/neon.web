@@ -74,13 +74,13 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="field-5" class="control-label">City*</label>
-                        {{ Form::select('City', $CityTariff, null, array("class"=>"select2")) }}
+                        {{ Form::select('City', $City, null, array("class"=>"select2")) }}
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="field-5" class="control-label">Tariff*</label>
-                        {{ Form::select('Tariff', $CityTariffFilter, null, array("class"=>"select2")) }}
+                        {{ Form::select('Tariff', $Tariff, null, array("class"=>"select2")) }}
                     </div>
                 </div>
                 <div class="col-md-3">

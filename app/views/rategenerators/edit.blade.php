@@ -211,7 +211,7 @@
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label">City*</label>
                                     <div class="col-sm-4">
-                                        {{ Form::select('City', $CityTariff, $rategenerators->City, array("class"=>"select2")) }}
+                                        {{ Form::select('City', $City, $rategenerators->City, array("class"=>"select2")) }}
                                     </div>
                                 </div>
                             @endif
@@ -219,7 +219,7 @@
                                 <div class="form-group" id="DIDCategoryDiv">
                                     <label for="field-1" class="col-sm-2 control-label">Tariff*</label>
                                     <div class="col-sm-4">
-                                        {{ Form::select('Tariff', $CityTariffFilter,$rategenerators->Tariff, array("class"=>"select2")) }}
+                                        {{ Form::select('Tariff', $Tariff,$rategenerators->Tariff, array("class"=>"select2")) }}
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label">Category*</label>
                                     <div class="col-sm-4">
@@ -386,10 +386,10 @@
                                             {{ Form::select('FPrefix-'.$a, $Prefix, $Component->FromPrefix, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
-                                            {{ Form::select('FCity-'.$a, $CityTariff, $Component->FromCity, array("class"=>"select2")) }}
+                                            {{ Form::select('FCity-'.$a, $City, $Component->FromCity, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
-                                            {{ Form::select('FTariff-'.$a, $CityTariffFilter, $Component->FromTariff, array("class"=>"select2")) }}
+                                            {{ Form::select('FTariff-'.$a, $Tariff, $Component->FromTariff, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
                                             <input type="text" class="form-control" value="{{$Component->Origination}}" name="Origination-{{$a}}"/>
@@ -418,10 +418,10 @@
                                             {{ Form::select('TPrefix-'.$a, $Prefix, $Component->ToPrefix, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
-                                            {{ Form::select('TCity-'.$a, $CityTariff, $Component->ToCity, array("class"=>"select2")) }}
+                                            {{ Form::select('TCity-'.$a, $City, $Component->ToCity, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
-                                            {{ Form::select('TTariff-'.$a, $CityTariffFilter, $Component->ToTariff, array("class"=>"select2")) }}
+                                            {{ Form::select('TTariff-'.$a, $Tariff, $Component->ToTariff, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
                                             <input type="text" class="form-control" value="{{$Component->ToOrigination}}" name="ToOrigination-{{$a}}"/>
@@ -522,10 +522,10 @@
                                                 {{ Form::select('Prefix1-'.$a, $Prefix, $calculatedRate->Prefix, array("class"=>"select2")) }}
                                             </td>
                                             <td  class="DID-Div">
-                                                {{ Form::select('City1-'.$a, $CityTariff, $calculatedRate->City, array("class"=>"select2")) }}
+                                                {{ Form::select('City1-'.$a, $City, $calculatedRate->City, array("class"=>"select2")) }}
                                             </td>
                                             <td  class="DID-Div">
-                                                {{ Form::select('Tariff1-'.$a, $CityTariffFilter, $calculatedRate->Tariff, array("class"=>"select2")) }}
+                                                {{ Form::select('Tariff1-'.$a, $Tariff, $calculatedRate->Tariff, array("class"=>"select2")) }}
                                             </td>
                                             <td class="DID-Div">
                                                 <input type="text" class="form-control" value="{{$calculatedRate->Origination}}" name="RateOrigination-{{$a}}"/>
@@ -736,10 +736,10 @@
                     {{ Form::select('FPrefix-1', $Prefix, '', array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('FCity-1', $CityTariff, null, array("class"=>"select2")) }}
+                    {{ Form::select('FCity-1', $City, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('FTariff-1', $CityTariffFilter, null, array("class"=>"select2")) }}
+                    {{ Form::select('FTariff-1', $Tariff, null, array("class"=>"select2")) }}
                 </td>
                 
                 <td class="DID-Div">
@@ -766,10 +766,10 @@
                     {{ Form::select('TPrefix-1', $Prefix, '', array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('TCity-1', $CityTariff, null, array("class"=>"select2")) }}
+                    {{ Form::select('TCity-1', $City, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('TTariff-1', $CityTariffFilter, null, array("class"=>"select2")) }}
+                    {{ Form::select('TTariff-1', $Tariff, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
                     <input type="text" class="form-control" name="ToOrigination-1"/>
@@ -804,10 +804,10 @@
                     {{ Form::select('Prefix1-1', $Prefix, '', array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('City1-1', $CityTariff, null, array("class"=>"select2")) }}
+                    {{ Form::select('City1-1', $City, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('Tariff1-1', $CityTariffFilter, null, array("class"=>"select2")) }}
+                    {{ Form::select('Tariff1-1', $Tariff, null, array("class"=>"select2")) }}
                 </td>
                 <td  class="DID-Div">
                     <input type="text" class="form-control" name="RateOrigination-1"/>
