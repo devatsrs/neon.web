@@ -50,13 +50,14 @@ class BillingClassController extends \BaseController {
             $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
             $BalanceWarning = json_decode($response->data->BalanceWarningSettings);
             $PaymentReminders = json_decode($response->data->PaymentReminderSettings);
-            //print_r($BillingClass);
+            $ZeroBalanceWarning = json_decode($response->data->ZeroBalanceWarningSettings);
+            
             $CompanyID = User::get_companyID();
             if(!empty($BillingClass->ResellerID)){
                 $CompanyID = $BillingClass->CompanyID;
             }
             $reseller_owners = Reseller::getDropdownIDListAll();
-            return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','PaymentReminders','LowBalanceReminder','BalanceWarning','accounts','reseller_owners','CompanyID'));
+            return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','PaymentReminders','LowBalanceReminder','BalanceWarning','accounts','reseller_owners','CompanyID','ZeroBalanceWarning'));
             //return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{
             return view_response_api($response);
@@ -114,12 +115,13 @@ class BillingClassController extends \BaseController {
         if (isset($postdata['ResellerOwner']) && !empty($postdata['ResellerOwner'])) {
             $postdata['CompanyID'] = Reseller::where('ResellerID',$postdata['ResellerOwner'])->pluck('ChildCompanyID');
         }
-        $response =  NeonAPI::request('billing_class/store',$postdata,true,false,false);
 
+        $response =  NeonAPI::request('billing_class/store',$postdata,true,false,false);
         if(!empty($response) && $response->status == 'success'){
             if($isModal==1){
                 return json_response_api($response);
             }
+
             $response->redirect =  URL::to('/billing_class/edit/' . $response->data->BillingClassID);
         }
         return json_response_api($response);
