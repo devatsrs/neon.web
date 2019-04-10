@@ -125,7 +125,7 @@
         padding-right: 36px;
     }
     .btn-sm1{
-        padding:2px 5px;font-size:12px;line-height:1.5;border-radius:3px
+        padding:2px 3px;font-size:12px;line-height:1.5;border-radius:3px
     }
 </style>
 <script type="text/javascript">
@@ -207,13 +207,14 @@
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
+
                     if (response.status == 'success') {
                         ArchiveRates = response.data;
                        // alert(ArchiveRates);
                         $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
-                        var header = "<thead><tr><th>OriginationCode</th><th>Day Time</th>";
+                        var header = "<thead><tr><th>Origination</th><th>Time of Day</th>";
                         header += "<th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th>" +
                                 "<th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th>" +
                                 "<th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th>" +
@@ -428,10 +429,11 @@
                                 action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
                             }
                             action += '</div>';
+
                             action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>&nbsp;';
                             action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>&nbsp;'
-                            action += ' <a href="javascript:;" title="Access Table" class="history-clitable btn btn-primary btn-sm1 tooltip-primary" data-original-title="Access Table" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>&nbsp;';
-                            action += ' <a href="javascript:;" title="Termination Table" class="history-Termination-clitable btn btn-primary btn-sm1 tooltip-primary" data-original-title="Termination Table" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>';
+                            action += '<a title="Access Table" href="javascript:;" class="history-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                            action += '<a title="Termination Table" href="javascript:;" class="history-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
                             return action;
                         }
                     }
