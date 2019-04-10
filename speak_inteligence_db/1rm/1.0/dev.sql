@@ -1302,7 +1302,7 @@ insert into tmp_vendor_position (VendorID , vPosition)
 
 				 FROM (
 
-								select distinct  VendorID , sum(Total) as Total from tmp_table1_ group by VendorID
+								select distinct  VendorID , sum(Total) as Total ,VendorName   from tmp_table1_ group by VendorID order by Total
 							) v
 					 , (SELECT  @prev_VendorID := NUll ,  @rank := 0 ,  @prev_Total := 0 ) f
 
