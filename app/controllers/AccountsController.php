@@ -2171,6 +2171,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             ->select(['AccountServicePackageID', 'package.Name','rt.RateTableName',DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblAccountServicePackage.PackageDiscountPlanID ) as PackageDiscountPlan"),'tblAccountServicePackage.ContractID', 'tblAccountServicePackage.PackageStartDate', 'tblAccountServicePackage.PackageEndDate', 'tblAccountServicePackage.Status',
                 'tblAccountServicePackage.PackageId','tblAccountServicePackage.RateTableID','tblAccountServicePackage.PackageDiscountPlanID'])
             ->where("tblAccountServicePackage.CompanyID",$CompanyID)
+            ->where("package.CompanyID",$CompanyID)
             ->where("tblAccountServicePackage.AccountServiceID",$data['AccountServiceID'])
             ->where("tblAccountServicePackage.AccountID",$id);
 
