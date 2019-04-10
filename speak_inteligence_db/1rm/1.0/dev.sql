@@ -1555,6 +1555,11 @@ CREATE  PROCEDURE `prc_GetLCR`(
 
 
 
+
+
+
+
+
 )
 		ThisSP:BEGIN
 
@@ -1582,6 +1587,29 @@ CREATE  PROCEDURE `prc_GetLCR`(
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_stage_;
 		CREATE TEMPORARY TABLE tmp_VendorRate_stage_ (
+			RateTableRateID int,
+			-- VendorConnectionID int,
+			RowCode VARCHAR(50) ,
+			AccountId INT ,
+			Blocked INT DEFAULT 0,
+			AccountName VARCHAR(100) ,
+			OriginationCode VARCHAR(50) ,
+			Code VARCHAR(50) ,
+			Rate DECIMAL(18,6) ,
+			ConnectionFee DECIMAL(18,6) ,
+			EffectiveDate DATETIME ,
+			OriginationDescription VARCHAR(255),
+			Description VARCHAR(255),
+			Preference INT,
+			MaxMatchRank int ,
+			prev_prev_RowCode VARCHAR(50),
+			prev_AccountID int,
+			prev_VendorConnectionID int
+		)
+		;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_stage_1;
+		CREATE TEMPORARY TABLE tmp_VendorRate_stage_1 (
 			RateTableRateID int,
 			-- VendorConnectionID int,
 			RowCode VARCHAR(50) ,
@@ -2079,10 +2107,9 @@ CREATE  PROCEDURE `prc_GetLCR`(
 																)
 
 															)
+												INNER JOIN tblRate as tr on  tr.CodeDeckId = p_codedeckID AND f.Code=tr.Code
+												INNER JOIN tblRate as tr1 on tr1.CodeDeckId = p_codedeckID AND LEFT(f.Code, x.RowNo) = tr1.Code
 
-
-
-												INNER JOIN tblRate as tr on f.Code=tr.Code
 											order by RowCode desc,  LENGTH(loopCode) DESC
 										) tbl1
 								 , ( Select @RowNo := 0 ) x
@@ -2117,9 +2144,13 @@ CREATE  PROCEDURE `prc_GetLCR`(
 																)
 
 															)
-												INNER JOIN tblRate as tr on f.Code=tr.Code AND tr.CodeDeckId=p_codedeckID
+
+												INNER JOIN tblRate as tr on  tr.CodeDeckId = p_codedeckID AND f.Code=tr.Code
+												INNER JOIN tblRate as tr1 on tr1.CodeDeckId = p_codedeckID AND LEFT(f.Code, x.RowNo) = tr1.Code
+
 											order by RowCode desc,  LENGTH(loopCode) DESC
 										) tbl1
+
 								 , ( Select @RowNo := 0 ) x
 						 ) tbl order by RowCode desc,  LENGTH(loopCode) DESC ;
 
@@ -2278,8 +2309,8 @@ CREATE  PROCEDURE `prc_GetLCR`(
 
 
 
-		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_stage_1;
-		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate_stage_1 as (select * from tmp_VendorRate_stage_);
+		-- DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_stage_1;
+		-- CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate_stage_1 as (select * from tmp_VendorRate_stage_);
 
 
 		IF p_ShowAllVendorCodes = 1 THEN
@@ -2349,20 +2380,20 @@ CREATE  PROCEDURE `prc_GetLCR`(
 								 v.Preference
 							 FROM tmp_VendorRateByRank_ v
 
-								 left join  tmp_all_code_ 		SplitCode   on v.Code = SplitCode.Code
+								 inner join  tmp_all_code_ 		SplitCode   on v.Code = SplitCode.Code
 								 left join  tmp_all_code_dup 	SplitCode2  on v.OriginationCode != '' AND v.OriginationCode = SplitCode2.Code
 
-								 LEFT JOIN (	select Code,Description from tblRate where CodeDeckId=p_codedeckID
-																																				 AND
-																																				 (
-																																					 (
-																																						 ( CHAR_LENGTH(RTRIM(p_code)) = 0  OR Code LIKE REPLACE(p_code,'*', '%') )
-																																						 AND ( p_Description = ''  OR Description LIKE REPLACE(p_Description,'*', '%') )
-																																					 )
+								 inner JOIN (	select Code,Description from tblRate where CodeDeckId=p_codedeckID
+																																					AND
+																																					(
+																																						(
+																																							( CHAR_LENGTH(RTRIM(p_code)) = 0  OR Code LIKE REPLACE(p_code,'*', '%') )
+																																							AND ( p_Description = ''  OR Description LIKE REPLACE(p_Description,'*', '%') )
+																																						)
 
-																																				 )
+																																					)
 
-													 ) tr on tr.Code=SplitCode.Code
+														) tr on tr.Code=SplitCode.Code
 
 								 LEFT JOIN (	select Code,Description from tblRate where CodeDeckId=p_codedeckID
 																																				 AND
@@ -2378,9 +2409,11 @@ CREATE  PROCEDURE `prc_GetLCR`(
 													 ) tr1 on tr1.Code=SplitCode2.Code
 
 
-							 where  SplitCode.Code is not null AND  (p_isExport = 1 OR p_isExport = 2  OR (p_isExport = 0 AND rankname <= p_Position))
+							 where  SplitCode.Code is not null AND  ( p_isExport = 1 OR p_isExport = 2  OR ( p_isExport = 0 AND rankname <= p_Position ) )
 
 						 ) tmp
+
+			-- order by AccountId ,OriginationCode,RowCode desc
 			;
 
 		ELSE
@@ -2420,11 +2453,11 @@ CREATE  PROCEDURE `prc_GetLCR`(
 					v.Preference
 				FROM tmp_VendorRateByRank_ v
 
-					left join  tmp_all_code_ SplitCode   on v.Code = SplitCode.Code
+					inner join  tmp_all_code_ SplitCode   on v.Code = SplitCode.Code
 					inner join tblRate tr  on  SplitCode.RowCode = tr.Code AND  tr.CodeDeckId = p_codedeckID
 
 				where  SplitCode.Code is not null and ((p_isExport = 1  OR p_isExport = 2) OR (p_isExport = 0 AND rankname <= p_Position))
-
+			-- order by v.AccountId ,v.OriginationCode,SplitCode.RowCode desc
 			;
 
 		END IF;
@@ -2432,11 +2465,11 @@ CREATE  PROCEDURE `prc_GetLCR`(
 		insert ignore into tmp_VendorRate_stage_
 			SELECT
 				distinct
-				RateTableRateID,
+				v.RateTableRateID,
 
-				RowCode,
+				v.RowCode,
 				v.AccountId ,
-				Blocked,
+				v.Blocked,
 				v.AccountName ,
 				v.OriginationCode ,
 				v.Code ,
@@ -2446,18 +2479,22 @@ CREATE  PROCEDURE `prc_GetLCR`(
 				v.OriginationDescription,
 				v.Description,
 				v.Preference,
-				@rank := ( CASE WHEN(@prev_OriginationCode = OriginationCode and @prev_RowCode = RowCode  AND @prev_AccountID = v.AccountId     )
+				@rank := ( CASE WHEN(@prev_AccountID = v.AccountId  AND @prev_OriginationCode = v.OriginationCode and @prev_RowCode = v.RowCode )
 					THEN  @rank + 1
 									 ELSE 1
 									 END
 				) AS MaxMatchRank,
 				@prev_OriginationCode := v.OriginationCode,
-				@prev_RowCode := RowCode	 ,
+				@prev_RowCode := v.RowCode	 ,
 				@prev_AccountID := v.AccountId
 
 			FROM tmp_VendorRate_stage_1 v
+				inner join  tmp_all_code_ SplitCode   on v.Code = SplitCode.Code
+				inner join tblRate tr  on  SplitCode.RowCode = tr.Code AND  tr.CodeDeckId = p_codedeckID
+
 				, (SELECT  @prev_OriginationCode := NUll , @prev_RowCode := '',  @rank := 0 , @prev_Code := '' , @prev_AccountID := Null) f
-			order by AccountID,OriginationCode,RowCode desc ;
+			order by v.AccountID,v.OriginationCode,v.RowCode desc;
+
 
 
 

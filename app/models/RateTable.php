@@ -42,6 +42,7 @@ class RateTable extends \Eloquent
     const RATE_TABLE_TYPE_ACCESS        = 2;
     const RATE_TABLE_TYPE_PACKAGE       = 3;
 
+
     /*
      * Option = ["TrunkID" = int ,... ]
      * */
@@ -131,6 +132,15 @@ class RateTable extends \Eloquent
         }
         return $RateTables;
     }
+
+    public static function getRateTablesForPackage($CompanyID,$Type){
+        $RateTables = RateTable::select(['RateTableName','RateTableId'])->where(['CompanyID' => $CompanyID,'Type' => $Type])->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        if(!empty($RateTables)){
+            $RateTables = [''=>'Select'] + $RateTables;
+        }
+        return $RateTables;
+    }
+
     public static function getCurrencyCode($RateTableId){
         $CurrencyID = RateTable::where(["RateTableId" => $RateTableId])->pluck('CurrencyID');
         return Currency::getCurrencySymbol($CurrencyID);

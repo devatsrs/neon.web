@@ -1227,6 +1227,7 @@ class RateTablesController extends \BaseController {
             $response['status']     = "success";
             $response['message']    = "Data fetched successfully!";
             $response['data']       = DB::select($query);
+            Log::info("search_ajax_datagrid_rates_account_service " . count($response['data']));
         } else {
             $response['status']     = "success";
             $response['message']    = "Data fetched successfully!";
