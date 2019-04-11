@@ -426,7 +426,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                             <label class="col-sm-2 control-label">Active</label>
                             <div class="col-sm-4">
                                 <div class="make-switch switch-small">
-                                    <input type="checkbox" @if( isset($BillingClass->BalanceWarningStatus) && $BillingClass->ZeroBalanceWarningStatus == 1 )checked="" @endif name="ZeroBalanceWarningStatus" value="1">
+                                    <input type="checkbox" @if( isset($BillingClass->ZeroBalanceWarningStatus) && $BillingClass->ZeroBalanceWarningStatus == 1 )checked="" @endif name="ZeroBalanceWarningStatus" value="1">
                                 </div>
                             </div>
                             <input type="hidden" name="ZeroBalanceWarning[AccountManager]" value="0">

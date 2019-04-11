@@ -1744,7 +1744,7 @@ SET @p_AccessType = '' ;
 
 				FROM (
 
-						select distinct  VendorID , sum(Total) as Total from tmp_tblRateTableDIDRate group by VendorID
+						select distinct  VendorID , sum(Total) as Total from tmp_tblRateTableDIDRate group by VendorID order by Total
 					) v
 					, (SELECT  @prev_VendorID := NUll ,  @rank := 0 ,  @prev_Total := 0 ) f
 

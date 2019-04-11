@@ -111,21 +111,23 @@ if($data['lcr_type']=='Y'){
 
         $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
         $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-        $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
-        $CityTariffFilter = [];
-        foreach($CityTariff as $key => $City){
-            if(strpos($City, " per ")){
-                $CityTariffFilter[$City] = $City;
-                unset($CityTariff[$key]);
-            }
-        }
+        $City = ServiceTemplate::where("CompanyID",User::get_companyID())->where("City",'!=','')->orderBy('City')->lists("City", "City");
+        $Tariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("Tariff",'!=','')->orderBy('Tariff')->lists("Tariff", "Tariff");
+
+        // $CityTariffFilter = [];
+        // foreach($CityTariff as $key => $City){
+        //     if(strpos($City, " per ")){
+        //         $CityTariffFilter[$City] = $City;
+        //         unset($CityTariff[$key]);
+        //     }
+        // }
         //$CityTariff = array_merge($CityTariff, $CityTariffFilter);
 
         $country = array('' => "All") + $country;
         $AccessType =array('' => "All") + $AccessType;
         $Prefix = array('' => "All") + $Prefix;
-        $CityTariff = array('' => 'All') + $CityTariff;
-        $CityTariffFilter = array('' => 'All') + $CityTariffFilter;
+        $City = array('' => 'All') + $City;
+        $Tariff = array('' => 'All') + $Tariff;
 
         $Package = array('' => "All") + Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
 
