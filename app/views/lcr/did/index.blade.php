@@ -39,11 +39,11 @@
                 </div>
                 <div class="form-group productdiv">
                     <label class="control-label">City</label>
-                    {{ Form::select('City', $CityTariff, '', array("class"=>"select2")) }}
+                    {{ Form::select('City', $City, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group productdiv">
                     <label class="control-label">Tariff</label>
-                    {{ Form::select('Tariff', $CityTariffFilter, '', array("class"=>"select2")) }}
+                    {{ Form::select('Tariff', $Tariff, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group packagediv" style="display:none;">
                     <label class="control-label">Package</label>

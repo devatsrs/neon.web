@@ -27,14 +27,25 @@ class ServicesTemplateController extends BaseController {
 
         if ($iSortCol_0 == 1 || $iSortCol_0 == 0) {
             $iSortCol_0 = "tblServiceTemplate.Name";
-        } else if ($iSortCol_0 == 2) {
-            $iSortCol_0 = "tblService.ServiceName";
+        }else if ($iSortCol_0 == 2) {
+            $iSortCol_0 = "tblServiceTemplate.Name";
         }else if ($iSortCol_0 == 3) {
-            $iSortCol_0 = "tblCurrency.Code";
+            $iSortCol_0 = "tblService.ServiceName";
+        }else if ($iSortCol_0 == 4) {
+            $iSortCol_0 = "tblServiceTemplate.country";
+        }else if ($iSortCol_0 == 5) {
+            $iSortCol_0 = "tblServiceTemplate.prefixName";
+        }else if ($iSortCol_0 == 6) {
+            $iSortCol_0 = "tblServiceTemplate.accessType";
+        }else if ($iSortCol_0 == 7) {
+            $iSortCol_0 = "tblServiceTemplate.City";
+        }else if ($iSortCol_0 == 8) {
+            $iSortCol_0 = "tblServiceTemplate.Tariff";
         }
+
         $servicesTemplate = ServiceTemplate::
         leftJoin('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
-            ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblServiceTemplate.country','tblServiceTemplate.prefixName','tblServiceTemplate.accessType','tblServiceTemplate.city_tariff','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId','tblServiceTemplate.ContractDuration','tblServiceTemplate.AutomaticRenewal','tblServiceTemplate.CancellationCharges','tblServiceTemplate.CancellationFee','tblServiceTemplate.PackageDiscountPlanId'])
+            ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblServiceTemplate.country','tblServiceTemplate.prefixName','tblServiceTemplate.accessType','tblServiceTemplate.City','tblServiceTemplate.Tariff','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId','tblServiceTemplate.ContractDuration','tblServiceTemplate.AutomaticRenewal','tblServiceTemplate.CancellationCharges','tblServiceTemplate.CancellationFee','tblServiceTemplate.PackageDiscountPlanId'])
             ->where(["tblServiceTemplate.CompanyID" => $companyID])->orderBy($iSortCol_0, $sSortDir_0);
 
 
@@ -54,10 +65,10 @@ class ServicesTemplateController extends BaseController {
             $servicesTemplate->where(["tblServiceTemplate.prefixName"=>$data['Prefix']]);
         }
         if($data['City'] != ''){
-            $servicesTemplate->where(["tblServiceTemplate.city_tariff"=>$data['City']]);
+            $servicesTemplate->where(["tblServiceTemplate.City"=>$data['City']]);
         }
         if($data['Tariff'] != ''){
-            $servicesTemplate->where(["tblServiceTemplate.city_tariff"=>$data['Tariff']]);
+            $servicesTemplate->where(["tblServiceTemplate.Tariff"=>$data['Tariff']]);
         }
 
         Log::info('$servicesTemplate ajax_datagrid AJAX.' . $servicesTemplate->toSql());
@@ -178,14 +189,15 @@ class ServicesTemplateController extends BaseController {
             $country = ServiceTemplate::where("CompanyID",User::get_companyID())->where("country",'!=','')->orderBy('country')->lists("country", "country");
             $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
             $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-            $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
-            $CityTariffFilter = [];
-            foreach($CityTariff as $key => $City){
-                if(strpos($City, " per ")){
-                    $CityTariffFilter[$City] = $City;
-                    unset($CityTariff[$key]);
-                }
-            }
+            $City = ServiceTemplate::where("CompanyID",User::get_companyID())->where("City",'!=','')->orderBy('City')->lists("City", "City");
+            $Tariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("Tariff",'!=','')->orderBy('Tariff')->lists("Tariff", "Tariff");
+            // $CityTariffFilter = [];
+            // foreach($CityTariff as $key => $City){
+            //     if(strpos($City, " per ")){
+            //         $CityTariffFilter[$City] = $City;
+            //         unset($CityTariff[$key]);
+            //     }
+            // }
             //$CityTariff = array_merge($CityTariff, $CityTariffFilter);
             $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::VOICECALL_ID);
             $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::PACKAGE_ID);
@@ -195,14 +207,14 @@ class ServicesTemplateController extends BaseController {
             $country = array('' => "All") + $country;
             $AccessType = array('' => "All") + $AccessType;
             $Prefix = array('' => "All") + $Prefix;
-            $CityTariff = array('' => "All") + $CityTariff;
+            $City = array('' => "All") + $City;
             $RateType = array('' => "All") + $RateType;
             $rateTable  = array('' => "Select") + $rateTable;
-            $CityTariffFilter  = array('' => "All") + $CityTariffFilter;
+            $Tariff  = array('' => "All") + $Tariff;
 
             
 
-            return View::make('servicetemplate.index', compact('CategoryDropdownIDList','servicesTemplate','rateTable','outboundDiscountPlan','inbounddiscountplan','BillingSubsForSrvTemplate','country','AccessType','Prefix','CityTariff','RateType','DiscountPlanVOICECALL','DiscountPlanPACKAGE','DiscountPlanDID','CityTariffFilter'));
+            return View::make('servicetemplate.index', compact('CategoryDropdownIDList','servicesTemplate','rateTable','outboundDiscountPlan','inbounddiscountplan','BillingSubsForSrvTemplate','country','AccessType','Prefix','City','Tariff','RateType','DiscountPlanVOICECALL','DiscountPlanPACKAGE','DiscountPlanDID','City','Tariff'));
 
     }
 

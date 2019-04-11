@@ -31,11 +31,11 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">City</label>
-                    {{ Form::select('City', $CityTariff, '', array("class"=>"select2")) }}
+                    {{ Form::select('City', $City, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Tariff</label>
-                    {{ Form::select('Tariff', $CityTariffFilter, '', array("class"=>"select2")) }}
+                    {{ Form::select('Tariff', $Tariff, '', array("class"=>"select2")) }}
                 </div>
 
                
@@ -98,7 +98,8 @@
         <th>Country</th>
         <th>Prefix</th>
         <th>Access Type</th>
-        <th>City/Tariff</th>
+        <th>City</th>
+        <th>Tariff</th>
         {{--<th>Currency</th>--}}
         <th>Actions</th>
     </tr>
@@ -191,7 +192,7 @@
             "sAjaxSource": baseurl + "/servicesTemplate/ajax_datagrid",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
-            "aaSorting"   : [[9, 'desc']],
+            "aaSorting"   : [[10, 'desc']],
             "fnServerParams": function(aoData) {
                 //alert("Called1");
                 $searchFilter.ServiceName = $("#service_filter [name='ServiceName']").val();
@@ -226,10 +227,11 @@
                  { "bSortable": true }, //Country
                  { "bSortable": true }, //Prefix
                  { "bSortable": true }, //Type
-                 { "bSortable": true }, //City/Tarrif
+                 { "bSortable": true }, //City
+                 { "bSortable": true }, //Tariff
 //                { "bSortable": true }, //Gateway
                 {
-                   "bSortable": true,
+                   "bSortable": false,
                     mRender: function ( id, type, full ) {
                         var action , edit_ , show_, delete_ ;
                         //alert("Called2");
@@ -238,16 +240,16 @@
                         action = '<div class = "hiddenRowData"  >';
                         action += '<input type = "hidden"  name = "ServiceTemplateId" value = "' + (full[0] != null ? full[0] : 0) + '" / >';
                         action += '<input type = "hidden"  name = "ServiceId" value = "' + (full[1] != null ? full[1] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "OutboundTariffId" value = "' + (full[8] != null ? full[8] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "OutboundTariffId" value = "' + (full[9] != null ? full[9] : '') + '" / >';
                         action += '<input type = "hidden"  name = "ServiceName" value = "' + (full[2] != null ? full[2] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "CurrencyID" value = "' + (full[9] != null ? full[9] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "OutboundDiscountPlanID" value = "' + (full[11] != null ? full[11] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "InboundDiscountPlanID" value = "' + (full[10] != null ? full[10] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "PackageDiscountPlanId" value = "' + (full[16] != null ? full[16] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "ContractDuration" value = "' + (full[12] != null ? full[12] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "AutomaticRenewal" value = "' + (full[13] != null ? full[13] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "CancellationCharges" value = "' + (full[14] != null ? full[14] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "CancellationFee" value = "' + (full[15] != null ? full[15] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CurrencyID" value = "' + (full[10] != null ? full[10] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "OutboundDiscountPlanID" value = "' + (full[12] != null ? full[12] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "InboundDiscountPlanID" value = "' + (full[11] != null ? full[11] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "PackageDiscountPlanId" value = "' + (full[17] != null ? full[17] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "ContractDuration" value = "' + (full[13] != null ? full[13] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "AutomaticRenewal" value = "' + (full[14] != null ? full[14] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CancellationCharges" value = "' + (full[15] != null ? full[15] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CancellationFee" value = "' + (full[16] != null ? full[16] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Status" value = "" / ></div>';
                         <?php if(User::checkCategoryPermission('SubscriptionTemplate','Edit')){ ?>
                                 action += ' <a data-name = "'+full[1]+'" data-id="'+ full[0] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
