@@ -76,13 +76,13 @@ class ServiceTemplate extends \Eloquent
     public static function getPrefixDD($CompanyID){
         return ServiceTemplate::where("CompanyID",$CompanyID)->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
     }
-    public static function getCityTariffDD($CompanyID){
-        return ServiceTemplate::where("CompanyID",$CompanyID)->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
+    public static function getCityDD($CompanyID){
+        return ServiceTemplate::where("CompanyID",$CompanyID)->where("City",'!=','')->orderBy('City')->lists("City", "City");
+    }
+    public static function getTariffDD($CompanyID){
+        return ServiceTemplate::where("CompanyID",$CompanyID)->where("Tariff",'!=','')->orderBy('Tariff')->lists("Tariff", "Tariff");
     }
     public static function getCountryPrefixDD($CompanyID){
-        return $country = ServiceTemplate::Join('tblCountry', function($join) {
-                $join->on('tblServiceTemplate.country','=','tblCountry.country');
-            })->select('tblServiceTemplate.country AS country','tblCountry.Prefix As Prefix')->where("tblServiceTemplate.CompanyID",$CompanyID)
-            ->orderBy('tblServiceTemplate.country')->lists("country", "Prefix");
+        return $country = Country::select('Country AS country','Prefix')->orderBy('country')->lists("country", "Prefix");
     }
 }
