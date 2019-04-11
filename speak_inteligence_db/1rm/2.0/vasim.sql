@@ -536,9 +536,9 @@ GenerateRateTable:BEGIN
 
 				AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
 
-				AND (@p_City = '' OR d.CityTariff  = @p_City)
+				AND (@p_City = '' OR d.City  = @p_City)
 
-				AND (@p_Tariff = '' OR d.CityTariff  = @p_Tariff)
+				AND (@p_Tariff = '' OR d.Tariff  = @p_Tariff)
 
 				AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) );
 
@@ -560,9 +560,9 @@ GenerateRateTable:BEGIN
 
 				AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
 
-				AND (@p_City = '' OR d.CityTariff  = @p_City)
+				AND (@p_City = '' OR d.City  = @p_City)
 
-				AND (@p_Tariff = '' OR d.CityTariff  = @p_Tariff)
+				AND (@p_Tariff = '' OR d.Tariff  = @p_Tariff)
 
 				AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) )
 
@@ -585,9 +585,9 @@ GenerateRateTable:BEGIN
 
 				AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
 
-				AND (@p_City = '' OR d.CityTariff  = @p_City)
+				AND (@p_City = '' OR d.City  = @p_City)
 
-				AND (@p_Tariff = '' OR d.CityTariff  = @p_Tariff)
+				AND (@p_Tariff = '' OR d.Tariff  = @p_Tariff)
 
 				AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) )
 
@@ -712,8 +712,8 @@ GenerateRateTable:BEGIN
 								c.CountryID,
 								drtr.AccessType,
 								c.Prefix,
-								IF(drtr.CityTariff IS NOT NULL,IF(INSTR(drtr.CityTariff,' per ') = 0,drtr.CityTariff,''),''), -- AS City,
-								IF(drtr.CityTariff IS NOT NULL,IF(INSTR(drtr.CityTariff,' per ') > 0,drtr.CityTariff,''),''), -- AS Tariff,
+								drtr.City,
+								drtr.Tariff,
 								r.Code,
 								r2.Code as OriginationCode,
 								a.AccountID,
@@ -1066,8 +1066,8 @@ GenerateRateTable:BEGIN
 
 
 				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID )
-				AND ( @p_City = '' OR drtr.CityTariff  = @p_City )
-				AND ( @p_Tariff = '' OR drtr.CityTariff  = @p_Tariff )
+				AND ( @p_City = '' OR drtr.City  = @p_City )
+				AND ( @p_Tariff = '' OR drtr.Tariff  = @p_Tariff )
 				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) ) )
 				AND ( @p_AccessType = '' OR drtr.AccessType = @p_AccessType )
 
@@ -1156,8 +1156,8 @@ GenerateRateTable:BEGIN
 								c.CountryID,
 								drtr.AccessType,
 								c.Prefix,
-								IF(drtr.CityTariff IS NOT NULL,IF(INSTR(drtr.CityTariff,' per ') = 0,drtr.CityTariff,''),''), -- AS City,
-								IF(drtr.CityTariff IS NOT NULL,IF(INSTR(drtr.CityTariff,' per ') > 0,drtr.CityTariff,''),''), -- AS Tariff,
+								drtr.City,
+								drtr.Tariff,
 								r.Code,
 								r2.Code as OriginationCode,
 								a.AccountID,
@@ -1510,8 +1510,8 @@ GenerateRateTable:BEGIN
 
 
 				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID )
-				AND ( @p_City = '' OR drtr.CityTariff  = @p_City )
-				AND ( @p_Tariff = '' OR drtr.CityTariff  = @p_Tariff )
+				AND ( @p_City = '' OR drtr.City  = @p_City )
+				AND ( @p_Tariff = '' OR drtr.Tariff  = @p_Tariff )
 				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) ) )
 				AND ( @p_AccessType = '' OR drtr.AccessType = @p_AccessType )
 
@@ -2513,7 +2513,8 @@ GenerateRateTable:BEGIN
 														TimezonesID,
 														EffectiveDate,
 														EndDate,
-														CityTariff,
+														City,
+														Tariff,
 														OneOffCost,
 														MonthlyCost,
 														CostPerCall,
@@ -2556,7 +2557,8 @@ GenerateRateTable:BEGIN
 														TimezonesID,
 														EffectiveDate,
 														NOW() as EndDate,
-														CityTariff,
+														City,
+														Tariff,
 														OneOffCost,
 														MonthlyCost,
 														CostPerCall,
@@ -2630,7 +2632,8 @@ GenerateRateTable:BEGIN
 														TimezonesID,
 														EffectiveDate,
 														EndDate,
-														CityTariff,
+														City,
+														Tariff,
 														OneOffCost,
 														MonthlyCost,
 														CostPerCall,
@@ -2673,7 +2676,8 @@ GenerateRateTable:BEGIN
 														rtd.TimezonesID,
 														rtd.EffectiveDate,
 														NOW() as EndDate,
-														rtd.CityTariff,
+														rtd.City,
+														rtd.Tariff,
 														rtd.OneOffCost,
 														rtd.MonthlyCost,
 														rtd.CostPerCall,
@@ -2716,7 +2720,7 @@ GenerateRateTable:BEGIN
 												ON rtd.OriginationRateID  = rr.RateID
 											inner join tmp_SelectedVendortblRateTableDIDRate drtr on
 											drtr.Code = r.Code and drtr.OriginationCode = rr.Code
-											and rtd.TimezonesID = drtr.TimezonesID and rtd.CityTariff = CONCAT(drtr.City,drtr.Tariff) and  r.CodeDeckId = rr.CodeDeckId  AND  r.CodeDeckId = drtr.CodeDeckId
+											and rtd.TimezonesID = drtr.TimezonesID and rtd.City = drtr.City and rtd.Tariff = drtr.Tariff and  r.CodeDeckId = rr.CodeDeckId  AND  r.CodeDeckId = drtr.CodeDeckId
 
 
 
@@ -2738,7 +2742,7 @@ GenerateRateTable:BEGIN
 								ON rtd.OriginationRateID  = rr.RateID
 							inner join tmp_SelectedVendortblRateTableDIDRate drtr on
 							drtr.Code = r.Code and drtr.OriginationCode = rr.Code
-							and rtd.TimezonesID = drtr.TimezonesID and rtd.CityTariff = CONCAT(drtr.City,drtr.Tariff) and  r.CodeDeckId = rr.CodeDeckId  AND  r.CodeDeckId = drtr.CodeDeckId
+							and rtd.TimezonesID = drtr.TimezonesID and rtd.City = drtr.City and rtd.Tariff = drtr.Tariff and  r.CodeDeckId = rr.CodeDeckId  AND  r.CodeDeckId = drtr.CodeDeckId
 
 							SET rtd.EndDate = NOW()
 
@@ -2768,7 +2772,8 @@ GenerateRateTable:BEGIN
 									TimezonesID,
 									OriginationRateID,
 									RateId,
-									CityTariff,
+									City,
+									Tariff,
 									AccessType,
 									OneOffCost,
 									MonthlyCost,
@@ -2812,7 +2817,8 @@ GenerateRateTable:BEGIN
 								drtr.TimezonesID,
 								IFNULL(rr.RateID,0) as OriginationRateID,
 								r.RateId,
-								CONCAT(drtr.City,drtr.Tariff) AS CityTariff,
+								drtr.City,
+								drtr.Tariff,
 								drtr.AccessType,
 
 
@@ -3150,7 +3156,7 @@ GenerateRateTable:BEGIN
 								INNER JOIN tblRate r ON drtr.Code = r.Code and r.CodeDeckId = drtr.CodeDeckId
 								LEFT JOIN tblRate rr ON drtr.OriginationCode = rr.Code and r.CodeDeckId = rr.CodeDeckId
 								LEFT join tblRateTableDIDRate rtd  on rtd.RateID  = r.RateID and rtd.OriginationRateID  = rr.RateID
-								and  rtd.TimezonesID = drtr.TimezonesID and rtd.CityTariff = CONCAT(drtr.City,drtr.Tariff)
+								and  rtd.TimezonesID = drtr.TimezonesID and rtd.City = drtr.City and rtd.Tariff = drtr.Tariff
 								and rtd.RateTableID = @p_RateTableId
 								and rtd.EffectiveDate = @p_EffectiveDate
 								WHERE rtd.RateTableDIDRateID is null;
@@ -3164,7 +3170,8 @@ GenerateRateTable:BEGIN
 									TimezonesID,
 									OriginationRateID,
 									RateId,
-									CityTariff,
+									City,
+									Tariff,
 									AccessType,
 									OneOffCost,
 									MonthlyCost,
@@ -3208,7 +3215,8 @@ GenerateRateTable:BEGIN
 								drtr.TimezonesID,
 								IFNULL(rr.RateID,0) as OriginationRateID,
 								r.RateId,
-								CONCAT(drtr.City,drtr.Tariff) AS CityTariff,
+								drtr.City,
+								drtr.Tariff,
 								drtr.AccessType,
 
 
@@ -3546,7 +3554,7 @@ GenerateRateTable:BEGIN
 								INNER JOIN tblRate r ON drtr.Code = r.Code and r.CodeDeckId = drtr.CodeDeckId
 								LEFT JOIN tblRate rr ON drtr.OriginationCode = rr.Code and r.CodeDeckId = rr.CodeDeckId
 								LEFT join tblRateTableDIDRate rtd  on rtd.RateID  = r.RateID and rtd.OriginationRateID  = rr.RateID
-								and  rtd.TimezonesID = drtr.TimezonesID and rtd.CityTariff = CONCAT(drtr.City,drtr.Tariff)
+								and  rtd.TimezonesID = drtr.TimezonesID and rtd.City = drtr.City and rtd.Tariff = drtr.Tariff
 								and rtd.RateTableID = @p_RateTableId
 								and rtd.EffectiveDate = @p_EffectiveDate
 								WHERE rtd.RateTableDIDRateID is null;
@@ -3598,7 +3606,8 @@ GenerateRateTable:BEGIN
 								RateID,
 								EffectiveDate,
 								TimezonesID,
-								CityTariff
+								City,
+								Tariff
 							FROM tblRateTableDIDRate
 							WHERE RateTableId = @p_RateTableId
 								AND EffectiveDate =   @EffectiveDate
@@ -3609,7 +3618,8 @@ GenerateRateTable:BEGIN
 							AND vr1.OriginationRateID = tmpvr.OriginationRateID
 							AND vr1.RateID = tmpvr.RateID
 							AND vr1.TimezonesID = tmpvr.TimezonesID
-							AND vr1.CityTariff = tmpvr.CityTariff
+							AND vr1.City = tmpvr.City
+							AND vr1.Tariff = tmpvr.Tariff
 							AND vr1.EffectiveDate < tmpvr.EffectiveDate
 						SET
 							vr1.EndDate = @EffectiveDate
@@ -3629,7 +3639,8 @@ GenerateRateTable:BEGIN
 								RateID,
 								EffectiveDate,
 								TimezonesID,
-								CityTariff
+								City,
+								Tariff
 							FROM tblRateTableDIDRate
 							WHERE RateTableId = @p_RateTableId
 								AND EffectiveDate =   @EffectiveDate
@@ -3640,7 +3651,8 @@ GenerateRateTable:BEGIN
 							AND vr1.OriginationRateID = tmpvr.OriginationRateID
 							AND vr1.RateID = tmpvr.RateID
 							AND vr1.TimezonesID = tmpvr.TimezonesID
-							AND vr1.CityTariff = tmpvr.CityTariff
+							AND vr1.City = tmpvr.City
+							AND vr1.Tariff = tmpvr.Tariff
 							AND vr1.EffectiveDate < tmpvr.EffectiveDate
 						SET
 							vr1.EndDate = @EffectiveDate
