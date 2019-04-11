@@ -91,6 +91,7 @@ if($data['lcr_type']=='Y'){
     public function index() {
 
         $post_data = Input::all();
+        $companyID = User::get_companyID();
 
         $lcrType = isset($post_data['lcrType']) ? $post_data['lcrType'] : '';
         $trunks = Trunk::getTrunkDropdownIDList();
@@ -102,18 +103,19 @@ if($data['lcr_type']=='Y'){
         $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
         $Timezones = Timezones::getTimezonesIDList();
         $products = ServiceTemplate::where("CompanyID",User::get_companyID())->lists("Name", "ServiceTemplateId");
-        $country = ServiceTemplate::Join('tblCountry', function($join) {
-            $join->on('tblServiceTemplate.country','=','tblCountry.country');
-            })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
-            ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+
+        // $country = ServiceTemplate::Join('tblCountry', function($join) {
+        //     $join->on('tblServiceTemplate.country','=','tblCountry.country');
+        //     })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+        //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
             //->orderBy('tblServiceTemplate.country');
 
-        $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
-        $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-        $City = ServiceTemplate::where("CompanyID",User::get_companyID())->where("City",'!=','')->orderBy('City')->lists("City", "City");
-        $Tariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("Tariff",'!=','')->orderBy('Tariff')->lists("Tariff", "Tariff");
-
+        $country            = ServiceTemplate::getCountryPrefixDD($companyID);
+        $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
+        $City               = ServiceTemplate::getCityDD($companyID);
+        $Tariff             = ServiceTemplate::getTariffDD($companyID);
+        $Prefix             = ServiceTemplate::getPrefixDD($companyID); 
         // $CityTariffFilter = [];
         // foreach($CityTariff as $key => $City){
         //     if(strpos($City, " per ")){
