@@ -21,7 +21,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
             <li ><a href="#tab2" data-toggle="tab">Payment Reminder</a></li>
             <li ><a href="#tab3" data-toggle="tab">Low Balance Reminder</a></li>
             <li ><a href="#tab4" data-toggle="tab">Account Balance Warning</a></li>
-           <!-- <li ><a href="#tab5" data-toggle="tab">Zero Balance Warning</a></li>-->
+            <li ><a href="#tab5" data-toggle="tab">Zero Balance Warning</a></li>
             
         </ul>
         <div class="tab-content">
@@ -418,7 +418,69 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                 </div>
             </div>
 
-            
+            <div class="tab-pane" id="tab5" >
+                <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                    <!-- panel body -->
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Active</label>
+                            <div class="col-sm-4">
+                                <div class="make-switch switch-small">
+                                    <input type="checkbox" @if( isset($BillingClass->ZeroBalanceWarningStatus) && $BillingClass->ZeroBalanceWarningStatus == 1 )checked="" @endif name="ZeroBalanceWarningStatus" value="1">
+                                </div>
+                            </div>
+                            <input type="hidden" name="ZeroBalanceWarning[AccountManager]" value="0">
+                            
+                            <!--<label class="col-sm-2 control-label">Send To Account Owner</label>
+                            <div class="col-sm-4">
+                                <div class="make-switch switch-small">
+                                    <input type="checkbox" @if( isset($BalanceWarning->AccountManager) && $BalanceWarning->AccountManager == 1 )checked="" @endif name="BalanceWarning[AccountManager]" value="1">
+                                </div>
+                            </div>-->
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Send Copy To</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="ZeroBalanceWarning[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="{{$ZeroBalanceWarning->ReminderEmail or ''}}" />
+                            </div>
+                            <label class="col-sm-2 control-label">Countdown Start From</label>
+                            <div class="col-sm-4">
+                                    <input type="number" name="ZeroBalanceWarning[CountDown]" value="{{$ZeroBalanceWarning->CountDown or ''}}" class="form-control">
+                            </div>
+                            <!--<label class="col-sm-2 control-label">Email Template</label>
+                            <div class="col-sm-4">
+                                {{Form::select('BalanceWarning[TemplateID]', $emailTemplates, (isset($BalanceWarning->TemplateID)?$BalanceWarning->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
+                            </div>-->
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="field-5" class="col-sm-2 control-label">Period</label>
+                            <div class="col-sm-4">
+                                {{Form::select('ZeroBalanceWarning[Time]',array(""=>"Select","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($ZeroBalanceWarning->Time)?$ZeroBalanceWarning->Time:''),array( "class"=>"select2 small"))}}
+                            </div>
+
+                            <label for="field-5" class="col-sm-2 control-label">Interval</label>
+                            <div class="col-sm-4">
+                                {{Form::select('ZeroBalanceWarning[Interval]',array(),'',array( "class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="field-5" class="col-sm-2 control-label">Day</label>
+                            <div class="col-sm-4">
+                                {{Form::select('ZeroBalanceWarning[Day][]',array("SUN"=>"Sunday","MON"=>"Monday","TUE"=>"Tuesday","WED"=>"Wednesday","THU"=>"Thursday","FRI"=>"Friday","SAT"=>"Saturday"),(isset($ZeroBalanceWarning->Day)?$ZeroBalanceWarning->Day:''),array( "class"=>"select2",'multiple',"data-placeholder"=>"Select day"))}}
+                            </div>
+
+                            <label for="field-5" class="col-sm-2 control-label">Start Time</label>
+                            <div class="col-sm-4">
+                                <input name="ZeroBalanceWarning[StartTime]" type="text" data-template="dropdown" data-show-seconds="true" data-default-time="12:00:00 AM" data-show-meridian="true" data-minute-step="5" class="form-control timepicker starttime2" value="{{(isset($ZeroBalanceWarning->StartTime)?$ZeroBalanceWarning->StartTime:'')}}" >
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
             
 
         </div>
@@ -558,27 +620,12 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
             }
             //alert($("[name='BalanceWarning[Time]']").val());
         });
-        $("[name='ZeroBalanceWarning[StartDay]']").keyup(function(){
-            
-            var days = $("[name='ZeroBalanceWarning[StartDay]']").val();
-            if(days == 1)
-            {
-                $("[name='ZeroBalanceWarning[Time]']").select2().select2('val','HOUR');
-            }
-            else if(days >1 && days < 30)
-            {
-                $("[name='ZeroBalanceWarning[Time]']").select2().select2('val','DAILY');
-            }
-            else if(days >= 30)
-            {
-                $("[name='ZeroBalanceWarning[Time]']").select2().select2('val','MONTHLY');
-            }
-            //alert($("[name='BalanceWarning[Time]']").val());
-        });
+        
             setTimeout(function(){
                 $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
                 $("#billing-form [name='LowBalanceReminder[Time]']").trigger('change');
                 $("#billing-form [name='BalanceWarning[Time]']").trigger('change');
+                $("#billing-form [name='ZeroBalanceWarning[Time]']").trigger('change');
                 @if(isset($PaymentReminders->Interval))
                 $("#billing-form [name='PaymentReminder[Interval]']").val('{{$PaymentReminders->Interval}}').trigger('change');
                 @endif

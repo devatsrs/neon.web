@@ -42,6 +42,7 @@ class RateTable extends \Eloquent
     const RATE_TABLE_TYPE_ACCESS        = 2;
     const RATE_TABLE_TYPE_PACKAGE       = 3;
 
+
     /*
      * Option = ["TrunkID" = int ,... ]
      * */
@@ -132,9 +133,8 @@ class RateTable extends \Eloquent
         return $RateTables;
     }
 
-    public static function getRateTablesForPackage($data=array()){
-        $compantID = User::get_companyID();
-        $RateTables = RateTable::select(['RateTableName','RateTableId'])->where(['CompanyID' => $compantID,'Type' => '3'])->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+    public static function getRateTablesForPackage($CompanyID,$Type){
+        $RateTables = RateTable::select(['RateTableName','RateTableId'])->where(['CompanyID' => $CompanyID,'Type' => $Type])->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
         if(!empty($RateTables)){
             $RateTables = [''=>'Select'] + $RateTables;
         }
