@@ -42,21 +42,15 @@ class RateUploadController extends \BaseController {
         $RoutingCategory    = RoutingCategory::getCategoryDropdownIDList();//all timezones
         $TypeVoiceCall      = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
         $ROUTING_PROFILE    = CompanyConfiguration::get('ROUTING_PROFILE', $CompanyID);
-        $CountryPrefix      = array('' => "Skip loading") + ServiceTemplate::getCountryPrefixDD($CompanyID);
+        $CountryPrefix      = array('' => "Skip loading") + ServiceTemplate::getCountryPrefixDD();
         $AccessTypes        = array('' => "Skip loading") + ServiceTemplate::getAccessTypeDD($CompanyID);
         $Codes              = array('' => "Skip loading") + ServiceTemplate::getPrefixDD($CompanyID);
-        $CityTariff         = ServiceTemplate::getCityTariffDD($CompanyID);
-        $CityTariffFilter   = [];
-        foreach($CityTariff as $key => $City){
-            if(strpos($City, " per ")){
-                $CityTariffFilter[$City] = $City;
-                unset($CityTariff[$key]);
-            }
-        }
-        $City               = array('' => 'Skip loading') + $CityTariff;
-        $Tariff             = array('' => 'Skip loading') + $CityTariffFilter;
-        $CityFilter         = array('' => "All") + $CityTariff;
-        $TariffFilter       = array('' => "All") + $CityTariffFilter;
+        $CityList           = ServiceTemplate::getCityDD($CompanyID);
+        $TariffList         = ServiceTemplate::getTariffDD($CompanyID);
+        $City               = array('' => 'Skip loading') + $CityList;
+        $Tariff             = array('' => 'Skip loading') + $TariffList;
+        $CityFilter         = array('' => "All") + $CityList;
+        $TariffFilter       = array('' => "All") + $TariffList;
         $AccessTypeFilter   = array('' => "All") + ServiceTemplate::getAccessTypeDD($CompanyID);
 
         $CountryPrefix      = array('Map From Database'=>$CountryPrefix);
@@ -426,46 +420,22 @@ class RateUploadController extends \BaseController {
                 $file_name              = $uploadresult['file_name'];
             }
         } else {
-            //$rules['selection.Code']        = 'required';
-            //$rules['selection.Description'] = 'required';
-            //$rules['selection.Rate']        = 'required';
             if(!empty($data['importdialcodessheet'])) {
                 $rules_for_type['selection.Join1'] = 'required';
                 $rules_for_type['selection2.Join2'] = 'required';
-                //$rules_for_type['selection.Code'] = 'required_without:selection2.Code';
                 $rules_for_type['selection2.Code'] = 'required_without:selection.Code';
-                //$rules_for_type['selection.Description'] = 'required_without:selection2.Description';
-                $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
-
-                if(!empty($data['selection']['OriginationCode']) || !empty($data['selection2']['OriginationCode'])) {
-                    $rules_for_type['selection.OriginationDescription'] = 'required_without:selection2.OriginationDescription';
-                    $message_for_type['selection.OriginationDescription.required_without'] = 'Origination Description is required if Origination Code is selected';
-                }
-                if(!empty($data['selection']['OriginationDescription']) || !empty($data['selection2']['OriginationDescription'])) {
-                    $rules_for_type['selection.OriginationCode'] = 'required_without:selection2.OriginationCode';
-                    $message_for_type['selection.OriginationCode.required_without'] = 'Origination Code is required if Origination Description is selected';
-                }
 
                 $message_for_type['selection.Join1.required'] = "Please Select Match Codes with DialCode On For Ratesheet";
                 $message_for_type['selection2.Join2.required'] = "Please Select Match Codes with Rates On For DialCodeSheet";
-                //$message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
                 $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
-                //$message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
-                $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
-
+                $option["skipRows_sheet2"] = array("start_row" => $data["start_row_sheet2"], "end_row" => $data["end_row_sheet2"]);
             }else{
                 $rules_for_type['selection.Code']        = 'required';
-                $rules_for_type['selection.Description'] = 'required';
-                $rules_for_type['selection.OriginationCode'] = 'required_with:selection.OriginationDescription';
-                $rules_for_type['selection.OriginationDescription'] = 'required_with:selection.OriginationCode';
                 if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
                     $message_for_type['selection.Code.required'] = "Package Name Field is required";
                 } else {
                     $message_for_type['selection.Code.required'] = "Code Field is required";
                 }
-                $message_for_type['selection.Description.required'] = "Description Field is required";
-                $message_for_type['selection.OriginationCpde.required_with'] = 'Origination Code is required if Origination Description is selected';
-                $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
             }
 
             $Timezones = Timezones::getTimezonesIDList();
@@ -487,6 +457,9 @@ class RateUploadController extends \BaseController {
                         $TimezonesIDsArray[] = 'selection.CollectionCostAmount'.$ID;
                         $TimezonesIDsArray[] = 'selection.CollectionCostPercentage'.$ID;
                         $TimezonesIDsArray[] = 'selection.RegistrationCostPerNumber'.$ID;
+
+                        $TimezonesIDsArray[] = 'selection.PackageCostPerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.RecordingCostPerMinute'.$ID;
                     }
                     unset($TimezonesIDsArray['selection.MonthlyCost']);
                     $TimezonesIDsString = implode(',',$TimezonesIDsArray);
@@ -494,6 +467,28 @@ class RateUploadController extends \BaseController {
                     $rules_for_type['selection.MonthlyCost'] = 'required_without_all:' . $TimezonesIDsString;
                     $message_for_type['selection.MonthlyCost.required_without_all'] = "Any one cost component is required.";
                 } else {
+
+                    if(!empty($data['importdialcodessheet'])) {
+                        $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
+                        $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
+
+                        if(!empty($data['selection']['OriginationCode']) || !empty($data['selection2']['OriginationCode'])) {
+                            $rules_for_type['selection.OriginationDescription'] = 'required_without:selection2.OriginationDescription';
+                            $message_for_type['selection.OriginationDescription.required_without'] = 'Origination Description is required if Origination Code is selected';
+                        }
+                        if(!empty($data['selection']['OriginationDescription']) || !empty($data['selection2']['OriginationDescription'])) {
+                            $rules_for_type['selection.OriginationCode'] = 'required_without:selection2.OriginationCode';
+                            $message_for_type['selection.OriginationCode.required_without'] = 'Origination Code is required if Origination Description is selected';
+                        }
+                    }else{
+                        $rules_for_type['selection.Description']                            = 'required';
+                        $rules_for_type['selection.OriginationCode']                        = 'required_with:selection.OriginationDescription';
+                        $rules_for_type['selection.OriginationDescription']                 = 'required_with:selection.OriginationCode';
+                        $message_for_type['selection.Description.required']                 = "Description Field is required";
+                        $message_for_type['selection.OriginationCpde.required_with']        = 'Origination Code is required if Origination Description is selected';
+                        $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
+                    }
+
                     foreach ($Timezones as $ID => $Title) {
                         $ID = $ID == 1 ? '' : $ID;
                         $TimezonesIDsArray[] = 'selection.Rate'.$ID;
@@ -709,40 +704,19 @@ class RateUploadController extends \BaseController {
             if(!empty($data['importdialcodessheet'])) {
                 $rules_for_type['selection.Join1'] = 'required';
                 $rules_for_type['selection2.Join2'] = 'required';
-                //$rules_for_type['selection.Code'] = 'required_without:selection2.Code';
                 $rules_for_type['selection2.Code'] = 'required_without:selection.Code';
-                //$rules_for_type['selection.Description'] = 'required_without:selection2.Description';
-                $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
-
-                if(!empty($data['selection']['OriginationCode']) || !empty($data['selection2']['OriginationCode'])) {
-                    $rules_for_type['selection.OriginationDescription'] = 'required_without:selection2.OriginationDescription';
-                    $message_for_type['selection.OriginationDescription.required_without'] = 'Origination Description is required if Origination Code is selected';
-                }
-                if(!empty($data['selection']['OriginationDescription']) || !empty($data['selection2']['OriginationDescription'])) {
-                    $rules_for_type['selection.OriginationCode'] = 'required_without:selection2.OriginationCode';
-                    $message_for_type['selection.OriginationCode.required_without'] = 'Origination Code is required if Origination Description is selected';
-                }
 
                 $message_for_type['selection.Join1.required'] = "Please Select Match Codes with DialCode On For Ratesheet";
                 $message_for_type['selection2.Join2.required'] = "Please Select Match Codes with Rates On For DialCodeSheet";
-                //$message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
                 $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
-                //$message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
-                $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
                 $option["skipRows_sheet2"] = array("start_row" => $data["start_row_sheet2"], "end_row" => $data["end_row_sheet2"]);
             }else{
                 $rules_for_type['selection.Code']        = 'required';
-                $rules_for_type['selection.Description'] = 'required';
-                $rules_for_type['selection.OriginationCode'] = 'required_with:selection.OriginationDescription';
-                $rules_for_type['selection.OriginationDescription'] = 'required_with:selection.OriginationCode';
                 if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
                     $message_for_type['selection.Code.required'] = "Package Name Field is required";
                 } else {
                     $message_for_type['selection.Code.required'] = "Code Field is required";
                 }
-                $message_for_type['selection.Description.required'] = "Description Field is required";
-                $message_for_type['selection.OriginationCpde.required_with'] = 'Origination Code is required if Origination Description is selected';
-                $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
             }
 
             $Timezones = Timezones::getTimezonesIDList();
@@ -764,6 +738,9 @@ class RateUploadController extends \BaseController {
                         $TimezonesIDsArray[] = 'selection.CollectionCostAmount'.$ID;
                         $TimezonesIDsArray[] = 'selection.CollectionCostPercentage'.$ID;
                         $TimezonesIDsArray[] = 'selection.RegistrationCostPerNumber'.$ID;
+
+                        $TimezonesIDsArray[] = 'selection.PackageCostPerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.RecordingCostPerMinute'.$ID;
                     }
                     unset($TimezonesIDsArray['selection.MonthlyCost']);
                     $TimezonesIDsString = implode(',', $TimezonesIDsArray);
@@ -771,6 +748,28 @@ class RateUploadController extends \BaseController {
                     $rules_for_type['selection.MonthlyCost'] = 'required_without_all:' . $TimezonesIDsString;
                     $message_for_type['selection.MonthlyCost.required_without_all'] = "Any one cost component is required.";
                 } else {
+
+                    if(!empty($data['importdialcodessheet'])) {
+                        $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
+                        $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
+
+                        if(!empty($data['selection']['OriginationCode']) || !empty($data['selection2']['OriginationCode'])) {
+                            $rules_for_type['selection.OriginationDescription'] = 'required_without:selection2.OriginationDescription';
+                            $message_for_type['selection.OriginationDescription.required_without'] = 'Origination Description is required if Origination Code is selected';
+                        }
+                        if(!empty($data['selection']['OriginationDescription']) || !empty($data['selection2']['OriginationDescription'])) {
+                            $rules_for_type['selection.OriginationCode'] = 'required_without:selection2.OriginationCode';
+                            $message_for_type['selection.OriginationCode.required_without'] = 'Origination Code is required if Origination Description is selected';
+                        }
+                    }else{
+                        $rules_for_type['selection.Description']                            = 'required';
+                        $rules_for_type['selection.OriginationCode']                        = 'required_with:selection.OriginationDescription';
+                        $rules_for_type['selection.OriginationDescription']                 = 'required_with:selection.OriginationCode';
+                        $message_for_type['selection.Description.required']                 = "Description Field is required";
+                        $message_for_type['selection.OriginationCpde.required_with']        = 'Origination Code is required if Origination Description is selected';
+                        $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
+                    }
+
                     foreach ($Timezones as $ID => $Title) {
                         $ID = $ID == 1 ? '' : $ID;
                         $TimezonesIDsArray[] = 'selection.Rate'.$ID;
@@ -1104,19 +1103,11 @@ class RateUploadController extends \BaseController {
             $type_pkg           = RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
 
             $component_currencies   = Currency::getCurrencyDropdownIDList();
-            $CountryPrefix          = ServiceTemplate::getCountryPrefixDD($CompanyID);
+            $CountryPrefix          = ServiceTemplate::getCountryPrefixDD();
             $AccessTypes            = ServiceTemplate::getAccessTypeDD($CompanyID);
             $Codes                  = ServiceTemplate::getPrefixDD($CompanyID);
-            $CityTariff             = ServiceTemplate::getCityTariffDD($CompanyID);
-            $CityTariffFilter       = [];
-            foreach($CityTariff as $key => $City){
-                if(strpos($City, " per ")){
-                    $CityTariffFilter[$City] = $City;
-                    unset($CityTariff[$key]);
-                }
-            }
-            $City                   = $CityTariff;
-            $Tariff                 = $CityTariffFilter;
+            $City                   = ServiceTemplate::getCityDD($CompanyID);
+            $Tariff                 = ServiceTemplate::getTariffDD($CompanyID);
 
             if((!empty($RateTable) && $RateTable->Type == $type_pkg)) {
                 $CodeText = 'Package';
@@ -1273,6 +1264,8 @@ class RateUploadController extends \BaseController {
                                 } else {
                                     $tempdata['OriginationDescription'] = "";
                                 }
+                            } else if(!empty($tempdata['OriginationCode'])) { // for did and pkg OriginationDescription is not required. so, OriginationDescription = OriginationCode
+                                 $tempdata['OriginationDescription'] = $tempdata['OriginationCode'];
                             }
 
                             if (!empty($attrselection->Description) || !empty($attrselection2->Description)) {
@@ -1286,6 +1279,8 @@ class RateUploadController extends \BaseController {
                                 } else {
                                     $error[] = 'Description is blank at line no:' . $lineno;
                                 }
+                            } else if(!empty($tempdata['Code'])) { // for did and pkg Description is not required. so, Description = Code
+                                $tempdata['Description'] = $tempdata['Code'];
                             }
 
                             if (isset($attrselection->Action) && !empty($attrselection->Action)) {
@@ -1329,28 +1324,26 @@ class RateUploadController extends \BaseController {
 
                                 if (!empty($attrselection->City)) {
                                     if (array_key_exists($attrselection->City, $City)) {// if City selected from Neon Database
-                                        $TempCity = $attrselection->City;
+                                        $tempdata['City'] = $attrselection->City;
                                     } else if (!empty($temp_row[$attrselection->City])) {// if City selected from file
-                                        $TempCity = $temp_row[$attrselection->City];
+                                        $tempdata['City'] = $temp_row[$attrselection->City];
                                     } else {
-                                        $TempCity = '';
+                                        $tempdata['City'] = '';
                                     }
                                 } else {
-                                    $TempCity = '';
+                                    $tempdata['City'] = '';
                                 }
                                 if (!empty($attrselection->Tariff)) {
                                     if (array_key_exists($attrselection->Tariff, $Tariff)) {// if Tariff selected from Neon Database
-                                        $TempTariff = $attrselection->Tariff;
+                                        $tempdata['Tariff'] = $attrselection->Tariff;
                                     } else if (!empty($temp_row[$attrselection->Tariff])) {// if Tariff selected from file
-                                        $TempTariff = $temp_row[$attrselection->Tariff];
+                                        $tempdata['Tariff'] = $temp_row[$attrselection->Tariff];
                                     } else {
-                                        $TempTariff = '';
+                                        $tempdata['Tariff'] = '';
                                     }
                                 } else {
-                                    $TempTariff = '';
+                                    $tempdata['Tariff'] = '';
                                 }
-                                // concat both variable as only one of two will have value
-                                $tempdata['CityTariff'] = $TempCity.$TempTariff;
 
                                 if (!empty($attrselection->AccessType)) {
                                     if (array_key_exists($attrselection->AccessType, $AccessTypes)) {// if AccessType selected from Neon Database
@@ -2028,7 +2021,7 @@ class RateUploadController extends \BaseController {
         $data['iDisplayStart'] +=1;
 
         $columns                        = array('TempVendorRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','Rate','RateN','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN','Preference','Blocked','RoutingCategory');
-        $columns_did                    = array('TempRateTableDIDRateID','AccessType','OriginationCode','Code','CityTariff','Timezones','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate');
+        $columns_did                    = array('TempRateTableDIDRateID','AccessType','OriginationCode','Code','City','Tariff','Timezones','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate');
         $columns_pkg                    = array('TempRateTablePKGRateID','Code','Timezones','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate');
         $sort_column                    = $columns[$data['iSortCol_0']];
         $sort_column_did                = $columns_did[$data['iSortCol_0']];

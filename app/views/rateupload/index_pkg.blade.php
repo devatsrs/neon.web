@@ -400,10 +400,6 @@
              getTrunk(Type,id);
              });*/
 
-            $('select[name="selection[Code]"]').on('change', function() {
-                $('select[name="selection[Description]"]').select2("val",$(this).val());
-            });
-
             $(document).on('change','#excel', function() {
                 var formData = new FormData($('#form-upload')[0]);
                 show_loading_bar(0);
