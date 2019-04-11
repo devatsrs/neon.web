@@ -42,7 +42,7 @@ class RateUploadController extends \BaseController {
         $RoutingCategory    = RoutingCategory::getCategoryDropdownIDList();//all timezones
         $TypeVoiceCall      = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
         $ROUTING_PROFILE    = CompanyConfiguration::get('ROUTING_PROFILE', $CompanyID);
-        $CountryPrefix      = array('' => "Skip loading") + ServiceTemplate::getCountryPrefixDD($CompanyID);
+        $CountryPrefix      = array('' => "Skip loading") + ServiceTemplate::getCountryPrefixDD();
         $AccessTypes        = array('' => "Skip loading") + ServiceTemplate::getAccessTypeDD($CompanyID);
         $Codes              = array('' => "Skip loading") + ServiceTemplate::getPrefixDD($CompanyID);
         $CityList           = ServiceTemplate::getCityDD($CompanyID);
@@ -1103,7 +1103,7 @@ class RateUploadController extends \BaseController {
             $type_pkg           = RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
 
             $component_currencies   = Currency::getCurrencyDropdownIDList();
-            $CountryPrefix          = ServiceTemplate::getCountryPrefixDD($CompanyID);
+            $CountryPrefix          = ServiceTemplate::getCountryPrefixDD();
             $AccessTypes            = ServiceTemplate::getAccessTypeDD($CompanyID);
             $Codes                  = ServiceTemplate::getPrefixDD($CompanyID);
             $City                   = ServiceTemplate::getCityDD($CompanyID);

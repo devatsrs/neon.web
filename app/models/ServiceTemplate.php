@@ -82,7 +82,7 @@ class ServiceTemplate extends \Eloquent
     public static function getTariffDD($CompanyID){
         return ServiceTemplate::where("CompanyID",$CompanyID)->where("Tariff",'!=','')->orderBy('Tariff')->lists("Tariff", "Tariff");
     }
-    public static function getCountryPrefixDD($CompanyID){
+    public static function getCountryPrefixDD(){
         return $country = Country::select('Country AS country','Prefix')->orderBy('country')->lists("country", "Prefix");
     }
 }
