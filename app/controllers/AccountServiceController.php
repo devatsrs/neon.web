@@ -94,23 +94,12 @@ class AccountServiceController extends \BaseController {
         }
 
         $AccessType         = ServiceTemplate::getAccessTypeDD($AccountCompanyId);
-        $CityTariff         = ServiceTemplate::getCityTariffDD($CompanyID);
-        $CityTariffFilter   = [];
-        foreach($CityTariff as $key => $City){
-            if(strpos($City, " per ")){
-                $CityTariffFilter[$City] = $City;
-                unset($CityTariff[$key]);
-            }
-        }
-        $City               = $CityTariff;
-        $Tariff             = $CityTariffFilter;
-
-
-        $Prefix = ServiceTemplate::where("CompanyID",$AccountCompanyId)->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
+        $City               = ServiceTemplate::getCityDD($AccountCompanyId);
+        $Tariff             =ServiceTemplate::getTariffDD($AccountCompanyId);
+        $Prefix             = ServiceTemplate::getPrefixDD($AccountCompanyId);
 
         $AccessType = array('' => "Select") + $AccessType;
         $Prefix = array('' => "Select") + $Prefix;
-        $CityTariff = array('' => "Select") + $CityTariff;
         $City = array('' => "Select") + $City;
         $Tariff = array('' => "Select") + $Tariff;
 
