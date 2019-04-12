@@ -292,11 +292,81 @@
                     },10);
                     aoColumns = [
                         { "bSortable": false}, //1 Access Type
-                        { "bSortable": false}, //2 Country
-                        { "bSortable": false}, //3 Prefix
-                        { "bSortable": false}, //4 City
-                        { "bSortable": false}, //5 Tariff
-                        { "bSortable": false}, //6 Position 1
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                    if (full[1] != null) {
+                                        var array = full[1].split(';');
+                                        var html = "<table>";
+                                        html += "<tr><td>" + array[0] + "</td></tr>";
+                                        html += "<tr><td>" + array[1] + "</td></tr>";
+                                        html += "<tr><td>" + array[2] + "</td></tr>";
+                                        html += "</table>";
+
+                                        return html;
+                                    }
+                                    return full[1];
+                            }
+                        }, //2 Country
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[2] != null) {
+                                    var array = full[2].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[2];
+                            }
+                        }, //3 Prefix
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[3] != null) {
+                                    var array = full[3].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[3];
+                            }
+                        }, //4 City
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[4] != null) {
+                                    var array = full[4].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[4];
+                            }
+                        }, //5 Tariff
+                        { "bSortable": false,
+                        mRender: function (id, type, full) {
+                        if (full[5] != null) {
+                            var array = full[5].split(';');
+                            var html = "<table>";
+                            html += "<tr><td>" + array[0] + "</td></tr>";
+                            html += "<tr><td>" + array[1] + "</td></tr>";
+                            html += "<tr><td>" + array[2] + "</td></tr>";
+                            html += "</table>";
+
+                            return html;
+                        }
+                        return full[5];
+                    }
+                        }, //6 Position 1
                         { "bSortable": false,"bVisible" : false}, //7 Position 2
                         { "bSortable": false,"bVisible" : false}, //8 Position 3
                         { "bSortable": false,"bVisible" : false}, //9 Position 4
