@@ -623,6 +623,9 @@
                                 if($searchFilter.lcrType=='Package') {
                                     $('#dt_Name').html("Package Name");
 
+                                }else {
+                                    $('#dt_Name').html("Access Type");
+
                                 }
 
                                 if($searchFilter.lcrType!='Package') {
