@@ -57,7 +57,7 @@ PRC:BEGIN
 
 			inner join  speakintelligentRM.tblDynamicFieldsValue dfv on dfv.DynamicFieldsID = df.DynamicFieldsID
 
-			where    df.`Type` = 'account' AND df.`Status` = 1 AND df.FieldSlug = p_AccountDynamicField AND dfv.FieldValue = p_AccountDynamicFieldValue;
+			where    df.`Type` = 'account' AND df.`Status` = 1 AND df.FieldSlug = p_AccountDynamicField AND dfv.FieldValue = p_AccountDynamicFieldValue limit 1;
 
 		END IF;
 
