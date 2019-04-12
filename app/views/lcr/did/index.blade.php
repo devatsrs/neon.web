@@ -189,6 +189,7 @@
             $('#dt_Prefix').removeClass("hidden");
             $('#dt_City').removeClass("hidden");
             $('#dt_Tariff').removeClass("hidden");
+            $('#dt_Name').html("Access Type");
             $('.didbutton').html(accbtnval+' <span class="caret"></span>');
             $('.packageoption').html(packbtnval);
             $('.packagediv').hide();
@@ -457,7 +458,7 @@
                 }else{
                     setTimeout(function(){
 
-                            
+
 
                         $('#dt_company6').removeClass("hidden");
                         $('#dt_company7').removeClass("hidden");
