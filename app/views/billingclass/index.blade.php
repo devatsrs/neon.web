@@ -12,6 +12,7 @@
                 <div class="form-group">
                     <label for="field-1" class="control-label">Name</label>
                     <input type="text" name="Name" class="form-control" value="" />
+                    <input type="hidden" name="CompanyID" class="form-control" value={{$CompanyID}} />
                 </div>
                 @if(is_reseller())
                 @else
@@ -56,6 +57,7 @@
         <tr>
             <th width="20%">Name</th>
             <th width="20%">Partner</th>
+            <th width="20%">IsGlobal</th>
             <th width="15%">Modified By</th>
             <th width="15%">Modified Date</th>
             <th width="20%">Action</th>
@@ -85,6 +87,7 @@
 
                 $search.Name = $("#table_filter").find('[name="Name"]').val();
                 $search.ResellerOwner = $("#table_filter").find('[name="ResellerOwner"]').val();
+                $search.CompanyID = $("#table_filter").find('[name="CompanyID"]').val();
 
                 data_table = $("#table-list").dataTable({
                     "bDestroy": true,
@@ -98,14 +101,14 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "Name", "value": $search.Name},
-                        {"name": "ResellerOwner", "value": $search.ResellerOwner}
-
-
+                                {"name": "ResellerOwner", "value": $search.ResellerOwner},
+                                {"name": "CompanyID", "value":$search.CompanyID}
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "Name", "value": $search.Name},
-                        {"name": "ResellerOwner", "value": $search.ResellerOwner},
+                                {"name": "ResellerOwner", "value": $search.ResellerOwner},
+                                {"name":"CompanyID", "value":$search.CompanyID},
                                 {"name": "Export", "value": 1}
                         );
 
@@ -113,6 +116,15 @@
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
                         {  "bSortable": true },  // 0 partner
+                        {  "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if(id==1){
+                                    return 'yes';
+                                }else{
+                                    return '';
+                                }
+                            }
+                        },  // 0 ISGlobal
                         {  "bSortable": true },  // 2 UpdatedBy
                         {  "bSortable": true },  // 2 updated_at
                         {  "bSortable": false,
@@ -125,7 +137,7 @@
                                 action += '</div>';
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                                 @if(User::checkCategoryPermission('BillingClass','Delete'))
-                                if(full[5]== 0) 
+                                if(full[6]== 0)
                             {
                                     action += ' <a href="' + delete_url.replace("{id}", id) + '" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                 }

@@ -1,6 +1,6 @@
 <?php 
 $data=array();
-if(isset($CompanyID)){$CompanyID=$CompanyID;}else{$CompanyID=0;}
+if(empty($CompanyID)){$CompanyID=User::get_companyID();}
 $emailTemplates = EmailTemplate::getTemplateArray($data,$CompanyID);
 
 //$CompanyID = User::get_companyID();
@@ -29,7 +29,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                 <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel body -->
                         <div class="panel-body">
-                             @if(!isset($BillingClass->ResellerID) && isset($BillingClass->Name))
+                             @if(is_reseller())
                              @else
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Partner</label>
@@ -37,9 +37,9 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                     
                                     
                                     @if(isset($BillingClass->Name))
-                                    {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerID)?$BillingClass->ResellerID:'' ), array("class"=>"select2", 'disabled' => "false")) }}
+                                    {{ Form::select('ResellerOwner',$reseller_owners,$PartnerID, array("class"=>"select2", 'disabled' => "false")) }}
                                     @else 
-                                    {{ Form::select('ResellerOwner',$reseller_owners,( isset($BillingClass->ResellerID)?$BillingClass->ResellerID:'' ), array("class"=>"select2")) }}
+                                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
                                     @endif
                                     
                                     
@@ -136,6 +136,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                 <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email*</label>
                                 <div class="col-sm-4">
                                     {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($BillingClass->SendInvoiceSetting)?$BillingClass->SendInvoiceSetting:'' ),array("class"=>"form-control select2"))}}
+                                    <input type="hidden" name="CompanyID" value={{$CompanyID}}>
                                 </div>
                             </div>
                         </div>
@@ -585,8 +586,8 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
     jQuery(document).ready(function ($) {
         $("select[name='ResellerOwner']").on('change', function(){
         //$("[name='ResellerOwner']").on('change', function () {
-            getInvoicetemplate($(this).val());
-            getEmailtemplate($(this).val())
+            //getInvoicetemplate($(this).val());
+            //getEmailtemplate($(this).val())
                 
                 //append new table rows here
 //                $("[name=InvoiceTemplateID]").empty().append(options);

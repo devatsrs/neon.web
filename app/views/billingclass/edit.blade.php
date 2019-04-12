@@ -21,10 +21,17 @@
 
     <p class="pull-right">
         @if(User::checkCategoryPermission('BillingClass','Edit'))
+            @if(is_reseller() && $PartnerID=='-1')
+                <button id="save_billing" href="{{URL::to('billing_class/clone/'.$BillingClass->BillingClassID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
+                    <i class="entypo-floppy"></i>
+                    Save
+                </button>
+            @else
             <button id="save_billing" href="{{URL::to('billing_class/update/'.$BillingClass->BillingClassID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
                 <i class="entypo-floppy"></i>
                 Save
             </button>
+            @endif
         @endif
         <a href="{{URL::to('billing_class')}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>

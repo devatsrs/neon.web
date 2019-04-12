@@ -186,12 +186,12 @@ class ServicesTemplateController extends BaseController {
             $inbounddiscountplan =   DiscountPlan::lists('Name','DiscountPlanID');
             $BillingSubsForSrvTemplate = BillingSubscription::lists('Name','SubscriptionID');
             $RateType = RateType::select('RateTypeID','Title')->lists('Title','RateTypeID');
-            $country = ServiceTemplate::where("CompanyID",User::get_companyID())->where("country",'!=','')->orderBy('country')->lists("country", "country");
-            $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
-            $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-            $City = ServiceTemplate::where("CompanyID",User::get_companyID())->where("City",'!=','')->orderBy('City')->lists("City", "City");
-            $Tariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("Tariff",'!=','')->orderBy('Tariff')->lists("Tariff", "Tariff");
-            // $CityTariffFilter = [];
+            $country            = ServiceTemplate::getCountryDD($CompanyID);
+            $AccessType         = ServiceTemplate::getAccessTypeDD($CompanyID);
+            $City               = ServiceTemplate::getCityDD($CompanyID);
+            $Tariff             = ServiceTemplate::getTariffDD($CompanyID);
+            $Prefix             = ServiceTemplate::getPrefixDD($CompanyID);
+                // $CityTariffFilter = [];
             // foreach($CityTariff as $key => $City){
             //     if(strpos($City, " per ")){
             //         $CityTariffFilter[$City] = $City;

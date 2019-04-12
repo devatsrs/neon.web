@@ -425,7 +425,7 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
     }elseif($type=='billing_class'){
         $name = 'BillingClassID';
         $modal = 'add-new-modal-billingclass';
-        $data = BillingClass::getDropdownIDList();
+        $data = BillingClass::getBillingClassListByCompanyID();
     }elseif($type=='item'){
         $name = 'ProductID';
         $modal = 'add-edit-modal-product';

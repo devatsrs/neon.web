@@ -31,8 +31,8 @@ class Reseller extends \Eloquent
         return $DropdownIDList;
     }
     public static function getDropdownIDListAll(){
-        $DropdownIDList = Reseller::where(array("Status"=>1))->lists('ResellerName', 'ResellerID');
-        $DropdownIDList = array('' => "Select") + $DropdownIDList;
+        $DropdownIDList = Reseller::where(array("Status"=>1))->lists('ResellerName', 'ChildCompanyID');
+        $DropdownIDList = array('' => "Select") + array('-1'=>"All") + $DropdownIDList;
         return $DropdownIDList;
     }
     public static function getDropdownIDListAllChildCompanyID(){
@@ -160,6 +160,10 @@ class Reseller extends \Eloquent
         }
 
         return true;
+    }
+
+    public static function IsResellerByCompanyID($CompanyID){
+        return  Reseller::where('ChildCompanyID',$CompanyID)->count();
     }
 
 }

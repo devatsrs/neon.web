@@ -486,7 +486,7 @@
                 criteria = JSON.stringify($searchcli);
             }
             var AccountServicePackageIDs = [];
-            if (!confirm('Are you sure you want to delete selected Number?')) {
+            if (!confirm('Are you sure you want to delete selected Package?')) {
                 return;
             }
             $('#table-packagetable tr .rowcheckbox:checked').each(function (i, el) {

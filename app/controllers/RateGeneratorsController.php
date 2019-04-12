@@ -61,17 +61,22 @@ class RateGeneratorsController extends \BaseController {
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunk_keys = getDefaultTrunk($trunks);
         $codedecklist = BaseCodeDeck::getCodedeckIDList();
+        $companyID = User::get_companyID();
         $currencylist = Currency::getCurrencyDropdownIDList();
         $Timezones = Timezones::getTimezonesIDList();
         $AllTypes =  RateType::getRateTypeDropDownList();
-        $country = ServiceTemplate::Join('tblCountry', function($join) {
-            $join->on('tblServiceTemplate.country','=','tblCountry.country');
-          })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
-            ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
-        $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
-        $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-        $City = ServiceTemplate::where("CompanyID",User::get_companyID())->where("City",'!=','')->orderBy('City')->lists("City", "City");
-        $Tariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("Tariff",'!=','')->orderBy('Tariff')->lists("Tariff", "Tariff");
+        
+        // $country = ServiceTemplate::Join('tblCountry', function($join) {
+        //     $join->on('tblServiceTemplate.country','=','tblCountry.country');
+        //   })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+        //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+
+        $country            = ServiceTemplate::getCountryDD($companyID);
+        $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
+        $City               = ServiceTemplate::getCityDD($companyID);
+        $Tariff             = ServiceTemplate::getTariffDD($companyID);
+        $Prefix             = ServiceTemplate::getPrefixDD($companyID);          
+        
         // $CityTariffFilter = [];
         // foreach($CityTariff as $key => $City){
         //     if(strpos($City, " per ")){
@@ -561,16 +566,17 @@ class RateGeneratorsController extends \BaseController {
             $Timezones = Timezones::getTimezonesIDList();
 
             $AllTypes =  RateType::getRateTypeDropDownList();
-            $country = ServiceTemplate::Join('tblCountry', function($join) {
-                $join->on('tblServiceTemplate.country','=','tblCountry.country');
-              })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
-                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
-            $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
-            $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-            $City = ServiceTemplate::where("CompanyID",User::get_companyID())->where("City",'!=','')->orderBy('City')->lists("City", "City");
-            $Tariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("Tariff",'!=','')->orderBy('Tariff')->lists("Tariff", "Tariff");
-  
+            // $country = ServiceTemplate::Join('tblCountry', function($join) {
+            //     $join->on('tblServiceTemplate.country','=','tblCountry.country');
+            //   })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+            //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+
+            $country            = ServiceTemplate::getCountryDD($companyID);
+            $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
+            $City               = ServiceTemplate::getCityDD($companyID);
+            $Tariff             = ServiceTemplate::getTariffDD($companyID);
+            $Prefix             = ServiceTemplate::getPrefixDD($companyID);  
             // $CityTariffFilter = [];
             // foreach($CityTariff as $key => $City){
             //     if(strpos($City, " per ")){

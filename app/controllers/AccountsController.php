@@ -146,6 +146,7 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function index() {
+        $CompanyID = User::get_companyID();
         $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
         $accountTags = json_encode(Tags::getTagsArray(Tags::Account_tag));
         $account_owners = User::getOwnerUsersbyRole();
@@ -162,11 +163,11 @@ class AccountsController extends \BaseController {
         $bulk_type = 'accounts';
         $Currencies = Currency::getCurrencyDropdownIDList();
 
-        $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+        $BillingClass = BillingClass::getBillingClassListByCompanyID($CompanyID);
         $timezones = TimeZone::getTimeZoneDropdownList();
         $rate_timezones = Timezones::getTimezonesIDList();
-        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
-        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',User::get_companyID());
+        $reseller_owners = Reseller::getDropdownIDList($CompanyID);
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
         return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones','ROUTING_PROFILE'));
 
     }
@@ -188,7 +189,8 @@ class AccountsController extends \BaseController {
         $currencies = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
-        $BillingClass = BillingClass::getDropdownIDList($company_id);
+        //$BillingClass = BillingClass::getDropdownIDList($company_id);
+        $BillingClass = BillingClass::getBillingClassListByCompanyID($company_id);
         $BillingStartDate=date('Y-m-d');
         $LastAccountNo =  '';
         $doc_status = Account::$doc_status;
@@ -850,7 +852,9 @@ class AccountsController extends \BaseController {
         $currencies = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
-        $BillingClass = BillingClass::getDropdownIDList($companyID);
+        //$BillingClass = BillingClass::getDropdownIDList($companyID);
+        $BillingClass = BillingClass::getBillingClassListByCompanyID($companyID);
+
 
         $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
@@ -1409,7 +1413,7 @@ class AccountsController extends \BaseController {
         if($CompanyID == false)
             return Response::json(array("status" => "failed", "message" => "Invalid Request."));
 
-        $data['BillingClass'] = BillingClass::getDropdownIDList($CompanyID);
+        $data['BillingClass'] = BillingClass::getBillingClassListByCompanyID($CompanyID);
         $data['TerminationDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::VOICECALL_ID);
         $data['AccessDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::DID_ID);
         $data['PackageDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::PACKAGE_ID);
