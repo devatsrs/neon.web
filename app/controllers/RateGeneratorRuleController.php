@@ -23,10 +23,10 @@ class RateGeneratorRuleController extends \BaseController {
             $type = Rate::where("CompanyID",User::get_companyID())->whereRaw('Type IS NOT NULL')->lists('Type','Type');
             $countryForRule = Country::lists('Country','CountryID');
 
-            $country = ServiceTemplate::Join('tblCountry', function($join) {
-                $join->on('tblServiceTemplate.country','=','tblCountry.country');
-            })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
-                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+            // $country = ServiceTemplate::Join('tblCountry', function($join) {
+            //     $join->on('tblServiceTemplate.country','=','tblCountry.country');
+            // })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+            //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
             $Package = array('' => "All") + Package::where([
                 "status" => 1,
@@ -34,26 +34,28 @@ class RateGeneratorRuleController extends \BaseController {
             ])->lists("Name", "PackageId");
 
 
-            $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
-            $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-            $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
-            $CityTariffFilter = [];
-            foreach($CityTariff as $key => $City){
-                if(strpos($City, " per ")){
-                    $CityTariffFilter[$City] = $City;
-                    unset($CityTariff[$key]);
-                }
-            }
+            $country            = ServiceTemplate::getCountryPrefixDD($companyID);
+            $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
+            $City               = ServiceTemplate::getCityDD($companyID);
+            $Tariff             = ServiceTemplate::getTariffDD($companyID);
+            $Prefix             = ServiceTemplate::getPrefixDD($companyID);      
+            // $CityTariffFilter = [];
+            // foreach($CityTariff as $key => $City){
+            //     if(strpos($City, " per ")){
+            //         $CityTariffFilter[$City] = $City;
+            //         unset($CityTariff[$key]);
+            //     }
+            // }
 
             $country = array('' => "All") + $country;
             $AccessType = array('' => "All") + $AccessType;
             $Prefix = array('' => "All") + $Prefix;
-            $CityTariff = array('' => "All") + $CityTariff;
+            $City = array('' => "All") + $City;
             $type = array('' => "All") + $type;
-            $CityTariffFilter = array('' => "All") + $CityTariffFilter;
+            $Tariff = array('' => "All") + $Tariff;
             $countryForRule = array('' => "All") + $countryForRule;
 
-            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff','type','countryForRule','CityTariffFilter','Package'));
+            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','City','type','countryForRule','Tariff','Package'));
         }
     }
     public function edit($id, $RateRuleID) {
@@ -71,33 +73,36 @@ class RateGeneratorRuleController extends \BaseController {
 
             $type = Rate::where("CompanyID",User::get_companyID())->whereRaw('Type IS NOT NULL')->lists('Type','Type');
             $countryForRule = Country::lists('Country','CountryID');
-            $country = ServiceTemplate::Join('tblCountry', function($join) {
-                $join->on('tblServiceTemplate.country','=','tblCountry.country');
-            })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
-                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+            
+            // $country = ServiceTemplate::Join('tblCountry', function($join) {
+            //     $join->on('tblServiceTemplate.country','=','tblCountry.country');
+            // })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+            //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
             $Package = array('' => "All") + Package::where([
                 "status" => 1,
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "PackageId");
 
-            $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
-            $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-            $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
-            $CityTariffFilter = [];
-            foreach($CityTariff as $key => $City){
-                if(strpos($City, " per ")){
-                    $CityTariffFilter[$City] = $City;
-                    unset($CityTariff[$key]);
-                }
-            }
+            $country            = ServiceTemplate::getCountryPrefixDD($companyID);
+            $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
+            $City               = ServiceTemplate::getCityDD($companyID);
+            $Tariff             = ServiceTemplate::getTariffDD($companyID);
+            $Prefix             = ServiceTemplate::getPrefixDD($companyID);   
+            // $CityTariffFilter = [];
+            // foreach($CityTariff as $key => $City){
+            //     if(strpos($City, " per ")){
+            //         $CityTariffFilter[$City] = $City;
+            //         unset($CityTariff[$key]);
+            //     }
+            // }
 
             $country = array('' => "All") + $country;
             $AccessType = array('' => "All") + $AccessType;
             $Prefix = array('' => "All") + $Prefix;
-            $CityTariff = array('' => "All") + $CityTariff;
+            $City = array('' => "All") + $City;
             $type = array('' => "All") + $type;
-            $CityTariffFilter = array('' => "All") + $CityTariffFilter;
+            $Tariff = array('' => "All") + $Tariff;
             $countryForRule = array('' => "All") + $countryForRule;
 
             $Timezones = Timezones::getTimezonesIDList();
@@ -116,7 +121,7 @@ class RateGeneratorRuleController extends \BaseController {
                 "RateRuleID" => $RateRuleID
             ])->get();
 
-            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','CityTariff','type','countryForRule','OriginationType','OriginationCountryID','DestinationType','DestinationCountryID','CityTariffFilter','Package'));
+            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','City','type','countryForRule','OriginationType','OriginationCountryID','DestinationType','DestinationCountryID','Tariff','Package'));
 
 
 

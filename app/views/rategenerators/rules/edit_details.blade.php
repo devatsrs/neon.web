@@ -46,13 +46,13 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="field-5" class="control-label">City*</label>
-                        {{ Form::select('City', $CityTariff, @$rategenerator_rule['City'], array("class"=>"select2")) }}
+                        {{ Form::select('City', $City, @$rategenerator_rule['City'], array("class"=>"select2")) }}
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="field-5" class="control-label">Tariff*</label>
-                        {{ Form::select('Tariff', $CityTariffFilter, @$rategenerator_rule['Tariff'], array("class"=>"select2")) }}
+                        {{ Form::select('Tariff', $Tariff, @$rategenerator_rule['Tariff'], array("class"=>"select2")) }}
                     </div>
                     </div>
                 <div class="col-md-3">

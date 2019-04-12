@@ -157,7 +157,8 @@
             <th width="10%">Country</th>
             <th width="4%">Origination</th>
             <th width="4%">Prefix</th>
-            <th width="10%">City/Tariff</th>
+            <th width="10%">City</th>
+            <th width="10%">Tariff</th>
             <th width="10%">Time of Day</th>
             <th width="3%">One-Off Cost</th>
             <th width="3%">Monthly Cost</th>
@@ -193,7 +194,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','AccessType','Country','OriginationCode','Code','CityTariff','TimezoneTitle','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'CostPerCallCurrencySymbol', 'CostPerMinuteCurrencySymbol', 'SurchargePerCallCurrencySymbol', 'SurchargePerMinuteCurrencySymbol', 'OutpaymentPerCallCurrencySymbol', 'OutpaymentPerMinuteCurrencySymbol', 'SurchargesCurrencySymbol', 'ChargebackCurrencySymbol', 'CollectionCostAmountCurrencySymbol', 'RegistrationCostPerNumberCurrencySymbol','TimezonesID'];
+        var list_fields  = ['ID','AccessType','Country','OriginationCode','Code','City','Tariff','TimezoneTitle','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'CostPerCallCurrencySymbol', 'CostPerMinuteCurrencySymbol', 'SurchargePerCallCurrencySymbol', 'SurchargePerMinuteCurrencySymbol', 'OutpaymentPerCallCurrencySymbol', 'OutpaymentPerMinuteCurrencySymbol', 'SurchargesCurrencySymbol', 'ChargebackCurrencySymbol', 'CollectionCostAmountCurrencySymbol', 'RegistrationCostPerNumberCurrencySymbol','TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -207,7 +208,7 @@
             $('#btn-basic-view').addClass('active');
         }
 
-        $("select[name='City'],select[name='Tariff']").on('change', function() {
+        /*$("select[name='City'],select[name='Tariff']").on('change', function() {
             var form = $(this).closest('form').attr('id');
             var name = $(this).attr('name');
             var val = $(this).val();
@@ -219,7 +220,7 @@
                     $("#" + form + " select[name='City']").val('').trigger('change');
                 }
             }
-        });
+        });*/
 
         $("#rate-table-search").submit(function(e) {
             return rateDataTable();
@@ -555,8 +556,9 @@
             var RateID   = $this.prevAll("div.hiddenRowData").find("input[name='RateID']").val();
             var OriginationRateID = $this.prevAll("div.hiddenRowData").find("input[name='OriginationRateID']").val();
             var TimezonesID = $this.prevAll("div.hiddenRowData").find("input[name='TimezonesID']").val();
-            var CityTariff = $this.prevAll("div.hiddenRowData").find("input[name='CityTariff']").val();
-            getArchiveRateTableDIDRates($this,RateID,OriginationRateID,TimezonesID,CityTariff);
+            var City = $this.prevAll("div.hiddenRowData").find("input[name='City']").val();
+            var Tariff = $this.prevAll("div.hiddenRowData").find("input[name='Tariff']").val();
+            getArchiveRateTableDIDRates($this,RateID,OriginationRateID,TimezonesID,City,Tariff);
         });
 
         $(".numbercheck").keypress(function (e) {
@@ -647,13 +649,13 @@
                                 var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[27] == {{RateTable::RATE_STATUS_REJECTED}}) {
+                                if (full[28] == {{RateTable::RATE_STATUS_REJECTED}}) {
                                     html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
-                                } else if (full[27] == {{RateTable::RATE_STATUS_APPROVED}}) {
+                                } else if (full[28] == {{RateTable::RATE_STATUS_APPROVED}}) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
-                                } else if (full[27] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                } else if (full[28] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                     html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
-                                } else if (full[27] == {{RateTable::RATE_STATUS_DELETE}}) {
+                                } else if (full[28] == {{RateTable::RATE_STATUS_DELETE}}) {
                                     html += '<i class="fa fa-trash" title="Awaiting Approval Delete" style="color: red; "></i>';
                                 }
                                 @endif
@@ -673,96 +675,97 @@
                             "defaultContent": ''
                         }, //3 Origination Code
                         {}, //4 Destination Code
-                        {}, //5 CityTariff
-                        {}, //6 Timezones Title
-                        {
-                            mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[42] + col; else return '';
-                            }
-                        }, //7 OneOffCost,
+                        {}, //5 City
+                        {}, //6 Tariff
+                        {}, //7 Timezones Title
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[43] + col; else return '';
                             }
-                        }, //8 MonthlyCost,
+                        }, //8 OneOffCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[44] + col; else return '';
                             }
-                        }, //9 CostPerCall,
+                        }, //9 MonthlyCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[45] + col; else return '';
                             }
-                        }, //10 CostPerMinute,
+                        }, //10 CostPerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[46] + col; else return '';
                             }
-                        }, //11 SurchargePerCall,
+                        }, //11 CostPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[47] + col; else return '';
                             }
-                        }, //12 SurchargePerMinute,
+                        }, //12 SurchargePerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[48] + col; else return '';
                             }
-                        }, //13 OutpaymentPerCall,
+                        }, //13 SurchargePerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[49] + col; else return '';
                             }
-                        }, //14 OutpaymentPerMinute,
+                        }, //14 OutpaymentPerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[50] + col; else return '';
                             }
-                        }, //15 Surcharges,
+                        }, //15 OutpaymentPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[51] + col; else return '';
                             }
-                        }, //16 Chargeback,
+                        }, //16 Surcharges,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[52] + col; else return '';
                             }
-                        }, //17 CollectionCostAmount,
-                        {}, //18 CollectionCostPercentage,
+                        }, //17 Chargeback,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[53] + col; else return '';
                             }
-                        }, //19 RegistrationCostPerNumber,
-                        {}, //20 Effective Date
+                        }, //18 CollectionCostAmount,
+                        {}, //19 CollectionCostPercentage,
+                        {
+                            mRender: function(col, type, full) {
+                                if(col != null && col != '') return full[54] + col; else return '';
+                            }
+                        }, //20 RegistrationCostPerNumber,
+                        {}, //21 Effective Date
                         {
                             "bVisible" : false
-                        }, //21 End Date
+                        }, //22 End Date
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[22] = full[22] != null ? full[22] : '';
                                 full[23] = full[23] != null ? full[23] : '';
-                                if(full[22] != '' && full[23] != '')
-                                    return full[23] + '<br/>' + full[22]; // modified by/modified date
+                                full[24] = full[24] != null ? full[24] : '';
+                                if(full[23] != '' && full[24] != '')
+                                    return full[24] + '<br/>' + full[23]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //23/22 modified by/modified date
+                        }, //24/23 modified by/modified date
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[28] = full[28] != null ? full[28] : '';
                                 full[29] = full[29] != null ? full[29] : '';
-                                if(full[28] != '' && full[29] != '')
-                                    return full[28] + '<br/>' + full[29]; // Approved Status Changed By/Approved Date
+                                full[30] = full[30] != null ? full[30] : '';
+                                if(full[29] != '' && full[30] != '')
+                                    return full[29] + '<br/>' + full[30]; // Approved Status Changed By/Approved Date
                                 else
                                     return '';
                             }
-                        }, //28/29 Approved Status Changed By/Approved Date
+                        }, //29/30 Approved Status Changed By/Approved Date
                         @endif
                         {
                             "bSortable" : false,
@@ -776,12 +779,12 @@
                                 action += '</div>';
 
                                 clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_did_rate')}}";
-                                clerRate_ = clerRate_.replace('{id}', full[24]);
+                                clerRate_ = clerRate_.replace('{id}', full[25]);
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
                                     // if approved rates then show Edit button else hide it
-                                    if(full[27] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                    if(full[28] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                         action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
                                     }
                                 }
@@ -792,7 +795,7 @@
                                     action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
                                 }
 
-                                if (full[24] != null && full[24] != 0) {
+                                if (full[25] != null && full[25] != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
                                         action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
@@ -889,10 +892,10 @@
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger('change');
                     }
                     // these 2 controls divided from one so, we need to do hard code here
-                    if($("#edit-rate-table-form [name='City'] option[value='"+cur_obj.find("input[name='CityTariff']").val()+"']").length != 0)
+                    /*if($("#edit-rate-table-form [name='City'] option[value='"+cur_obj.find("input[name='CityTariff']").val()+"']").length != 0)
                         $("#edit-rate-table-form [name='City']").val(cur_obj.find("input[name='CityTariff']").val()).trigger('change');
                     if($("#edit-rate-table-form [name='Tariff'] option[value='"+cur_obj.find("input[name='CityTariff']").val()+"']").length != 0)
-                        $("#edit-rate-table-form [name='Tariff']").val(cur_obj.find("input[name='CityTariff']").val()).trigger('change');
+                        $("#edit-rate-table-form [name='Tariff']").val(cur_obj.find("input[name='CityTariff']").val()).trigger('change');*/
 
                     var OriginationRateID = cur_obj.find("input[name=OriginationRateID]").val();
                     if(OriginationRateID == null || OriginationRateID == '') {
@@ -979,7 +982,7 @@
         return false;
     }
 
-    function getArchiveRateTableDIDRates($clickedButton,RateID,OriginationRateID,TimezonesID,CityTariff) {
+    function getArchiveRateTableDIDRates($clickedButton,RateID,OriginationRateID,TimezonesID,City,Tariff) {
         //var Codes = new Array();
         var ArchiveRates;
         /*$("#table-4 tr td:nth-child(2)").each(function(){
@@ -1000,7 +1003,7 @@
             $.ajax({
                 url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
                 type: 'POST',
-                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&TimezonesID=" + TimezonesID + "&CityTariff=" + CityTariff,
+                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&TimezonesID=" + TimezonesID + "&City=" + City + "&Tariff=" + Tariff,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -1021,7 +1024,7 @@
 
                     var header = "<thead><tr><th>Access Type</th><th>Country</th><th>Origination</th>";
                     header += "<th>Prefix</th>";
-                    header += "<th>City/Tariff</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th>";
+                    header += "<th>City</th><th>Tariff</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th>";
                     if(ratetablepageview == 'AdvanceView') {
                         header += "<th>Modified By/Date</th>";
                     }
@@ -1044,7 +1047,8 @@
                             html += "<td>" + (data['Country'] != null?data['Country']:'') + "</td>";
                             html += "<td>" + data['OriginationCode'] + "</td>";
                             html += "<td>" + data['Code'] + "</td>";
-                            html += "<td>" + data['CityTariff'] + "</td>";
+                            html += "<td>" + data['City'] + "</td>";
+                            html += "<td>" + data['Tariff'] + "</td>";
                             html += "<td>" + (data['OneOffCost'] != null?data['OneOffCost']:'') + "</td>";
                             html += "<td>" + (data['MonthlyCost'] != null?data['MonthlyCost']:'') + "</td>";
                             html += "<td>" + (data['CostPerCall'] != null?data['CostPerCall']:'') + "</td>";

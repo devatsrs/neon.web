@@ -319,6 +319,7 @@ class RoutingApiController extends ApiController {
         }
     }
 
+
     public function routingList()
     {
         try {
@@ -328,7 +329,7 @@ class RoutingApiController extends ApiController {
             $post_vars = '';
             $routingData = [];
             $startDate = microtime(true);//date('Y-m-d H:i:s');
-            
+
             try {
                 $post_vars = json_decode(file_get_contents("php://input"));
                 //$post_vars = Input::all();
