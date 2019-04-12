@@ -137,6 +137,7 @@
     var postdata;
 
     $('table tbody').on('click', '.history-Termination-clitable', function (ev) {
+
         var $this   = $(this);
 
         var AccessRateTable   = $this.prevAll("div.hiddenRowData").find("input[name='RateTableID']").val();
@@ -150,9 +151,10 @@
         var City = $this.prevAll("div.hiddenRowData").find("input[name='City']").val();
         var Tariff = $this.prevAll("div.hiddenRowData").find("input[name='Tariff']").val();
         var accessURL = baseurl + "/rate_tables/" + TerminationRateTable + "/view?AccessType=" + Type;
-        accessURL += "&Country=" +Country;
-        accessURL += "&City=" +City;
-        accessURL += "&Tariff=" +Tariff;
+        accessURL += "&Country=" +"0";
+        //accessURL += "&City=" +City;
+        //accessURL += "&Tariff=" +Tariff;
+        
         location.href = accessURL;
         /* var TerminationRateTable = $this.prevAll("div.hiddenRowData").find("input[name='TerminationRateTableID']").val();
          var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
@@ -433,7 +435,7 @@
                             action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>&nbsp;';
                             action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>&nbsp;'
                             action += '<a title="Access Table" href="javascript:;" class="history-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
-                            action += '<a title="Termination Table" href="javascript:;" class="history-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                            action += '<a title="Termination Table" href="javascript:;" class="history-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a></td></tr></table>&nbsp;';
                             return action;
                         }
                     }
