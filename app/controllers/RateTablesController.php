@@ -11,11 +11,15 @@ class RateTablesController extends \BaseController {
             ->leftjoin('tblDIDCategory','tblDIDCategory.DIDCategoryID','=','tblRateTable.DIDCategoryID')
             ->leftjoin('tblCustomerTrunk','tblCustomerTrunk.CustomerTrunkID','=',DB::RAW('(SELECT CustomerTrunkID FROM tblCustomerTrunk WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
             ->leftjoin('tblVendorConnection','tblVendorConnection.VendorConnectionID','=',DB::RAW('(SELECT VendorConnectionID FROM tblVendorConnection WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
-            ->select(['tblRateTable.Type','tblRateTable.AppliedTo','tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName', 'tblDIDCategory.CategoryName as CategoryName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID', 'tblRateTable.RoundChargedAmount', 'tblRateTable.MinimumCallCharge', 'tblRateTable.DIDCategoryID', 'tblCustomerTrunk.CustomerTrunkID', 'tblVendorConnection.VendorConnectionID'])
+            ->leftjoin('tblReseller','tblReseller.ResellerID','=','tblRateTable.Reseller')
+            ->select([DB::RAW('IF(tblRateTable.Reseller=0,"",IF(tblRateTable.Reseller=-1,"All",tblReseller.ResellerName)) AS ResellerName'),'tblRateTable.Type','tblRateTable.AppliedTo','tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName', 'tblDIDCategory.CategoryName as CategoryName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID', 'tblRateTable.RoundChargedAmount', 'tblRateTable.MinimumCallCharge', 'tblRateTable.DIDCategoryID', 'tblCustomerTrunk.CustomerTrunkID', 'tblVendorConnection.VendorConnectionID','tblRateTable.Reseller'])
             ->where("tblRateTable.CompanyId",$CompanyID);
         //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
 
         $data = Input::all();
+        if(isset($data['Reseller']) && $data['Reseller'] != 0){
+            $rate_tables->where('tblRateTable.Reseller',$data['Reseller']);
+        }
         if($data['TrunkID']){
             $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
         }
@@ -143,7 +147,8 @@ class RateTablesController extends \BaseController {
             $currencylist = Currency::getCurrencyDropdownIDList();
             $DIDCategory = DIDCategory::getCategoryDropdownIDList($companyID);
             $RateTypes   = RateType::getRateTypeDropDownList();
-            return View::make('ratetables.index', compact('trunks','RateGenerators','codedecks','trunk_keys','currencylist','DIDCategory','RateTypes'));
+            $ResellerDD  = RateTable::getResellerDropdownIDList();
+            return View::make('ratetables.index', compact('trunks','RateGenerators','codedecks','trunk_keys','currencylist','DIDCategory','RateTypes','ResellerDD'));
     }
 
 
@@ -1167,6 +1172,10 @@ class RateTablesController extends \BaseController {
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+
+        if($rateTableId->AppliedTo != RateTable::APPLIED_TO_RESELLER) {
+            unset($data['Reseller']);
         }
 
         $data['ModifiedBy'] = User::get_user_full_name();

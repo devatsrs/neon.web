@@ -1497,6 +1497,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_class/store/{type}','BillingClassController@store');
 	Route::any('/billing_class/edit/{id}','BillingClassController@edit');
 	Route::any('/billing_class/update/{id}','BillingClassController@update');
+	Route::any('/billing_class/clone/{id}','BillingClassController@billingclass_clone');
 	Route::any('/billing_class/delete/{id}','BillingClassController@delete');
 	Route::any('/billing_class/getInfo/{id}','BillingClassController@getInfo');
 

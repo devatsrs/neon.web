@@ -24,6 +24,13 @@ ALTER TABLE `tblTempRateTableDIDRate`
 	CHANGE COLUMN `CityTariff` `City` VARCHAR(50) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci' AFTER `Description`,
 	ADD COLUMN `Tariff` VARCHAR(50) NOT NULL DEFAULT '' AFTER `City`;
 
+ALTER TABLE `tblRateTable`
+	ADD COLUMN `Reseller` INT NOT NULL DEFAULT '0' AFTER `AppliedTo`;
+
+ALTER TABLE `tblRateGenerator`
+	ADD COLUMN `AppliedTo` INT NOT NULL DEFAULT '1' AFTER `Tariff`,
+	ADD COLUMN `Reseller` INT NOT NULL DEFAULT '0' AFTER `AppliedTo`;
+
 
 
 
