@@ -1432,6 +1432,8 @@ GenerateRateTable:BEGIN
 
 
 
+		/*
+		issue found in ICC network where code rate was overwritten.
 		IF p_GroupBy = 'Desc'
 		THEN
 
@@ -1457,7 +1459,7 @@ GenerateRateTable:BEGIN
 				inner JOIN tmp_Rates2_ vd on  vd.OriginationDescription = vr.OriginationDescription and  vd.Description = vr.Description and vd.OriginationCode != vr.OriginationCode and vd.Code != vr.Code
 				where vd.Rate is not null;
 
-		END IF;
+		END IF;*/
 
 
 
