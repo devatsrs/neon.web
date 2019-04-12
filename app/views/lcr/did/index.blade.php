@@ -233,13 +233,6 @@
             //var data_table;
             if('{{$LCRPosition}}'=='5'){
                 setTimeout(function(){
-                    if($searchFilter.lcrType=='Package') {
-                        $('#dt_Country').addClass("hidden");
-                        $('#dt_Prefix').addClass("hidden");
-                        $('#dt_City').addClass("hidden");
-                        $('#dt_Tariff').addClass("hidden");
-                    }
-
                     $('#dt_company6').addClass("hidden");
                     $('#dt_company7').addClass("hidden");
                     $('#dt_company8').addClass("hidden");
@@ -300,10 +293,7 @@
                         $('#dt_company9').addClass("hidden");
                         $('#dt_company10').addClass("hidden");
 
-                            $('#dt_Country').addClass("hidden");
-                            $('#dt_Prefix').addClass("hidden");
-                            $('#dt_City').addClass("hidden");
-                            $('#dt_Tariff').addClass("hidden");
+
 
                     },10);
                     aoColumns = [
@@ -467,10 +457,7 @@
                 }else{
                     setTimeout(function(){
 
-                            $('#dt_Country').removeClass("hidden");
-                            $('#dt_Prefix').removeClass("hidden");
-                            $('#dt_City').removeClass("hidden");
-                            $('#dt_Tariff').removeClass("hidden");
+                            
 
                         $('#dt_company6').removeClass("hidden");
                         $('#dt_company7').removeClass("hidden");
