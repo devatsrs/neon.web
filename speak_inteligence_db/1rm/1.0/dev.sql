@@ -1426,11 +1426,12 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 		IF (p_isExport = 0)
 		THEN
 
-			SET @stm_query = CONCAT("SELECT AccessType ,Country ,City ,Tariff,Code, ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff    ORDER BY Code, AccessType ,Country ,City ,Tariff  LIMIT ",p_RowspPage," OFFSET ",@v_OffSet_," ;");
+			SET @stm_query = CONCAT("SELECT AccessType ,Country ,Code,City ,Tariff, ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff ORDER BY Code, AccessType ,Country ,City ,Tariff  LIMIT ",p_RowspPage," OFFSET ",@v_OffSet_," ;");
 
 		ELSE
 
-			SET @stm_query = CONCAT("SELECT AccessType ,Country ,City ,Tariff,Code,  ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff      ORDER BY Code, AccessType ,Country ,City ,Tariff  ;");
+			SET @stm_query = CONCAT("SELECT AccessType ,Country ,Code,City ,Tariff,  ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff ORDER BY Code, AccessType ,Country ,City ,Tariff  ;");
+
 
 		END IF;
 
