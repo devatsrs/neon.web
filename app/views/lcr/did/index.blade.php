@@ -135,11 +135,11 @@
         </tr>--}}
 
         <tr>
-            <th>Access Type</th>
-            <th>Country</th>
-            <th>Prefix</th>
-            <th>City</th>
-            <th>Tariff</th>
+            <th id="dt_AccessType">Access Type</th>
+            <th id="dt_Country">Country</th>
+            <th id="dt_Prefix">Prefix</th>
+            <th id="dt_City">City</th>
+            <th id="dt_Tariff">Tariff</th>
             <th id="dt_company1">Position 1</th>
             <th id="dt_company2">Position 2</th>
             <th id="dt_company3">Position 3</th>
@@ -276,7 +276,59 @@
                 // alert($searchFilter.lcrType);
 
                 var aoColumnDefs, aoColumnDefs;
-                if($searchFilter.LCRPosition=='5'){
+                if($searchFilter.lcrType == "Package"){
+                    $('#dt_AccessType').html("Package Name");
+                    $('#dt_Country').html("Position 1");
+                    $('#dt_Prefix').html("Position 2");
+                    $('#dt_City').html("Position 3");
+                    $('#dt_Tariff').html("Position 4");
+                    $('#dt_company1').html("Position 5");
+                    setTimeout(function(){
+                        $('#dt_company6').addClass("hidden");
+                        $('#dt_company7').addClass("hidden");
+                        $('#dt_company8').addClass("hidden");
+                        $('#dt_company9').addClass("hidden");
+                        $('#dt_company10').addClass("hidden");
+                    },10);
+                    aoColumns = [
+                        { "bSortable": false}, //1 Access Type
+                        { "bSortable": false}, //2 Country
+                        { "bSortable": false}, //3 Prefix
+                        { "bSortable": false}, //4 City
+                        { "bSortable": false}, //5 Tariff
+                        { "bSortable": false}, //6 Position 1
+                        { "bSortable": false,"bVisible" : false}, //7 Position 2
+                        { "bSortable": false,"bVisible" : false}, //8 Position 3
+                        { "bSortable": false,"bVisible" : false}, //9 Position 4
+                        { "bSortable": false,"bVisible" : false}, //10 Position 5
+                        /* { "bSortable": false}, //11 Position 6
+                         { "bVisible": false},  //12 Position 7
+                         { "bVisible": false},  //13 Position 8
+                         { "bVisible": false},  //14 Position 9
+                         { "bVisible": false},  //15 Company 10*/
+
+
+                    ];
+
+                    aoColumnDefs = [
+                        {    "sClass": "destination", "aTargets": [ 0 ] },
+                        {    "sClass": "destination", "aTargets": [ 1 ] },
+                        {    "sClass": "destination", "aTargets": [ 2 ] },
+                        {    "sClass": "destination", "aTargets": [ 3 ] },
+                        {    "sClass": "destination", "aTargets": [ 4 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 5 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 6 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 7 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 8 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 9 ] }
+                    ];
+                }else  if($searchFilter.LCRPosition=='5'){
+                    $('#dt_AccessType').html("Access Type");
+                    $('#dt_Country').html("Country");
+                    $('#dt_Prefix').html("Prefix");
+                    $('#dt_City').html("City");
+                    $('#dt_Tariff').html("Tariff");
+                    $('#dt_company1').html("Position 1");
 
                     setTimeout(function(){
                         $('#dt_company6').addClass("hidden");
