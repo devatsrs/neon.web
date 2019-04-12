@@ -16,7 +16,7 @@
                             <button type="button" class="btn btn-primary dropdown-toggle pull-right didbutton" data-toggle="dropdown" aria-expanded="false" style="width:100%">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_DID)}} <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; width:100% ">
                                 <li> <a  href="{{URL::to('lcr')}}"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_VOICECALL)}}</a></li>
-                               <li> <a  href="javascript:;" class="packageoption"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_PACKAGE)}}</a></li>
+                                <li> <a  href="javascript:;" class="packageoption"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_PACKAGE)}}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -157,8 +157,8 @@
     </table>
 
     <script type="text/javascript">
-        
-        
+
+
         var $searchFilter = {};
         var data_table;
 
@@ -185,10 +185,7 @@
 
             @if($lcrType == "Access")
              $('#lcr_type').val('N');
-            $('#dt_Country').removeClass("hidden");
-            $('#dt_Prefix').removeClass("hidden");
-            $('#dt_City').removeClass("hidden");
-            $('#dt_Tariff').removeClass("hidden");
+            
             $('#dt_Name').html("Access Type");
             $('.didbutton').html(accbtnval+' <span class="caret"></span>');
             $('.packageoption').html(packbtnval);
@@ -199,16 +196,16 @@
             $('#OriginationPercentage').show();
             @endif
 
-           // alert(accbtnval);
+            // alert(accbtnval);
             $('.packageoption').click(function(){
                 if($('.packageoption').text()=='Package'){
 
-                   $('#lcr_type').val('Y');
-                   $('.didbutton').html(packbtnval+' <span class="caret"></span>');
-                   $('.packageoption').html(accbtnval);
-                   $('.packagediv').show();
-                   $('.productdiv').hide();
-                   $('.productcategory').hide();
+                    $('#lcr_type').val('Y');
+                    $('.didbutton').html(packbtnval+' <span class="caret"></span>');
+                    $('.packageoption').html(accbtnval);
+                    $('.packagediv').show();
+                    $('.productdiv').hide();
+                    $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
 
@@ -216,19 +213,19 @@
                 }else{
 
                     $('#lcr_type').val('N');
-                   $('.didbutton').html(accbtnval+' <span class="caret"></span>');
-                    $('.packageoption').html(packbtnval); 
+                    $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+                    $('.packageoption').html(packbtnval);
                     $('.packagediv').hide();
-                   $('.productdiv').show();
-                   $('.productcategory').show();
+                    $('.productdiv').show();
+                    $('.productcategory').show();
                     $('#Origination').show();
                     $('#OriginationPercentage').show();
 
                 }
-                
+
             });
-            
-                
+
+
             $('#filter-button-toggle').show();
 
             //var data_table;
@@ -272,7 +269,7 @@
                 $searchFilter.OriginationPercentage       = $("#did-search-form input[name='OriginationPercentage']").val();
                 $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
-                
+
                 $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
                 $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
                 $searchFilter.lcrType = '';
@@ -283,8 +280,8 @@
                 }
 
 
-               // alert($searchFilter.lcrType);
-                
+                // alert($searchFilter.lcrType);
+
                 var aoColumnDefs, aoColumnDefs;
                 if($searchFilter.lcrType=='Package') {
                     setTimeout(function(){
@@ -434,11 +431,11 @@
                         { "bSortable": false}, //8 Position 3
                         { "bSortable": false}, //9 Position 4
                         { "bSortable": false}, //10 Position 5
-                       /* { "bSortable": false}, //11 Position 6
-                        { "bVisible": false},  //12 Position 7
-                        { "bVisible": false},  //13 Position 8
-                        { "bVisible": false},  //14 Position 9
-                        { "bVisible": false},  //15 Company 10*/
+                        /* { "bSortable": false}, //11 Position 6
+                         { "bVisible": false},  //12 Position 7
+                         { "bVisible": false},  //13 Position 8
+                         { "bVisible": false},  //14 Position 9
+                         { "bVisible": false},  //15 Company 10*/
 
 
                     ];
@@ -530,10 +527,10 @@
                 }
                 if($('#lcr_type').val()=='Y'){
                 }else{
-                if(typeof $searchFilter.DIDCategoryID  == 'undefined' || $searchFilter.DIDCategoryID == '' ){
-                    toastr.error("Please Select a Category", "Error", toastr_opts);
-                    return false;
-                }
+                    if(typeof $searchFilter.DIDCategoryID  == 'undefined' || $searchFilter.DIDCategoryID == '' ){
+                        toastr.error("Please Select a Category", "Error", toastr_opts);
+                        return false;
+                    }
                 }
 
                 data_table = $("#table").dataTable({
