@@ -18,6 +18,31 @@ class RateTable extends \Eloquent
     //public static $types = array( self::TYPE_VOICECALL => 'Voice Call',self::TYPE_DID=>'DID');
     public static $AppliedTo = array( self::APPLIED_TO_CUSTOMER => 'Customer',self::APPLIED_TO_VENDOR=>'Vendor',self::APPLIED_TO_RESELLER=>'Partner');
 
+
+    const RATE_STATUS_AWAITING  = 0;
+    const RATE_STATUS_APPROVED  = 1;
+    const RATE_STATUS_REJECTED  = 2;
+    const RATE_STATUS_DELETE    = 3;
+
+    const RATE_STATUS_NOT_APPROVED  = 11;
+
+    public static $DDRateStatus1 = array(
+        self::RATE_STATUS_APPROVED      => 'Approved',
+        self::RATE_STATUS_NOT_APPROVED  => 'Not Approved'
+    );
+
+    public static $DDRateStatus2 = array(
+        ""                          => 'All',
+        self::RATE_STATUS_AWAITING  => 'Awaiting Approval',
+        self::RATE_STATUS_REJECTED  => 'Rejected',
+        self::RATE_STATUS_DELETE    => 'Awaiting Approval Delete'
+    );
+
+    const RATE_TABLE_TYPE_TERMINATION   = 1;
+    const RATE_TABLE_TYPE_ACCESS        = 2;
+    const RATE_TABLE_TYPE_PACKAGE       = 3;
+
+
     /*
      * Option = ["TrunkID" = int ,... ]
      * */
@@ -107,6 +132,15 @@ class RateTable extends \Eloquent
         }
         return $RateTables;
     }
+
+    public static function getRateTablesForPackage($CompanyID,$Type){
+        $RateTables = RateTable::select(['RateTableName','RateTableId'])->where(['CompanyID' => $CompanyID,'Type' => $Type])->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        if(!empty($RateTables)){
+            $RateTables = [''=>'Select'] + $RateTables;
+        }
+        return $RateTables;
+    }
+
     public static function getCurrencyCode($RateTableId){
         $CurrencyID = RateTable::where(["RateTableId" => $RateTableId])->pluck('CurrencyID');
         return Currency::getCurrencySymbol($CurrencyID);

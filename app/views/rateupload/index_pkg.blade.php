@@ -93,7 +93,7 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Settings</label>
                             <div class="col-sm-10">
-                                <div class="checkbox ">
+                                <div class="checkbox hidden">
                                     <label>
                                         <input type="hidden" name="checkbox_replace_all" value="0" >
                                         <input type="checkbox" id="rd-1" name="checkbox_replace_all" value="1" > Replace all of the existing rates with the rates from the file
@@ -399,10 +399,6 @@
              var id   = $("select[name=Ratetable]").val();
              getTrunk(Type,id);
              });*/
-
-            $('select[name="selection[Code]"]').on('change', function() {
-                $('select[name="selection[Description]"]').select2("val",$(this).val());
-            });
 
             $(document).on('change','#excel', function() {
                 var formData = new FormData($('#form-upload')[0]);

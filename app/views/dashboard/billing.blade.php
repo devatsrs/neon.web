@@ -45,20 +45,20 @@
     ?>
     <br/>
     <?php if(User::checkCategoryPermission('BillingDashboardSummaryWidgets','View')){ ?>
-        <div class="row">
+    <div class="row">
         <div class="col-md-12">
             <div data-collapsed="0" class="panel panel-primary">
                 <div id="invoice-widgets" class="panel-body">
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-blue"><a target="_blank" class="undefined"
-                                                                  data-startdate="" data-enddate=""
-                                                                  data-currency="" href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p> Total Outstanding</p></a></div>
-                    </div>
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-blue"><a target="_blank" class="undefined"
+                                                                 data-startdate="" data-enddate=""
+                                                                 data-currency="" href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p> Total Outstanding</p></a></div>
+                        </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
@@ -83,70 +83,70 @@
                         </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
-                                                              data-enddate="" data-currency=""
-                                                              href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Invoice Sent for selected period</p></a></div>
-                    </div>
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
+                                                                  data-enddate="" data-currency=""
+                                                                  href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Invoice Sent for selected period</p></a></div>
+                        </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-plum"><a target="_blank" class="undefined" data-startdate=""
-                                                              data-enddate="" data-currency=""
-                                                              href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Invoice Received</p></a></div>
-                    </div>
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-plum"><a target="_blank" class="undefined" data-startdate=""
+                                                                 data-enddate="" data-currency=""
+                                                                 href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Invoice Received</p></a></div>
+                        </div>
                     @endif
-                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
-                                                               data-startdate="" data-enddate=""
-                                                               data-currency="0" href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Due Amount</p></a></div>
-                    </div>
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
+                                                                   data-startdate="" data-enddate=""
+                                                                   data-currency="0" href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Due Amount</p></a></div>
+                        </div>
                     @endif
-                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
-                                                            data-enddate="" data-currency=""
-                                                            href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Overdue Amount</p></a></div>
-                    </div>
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
+                                                                data-enddate="" data-currency=""
+                                                                href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Overdue Amount</p></a></div>
+                        </div>
                     @endif
-                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentReceived',$BillingDashboardWidgets))
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-purple"><a target="_blank" class="undefined" data-startdate=""
-                                                             data-enddate="" data-currency=""
-                                                             href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Payment Received</p></a></div>
-                    </div>
-                        @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentReceived',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-purple"><a target="_blank" class="undefined" data-startdate=""
+                                                                   data-enddate="" data-currency=""
+                                                                   href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Payment Received</p></a></div>
+                        </div>
+                    @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentSent',$BillingDashboardWidgets))
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
-                                                               data-enddate="" data-currency=""
-                                                               href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Payment Sent</p></a></div>
-                    </div>
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
+                                                                 data-enddate="" data-currency=""
+                                                                 href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Payment Sent</p></a></div>
+                        </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
@@ -159,27 +159,27 @@
                         </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingDispute',$BillingDashboardWidgets))
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
-                                                             data-enddate="" data-currency=""
-                                                             href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Pending Dispute</p></a></div>
-                    </div>
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
+                                                                 data-enddate="" data-currency=""
+                                                                 href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Pending Dispute</p></a></div>
+                        </div>
                     @endif
-                   @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="tile-stats tile-pink"><a target="_blank" class="undefined" data-startdate=""
-                                                             data-enddate="" data-currency=""
-                                                             href="javascript:void(0)">
-                                <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                     data-duration="1500" data-delay="1200">0
-                                </div>
-                                <p>Pending Eastimate</p></a></div>
-                    </div>
-                   @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-pink"><a target="_blank" class="undefined" data-startdate=""
+                                                                 data-enddate="" data-currency=""
+                                                                 href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Pending Eastimate</p></a></div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -247,55 +247,55 @@
         </div>
     @endif
     @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
-    <div class="row">
-        <div class="col-md-12">
-            <div class="invoice_expsense panel panel-primary panel-table">
-                <form id="invoiceExpensefilter-form" name="filter-form">
-                    <div class="panel-heading">
-                    <div class="panel-title">
-                        <h3>Invoices & Expenses</h3>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="invoice_expsense panel panel-primary panel-table">
+                    <form id="invoiceExpensefilter-form" name="filter-form">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                <h3>Invoices & Expenses</h3>
 
+                            </div>
+
+                            <div class="panel-options">
+
+                                {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly","Yearly"=>"Yearly"),$monthfilter,array("class"=>"select_gray","id"=>"ListType")) }}
+
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="panel-body">
+                        <div id="invoice_expense_bar_chart"></div>
                     </div>
-
-                    <div class="panel-options">
-
-                        {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly","Yearly"=>"Yearly"),$monthfilter,array("class"=>"select_gray","id"=>"ListType")) }}
-
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                        <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                    </div>
-                </div>
-                </form>
-
-                <div class="panel-body">
-                    <div id="invoice_expense_bar_chart"></div>
                 </div>
             </div>
         </div>
-    </div>
     @endif
     @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboardPincodeWidget','View'))
         <div class="row">
             <div class="col-sm-12">
                 <div class="pin_expsense panel panel-primary panel-table">
                     <form id="filter-form" name="filter-form" style="display: inline">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            <h3>Top Pincodes</h3>
-                        </div>
-                        <div class="panel-options">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                <h3>Top Pincodes</h3>
+                            </div>
+                            <div class="panel-options">
 
                                 {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array('id'=>'PinExt','class'=>'select_gray')) }}
                                 {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type','class'=>'select_gray')) }}
                                 {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size','class'=>'select_gray')) }}
 
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                            <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                            <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                        </div>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                            </div>
 
-                    </div>
+                        </div>
                     </form>
                     <div class="panel-body">
                         <div id="pin_expense_bar_chart"></div>
@@ -335,229 +335,281 @@
         </div>
     @endif
     @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="panel panel-primary panel-table">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        <h3>Missing Gateway Accounts ()</h3>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="panel panel-primary panel-table">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            <h3>Missing Gateway Accounts ()</h3>
 
+                        </div>
+
+                        <div class="panel-options">
+                            {{ Form::select('CompanyGatewayID', $company_gateway, 1, array('id'=>'company_gateway','class'=>'select_gray')) }}
+                            <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
+                            <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
+                            <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
+                            <a data-rel="empty" href="#" title="Delete Missing Gateway Accounts"><i class="entypo-trash"></i></a>
+                        </div>
                     </div>
+                    <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
+                        <table id="missingAccounts" class="table table-responsive">
+                            <thead>
+                            <tr>
+                                <th>Account Name</th>
+                                <th>Gateway</th>
+                            </tr>
+                            </thead>
 
-                    <div class="panel-options">
-                        {{ Form::select('CompanyGatewayID', $company_gateway, 1, array('id'=>'company_gateway','class'=>'select_gray')) }}
-                        <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                        <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
-                        <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
-                        <a data-rel="empty" href="#" title="Delete Missing Gateway Accounts"><i class="entypo-trash"></i></a>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-                <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
-                    <table id="missingAccounts" class="table table-responsive">
-                        <thead>
-                        <tr>
-                            <th>Account Name</th>
-                            <th>Gateway</th>
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
-    </div>
     @endif
     @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('PaymentRemindersWidget','View'))
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="panel panel-primary panel-table">
-                <div class="panel-heading">
-                    <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
-                    <div class="panel-title forecase_title">
-                        <h3>Notifications</h3>
-                        <div class="PaymentReminders"></div>
-                    </div>
+        <div class="panel panel-primary panel-table">
+            <div class="panel-heading">
+                <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+                <div class="panel-title forecase_title">
+                    <h3>Notifications</h3>
+                    <div class="PaymentReminders"></div>
                 </div>
-                <div class="form_Sales panel-body white-bg">
-                    <form novalidate class="form-horizontal form-groups-bordered"  id="PaymentRemindersForm">
-                        <div class="form-group form-group-border-none">
-                            <div class="col-md-12">
-                                <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Account</label>
-                                <div class="col-md-3">
-                                    {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
+            </div>
+            <div class="panel-body white-bg">
+                <form novalidate class="form-horizontal form-groups-bordered"  id="PaymentRemindersForm">
+                    <div class="form-group form-group-border-none">
+                        <label for="Closingdate" class="col-sm-1 control-label ">Account</label>
+                        <div class="col-md-3">
+                            {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
 
-                                </div>
-                                <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
-                                <div class="col-md-2">
-                                    <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
-                                </div>
-                                <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Type</label>
-                                <div class="col-md-3">
-                                    {{Form::select('emailType',$emailType,'',array("class"=>"select2"))}}
-
-                                </div>
-                                <div class="form-group" style="clear:both"></div>
-                                <div class="col-md-2"><label for="Closingdate" class="col-sm-1 control-label managerLabel " style=" white-space: nowrap;">Account Partner</label></div>
-                                <div class="col-md-3" style="margin-left:-80px;">
-                                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
-                                </div>
-                                <div class="col-md-1">
-                                    <button type="submit" id="submit_paymentreminder" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
-                                </div>
-                            </div>
                         </div>
-                    </form>
-                    <br />
-                    
-                    <table class="table table-bordered datatable" id="PaymentReminders-4">
-                        <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Account</th>
-                            <th>Date Sent</th>
-                            <th>Email From</th>
-                            <th>Email To</th>
-                            <th>Subject</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+                        <label for="Closingdate" class="col-sm-1 control-label ">Date</label>
+                        <div class="col-md-3">
+                            <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate" data-format="YYYY-MM-DD" name="Duedate" class="form-control daterange">
+                        </div>
+                        <label for="Closingdate" class="col-sm-1 control-label ">Type</label>
+                        <div class="col-md-3">
+                            {{Form::select('emailType',$emailType,'',array("class"=>"select2"))}}
+
+                        </div>
+
+                    </div>
+                    <div class="form-group form-group-border-none">
+                        <label for="Closingdate" class="col-sm-1 control-label ">Account Partner</label>
+                        <div class="col-md-3">
+                            {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" id="submit_paymentreminder" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <br />
+
+                <table class="table table-bordered datatable" id="PaymentReminders-4">
+                    <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Account</th>
+                        <th>Date Sent</th>
+                        <th>Email From</th>
+                        <th>Email To</th>
+                        <th>Subject</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
         <div class="modal fade" id="view-modal-notification">
             <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                  <h4 class="modal-title">View Payment</h4>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">View Payment</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label text-left bold">Subject: </label>
+                                    <div name="emailsubject"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label text-left bold">Message</label>
+                                    <div name="emailmessage"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                    <div class="col-md-12">
-                      <div class="form-group">
-                        <label for="field-5" class="control-label text-left bold">Subject: </label>
-                        <div name="emailsubject"></div>
-                      </div>
-                    </div>
-                    </div>
-                    <div class="row">
-                    <div class="col-md-12">
-                      <div class="form-group">
-                        <label for="field-5" class="control-label text-left bold">Message</label>
-                        <div name="emailmessage"></div>
-                      </div>
-                    </div>
-                    </div>
-                </div>
-              </div>
             </div>
-          </div>
-    </div>
+        </div>
     @endif
-    
-    <script type="text/javascript">
-    jQuery(document).ready(function ($) {
-        $("#submit_paymentreminder").click(function(e) {
-            e.preventDefault();
-             accountID = $('#PaymentRemindersForm').find('[name="accountID"]').val();
-             ResellerOwner = $('#PaymentRemindersForm').find('[name="ResellerOwner"]').val();
-             Duedate = $('#PaymentRemindersForm').find('[name="Duedate"]').val();
-            emailType = $('#PaymentRemindersForm').find('[name="emailType"]').val();
 
-            data_tables.fnFilter('', 0);
-        })
-        var accountID = $('#PaymentRemindersForm').find('[name="accountID"]').val();
-        var ResellerOwner = $('#PaymentRemindersForm').find('[name="ResellerOwner"]').val();
-        var Duedate = $('#PaymentRemindersForm').find('[name="Duedate"]').val();
-        var emailType = $('#PaymentRemindersForm').find('[name="emailType"]').val();
-         //$('#submit_paymentreminder').trigger('click');
-         data_tables = $("#PaymentReminders-4").dataTable({
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('OutPaymentsWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('OutPaymentsWidget','View'))
+        <div class="clearfix"></div>
+        <div class="panel panel-primary panel-table">
+            <div class="panel-heading">
+                <div id="OutPayments" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+                <div class="panel-title forecase_title">
+                    <h3>Out Payments</h3>
+                    <div class="OutPaymentsDiv"></div>
+                </div>
+            </div>
+            <div class="form_OutPayments panel-body white-bg">
+                <form novalidate class="form-horizontal form-groups-bordered" id="OutPaymentsForm">
+                    <div class="form-group form-group-border-none">
+                        <label for="AccountID" class="col-sm-1 control-label">Account</label>
+                        <div class="col-sm-3">
+                            {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}}
+                        </div>
+                        <label for="VendorID" class="col-sm-1 control-label">Vendor</label>
+                        <div class="col-sm-3">
+                            {{Form::select('VendorID', $vendors,'',array("class"=>"select2"))}}
+                        </div>
+                        <label for="InvoiceNumber" class="col-sm-1 control-label">Invoice</label>
+                        <div class="col-sm-3">
+                            <input type="text" name="InvoiceNumber" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group form-group-border-none">
+                        <label for="DateRange" class="col-sm-1 control-label">Period</label>
+                        <div class="col-sm-3">
+                            <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="DateRange" data-format="YYYY-MM-DD" name="DateRange" class="form-control input-sm daterange">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" id="submit_outpayment" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <table class="table table-bordered datatable" id="OutPayments-4">
+                    <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Vendor</th>
+                        <th>Account</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Amount</th>
+                        <th>Approve Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $("#submit_paymentreminder").click(function(e) {
+                e.preventDefault();
+                accountID = $('#PaymentRemindersForm').find('[name="accountID"]').val();
+                ResellerOwner = $('#PaymentRemindersForm').find('[name="ResellerOwner"]').val();
+                Duedate = $('#PaymentRemindersForm').find('[name="Duedate"]').val();
+                emailType = $('#PaymentRemindersForm').find('[name="emailType"]').val();
+
+                data_tables.fnFilter('', 0);
+            });
+            var accountID = $('#PaymentRemindersForm').find('[name="accountID"]').val();
+            var ResellerOwner = $('#PaymentRemindersForm').find('[name="ResellerOwner"]').val();
+            var Duedate = $('#PaymentRemindersForm').find('[name="Duedate"]').val();
+            var emailType = $('#PaymentRemindersForm').find('[name="emailType"]').val();
+            //$('#submit_paymentreminder').trigger('click');
+            data_tables = $("#PaymentReminders-4").dataTable({
                 "bProcessing":true,
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/billing_dashboard/paymentreminders_ajax_datagrid",
-                 "iDisplayLength":10,
+                "iDisplayLength":10,
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "sPaginationType": "bootstrap",
                 "oTableTools": {},
                 "aaSorting"   : [[4, 'desc']],
                 "fnServerParams": function (aoData) {
                     console.log(accountID);console.log(ResellerOwner);
-                        aoData.push(
-                                {"name": "accountID", "value": accountID},{"name": "ResellerOwner", "value": ResellerOwner},{"name": "Duedate", "value": Duedate},{"name": "emailType", "value": emailType}
+                    aoData.push(
+                            {"name": "accountID", "value": accountID},{"name": "ResellerOwner", "value": ResellerOwner},{"name": "Duedate", "value": Duedate},{"name": "emailType", "value": emailType}
 
-                        );
-                        data_table_extra_params.length = 0;
-                        data_table_extra_params.push(
-                                {"name": "accountID", "value": accountID},{"name": "ResellerOwner", "value": ResellerOwner},{"name": "Duedate", "value": Duedate},{"name": "emailType", "value": emailType},
-                                {"name": "Export", "value": 1}
-                        );
+                    );
+                    data_table_extra_params.length = 0;
+                    data_table_extra_params.push(
+                            {"name": "accountID", "value": accountID},{"name": "ResellerOwner", "value": ResellerOwner},{"name": "Duedate", "value": Duedate},{"name": "emailType", "value": emailType},
+                            {"name": "Export", "value": 1}
+                    );
 
-                    },
+                },
                 "aoColumns":
-                 [
-                    {  "bSortable": true,
-                        mRender: function ( id, type, full ) {
-                             var action , edit_ , show_ , delete_;
-                             //console.log(id);
-                             if(id==4){
-                               action='Low balance';  
-                             } else if(id==2){
-                               action='Low balance'; 
-                                } else if(id==3){
-                               action='Weekly Payment Transaction'; 
-                             } else if(id==5){
-                               action='Pending Approval Payment'; 
-                             } else if(id==6){
-                               action='RetentionDiskSpaceEmail';
-                             } else if(id==7){
-                               action='Block Account';
-                              } else if(id==8){
-                               action='Invoice PaidBy Customer';
-                              } else if(id==9){
-                               action='Auto Add IP';
-                              } else if(id==10){
-                               action='Low Stock Reminder';
-                              } else if(id==11){
-                               action='Auto Top Account';
-                              } else if(id==13){
-                               action='Auto Out Payment';
-                              } else if(id==14){
-                               action='Customer Contract Expire'; 
-                             }else{
-                                 action='Payment Reminders';
-                             }                         
-                           return action; 
-                        } 
-                    }, //1 EmailType
-                     { "bSortable": true }, //0 AccountName
-                    { "bSortable": true }, //2 CreatedBy
-                    { "bSortable": true }, //3 Emailfrom
-                    { "bSortable": true }, //3 EmailTo
-                    { "bSortable": true }, //3 Message
-                    {  // 4 Contact ID
-                       "bSortable": true,
-                        mRender: function ( id, type, full ) {
-                            var action , edit_ , show_ ;
-                            edit_ = "{{ URL::to('billing_dashboard/{id}/edit')}}";
-                            show_ = "{{ URL::to('billing_dashboard/{id}/show')}}";
-                            delete_ = "{{ URL::to('billing_dashboard/{id}/delete')}}";
+                        [
+                            {  "bSortable": true,
+                                mRender: function ( id, type, full ) {
+                                    var action , edit_ , show_ , delete_;
+                                    //console.log(id);
+                                    if(id==4){
+                                        action='Low balance';
+                                    } else if(id==2){
+                                        action='Low balance';
+                                    } else if(id==3){
+                                        action='Weekly Payment Transaction';
+                                    } else if(id==5){
+                                        action='Pending Approval Payment';
+                                    } else if(id==6){
+                                        action='RetentionDiskSpaceEmail';
+                                    } else if(id==7){
+                                        action='Block Account';
+                                    } else if(id==8){
+                                        action='Invoice PaidBy Customer';
+                                    } else if(id==9){
+                                        action='Auto Add IP';
+                                    } else if(id==10){
+                                        action='Low Stock Reminder';
+                                    } else if(id==11){
+                                        action='Auto Top Account';
+                                    } else if(id==13){
+                                        action='Auto Out Payment';
+                                    } else if(id==14){
+                                        action='Customer Contract Expire';
+                                    }else{
+                                        action='Payment Reminders';
+                                    }
+                                    return action;
+                                }
+                            }, //1 EmailType
+                            { "bSortable": true }, //0 AccountName
+                            { "bSortable": true }, //2 CreatedBy
+                            { "bSortable": true }, //3 Emailfrom
+                            { "bSortable": true }, //3 EmailTo
+                            { "bSortable": true }, //3 Message
+                            {  // 4 Contact ID
+                                "bSortable": true,
+                                mRender: function ( id, type, full ) {
+                                    var action , edit_ , show_ ;
+                                    edit_ = "{{ URL::to('billing_dashboard/{id}/edit')}}";
+                                    show_ = "{{ URL::to('billing_dashboard/{id}/show')}}";
+                                    delete_ = "{{ URL::to('billing_dashboard/{id}/delete')}}";
 
-                            edit_ = edit_.replace( '{id}', id );
-                            show_ = show_.replace( '{id}', id );
-                            delete_  = delete_ .replace( '{id}', id );
-                            action = '<div id="subject_'+full[7]+'" style="display:none" >'+full[5]+'</div><div id="msg_'+full[7]+'" style="display:none" >'+full[6]+'</div>';
+                                    edit_ = edit_.replace( '{id}', id );
+                                    show_ = show_.replace( '{id}', id );
+                                    delete_  = delete_ .replace( '{id}', id );
+                                    action = '<div id="subject_'+full[7]+'" style="display:none" >'+full[5]+'</div><div id="msg_'+full[7]+'" style="display:none" >'+full[6]+'</div>';
 
-                            action += ' <a data-name = "' + full[7] + '" data-id="' + full[7] + '" Title="View" class="view-email-body btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
+                                    action += ' <a data-name = "' + full[7] + '" data-id="' + full[7] + '" Title="View" class="view-email-body btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
 
-                            return action;
-                          }
-                      },
-                ],
+                                    return action;
+                                }
+                            },
+                        ],
                 "oTableTools": {
                     "aButtons": [
                         {
@@ -575,78 +627,148 @@
                     ]
                 }
             });
-         
-        $('table tbody').on('click', '.view-email-body', function (ev) {
-            ev.preventDefault();
-            ev.stopPropagation();
-            var self = $(this);
-            elementId=$(this).attr("data-id");
 
-            $('#view-modal-notification').trigger("reset");
 
-            $("#view-modal-notification [name='emailsubject']").html($('#subject_'+elementId).html());
-            $("#view-modal-notification [name='emailmessage']").html($('#msg_'+elementId).html());
-
-            $('#view-modal-notification h4').html('Email Log Detail');
-            $('#view-modal-notification').modal('show');
-        });
-        
-        
-            
-         
-
-        $(".dataTables_wrapper select").select2({
-            minimumResultsForSearch: -1
-        });
-
-        // Highlighted rows
-        $("#table-2 tbody input[type=checkbox]").each(function (i, el) {
-            var $this = $(el),
-                $p = $this.closest('tr');
-
-            $(el).on('change', function () {
-                var is_checked = $this.is(':checked');
-
-                $p[is_checked ? 'addClass' : 'removeClass']('highlight');
-            });
-        });
-
-        // Replace Checboxes
-        $(".pagination a").click(function (ev) {
-            replaceCheckboxes();
-        });
-    });
-    $('body').on('click', 'a[title="Delete"]', function (e) {
+            $("#submit_outpayment").click(function(e) {
                 e.preventDefault();
-                var response = confirm('Are you sure?');
-                if (response) {
-                    $.ajax({
-                        url: $(this).attr("href"),
-                        type: 'POST',
-                        dataType: 'json',
-                        success: function (response) {
-                            $(".btn.delete").button('reset');
-                            if (response.status == 'success') {
-                                data_table.fnFilter('', 0);
-                            } else {
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
+                PaymentAccountID     = $('#OutPaymentsForm').find('[name="AccountID"]').val();
+                PaymentVendor        = $('#OutPaymentsForm').find('[name="VendorID"]').val();
+                PaymentDueDate       = $('#OutPaymentsForm').find('[name="DateRange"]').val();
+                PaymentInvoiceNumber = $('#OutPaymentsForm').find('[name="InvoiceNumber"]').val();
+
+                outpayment_data_tables.fnFilter('', 0);
+            });
+
+            var PaymentAccountID     = $('#OutPaymentsForm').find('[name="AccountID"]').val();
+            var PaymentVendor        = $('#OutPaymentsForm').find('[name="VendorID"]').val();
+            var PaymentDueDate       = $('#OutPaymentsForm').find('[name="DateRange"]').val();
+            var PaymentInvoiceNumber = $('#OutPaymentsForm').find('[name="InvoiceNumber"]').val();
+
+            var outpayment_data_tables = $("#OutPayments-4").dataTable({
+                "bProcessing":true,
+                "bServerSide":true,
+                "sAjaxSource": baseurl + "/billing_dashboard/outpayment_ajax_datagrid",
+                "iDisplayLength":10,
+                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "sPaginationType": "bootstrap",
+                "oTableTools": {},
+                "aaSorting"   : [[6, 'desc']],
+                "fnServerParams": function (aoData) {
+                    console.log(accountID);console.log(ResellerOwner);
+                    aoData.push(
+                            {"name": "AccountID", "value": PaymentAccountID},{"name": "VendorID", "value": PaymentVendor},{"name": "DateRange", "value": PaymentDueDate},{"name": "InvoiceNumber", "value": PaymentInvoiceNumber}
+
+                    );
+                    data_table_extra_params.length = 0;
+                    data_table_extra_params.push(
+                            {"name": "AccountID", "value": PaymentAccountID},{"name": "VendorID", "value": PaymentVendor},{"name": "DateRange", "value": PaymentDueDate},{"name": "InvoiceNumber", "value": PaymentInvoiceNumber}, {"name": "Export", "value": 1}
+                    );
+
+                },
+                "aoColumns":
+                        [
+                            { "bSortable": true }, //0 Invoice #
+                            { "bSortable": true }, //1 Vendor
+                            { "bSortable": true }, //2 Account
+                            { "bSortable": true }, //3 Start Date
+                            { "bSortable": true }, //4 End Date
+                            { "bSortable": true }, //5 Amount
+                            { "bSortable": true }  //6 Approved Date
+                        ],
+                "oTableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/billing_dashboard/outpayment/exports/xlsx", //baseurl + "/generate_xlsx.php",
+                            sButtonClass: "save-collection btn-sm"
                         },
-                        // Form data
-                        //data: {},
-                        cache: false,
-                        contentType: false,
-                        processData: false
-                    });
-
-
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/billing_dashboard/outpayment/exports/csv", //baseurl + "/generate_csv.php",
+                            sButtonClass: "save-collection btn-sm"
+                        }
+                    ]
                 }
-                return false;
+            });
 
+            $('#OutPaymentsForm').submit(function(e) {
+                e.preventDefault();
+                GetDashboardOutPayment();
+            });
+
+            $('table tbody').on('click', '.view-email-body', function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                var self = $(this);
+                elementId=$(this).attr("data-id");
+
+                $('#view-modal-notification').trigger("reset");
+
+                $("#view-modal-notification [name='emailsubject']").html($('#subject_'+elementId).html());
+                $("#view-modal-notification [name='emailmessage']").html($('#msg_'+elementId).html());
+
+                $('#view-modal-notification h4').html('Email Log Detail');
+                $('#view-modal-notification').modal('show');
             });
 
 
-</script>
+
+
+
+            $(".dataTables_wrapper select").select2({
+                minimumResultsForSearch: -1
+            });
+
+            // Highlighted rows
+            $("#table-2 tbody input[type=checkbox]").each(function (i, el) {
+                var $this = $(el),
+                        $p = $this.closest('tr');
+
+                $(el).on('change', function () {
+                    var is_checked = $this.is(':checked');
+
+                    $p[is_checked ? 'addClass' : 'removeClass']('highlight');
+                });
+            });
+
+            // Replace Checboxes
+            $(".pagination a").click(function (ev) {
+                replaceCheckboxes();
+            });
+        });
+        $('body').on('click', 'a[title="Delete"]', function (e) {
+            e.preventDefault();
+            var response = confirm('Are you sure?');
+            if (response) {
+                $.ajax({
+                    url: $(this).attr("href"),
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        $(".btn.delete").button('reset');
+                        if (response.status == 'success') {
+                            data_table.fnFilter('', 0);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    },
+                    // Form data
+                    //data: {},
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+
+
+            }
+            return false;
+
+        });
+
+
+    </script>
     <script src="{{ URL::asset('assets/js/highcharts.js') }}"></script>
     <script type="text/javascript">
 
@@ -1012,33 +1134,33 @@
                     $('#modal-invoice h4').text('Total Outstanding');
                     $('#modal-invoice').modal('show');
                 } /*else if ($(this).hasClass('unpaid')) {
-                    $searchFilter.Type = 4;
-                    invoiceTable.fnFilter('', 0);
-                    $('#modal-invoice h4').text('Unpaid Invoices');
-                    $('#modal-invoice').modal('show');
-                } else if ($(this).hasClass('overdue')) {
-                    $searchFilter.Type = 5;
-                    invoiceTable.fnFilter('', 0);
-                    $('#modal-invoice h4').text('Overdue Invoices');
-                    $('#modal-invoice').modal('show');
-                } else if ($(this).hasClass('paid')) {
-                    $searchFilter.Type = 6;
-                    invoiceTable.fnFilter('', 0);
-                    $('#modal-invoice h4').text('Paid Invoices');
-                    $('#modal-invoice').modal('show');
-                }else if ($(this).hasClass('partiallypaid')) {
-                    $searchFilter.Type = 7;
-                    invoiceTable.fnFilter('', 0);
-                    $('#modal-invoice h4').text('Partially Paid Invoices');
-                    $('#modal-invoice').modal('show');
-                }else if ($(this).hasClass('Pendingdispute')) {
+                 $searchFilter.Type = 4;
+                 invoiceTable.fnFilter('', 0);
+                 $('#modal-invoice h4').text('Unpaid Invoices');
+                 $('#modal-invoice').modal('show');
+                 } else if ($(this).hasClass('overdue')) {
+                 $searchFilter.Type = 5;
+                 invoiceTable.fnFilter('', 0);
+                 $('#modal-invoice h4').text('Overdue Invoices');
+                 $('#modal-invoice').modal('show');
+                 } else if ($(this).hasClass('paid')) {
+                 $searchFilter.Type = 6;
+                 invoiceTable.fnFilter('', 0);
+                 $('#modal-invoice h4').text('Paid Invoices');
+                 $('#modal-invoice').modal('show');
+                 }else if ($(this).hasClass('partiallypaid')) {
+                 $searchFilter.Type = 7;
+                 invoiceTable.fnFilter('', 0);
+                 $('#modal-invoice h4').text('Partially Paid Invoices');
+                 $('#modal-invoice').modal('show');
+                 }else if ($(this).hasClass('Pendingdispute')) {
 
-                }*/
+                 }*/
 
             });
         });
 
-        
+
         $('#invoiceExpensefilter-form [name="ListType"]').change(function(){
             invoiceExpense();
         });
@@ -1184,90 +1306,90 @@
             }
         }
 
-            function invoiceExpense() {
-                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
-                var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
-                data = $('#billing_filter').serialize() + '&ListType=' + $('#invoiceExpensefilter-form [name="ListType"]').val();
-                var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
-                loadingUnload('#invoice_expense_bar_chart', 1);
-                $.get(get_url, data, function (response) {
-                    $(".search.btn").button('reset');
-                    loadingUnload('#invoice_expense_bar_chart', 0);
-                    $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
-                }, "html");
-                @endif
-            }
-            function PaymentReminders() {
-                @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets)) && User::checkCategoryPermission('PaymentRemindersWidget','View'))
-                var get_url = baseurl + "/billing_dashboard/paymentreminders";
-                data = $('#PaymentRemindersForm').serialize() + '&paymentreminders=1';
-                $.get(get_url, data, function (response) {
-                    $(".search.btn").button('reset');
-                    $(".PaymentReminders").html(response);
-                }, "html");
-                @endif
-            }
+        function invoiceExpense() {
+                    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
+            var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
+            data = $('#billing_filter').serialize() + '&ListType=' + $('#invoiceExpensefilter-form [name="ListType"]').val();
+            var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
+            loadingUnload('#invoice_expense_bar_chart', 1);
+            $.get(get_url, data, function (response) {
+                $(".search.btn").button('reset');
+                loadingUnload('#invoice_expense_bar_chart', 0);
+                $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
+            }, "html");
+            @endif
+        }
+        function PaymentReminders() {
+                    @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets)) && User::checkCategoryPermission('PaymentRemindersWidget','View'))
+            var get_url = baseurl + "/billing_dashboard/paymentreminders";
+            data = $('#PaymentRemindersForm').serialize() + '&paymentreminders=1';
+            $.get(get_url, data, function (response) {
+                $(".search.btn").button('reset');
+                $(".PaymentReminders").html(response);
+            }, "html");
+            @endif
+        }
         function invoiceExpenseTotalwidgets(){
-            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets) || in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets) || in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
-                var data = $('#billing_filter').serialize();
-                var get_url = baseurl + "/billing_dashboard/invoice_expense_total_widget";
-                $.get(get_url, data, function (response) {
-                    var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
-                    var option = [];
-                    var widgets = '';
-                    var startDate = '';
-                    var enddate = '{{date('Y-m-d')}}';
-                    if ($('#billing_filter [name="date-span"]').val() == 6) {
-                        startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -6 months'))}}';
-                    } else if ($('#billing_filter [name="date-span"]').val() == 12) {
-                        startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -12 months'))}}';
-                    } else{
-                        startDate = $('#billing_filter [name="Closingdate"]').val();
-                        var res = startDate.split(" - ");
-                        console.log(res);
-                        startDate = res[0]+' 00:00:01';
-                        enddate = res[1]+' 23:59:59';
-                    }
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets) || in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets) || in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
+            var data = $('#billing_filter').serialize();
+            var get_url = baseurl + "/billing_dashboard/invoice_expense_total_widget";
+            $.get(get_url, data, function (response) {
+                var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
+                var option = [];
+                var widgets = '';
+                var startDate = '';
+                var enddate = '{{date('Y-m-d')}}';
+                if ($('#billing_filter [name="date-span"]').val() == 6) {
+                    startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -6 months'))}}';
+                } else if ($('#billing_filter [name="date-span"]').val() == 12) {
+                    startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -12 months'))}}';
+                } else{
+                    startDate = $('#billing_filter [name="Closingdate"]').val();
+                    var res = startDate.split(" - ");
+                    console.log(res);
+                    startDate = res[0]+' 00:00:01';
+                    enddate = res[1]+' 23:59:59';
+                }
 
-                    $(".search.btn").button('reset');
+                $(".search.btn").button('reset');
 
-                    option["prefix"] = response.CurrencySymbol;
-                    option["startdate"] = startDate;
-                    option["enddate"] = enddate;
-                    option["currency"] = CurrencyID;
-                    option["count"] = '';
-                    option["round"] = response.data.Round;
+                option["prefix"] = response.CurrencySymbol;
+                option["startdate"] = startDate;
+                option["enddate"] = enddate;
+                option["currency"] = CurrencyID;
+                option["count"] = '';
+                option["round"] = response.data.Round;
 
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
-                    option["amount"] = response.data.TotalOutstanding;
-                    option["end"] = response.data.TotalOutstanding;
-                    option["tileclass"] = 'tile-blue';
-                    option["type"] = 'Total Outstanding';
-                    widgets += buildbox(option);
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+                        option["amount"] = response.data.TotalOutstanding;
+                option["end"] = response.data.TotalOutstanding;
+                option["tileclass"] = 'tile-blue';
+                option["type"] = 'Total Outstanding';
+                widgets += buildbox(option);
+                @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
                         option["amount"] = response.data.TotalPayable;
-                        option["end"] = response.data.TotalPayable;
-                        option["tileclass"] = 'tile-orange';
-                        option["type"] = 'Total Payable';
-                        widgets += buildbox(option);
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
+                option["end"] = response.data.TotalPayable;
+                option["tileclass"] = 'tile-orange';
+                option["type"] = 'Total Payable';
+                widgets += buildbox(option);
+                @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
                         option["amount"] = response.data.TotalReceivable;
-                        option["end"] = response.data.TotalReceivable;
-                        option["tileclass"] = 'tile-red';
-                        option["type"] = 'Total Receivable';
-                        widgets += buildbox(option);
-                    @endif
-                    var ele = $('<div></div>');
-                    ele.html(widgets);
-                    var temp = ele.find('.col-xs-6');
-                    $('#invoice-widgets').prepend(temp);
-                    $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
-						titleState(el);
-					});
+                option["end"] = response.data.TotalReceivable;
+                option["tileclass"] = 'tile-red';
+                option["type"] = 'Total Receivable';
+                widgets += buildbox(option);
+                        @endif
+                var ele = $('<div></div>');
+                ele.html(widgets);
+                var temp = ele.find('.col-xs-6');
+                $('#invoice-widgets').prepend(temp);
+                $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
+                    titleState(el);
+                });
 
-                }, "json");
+            }, "json");
             @endif
         }
 
@@ -1301,7 +1423,7 @@
                 option["count"] = '';
 
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalInvoiceOut;
+                        option["amount"] = response.data.TotalInvoiceOut;
                 option["end"] = response.data.TotalInvoiceOut;
                 option["tileclass"] = 'tile-plum';
                 option["class"] = 'paid';
@@ -1309,8 +1431,8 @@
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
                 @endif
-                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalInvoiceIn;
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
+                        option["amount"] = response.data.TotalInvoiceIn;
                 option["end"] = response.data.TotalInvoiceIn;
                 option["tileclass"] = 'tile-green';
                 option["class"] = 'paid';
@@ -1319,8 +1441,8 @@
                 widgets += buildbox(option);
                 @endif
 
-                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalDueAmount;
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
+                        option["amount"] = response.data.TotalDueAmount;
                 option["end"] = response.data.TotalDueAmount;
                 option["tileclass"] = 'tile-orange';
                 option["class"] = 'due';
@@ -1328,8 +1450,8 @@
                 /*option["count"] = response.data.CountTotalUnpaidInvoices;*/
                 widgets += buildbox(option);
                 @endif
-                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalOverdueAmount;
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
+                        option["amount"] = response.data.TotalOverdueAmount;
                 option["end"] = response.data.TotalOverdueAmount;
                 option["tileclass"] = 'tile-red';
                 option["class"] = 'overdue';
@@ -1338,14 +1460,14 @@
                 widgets += buildbox(option);
                 @endif
                 /*option["amount"] = response.data.TotalPartiallyPaidInvoices;
-                option["end"] = response.data.TotalPartiallyPaidInvoices;
-                option["tileclass"] = 'tile-cyan';
-                option["class"] = 'partiallypaid';
-                option["type"] = 'Partially Paid invoices';
-                option["count"] = response.data.CountTotalPartiallyPaidInvoices;
-                widgets += buildbox(option);*/
+                 option["end"] = response.data.TotalPartiallyPaidInvoices;
+                 option["tileclass"] = 'tile-cyan';
+                 option["class"] = 'partiallypaid';
+                 option["type"] = 'Partially Paid invoices';
+                 option["count"] = response.data.CountTotalPartiallyPaidInvoices;
+                 widgets += buildbox(option);*/
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentReceived',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalPaymentsIn;
+                        option["amount"] = response.data.TotalPaymentsIn;
                 option["end"] = response.data.TotalPaymentsIn;
                 option["tileclass"] = 'tile-purple';
                 option["class"] = 'paymentReceived1';
@@ -1353,8 +1475,8 @@
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
                 @endif
-                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentSent',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalPaymentsOut;
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentSent',$BillingDashboardWidgets))
+                        option["amount"] = response.data.TotalPaymentsOut;
                 option["end"] = response.data.TotalPaymentsOut;
                 option["tileclass"] = 'tile-cyan';
                 option["class"] = 'paymentsent';
@@ -1362,8 +1484,8 @@
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
                 @endif
-                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
-                option["amount"] = response.data.Outstanding;
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
+                        option["amount"] = response.data.Outstanding;
                 option["end"] = response.data.Outstanding;
                 option["tileclass"] = 'tile-brown';
                 option["class"] = 'paymentsent';
@@ -1371,8 +1493,8 @@
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
                 @endif
-                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingDispute',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalDispute;
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingDispute',$BillingDashboardWidgets))
+                        option["amount"] = response.data.TotalDispute;
                 option["end"] = response.data.TotalDispute;
                 option["tileclass"] = 'tile-aqua';
                 option["class"] = 'Pendingdispute';
@@ -1380,8 +1502,8 @@
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
                 @endif
-                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalEstimate;
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
+                        option["amount"] = response.data.TotalEstimate;
                 option["end"] = response.data.TotalEstimate;
                 option["tileclass"] = 'tile-pink';
                 option["class"] = 'Pendingestimate';
@@ -1397,7 +1519,7 @@
         }
 
         function deleteMissingAccounts() {
-            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
+                    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
             var gateWayID = $("#company_gateway").val();
             if(gateWayID) {
                 if(confirm('Are you sure you want to delete missing gateway accounts?')) {
@@ -1420,7 +1542,7 @@
         }
 
         function missingAccounts() {
-            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
+                    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
             var table = $('#missingAccounts');
             loadingUnload(table, 1);
             var url = baseurl + '/dashboard/ajax_get_missing_accounts?CompanyGatewayID=' + $("#company_gateway").val();
@@ -1539,63 +1661,63 @@
 
                     if(dataObj.series != '' && dataObj.series.length > 0) {
 
-                            var seriesdata =  [];
-                            var categories =  [];
+                        var seriesdata =  [];
+                        var categories =  [];
                         seriesdata = JSON.parse(JSON.stringify(dataObj.series));
 
 
-                            $('#PayableReceivable1').highcharts({
-                                chart: {
-                                    type: 'column'
-                                },
+                        $('#PayableReceivable1').highcharts({
+                            chart: {
+                                type: 'column'
+                            },
+                            title: {
+                                text: ''
+                            },
+                            xAxis: {
+                                /*categories: dataObj.categories.split(','),*/
                                 title: {
-                                    text: ''
+                                    text: ""
                                 },
-                                xAxis: {
-                                    /*categories: dataObj.categories.split(','),*/
-                                    title: {
-                                        text: ""
-                                    },
-                                    type: 'category'
-                                },
-                                tooltip: {
-                                    valueSuffix: ''
-                                },
-                                plotOptions: {
-                                    bar: {
-                                        dataLabels: {
-                                            enabled: true
-                                        }
-                                    },
-                                    column: {
-                                        pointPadding: 0.2,
-                                        borderWidth: 0
+                                type: 'category'
+                            },
+                            tooltip: {
+                                valueSuffix: ''
+                            },
+                            plotOptions: {
+                                bar: {
+                                    dataLabels: {
+                                        enabled: true
                                     }
                                 },
-                                legend: {
-                                    layout: 'vertical',
-                                    align: 'right',
-                                    verticalAlign: 'top',
-                                    x: -40,
-                                    y: 80,
-                                    floating: false,
-                                    borderWidth: 1,
-                                    backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                                    shadow: false
-                                },
-                                credits: {
-                                    enabled: false
-                                },
+                                column: {
+                                    pointPadding: 0.2,
+                                    borderWidth: 0
+                                }
+                            },
+                            legend: {
+                                layout: 'vertical',
+                                align: 'right',
+                                verticalAlign: 'top',
+                                x: -40,
+                                y: 80,
+                                floating: false,
+                                borderWidth: 1,
+                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                                shadow: false
+                            },
+                            credits: {
+                                enabled: false
+                            },
 
-                                series: seriesdata,
+                            series: seriesdata,
 
-                            });
+                        });
 
 
-                        }else{
-                            $('.PayableReceivable1').html('<br><h4>No Data</h4>');
-                            $('.PayableReceivable').html('');
-                        }
+                    }else{
+                        $('.PayableReceivable1').html('<br><h4>No Data</h4>');
+                        $('.PayableReceivable').html('');
+                    }
 
                     ////////
                 }

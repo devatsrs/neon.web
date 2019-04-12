@@ -32,19 +32,12 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="field-5" class="control-label">Subscription</label>
+                                        <label for="field-5" class="control-label">Subscription*</label>
                                         {{ Form::select('SubscriptionID', BillingSubscription::getSubscriptionsList(User::get_companyID(), Account::getAccountTypeForSubscriptions($account->AccountID)), '' , array("class"=>"select2")) }}
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="field-5" class="control-label">Invoice Description</label>
-                                        <input type="text" name="InvoiceDescription" class="form-control" value="" />
-                                    </div>
-                                </div>
-                            </div>
+                            
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
@@ -56,113 +49,53 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="field-5" class="control-label">Qty</label>
-                                        <input type="text" name="Qty" class="form-control" value="" />
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="AnnuallyFee" class="control-label">Yearly Fee</label>
-                                        <input type="text" name="AnnuallyFee" class="form-control"   maxlength="10" id="AnnuallyFee" placeholder="" value="" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="QuarterlyFee" class="control-label">Quarterly Fee</label>
-                                        <input type="text" name="QuarterlyFee" class="form-control"   maxlength="10" id="QuarterlyFee" placeholder="" value="" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="MonthlyFee" class="control-label">Monthly Fee</label>
-                                        <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="field-521" class="control-label">Recurring Fee Currency</label>
-                                        {{ Form::select('RecurringCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="WeeklyFee" class="control-label">Weekly Fee</label>
-                                        <input type="text" name="WeeklyFee" id="WeeklyFee" class="form-control" value="" />
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-sm-6">
-
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="DailyFee" class="control-label">Daily Fee</label>
-                                        <input type="text" name="DailyFee" id="DailyFee" class="form-control" value="" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="ActivationFee" class="control-label">Activation Fee</label>
+                                        <label for="ActivationFee" class="control-label">Activation Fee*</label>
                                         <input type="text" name="ActivationFee" id="ActivationFee" class="form-control" value="" />
                                     </div>
                                 </div>
                             </div>
+                             <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="WeeklyFee" class="control-label">Weekly Fee*</label>
+                                        <input type="text" name="WeeklyFee" id="WeeklyFee" class="form-control" value="" />
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="field-5221" class="control-label">Activation Fee Currency</label>
+                                        <label for="QuarterlyFee" class="control-label">Quarterly Fee*</label>
+                                        <input type="text" name="QuarterlyFee" class="form-control"   maxlength="10" id="QuarterlyFee" placeholder="" value="" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5221" class="control-label">Activation Fee Currency*</label>
                                         {{ Form::select('OneOffCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
                                     </div>
                                 </div>
                             </div>
-                            <!-- -->
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="field-5" class="control-label">Start Date</label>
-                                        <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
+                                        <label for="field-5" class="control-label">Start Date*</label>
+                                        <input type="text" name="StartDate" id="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""    />
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="field-5" class="control-label">End Date</label>
-                                        <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""  />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
+                            <div class="col-md-12">
                                     <div class="form-group">
                                         <label for="field-5" class="control-label">Discount</label>
                                         <input type="text" name="DiscountAmount" class="form-control" value=""  />
                                     </div>
                                 </div>
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="field-5" class="control-label">Discount Type</label>
-                                        {{ Form::select('DiscountType', array('Flat' => 'Flat', 'Percentage' => 'Percentage') ,'', array("class"=>"form-control") ) }}
-                                    </div>
-                                </div>
-                            </div>
-
+                            </div>    
+                            
+                            <!-- -->
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
@@ -175,6 +108,84 @@
                                     </div>
                                 </div>
                             </div>
+                            
+
+                            
+                            
+                            
+
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">Invoice Description</label>
+                                        <input type="text" name="InvoiceDescription" class="form-control" value="" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">Qty</label>
+                                        <input type="text" name="Qty" class="form-control" value="1" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="DailyFee" class="control-label">Daily Fee*</label>
+                                        <input type="text" name="DailyFee" id="DailyFee" class="form-control" value="" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="MonthlyFee" class="control-label">Monthly Fee*</label>
+                                        <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="AnnuallyFee" class="control-label">Yearly Fee*</label>
+                                        <input type="text" name="AnnuallyFee" class="form-control"   maxlength="10" id="AnnuallyFee" placeholder="" value="" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-521" class="control-label">Recurring Fee Currency*</label>
+                                        {{ Form::select('RecurringCurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">End Date*</label>
+                                        <input type="text" name="EndDate" id="EndDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""  />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">Discount Type</label>
+                                        {{ Form::select('DiscountType', array('Flat' => 'Flat', 'Percentage' => 'Percentage') ,'', array("class"=>"form-control") ) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            
 
                             <div class="row">
                                 <div class="col-md-12">

@@ -8,6 +8,8 @@ class LCRDIDController extends \BaseController {
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
+        //dd($data);
+        Log::info('LCRDIDController:search_ajax_datagrid' . print_r($data, true));
         $data['ComponentAction']=empty($data['ComponentAction'])?'':$data['ComponentAction'];
         $data['DIDCategoryID']=empty($data['DIDCategoryID'])?0:$data['DIDCategoryID'];
         $data['ProductID']=empty($data['ProductID'])?0:$data['ProductID'];
@@ -24,13 +26,14 @@ class LCRDIDController extends \BaseController {
             NeonCookie::setCookie('LCRPosition',$data['LCRPosition'],60);
         }
 
+        $data['iDisplayStart'] +=1;
 
 
 
         //$data['ProductID'] = 1; // 1 for local testing , 27825 for staging testing else "Geo number Argentina; Prefix:011"
-if($data['lcr_type']=='Y'){
-    
-    $query = "call prc_GetPACKAGELCR(".$companyID.", '".$data['PackageID']."', '".$data['Currency']."' , '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+        if($data['lcr_type']=='Y'){
+
+            $query = "call prc_GetPACKAGELCR(".$companyID.", '".$data['PackageID']."', '".$data['Currency']."' , '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
@@ -53,8 +56,8 @@ if($data['lcr_type']=='Y'){
 
                 }
                 $query .=',0)';
-}else{
-        $query = "call prc_GetDIDLCR(".$companyID.", '".$data['CountryID']."', '".$data['AccessType']."', '".$data['CityTariff']."', '".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+        }else{
+                $query = "call prc_GetDIDLCR(".$companyID.", '".$data['CountryID']."', '".$data['AccessType']."', '".$data['City']."','".$data['Tariff']."' ,'".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
@@ -77,7 +80,7 @@ if($data['lcr_type']=='Y'){
 
                 }
                 $query .=',0)';
-}
+        }
 
         Log::info('Search procedure query' . $query);
         return DataTableSql::of($query)->make();
@@ -88,6 +91,10 @@ if($data['lcr_type']=='Y'){
 
     public function index() {
 
+        $post_data = Input::all();
+        $companyID = User::get_companyID();
+
+        $lcrType = isset($post_data['lcrType']) ? $post_data['lcrType'] : '';
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunk_keys = getDefaultTrunk($trunks);
         //$countries = Country::getCountryDropdownIDList();
@@ -97,31 +104,35 @@ if($data['lcr_type']=='Y'){
         $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
         $Timezones = Timezones::getTimezonesIDList();
         $products = ServiceTemplate::where("CompanyID",User::get_companyID())->lists("Name", "ServiceTemplateId");
-        $country = ServiceTemplate::Join('tblCountry', function($join) {
-            $join->on('tblServiceTemplate.country','=','tblCountry.country');
-            })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
-            ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+
+        // $country = ServiceTemplate::Join('tblCountry', function($join) {
+        //     $join->on('tblServiceTemplate.country','=','tblCountry.country');
+        //     })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+        //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
             //->orderBy('tblServiceTemplate.country');
 
-        $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
-        $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-        $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
-        $CityTariffFilter = [];
-        foreach($CityTariff as $key => $City){
-            if(strpos($City, " per ")){
-                $CityTariffFilter[$City] = $City;
-                unset($CityTariff[$key]);
-            }
-        }
-        $CityTariff = array_merge($CityTariff, $CityTariffFilter);
+        $country            = ServiceTemplate::getCountryDD($companyID);
+        $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
+        $City               = ServiceTemplate::getCityDD($companyID);
+        $Tariff             = ServiceTemplate::getTariffDD($companyID);
+        $Prefix             = ServiceTemplate::getPrefixDD($companyID); 
+        // $CityTariffFilter = [];
+        // foreach($CityTariff as $key => $City){
+        //     if(strpos($City, " per ")){
+        //         $CityTariffFilter[$City] = $City;
+        //         unset($CityTariff[$key]);
+        //     }
+        // }
+        //$CityTariff = array_merge($CityTariff, $CityTariffFilter);
 
         $country = array('' => "All") + $country;
         $AccessType =array('' => "All") + $AccessType;
         $Prefix = array('' => "All") + $Prefix;
-        $CityTariff = array('' => 'All') + $CityTariff;
+        $City = array('' => 'All') + $City;
+        $Tariff = array('' => 'All') + $Tariff;
 
-        $Package = Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
+        $Package = array('' => "All") + Package::where("CompanyID",User::get_companyID())->lists("Name", "PackageId");
 
         $RateTypes = RateType::getRateTypeDropDownList();
         $data=array();

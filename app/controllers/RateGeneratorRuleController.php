@@ -5,6 +5,7 @@ class RateGeneratorRuleController extends \BaseController {
 
     public function add($id) {
 
+
         if ($id > 0) {
 
             $rateGenerator = RateGenerator::findOrFail($id);
@@ -19,29 +20,42 @@ class RateGeneratorRuleController extends \BaseController {
                 "AccountID",
                 "IsVendor"
             ])->where(["Status" => 1, "IsVendor" => 1, "AccountType" => 1, "CompanyID" => $companyID /*'CodeDeckId'=>$rateGenerator->CodeDeckId*/])->get();
+            $type = Rate::where("CompanyID",User::get_companyID())->whereRaw('Type IS NOT NULL')->lists('Type','Type');
+            $countryForRule = Country::lists('Country','CountryID');
 
-            $country = ServiceTemplate::Join('tblCountry', function($join) {
-                $join->on('tblServiceTemplate.country','=','tblCountry.country');
-            })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
-                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+            // $country = ServiceTemplate::Join('tblCountry', function($join) {
+            //     $join->on('tblServiceTemplate.country','=','tblCountry.country');
+            // })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+            //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
-            $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
-            $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-            $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
-            $CityTariffFilter = [];
-            foreach($CityTariff as $key => $City){
-                if(strpos($City, " per ")){
-                    $CityTariffFilter[$City] = $City;
-                    unset($CityTariff[$key]);
-                }
-            }
+            $Package = array('' => "All") + Package::where([
+                "status" => 1,
+                "CompanyID" => User::get_companyID()
+            ])->lists("Name", "PackageId");
 
-            $country = array(0 => "All") + $country;
-            $AccessType = array(0 => "All") + $AccessType;
-            $Prefix = array(0 => "All") + $Prefix;
-            $CityTariff = array(0 => "All") + $CityTariff;
 
-            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','CityTariff'));
+            $country            = ServiceTemplate::getCountryDD($companyID);
+            $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
+            $City               = ServiceTemplate::getCityDD($companyID);
+            $Tariff             = ServiceTemplate::getTariffDD($companyID);
+            $Prefix             = ServiceTemplate::getPrefixDD($companyID);      
+            // $CityTariffFilter = [];
+            // foreach($CityTariff as $key => $City){
+            //     if(strpos($City, " per ")){
+            //         $CityTariffFilter[$City] = $City;
+            //         unset($CityTariff[$key]);
+            //     }
+            // }
+
+            $country = array('' => "All") + $country;
+            $AccessType = array('' => "All") + $AccessType;
+            $Prefix = array('' => "All") + $Prefix;
+            $City = array('' => "All") + $City;
+            $type = array('' => "All") + $type;
+            $Tariff = array('' => "All") + $Tariff;
+            $countryForRule = array('' => "All") + $countryForRule;
+
+            return View::make('rategenerators.rules.add', compact('id','Timezones','vendors','rateGenerator','rategenerator_rules','country','AccessType','Prefix','City','type','countryForRule','Tariff','Package'));
         }
     }
     public function edit($id, $RateRuleID) {
@@ -49,30 +63,47 @@ class RateGeneratorRuleController extends \BaseController {
             //Code
             $companyID = User::get_companyID();
             $rategenerator_rule = RateRule::where(["RateRuleId" => $RateRuleID])->get()->first()->toArray();
-            $DestinationCode        = $rategenerator_rule["Code"];
-            $DestinationDescription = $rategenerator_rule["Description"];
             $OriginationCode        = $rategenerator_rule["OriginationCode"];
-            $OriginationDescription = $rategenerator_rule["OriginationDescription"];
-            $country = ServiceTemplate::Join('tblCountry', function($join) {
-                $join->on('tblServiceTemplate.country','=','tblCountry.country');
-            })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
-                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+            $OriginationType        = $rategenerator_rule["OriginationType"];
+            $OriginationCountryID   = $rategenerator_rule["OriginationCountryID"];
+            $DestinationCode        = $rategenerator_rule["Code"];
+            $DestinationType        = $rategenerator_rule["DestinationType"];
+            $DestinationCountryID   = $rategenerator_rule["DestinationCountryID"];
 
-            $AccessType = ServiceTemplate::where("CompanyID",User::get_companyID())->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
-            $Prefix = ServiceTemplate::where("CompanyID",User::get_companyID())->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
-            $CityTariff = ServiceTemplate::where("CompanyID",User::get_companyID())->where("city_tariff",'!=','')->orderBy('city_tariff')->lists("city_tariff", "city_tariff");
-            $CityTariffFilter = [];
-            foreach($CityTariff as $key => $City){
-                if(strpos($City, " per ")){
-                    $CityTariffFilter[$City] = $City;
-                    unset($CityTariff[$key]);
-                }
-            }
 
-            $country = array(0 => "All") + $country;
-            $AccessType = array(0 => "All") + $AccessType;
-            $Prefix = array(0 => "All") + $Prefix;
-            $CityTariff = array(0 => "All") + $CityTariff;
+            $type = Rate::where("CompanyID",User::get_companyID())->whereRaw('Type IS NOT NULL')->lists('Type','Type');
+            $countryForRule = Country::lists('Country','CountryID');
+            
+            // $country = ServiceTemplate::Join('tblCountry', function($join) {
+            //     $join->on('tblServiceTemplate.country','=','tblCountry.country');
+            // })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
+            //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+
+            $Package = array('' => "All") + Package::where([
+                "status" => 1,
+                "CompanyID" => User::get_companyID()
+            ])->lists("Name", "PackageId");
+
+            $country            = ServiceTemplate::getCountryDD($companyID);
+            $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
+            $City               = ServiceTemplate::getCityDD($companyID);
+            $Tariff             = ServiceTemplate::getTariffDD($companyID);
+            $Prefix             = ServiceTemplate::getPrefixDD($companyID);   
+            // $CityTariffFilter = [];
+            // foreach($CityTariff as $key => $City){
+            //     if(strpos($City, " per ")){
+            //         $CityTariffFilter[$City] = $City;
+            //         unset($CityTariff[$key]);
+            //     }
+            // }
+
+            $country = array('' => "All") + $country;
+            $AccessType = array('' => "All") + $AccessType;
+            $Prefix = array('' => "All") + $Prefix;
+            $City = array('' => "All") + $City;
+            $type = array('' => "All") + $type;
+            $Tariff = array('' => "All") + $Tariff;
+            $countryForRule = array('' => "All") + $countryForRule;
 
             $Timezones = Timezones::getTimezonesIDList();
             //source
@@ -90,7 +121,7 @@ class RateGeneratorRuleController extends \BaseController {
                 "RateRuleID" => $RateRuleID
             ])->get();
 
-            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','CityTariff'));
+            return View::make('rategenerators.rules.edit', compact('id','Timezones','rategenerator_rule', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins','country','AccessType','Prefix','City','type','countryForRule','OriginationType','OriginationCountryID','DestinationType','DestinationCountryID','Tariff','Package'));
 
 
 
@@ -137,55 +168,41 @@ class RateGeneratorRuleController extends \BaseController {
         if ($id > 0) {
             $last_max_order =  RateRule::where(["RateGeneratorId" => $id])->max('Order');
             $data = Input::all();
+            $rules = array();
             $data['Order'] = $last_max_order+1;
-            // print_R($data);exit;
-            $data ['CreatedBy'] = User::get_user_full_name();
-            $data ['RateGeneratorId'] = $id;
+            $data['CreatedBy'] = User::get_user_full_name();
+            $data['RateGeneratorId'] = $id;
 
             if(isset($data['Origination'])) {
                 $data ['OriginationDescription'] = $data['Origination'];
                 unset($data['Origination']);
             }
-            // $data['RateGeneratorId']
-
             $rateGenerator = RateGenerator::findOrFail($id);
 
-            if($rateGenerator->SelectType == 2) {
+            if($rateGenerator->SelectType == 2 || $rateGenerator->SelectType == 3) {
                 $rules = array(
                     'Component'  => 'required',
                     'TimeOfDay'  => 'required',
                     'CreatedBy'  => 'required',
-                    'CountryID'  => 'required',
-                    'AccessType' => 'required',
-                    'Prefix'     => 'required',
                 );
-            } else {
-                $rules = array(
-                    'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
-                    'Description' => 'required_without_all:Code,OriginationCode,OriginationDescription',
-                    'OriginationCode' => 'required_without_all:Code,Description,OriginationDescription',
-                    'OriginationDescription' => 'required_without_all:Code,Description,OriginationCode',
-                    'CreatedBy' => 'required'
-                );
+
             }
-
             $validator = Validator::make($data, $rules);
-
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
 
             if($rateGenerator->SelectType != 2) {
-                if (isset($data['Code']) && !empty($data['Code']) || (isset($data['Description']) && !empty($data['Description']))) {
-                    $rateRuleDesination = RateRule::select('Code', 'Description')->where(["RateGeneratorId" => $data['RateGeneratorId'], "Code" => $data['Code'], "Description" => $data['Description']])->first();
+                if (isset($data['Code']) && !empty($data['Code'])) {
+                    $rateRuleDesination = RateRule::select('Code')->where(["RateGeneratorId" => $data['RateGeneratorId'], "Code" => $data['Code'],'DestinationType' => $data['DestinationType']])->first();
                     if ($rateRuleDesination) {
                         if (isset($rateRuleDesination->Code) && isset($rateRuleDesination->Description)) {
                             return Response::json(array("status" => "failed", "message" => "Destination Code or Description already exist"));
                         }
                     }
                 }
-                if (isset($data['OriginationCode']) && !empty($data['OriginationCode']) || (isset($data['OriginationDescription']) && !empty($data['OriginationDescription']))) {
-                    $rateRuleOrigination = RateRule::select('OriginationCode', 'OriginationDescription')->where(["RateGeneratorId" => $data['RateGeneratorId'], "OriginationCode" => $data['OriginationCode'], "OriginationDescription" => $data['OriginationDescription']])->first();
+                if (isset($data['OriginationCode']) && !empty($data['OriginationCode'])) {
+                    $rateRuleOrigination = RateRule::select('OriginationCode', 'OriginationDescription')->where(["RateGeneratorId" => $data['RateGeneratorId'], "OriginationCode" => $data['OriginationCode'],'OriginationType' =>$data["OriginationType"]])->first();
                     if ($rateRuleOrigination) {
                         if (isset($rateRuleOrigination->OriginationCode) && isset($rateRuleOrigination->OriginationDescription)) {
                             return Response::json(array("status" => "failed", "message" => "Origination Code or Description already exist"));
@@ -193,18 +210,26 @@ class RateGeneratorRuleController extends \BaseController {
                     }
                 }
             }
-            if(isset($data['CountryID']) && $data['CountryID'] == '0'){
-                $data['CountryID'] = '';
+            if(isset($data['CountryID']) && $data['CountryID'] == ''){
+                $data['CountryID'] = null;
             }
-            if(isset($data['AccessType']) && $data['AccessType'] == '0' ){
-                $data['AccessType'] = '';
+            if(isset($data['DestinationCountryID']) && $data['DestinationCountryID'] == ''){
+                $data['DestinationCountryID'] = null;
             }
-            if(isset($data['Prefix']) && $data['Prefix'] == '0'){
-                $data['Prefix'] = '';
+            if(isset($data['OriginationCountryID']) && $data['OriginationCountryID'] == ''){
+                $data['OriginationCountryID'] = null;
             }
-            if(isset($data['CityTariff']) && $data['CityTariff'] == '0' ){
-                $data['CityTariff'] = '';
+
+            // Checking if any other rule exist with same condition
+            $whereArr = [];
+            foreach($data as $key => $item){
+                if($key != "CreatedBy" && $key != "Order")
+                    $whereArr[$key] = $item;
             }
+
+            $check = RateRule::where($whereArr)->count();
+            if($check > 0)
+                return Response::json(array("status" => "failed", "message" => "Margin rule already exist with same condition."));
 
             if ($rule_id = RateRule::insertGetId($data)) {
 
@@ -251,8 +276,8 @@ class RateGeneratorRuleController extends \BaseController {
 
         if ($id > 0 && $RateRuleID > 0) {
             $data = Input::all();
-            //dd($data);
-//             $companyID = User::get_companyID();
+            $rules = array();
+          
             $rategenerator_rules = RateRule::findOrFail($RateRuleID); // RateRule::where([ "RateRuleID" => $RateRuleID])->get();
             $rateGenerator = RateGenerator::findOrFail($id);
             $data ['ModifiedBy'] = User::get_user_full_name();
@@ -262,22 +287,11 @@ class RateGeneratorRuleController extends \BaseController {
                 unset($data['Origination']);
             }
 
-            if($rateGenerator->SelectType == 2) {
+            if($rateGenerator->SelectType == 2 || $rateGenerator->SelectType == 3) {
                 $rules = array(
                     'Component'   => 'required',
                     'TimeOfDay'   => 'required',
                     'ModifiedBy'  => 'required',
-                    'CountryID'  => 'required',
-                    'AccessType' => 'required',
-                    'Prefix'     => 'required',
-                );
-            } else {
-                $rules = array(
-                    'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
-                    'Description' => 'required_without_all:Code,OriginationCode,OriginationDescription',
-                    'OriginationCode' => 'required_without_all:Code,Description,OriginationDescription',
-                    'OriginationDescription' => 'required_without_all:Code,Description,OriginationCode',
-                    'ModifiedBy' => 'required'
                 );
             }
 
@@ -287,18 +301,26 @@ class RateGeneratorRuleController extends \BaseController {
                 return json_validator_response($validator);
             }
 
-            if(isset($data['CountryID']) && $data['CountryID'] == '0'){
-                $data['CountryID'] = '';
+            if(isset($data['CountryID']) && $data['CountryID'] == ''){
+                $data['CountryID'] = null;
             }
-            if(isset($data['AccessType']) && $data['AccessType'] == '0' ){
-                $data['AccessType'] = '';
+            if(isset($data['DestinationCountryID']) && $data['DestinationCountryID'] == ''){
+                $data['DestinationCountryID'] = null;
             }
-            if(isset($data['Prefix']) && $data['Prefix'] == '0'){
-                $data['Prefix'] = '';
+            if(isset($data['OriginationCountryID']) && $data['OriginationCountryID'] == ''){
+                $data['OriginationCountryID'] = null;
             }
-            if(isset($data['CityTariff']) && $data['CityTariff'] == '0' ){
-                $data['CityTariff'] = '';
+
+            // Checking if any other rule exist with same condition
+            $whereArr = [];
+            foreach($data as $key => $item){
+                if($key != "CreatedBy" && $key != "Order" && $key != "ModifiedBy")
+                    $whereArr[$key] = $item;
             }
+            $whereArr['RateGeneratorId'] = $id;
+            $check = RateRule::where('RateRuleId','!=',$RateRuleID)->where($whereArr)->count();
+            if($check > 0)
+                return Response::json(array("status" => "failed", "message" => "Margin rule already exist with same condition."));
 
             if ($rategenerator_rules->update($data)) {
                 return Response::json(array(

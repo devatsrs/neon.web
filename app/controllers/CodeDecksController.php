@@ -9,25 +9,24 @@ class CodeDecksController extends \BaseController {
     }
 
     public function ajax_datagrid() {
-
         $companyID = User::get_companyID();
 //       $userID = User::get_userID();
         $data = Input::all();
 
-
+        
         $data['ft_country']=$data['ft_country']!= ''?$data['ft_country']:'0';
         $data['ft_code'] = $data['ft_code'] != ''?"'".$data['ft_code']."'":'null';
         $data['ft_description'] = $data['ft_description'] != ''?"'".$data['ft_description']."'":'null';
-
+        $data['ft_type'] = $data['ft_type'] != ''?"'".$data['ft_type']."'":'null';
 
 
 
         $data['iDisplayStart'] +=1;
-        $columns = array('RateID','ISO2','Country','Code','Description','Interval1','IntervalN','RateID');
+        $columns = array('RateID','ISO2','Country','Code','Description','Type','Interval1','IntervalN','RateID');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_GetCodeDeck (".$companyID.",".$data['ft_codedeckid'].",".$data['ft_country'].",".$data['ft_code'].",".$data['ft_description'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','0')";
-
+        $query = "call prc_GetCodeDeck (".$companyID.",".$data['ft_codedeckid'].",".$data['ft_country'].",".$data['ft_code'].",".$data['ft_description'].",".$data['ft_type'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength'])).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','0')";
+         Log::info(json_encode($query));
         return DataTableSql::of($query)->make();
 
 
@@ -137,9 +136,6 @@ class CodeDecksController extends \BaseController {
     }
 
     public function upload() {
-
-
-
         //   $total_records = $this->import("I:\bk\www\projects\aamir\rm\laravel\rm\public\uploads\fxHv86yN\Snq4Obmf0XlJNFz2.csv");
         //   exit;
         ini_set('max_execution_time', 0);
@@ -195,6 +191,7 @@ class CodeDecksController extends \BaseController {
         }
     }
 
+
     /**
      * Remove the specified codedeck from storage.
      *
@@ -216,9 +213,9 @@ class CodeDecksController extends \BaseController {
             $data['ft_country']=$data['ft_country']!= ''?$data['ft_country']:'0';
             $data['ft_code'] = $data['ft_code'] != ''?"'".$data['ft_code']."'":'null';
             $data['ft_description'] = $data['ft_description'] != ''?"'".$data['ft_description']."'":'null';
+            $data['ft_type'] = $data['ft_type'] != ''?"'".$data['ft_type']."'":'null';
 
-
-            $query = " call prc_GetCodeDeck (".$companyID.",".$data['ft_codedeckid'].",".$data['ft_country'].",".$data['ft_code'].",".$data['ft_description'].",null,null,null,null,1)";
+            $query = " call prc_GetCodeDeck (".$companyID.",".$data['ft_codedeckid'].",".$data['ft_country'].",".$data['ft_code'].",".$data['ft_description'].",".$data['ft_type'].",null,null,null,null,1)";
 
             DB::setFetchMode( PDO::FETCH_ASSOC );
             $codedecks  = DB::select($query);
@@ -266,7 +263,7 @@ class CodeDecksController extends \BaseController {
             $updatedta = array();
             $error = array();
             $rules = array();
-            if(!empty($data['updateCountryID']) || !empty($data['updateDescription']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN'])){
+            if(!empty($data['updateCountryID']) || !empty($data['updateType']) || !empty($data['updateDescription']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN'])){
                 if(!empty($data['updateCountryID'])){
                     $updatedta['CountryID'] = $data['CountryID'];
                 }
@@ -274,10 +271,15 @@ class CodeDecksController extends \BaseController {
                     if(!empty($data['Description'])){
                         $updatedta['Description'] = $data['Description'];
                     }else{
-
                         $rules['Description'] = 'required';
                     }
-
+                }
+                if(!empty($data['updateType'])){
+                    if(!empty($data['Type'])){
+                        $updatedta['Type'] = $data['Type'];
+                    }else{
+                        $updatedta['Type'] = "";
+                    }
                 }
                 if(!empty($data['updateInterval1'])){
                     if(!empty($data['Interval1'])){
@@ -316,8 +318,9 @@ class CodeDecksController extends \BaseController {
                     $criteria['ft_country']=$criteria['ft_country']!= ''?$criteria['ft_country']:'0';
                     $criteria['ft_code'] = $criteria['ft_code'] != ''?"'".$criteria['ft_code']."'":'null';
                     $criteria['ft_description'] = $criteria['ft_description'] != ''?"'".$criteria['ft_description']."'":'null';
+                    $criteria['ft_type'] = $criteria['ft_type'] != ''?"'".$criteria['ft_type']."'":'null';
 
-                    $query = "call prc_GetCodeDeck (".$companyID.",".$criteria['ft_codedeckid'].",".$criteria['ft_country'].",".$criteria['ft_code'].",".$criteria['ft_description'].",null,null,null,null,2)";
+                    $query = "call prc_GetCodeDeck (".$companyID.",".$criteria['ft_codedeckid'].",".$criteria['ft_country'].",".$criteria['ft_code'].",".$criteria['ft_description'].",".$criteria['ft_type'].",null,null,null,null,2)";
                     $exceldatas  = DB::select($query);
                     $exceldatas = json_decode(json_encode($exceldatas),true);
                     foreach($exceldatas as $exceldata){
@@ -430,10 +433,12 @@ class CodeDecksController extends \BaseController {
     public function basecodedeck($id){
             $countries = $this->countries;
             $CodeDeckName = BaseCodeDeck::getCodeDeckName($id);
-            return View::make('codedecks.index', compact('countries','id','codedecklist','CodeDeckName'));
+            $Types = CodeDeck::getCodeckTypes();
+            return View::make('codedecks.index', compact('countries','id','codedecklist','CodeDeckName','Types'));
 
     }
     public function base_datagrid(){
+
         $CompanyID = User::get_companyID();
         $rate_tables = BaseCodeDeck::where(["CompanyId" => $CompanyID])->select(["CodeDeckName","updated_at","ModifiedBy","CodeDeckId","DefaultCodedeck"]);
         return Datatables::of($rate_tables)->make();

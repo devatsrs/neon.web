@@ -5,30 +5,54 @@
 <div class="tab-content" style="overflow: hidden;margin-top: 15px;">
     <div class="tab-pane active" id="tab1">
         <div class="form-group box_dialcode">
-            <label for="field-1" class="col-sm-2 control-label">Match Origination Codes with</label>
+            <label class="col-sm-2 control-label">Match Origination Prefix with</label>
             <div class="col-sm-4">
                 {{Form::select('selection[Join1O]', $columns,(isset($attrselection->Join1O)?$attrselection->Join1O:''),array("class"=>"select2 small","id"=>"Join1O"))}}
             </div>
-            <label class="col-sm-2 control-label">Match Codes with</label>
+            <label class="col-sm-2 control-label">Match Prefix with</label>
             <div class="col-sm-4">
                 {{Form::select('selection[Join1]', $columns,(isset($attrselection->Join1)?$attrselection->Join1:''),array("class"=>"select2 small","id"=>"Join1"))}}
             </div>
         </div>
         <div class="form-group ">
-            <label for="field-1" class="col-sm-2 control-label">Code* </label>
+            <label class="col-sm-2 control-label">Access Type</label>
+            <div class="col-sm-4">
+                {{Form::select('selection[AccessType]', $AccessTypes ,(isset($attrselection->AccessType)?$attrselection->AccessType:''),array("class"=>"DualMapping small"))}}
+            </div>
+
+            <label class="col-sm-2 control-label control-CountryCode-controls">
+                Country
+                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Country only requires when you have seperate columns for Country Codes and City Codes in your rate file." data-original-title="Country Code">?</span>
+            </label>
+            <div class="col-sm-3 control-CountryCode-controls">
+                {{Form::select('selection[CountryCode]', $CountryPrefix,(isset($attrselection->CountryCode)?$attrselection->CountryCode:''),array("class"=>"DualMapping small"))}}
+            </div>
+            <div class="col-sm-1 control-CountryCode-controls">
+                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Tick this box if you are mapping country description e.g. USA. Leave it un tick if you are mapping country code e.g. 1" data-original-title="Country Mapping">?</span>
+                {{Form::checkbox('selection[CountryMapping]', '1', false, array("class"=>"CountryMapping"))}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Prefix* </label>
             <div class="col-sm-2">
-                {{Form::select('selection[Code]', $columns,(isset($attrselection->Code)?$attrselection->Code:''),array("class"=>"select2 small"))}}
+                {{Form::select('selection[Code]', $Codes,(isset($attrselection->Code)?$attrselection->Code:''),array("class"=>"DualMapping select2 small"))}}
             </div>
             <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
                 {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection->DialCodeSeparator)?$attrselection->DialCodeSeparator:''),array("class"=>"select2 small dialcodeseperator"))}}
             </div>
-            <label for="field-1" class="col-sm-2 control-label">Description*</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">City</label>
             <div class="col-sm-4">
-                {{Form::select('selection[Description]', $columns,(isset($attrselection->Description)?$attrselection->Description:''),array("class"=>"select2 small"))}}
+                {{Form::select('selection[City]', $City ,(isset($attrselection->City)?$attrselection->City:''),array("class"=>"DualMapping small"))}}
+            </div>
+            <label class="col-sm-2 control-label">Tariff</label>
+            <div class="col-sm-4">
+                {{Form::select('selection[Tariff]', $Tariff ,(isset($attrselection->Tariff)?$attrselection->Tariff:''),array("class"=>"DualMapping small"))}}
             </div>
         </div>
         <div class="form-group duo">
-            <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
+            <label class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
             <div class="col-sm-4">
                 {{Form::select('selection[EffectiveDate]', $columns,(isset($attrselection->EffectiveDate)?$attrselection->EffectiveDate:''),array("class"=>"select2 small"))}}
             </div>
@@ -83,26 +107,19 @@
         @endif
 
     </div>
+    <!-- this tab2 is now no longer in use for did and pkg -->
     <div class="tab-pane" id="tab2">
         <div class="form-group">
-            <label for="field-1" class="col-sm-2 control-label">Match Origination Codes with</label>
+            <label class="col-sm-2 control-label">Match Origination Prefix with</label>
             <div class="col-sm-4">
                 {{Form::select('selection2[Join2O]', $columns,(isset($attrselection2->Join2O)?$attrselection2->Join2O:''),array("class"=>"select2 small","id"=>"Join2O"))}}
             </div>
-            <label class="col-sm-2 control-label">Match Codes with</label>
+            <label class="col-sm-2 control-label">Match Prefix with</label>
             <div class="col-sm-4">
                 {{Form::select('selection2[Join2]', $columns,(isset($attrselection2->Join2)?$attrselection2->Join2:''),array("class"=>"select2 small","id"=>"Join2"))}}
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-2 control-label">Origination Country Code</label>
-            <div class="col-sm-3">
-                {{Form::select('selection2[OriginationCountryCode]', $columns,(isset($attrselection2->OriginationCountryCode)?$attrselection2->OriginationCountryCode:''),array("class"=>"select2 small"))}}
-            </div>
-            <div class="col-sm-1 control-CountryCode-controls">
-                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Tick this box if you are mapping country description e.g. USA. Leave it un tick if you are mapping country code e.g. 1" data-original-title="Country Mapping">?</span>
-                {{Form::checkbox('selection2[OriginationCountryMapping]', '1', false, array("class"=>"CountryMapping"))}}
-            </div>
             <label class="col-sm-2 control-label">Country Code</label>
             <div class="col-sm-3">
                 {{Form::select('selection2[CountryCode]', $columns,(isset($attrselection2->CountryCode)?$attrselection2->CountryCode:''),array("class"=>"select2 small"))}}
@@ -120,7 +137,7 @@
             <div class="col-sm-2 popover-primary " data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Origination Code Separator">
                 {{Form::select('selection2[OriginationDialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection2->OriginationDialCodeSeparator)?$attrselection2->OriginationDialCodeSeparator:''),array("class"=>"select2 small dialcodeseperator"))}}
             </div>
-            <label class="col-sm-2 control-label">Code* </label>
+            <label class="col-sm-2 control-label">Prefix* </label>
             <div class="col-sm-2">
                 {{Form::select('selection2[Code]', $columns,(isset($attrselection2->Code)?$attrselection2->Code:''),array("class"=>"select2 small"))}}
             </div>
@@ -129,17 +146,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-2 control-label">Origination Description</label>
-            <div class="col-sm-4">
-                {{Form::select('selection2[OriginationDescription]', $columns,(isset($attrselection2->OriginationDescription)?$attrselection2->OriginationDescription:''),array("class"=>"select2 small"))}}
-            </div>
-            <label class="col-sm-2 control-label">Description*</label>
-            <div class="col-sm-4">
-                {{Form::select('selection2[Description]', $columns,(isset($attrselection2->Description)?$attrselection2->Description:''),array("class"=>"select2 small"))}}
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
+            <label class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
             <div class="col-sm-4">
                 {{Form::select('selection2[EffectiveDate]', $columns,(isset($attrselection2->EffectiveDate)?$attrselection2->EffectiveDate:''),array("class"=>"select2 small"))}}
             </div>
@@ -170,69 +177,19 @@
             <input type="text" class="form-control" name="selection[ActionDelete]" value="{{(!empty($attrselection->ActionDelete)?$attrselection->ActionDelete:'D')}}" />
         </div>
     </div>
-    <div class="control-DialString">
-        <label class="col-sm-2 control-label control-DialString-controls">Dial String <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If you want code to prefix mapping then select dial string." data-original-title="Dial String">?</span></label>
-        <div class="col-sm-4 control-DialString-controls">
-            {{Form::select('selection[DialString]',$dialstring ,(isset($attrselection->DialString)?$attrselection->DialString:''),array("class"=>" small"))}}
-        </div>
-    </div>
-    <div class="control-DialStringPrefix">
-        <label class="col-sm-2 control-label control-DialStringPrefix-controls">Number Range <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Only Required when you have selected Dial String in mapping." data-original-title="Number Range">?</span></label>
-        <div class="col-sm-4 control-DialStringPrefix-controls">
-            {{Form::select('selection[DialStringPrefix]', $columns,(isset($attrselection->DialStringPrefix)?$attrselection->DialStringPrefix:''),array("class"=>" small"))}}
-        </div>
-    </div>
     <div class="control-FromCurrency">
         <label class="col-sm-2 control-label control-FromCurrency-controls" style="display: none;">Currency Conversion <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select currency to convert rates to your base currency" data-original-title="Currency Conversion">?</span></label>
         <div class="col-sm-4 control-FromCurrency-controls" style="display: none;">
             {{Form::select('selection[FromCurrency]', $currencies ,(isset($attrselection->FromCurrency)?$attrselection->FromCurrency:''),array("class"=>" small"))}}
         </div>
     </div>
-    <div class="control-OriginationCountryCode">
-        <label class="col-sm-2 control-label control-OriginationCountryCode-controls">
-            Origination Country Code
-            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Origination Country Code only requires when you have seperate columns for Origination Country Codes and Origination City Codes in your rate file." data-original-title="Origination Country Code">?</span>
-        </label>
-        <div class="col-sm-3 control-OriginationCountryCode-controls">
-            {{Form::select('selection[OriginationCountryCode]', $columns,(isset($attrselection->OriginationCountryCode)?$attrselection->OriginationCountryCode:''),array("class"=>" small"))}}
-        </div>
-        <div class="col-sm-1 control-OriginationCountryCode-controls">
-            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Tick this box if you are mapping country description e.g. USA. Leave it un tick if you are mapping country code e.g. 1" data-original-title="Country Mapping">?</span>
-            {{Form::checkbox('selection[OriginationCountryMapping]', '1', false, array("class"=>"OriginationCountryMapping"))}}
-        </div>
-    </div>
     <div class="control-OriginationCode">
         <label class="col-sm-2 control-label control-OriginationCode-controls">Origination Code </label>
         <div class="col-sm-2 control-OriginationCode-controls">
-            {{Form::select('selection[OriginationCode]', $columns,(isset($attrselection->OriginationCode)?$attrselection->OriginationCode:''),array("class"=>" small"))}}
+            {{Form::select('selection[OriginationCode]', $Codes,(isset($attrselection->OriginationCode)?$attrselection->OriginationCode:''),array("class"=>"DualMapping small"))}}
         </div>
         <div class="col-sm-2 popover-primary control-OriginationCode-controls" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
             {{Form::select('selection[OriginationDialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection->OriginationDialCodeSeparator)?$attrselection->OriginationDialCodeSeparator:''),array("class"=>" small dialcodeseperator"))}}
-        </div>
-    </div>
-    <div class="control-OriginationDescription">
-        <label class="col-sm-2 control-label control-OriginationDescription-controls">Origination Description</label>
-        <div class="col-sm-4 control-OriginationDescription-controls">
-            {{Form::select('selection[OriginationDescription]', $columns,(isset($attrselection->OriginationDescription)?$attrselection->OriginationDescription:''),array("class"=>" small"))}}
-        </div>
-    </div>
-    <div class="control-CountryCode">
-        <label class="col-sm-2 control-label control-CountryCode-controls">
-            Country Code
-            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Country Code only requires when you have seperate columns for Country Codes and City Codes in your rate file." data-original-title="Country Code">?</span>
-        </label>
-        <div class="col-sm-3 control-CountryCode-controls">
-            {{Form::select('selection[CountryCode]', $columns,(isset($attrselection->CountryCode)?$attrselection->CountryCode:''),array("class"=>" small"))}}
-        </div>
-        <div class="col-sm-1 control-CountryCode-controls">
-            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Tick this box if you are mapping country description e.g. USA. Leave it un tick if you are mapping country code e.g. 1" data-original-title="Country Mapping">?</span>
-            {{Form::checkbox('selection[CountryMapping]', '1', false, array("class"=>"CountryMapping"))}}
-        </div>
-    </div>
-    <div class="control-CityTariff">
-        <label class="col-sm-2 control-label control-CityTariff-controls">City/Tariff</label>
-        <div class="col-sm-4 control-CityTariff-controls">
-            {{Form::select('selection[CityTariff]', $columns ,(isset($attrselection->CityTariff)?$attrselection->CityTariff:''),array("class"=>" small"))}}
         </div>
     </div>
 

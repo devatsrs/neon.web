@@ -2,7 +2,7 @@
 <script>
     $(document).ready(function ($) {
 
-		$('#add-new-template-form').submit(function(e){
+        $('#add-new-template-form').submit(function(e){
             e.preventDefault();
             var templateID = $("#add-new-template-form [name='TemplateID']").val();
             if( typeof templateID != 'undefined' && templateID != ''){
@@ -39,49 +39,49 @@
         });
 
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
-			var modal = $(this);  
-			if(typeof popup_type  == "undefined" ) {popup_type = 0;}
-			if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){
+            var modal = $(this);  
+            if(typeof popup_type  == "undefined" ) {popup_type = 0;}
+            if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"leadoptions":true});
+                show_summernote(modal.find('.message'),{"leadoptions":true});
 
-			}else if(popup_type == {{EmailTemplate::INVOICE_TEMPLATE}}){
+            }else if(popup_type == {{EmailTemplate::INVOICE_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"invoiceoptions":true});
+                show_summernote(modal.find('.message'),{"invoiceoptions":true});
 
             }else if(popup_type == {{EmailTemplate::AUTO_PAYMENT_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"autopaymentoptions":true});
+                show_summernote(modal.find('.message'),{"autopaymentoptions":true});
 
-			} else if(popup_type == {{EmailTemplate::RATESHEET_TEMPLATE}}){
+            } else if(popup_type == {{EmailTemplate::RATESHEET_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"ratetemplateoptions":true});
+                show_summernote(modal.find('.message'),{"ratetemplateoptions":true});
 
-			} else if(popup_type == {{EmailTemplate::TICKET_TEMPLATE}}){
+            } else if(popup_type == {{EmailTemplate::TICKET_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"TicketsSingle":true});
+                show_summernote(modal.find('.message'),{"TicketsSingle":true});
 
-			}  else if(popup_type == {{EmailTemplate::ESTIMATE_TEMPLATE}}){
+            }  else if(popup_type == {{EmailTemplate::ESTIMATE_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"estimateoptions":true});
+                show_summernote(modal.find('.message'),{"estimateoptions":true});
 
-			} else if(popup_type == {{EmailTemplate::CONTACT_TEMPLATE}}){
+            } else if(popup_type == {{EmailTemplate::CONTACT_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"leadoptions":true});
+                show_summernote(modal.find('.message'),{"leadoptions":true});
 
-			} else if(popup_type == {{EmailTemplate::CRONJOB_TEMPLATE}}){
+            } else if(popup_type == {{EmailTemplate::CRONJOB_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"Cronjobs":true});
+                show_summernote(modal.find('.message'),{"Cronjobs":true});
 
-			}
-			else if(popup_type == {{EmailTemplate::TASK_TEMPLATE}}){
+            }
+            else if(popup_type == {{EmailTemplate::TASK_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"tasks":true});
+                show_summernote(modal.find('.message'),{"tasks":true});
 
-			}
-			else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){
+            }
+            else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"opportunities":true});
+                show_summernote(modal.find('.message'),{"opportunities":true});
 
             }
             else if(popup_type == {{EmailTemplate::CONTRACT_MANAGE}}){
@@ -98,57 +98,72 @@
 
                 show_summernote(modal.find('.message'),{"outpaymentoptions":true});
 
-			}
+            }
+            else if(popup_type == {{EmailTemplate::APPROVE_OUT_PAYMENT}}){
 
-			else{
+                show_summernote(modal.find('.message'),{"outpaymentoptions":true});
 
-				show_summernote(modal.find('.message'),{"leadoptions":true});
+            }
 
-			}
+            else{
+
+                show_summernote(modal.find('.message'),{"leadoptions":true});
+
+            }
         });
 
         $('#add-new-modal-template').on('hidden.bs.modal', function(event){
             var modal = $(this);
             modal.find('.message').show();
-			popup_type = 0;
-		$("#add-new-template-form #email_from").val('').trigger('change');
+            popup_type = 0;
+        $("#add-new-template-form #email_from").val('').trigger('change');
         });
-		
-		$('.template_type').change(function(e) {
-		     var template_type_val_change =  $(this).val();
-			 console.log("old:"+template_type_val);
-			console.log("new:"+template_type_val_change);		
-			 var modal_change = $('#add-new-modal-template');
-			if(template_type_val_change){
-				if(template_type_val_change == {{EmailTemplate::TICKET_TEMPLATE}})
-				{		console.log("Ticket");
+        
+        $('.template_type').change(function(e) {
+             var template_type_val_change =  $(this).val();
+             console.log("old:"+template_type_val);
+            console.log("new:"+template_type_val_change);       
+             var modal_change = $('#add-new-modal-template');
+            if(template_type_val_change){
+                if(template_type_val_change == {{EmailTemplate::TICKET_TEMPLATE}})
+                {       console.log("Ticket");
 
-					show_summernote(modal_change.find('.message'),{"Tickets":true});
+                    show_summernote(modal_change.find('.message'),{"Tickets":true});
 
-				$(".TicketsScroll").perfectScrollbar();		 
-				}else{ console.log("others");				
-					if(template_type_val == {{EmailTemplate::TICKET_TEMPLATE}})
-					{
+                $(".TicketsScroll").perfectScrollbar();      
+                }else{ console.log("others");               
+                    if(template_type_val == {{EmailTemplate::TICKET_TEMPLATE}})
+                    {
 
-						console.log("others added");
-						show_summernote(modal_change.find('.message'),{"Tickets":true});
+                        console.log("others added");
+                        show_summernote(modal_change.find('.message'),{"Tickets":true});
 
 
-					}
-				}
-				
-			}
-			template_type_val = template_type_val_change; 
+                    }
+                }
+                
+            }
+            template_type_val = template_type_val_change; 
         });
-		
-	 $('#add-new-modal-template').on('hidden.bs.modal', function(event){				 	
-				var modal = $(this);
-				modal.find('.email_from').addClass('hidden');
-				modal.find('#TemplateName').removeAttr('readonly');
-				modal.find('#SystemType').select2('enable', true);
-				modal.find('[name=LanguageID]').select2('enable', true);
-	  });
-		
+        
+     $('#add-new-modal-template').on('hidden.bs.modal', function(event){                    
+                var modal = $(this);
+                //modal.find('.email_from').addClass('hidden');
+                modal.find('#TemplateName').removeAttr('readonly');
+                modal.find('#SystemType').select2('enable', true);
+                modal.find('[name=LanguageID]').select2('enable', true);
+      });
+
+     $("select[name='SystemType']").change(function(){
+        if($(this).val() != ''){
+         $(".email_from").show();
+         $(".email_from").removeClass('hidden');
+        } else {
+            $("select[name='email_from']").select2('val',"");
+            $(".email_from").hide();
+        }
+     });
+        
     });
 </script>
 
@@ -195,7 +210,7 @@
                                 </div>
                             </div>
                         </div>-->
-                        <div class="row hidden email_from">
+                        <div class="row  email_from">
                             <div class="form-group">
                                 <br />
                                 <label for="email_from" class="control-label col-sm-2">From</label>
@@ -245,7 +260,7 @@
                         
                     </div>
                     <div class="modal-footer">
- 					<input type="hidden"   name="Type" value="0">
+                    <input type="hidden"   name="Type" value="0">
                         <button type="submit" id="template-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save

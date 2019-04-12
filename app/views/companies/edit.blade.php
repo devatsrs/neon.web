@@ -434,7 +434,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Password</label>
                         <div class="col-sm-10">
-                            <input type="password" name="SSH[password]" class="form-control" placeholder="password" />
+                            <input type="password" name="SSH[password]" value="{{$SSH['password']}}" class="form-control" placeholder="password" />
                         </div>
                     </div>
                 </div>

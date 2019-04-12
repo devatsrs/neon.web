@@ -52,6 +52,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/PaymentMethodProfiles/paynow/{id}', 'PaymentProfileCustomerController@paynow');
 	Route::any('/customer/PaymentMethodProfiles', 'PaymentProfileCustomerController@index');
 	Route::any('/customer/PaymentMethodProfiles/create', 'PaymentProfileCustomerController@create');
+	Route::any('/customer/PaymentMethodProfiles/update_profile', 'PaymentProfileCustomerController@update_profile');
 	Route::any('/customer/PaymentMethodProfiles/{id}/delete', 'PaymentProfileCustomerController@delete');
 	Route::any('/customer/PaymentMethodProfiles/update', 'PaymentProfileCustomerController@update');
 	Route::any('/customer/PaymentMethodProfiles/ajax_datagrid/{id}', 'PaymentProfileCustomerController@ajax_datagrid');
@@ -63,6 +64,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customer/Payout/create', 'PayoutController@create');
 	Route::any('/customer/Payout/{id}/delete', 'PayoutController@delete');
 	Route::any('/customer/Payout/update', 'PayoutController@update');
+	Route::any('/customer/Payout/update_profile', 'PayoutController@update_profile');
 	Route::any('/customer/Payout/{id}/set_default', 'PayoutController@set_default');
 	Route::any('/customer/Payout/verify_bankaccount', 'PayoutController@verify_bankaccount');
 	Route::any('/customer/Payout/{id}/payout_status/{active_deactive}', array(
@@ -231,6 +233,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/store', array('as' => 'accounts_store', 'uses' => 'AccountsController@store'));
 	Route::any('/accounts/update/{id}', array('as' => 'accounts_update', 'uses' => 'AccountsController@update'));
 	Route::any('/accounts/{id}/show', array('uses' => 'AccountsController@show'));
+	Route::any('/accounts/get_account_partner_info/{id}', array('uses' => 'AccountsController@getAccountPartnerInfo'));
 	Route::any('/accounts/{id}/log', array('uses' => 'AccountsController@log'));
 	Route::any('accounts/{id}/ajax_datagrid_account_logs', 'AccountsController@ajax_datagrid_account_logs');
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
@@ -289,7 +292,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/prepaidunbilledreport/{id}', 'AccountsController@prepaidunbilledreport');
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 	Route::any('accounts/getNextBillingDate', 'AccountsController@getNextBillingDate');
-	Route::post('paymentprofile/ingenicoadd','AccountsPaymentProfileController@AddIngenico');
+	Route::any('accounts/getAccountTaxes', 'AccountsController@getAccountTaxes');
 	//Account Subscription
 	Route::any('account_subscription', 'AccountSubscriptionController@main');
 	Route::any('account_subscription/ajax_datagrid_page', 'AccountSubscriptionController@ajax_datagrid_page');
@@ -741,6 +744,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/apply_rate_table/store', 'RateTablesMultiAccController@store');
 	Route::any('/rate_tables/apply_rate_table/ajax_datagrid/{type}', 'RateTablesMultiAccController@ajax_datagrid');
 	Route::any('/rate_tables/apply_rate_table/ajax_getRateTableAndAccountByCurrency', 'RateTablesMultiAccController@getRateTableAndAccountByCurrency');
+	Route::any('/rate_tables/search_ajax_datagrid_rates_account_service', 'RateTablesController@search_ajax_datagrid_rates_account_service');
 	Route::any('/rate_tables/{id}/search_ajax_datagrid_archive_rates', 'RateTablesController@search_ajax_datagrid_archive_rates'); // get archive rates for vendor rates grid
 	Route::any('/rate_tables', array('as' => 'customer_rates', 'uses' => 'RateTablesController@index'));
 	Route::any('/rate_tables/{id}/search_ajax_datagrid', array('as' => 'customer_rates_search', 'uses' => 'RateTablesController@search_ajax_datagrid'));
@@ -784,6 +788,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_upload/ajaxfilegrid', 'RateUploadController@ajaxfilegrid');
 	Route::any('/rate_upload/checkUpload', 'RateUploadController@checkUpload');
 	Route::any('/rate_upload/getTrunk/{type}', 'RateUploadController@getTrunk');
+        
 	Route::any('/rate_upload/getUploadTemplates/{type}', 'RateUploadController@getUploadTemplates');
 	Route::any('/rate_upload/{id}/getRateTableDetails', 'RateUploadController@getRateTableDetails');
 	Route::any('/rate_upload/{id}/{type}', 'RateUploadController@index');
@@ -1333,6 +1338,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_dashboard/GetDashboardPL', 'BillingDashboard@GetDashboardPL');
 	Route::any('/billing_dashboard/paymentreminders', 'BillingDashboard@PaymentReminders');
 	Route::any('/billing_dashboard/paymentreminders_ajax_datagrid', 'BillingDashboard@paymentreminders_ajax_datagrid');
+	Route::any('/billing_dashboard/outpayment_ajax_datagrid', 'BillingDashboard@outpayment_ajax_datagrid');
 
 
 	//AccountPaymentProfile
@@ -1445,12 +1451,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/retention/create', "RetentionController@create");
 
 	//Destination Group Set
-	Route::any('/destination_group_set','DestinationGroupController@index');
-	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupController@ajax_datagrid');
-	Route::any('/destination_group_set/store','DestinationGroupController@store');
-	Route::any('/destination_group_set/update/{id}','DestinationGroupController@update');
-	Route::any('/destination_group_set/delete/{id}','DestinationGroupController@delete');
-	Route::any('/destination_group_set/show/{id}','DestinationGroupController@show');
+	Route::any('/destination_group_set','DestinationGroupSetController@index');
+	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupSetController@ajax_datagrid');
+	Route::any('/destination_group_set/store','DestinationGroupSetController@store');
+	Route::any('/destination_group_set/update/{id}','DestinationGroupSetController@update');
+	Route::any('/destination_group_set/delete/{id}','DestinationGroupSetController@delete');
+	Route::any('/destination_group_set/show/{id}','DestinationGroupSetController@show');
 
 	//Destination Group
 	Route::any('/destination_group/ajax_datagrid','DestinationGroupController@group_ajax_datagrid');
@@ -1460,7 +1466,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/destination_group/delete/{id}','DestinationGroupController@group_delete');
 	Route::any('/destination_group/show/{id}','DestinationGroupController@group_show');
 	Route::any('/destination_group_code/ajax_datagrid','DestinationGroupController@code_ajax_datagrid');
-
+    Route::any('/destination_group_code/codelist','DestinationGroupController@codelist');
+    Route::any('/destination_group_code/codelists','DestinationGroupController@codelists');
+    Route::any('/destination_group/loadappliedcodes','DestinationGroupController@appcodes');
 	//Discount Plan
 	Route::any('/discount_plan','DiscountController@index');
 	Route::any('/discount_plan/ajax_datagrid','DiscountController@ajax_datagrid');
@@ -1485,9 +1493,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_class','BillingClassController@index');
 	Route::any('/billing_class/ajax_datagrid','BillingClassController@ajax_datagrid');
 	Route::any('/billing_class/create','BillingClassController@create');
+        Route::any('/billing_class/getInvoicetemplate', 'BillingClassController@getInvoicetemplate');
 	Route::any('/billing_class/store/{type}','BillingClassController@store');
 	Route::any('/billing_class/edit/{id}','BillingClassController@edit');
 	Route::any('/billing_class/update/{id}','BillingClassController@update');
+	Route::any('/billing_class/clone/{id}','BillingClassController@billingclass_clone');
 	Route::any('/billing_class/delete/{id}','BillingClassController@delete');
 	Route::any('/billing_class/getInfo/{id}','BillingClassController@getInfo');
 
@@ -1511,9 +1521,14 @@ Route::group(array('before' => 'auth'), function () {
 
 	// cli tables
 	Route::any('/clitable/ajax_datagrid/{id}','AccountsController@clitable_ajax_datagrid');
+	Route::any('/packagetable/ajax_package_datagrid/{id}','AccountsController@packagetable_ajax_datagrid');
 	Route::any('/clitable/store','AccountsController@clitable_store');
+	Route::any('/packagetable/store','AccountsController@packagetable_store');
+
 	Route::any('/clitable/delete/{id}','AccountsController@clitable_delete');
+	Route::any('/packagetable/delete/{id}','AccountsController@packagetable_delete');
 	Route::any('/clitable/update','AccountsController@clitable_update');
+	Route::any('/packagetable/update','AccountsController@packagetable_update');
 
 	// services
 	Route::any('servicesTemplate', 'ServicesTemplateController@index');
@@ -1623,13 +1638,28 @@ Route::group(array('before' => 'auth'), function () {
 
 	//Timezones
 	Route::any('/timezones','TimezonesController@index');
+	//Route::any('/timezones/vendor_rates/{id}', 'TimezonesController@vednorIndex');
 	Route::any('/timezones/getTimezonesVariables','TimezonesController@getTimezonesVariables');
 	Route::any('/timezones/search_ajax_datagrid/{type}','TimezonesController@search_ajax_datagrid');
 	Route::any('/timezones/changeSelectedStatus/{type}','TimezonesController@changeSelectedStatus');
 	Route::any('/timezones/store','TimezonesController@store');
 	Route::any('/timezones/update/{id}','TimezonesController@update');
-	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
-	Route::controller('timezones', 'TimezonesController');
+
+
+	
+	//Vendor Timezone
+	// Route::any('/timezones/vendor_rates/{id}/delete/{type}','TimezonesController@delete');
+	Route::any('/timezones/vendor_rates/search_ajax_datagrid/{type}/{id}','TimezonesController@search_ajax_datagrid_Vendor');
+	Route::any('/timezones/vendor_rates/changeSelectedStatus/{type}','TimezonesController@vendor_changeSelectedStatus');
+	Route::any('/timezones/vendor_rates/store','TimezonesController@vendor_store');
+	Route::any('/timezones/vendor_rates/update/{id}','TimezonesController@vendor_update');
+	Route::any('/timezones/vendor_rates/{id}/delete/{type}','TimezonesController@vendor_delete');
+	Route::any('/timezones/vendor_rates/{id}', 'TimezonesController@vednorIndex');
+	//Route::any('/timezones/vendor_rates/changeSelectedStatus/{type}','TimezonesController@vendor_changeSelectedStatus');
+
+
+
+
 
 	//routing category
 	Route::any('/routingcategory/ajax_datagrid', 'RoutingCategoryController@ajax_datagrid');
@@ -1784,6 +1814,9 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/api_sagepay_return/{id}', 'InvoicesController@api_sagepay_return'); //Payment response by paypal.
 	Route::any('/api_sagepay_declined/{id}', 'InvoicesController@api_sagepay_declined'); //Payment response by paypal.
 	Route::any('/api_sagepay_ipn/{id}', 'InvoicesController@api_sagepay_ipn'); //Payment response by paypal.
+	Route::any('/transcheck', function(){
+		return View::make('test.transcheck');
+	});
 
 });
 
@@ -1849,6 +1882,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/CreateCharge', 'AccountsApiController@CreateCharge');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
+    Route::post('destinationgroupset/datagrid', 'DestinationGroupSetController@DataGrid');
 
 
 

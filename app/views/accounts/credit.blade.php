@@ -194,6 +194,38 @@
         </form>
     </div>
 </div>
+<div class="panel panel-primary hide" data-collapsed="0" id="Outpayment-components">
+    <div class="panel-heading">
+        <div class="panel-title">
+            Out Payment
+        </div>
+
+        <div class="panel-options">
+            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label for="field-1" class="control-label">Awaiting Approval</label>
+                <input type="text" class="form-control" readonly value="{{$OutPaymentAwaiting}}">
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label for="field-2" class="control-label">Approved</label>
+                <input type="text" class="form-control" readonly value="{{$OutPaymentAvailable}}">
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label for="field-3" class="control-label">Paid</label>
+                <input type="text" class="form-control" readonly value="{{$OutPaymentPaid}}">
+            </div>
+        </div>
+    </div>
+</div>
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>

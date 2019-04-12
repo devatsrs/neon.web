@@ -160,7 +160,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Name</label>
+                    <label for="field-1" class="col-sm-2 control-label">Name*</label>
                     <div class="col-sm-4">
                         <input type="text" name="Name" class="form-control" id="field-5" placeholder="">
                     </div>
@@ -171,51 +171,63 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Invoice Line Description</label>
+                    <label for="field-1" class="col-sm-2 control-label">Invoice Line Description*</label>
                     <div class="col-sm-4">
                         <input type="text" name="InvoiceLineDescription" class="form-control" id="field-1" placeholder="" value="" />
                     </div>
-                    <label for="field-1" class="col-sm-2 control-label">Yearly Fee</label>
+                    <label for="field-1" class="col-sm-2 control-label">Yearly Fee*</label>
                     <div class="col-sm-4">
                         <input type="text" name="AnnuallyFee" onchange="txtChange(this)" class="form-control" id="field-1" placeholder="" value="" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Quarterly Fee</label>
+                    <label for="field-1" class="col-sm-2 control-label">Quarterly Fee*</label>
                     <div class="col-sm-4">
                         <input type="text" name="QuarterlyFee" onchange="txtChange(this)" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
                     </div>
-                    <label for="field-1" class="col-sm-2 control-label">Monthly Fee</label>
+                    <label for="field-1" class="col-sm-2 control-label">Monthly Fee*</label>
                     <div class="col-sm-4">
                         <input type="text" name="MonthlyFee" onchange="txtChange(this)" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Weekly Fee</label>
+                    <label for="field-1" class="col-sm-2 control-label">Weekly Fee*</label>
                     <div class="col-sm-4">
                         <input type="text" name="WeeklyFee" onchange="txtChange(this)" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Daily Fee</label>
+                    <label for="field-1" class="col-sm-2 control-label">Daily Fee*</label>
                     <div class="col-sm-4">
                         <input type="text" name="DailyFee" onchange="txtChange(this)" class="form-control" maxlength="10" id="field-1" placeholder="" value="" />
                     </div>
 
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Currency</label>
+                    
+
+                    <label for="field-1" class="col-sm-2 control-label">Activation Fee*</label>
                     <div class="col-sm-4">
-                        {{Form::SelectControl('currency',0,isset($CurrencyID)?$CurrencyID:'')}}
-                        @if(isset($CurrencyID))
-                            {{Form::hidden('CurrencyID',$CurrencyID)}}
+                        <input type="text" name="ActivationFee" class="form-control" maxlength="10" placeholder="" value=""  />
+                    </div>
+                    <label for="field-1" class="col-sm-2 control-label">Recurring Fee Currency*</label>
+                    <div class="col-sm-4">
+                        {{Form::SelectControl('RecurringCurrencyID',0,isset($RecurringCurrencyID)?$RecurringCurrencyID:'')}}
+                        @if(isset($RecurringCurrencyID))
+                            {{Form::hidden('RecurringCurrencyID',$RecurringCurrencyID)}}
+                        @endif
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">Activation Fee Currency*</label>
+                    <div class="col-sm-4">
+                        {{Form::SelectControl('OneOffCurrencyID',0,isset($OneOffCurrencyID)?$OneOffCurrencyID:'')}}
+                        @if(isset($OneOffCurrencyID))
+                            {{Form::hidden('OneOffCurrencyID',$OneOffCurrencyID)}}
                         @endif
                         <!--{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}-->
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Activation Fee</label>
-                    <div class="col-sm-4">
-                        <input type="text" name="ActivationFee" class="form-control" maxlength="10" placeholder="" value=""  />
-                    </div>
+                    
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Applied To</label>

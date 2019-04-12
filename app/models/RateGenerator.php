@@ -13,6 +13,7 @@ class RateGenerator extends \Eloquent {
 
     const VoiceCall = 1;
     const DID = 2;
+    const Package = 3;
     public static $Component = array(
                                         "OneOffCost"=>"One-Off cost",
                                         "MonthlyCost"=>"Monthly cost",

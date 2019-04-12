@@ -24,12 +24,13 @@ class SiteIntegration{
  static    $StripeACHSlug		=	'stripeach';
  static    $SagePaySlug			=	'sagepay';
  static    $SagePayDirectDebitSlug=	'sagepaydirectdebit';
- static    $FideliPaySlug =	'fidelipay';
- static    $XeroSlug =	'xero';
+ static    $FideliPaySlug 		=	'fidelipay';
+ static    $XeroSlug 			=	'xero';
  static    $PeleCardSlug		=	'pelecard';
- static    $MerchantWarriorSlug		=	'merchantwarrior';
- static    $FastPaySlug		=	'fastpay';
- static    $ExactSlug		=	'exact';
+ static    $MerchantWarriorSlug	=	'merchantwarrior';
+ static    $FastPaySlug			=	'fastpay';
+ static    $ExactSlug			=	'exact';
+ static    $IngenicoSlug		=	'ingenico';
 
  	public function __construct(){
 	

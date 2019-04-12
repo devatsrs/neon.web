@@ -14,8 +14,8 @@ if( typeof neon_summernote_options == 'undefined') {
         "TicketsSingle": false,
         "invoiceoptions": false,
         "autopaymentoptions": false,
-        contractoptions:false,
-        contractexpireoptions:false,
+        "contractoptions":false,
+        "contractexpireoptions":false,
         "Cronjobs": false,
         "estimateoptions": false,
         "ratesheetoptions": false,
@@ -29,7 +29,17 @@ if( typeof neon_summernote_options == 'undefined') {
 
 }
 var dropdown_text =  {
-
+    dynamicfields:{
+        CustomerID:"CustomerID",
+        DirectDebit:"DirectDebit",
+        RegisterDutchFoundation:"RegisterDutchFoundation",
+        COCNumber:"COCNumber",
+        DutchProvider:"DutchProvider",
+    },
+    datetime:{
+        Date:"Date",
+        Time:"Time",
+    },
     leadoptions:{
         FirstName:"FirstName",
         AccountName:"AccountName",
@@ -42,6 +52,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         Currency:"Currency",
         CurrencySign:"CurrencySign",
         Signature:"Signature",
@@ -79,6 +96,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         CurrencySign:"CurrencySign",
         Currency:"Currency",
         CompanyName:"CompanyName",
@@ -101,6 +125,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         Currency:"Currency",
         CurrencySign:"CurrencySign",
         InvoiceNumber:"InvoiceNumber",
@@ -128,6 +159,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         Currency:"Currency",
         PaidAmount:"PaidAmount",
         PaidStatus:"PaidStatus",
@@ -156,6 +194,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         Currency:"Currency",
         CurrencySign:"CurrencySign",
         EstimateNumber:"EstimateNumber",
@@ -180,6 +225,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         Signature:"Signature"
     },
     Cronjobs:{
@@ -225,6 +277,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         Logo:"Logo"
     },
     Tickets:{
@@ -251,6 +310,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         Currency:"Currency",
         CurrencySign:"CurrencySign",
         OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
@@ -273,6 +339,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         Currency:"Currency",
         CurrencySign:"CurrencySign",
         Signature:"Signature",
@@ -294,6 +367,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         Currency:"Currency",
         CurrencySign:"CurrencySign",
         Signature:"Signature",
@@ -326,6 +406,13 @@ var dropdown_text =  {
         State:"State",
         PostCode:"PostCode",
         Country:"Country",
+        BillingAddress1:"BillingAddress1",
+        BillingAddress2:"BillingAddress2",
+        BillingAddress3:"BillingAddress3",
+        BillingCity:"BillingCity",
+        BillingPostCode:"BillingPostCode",
+        BillingCountry:"BillingCountry",
+        BillingEmail:"BillingEmail",
         CompanyName:"CompanyName",
         Signature:"Signature",
     }
@@ -346,8 +433,20 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{State}}'>" + dropdown_text.leadoptions.State + "</a></li>" +
             "<li><a data-value='{{PostCode}}'>" + dropdown_text.leadoptions.PostCode + "</a></li>" +
             "<li><a data-value='{{Country}}'>" + dropdown_text.leadoptions.Country + "</a></li>" +
+            "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.leadoptions.BillingAddress1 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.leadoptions.BillingAddress2 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.leadoptions.BillingAddress3 + "</a></li>" +
+            "<li><a data-value='{{BillingCity}}'>" + dropdown_text.leadoptions.BillingCity + "</a></li>" +
+            "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.leadoptions.BillingPostCode + "</a></li>" +
+            "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.leadoptions.BillingCountry + "</a></li>" +
+            "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.leadoptions.BillingEmail + "</a></li>" +
             "<li><a data-value='{{Currency}}'>" + dropdown_text.leadoptions.Currency + "</a></li>" +
             "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.leadoptions.CurrencySign + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             //"<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.leadoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
             //"<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.leadoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.leadoptions.BalanceThreshold + "</a></li>" +
@@ -366,6 +465,8 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
             "<li><a data-value='{{Signature}}'>" + dropdown_text.leadoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" +
             "<li class='unclick'><a ><b>Disputes</b></a></li>" +
             "<li><a data-value='{{DisputeAmount}}'>" + dropdown_text.leadoptions.DisputeAmount + "</a></li>" +
             "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.leadoptions.InvoiceNumber + "</a></li>" +
@@ -388,6 +489,11 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Country}}'>" + dropdown_text.ratetemplateoptions.Country + "</a></li>" +
             "<li><a data-value='{{Currency}}'>" + dropdown_text.ratetemplateoptions.Currency + "</a></li>" +
             "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.ratetemplateoptions.CurrencySign + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             //"<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
             //"<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.ratetemplateoptions.BalanceThreshold + "</a></li>" +
@@ -401,11 +507,19 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
+            "<li class='unclick'><a ><b>Dynamic Fields</b></a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             "<li class='unclick'><a ><b>RateSheet Fields</b></a></li>" +
             "<li><a data-value='{{TrunkPrefix}}'>" + dropdown_text.ratetemplateoptions.TrunkPrefix + "</a></li>"+
             "<li><a data-value='{{TrunkName}}'>" + dropdown_text.ratetemplateoptions.TrunkName + "</a></li>"+
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.ratetemplateoptions.Signature + "</a></li>";
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.ratetemplateoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
     },
     "invoiceoptions": function () {
 
@@ -420,9 +534,21 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{City}}'>" + dropdown_text.invoiceoptions.City + "</a></li>" +
             "<li><a data-value='{{State}}'>" + dropdown_text.invoiceoptions.State + "</a></li>" +
             "<li><a data-value='{{PostCode}}'>" + dropdown_text.invoiceoptions.PostCode + "</a></li>" +
+            "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.invoiceoptions.BillingAddress1 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.invoiceoptions.BillingAddress2 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.invoiceoptions.BillingAddress3 + "</a></li>" +
+            "<li><a data-value='{{BillingCity}}'>" + dropdown_text.invoiceoptions.BillingCity + "</a></li>" +
+            "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.invoiceoptions.BillingPostCode + "</a></li>" +
+            "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.invoiceoptions.BillingCountry + "</a></li>" +
+            "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.invoiceoptions.BillingEmail + "</a></li>" +
             "<li><a data-value='{{Country}}'>" + dropdown_text.invoiceoptions.Country + "</a></li>" +
             "<li><a data-value='{{Currency}}'>" + dropdown_text.invoiceoptions.Currency + "</a></li>" +
             "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.invoiceoptions.CurrencySign + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             "<li class='unclick'><a ><b>Invoice Fields</b></a></li>" +
             "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.invoiceoptions.InvoiceNumber + "</a></li>" +
             "<li><a data-value='{{InvoiceGrandTotal}}'>" + dropdown_text.invoiceoptions.InvoiceGrandTotal + "</a></li>" +
@@ -444,7 +570,11 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.invoiceoptions.Signature + "</a></li>" ;
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.invoiceoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
+
+            
     },
     "autopaymentoptions": function () {
 
@@ -459,9 +589,21 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{City}}'>" + dropdown_text.autopaymentoptions.City + "</a></li>" +
             "<li><a data-value='{{State}}'>" + dropdown_text.autopaymentoptions.State + "</a></li>" +
             "<li><a data-value='{{PostCode}}'>" + dropdown_text.autopaymentoptions.PostCode + "</a></li>" +
+            "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.autopaymentoptions.BillingAddress1 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.autopaymentoptions.BillingAddress2 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.autopaymentoptions.BillingAddress3 + "</a></li>" +
+            "<li><a data-value='{{BillingCity}}'>" + dropdown_text.autopaymentoptions.BillingCity + "</a></li>" +
+            "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.autopaymentoptions.BillingPostCode + "</a></li>" +
+            "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.autopaymentoptions.BillingCountry + "</a></li>" +
+            "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.autopaymentoptions.BillingEmail + "</a></li>" +
             "<li><a data-value='{{Country}}'>" + dropdown_text.autopaymentoptions.Country + "</a></li>" +
             "<li><a data-value='{{Currency}}'>" + dropdown_text.autopaymentoptions.Currency + "</a></li>" +
             "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.autopaymentoptions.CurrencySign + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             "<li class='unclick'><a ><b>Auto Payment Fields</b></a></li>" +
             "<li><a data-value='{{PaidAmount}}'>" + dropdown_text.autopaymentoptions.PaidAmount + "</a></li>" +
             "<li><a data-value='{{PaidStatus}}'>" + dropdown_text.autopaymentoptions.PaidStatus + "</a></li>" +
@@ -483,7 +625,9 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.autopaymentoptions.Signature + "</a></li>" ;
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.autopaymentoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
     },
     "contractoptions": function () {
 
@@ -504,6 +648,18 @@ var neon_summernote_dropdown_tpl = {
         "<li><a data-value='{{State}}'>" + dropdown_text.contractexpireoptions.State + "</a></li>" +
         "<li><a data-value='{{PostCode}}'>" + dropdown_text.contractexpireoptions.PostCode + "</a></li>" +
         "<li><a data-value='{{Country}}'>" + dropdown_text.contractexpireoptions.Country + "</a></li>" +
+        "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.contractexpireoptions.BillingAddress1 + "</a></li>" +
+        "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.contractexpireoptions.BillingAddress2 + "</a></li>" +
+        "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.contractexpireoptions.BillingAddress3 + "</a></li>" +
+        "<li><a data-value='{{BillingCity}}'>" + dropdown_text.contractexpireoptions.BillingCity + "</a></li>" +
+        "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.contractexpireoptions.BillingPostCode + "</a></li>" +
+        "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.contractexpireoptions.BillingCountry + "</a></li>" +
+        "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.contractexpireoptions.BillingEmail + "</a></li>" +
+        "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+        "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+        "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+        "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+        "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
         "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
         "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
         "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
@@ -513,7 +669,10 @@ var neon_summernote_dropdown_tpl = {
         "<li><a data-value='{{CompanyCity}}'>" + dropdown_text.Company.City + "</a></li>" +
         "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
         "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
-        "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>"
+        "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
+        "<li class='unclick'><a ><b>Others</b></a></li>" +
+        "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+        "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
 },
     "contractexpireoptions": function () {
 
@@ -536,6 +695,18 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{State}}'>" + dropdown_text.contractexpireoptions.State + "</a></li>" +
             "<li><a data-value='{{PostCode}}'>" + dropdown_text.contractexpireoptions.PostCode + "</a></li>" +
             "<li><a data-value='{{Country}}'>" + dropdown_text.contractexpireoptions.Country + "</a></li>" +
+            "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.contractexpireoptions.BillingAddress1 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.contractexpireoptions.BillingAddress2 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.contractexpireoptions.BillingAddress3 + "</a></li>" +
+            "<li><a data-value='{{BillingCity}}'>" + dropdown_text.contractexpireoptions.BillingCity + "</a></li>" +
+            "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.contractexpireoptions.BillingPostCode + "</a></li>" +
+            "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.contractexpireoptions.BillingCountry + "</a></li>" +
+            "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.contractexpireoptions.BillingEmail + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
@@ -547,7 +718,9 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.invoiceoptions.Signature + "</a></li>" ;
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.invoiceoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
 
 
     },
@@ -565,8 +738,20 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{State}}'>" + dropdown_text.outpaymentoptions.State + "</a></li>" +
             "<li><a data-value='{{PostCode}}'>" + dropdown_text.outpaymentoptions.PostCode + "</a></li>" +
             "<li><a data-value='{{Country}}'>" + dropdown_text.outpaymentoptions.Country + "</a></li>" +
+            "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.outpaymentoptions.BillingAddress1 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.outpaymentoptions.BillingAddress2 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.outpaymentoptions.BillingAddress3 + "</a></li>" +
+            "<li><a data-value='{{BillingCity}}'>" + dropdown_text.outpaymentoptions.BillingCity + "</a></li>" +
+            "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.outpaymentoptions.BillingPostCode + "</a></li>" +
+            "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.outpaymentoptions.BillingCountry + "</a></li>" +
+            "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.outpaymentoptions.BillingEmail + "</a></li>" +
             "<li><a data-value='{{Currency}}'>" + dropdown_text.outpaymentoptions.Currency + "</a></li>" +
             "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.outpaymentoptions.CurrencySign + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             "<li class='unclick'><a ><b>Out Payment Fields</b></a></li>" +
             "<li><a data-value='{{OutPaymentAmount}}'>" + dropdown_text.outpaymentoptions.OutPaymentAmount + "</a></li>" +
             "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
@@ -578,7 +763,10 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCity}}'>" + dropdown_text.Company.City + "</a></li>" +
             "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
-            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>"
+            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
+            "<li class='unclick'><a ><b>Others</b></a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>";
     },
     "tasks": function () {
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
@@ -592,6 +780,19 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{State}}'>" + dropdown_text.leadoptions.State + "</a></li>" +
             "<li><a data-value='{{PostCode}}'>" + dropdown_text.leadoptions.PostCode + "</a></li>" +
             "<li><a data-value='{{Country}}'>" + dropdown_text.leadoptions.Country + "</a></li>" +
+            "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.leadoptions.BillingAddress1 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.leadoptions.BillingAddress2 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.leadoptions.BillingAddress3 + "</a></li>" +
+            "<li><a data-value='{{BillingCity}}'>" + dropdown_text.leadoptions.BillingCity + "</a></li>" +
+            "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.leadoptions.BillingPostCode + "</a></li>" +
+            "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.leadoptions.BillingCountry + "</a></li>" +
+            "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.leadoptions.BillingEmail + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
+
             "<li class='unclick'><a ><b>Tasks Fields</b></a></li>" +
             "<li><a data-value='{{subject}}'>" + dropdown_text.tasks.Subject + "</a></li>" +
             "<li><a data-value='{{User}}'>" + dropdown_text.tasks.User + "</a></li>" +
@@ -605,7 +806,10 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCity}}'>" + dropdown_text.Company.City + "</a></li>" +
             "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
-            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" ;
+            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
+            "<li class='unclick'><a ><b>Others</b></a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>";
     },
     "opportunities": function () {
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
@@ -619,6 +823,19 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{State}}'>" + dropdown_text.leadoptions.State + "</a></li>" +
             "<li><a data-value='{{PostCode}}'>" + dropdown_text.leadoptions.PostCode + "</a></li>" +
             "<li><a data-value='{{Country}}'>" + dropdown_text.leadoptions.Country + "</a></li>" +
+            "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.leadoptions.BillingAddress1 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.leadoptions.BillingAddress2 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.leadoptions.BillingAddress3 + "</a></li>" +
+            "<li><a data-value='{{BillingCity}}'>" + dropdown_text.leadoptions.BillingCity + "</a></li>" +
+            "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.leadoptions.BillingPostCode + "</a></li>" +
+            "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.leadoptions.BillingCountry + "</a></li>" +
+            "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.leadoptions.BillingEmail + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
+
             "<li class='unclick'><a ><b>Opportunity Fields</b></a></li>" +
             "<li><a data-value='{{subject}}'>" + dropdown_text.opportunities.Subject + "</a></li>" +
             "<li><a data-value='{{User}}'>" + dropdown_text.opportunities.User + "</a></li>" +
@@ -633,7 +850,10 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCity}}'>" + dropdown_text.Company.City + "</a></li>" +
             "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
-            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" ;
+            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
+            "<li class='unclick'><a ><b>Others</b></a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>";
     },
     "ratesheetoptions": function () {
         return  "<li><a data-value='{{FirstName}}'>" + dropdown_text.ratesheetoptions.FirstName + "</a></li>" +
@@ -656,8 +876,21 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{State}}'>" + dropdown_text.estimateoptions.State + "</a></li>" +
             "<li><a data-value='{{PostCode}}'>" + dropdown_text.estimateoptions.PostCode + "</a></li>" +
             "<li><a data-value='{{Country}}'>" + dropdown_text.estimateoptions.Country + "</a></li>" +
+            "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.estimateoptions.BillingAddress1 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.estimateoptions.BillingAddress2 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.estimateoptions.BillingAddress3 + "</a></li>" +
+            "<li><a data-value='{{BillingCity}}'>" + dropdown_text.estimateoptions.BillingCity + "</a></li>" +
+            "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.estimateoptions.BillingPostCode + "</a></li>" +
+            "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.estimateoptions.BillingCountry + "</a></li>" +
+            "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.estimateoptions.BillingEmail + "</a></li>" +
+
             "<li><a data-value='{{Currency}}'>" + dropdown_text.estimateoptions.Currency + "</a></li>" +
             "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.estimateoptions.CurrencySign + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             "<li class='unclick'><a ><b>Estimate Fields</b></a></li>" +
             "<li><a data-value='{{EstimateNumber}}'>" + dropdown_text.estimateoptions.EstimateNumber + "</a></li>" + "<li><a data-value='{{EstimateGrandTotal}}'>" + dropdown_text.estimateoptions.EstimateGrandTotal + "</a></li>" +
             "<li><a data-value='{{EstimateLink}}'>" + dropdown_text.estimateoptions.EstimateLink + "</a></li>" +
@@ -675,7 +908,9 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.estimateoptions.Signature + "</a></li>" ;
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.estimateoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
 
     },
     "Crm": function () {
@@ -690,6 +925,19 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{State}}'>" + dropdown_text.Crm.State + "</a></li>" +
             "<li><a data-value='{{PostCode}}'>" + dropdown_text.Crm.PostCode + "</a></li>" +
             "<li><a data-value='{{Country}}'>" + dropdown_text.Crm.Country + "</a></li>" +
+            "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.Crm.BillingAddress1 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.Crm.BillingAddress2 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.Crm.BillingAddress3 + "</a></li>" +
+            "<li><a data-value='{{BillingCity}}'>" + dropdown_text.Crm.BillingCity + "</a></li>" +
+            "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.Crm.BillingPostCode + "</a></li>" +
+            "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.Crm.BillingCountry + "</a></li>" +
+            "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.Crm.BillingEmail + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
+
             "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
@@ -701,7 +949,9 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.Crm.Signature + "</a></li>";
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.Crm.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
     },
     "TicketsSingle": function () {
         return "<li class='unclick'><a ><b>Ticket Fields</b></a></li>" +
@@ -731,7 +981,13 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCity}}'>" + dropdown_text.Company.City + "</a></li>" +
             "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
-            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>"   ;
+            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
+            "<li class='unclick'><a ><b>Dynamic Fields</b></a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>";
     },
     "Cronjobs": function () {
 
@@ -774,16 +1030,38 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{State}}'>" + dropdown_text.Tickets.State + "</a></li>" +
             "<li><a data-value='{{PostCode}}'>" + dropdown_text.Tickets.PostCode + "</a></li>" +
             "<li><a data-value='{{Country}}'>" + dropdown_text.Tickets.Country + "</a></li>" +
+            "<li><a data-value='{{BillingAddress1}}'>" + dropdown_text.Tickets.BillingAddress1 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress2}}'>" + dropdown_text.Tickets.BillingAddress2 + "</a></li>" +
+            "<li><a data-value='{{BillingAddress3}}'>" + dropdown_text.Tickets.BillingAddress3 + "</a></li>" +
+            "<li><a data-value='{{BillingCity}}'>" + dropdown_text.Tickets.BillingCity + "</a></li>" +
+            "<li><a data-value='{{BillingPostCode}}'>" + dropdown_text.Tickets.BillingPostCode + "</a></li>" +
+            "<li><a data-value='{{BillingCountry}}'>" + dropdown_text.Tickets.BillingCountry + "</a></li>" +
+            "<li><a data-value='{{BillingEmail}}'>" + dropdown_text.Tickets.BillingEmail + "</a></li>" +
+
             "<li><a data-value='{{Currency}}'>" + dropdown_text.Tickets.Currency + "</a></li>" +
             "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.Tickets.CurrencySign + "</a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             //"<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.Tickets.OutstandingExcludeUnbilledAmount + "</a></li>" +
             //"<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.Tickets.OutstandingIncludeUnbilledAmount + "</a></li>" +
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.Tickets.BalanceThreshold + "</a></li>" +
+            "<li class='unclick'><a ><b>Dynamic Fields</b></a></li>" +
+            "<li><a data-value='{{CustomerID}}'>" + dropdown_text.dynamicfields.CustomerID + "</a></li>" +
+            "<li><a data-value='{{DirectDebit}}'>" + dropdown_text.dynamicfields.DirectDebit + "</a></li>" +
+            "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
+            "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
+            "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             "<li class='unclick'><a ><b>Invoice Fields</b></a></li>" +
             "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.Tickets.InvoiceNumber + "</a></li>" +
             "<li><a data-value='{{InvoiceGrandTotal}}'>" + dropdown_text.Tickets.InvoiceGrandTotal + "</a></li>" +
             "<li><a data-value='{{InvoiceOutstanding}}'>" + dropdown_text.Tickets.InvoiceOutstanding + "</a></li>" + "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.Tickets.Signature + "</a></li>";
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.Tickets.Signature + "</a></li>" +
+            "<li class='unclick'><a ><b>Others</b></a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>";
 
     },
 };

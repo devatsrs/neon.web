@@ -4,14 +4,41 @@ class TaxRatesController extends \BaseController {
     var $model = 'TaxRate';
 
     public function ajax_datagrid() {
-
+       $data = Input::all();
         $CompanyID = User::get_companyID();
-        $taxrates = TaxRate::select('Title', 'Amount','TaxRateId','TaxType','FlatStatus')->where("CompanyID", $CompanyID);
+        $taxrates = TaxRate::select('Title','Amount','Country','DutchProvider','DutchFoundation','TaxRateId')->where("CompanyID", $CompanyID);
+        if(isset($data['Title']) and !empty($data['Title']))
+        {
+             $taxrates = $taxrates->where('Title', 'like', '%'.$data['Title'].'%');
+        }
+        if(isset($data['TaxType'])  and !empty($data['TaxType']))
+        {
+             $taxrates = $taxrates->where('TaxType',  $data['TaxType']);
+        }
+        if(isset($data['Country']) and !empty($data['Country']))
+        {
+            //Log::info('country '.$data['Country']);
+             $taxrates = $taxrates->where('Country', $data['Country']);
+        }
+        if(isset($data['FlatStatus']) and $data['FlatStatus']!=0)
+        {
+             $taxrates = $taxrates->where('FlatStatus', 1);
+        }
+        if(isset($data['ftDutchProvider']) and $data['ftDutchProvider']!=0)
+        {
+             $taxrates = $taxrates->where('DutchProvider', 1);
+        }
+        if(isset($data['ftDutchFoundation']) and $data['ftDutchFoundation']!=0)
+        {
+             $taxrates = $taxrates->where('DutchFoundation', 1);
+        }
+        Log::info($taxrates->toSql());
         return Datatables::of($taxrates)->make();
     }
 
     public function index()
     {
+        
         return View::make('taxrates.index', compact(''));
 
     }
@@ -34,13 +61,23 @@ class TaxRatesController extends \BaseController {
             'Amount' => 'required|numeric',
             'TaxType' => 'required|numeric',
             'FlatStatus' => 'required|numeric',
-        );
+            'Country' => 'required',
+        ); 
+        $attributeNames = array(
+   'Amount' => 'VAT',     
+);
+
         $validator = Validator::make($data, $rules);
+        $validator->setAttributeNames($attributeNames);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
         unset($data['Status_name']);
+        unset($data['DutchProviderSt']);
+        unset($data['DutchFoundationSt']);
+
+
         if ($taxrate = TaxRate::create($data)) {
             TaxRate::clearCache();
             return Response::json(array("status" => "success", "message" => "TaxRate Successfully Created",'LastID'=>$taxrate->TaxRateId));
@@ -84,6 +121,7 @@ class TaxRatesController extends \BaseController {
     {
         if( $id > 0 ) {
             $data = Input::all();
+            
             $TaxRate = TaxRate::findOrFail($id);
             $companyID = User::get_companyID();
             $data['CompanyID'] = $companyID;
@@ -100,8 +138,12 @@ class TaxRatesController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+             
             unset($data['TaxRateID']);
             unset($data['Status_name']);
+            unset($data['DutchProviderSt']);
+        unset($data['DutchFoundationSt']);
+
             if ($TaxRate->update($data)) {
                 TaxRate::clearCache();
                 return Response::json(array("status" => "success", "message" => "TaxRate Successfully Updated"));

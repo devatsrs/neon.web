@@ -20,8 +20,10 @@ class Notification extends \Eloquent {
     const AutoTopAccount=11;
     const AutoOutPayment=13;
     const ContractManage = 14;
+    const ApproveOutPayment=15;
 
-    public static $type = [ Notification::InvoiceCopy=>'Invoice Copy',
+    public static $type = [
+        Notification::InvoiceCopy=>'Invoice Copy',
         Notification::ReRate=>'CDR Rate Log',
         Notification::WeeklyPaymentTransactionLog=>'Weekly Payment Transaction Log',
         Notification::PendingApprovalPayment=>'Payment Verification',
@@ -31,7 +33,8 @@ class Notification extends \Eloquent {
         Notification::AutoAddIP=>'Auto Add IP',
         Notification::AutoTopAccount=>'Auto Top Account',
         Notification::AutoOutPayment=>'Auto Out Payment',
-        Notification::ContractManage=>'Contract'
+        Notification::ContractManage=>'Contract',
+        //Notification::ApproveOutPayment=>'Approve Out Payment',
         //Notification::LowStockReminder=>'Low Stock Reminder'
     ];
 

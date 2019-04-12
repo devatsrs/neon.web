@@ -61,7 +61,6 @@
             <table id="table-subscription" class="table table-bordered datatable">
                 <thead>
                 <tr>
-                    <th width="3%"></th>
                     <th width="5%">No</th>
                     <th width="5%">Subscription</th>
                     <th width="15%">Invoice Description</th>
@@ -69,13 +68,7 @@
                     <th width="10%">Start Date</th>
                     <th width="10%">End Date</th>
                     <th width="5%">Activation Fee</th>
-                    <th width="4%">Currency</th>
-                    <th width="5%">Daily Fee</th>
-                    <th width="5%">Weekly Fee</th>
                     <th width="10%">Monthly Fee</th>
-                    <th width="4%">Currency</th>
-                    <th width="10%">Quarterly Fee</th>
-                    <th width="10%">Yearly Fee</th>
                     <th width="20%">Action</th>
                 </tr>
                 </thead>
@@ -143,14 +136,15 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["AID","SequenceNo", "Name", "InvoiceDescription", "Qty",
-                "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee", "OneOffCurrency",
-                "tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
-                "tblBillingSubscription.MonthlyFee", "RecurringCurrency",
-                "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
-                "AccountSubscriptionID","SubscriptionID","ExemptTax","Status","DiscountAmount",
-                "DiscountType","OneOffCurrencyID","RecurringCurrencyID","AnnuallyFee","QuarterlyFee",
-                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee"];
+            var list_fields  = ["AID", "Name", "InvoiceDescription", "Qty",
+                "StartDate", "EndDate" , "tblBillingSubscription.ActivationFee",
+            "tblBillingSubscription.MonthlyFee","AccountSubscriptionID","SubscriptionID",
+            "SequenceNo",  "OneOffCurrency","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
+                 "RecurringCurrency",  "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee",
+                "ExemptTax","Status","DiscountAmount",
+                "DiscountType","OneOffCurrencyID","RecurringCurrencyID",
+                "AnnuallyFee","QuarterlyFee",
+                "MonthlyFee","WeeklyFee","DailyFee", "ActivationFee", "OneOffCurrencySymbol", "RecurringCurrencySymbol"];
 
             public_vars.$body = $("body");
             var $search = {};
@@ -192,40 +186,56 @@
                             "sDom": "<'row'<'col-xs-6 col-left 'l><'col-xs-6 col-right'f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
-                        {  "bSortable": false,
-                            @if(isset($AccountService))
-                                mRender: function(id, type, full) {
-                                    return '<div class="details-control subscription_'+full[0]+'" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
-                                },
-                            @else
-                                "bVisible": false
-                            @endif
-                        },
-                        {  "bSortable": true },  // 0 Sequence NO
+                        // {  "bSortable": false,
+                        //     @if(isset($AccountService))
+                        //         mRender: function(id, type, full) {
+                        //             return '<div class="details-control subscription_'+full[0]+'" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
+                        //         },
+                        //     @else
+                        //         "bVisible": false
+                        //     @endif
+                        // },
+                        {                        // 14 Action
+                           "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                 action = full[10];
+                                return action;
+                            }
+                        },  // 0 Sequence NO
                         {  "bSortable": true },  // 1 Subscription Name
+                        
                         {  "bSortable": true },  // 2 InvoiceDescription
                         {  "bSortable": true },  // 3 Qty
                         {  "bSortable": true },  // 4 StartDate
                         {  "bSortable": true },  // 5 EndDate
-                        {  "bSortable": true },  // 6 ActivationFee
-                        {  "bSortable": true },  // 7 ActivationFee
-                        {  "bSortable": true },  // 8 DailyFee
-                        {  "bSortable": true },  // 9 WeeklyFee
-                        {  "bSortable": true },  // 10 MonthlyFee
-                        {  "bSortable": true },  // 11 MonthlyFee
-                        {  "bSortable": true },  // 12 QuarterlyFee
-                        {  "bSortable": true },  // 13 AnnuallyFee
+                        {                        // 14 Action
+                           "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                 action = full[23]+full[6];
+                                return action;
+                            }
+                        },
+                        {                        // 14 Action
+                           "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                 action = full[24]+full[7];
+                                return action;
+                            }
+                          },
                         {                        // 14 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
+                                console.log(id);
+                                console.log(full[0]);
+                                console.log(full[1]);
                                  action = '<div class = "hiddenRowData" >';
                                  for(var i = 0 ; i< list_fields.length; i++){
 									list_fields[i] =  list_fields[i].replace("tblBillingSubscription.",'');
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                  }
                                  action += '</div>';
-                                 action += ' <a href="' + subscription_edit_url.replace("{id}",id) +'" title="Edit" class="edit-subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
-                                 action += ' <a href="' + subscription_delete_url.replace("{id}",id) +'" title="Delete" class="delete-subscription btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
+                                 action += ' <a href="' + subscription_edit_url.replace("{id}",full[0]) +'" title="Edit" class="edit-subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                 action += ' <a href="' + subscription_delete_url.replace("{id}",full[0]) +'" title="Delete" class="delete-subscription btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                  return action;
                             }
                           }
@@ -433,6 +443,8 @@
 									$("#subscription-form [name='WeeklyFee']").val(response.WeeklyFee);
 									$("#subscription-form [name='DailyFee']").val(response.DailyFee);
 									$("#subscription-form [name='ActivationFee']").val(response.ActivationFee);
+                                    $("#subscription-form [name='OneOffCurrencyID']").select2('val',response.OneOffCurrencyID);
+                                            $("#subscription-form [name='RecurringCurrencyID']").select2('val',response.RecurringCurrencyID);
 								}
 							}
 					});
@@ -562,6 +574,7 @@
                     todayBtn:  1,
                     autoclose: true
                 }).on('changeDate', function (selected) {
+                    
                     var minDate = new Date(selected.date.valueOf());
                     var endDate = $('#EndDate');
                     endDate.datepicker('setStartDate', minDate);
@@ -577,6 +590,26 @@
                             //$('#StartDate').datepicker('setEndDate', maxDate);
                         });
 
+
+                        $("#StartDate").datepicker({
+                todayBtn:  1,
+                autoclose: true
+            }).on('changeDate', function (selected) {
+                var minDate = new Date(selected.date.valueOf());
+                var endDate = $('#EndDate');
+                endDate.datepicker('setStartDate', minDate);
+                if(endDate.val() && new Date(endDate.val()) != undefined) {
+                    if(minDate > new Date(endDate.val()))
+                        endDate.datepicker("setDate", minDate)
+                }
+            });
+
+            $("#EndDate").datepicker({autoclose: true})
+                    .on('changeDate', function (selected) {
+                        var maxDate = new Date(selected.date.valueOf());
+                        //$('#StartDate').datepicker('setEndDate', maxDate);
+                    });
+                    
                 if(new Date($('#StartDate').val()) != undefined){
                     $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
                 }

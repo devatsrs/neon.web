@@ -9,63 +9,63 @@
                 Filter
             </h2>
             <form role="form" id="rate-table-search" action="javascript:void(0);"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
+                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                    <div class="form-group">
+                        <label class="control-label">Status</label>
+                        {{ Form::select('ApprovedStatus1', RateTable::$DDRateStatus1, RateTable::RATE_STATUS_APPROVED, array("class"=>"select2")) }}
+                    </div>
+                    <div class="form-group" id="ApprovedStatus2-Box" style="display: none;">
+                        <label class="control-label">Status</label>
+                        {{ Form::select('ApprovedStatus2', RateTable::$DDRateStatus2, RateTable::RATE_STATUS_APPROVED, array("class"=>"select2")) }}
+                    </div>
+                @endif
+                <input type="hidden" name="ApprovedStatus" value="{{RateTable::RATE_STATUS_APPROVED}}" />
+
                 <div class="form-group">
-                    <label class="control-label">Origination Code</label>
+                    <label class="control-label">Access Type</label>
+                    {{ Form::select('AccessType', array('' => "All") + $AccessType, Helper::getFormValue('AccessType') , array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Country</label>
+                    {{ Form::select('Country', $countries, Helper::getFormValue('Country') , array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Origination</label>
                     <input type="text" name="OriginationCode" class="form-control" placeholder="" />
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Origination Description</label>
-                    <input type="text" name="OriginationDescription" class="form-control" placeholder="" />
-                </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">Code</label>
+                    <label class="control-label">Prefix</label>
                     <input type="text" name="Code" class="form-control" id="field-1" placeholder="" />
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Description</label>
-                    <input type="text" name="Description" class="form-control" id="field-1" placeholder="" />
                     <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
                 </div>
                 <div class="form-group">
-                    <label class="control-label">City/Tariff</label>
-                    <input type="text" name="CityTariff" class="form-control" placeholder="" />
+                    <label class="control-label">City</label>
+                    {{ Form::select('City', array('' => "All") + $City, Helper::getFormValue('City') , array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Tariff</label>
+                    {{ Form::select('Tariff', array('' => "All") + $Tariff, Helper::getFormValue('Tariff') , array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label class="control-label">Time Of Day</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">Country</label>
-                    {{ Form::select('Country', $countries, Input::old('Country') , array("class"=>"select2")) }}
-                </div>
 
-                <div class="form-group">
-                    <label for="field-1" class="control-label">Discontinued Codes</label>
+                <div class="form-group filter_naa">
+                    <label class="control-label">Discontinued Prefix</label>
                     <p class="make-switch switch-small">
                         {{Form::checkbox('DiscontinuedRates', '1', false, array("id"=>"DiscontinuedRates"))}}
                     </p>
                 </div>
 
                 <div class="form-group EffectiveBox">
-                    <label for="field-1" class="control-label">Effective</label>
+                    <label class="control-label">Effective</label>
                     <select name="Effective" class="select2" data-allow-clear="true" data-placeholder="Select Effective">
                         <option value="All">All</option>
                         <option value="Now">Now</option>
                         <option value="Future">Future</option>
                     </select>
                 </div>
-
-                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                    <div class="form-group">
-                        <label class="control-label">Status</label>
-                        <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
-                            <option value="" selected="selected">All</option>
-                            <option value="1">Approved</option>
-                            <option value="2">Rejected</option>
-                            <option value="0">Awaiting Approval</option>
-                        </select>
-                    </div>
-                @endif
 
                 <div class="form-group">
                     <br/>
@@ -153,12 +153,13 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
+            <th width="10%">Access Type</th>
             <th width="10%">Country</th>
-            <th width="4%">Orig. Code</th>
-            <th width="10%">Orig. Description</th>
-            <th width="4%">Code</th>
-            <th width="10%">Description</th>
-            <th width="10%">City/Tariff</th>
+            <th width="4%">Origination</th>
+            <th width="4%">Prefix</th>
+            <th width="10%">City</th>
+            <th width="10%">Tariff</th>
+            <th width="10%">Time of Day</th>
             <th width="3%">One-Off Cost</th>
             <th width="3%">Monthly Cost</th>
             <th width="5%">Cost Per Call</th>
@@ -193,7 +194,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','Country','OriginationCode','OriginationDescription','Code','Description','CityTariff','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'CostPerCallCurrencySymbol', 'CostPerMinuteCurrencySymbol', 'SurchargePerCallCurrencySymbol', 'SurchargePerMinuteCurrencySymbol', 'OutpaymentPerCallCurrencySymbol', 'OutpaymentPerMinuteCurrencySymbol', 'SurchargesCurrencySymbol', 'ChargebackCurrencySymbol', 'CollectionCostAmountCurrencySymbol', 'RegistrationCostPerNumberCurrencySymbol','TimezonesID'];
+        var list_fields  = ['ID','AccessType','Country','OriginationCode','Code','City','Tariff','TimezoneTitle','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'CostPerCallCurrencySymbol', 'CostPerMinuteCurrencySymbol', 'SurchargePerCallCurrencySymbol', 'SurchargePerMinuteCurrencySymbol', 'OutpaymentPerCallCurrencySymbol', 'OutpaymentPerMinuteCurrencySymbol', 'SurchargesCurrencySymbol', 'ChargebackCurrencySymbol', 'CollectionCostAmountCurrencySymbol', 'RegistrationCostPerNumberCurrencySymbol','TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -207,9 +208,21 @@
             $('#btn-basic-view').addClass('active');
         }
 
+        /*$("select[name='City'],select[name='Tariff']").on('change', function() {
+            var form = $(this).closest('form').attr('id');
+            var name = $(this).attr('name');
+            var val = $(this).val();
 
-            $("#rate-table-search").submit(function(e) {
+            if(val != '') {
+                if(name == 'City') {
+                    $("#" + form + " select[name='Tariff']").val('').trigger('change');
+                } else {
+                    $("#" + form + " select[name='City']").val('').trigger('change');
+                }
+            }
+        });*/
 
+        $("#rate-table-search").submit(function(e) {
             return rateDataTable();
         });
         $("#rate-table-search").trigger('submit');
@@ -269,6 +282,7 @@
                     }
 
                     var formData = new FormData($('#clear-bulk-rate-form')[0]);
+                    formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
 
                     $.ajax({
                         url: baseurl + '/rate_tables/{{$id}}/clear_did_rate', //Server script to process data
@@ -347,6 +361,7 @@
         //Bulk Form and Edit Single Form Submit
         $("#bulk-edit-rate-table-form,#edit-rate-table-form").submit(function() {
             var formData = new FormData($(this)[0]);
+            formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
             $.ajax({
                 url: baseurl + '/rate_tables/{{$id}}/update_rate_table_did_rate', //Server script to process data
                 type: 'POST',
@@ -442,6 +457,7 @@
             e.preventDefault();
             $("#new-rate-form")[0].reset();
             $("#new-rate-form .rateid_list").select2("val","");
+            $("#new-rate-form .select_controls").select2("val","");
             //$("#new-rate-form [name='RateID']").select2().select2('val','');
             $("#modal-add-new").modal('show');
         });
@@ -474,7 +490,7 @@
         return false;
         });
         $('.rateid_list').select2({
-            placeholder: 'Enter a Code',
+            placeholder: 'Enter a Prefix',
             minimumInputLength: 1,
             ajax: {
                 dataType: 'json',
@@ -514,7 +530,7 @@
                 var OriginationCode = OriginationCode.split(',');
                 var Code = Code.split(',');
                 var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                table.append("<thead><tr><th style='width:10%'>Origination Code</th><th>Code</th></tr></thead>");
+                table.append("<thead><tr><th style='width:10%'>Origination</th><th>Prefix</th></tr></thead>");
                 //table.append("<thead><tr><th>Code</th></tr></thead>");
                 var tbody = $("<tbody></tbody>");
                 for (var i = 0; i < Code.length; i++) {
@@ -540,8 +556,9 @@
             var RateID   = $this.prevAll("div.hiddenRowData").find("input[name='RateID']").val();
             var OriginationRateID = $this.prevAll("div.hiddenRowData").find("input[name='OriginationRateID']").val();
             var TimezonesID = $this.prevAll("div.hiddenRowData").find("input[name='TimezonesID']").val();
-            var CityTariff = $this.prevAll("div.hiddenRowData").find("input[name='CityTariff']").val();
-            getArchiveRateTableDIDRates($this,RateID,OriginationRateID,TimezonesID,CityTariff);
+            var City = $this.prevAll("div.hiddenRowData").find("input[name='City']").val();
+            var Tariff = $this.prevAll("div.hiddenRowData").find("input[name='Tariff']").val();
+            getArchiveRateTableDIDRates($this,RateID,OriginationRateID,TimezonesID,City,Tariff);
         });
 
         $(".numbercheck").keypress(function (e) {
@@ -566,6 +583,20 @@
                 rateDataTable();
             }
         });
+
+        $(document).on('change','#rate-table-search select[name="ApprovedStatus1"],#rate-table-search select[name="ApprovedStatus2"]',function(ev) {
+            var Status;
+            if($('#rate-table-search select[name="ApprovedStatus1"]').val() == {{RateTable::RATE_STATUS_APPROVED}}) {
+                Status = $('#rate-table-search select[name="ApprovedStatus1"]').val();
+                $('#ApprovedStatus2-Box').hide();
+                $('.filter_naa').show();
+            } else {
+                Status = $('#rate-table-search select[name="ApprovedStatus2"]').val();
+                $('#ApprovedStatus2-Box').show();
+                $('.filter_naa').hide();
+            }
+            $('#rate-table-search [name="ApprovedStatus"]').val(Status);
+        });
     });
 
     function rateDataTable() {
@@ -581,13 +612,15 @@
         $searchFilter.OriginationDescription = $("#rate-table-search input[name='OriginationDescription']").val();
         $searchFilter.Code = $("#rate-table-search input[name='Code']").val();
         $searchFilter.Description = $("#rate-table-search input[name='Description']").val();
-        $searchFilter.CityTariff = $("#rate-table-search input[name='CityTariff']").val();
+        $searchFilter.AccessType = $("#rate-table-search select[name='AccessType']").val();
+        $searchFilter.City = $("#rate-table-search select[name='City']").val();
+        $searchFilter.Tariff = $("#rate-table-search select[name='Tariff']").val();
         $searchFilter.Country = $("#rate-table-search select[name='Country']").val();
         $searchFilter.TrunkID = $("#rate-table-search [name='TrunkID']").val();
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
-        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val() != undefined ? $("#rate-table-search select[name='ApprovedStatus']").val() : '';
+        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search [name='ApprovedStatus']").val();
         $searchFilter.ratetablepageview = ratetablepageview;
 
         data_table = $("#table-4").DataTable({
@@ -601,14 +634,14 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "CityTariff", "value": $searchFilter.CityTariff});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "City", "value": $searchFilter.City},{"name": "Tariff", "value": $searchFilter.Tariff},{"name": "AccessType", "value": $searchFilter.AccessType});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "CityTariff", "value": $searchFilter.CityTariff});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "City", "value": $searchFilter.City},{"name": "Tariff", "value": $searchFilter.Tariff},{"name": "AccessType", "value": $searchFilter.AccessType});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[3, "asc"]],
+            "aaSorting": [[4, "asc"]],
             "aoColumns":
                     [
                         {"bSortable": false,
@@ -616,127 +649,126 @@
                                 var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[27] == 2) {
+                                if (full[28] == {{RateTable::RATE_STATUS_REJECTED}}) {
                                     html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
-                                } else if (full[27] == 1) {
+                                } else if (full[28] == {{RateTable::RATE_STATUS_APPROVED}}) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
-                                } else if (full[27] == 0) {
+                                } else if (full[28] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                     html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
+                                } else if (full[28] == {{RateTable::RATE_STATUS_DELETE}}) {
+                                    html += '<i class="fa fa-trash" title="Awaiting Approval Delete" style="color: red; "></i>';
                                 }
                                 @endif
 
                                 return html;
                             }
                         }, //0Checkbox
-                        {}, //1 Country
+                        {}, //1 AccessType
+                        {}, //2 Country
                         {
                             mRender: function(id, type, full) {
-                                return full[2];
+                                return full[3];
                             },
                             "className":      'details-control',
                             "orderable":      false,
                             "data": null,
                             "defaultContent": ''
-                        }, //2 Origination Code
-                        {"bVisible" : bVisible}, //3 Origination description
-                        {
-                            "bVisible" : true,
-                            mRender: function(id, type, full) {
-                                return full[4];
-                            }
-                        }, //4 Destination Code
-                        {"bVisible" : bVisible}, //5 Destination description
-                        {}, //6 CityTariff
-                        {
-                            mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[42] + col; else return '';
-                            }
-                        }, //7 OneOffCost,
+                        }, //3 Origination Code
+                        {}, //4 Destination Code
+                        {}, //5 City
+                        {}, //6 Tariff
+                        {}, //7 Timezones Title
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[43] + col; else return '';
                             }
-                        }, //8 MonthlyCost,
+                        }, //8 OneOffCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[44] + col; else return '';
                             }
-                        }, //9 CostPerCall,
+                        }, //9 MonthlyCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[45] + col; else return '';
                             }
-                        }, //10 CostPerMinute,
+                        }, //10 CostPerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[46] + col; else return '';
                             }
-                        }, //11 SurchargePerCall,
+                        }, //11 CostPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[47] + col; else return '';
                             }
-                        }, //12 SurchargePerMinute,
+                        }, //12 SurchargePerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[48] + col; else return '';
                             }
-                        }, //13 OutpaymentPerCall,
+                        }, //13 SurchargePerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[49] + col; else return '';
                             }
-                        }, //14 OutpaymentPerMinute,
+                        }, //14 OutpaymentPerCall,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[50] + col; else return '';
                             }
-                        }, //15 Surcharges,
+                        }, //15 OutpaymentPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[51] + col; else return '';
                             }
-                        }, //16 Chargeback,
+                        }, //16 Surcharges,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[52] + col; else return '';
                             }
-                        }, //17 CollectionCostAmount,
-                        {}, //18 CollectionCostPercentage,
+                        }, //17 Chargeback,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[53] + col; else return '';
                             }
-                        }, //19 RegistrationCostPerNumber,
-                        {}, //20 Effective Date
+                        }, //18 CollectionCostAmount,
+                        {}, //19 CollectionCostPercentage,
+                        {
+                            mRender: function(col, type, full) {
+                                if(col != null && col != '') return full[54] + col; else return '';
+                            }
+                        }, //20 RegistrationCostPerNumber,
+                        {}, //21 Effective Date
                         {
                             "bVisible" : false
-                        }, //21 End Date
+                        }, //22 End Date
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[22] = full[22] != null ? full[22] : '';
                                 full[23] = full[23] != null ? full[23] : '';
-                                if(full[22] != '' && full[23] != '')
-                                    return full[23] + '<br/>' + full[22]; // modified by/modified date
+                                full[24] = full[24] != null ? full[24] : '';
+                                if(full[23] != '' && full[24] != '')
+                                    return full[24] + '<br/>' + full[23]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //22/23 modified by/modified date
+                        }, //24/23 modified by/modified date
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[28] = full[28] != null ? full[28] : '';
                                 full[29] = full[29] != null ? full[29] : '';
-                                if(full[28] != '' && full[29] != '')
-                                    return full[28] + '<br/>' + full[29]; // Approved Status Changed By/Approved Date
+                                full[30] = full[30] != null ? full[30] : '';
+                                if(full[29] != '' && full[30] != '')
+                                    return full[29] + '<br/>' + full[30]; // Approved Status Changed By/Approved Date
                                 else
                                     return '';
                             }
-                        }, //24/25 Approved Status Changed By/Approved Date
+                        }, //29/30 Approved Status Changed By/Approved Date
                         @endif
                         {
+                            "bSortable" : false,
                             mRender: function(id, type, full) {
                                 $('#actionheader').attr('width','10%');
                                 var action, edit_, delete_;
@@ -747,17 +779,23 @@
                                 action += '</div>';
 
                                 clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_did_rate')}}";
-                                clerRate_ = clerRate_.replace('{id}', full[24]);
+                                clerRate_ = clerRate_.replace('{id}', full[25]);
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
-                                    action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                    // if approved rates then show Edit button else hide it
+                                    if(full[28] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                    }
                                 }
                                 <?php } ?>
 
-                                        action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
+                                // if approved rates then show history button else hide it
+                                if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
+                                    action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
+                                }
 
-                                if (full[24] != null && full[24] != 0) {
+                                if (full[25] != null && full[25] != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
                                         action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
@@ -853,6 +891,11 @@
                     for(var i = 0 ; i< list_fields.length; i++){
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger('change');
                     }
+                    // these 2 controls divided from one so, we need to do hard code here
+                    /*if($("#edit-rate-table-form [name='City'] option[value='"+cur_obj.find("input[name='CityTariff']").val()+"']").length != 0)
+                        $("#edit-rate-table-form [name='City']").val(cur_obj.find("input[name='CityTariff']").val()).trigger('change');
+                    if($("#edit-rate-table-form [name='Tariff'] option[value='"+cur_obj.find("input[name='CityTariff']").val()+"']").length != 0)
+                        $("#edit-rate-table-form [name='Tariff']").val(cur_obj.find("input[name='CityTariff']").val()).trigger('change');*/
 
                     var OriginationRateID = cur_obj.find("input[name=OriginationRateID]").val();
                     if(OriginationRateID == null || OriginationRateID == '') {
@@ -911,10 +954,20 @@
                     }
                 });
 
-                if(Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
-                    $('#change-bulk-rate').hide();
+                // if approved rates then show Bulk update button else hide it
+                if($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}}) {
+                    if (Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
+                        $('#change-bulk-rate').hide();
+                    } else {
+                        $('#change-bulk-rate').show();
+                    }
                 } else {
-                    $('#change-bulk-rate').show();
+                    $('#change-bulk-rate').hide();
+                }
+                if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
+                    $('#approve-bulk-rate,#disapprove-bulk-rate').hide();
+                } else {
+                    $('#approve-bulk-rate,#disapprove-bulk-rate').show();
                 }
 
                 if(DiscontinuedRates == 1) {
@@ -929,7 +982,7 @@
         return false;
     }
 
-    function getArchiveRateTableDIDRates($clickedButton,RateID,OriginationRateID,TimezonesID,CityTariff) {
+    function getArchiveRateTableDIDRates($clickedButton,RateID,OriginationRateID,TimezonesID,City,Tariff) {
         //var Codes = new Array();
         var ArchiveRates;
         /*$("#table-4 tr td:nth-child(2)").each(function(){
@@ -950,7 +1003,7 @@
             $.ajax({
                 url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
                 type: 'POST',
-                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&TimezonesID=" + TimezonesID + "&CityTariff=" + CityTariff,
+                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&TimezonesID=" + TimezonesID + "&City=" + City + "&Tariff=" + Tariff,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -969,15 +1022,9 @@
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
 
-                    var header = "<thead><tr><th>Country</th><th>Orig. Code</th>";
-                    if(ratetablepageview == 'AdvanceView') {
-                        header += "<th>Orig. Description</th>";
-                    }
-                    header += "<th>Code</th>";
-                    if(ratetablepageview == 'AdvanceView') {
-                        header += "<th>Description</th>";
-                    }
-                    header += "<th>City/Tariff</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th>";
+                    var header = "<thead><tr><th>Access Type</th><th>Country</th><th>Origination</th>";
+                    header += "<th>Prefix</th>";
+                    header += "<th>City</th><th>Tariff</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th>";
                     if(ratetablepageview == 'AdvanceView') {
                         header += "<th>Modified By/Date</th>";
                     }
@@ -996,16 +1043,12 @@
                             data['OriginationDescription'] = data['OriginationDescription'] != null ? data['OriginationDescription'] : '';
                             var html = "";
                             html += "<tr class='no-selection'>";
+                            html += "<td>" + (data['AccessType'] != null?data['AccessType']:'') + "</td>";
                             html += "<td>" + (data['Country'] != null?data['Country']:'') + "</td>";
                             html += "<td>" + data['OriginationCode'] + "</td>";
-                            if(ratetablepageview == 'AdvanceView') {
-                                html += "<td>" + data['OriginationDescription'] + "</td>";
-                            }
                             html += "<td>" + data['Code'] + "</td>";
-                            if(ratetablepageview == 'AdvanceView') {
-                                html += "<td>" + data['Description'] + "</td>";
-                            }
-                            html += "<td>" + data['CityTariff'] + "</td>";
+                            html += "<td>" + data['City'] + "</td>";
+                            html += "<td>" + data['Tariff'] + "</td>";
                             html += "<td>" + (data['OneOffCost'] != null?data['OneOffCost']:'') + "</td>";
                             html += "<td>" + (data['MonthlyCost'] != null?data['MonthlyCost']:'') + "</td>";
                             html += "<td>" + (data['CostPerCall'] != null?data['CostPerCall']:'') + "</td>";
@@ -1071,25 +1114,35 @@
                 </div>
 
                 <div class="modal-body">
-                    <div class="row" id="box-edit-OriginationRateID" style="display: none;">
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Origination Code</label>
+                                <label class="control-label">Access Type</label>
+                                {{ Form::select('AccessType', array('' => 'Select') + $AccessType, '' , array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="box-edit-OriginationRateID" style="display: none;">
+                            <div class="form-group">
+                                <label class="control-label">Origination</label>
                                 <input type="hidden" class="rateid_list" name="OriginationRateID" />
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
+                        <div class="col-md-6 clear">
+                            <div class="form-group">
+                                <label class="control-label">City</label>
+                                {{ Form::select('City', array('' => 'Select') + $City, '' , array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Tariff</label>
+                                {{ Form::select('Tariff', array('' => 'Select') + $Tariff, '' , array("class"=>"select2")) }}
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Effective Date</label>
                                 <input type="text"  name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">City/Tariff</label>
-                                <input type="text" name="CityTariff" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1208,7 +1261,7 @@
                                 <input type="text" name="CollectionCostPercentage" class="form-control numbercheck" placeholder="">
                             </div>
                         </div>
-                        <div class="col-md-6 clear">
+                        <div class="col-md-6">
                             <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Registration Cost Per Number</label>
                                 <input type="text" name="RegistrationCostPerNumber" class="form-control numbercheck" placeholder="">
@@ -1236,7 +1289,9 @@
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="updateEffectiveDate" value="on">
                     <input type="hidden" name="updateOriginationRateID" value="on">
-                    <input type="hidden" name="updateCityTariff" value="on">
+                    <input type="hidden" name="updateCity" value="on">
+                    <input type="hidden" name="updateTariff" value="on">
+                    <input type="hidden" name="updateAccessType" value="on">
                     <input type="hidden" name="updateOneOffCost" value="on">
                     <input type="hidden" name="updateMonthlyCost" value="on">
                     <input type="hidden" name="updateCostPerCall" value="on">
@@ -1297,25 +1352,37 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
+                                <input type="checkbox" name="updateAccessType" class="" />
+                                <label class="control-label">Access Type</label>
+                                {{ Form::select('AccessType', array('' => 'Select') + $AccessType, '' , array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <input type="checkbox" name="updateOriginationRateID" class="" />
-                                <label class="control-label">Origination Code</label>
+                                <label class="control-label">Origination</label>
                                 <input type="hidden" class="rateid_list" name="OriginationRateID" />
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateCity" class="" />
+                                <label class="control-label">City</label>
+                                {{ Form::select('City', array('' => 'Select') + $City, '' , array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateTariff" class="" />
+                                <label class="control-label">Tariff</label>
+                                {{ Form::select('Tariff', array('' => 'Select') + $Tariff, '' , array("class"=>"select2")) }}
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateEffectiveDate" class="" />
                                 <label class="control-label">Effective Date</label>
                                 <input type="text" name="EffectiveDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="checkbox" name="updateCityTariff" class="" />
-                                <label class="control-label">City/Tariff</label>
-                                <input type="text" name="CityTariff" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1457,10 +1524,10 @@
                                 <input type="text" name="CollectionCostPercentage" class="form-control numbercheck" value="" />
                             </div>
                         </div>
-                        <div class="col-md-6 clear">
+                        <div class="col-md-6">
                             <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateRegistrationCostPerNumber" class="" />
-                                <label class="control-label">Registration Cost Per Number</label>
+                                <label class="control-label">Registration Cost Per Numb</label>
                                 <input type="text" name="RegistrationCostPerNumber" class="form-control numbercheck" value="" />
                             </div>
                             <div class="form-group col-sm-4 component-form-control">
@@ -1510,34 +1577,46 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Origination Code</label>
+                                <label class="control-label">Access Type</label>
+                                {{ Form::select('AccessType', array('' => 'Select') + $AccessType, '' , array("class"=>"select2 select_controls")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Origination</label>
                                 {{--{{ Form::select('RateID', array(), '', array("class"=>"select2 rateid_list")) }}--}}
                                 <input type="hidden" class="rateid_list" name="OriginationRateID" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Code</label>
+                                <label class="control-label">Prefix</label>
                                 {{--{{ Form::select('RateID', array(), '', array("class"=>"select2 rateid_list")) }}--}}
                                 <input type="hidden" class="rateid_list" name="RateID" />
                             </div>
                         </div>
-                        <div class="col-md-6" style="clear: both;">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">City</label>
+                                {{ Form::select('City', array('' => 'Select') + $City, '' , array("class"=>"select2 select_controls")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Tariff</label>
+                                {{ Form::select('Tariff', array('' => 'Select') + $Tariff, '' , array("class"=>"select2 select_controls")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Effective Date</label>
                                 <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 clear">
                             <div class="form-group">
                                 <label class="control-label">Timezone</label>
                                 {{ Form::select('TimezonesID', $Timezone, '', array("class"=>"select2")) }}
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">City/Tariff</label>
-                                <input type="text" name="CityTariff" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">

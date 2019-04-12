@@ -88,7 +88,9 @@ class EmailTemplateController extends \BaseController {
 		}
 		$data['Status'] = isset($data['Status'])?1:0;
         unset($data['Email_template_privacy']);
-		unset($data['email_from']);
+         $data['EmailFrom'] =  isset($data['email_from'])?$data['email_from']:"";
+         unset($data['email_from']);
+
 
         if(!empty($data['SystemType'])){
             if(EmailTemplate::where([ "LanguageID"=>$data['LanguageID'], "SystemType"=>$data['SystemType'], "CompanyID"=>$companyID])->count()){
@@ -103,6 +105,7 @@ class EmailTemplateController extends \BaseController {
         }
 
         if ($obj = EmailTemplate::create($data)) {
+            Log::info(json_encode($data));
             return Response::json(array("status" => "success", "message" => "Template Successfully Created","newcreated"=>$obj));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Template."));

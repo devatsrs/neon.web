@@ -31,11 +31,12 @@ class Timezones extends \Eloquent {
         "11" => "November",
         "12" => "December"
     );
+    
 
     public static $ApplyIF = array(
-        "start" => "Session starts during this timezone",
-        "end" => "Session finished during this timezone",
-        "both" => "Session starts and finished during this timezone"
+        "start" => "Session starts during this time of day",
+        "end" => "Session finished during this time of day",
+        "both" => "Session starts and finished during this time of day"
     );
 
     public static function getTimezonesIDList($nodefault=0,$reverse = 0) {
@@ -56,6 +57,12 @@ class Timezones extends \Eloquent {
             return $Timezone->Title;
         }
         return '';
+    }
+
+    public static function getTimeZoneDropDownList(){
+        $row=array();
+        $row = Timezones::where('Status',1)->orderby('TimezonesID','asc')->lists('Title', 'TimezonesID');
+        return $row;
     }
 
     public static function getTimeZoneByConnectTime($ConnectTime){

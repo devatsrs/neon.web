@@ -33,8 +33,15 @@ class PaymentIntegration {
 		return $this->request->createProfile($data);
 	}
 
+	public function updateProfile($data){
+		return $this->request->updateProfile($data);
+	}
+
 	public function createAccount($data){
 		return $this->request->createAccount($data);
+	}
+	public function updateAccount($data){
+		return $this->request->updateAccount($data);
 	}
 	public function createAccountWithToken($data){
 		return $this->request->createAccountWithToken($data);

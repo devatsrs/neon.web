@@ -13,6 +13,63 @@
                     <label for="field-1" class="control-label">Name</label>
                     <input type="text" name="Name" class="form-control" value="" />
                 </div>
+                @if(!empty($typename))
+
+                   @if($typename == 'Termination')
+
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Country</label>
+                                    {{ Form::select('CountryID', $countries , '' , array("class"=>"select2")) }}
+                                </div>
+                            
+                        
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Type</label>
+                                    {{ Form::select('Type', $terminationtype , '' , array("class"=>"select2")) }}
+                                </div>
+
+                   @endif
+
+                   @if($typename == 'Access')
+
+                   <div class="form-group">
+                                    <label for="field-5" class="control-label">Country</label>
+                                    {{ Form::select('CountryID', $countries , '' , array("class"=>"select2")) }}
+                                </div>
+                            
+                        
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Type</label>
+                                    {{ Form::select('Type', $AccessTypes , '' , array("class"=>"select2")) }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Prefix</label>
+                                    {{ Form::select('Prefix', $Prefix , '' , array("class"=>"select2")) }}
+                                </div>
+                            
+                        
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">City Tarrif</label>
+                                   {{ Form::select('City', $CityTariffs , '' , array("class"=>"select2")) }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">City Tarrif</label>
+                                   {{ Form::select('Tariff', $CityTariffFilter , '' , array("class"=>"select2")) }}
+                                </div>
+                            
+
+                   @endif
+
+                   @if($typename == 'Package')
+                   <div class="form-group">
+                        <label for="field-5" class="control-label">Package</label>
+                         {{ Form::select('PackageID', $Packages , '' , array("class"=>"select2")) }}
+                    </div>
+                   @endif
+
+                @endif
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
                         <i class="entypo-search"></i>
@@ -31,13 +88,13 @@
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a href="{{URL::to('destination_group_set')}}">Destination Group Set </a>
+            <a href="{{URL::to('destination_group_set')}}">Product Group Set </a>
         </li>
         <li class="active">
-            <strong>Destination Group ({{$name}})</strong>
+            <strong>Product Group ({{$name}})</strong>
         </li>
     </ol>
-    <h3>Destination Group</h3>
+    <h3>Product Group </h3>
     <p style="text-align: right;">
         @if(User::checkCategoryPermission('DestinationGroup','Edit'))
         @if($discountplanapplied ==0)
@@ -57,15 +114,22 @@
         <thead>
         <tr>
             <th width="20%">Name</th>
-            <th width="40%">Code</th>
+            <th width="30%">Code</th>
+            <th width="10%">Country</th>
+            <th width="10%">Type</th>
             <th width="10%">Created By</th>
             <th width="10%">Created</th>
-            <th width="20%">Action</th>
+            <th width="30%">Action</th>
         </tr>
         </thead>
         <tbody>
         </tbody>
     </table>
+    <style>
+    #table-extra{padding:0px margin:0px;}
+    .hidediv {display: none;}
+    .showdiv {display: block;}
+    </style>
     <script type="text/javascript">
         /**
          * JQuery Plugin for dataTable
@@ -78,13 +142,15 @@
         var view_url = baseurl + "/destination_group/show/{id}";
         var delete_url = baseurl + "/destination_group/delete/{id}";
         var datagrid_url = baseurl + "/destination_group/ajax_datagrid";
+        var datagrid_extra_url = baseurl + "/destination_group_code/ajax_datagrid";
         var checked='';
+        var newdgid = '';
 
         jQuery(document).ready(function ($) {
 
             $('#filter-button-toggle').show();
 
-            var list_fields  = ["Name","Code","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID"];
+            var list_fields  = ["Name","Code","CountryID","Type","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID"];
             //public_vars.$body = $("body");
             var $search = {};
 
@@ -93,7 +159,15 @@
                 e.preventDefault();
 
                 $search.Name = $("#table_filter").find('[name="Name"]').val();
+                $search.CountryID = $("#table_filter").find('[name="CountryID"]').val();
+                $search.Type = $("#table_filter").find('[name="Type"]').val();
+                $search.Prefix = $("#table_filter").find('[name="Prefix"]').val();
+                $search.City = $("#table_filter").find('[name="City"]').val();
+                $search.Tariff = $("#table_filter").find('[name="Tariff"]').val();
+                $search.PackageID = $("#table_filter").find('[name="PackageID"]').val();
+
                 data_table = $("#table-list").dataTable({
+                    
                     "bDestroy": true,
                     "bProcessing":true,
                     "bServerSide": true,
@@ -105,6 +179,12 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "Name", "value": $search.Name},
+                                {"name": "CountryID", "value": $search.CountryID},
+                                {"name": "Type", "value": $search.Type},
+                                {"name": "Prefix", "value": $search.Prefix},
+                                {"name": "City", "value": $search.City},
+                                {"name": "Tariff", "value": $search.Tariff},
+                                {"name": "PackageID", "value": $search.PackageID},
                                 {"name": "DestinationGroupSetID", "value": '{{$DestinationGroupSetID}}'}
 
                         );
@@ -119,8 +199,10 @@
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
                         {  "bSortable": true },  // 0 Code
-                        {  "bSortable": true },  // 0 Created By
-                        {  "bSortable": true },  // 0 Created
+                        {  "bSortable": true },  // country
+                        {  "bSortable": true },  // type
+                        {  "bSortable": true }, //created by
+                        {  "bSortable": true },  //created at
                         {  "bSortable": false,
                             mRender: function ( id, type, full ) {
                                 action = '<div class = "hiddenRowData" >';
@@ -131,7 +213,7 @@
                                 @if(User::checkCategoryPermission('DestinationGroup','Edit'))
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                                 @endif
-                                action += ' <a href="' + view_url.replace("{id}",id) +'" title="View" class="view-button btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
+                                //action += ' <a href="' + view_url.replace("{id}",id) +'" title="View" class="view-button btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                                 @if($discountplanapplied ==0)
                                 @if(User::checkCategoryPermission('DestinationGroup','Delete'))
                                 action += ' <a href="' + delete_url.replace("{id}",id) +'" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
@@ -169,68 +251,235 @@
             //inst.myMethod('I am a method');
             $('#add-button').click(function(ev){
                 ev.preventDefault();
-                $('#modal-form').trigger("reset");
-                $('#modal-list .panel-title').html('Add Destination Group');
-                $("#modal-form [name=DestinationGroupID]").val("");
-                $("#modal-form [name=DestinationGroupSetID]").val("{{$DestinationGroupSetID}}");
-                $('#modal-form').attr("action",add_url);
+               
+
+                $('#modal-form-data').trigger("reset");
+                $('#modal-list .panel-title').html('Add Product Group');
+                $("#modal-form-data [name=DestinationGroupID]").val("");
+                $("#modal-form-data [name=CountryID]").select2('val',"");
+                $("#modal-form-data [name=Type]").select2('val',"");
+                $("#modal-form-data [name=PackageID]").select2('val',"");
+                $("#modal-form-data [name=DestinationGroupSetID]").val("{{$DestinationGroupSetID}}");
+                $('#modal-form-data').attr("action",add_url);
+                $("#showmodal").hide();
+                $("#showmodal_new").show();
                 $('#modal-list').modal('show');
+                 
 
             });
+            
             $('table tbody').on('click', '.edit-button', function (ev) {
                 ev.preventDefault();
-                $('#modal-form').trigger("reset");
-                var edit_url  = $(this).attr("href");
-                $('#modal-form').attr("action",edit_url);
-                $('#modal-list .panel-title').html('Edit Destination Group');
-                var cur_obj = $(this).prev("div.hiddenRowData");
-                for(var i = 0 ; i< list_fields.length; i++){
-                    $("#modal-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                $('#modal-form-data').trigger("reset");
 
+                var edit_url  = $(this).attr("href");
+                $("#showmodal_new").hide();
+                $("#showmodal").show();
+                $('#modal-form-data').attr("action",edit_url);
+                $('#modal-list .panel-title').html('Edit Product Group');
+                var cur_obj = $(this).prev("div.hiddenRowData");
+
+                for(var i = 0 ; i< list_fields.length; i++){
+                    if(list_fields[i] == 'CountryID')
+                    {   
+
+                        var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
+
+                        
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                        
+                    } 
+                    else if(list_fields[i] == 'Type')
+                    {   
+                        var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                    } 
+
+                    else if(list_fields[i] == 'CityTariff')
+                    {   
+                        var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                    } 
+                    else if(list_fields[i] == 'PackageID')
+                    {   
+                        var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                    } else if(list_fields[i] =='DestinationGroupID') {
+
+                        newdgid = cur_obj.find("[name="+list_fields[i]+"]").val();
+                        $("#modal-form-data [name='"+list_fields[i]+"']").val(cur_obj.find("[name='"+list_fields[i]+"']").val());
+                        
+                    }
+
+                     else {
+                    $("#modal-form-data [name='"+list_fields[i]+"']").val(cur_obj.find("[name='"+list_fields[i]+"']").val());
+                    }
                 }
+                $("#newdata").hide();
+                $("#newdata").empty();
                 $('#modal-list').modal('show');
+                
             });
+
             $('table tbody').on('click', '.delete-button', function (ev) {
                 ev.preventDefault();
                 result = confirm("Are you Sure?");
                 if(result){
                     var delete_url  = $(this).attr("href");
                     submit_ajax_datatable( delete_url,"",0,data_table);
+                    
                 }
-                return false;
             });
 
-            $("#modal-form").submit(function(e){
-                e.preventDefault();
+            $("#modal-form-data").submit(function(err){
+                err.preventDefault();
                 var _url  = $(this).attr("action");
                 submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
+                data_table.fnFilter("",0);
+                $("#newdata").hide();
             });
+
+                $("#showmodal").click(function(){
+                    $("#editdata").empty();
+                    $("#editdata").html("<div align='center'>loading...</div>");
+                var dgsid = $("input[name='DestinationGroupSetID']").val();
+               
+                var stype = "{{$typename}}";
+                    //$("#appcodes").load(baseurl+"/destination_group/loadappliedcodes",{DestinationGroupID:dgid, DestinationGroupSetID:dgsid});
+                    var countries = '{{json_encode($countries)}}';
+                        $("#editdata").load(baseurl+"/destination_group_code/codelist", {DestinationGroupID:newdgid, DestinationGroupSetID:dgsid, iDisplayStart:0, iDisplayLength:0, countries:countries, stype:stype });
+                    $('#modal_codes').modal('show');
+                });
+
+                $("#close_codes").click(function(){
+                    $('#modal_codes').modal('hide');
+                });
+$("#newdata").hide();
+                $("#showmodal_new").click(function(){
+                    $("#newdata").toggle();
+                    $("#newdata").html("<div align='center'>loading...</div>");
+                    var gdsids =  $("[name=DestinationGroupSetID]").val();
+               $("#newdata").load(baseurl+"/destination_group_code/codelists", {DestinationGroupID:0, DestinationGroupSetID:gdsids, iDisplayStart:0, iDisplayLength:0 });
+                    //$('#modal_codes_new').modal('show');
+                });
+                
+                $("#close_codes_new").click(function(){
+                   // $('#modal_codes_new').modal('hide');
+                    
+                });
 
         });
     </script>
 
 
+
+
 @stop
 @section('footer_ext')
     @parent
+
+
     <div class="modal fade in" id="modal-list">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form id="modal-form" method="post">
+                
+<form id="modal-form-data" method="post">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add Destination Group</h4>
+                        <button type="button" class="close" data-dismiss="modal" data-target="#modal-list" aria-hidden="true">×</button>
+                        <h4 class="modal-title">Add Product Group</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Destination Group Name</label>
+                                    <label for="field-5" class="control-label">Name</label>
                                     <input type="text" name="Name" class="form-control" value="" />
                                 </div>
                             </div>
                         </div>
+                        @if(!empty($typename))
+
+                        @if($typename == 'Termination')
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Country</label>
+                                    {{ Form::select('CountryID', $countries , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Type</label>
+                                    {{ Form::select('Type', $terminationtype , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="button" id="showmodal" class="btn btn-primary">Display Codes</button>
+                                <button type="button" id="showmodal_new" class="btn btn-primary">Display Codes</button>
+                                
+                                
+                            </div>
+                        </div>
+
+                        <br>
+                        @elseif($typename == 'Access')
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Country</label>
+                                    {{ Form::select('CountryID', $countries , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Type</label>
+                                    {{ Form::select('Type', $AccessTypes , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Prefix</label>
+                                    {{ Form::select('Prefix', $Prefix , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">City/Tariff</label>
+                                   {{ Form::select('CityTariff', $CityTariffs , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        @elseif($typename == 'Package')
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Package</label>
+                                    {{ Form::select('PackageID', $Packages , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    @else
+                    @endif
+                    @endif
+                    
                     <input type="hidden" name="DestinationGroupID">
                     <input type="hidden" name="DestinationGroupSetID">
                     <div class="modal-footer">
@@ -243,8 +492,33 @@
                             Close
                         </button>
                     </div>
+
+                    <div id="newdata" style="height:400px; overflow-y: scroll;"> </div>
+
                 </form>
             </div>
         </div>
     </div>
+   
+                                
+                            
+                            
+                            <div class="modal fade in" id="modal_codes">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" id="close_codes">×</button>
+                                                <h4 class="modal-title">Select Codes</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                
+                                            <div id="editdata">
+                                               
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            
 @stop

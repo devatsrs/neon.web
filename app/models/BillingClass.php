@@ -7,7 +7,13 @@ class BillingClass extends \Eloquent
     protected $table = 'tblBillingClass';
 
     protected $primaryKey = "BillingClassID";
-
+    
+    
+    public static $messages = array(
+        'RoundChargesAmount.required' =>'The currency field is required',
+        'InvoiceTemplateID.required' =>'Invoice Template  field is required',
+    );
+    
     const  ACCOUNT_BALANCE = 1;
     const  PREFERRED_METHOD = 2;
     public static $AutoPayMethod = array('0'=>'Select' ,self::ACCOUNT_BALANCE => 'Account Balance',self::PREFERRED_METHOD=>'Preferred Method');
@@ -57,6 +63,29 @@ class BillingClass extends \Eloquent
 		}
 		
 		return $final;
+    }
+
+    public static function getBillingClassListByCompanyID($CompanyID=0){
+        if($CompanyID==0){
+            $CompanyID = User::get_companyID();
+        }
+
+        $Count = Reseller::IsResellerByCompanyID($CompanyID);
+        if($Count==0){
+            $DropdownIDList = BillingClass::where(array("CompanyID"=>$CompanyID))->lists('Name', 'BillingClassID');
+        }else{
+            $DropdownIDList = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join){
+                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+                $join->on('b1.IsGlobal','=', DB::raw('1'));
+            })->select(['b1.Name','b1.BillingClassID'])
+                ->where(function($q) use($CompanyID) {
+                    $q->where('b1.CompanyID', $CompanyID)
+                        ->orWhere('b1.IsGlobal', '1');
+                })->whereNull('b2.BillingClassID')
+                ->lists('Name','BillingClassID');
+        }
+        $DropdownIDList = array('' => "Select") + $DropdownIDList;
+        return $DropdownIDList;
     }
 
 }

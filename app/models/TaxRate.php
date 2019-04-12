@@ -10,11 +10,23 @@ class TaxRate extends \Eloquent {
         "taxrate_dropdown1_cache",   // taxrate => taxrateID
         "taxrate_dropdown2_cache",   // taxrate => taxrateID
     );
+
+    const ALL_TAX_FILTER = '';
     const TAX_ALL =1;
     const TAX_USAGE =2;
     const TAX_RECURRING =3;
 
+    const ALL = '';
+    const NL ='NL';
+    const EU = 'EU';
+    const NEU ='NEU';
+
     public static $tax_array = array(self::TAX_ALL=>'All Charges overall Invoice',self::TAX_USAGE=>'USAGE only',self::TAX_RECURRING=>'Recurring');
+
+  public static $tax_array_filter = array(self::ALL_TAX_FILTER=>'All',self::TAX_ALL=>'All Charges overall Invoice',self::TAX_USAGE=>'USAGE only',self::TAX_RECURRING=>'Recurring');
+  
+    public static $tax_countries_array = array(self::NL=>'Netherlands',self::EU=>'EU Country',self::NEU=>'Non EU');
+    public static $tax_countries_filter = array(self::ALL=>'All',self::NL=>'Netherlands',self::EU=>'EU Country',self::NEU=>'Non EU');
 
     static public function checkForeignKeyById($id) {
         /*
@@ -23,8 +35,9 @@ class TaxRate extends \Eloquent {
 
         $hasInBillingClass = BillingClass::whereRaw('FIND_IN_SET(?,TaxRateID)', [$id])->count();
         $hasInInvoiceTaxRate = InvoiceTaxRate::where("TaxRateID",$id)->count();
+        $hasInAccountTaxRate = Account::whereRaw('FIND_IN_SET(?,TaxRateID)', [$id])->count();
 
-        if( intval($hasInBillingClass) > 0 || intval($hasInInvoiceTaxRate) > 0 ){
+        if( intval($hasInBillingClass) > 0 || intval($hasInInvoiceTaxRate) > 0 || intval($hasInAccountTaxRate) > 0){
             return true;
         }else{
             return false;
@@ -46,6 +59,11 @@ class TaxRate extends \Eloquent {
     }
     public static function getTaxRateDropdownIDList($CompanyID){
 
+        $Taxes = TaxRate::where(array('CompanyID'=>$CompanyID))->lists('Title','TaxRateID');
+        $Taxes = array('' => "Select")+ $Taxes;
+        return $Taxes;
+
+        /** remove catch logic due to companyid problem
         if (self::$enable_cache && Cache::has('taxrate_dropdown1_cache')) {
             $admin_defaults = Cache::get('taxrate_dropdown1_cache');
             self::$cache['taxrate_dropdown1_cache'] = $admin_defaults['taxrate_dropdown1_cache'];
@@ -55,8 +73,7 @@ class TaxRate extends \Eloquent {
 
             Cache::forever('taxrate_dropdown1_cache', array('taxrate_dropdown1_cache' => self::$cache['taxrate_dropdown1_cache']));
         }
-
-        return self::$cache['taxrate_dropdown1_cache'];
+        return self::$cache['taxrate_dropdown1_cache']; */
     }
 
     public static function getTaxRateDropdownIDListForInvoice($TaxRateID=0,$CompanyID){

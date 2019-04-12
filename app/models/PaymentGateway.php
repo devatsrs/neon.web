@@ -5,15 +5,18 @@ class PaymentGateway extends \Eloquent {
     protected $primaryKey = "PaymentGatewayID";
     protected $guarded = array('PaymentGatewayID');
     public static $gateways = array('Authorize'=>'AuthorizeNet');
-    const  AuthorizeNet	= 	1;
-    const  Stripe		=	2;
-    const  StripeACH	=	3;
+    const  AuthorizeNet	        = 	1;
+    const  Stripe		        =	2;
+    const  StripeACH	        =	3;
     const  SagePayDirectDebit	=	4;
-    const  FideliPay	=	5;
-    const  PeleCard	    =	6;
+    const  FideliPay	        =	5;
+    const  PeleCard	            =	6;
     const  MerchantWarrior	    =	7;
     const  AuthorizeNetEcheck	=	8;
-    const  FastPay	=	9;
+    const  FastPay	            =	9;
+    const  Ingenico	            =	10;
+    const  WireTransfer	        =	11;
+    const  DirectDebit	        =	12;
     public static $paymentgateway_name = array(''=>'' ,
         self::AuthorizeNet => 'AuthorizeNet',
         self::Stripe=>'Stripe',
@@ -23,7 +26,10 @@ class PaymentGateway extends \Eloquent {
         self::PeleCard=>'PeleCard',
         self::MerchantWarrior=>'MerchantWarrior',
         self::AuthorizeNetEcheck=>'AuthorizeNetEcheck',
-        self::FastPay=>'FastPay'
+        self::FastPay=>'FastPay',
+        self::Ingenico=>'Ingenico',
+        self::WireTransfer=>'WireTransfer',
+        self::DirectDebit=>'DirectDebit'
     );
 
     public static function getName($PaymentGatewayID)

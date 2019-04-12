@@ -14,7 +14,7 @@
                     <input class="form-control" name="account_name"  type="text" >
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">Number</label>
+                    <label for="field-1" class="control-label">Account Number</label>
                     <input class="form-control" name="account_number" type="text"  >
                 </div>
                 <div class="form-group">
@@ -66,14 +66,14 @@
                     <label class="control-label">Status</label>
                     {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"select2 small"))}}
                 </div>
-                <div class="form-group">
+                <div class="form-group hide">
                     @if(User::is_admin())
                         <label for="field-1" class="control-label">Owner</label>
                         {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                     @endif
                 </div>
                 <div class="form-group">
-                    <label for="field-5" class="control-label">IP/CLI</label>
+                    <label for="field-5" class="control-label">Number</label>
                     <input type="text" name="IPCLIText" class="form-control">
                 </div>
                 <div class="form-group">
@@ -436,11 +436,11 @@
                                 
 								
 								<?php if(User::checkCategoryPermission('Opportunity','Add') && CompanyConfiguration::get('ACCOUNT_ADD_OPP') == 1) { ?>
-                                action +='&nbsp;<button class="btn  btn-default btn-xs small_icons" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
+                                //action +='&nbsp;<button class="btn  btn-default btn-xs small_icons" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                                 <?php } ?>
 
                                 <?php if(User::checkCategoryPermission('AccountActivityChart','View') && CompanyConfiguration::get('ACCOUNT_ACT_CHART') == 1){ ?>
-                                action +='&nbsp;<button redirecto="'+chart_+'" class="btn small_icons btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
+                                //action +='&nbsp;<button redirecto="'+chart_+'" class="btn small_icons btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
                                 //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
 
@@ -448,9 +448,9 @@
                                         action +='&nbsp;<button redirecto="'+credit_+'" class="btn small_icons btn-default btn-xs" title="Credit Control" data-id="'+full[0]+'" type="button"> <i class="fa fa-credit-card"></i> </button>';
                                 <?php } ?>
 								
-								if(full[10]==1 || full[11]==1){
-                                 	action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
-                                }
+//								if(full[10]==1 || full[11]==1){
+//                                 	//action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
+//                                }
 
 								<?php if(User::checkCategoryPermission('AccountSubscription','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1) { ?>
                                 action +='&nbsp;<button class="btn btn-default small_icons btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
@@ -466,7 +466,7 @@
                                 action +='&nbsp;<button redirecto="'+log_+'" class="btn small_icons btn-default btn-xs" title="View Account Logs" data-id="'+full[0]+'" type="button"> <i class="fa fa-file-text-o"></i></button>';//entypo-info
                                 <?php } ?>
                                 <?php if(CompanyConfiguration::get('ACCOUNT_MOV_REPORT') == 1){ ?>
-                                action +='&nbsp;<button redirecto="'+movement_report+'" class="btn small_icons btn-default btn-xs" title="Movement Report" data-id="'+full[0]+'" type="button"> <i class="fa fa-calendar-plus-o"></i></button>';//entypo-info
+                                //action +='&nbsp;<button redirecto="'+movement_report+'" class="btn small_icons btn-default btn-xs" title="Movement Report" data-id="'+full[0]+'" type="button"> <i class="fa fa-calendar-plus-o"></i></button>';//entypo-info
                                 <?php } ?>
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
@@ -493,7 +493,7 @@
 
                                 if(full[10]==1 && full[12]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
-                                        action += '&nbsp;<button redirecto="'+customer_rate_+'" title="Customer" class="btn small_icons btn-warning btn-xs"><i class="entypo-user"></i></button>';
+                                        action += '&nbsp;<button redirecto="'+customer_rate_+'" title="Customer" class="btn small_icons btn-warning btn-xs" disabled><i class="entypo-user"></i></button>';
                                     <?php } ?>
                                 }
 
@@ -502,7 +502,12 @@
                                         action += '&nbsp;<button redirecto="'+connection_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></button>';
                                     <?php } ?>
                                 } 								
-								
+				
+                                try{
+                                    if(full[27]==1){
+                                        action += '&nbsp;<button redirecto="" title="Partner" class="btn small_icons btn-info btn-xs"><i class="entypo-users"></i></button>';
+                                    }
+                                }catch(exe){}
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
                                 action +='<input type="hidden" name="address1" value="'+full[13]+'"/>';
                                 action +='<input type="hidden" name="address2" value="'+full[14]+'"/>';
@@ -1468,7 +1473,7 @@
                         </p>
                     </div>
                 </div>
-                <div id="" class="col-md-6">
+                <div id="" class="col-md-6 hide">
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox"  name="ResellerOwnerAddCheck">

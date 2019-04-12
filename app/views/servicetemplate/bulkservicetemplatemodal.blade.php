@@ -17,25 +17,25 @@
         if (selected_currency == '') {
             selected_currency = "NAN";
         }
-        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=service";
-        // alert("url :" + url);
-        $.post(url, function (data, status) {
-            //  var res = data.split('/>');
-            //alert(data);
-            document.getElementById("ServiceIdBulkAction").innerHTML = "" + data;
-            var ServiceId = $("div.hiddenRowData").find("input[name='ServiceIdBulkAction']").val();
-            // alert("ServiceId" + ServiceId);
-            if (ServiceId != '') {
-                $("#add-action-bulk-form [name='ServiceIdBulkAction']").select2().select2('val', ServiceId);
-
-            }else {
-                $("#add-action-bulk-form [name='ServiceIdBulkAction']").select2().select2('val', '');
-            }
-            // console.log(document.getElementById("TemplateDataTabServiceId").innerHTML);
-            // alert(document.getElementById("TemplateDataTabServiceId").innerHTML);
-
-            // $("#serviceBasedOnCurreny").html(data);
-        }, 'html');
+//        url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=service";
+//        // alert("url :" + url);
+//        $.post(url, function (data, status) {
+//            //  var res = data.split('/>');
+//            //alert(data);
+//            document.getElementById("ServiceIdBulkAction").innerHTML = "" + data;
+//            var ServiceId = $("div.hiddenRowData").find("input[name='ServiceIdBulkAction']").val();
+//            // alert("ServiceId" + ServiceId);
+//            if (ServiceId != '') {
+//                $("#add-action-bulk-form [name='ServiceIdBulkAction']").select2().select2('val', ServiceId);
+//
+//            }else {
+//                $("#add-action-bulk-form [name='ServiceIdBulkAction']").select2().select2('val', '');
+//            }
+//            // console.log(document.getElementById("TemplateDataTabServiceId").innerHTML);
+//            // alert(document.getElementById("TemplateDataTabServiceId").innerHTML);
+//
+//            // $("#serviceBasedOnCurreny").html(data);
+//        }, 'html');
         //if (selectData) {
         // editServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
         //  alert('editServiceId' + editServiceId);
@@ -309,13 +309,18 @@
                                         <table width="100%">
                                             <tr>
                                                 <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="Service" value=""> Service</label></td>
-                                                <td width="30%"><select  id="ServiceIdBulkAction" name="ServiceIdBulkAction" class="form-control"></select></td>
+                                                <td width="30%">
+                                                    {{ Form::select('ServiceIdBulkAction',$servicesTemplate,array(), array("id" => "ServiceIdBulkAction", "class"=>"form-control")) }}
+                                                    {{--<select  id="ServiceIdBulkAction" name="ServiceIdBulkAction" class="form-control"></select>--}}
+                                                </td>
                                                 <td width="5%">&nbsp;</td>
-                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="OutboundTraiff" value=""> Outbound Ratetable</label></td>
+                                                <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="OutboundTraiff" value=""> Termination Ratetable</label></td>
                                                 <td width="35%">
+                                                    {{ Form::select('OutboundRateTableIdBulkAction',$rateTable,array(), array("id" => "OutboundRateTableIdBulkAction", "class"=>"form-control")) }}
 
-                                                    <select id="OutboundRateTableIdBulkAction" name="OutboundRateTableIdBulkAction" class="form-control">
-                                                    </select>
+
+                                                    {{--<select id="OutboundRateTableIdBulkAction" name="OutboundRateTableIdBulkAction" class="form-control">--}}
+                                                    {{--</select>--}}
                                                 </td>
                                             </tr>
                                         </table>
@@ -408,7 +413,7 @@
                                             <thead>
                                             <tr>
                                                 <td width="35%">Category</td>
-                                                <td width="35%">Tariff</td>
+                                                <td width="35%">Ratetable</td>
                                                 <td width="20%">Actions</td>
                                                 <input type="hidden" id="selectedcategotyTariffBulkAction" name="selectedcategotyTariffBulkAction" value=""/>
                                             </tr>

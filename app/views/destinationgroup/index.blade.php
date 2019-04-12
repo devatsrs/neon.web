@@ -14,9 +14,14 @@
                     <input type="text" name="Name" class="form-control" value="" />
                 </div>
                 <div class="form-group">
+                    <label for="field-5" class="control-label">Type</label>
+                    {{ Form::select('RateTypeID', $Ratetypes , '' , array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <label for="field-5" class="control-label">Codedeck</label>
                     {{ Form::select('CodedeckID', $CodedeckList , '' , array("class"=>"select2")) }}
                 </div>
+                
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
                         <i class="entypo-search"></i>
@@ -35,10 +40,10 @@
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <strong>Destination Group Set</strong>
+            <strong>Product Group Set</strong>
         </li>
     </ol>
-    <h3>Destination Group Set</h3>
+    <h3>Product Group Set</h3>
 
     @include('includes.errors')
     @include('includes.success')
@@ -53,8 +58,9 @@
         <tr>
             <th width="20%">Name</th>
             <th width="20%">CodeDeck</th>
+            <th width="10%">Type</th>
             <th width="20%">Created By</th>
-            <th width="20%">Created</th>
+            <th width="10%">Created</th>
             <th width="20%">Action</th>
         </tr>
         </thead>
@@ -73,7 +79,7 @@
 
             $('#filter-button-toggle').show();
 
-            var list_fields  = ["Name","CodeDeckName","CreatedBy","created_at","DestinationGroupSetID","CodedeckID","CompanyID"];
+            var list_fields  = ["Name","CodeDeckName","RateTypeID","CreatedBy","created_at","DestinationGroupSetID","CodedeckID","CompanyID"];
             //public_vars.$body = $("body");
             var $search = {};
             var add_url = baseurl + "/destination_group_set/store";
@@ -86,6 +92,8 @@
 
                 $search.Name = $("#table_filter").find('[name="Name"]').val();
                 $search.CodedeckID = $("#table_filter").find('[name="CodedeckID"]').val();
+                $search.RateTypeID = $("#table_filter").find('[name="RateTypeID"]').val();
+
                 data_table = $("#table-list").dataTable({
                     "bDestroy": true,
                     "bProcessing":true,
@@ -98,13 +106,15 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "Name", "value": $search.Name},
-                                {"name": "CodedeckID", "value": $search.CodedeckID}
+                                {"name": "CodedeckID", "value": $search.CodedeckID},
+                                {"name": "RateTypeID", "value": $search.RateTypeID}
 
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "Name", "value": $search.Name},
                                 {"name": "CodedeckID", "value": $search.CodedeckID},
+                                {"name": "RateTypeID", "value": $search.RateTypeID},
                                 {"name": "Export", "value": 1}
                         );
 
@@ -112,6 +122,7 @@
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
                         {  "bSortable": true },  // 0 Codedeck
+                        {  "bSortable": true },
                         {  "bSortable": true },  // 0 Created By
                         {  "bSortable": true },  // 0 Created
                         {  "bSortable": false,
@@ -126,7 +137,7 @@
                                 @endif
                                 action += ' <a href="' + view_url.replace("{id}",id) +'" title="View" class="view-button btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                                 @if(User::checkCategoryPermission('DestinationGroup','Delete'))
-                                if(full[7]== null) {
+                                if(full[8]== null) {
                                     action += ' <a href="' + delete_url.replace("{id}", id) + '" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                 }
                                 @endif
@@ -161,7 +172,7 @@
             $('#add-button').click(function(ev){
                 ev.preventDefault();
                 $('#modal-form').trigger("reset");
-                $('#modal-list h4').html('Add Destination Group Set');
+                $('#modal-list h4').html('Add Product Group Set');
                 $("#modal-form [name=DestinationGroupSetID]").val("");
                 $("#modal-form [name=CodedeckID]").select2().select2('val',"");
 
@@ -174,7 +185,7 @@
                 $('#modal-form').trigger("reset");
                 var edit_url  = $(this).attr("href");
                 $('#modal-form').attr("action",edit_url);
-                $('#modal-list h4').html('Edit Destination Group Set');
+                $('#modal-list h4').html('Edit Product Group Set');
                 var cur_obj = $(this).prev("div.hiddenRowData");
                 for(var i = 0 ; i< list_fields.length; i++){
                     $("#modal-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
@@ -203,6 +214,14 @@
                 data_table.fnFilter('', 0);
             });
 
+            $("select[name='RateTypeID']").change(function(){
+                if($(this).val() == 2 || $(this).val() == 3){
+                $("#CodeDeckhide").hide();
+                } else {
+                    $("#CodeDeckhide").show();
+                }
+            });
+
 
         });
     </script>
@@ -216,10 +235,26 @@
                 <form id="modal-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add Destination Group Set</h4>
+                        <h4 class="modal-title">Add Product Group Set</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Product Group Set Name</label>
+                                    <input type="text" name="Name" class="form-control" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 non-editable">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Type</label>
+                                    {{ Form::select('RateTypeID', $Ratetypes , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="CodeDeckhide">
                             <div class="col-md-12 non-editable">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Codedeck</label>
@@ -227,14 +262,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Destination Group Set Name</label>
-                                    <input type="text" name="Name" class="form-control" value="" />
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
                     <input type="hidden" name="DestinationGroupSetID">
                     <div class="modal-footer">

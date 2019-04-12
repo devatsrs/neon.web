@@ -9,7 +9,9 @@ class BillingSubscriptionController extends \BaseController {
         //$FdilterAdvance = $data['FilterAdvance']== 'true'?1:0;
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = array("Name", "AnnuallyFee", "QuarterlyFee", "MonthlyFee", "WeeklyFee", "DailyFee", "Advance");
+        $columns = array("Name", "AnnuallyFee", "QuarterlyFee", "MonthlyFee", "WeeklyFee", "DailyFee", "Advance", 
+            "OneOffCurrencyID");
+
         $sort_column = $columns[$data['iSortCol_0']];
         if($data['FilterAdvance'] == ''){
             $data['FilterAdvance'] = 'null';
@@ -17,8 +19,9 @@ class BillingSubscriptionController extends \BaseController {
         if($data['FilterAppliedTo'] == ''){
             $data['FilterAppliedTo'] = 'null';
         }
+        
 
-        $query = "call prc_getBillingSubscription (".$CompanyID.",".$data['FilterAdvance'].",'".$data['FilterName']."','".intval($data['FilterCurrencyID'])."',".$data['FilterAppliedTo'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_getBillingSubscription (".$CompanyID.",".$data['FilterAdvance'].",'".$data['FilterName']."','".intval($data['FilterCurrencyID'])."',".intval($data['FilterOneOffCurrencyID']).",".$data['FilterAppliedTo'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
@@ -39,14 +42,13 @@ class BillingSubscriptionController extends \BaseController {
             })->download('xls');*/
         }
         $query .=',0)';
-
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
 
     public function index() {
 
-        $currencies 			= 	Currency::getCurrencyDropdownIDList();
-		$AdvanceSubscription 	= 	json_encode(BillingSubscription::$Advance);
+        $currencies = 	Currency::getCurrencyDropdownIDList();
+		$AdvanceSubscription = json_encode(BillingSubscription::$Advance);
         return View::make('billingsubscription.index', compact('currencies','AdvanceSubscription'));
 
     }
@@ -54,6 +56,7 @@ class BillingSubscriptionController extends \BaseController {
     public function create()
     {
         $data = Input::all();
+
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         unset($data['SubscriptionID']);
@@ -117,15 +120,21 @@ class BillingSubscriptionController extends \BaseController {
             'MonthlyFee' => 'required|numeric',
             'WeeklyFee' => 'required|numeric',
             'DailyFee' => 'required|numeric',
-            'CurrencyID' => 'required',
             'InvoiceLineDescription' => 'required',
             'ActivationFee' => 'required|numeric',
+            'RecurringCurrencyID' => 'required',
+            'OneOffCurrencyID' => 'required'
+        );
+        $messages = array(
+            'OneOffCurrencyID.required' => "Activation Fee Currency is Required", 
+            'RecurringCurrencyID.required' => "Recurring Fee Currency is Required",
+            'ActivationFee.required' => 'Activation Fee Required'
         );
         $data['Advance'] = isset($data['Advance']) ? 1 : 0;
         $verifier = App::make('validation.presence');
         $verifier->setConnection('sqlsrv2');
 
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, $rules, $messages);
         $validator->setPresenceVerifier($verifier);
 
         if ($validator->fails()) {
@@ -157,7 +166,7 @@ class BillingSubscriptionController extends \BaseController {
         }else{
             unset($data['Image']);
         }
-
+       
         if ($BillingSubscription = BillingSubscription::create($data)) {
 
             if(isset($DynamicFields) && count($DynamicFields)>0) {
@@ -274,15 +283,23 @@ class BillingSubscriptionController extends \BaseController {
                 'MonthlyFee' => 'required|numeric',
                 'WeeklyFee' => 'required|numeric',
                 'DailyFee' => 'required|numeric',
-                'CurrencyID' => 'required',
+               // 'CurrencyID' => 'required',
                 'InvoiceLineDescription' => 'required',
                 'ActivationFee' => 'required|numeric',
+                'RecurringCurrencyID' => 'required',
+                'OneOffCurrencyID' => 'required'
+
+            );
+            $messages = array(
+            'OneOffCurrencyID.required' => "Activation Fee Currency is Required", 
+            'RecurringCurrencyID.required' => "Recurring Fee Currency is Required",
+            'ActivationFee.required' => 'Activation Fee Required'
             );
             $data['Advance'] = isset($data['Advance']) ? 1 : 0;
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
 
-            $validator = Validator::make($data, $rules);
+            $validator = Validator::make($data, $rules, $messages);
             $validator->setPresenceVerifier($verifier);
 
             if ($validator->fails()) {

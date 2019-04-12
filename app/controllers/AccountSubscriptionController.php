@@ -21,21 +21,31 @@ public function main() {
     public function ajax_datagrid($id){
         $data = Input::all();        
         $id = $data['account_id'];
+        
         $select = [
             "tblAccountSubscription.AccountSubscriptionID as AID",
-            "tblAccountSubscription.SequenceNo","tblBillingSubscription.Name",
+            "tblBillingSubscription.Name",
             "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",
-            DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),
-            "tblAccountSubscription.ActivationFee","CurrencyTbl1.Code as OneOffCurrency",
-            "tblAccountSubscription.DailyFee", "tblAccountSubscription.WeeklyFee",
-            "tblAccountSubscription.MonthlyFee","CurrencyTbl2.Code as RecurringCurrency",
-            "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
+            DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),            
+            "tblAccountSubscription.ActivationFee",
+            
+            "tblAccountSubscription.MonthlyFee",
+            
             "tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID",
+            "tblAccountSubscription.SequenceNo",
+            "CurrencyTbl1.Code as OneOffCurrency",
+            
+            "tblAccountSubscription.DailyFee", "tblAccountSubscription.WeeklyFee",
+            "CurrencyTbl2.Code as RecurringCurrency",
+            
+            "tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee",
             "tblAccountSubscription.ExemptTax","tblAccountSubscription.Status",
             "tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType",
-            "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID"
+            "tblAccountSubscription.OneOffCurrencyID","tblAccountSubscription.RecurringCurrencyID",
+            "CurrencyTbl1.Symbol as OneOffCurrencySymbol","CurrencyTbl2.Symbol as RecurringCurrencySymbol",
         ];
-
+        
+        
         $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);
 
         $subscriptions->leftJoin('speakintelligentRM.tblCurrency as CurrencyTbl1', 'tblAccountSubscription.OneOffCurrencyID', '=', 'CurrencyTbl1.CurrencyID');
@@ -117,39 +127,45 @@ public function main() {
 	public function store($id)
 	{
 		$data = Input::all();
-        $data["AccountID"] = $id;
-        $data["CreatedBy"] = User::get_user_full_name();
-        $data['ExemptTax'] = isset($data['ExemptTax']) ? 1 : 0;
-        $data['Status'] = isset($data['Status']) ? 1 : 0;
-
-        $dynamiceFields = array();
-        AccountSubscription::$rules['SubscriptionID'] = 'required|unique:tblAccountSubscription,AccountSubscriptionID,NULL,SubscriptionID,'.$data['SubscriptionID'].',AccountID,'.$data["AccountID"];
-
+                $data["AccountID"] = $id;
+                $data["CreatedBy"] = User::get_user_full_name();
+                $data['ExemptTax'] = isset($data['ExemptTax']) ? 1 : 0;
+                $data['Status'] = isset($data['Status']) ? 1 : 0;
+                
         $verifier = App::make('validation.presence');
         $verifier->setConnection('sqlsrv2');
-
+        
         $rules = array(
-            'AccountID'         =>      'required',
+           // 'AccountID'         =>      'required',
             'SubscriptionID'    =>  'required',
-            'StartDate'               =>'required',
-			'MonthlyFee' => 'required|numeric',
-            'WeeklyFee' => 'required|numeric',
+            'ActivationFee' => 'required|numeric',
             'DailyFee' => 'required|numeric',
-			 'ActivationFee' => 'required|numeric',
-			 'Qty' => 'required|numeric',
-
-            //'EndDate'               =>'required'
+            'WeeklyFee' => 'required|numeric',
+            'MonthlyFee' => 'required|numeric',
+            'QuarterlyFee' => 'required|numeric',
+            'AnnuallyFee' => 'required|numeric',
+            'OneOffCurrencyID' => 'required',
+            'RecurringCurrencyID' => 'required',
+            'StartDate'               =>'required',
+            'EndDate'               =>'required',
         );
 //        if(!empty($data['EndDate'])) {
 //            $rules['StartDate'] = 'required|date|before:EndDate';
 //            $rules['EndDate'] = 'required|date';
 //        }
-//        $validator = Validator::make($data, $rules);
-//        $validator->setPresenceVerifier($verifier);
-//
-//        if ($validator->fails()) {
-//            return json_validator_response($validator);
-//        }
+        $validator = Validator::make($data, $rules);
+        $validator->setPresenceVerifier($verifier);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        
+        $dynamiceFields = array();
+        AccountSubscription::$rules['SubscriptionID'] = 'required|unique:tblAccountSubscription,AccountSubscriptionID,NULL,SubscriptionID,'.$data['SubscriptionID'].',AccountID,'.$data["AccountID"];
+
+        
+
+        
         unset($data['Status_name']);
         if(empty($data['SequenceNo'])){
             $SequenceNo = AccountSubscription::where(['AccountID'=>$data["AccountID"]])->max('SequenceNo');
@@ -291,17 +307,19 @@ public function main() {
             $verifier->setConnection('sqlsrv2');
 
             $rules = array(
-                'AccountID' => 'required',
-                'SubscriptionID' => 'required',
-                'StartDate' => 'required',
-                'MonthlyFee' => 'required|numeric',
-                'WeeklyFee' => 'required|numeric',
-                'DailyFee' => 'required|numeric',
-                'ActivationFee' => 'required|numeric',
-                'Qty' => 'required|numeric',
-
-                //'EndDate' => 'required'
-            );
+                // 'AccountID'         =>      'required',
+                 'SubscriptionID'    =>  'required',
+                 'ActivationFee' => 'required|numeric',
+                 'DailyFee' => 'required|numeric',
+                 'WeeklyFee' => 'required|numeric',
+                 'MonthlyFee' => 'required|numeric',
+                 'QuarterlyFee' => 'required|numeric',
+                 'AnnuallyFee' => 'required|numeric',
+                 'OneOffCurrencyID' => 'required',
+                 'RecurringCurrencyID' => 'required',
+                 'StartDate'               =>'required',
+                 'EndDate'               =>'required',
+             );
             if (!empty($data['EndDate'])) {
                 $rules['StartDate'] = 'required|date|before:EndDate';
                 $rules['EndDate'] = 'required|date';
@@ -726,7 +744,8 @@ public function main() {
 	
 	function GetAccountSubscriptions($id){
 		$account = Account::find($id);
-		$subscriptions =  BillingSubscription::getSubscriptionsArray($account->CompanyId,$account->CurrencyId);	
+		$subscriptions =  BillingSubscription::getSubscriptionsArray($account->CompanyId,$account->CurrencyId);
+
 		return $subscriptions;
 	}
 

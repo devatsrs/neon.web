@@ -8,10 +8,10 @@ class AccountPayout extends \Eloquent
     public static $StatusActive = 1;
     public static $StatusDeactive = 0;
     public static  $AccountPayoutBankRules = array(
-    'AccountNumber'     => 'required|digits_between:6,19',
-    'RoutingNumber'     => 'required',
-    'AccountHolderType' => 'required',
-    'AccountHolderName' => 'required',
+        'AccountNumber'     => 'required|digits_between:6,19',
+        'RoutingNumber'     => 'required',
+        'AccountHolderType' => 'required',
+        'AccountHolderName' => 'required',
     );
 
     public static function getActivePayoutAccounts($AccountID,$PaymentGatewayID)
@@ -35,6 +35,145 @@ class AccountPayout extends \Eloquent
     {
         $AccountPayout = AccountPayout::where(array('AccountPaymentProfileID' => $AccountPayoutID))->first();
         return $AccountPayout;
+    }
+
+
+    public static function createPayoutInvoice($data){
+
+        $InvoiceData["CompanyID"] = $data['CompanyID'];
+        $InvoiceData["AccountID"] = $data['AccountID'];
+        $CreatedBy = "API";
+        $Account = Account::find($data["AccountID"]);
+        $BillingClassID = AccountBilling::getBillingClassID($data['AccountID']);
+        $InvoiceTemplateID = $BillingClassID != false ? BillingClass::getInvoiceTemplateID($BillingClassID) : false;
+
+        if($InvoiceTemplateID == false)
+            return ["status"  => "failed", "message" => "Account don't have billing class."];
+
+        $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+
+        $message = $InvoiceTemplate->InvoiceTo;
+        $replace_array = Invoice::create_accountdetails($Account);
+        $text = Invoice::getInvoiceToByAccount($message, $replace_array);
+        $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
+
+        $prefix = $InvoiceTemplate->InvoiceNumberPrefix;
+
+        $InvoiceData["InvoiceNumber"] = InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID);
+        $InvoiceData["FullInvoiceNumber"] = $prefix . $InvoiceData["InvoiceNumber"];
+        $InvoiceData["Address"]       = $InvoiceToAddress;
+        $InvoiceData["Description"]   = "Out Payment";
+        $InvoiceData["IssueDate"]     = date('Y-m-d');
+        $InvoiceData["SubTotal"]      = -floatval($data["Amount"]);
+        $InvoiceData["TotalDiscount"] = 0;
+        $InvoiceData["TotalTax"]      = 0;
+        $InvoiceData["ItemInvoice"]   = Invoice::ITEM_INVOICE;
+        $InvoiceData["BillingClassID"]= $BillingClassID;
+        $InvoiceData["InvoiceStatus"] = Invoice::SEND;
+        $InvoiceData["GrandTotal"]    = -floatval($data["Amount"]);
+        $InvoiceData['InvoiceTotal']  = -floatval($data["Amount"]);
+        $InvoiceData["CurrencyID"]    = $Account->CurrencyId;
+        $InvoiceData["InvoiceType"]   = Invoice::INVOICE_OUT;
+        $InvoiceData["Note"]          = $CreatedBy;
+        $InvoiceData["CreatedBy"]     = $CreatedBy;
+        $InvoiceData["Terms"]         = $InvoiceTemplate->Terms;
+        $InvoiceData["FooterTerm"]    = $InvoiceTemplate->FooterTerm;
+
+        try{
+            DB::connection('sqlsrv2')->beginTransaction();
+            $Invoice = Invoice::create($InvoiceData);
+
+            $ProductID = Product::where([
+                'CompanyId' => $data['CompanyID'],
+                'Code'      => 'outpayment'
+            ])->pluck('ProductID');
+
+            if (empty($ProductID)) {
+                $ProductData = array();
+                $ProductData['CompanyID'] = $data['CompanyID'];
+                $ProductData['Name'] = 'OutPayment';
+                $ProductData['Amount'] = '0.00';
+                $ProductData['Description'] = 'Out Payment';
+                $ProductData['Code'] = Product::OutPaymentCode;
+                $product = Product::create($ProductData);
+                $ProductID = $product->ProductID;
+            }
+
+            $InvoiceID = $Invoice->InvoiceID;
+
+            $InvoiceDetailData = $InvoiceTaxRates = array();
+            $InvoiceDetailData['InvoiceID']     = $InvoiceID;
+            $InvoiceDetailData['ProductID']     = $ProductID;
+            $InvoiceDetailData['Description']   = 'Out Payment';
+            $InvoiceDetailData['Price']         = -floatval($data["Amount"]);
+            $InvoiceDetailData['Qty']           = 1;
+            $InvoiceDetailData['TaxAmount']     = 0;
+            $InvoiceDetailData['LineTotal']     = -floatval($data["Amount"]);
+            $InvoiceDetailData['StartDate']     = '';
+            $InvoiceDetailData['EndDate']       = '';
+            $InvoiceDetailData['Discount']      = 0;
+            $InvoiceDetailData['TaxRateID']     = 0;
+            $InvoiceDetailData['TaxRateID2']    = 0;
+            $InvoiceDetailData['TotalMinutes']  = 0;
+            $InvoiceDetailData["CreatedBy"]     = $CreatedBy;
+            $InvoiceDetailData["ModifiedBy"]    = $CreatedBy;
+            $InvoiceDetailData["created_at"]    = date("Y-m-d H:i:s");
+            $InvoiceDetailData['ProductType']   = Product::ITEM;
+            $InvoiceDetailData['ServiceID']     = 0;
+            $InvoiceDetailData['AccountSubscriptionID'] = 0;
+            InvoiceDetail::insert($InvoiceDetailData);
+
+            $invoiceloddata = array();
+            $invoiceloddata['InvoiceID']        = $InvoiceID;
+            $invoiceloddata['Note']             = 'Out Payment. Created By '.$CreatedBy;
+            $invoiceloddata['created_at']       = date("Y-m-d H:i:s");
+            $invoiceloddata['InvoiceLogStatus'] = InVoiceLog::CREATED;
+            InVoiceLog::insert($invoiceloddata);
+
+            $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($InvoiceID);
+            if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                InvoiceTaxRate::insert($InvoiceTaxRates1);
+            }
+
+            Log::info($InvoiceID);
+            $pdf_path = Invoice::generate_pdf($InvoiceID);
+            Log::info($pdf_path);
+            if (empty($pdf_path)) {
+                $error['message'] = 'Failed to generate Invoice PDF File';
+                $error['status'] = 'failed';
+                return $error;
+            } else {
+                $Invoice->where('InvoiceID', $InvoiceID)->update(["PDF" => $pdf_path]);
+            }
+
+            $ubl_path = Invoice::generate_ubl_invoice($Invoice->InvoiceID);
+            Log::info($ubl_path);
+            if (empty($ubl_path)) {
+                $error['message'] = 'Failed to generate Invoice UBL File.';
+                $error['status'] = 'failed';
+                return $error;
+            } else {
+                $Invoice->where('InvoiceID', $InvoiceID)->update(["UblInvoice" => $ubl_path]);
+            }
+
+            DB::connection('sqlsrv2')->commit();
+            $SuccessMsg="Invoice Successfully Created.";
+
+            return [
+                "status"  => "success",
+                "message" => $SuccessMsg,
+                'LastID'  => $InvoiceID
+            ];
+
+        } catch (Exception $e){
+            Log::info($e);
+            DB::connection('sqlsrv2')->rollback();
+            return [
+                "status"  => "failed",
+                "message" => "Problem Creating Invoice. \n" . $e->getMessage()
+            ];
+        }
+
     }
 
 

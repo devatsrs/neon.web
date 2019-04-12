@@ -32,14 +32,14 @@
     @include('includes.errors')
     @include('includes.success')
     <p style="text-align: right;">
-        @if( User::checkCategoryPermission('AuthenticationRule','View'))
-            @if($account->IsCustomer==1 || $account->IsVendor==1)
-                <a href="{{URL::to('accounts/authenticate/'.$account->AccountID.'-'.$AccountService->AccountServiceID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
-                    <i class="entypo-lock"></i>
-                    Authentication Rule
-                </a>
-            @endif
-        @endif
+        {{--@if( User::checkCategoryPermission('AuthenticationRule','View'))--}}
+            {{--@if($account->IsCustomer==1 || $account->IsVendor==1)--}}
+                {{--<a href="{{URL::to('accounts/authenticate/'.$account->AccountID.'-'.$AccountService->AccountServiceID)}}" class="btn btn-primary btn-sm btn-icon icon-left">--}}
+                    {{--<i class="entypo-lock"></i>--}}
+                    {{--Authentication Rule--}}
+                {{--</a>--}}
+            {{--@endif--}}
+        {{--@endif--}}
         <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="save_service">
             <i class="entypo-floppy"></i>
             Save
@@ -90,7 +90,11 @@
                             <div class="col-md-4">
                                 <textarea class="form-control" name="ServiceDescription" rows="5" placeholder="Description">{{$ServiceDescription}}</textarea>
                             </div>
-
+                            <label for="field-1" class="col-md-2 control-label">Order ID
+                            </label>
+                            <div class="col-md-2">
+                                <input type="text" name="ServiceOrderID" value="{{$AccountService->ServiceOrderID}}" class="form-control" id="field-5" placeholder="">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -121,7 +125,7 @@
                         </div>
                     </div>
                 @endif
-                <div class="panel panel-primary auto-payment-hide" data-collapsed="0">
+                <div class="panel panel-primary auto-payment-hide hide" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
                             Contract
@@ -302,10 +306,11 @@
                             </div>
                         </div>
                     </div>
+                </div>
                     <!-- Service Title For Invoice -->
                     <!-- Service subscription billing cycle start-->
 
-                    <div class="panel panel-primary " data-collapsed="0">
+                    <div class="panel panel-primary hide" data-collapsed="0">
                         <div class="panel-heading">
                             <div class="panel-title">
                                 Service Billing Cycle
@@ -317,7 +322,7 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <label for="field-1" class="col-md-2 control-label">
-                                    Billing Cylce
+                                    Billing Cycle
                                 </label>
                                 <div class="col-md-4">
                                     {{Form::select('SubscriptionBillingCycleType',SortBillingType(3),$AccountService->SubscriptionBillingCycleType,array("class"=>"form-control select2"))}}
@@ -363,13 +368,16 @@
                     <!-- Package Section End -->
 
                     <!-- Service subscription billing cycle end-->
+                <div class="hide" data-collapsed="0">
                     @include('accountsubscription.index')
                     @include('accountoneoffcharge.index')
+                </div>
                     @include('accounts.cli_tables')
+                    @include('accounts.packages_tables')
 
                             <!-- Account Option start -->
 
-                    <div class="panel panel-primary additional-optional-section-hide" data-collapsed="0">
+                    <div class="panel panel-primary additional-optional-section-hide hide" data-collapsed="0">
                         <div class="panel-heading">
                             <div class="panel-title">
                                 Additional Options
@@ -395,8 +403,8 @@
 
                                 <div class="panel-body">
                                     <div class="form-group">
-                                        <label for="field-1" class="col-md-2 control-label">Access</label>
-                                        <div class="col-md-4">
+                                        <label for="field-1" class="col-md-2 control-label hide">Access</label>
+                                        <div class="col-md-4 hide">
                                             {{ Form::select('InboundTariffID', $rate_table , $InboundTariffID , array("class"=>"select2")) }}
                                         </div>
 

@@ -9,6 +9,7 @@ $('#save_billing').on("click",function(e){
             $('#add-new-modal-billingclass').modal('hide');
             toastr.success(response.message, "Success", toastr_opts);
             $('select[data-type="billing_class"]').each(function(key,el){
+                
                 if($(el).attr('data-active') == 1) {
                     var newState = new Option(response.data.Name, response.data.BillingClassID, true, true);
                 }else{
@@ -19,6 +20,7 @@ $('#save_billing').on("click",function(e){
                     return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
                 }));
             });
+            window.location.href = baseurl +"/billing_class/edit/"+response.data.BillingClassID;
         }else{
             toastr.error(response.message, "Error", toastr_opts);
         }
@@ -61,6 +63,9 @@ $("#billing-form [name='LowBalanceReminder[Time]']").change(function(){
 });
 $("#billing-form [name='BalanceWarning[Time]']").change(function(){
     populateInterval($(this).val(),'BalanceWarning','billing-form');
+});
+$("#billing-form [name='ZeroBalanceWarning[Time]']").change(function(){
+    populateInterval($(this).val(),'ZeroBalanceWarning','billing-form');
 });
 $("#billing-form [name='QosAlert[Time]']").change(function(){
     populateInterval($(this).val(),'QosAlert','billing-form');

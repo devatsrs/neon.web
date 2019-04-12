@@ -21,6 +21,12 @@ class Package extends \Eloquent
         return $DropdownIDList;
     }
 
+    public static function getDropdownIDListByCompany($CompanyID){
+        $DropdownIDList = Package::where('CompanyId',$CompanyID)->lists('Name', 'PackageId');
+        $DropdownIDList = array('' => "Select") + $DropdownIDList;
+        return $DropdownIDList;
+    }
+
     public static function getAllServices(){
         $Packages = Package::get();
         return $Packages;

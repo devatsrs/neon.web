@@ -387,7 +387,8 @@ Form::macro('selectItem', function($name, $data , $selected , $extraparams )
     return $output;
 });
 
-Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,$nameID='',$initialize=1) {
+Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,$nameID='',$initialize=1,$companyID=0) {
+    
     $small = $compact==1?"small":'';
     $select2 = $initialize==1?"select2":'select22';//for manual initialize set 0.
     $isComposit = 0;
@@ -399,10 +400,20 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
         $name = 'CurrencyID';
         $modal = 'add-new-modal-currency';
         $data = Currency::getCurrencyDropdownIDList();
+    }
+    elseif($type=='OneOffCurrencyID') {
+        $name = 'OneOffCurrencyID';
+        $modal = 'add-new-modal-currency';
+        $data = Currency::getCurrencyDropdownIDList();
+    }
+    elseif($type=='RecurringCurrencyID') {
+        $name = 'RecurringCurrencyID';
+        $modal = 'add-new-modal-currency';
+        $data = Currency::getCurrencyDropdownIDList();
     }elseif($type=='invoice_template'){
         $name = 'InvoiceTemplateID';
         $modal = 'add-new-modal-invoice_template';
-        $data = InvoiceTemplate::getInvoiceTemplateList();
+        $data = InvoiceTemplate::getInvoiceTemplateList($companyID);
     }elseif($type=='email_template'){
         $name = 'TemplateID';
         $modal = 'add-new-modal-template';
@@ -414,7 +425,7 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
     }elseif($type=='billing_class'){
         $name = 'BillingClassID';
         $modal = 'add-new-modal-billingclass';
-        $data = BillingClass::getDropdownIDList();
+        $data = BillingClass::getBillingClassListByCompanyID();
     }elseif($type=='item'){
         $name = 'ProductID';
         $modal = 'add-edit-modal-product';
@@ -524,6 +535,33 @@ function is_pelecard($CompanyID){
 
     $pelecard = new PeleCard($CompanyID);
     if($pelecard->status){
+        return true;
+    }
+    return false;
+}
+
+function is_ingenico($CompanyID){
+
+    $ingenico = new Ingenico($CompanyID);
+    if($ingenico->status){
+        return true;
+    }
+    return false;
+}
+
+function is_wiretransfer($CompanyID){
+
+    $wiretransfer = new WireTransfer($CompanyID);
+    if($wiretransfer->status){
+        return true;
+    }
+    return false;
+}
+
+function is_directdebit($CompanyID){
+
+    $directdebit = new DirectDebit($CompanyID);
+    if($directdebit->status){
         return true;
     }
     return false;
@@ -1434,8 +1472,10 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
     $mail->Timeout		=    25;
   /*if($mail->smtpConnect()){
 		$mail->smtpClose();*/
-	$mail->addAddress($ToEmail); 
-   if ($mail->send()) {
+	$mail->addAddress($ToEmail);
+    $mailSendResponse = $mail->send();
+    Log::info('ValidateSmtp Email Response ' . print_r($mailSendResponse, true));
+   if ($mailSendResponse) {
 	   return "Valid mail settings.";
 	}else{ 
 		return "Invalid mail settings.";

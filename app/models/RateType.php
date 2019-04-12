@@ -14,6 +14,11 @@ class RateType extends \Eloquent {
     CONST DID_ID = 2;
     CONST VOICECALL_ID = 1;
     CONST PACKAGE_ID = 3;
+    
+    public static $getType = array(
+        "1" => "Termination",
+        "2" => "Access"
+    );
 
 
     public static function getRateTypeDropDownList(){

@@ -9,16 +9,28 @@
                 Filter
             </h2>
             <form role="form" id="rate-table-search" action="javascript:void(0);"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
+                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                    <div class="form-group">
+                        <label class="control-label">Status</label>
+                        {{ Form::select('ApprovedStatus1', RateTable::$DDRateStatus1, RateTable::RATE_STATUS_APPROVED, array("class"=>"select2")) }}
+                    </div>
+                    <div class="form-group" id="ApprovedStatus2-Box" style="display: none;">
+                        <label class="control-label">Status</label>
+                        {{ Form::select('ApprovedStatus2', RateTable::$DDRateStatus2, RateTable::RATE_STATUS_APPROVED, array("class"=>"select2")) }}
+                    </div>
+                @endif
+                <input type="hidden" name="ApprovedStatus" value="{{RateTable::RATE_STATUS_APPROVED}}" />
+
                 <div class="form-group">
                     <label for="field-1" class="control-label">Package Name</label>
-                    <input type="text" name="Code" class="form-control" id="field-1" placeholder="" />
+                    <input type="text" name="Code" value="{{Helper::getFormValue('Code')}}" class="form-control" id="field-1" placeholder="" />
                 </div>
                 <div class="form-group">
                     <label class="control-label">Time Of Day</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                 </div>
 
-                <div class="form-group">
+                <div class="form-group filter_naa">
                     <label for="field-1" class="control-label">Discontinued Packages</label>
                     <p class="make-switch switch-small">
                         {{Form::checkbox('DiscontinuedRates', '1', false, array("id"=>"DiscontinuedRates"))}}
@@ -33,18 +45,6 @@
                         <option value="Future">Future</option>
                     </select>
                 </div>
-
-                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                    <div class="form-group">
-                        <label class="control-label">Status</label>
-                        <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
-                            <option value="" selected="selected">All</option>
-                            <option value="1">Approved</option>
-                            <option value="2">Rejected</option>
-                            <option value="0">Awaiting Approval</option>
-                        </select>
-                    </div>
-                @endif
 
                 <div class="form-group">
                     <br/>
@@ -130,6 +130,7 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
+            <th width="10%">Time of Day</th>
             <th width="10%">Package Name</th>
             <th width="5%">One-Off Cost</th>
             <th width="5%">Monthly Cost</th>
@@ -156,7 +157,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','Code','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTablePKGRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'PackageCostPerMinuteCurrency', 'RecordingCostPerMinuteCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'PackageCostPerMinuteCurrencySymbol', 'RecordingCostPerMinuteCurrencySymbol', 'TimezonesID'];
+        var list_fields  = ['ID','TimezoneTitle','Code','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTablePKGRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'PackageCostPerMinuteCurrency', 'RecordingCostPerMinuteCurrency','OneOffCostCurrencySymbol','MonthlyCostCurrencySymbol', 'PackageCostPerMinuteCurrencySymbol', 'RecordingCostPerMinuteCurrencySymbol', 'TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -221,6 +222,7 @@
                     }
 
                     var formData = new FormData($('#clear-bulk-rate-form')[0]);
+                    formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
 
                     $.ajax({
                         url: baseurl + '/rate_tables/{{$id}}/clear_pkg_rate', //Server script to process data
@@ -299,6 +301,7 @@
         //Bulk Form and Edit Single Form Submit
         $("#bulk-edit-rate-table-form,#edit-rate-table-form").submit(function() {
             var formData = new FormData($(this)[0]);
+            formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
             $.ajax({
                 url: baseurl + '/rate_tables/{{$id}}/update_rate_table_pkg_rate', //Server script to process data
                 type: 'POST',
@@ -471,6 +474,20 @@
                 return false;
             }
         });
+
+        $(document).on('change','#rate-table-search select[name="ApprovedStatus1"],#rate-table-search select[name="ApprovedStatus2"]',function(ev) {
+            var Status;
+            if($('#rate-table-search select[name="ApprovedStatus1"]').val() == {{RateTable::RATE_STATUS_APPROVED}}) {
+                Status = $('#rate-table-search select[name="ApprovedStatus1"]').val();
+                $('#ApprovedStatus2-Box').hide();
+                $('.filter_naa').show();
+            } else {
+                Status = $('#rate-table-search select[name="ApprovedStatus2"]').val();
+                $('#ApprovedStatus2-Box').show();
+                $('.filter_naa').hide();
+            }
+            $('#rate-table-search [name="ApprovedStatus"]').val(Status);
+        });
     });
 
     function rateDataTable() {
@@ -480,7 +497,7 @@
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
-        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val() != undefined ? $("#rate-table-search select[name='ApprovedStatus']").val() : '';
+        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search [name='ApprovedStatus']").val();
 
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
@@ -508,68 +525,72 @@
                                 var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[12] == 2) {
+                                if (full[13] == {{RateTable::RATE_STATUS_REJECTED}}) {
                                     html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
-                                } else if (full[12] == 1) {
+                                } else if (full[13] == {{RateTable::RATE_STATUS_APPROVED}}) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
-                                } else if (full[12] == 0) {
+                                } else if (full[13] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                     html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
+                                } else if (full[13] == {{RateTable::RATE_STATUS_DELETE}}) {
+                                    html += '<i class="fa fa-trash" title="Awaiting Approval Delete" style="color: red; "></i>';
                                 }
                                 @endif
 
                                 return html;
                             }
                         }, //0Checkbox
-                        {}, //1 Package Name
-                        {
-                            mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[19] + col; else return '';
-                            }
-                        }, //2 OneOffCost,
+                        {}, //1 Timezones Title
+                        {}, //2 Package Name
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[20] + col; else return '';
                             }
-                        }, //3 MonthlyCost,
+                        }, //3 OneOffCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[21] + col; else return '';
                             }
-                        }, //4 PackageCostPerMinute,
+                        }, //4 MonthlyCost,
                         {
                             mRender: function(col, type, full) {
                                 if(col != null && col != '') return full[22] + col; else return '';
                             }
-                        }, //5 RecordingCostPerMinute,
-                        {}, //6 Effective Date
+                        }, //5 PackageCostPerMinute,
+                        {
+                            mRender: function(col, type, full) {
+                                if(col != null && col != '') return full[23] + col; else return '';
+                            }
+                        }, //6 RecordingCostPerMinute,
+                        {}, //7 Effective Date
                         {
                             "bVisible" : false
-                        }, //7 End Date
+                        }, //8 End Date
                         {
                             "bVisible" : true,
                             mRender: function(id, type, full) {
-                                full[8] = full[8] != null ? full[8] : '';
                                 full[9] = full[9] != null ? full[9] : '';
-                                if(full[8] != '' && full[9] != '')
-                                    return full[9] + '<br/>' + full[8]; // modified by/modified date
+                                full[10] = full[10] != null ? full[10] : '';
+                                if(full[9] != '' && full[10] != '')
+                                    return full[10] + '<br/>' + full[9]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //9/8 modified by/modified date
+                        }, //10/9 modified by/modified date
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         {
                             "bVisible" : true,
                             mRender: function(id, type, full) {
-                                full[13] = full[13] != null ? full[13] : '';
                                 full[14] = full[14] != null ? full[14] : '';
-                                if(full[13] != '' && full[14] != '')
-                                    return full[13] + '<br/>' + full[14]; // Approved Status Changed By/Approved Date
+                                full[15] = full[15] != null ? full[15] : '';
+                                if(full[14] != '' && full[15] != '')
+                                    return full[14] + '<br/>' + full[15]; // Approved Status Changed By/Approved Date
                                 else
                                     return '';
                             }
-                        }, //13/14 Approved Status Changed By/Approved Date
+                        }, //14/15 Approved Status Changed By/Approved Date
                         @endif
                         {
+                            "bSortable" : false,
                             mRender: function(id, type, full) {
                                 $('#actionheader').attr('width','10%');
                                 var action, edit_, delete_;
@@ -580,17 +601,23 @@
                                 action += '</div>';
 
                                 clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_pkg_rate')}}";
-                                clerRate_ = clerRate_.replace('{id}', full[10]);
+                                clerRate_ = clerRate_.replace('{id}', full[11]);
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
-                                    action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                    // if approved rates then show Edit button else hide it
+                                    if(full[13] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                    }
                                 }
                                 <?php } ?>
 
-                                        action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
+                                // if approved rates then show history button else hide it
+                                if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
+                                    action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
+                                }
 
-                                if (full[10] != null && full[10] != 0) {
+                                if (full[11] != null && full[11] != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
                                         action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
@@ -725,10 +752,20 @@
                     }
                 });
 
-                if(Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
-                    $('#change-bulk-rate').hide();
+                // if approved rates then show Bulk update button else hide it
+                if($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}}) {
+                    if (Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
+                        $('#change-bulk-rate').hide();
+                    } else {
+                        $('#change-bulk-rate').show();
+                    }
                 } else {
-                    $('#change-bulk-rate').show();
+                    $('#change-bulk-rate').hide();
+                }
+                if($searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_APPROVED}}) {
+                    $('#approve-bulk-rate,#disapprove-bulk-rate').hide();
+                } else {
+                    $('#approve-bulk-rate,#disapprove-bulk-rate').show();
                 }
 
                 if(DiscontinuedRates == 1) {

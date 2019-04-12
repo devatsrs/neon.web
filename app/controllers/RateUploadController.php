@@ -3,7 +3,9 @@
 class RateUploadController extends \BaseController {
 
     public function index($id=0,$RateUploadType='') {
+        $CompanyID = User::get_companyID();
         $VendorID = $CustomerID = $RatetableID = 0;
+        $rateTable = NULL;
         $Type = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL); // default upload page voice call rate upload
 
         $Vendors            = Account::getOnlyVendorIDList();
@@ -22,7 +24,10 @@ class RateUploadController extends \BaseController {
             $RatetableID    = $id;
 
             if(empty($RatetableID) && count($Ratetables) > 0) {
-                $RatetableID = key($Ratetables);
+                $RatetableID    = key($Ratetables);
+            }
+            if(!empty($RatetableID)) {
+                $rateTable      = RateTable::find($RatetableID);
             }
             if(!empty($RatetableID)) {
                 $Type = Ratetable::find($RatetableID)->Type;
@@ -36,14 +41,31 @@ class RateUploadController extends \BaseController {
         $AllTimezones       = Timezones::getTimezonesIDList();//all timezones
         $RoutingCategory    = RoutingCategory::getCategoryDropdownIDList();//all timezones
         $TypeVoiceCall      = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $ROUTING_PROFILE    = CompanyConfiguration::get('ROUTING_PROFILE', $CompanyID);
+        $CountryPrefix      = array('' => "Skip loading") + ServiceTemplate::getCountryPrefixDD();
+        $AccessTypes        = array('' => "Skip loading") + ServiceTemplate::getAccessTypeDD($CompanyID);
+        $Codes              = array('' => "Skip loading") + ServiceTemplate::getPrefixDD($CompanyID);
+        $CityList           = ServiceTemplate::getCityDD($CompanyID);
+        $TariffList         = ServiceTemplate::getTariffDD($CompanyID);
+        $City               = array('' => 'Skip loading') + $CityList;
+        $Tariff             = array('' => 'Skip loading') + $TariffList;
+        $CityFilter         = array('' => "All") + $CityList;
+        $TariffFilter       = array('' => "All") + $TariffList;
+        $AccessTypeFilter   = array('' => "All") + ServiceTemplate::getAccessTypeDD($CompanyID);
+
+        $CountryPrefix      = array('Map From Database'=>$CountryPrefix);
+        $AccessTypes        = array('Map From Database'=>$AccessTypes);
+        $Codes              = array('Map From Database'=>$Codes);
+        $City               = array('Map From Database'=>$City);
+        $Tariff             = array('Map From Database'=>$Tariff);
 
         $component_currencies = Currency::getCurrencyDropdownIDList();
         $component_currencies = array('Currency'=>$component_currencies);
 
         if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) { // voice call
-            return View::make('rateupload.index', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall', 'component_currencies'));
+            return View::make('rateupload.index', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall', 'component_currencies', 'rateTable', 'ROUTING_PROFILE'));
         } else if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) { // did
-            return View::make('rateupload.index_did', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'TypeVoiceCall', 'component_currencies'));
+            return View::make('rateupload.index_did', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'TypeVoiceCall', 'component_currencies', 'AccessTypes', 'Codes', 'City', 'Tariff', 'CountryPrefix', 'AccessTypeFilter', 'CityFilter', 'TariffFilter'));
         } else { // package
             return View::make('rateupload.index_pkg', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'TypeVoiceCall', 'component_currencies'));
         }
@@ -398,46 +420,22 @@ class RateUploadController extends \BaseController {
                 $file_name              = $uploadresult['file_name'];
             }
         } else {
-            //$rules['selection.Code']        = 'required';
-            //$rules['selection.Description'] = 'required';
-            //$rules['selection.Rate']        = 'required';
             if(!empty($data['importdialcodessheet'])) {
                 $rules_for_type['selection.Join1'] = 'required';
                 $rules_for_type['selection2.Join2'] = 'required';
-                //$rules_for_type['selection.Code'] = 'required_without:selection2.Code';
                 $rules_for_type['selection2.Code'] = 'required_without:selection.Code';
-                //$rules_for_type['selection.Description'] = 'required_without:selection2.Description';
-                $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
-
-                if(!empty($data['selection']['OriginationCode']) || !empty($data['selection2']['OriginationCode'])) {
-                    $rules_for_type['selection.OriginationDescription'] = 'required_without:selection2.OriginationDescription';
-                    $message_for_type['selection.OriginationDescription.required_without'] = 'Origination Description is required if Origination Code is selected';
-                }
-                if(!empty($data['selection']['OriginationDescription']) || !empty($data['selection2']['OriginationDescription'])) {
-                    $rules_for_type['selection.OriginationCode'] = 'required_without:selection2.OriginationCode';
-                    $message_for_type['selection.OriginationCode.required_without'] = 'Origination Code is required if Origination Description is selected';
-                }
 
                 $message_for_type['selection.Join1.required'] = "Please Select Match Codes with DialCode On For Ratesheet";
                 $message_for_type['selection2.Join2.required'] = "Please Select Match Codes with Rates On For DialCodeSheet";
-                //$message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
                 $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
-                //$message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
-                $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
-
+                $option["skipRows_sheet2"] = array("start_row" => $data["start_row_sheet2"], "end_row" => $data["end_row_sheet2"]);
             }else{
                 $rules_for_type['selection.Code']        = 'required';
-                $rules_for_type['selection.Description'] = 'required';
-                $rules_for_type['selection.OriginationCode'] = 'required_with:selection.OriginationDescription';
-                $rules_for_type['selection.OriginationDescription'] = 'required_with:selection.OriginationCode';
                 if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
                     $message_for_type['selection.Code.required'] = "Package Name Field is required";
                 } else {
                     $message_for_type['selection.Code.required'] = "Code Field is required";
                 }
-                $message_for_type['selection.Description.required'] = "Description Field is required";
-                $message_for_type['selection.OriginationCpde.required_with'] = 'Origination Code is required if Origination Description is selected';
-                $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
             }
 
             $Timezones = Timezones::getTimezonesIDList();
@@ -459,6 +457,9 @@ class RateUploadController extends \BaseController {
                         $TimezonesIDsArray[] = 'selection.CollectionCostAmount'.$ID;
                         $TimezonesIDsArray[] = 'selection.CollectionCostPercentage'.$ID;
                         $TimezonesIDsArray[] = 'selection.RegistrationCostPerNumber'.$ID;
+
+                        $TimezonesIDsArray[] = 'selection.PackageCostPerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.RecordingCostPerMinute'.$ID;
                     }
                     unset($TimezonesIDsArray['selection.MonthlyCost']);
                     $TimezonesIDsString = implode(',',$TimezonesIDsArray);
@@ -466,6 +467,28 @@ class RateUploadController extends \BaseController {
                     $rules_for_type['selection.MonthlyCost'] = 'required_without_all:' . $TimezonesIDsString;
                     $message_for_type['selection.MonthlyCost.required_without_all'] = "Any one cost component is required.";
                 } else {
+
+                    if(!empty($data['importdialcodessheet'])) {
+                        $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
+                        $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
+
+                        if(!empty($data['selection']['OriginationCode']) || !empty($data['selection2']['OriginationCode'])) {
+                            $rules_for_type['selection.OriginationDescription'] = 'required_without:selection2.OriginationDescription';
+                            $message_for_type['selection.OriginationDescription.required_without'] = 'Origination Description is required if Origination Code is selected';
+                        }
+                        if(!empty($data['selection']['OriginationDescription']) || !empty($data['selection2']['OriginationDescription'])) {
+                            $rules_for_type['selection.OriginationCode'] = 'required_without:selection2.OriginationCode';
+                            $message_for_type['selection.OriginationCode.required_without'] = 'Origination Code is required if Origination Description is selected';
+                        }
+                    }else{
+                        $rules_for_type['selection.Description']                            = 'required';
+                        $rules_for_type['selection.OriginationCode']                        = 'required_with:selection.OriginationDescription';
+                        $rules_for_type['selection.OriginationDescription']                 = 'required_with:selection.OriginationCode';
+                        $message_for_type['selection.Description.required']                 = "Description Field is required";
+                        $message_for_type['selection.OriginationCpde.required_with']        = 'Origination Code is required if Origination Description is selected';
+                        $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
+                    }
+
                     foreach ($Timezones as $ID => $Title) {
                         $ID = $ID == 1 ? '' : $ID;
                         $TimezonesIDsArray[] = 'selection.Rate'.$ID;
@@ -681,40 +704,19 @@ class RateUploadController extends \BaseController {
             if(!empty($data['importdialcodessheet'])) {
                 $rules_for_type['selection.Join1'] = 'required';
                 $rules_for_type['selection2.Join2'] = 'required';
-                //$rules_for_type['selection.Code'] = 'required_without:selection2.Code';
                 $rules_for_type['selection2.Code'] = 'required_without:selection.Code';
-                //$rules_for_type['selection.Description'] = 'required_without:selection2.Description';
-                $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
-
-                if(!empty($data['selection']['OriginationCode']) || !empty($data['selection2']['OriginationCode'])) {
-                    $rules_for_type['selection.OriginationDescription'] = 'required_without:selection2.OriginationDescription';
-                    $message_for_type['selection.OriginationDescription.required_without'] = 'Origination Description is required if Origination Code is selected';
-                }
-                if(!empty($data['selection']['OriginationDescription']) || !empty($data['selection2']['OriginationDescription'])) {
-                    $rules_for_type['selection.OriginationCode'] = 'required_without:selection2.OriginationCode';
-                    $message_for_type['selection.OriginationCode.required_without'] = 'Origination Code is required if Origination Description is selected';
-                }
 
                 $message_for_type['selection.Join1.required'] = "Please Select Match Codes with DialCode On For Ratesheet";
                 $message_for_type['selection2.Join2.required'] = "Please Select Match Codes with Rates On For DialCodeSheet";
-                //$message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
                 $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
-                //$message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
-                $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
                 $option["skipRows_sheet2"] = array("start_row" => $data["start_row_sheet2"], "end_row" => $data["end_row_sheet2"]);
             }else{
                 $rules_for_type['selection.Code']        = 'required';
-                $rules_for_type['selection.Description'] = 'required';
-                $rules_for_type['selection.OriginationCode'] = 'required_with:selection.OriginationDescription';
-                $rules_for_type['selection.OriginationDescription'] = 'required_with:selection.OriginationCode';
                 if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
                     $message_for_type['selection.Code.required'] = "Package Name Field is required";
                 } else {
                     $message_for_type['selection.Code.required'] = "Code Field is required";
                 }
-                $message_for_type['selection.Description.required'] = "Description Field is required";
-                $message_for_type['selection.OriginationCpde.required_with'] = 'Origination Code is required if Origination Description is selected';
-                $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
             }
 
             $Timezones = Timezones::getTimezonesIDList();
@@ -736,6 +738,9 @@ class RateUploadController extends \BaseController {
                         $TimezonesIDsArray[] = 'selection.CollectionCostAmount'.$ID;
                         $TimezonesIDsArray[] = 'selection.CollectionCostPercentage'.$ID;
                         $TimezonesIDsArray[] = 'selection.RegistrationCostPerNumber'.$ID;
+
+                        $TimezonesIDsArray[] = 'selection.PackageCostPerMinute'.$ID;
+                        $TimezonesIDsArray[] = 'selection.RecordingCostPerMinute'.$ID;
                     }
                     unset($TimezonesIDsArray['selection.MonthlyCost']);
                     $TimezonesIDsString = implode(',', $TimezonesIDsArray);
@@ -743,6 +748,28 @@ class RateUploadController extends \BaseController {
                     $rules_for_type['selection.MonthlyCost'] = 'required_without_all:' . $TimezonesIDsString;
                     $message_for_type['selection.MonthlyCost.required_without_all'] = "Any one cost component is required.";
                 } else {
+
+                    if(!empty($data['importdialcodessheet'])) {
+                        $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
+                        $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
+
+                        if(!empty($data['selection']['OriginationCode']) || !empty($data['selection2']['OriginationCode'])) {
+                            $rules_for_type['selection.OriginationDescription'] = 'required_without:selection2.OriginationDescription';
+                            $message_for_type['selection.OriginationDescription.required_without'] = 'Origination Description is required if Origination Code is selected';
+                        }
+                        if(!empty($data['selection']['OriginationDescription']) || !empty($data['selection2']['OriginationDescription'])) {
+                            $rules_for_type['selection.OriginationCode'] = 'required_without:selection2.OriginationCode';
+                            $message_for_type['selection.OriginationCode.required_without'] = 'Origination Code is required if Origination Description is selected';
+                        }
+                    }else{
+                        $rules_for_type['selection.Description']                            = 'required';
+                        $rules_for_type['selection.OriginationCode']                        = 'required_with:selection.OriginationDescription';
+                        $rules_for_type['selection.OriginationDescription']                 = 'required_with:selection.OriginationCode';
+                        $message_for_type['selection.Description.required']                 = "Description Field is required";
+                        $message_for_type['selection.OriginationCpde.required_with']        = 'Origination Code is required if Origination Description is selected';
+                        $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
+                    }
+
                     foreach ($Timezones as $ID => $Title) {
                         $ID = $ID == 1 ? '' : $ID;
                         $TimezonesIDsArray[] = 'selection.Rate'.$ID;
@@ -1075,6 +1102,19 @@ class RateUploadController extends \BaseController {
             $type_did           = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
             $type_pkg           = RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
 
+            $component_currencies   = Currency::getCurrencyDropdownIDList();
+            $CountryPrefix          = ServiceTemplate::getCountryPrefixDD();
+            $AccessTypes            = ServiceTemplate::getAccessTypeDD($CompanyID);
+            $Codes                  = ServiceTemplate::getPrefixDD($CompanyID);
+            $City                   = ServiceTemplate::getCityDD($CompanyID);
+            $Tariff                 = ServiceTemplate::getTariffDD($CompanyID);
+
+            if((!empty($RateTable) && $RateTable->Type == $type_pkg)) {
+                $CodeText = 'Package';
+            } else {
+                $CodeText = 'Code';
+            }
+
             //get how many rates mapped against timezones
             //$RatesKeys = array_key_exists_wildcard((array)$attrselection,'Rate*');
             $AllTimezones = Timezones::getTimezonesIDList();//all timezones
@@ -1124,15 +1164,7 @@ class RateUploadController extends \BaseController {
                 $PackageCostPerMinuteCurrencyColumn       = 'PackageCostPerMinuteCurrency'.$id;
                 $RecordingCostPerMinuteCurrencyColumn     = 'RecordingCostPerMinuteCurrency'.$id;
 
-                $component_currencies = Currency::getCurrencyDropdownIDList();
-
-                if((!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
-                    $CodeText = 'Package';
-                } else {
-                    $CodeText = 'Code';
-                }
-
-                if(($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)))) || !empty($attrselection->$Rate1Column)) {
+                if(($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && ($RateTable->Type == $type_did || $RateTable->Type == $type_pkg))) || !empty($attrselection->$Rate1Column)) {
                     $lineno = $lineno1;
                     foreach ($results as $index => $temp_row) {
 
@@ -1161,7 +1193,10 @@ class RateUploadController extends \BaseController {
                                 } else if (!empty($attrselection2->OriginationCountryCode)) {
                                     $selection_CountryCode_Origination = $attrselection2->OriginationCountryCode;
                                 }
-                                if (isset($selection_CountryCode_Origination) && !empty($selection_CountryCode_Origination) && !empty($temp_row[$selection_CountryCode_Origination])) {
+
+                                if (array_key_exists($selection_CountryCode_Origination, $CountryPrefix)) {// if Country selected from Neon Database
+                                    $tempdata['OriginationCountryCode'] = $selection_CountryCode_Origination;
+                                } else if (!empty($temp_row[$selection_CountryCode_Origination])) {// if Country selected from file
                                     $tempdata['OriginationCountryCode'] = trim($temp_row[$selection_CountryCode_Origination]);
                                 } else {
                                     $tempdata['OriginationCountryCode'] = '';
@@ -1174,7 +1209,10 @@ class RateUploadController extends \BaseController {
                                 } else if (!empty($attrselection2->CountryCode)) {
                                     $selection_CountryCode = $attrselection2->CountryCode;
                                 }
-                                if (isset($selection_CountryCode) && !empty($selection_CountryCode) && !empty($temp_row[$selection_CountryCode])) {
+
+                                if (array_key_exists($selection_CountryCode, $CountryPrefix)) {// if Country selected from Neon Database
+                                    $tempdata['CountryCode'] = $selection_CountryCode;
+                                } else if (!empty($temp_row[$selection_CountryCode])) {// if Country selected from file
                                     $tempdata['CountryCode'] = trim($temp_row[$selection_CountryCode]);
                                 } else {
                                     $tempdata['CountryCode'] = '';
@@ -1188,10 +1226,12 @@ class RateUploadController extends \BaseController {
                                     $selection_Code_Origination = $attrselection2->OriginationCode;
                                 }
 
-                                if (isset($selection_Code_Origination) && !empty($selection_Code_Origination) && !empty($temp_row[$selection_Code_Origination])) {
+                                if (array_key_exists($selection_Code_Origination, $Codes)) {// if OriginationCode selected from Neon Database
+                                    $tempdata['OriginationCode'] = $selection_Code_Origination;
+                                } else if (!empty($temp_row[$selection_Code_Origination])) {// if OriginationCode selected from file
                                     $tempdata['OriginationCode'] = trim($temp_row[$selection_Code_Origination]);
                                 } else {
-                                    $tempdata['OriginationCode'] = "";
+                                    $tempdata['OriginationCode'] = '';
                                 }
                             }
 
@@ -1202,11 +1242,12 @@ class RateUploadController extends \BaseController {
                                     $selection_Code = $attrselection2->Code;
                                 }
 
-                                if (isset($selection_Code) && !empty($selection_Code) && isset($temp_row[$selection_Code]) && trim($temp_row[$selection_Code]) != '') {
+                                if (array_key_exists($selection_Code, $Codes)) {// if OriginationCode selected from Neon Database
+                                    $tempdata['Code'] = $selection_Code;
+                                } else if (isset($temp_row[$selection_Code]) && trim($temp_row[$selection_Code]) != '') {// if Code selected from file
                                     $tempdata['Code'] = trim($temp_row[$selection_Code]);
-
                                 } else if (!empty($tempdata['CountryCode'])) {
-                                    $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with countr code later ie 91 - 1 -> 911
+                                    $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with country code later ie 91 - 1 -> 911
                                 } else {
                                     $error[] = $CodeText.' is blank at line no:' . $lineno;
                                 }
@@ -1223,6 +1264,8 @@ class RateUploadController extends \BaseController {
                                 } else {
                                     $tempdata['OriginationDescription'] = "";
                                 }
+                            } else if(!empty($tempdata['OriginationCode'])) { // for did and pkg OriginationDescription is not required. so, OriginationDescription = OriginationCode
+                                 $tempdata['OriginationDescription'] = $tempdata['OriginationCode'];
                             }
 
                             if (!empty($attrselection->Description) || !empty($attrselection2->Description)) {
@@ -1236,6 +1279,8 @@ class RateUploadController extends \BaseController {
                                 } else {
                                     $error[] = 'Description is blank at line no:' . $lineno;
                                 }
+                            } else if(!empty($tempdata['Code'])) { // for did and pkg Description is not required. so, Description = Code
+                                $tempdata['Description'] = $tempdata['Code'];
                             }
 
                             if (isset($attrselection->Action) && !empty($attrselection->Action)) {
@@ -1277,14 +1322,39 @@ class RateUploadController extends \BaseController {
 
                                 $CostComponentsMapped = 0;
 
-                                if (!empty($attrselection->CityTariff)) {
-                                    if (!empty($temp_row[$attrselection->CityTariff])) {
-                                        $tempdata['CityTariff'] = $temp_row[$attrselection->CityTariff];
+                                if (!empty($attrselection->City)) {
+                                    if (array_key_exists($attrselection->City, $City)) {// if City selected from Neon Database
+                                        $tempdata['City'] = $attrselection->City;
+                                    } else if (!empty($temp_row[$attrselection->City])) {// if City selected from file
+                                        $tempdata['City'] = $temp_row[$attrselection->City];
                                     } else {
-                                        $tempdata['CityTariff'] = '';
+                                        $tempdata['City'] = '';
                                     }
                                 } else {
-                                    $tempdata['CityTariff'] = '';
+                                    $tempdata['City'] = '';
+                                }
+                                if (!empty($attrselection->Tariff)) {
+                                    if (array_key_exists($attrselection->Tariff, $Tariff)) {// if Tariff selected from Neon Database
+                                        $tempdata['Tariff'] = $attrselection->Tariff;
+                                    } else if (!empty($temp_row[$attrselection->Tariff])) {// if Tariff selected from file
+                                        $tempdata['Tariff'] = $temp_row[$attrselection->Tariff];
+                                    } else {
+                                        $tempdata['Tariff'] = '';
+                                    }
+                                } else {
+                                    $tempdata['Tariff'] = '';
+                                }
+
+                                if (!empty($attrselection->AccessType)) {
+                                    if (array_key_exists($attrselection->AccessType, $AccessTypes)) {// if AccessType selected from Neon Database
+                                        $tempdata['AccessType'] = $attrselection->AccessType;
+                                    } else if (isset($temp_row[$attrselection->AccessType])) {// if AccessType selected from file
+                                        $tempdata['AccessType'] = $temp_row[$attrselection->AccessType];
+                                    } else {
+                                        $tempdata['AccessType'] = '';
+                                    }
+                                } else {
+                                    $tempdata['AccessType'] = '';
                                 }
 
                                 if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn])) {
@@ -1549,7 +1619,7 @@ class RateUploadController extends \BaseController {
                                     $tempdata['RegistrationCostPerNumberCurrency'] = NULL;
                                 }
 
-                            } if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_pkg)) {
+                            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_pkg)) {
                                 $CostComponents = [];
                                 $CostComponents[] = 'OneOffCost';
                                 $CostComponents[] = 'MonthlyCost';
@@ -1837,9 +1907,9 @@ class RateUploadController extends \BaseController {
                     $query_CM = "CALL prc_WSMapCountryVendorRate ('" . $ProcessID . "','".$CountryMapping."','".$OriginationCountryMapping."')";
                 } else if($data['RateUploadType'] == RateUpload::customer) {
                     $query_CM = "CALL prc_WSMapCountryCustomerRate ('" . $ProcessID . "','".$CountryMapping."','".$OriginationCountryMapping."')";
-                } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
+                } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_voicecall)) {
                     $query_CM = "CALL prc_WSMapCountryRateTableRate ('" . $ProcessID . "','".$CountryMapping."','".$OriginationCountryMapping."')";
-                } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_did)) {
                     $query_CM = "CALL prc_WSMapCountryRateTableDIDRate ('" . $ProcessID . "','".$CountryMapping."','".$OriginationCountryMapping."')";
                 }
 
@@ -1884,11 +1954,11 @@ class RateUploadController extends \BaseController {
                 $query = "CALL  prc_WSReviewVendorRate ('" . $save['AccountID'] . "','" . $save['Trunk'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_Blocked."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$CurrencyID.",".$save['radio_list_option'].")";
             } else if($data['RateUploadType'] == RateUpload::customer) {
                 $query = "CALL  prc_WSReviewCustomerRate ('" . $save['AccountID'] . "','" . $save['Trunk'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_Blocked."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$CurrencyID.",".$save['radio_list_option'].")";
-            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
+            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_voicecall)) {
                 $query = "CALL  prc_WSReviewRateTableRate ('" . $save['RateTableID'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_Blocked."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$seperatecolumn.",".$CurrencyID.",".$save['radio_list_option'].")";
-            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_did)) {
                 $query = "CALL  prc_WSReviewRateTableDIDRate ('" . $save['RateTableID'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$DialStringId."','".$dialcode_separator."',".$seperatecolumn.",".$CurrencyID.",".$save['radio_list_option'].")";
-            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
+            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_pkg)) {
                 $query = "CALL  prc_WSReviewRateTablePKGRate ('" . $save['RateTableID'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "',".$CurrencyID.",".$save['radio_list_option'].")";
             }
 
@@ -1951,17 +2021,17 @@ class RateUploadController extends \BaseController {
         $data['iDisplayStart'] +=1;
 
         $columns                        = array('TempVendorRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','Rate','RateN','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN','Preference','Blocked','RoutingCategory');
-        $columns_did                    = array('TempRateTableDIDRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate');
+        $columns_did                    = array('TempRateTableDIDRateID','AccessType','OriginationCode','Code','City','Tariff','Timezones','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate');
         $columns_pkg                    = array('TempRateTablePKGRateID','Code','Timezones','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate');
         $sort_column                    = $columns[$data['iSortCol_0']];
         $sort_column_did                = $columns_did[$data['iSortCol_0']];
         $sort_column_pkg                = $columns_pkg[$data['iSortCol_0']];
         $data['OriginationCode']        = !empty($data['OriginationCode']) ? "'".$data['OriginationCode']."'" : 'NULL';
-        $data['OriginationDescription'] = !empty($data['OriginationDescription']) ? "'".$data['OriginationDescription']."'" : 'NULL';
         $data['Code']                   = !empty($data['Code']) ? "'".$data['Code']."'" : 'NULL';
-        $data['Description']            = !empty($data['Description']) ? "'".$data['Description']."'" : 'NULL';
         $data['RoutingCategory']        = !empty($data['RoutingCategory']) ? $data['RoutingCategory'] : 'NULL';
-        $data['CityTariff']             = !empty($data['CityTariff']) ? $data['CityTariff'] : 'NULL';
+        $data['City']                   = !empty($data['City']) ? "'".$data['City']."'" : 'NULL';
+        $data['Tariff']                 = !empty($data['Tariff']) ? "'".$data['Tariff']."'" : 'NULL';
+        $data['AccessType']             = !empty($data['AccessType']) ? "'".$data['AccessType']."'" : 'NULL';
 
         if($data['RateUploadType'] == RateUpload::ratetable && !empty($data['RateTableID'])) {
             $RateTable = RateTable::find($data['RateTableID']);
@@ -1974,9 +2044,9 @@ class RateUploadController extends \BaseController {
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
             $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
-            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['CityTariff'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
+            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['Code'].",".$data['Timezone'].",".$data['City'].",".$data['Tariff'].",".$data['AccessType'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
-            $query = "call prc_getReviewRateTablePKGRates ('".$data['ProcessID']."','".$data['Action']."',".$data['Code'].",".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
+            $query = "call prc_getReviewRateTablePKGRates ('".$data['ProcessID']."','".$data['Action']."',".$data['Code'].",".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_pkg."','".$data['sSortDir_0']."',0)";
         }
 
         Log::info($query);
@@ -1988,10 +2058,11 @@ class RateUploadController extends \BaseController {
         $data = Input::all();
 
         $data['OriginationCode']        = !empty($data['OriginationCode']) ? "'".$data['OriginationCode']."'" : 'NULL';
-        $data['OriginationDescription'] = !empty($data['OriginationDescription']) ? "'".$data['OriginationDescription']."'" : 'NULL';
         $data['Code']                   = !empty($data['Code']) ? "'".$data['Code']."'" : 'NULL';
-        $data['Description']            = !empty($data['Description']) ? "'".$data['Description']."'" : 'NULL';
         $data['RoutingCategory']        = !empty($data['RoutingCategory']) ? $data['RoutingCategory'] : 'NULL';
+        $data['City']                   = !empty($data['City']) ? $data['City'] : 'NULL';
+        $data['Tariff']                 = !empty($data['Tariff']) ? $data['Tariff'] : 'NULL';
+        $data['AccessType']             = !empty($data['AccessType']) ? "'".$data['AccessType']."'" : 'NULL';
 
         if($data['RateUploadType'] == RateUpload::vendor) {
             $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",0 ,0,'','',1)";
@@ -2000,7 +2071,7 @@ class RateUploadController extends \BaseController {
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
             $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",0 ,0,'','',1)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
-            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",0 ,0,'','',1)";
+            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['City'].",".$data['Tariff'].",0 ,0,'','',1)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
             $query = "call prc_getReviewRateTablePKGRates ('".$data['ProcessID']."','".$data['Action']."',".$data['Code'].",".$data['Timezone'].",0 ,0,'','',1)";
         }

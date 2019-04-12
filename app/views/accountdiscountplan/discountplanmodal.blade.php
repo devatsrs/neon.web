@@ -58,23 +58,25 @@
         });
         $('select[name="PackageDiscountPlanID"]').trigger( "change" );
     });
-    function getreport(Type){
-        var update_new_url 	= 	baseurl + '/account/used_discount_plan/'+'{{$account->AccountID}}';
-        var ServiceID = '{{$ServiceID}}';
-        $.ajax({
-            url: update_new_url,  //Server script to process data
-            type: 'POST',
-            data:'Type='+Type+'&ServiceID='+ServiceID,
-            dataType: 'html',
-            success: function (response) {
-                $('#minutes_report').button('reset');
-                $('#inbound_minutes_report').button('reset');
-                $('#package_minutes_report').button('reset');
-                $('#minutes_report-modal').modal('show');
-                $('#used_minutes_report').html(response);
-            }
-        });
-    }
+    @if(isset($account))
+        function getreport(Type){
+            var update_new_url 	= 	baseurl + '/account/used_discount_plan/'+'{{$account->AccountID}}';
+            var ServiceID = '{{$ServiceID}}';
+            $.ajax({
+                url: update_new_url,  //Server script to process data
+                type: 'POST',
+                data:'Type='+Type+'&ServiceID='+ServiceID,
+                dataType: 'html',
+                success: function (response) {
+                    $('#minutes_report').button('reset');
+                    $('#inbound_minutes_report').button('reset');
+                    $('#package_minutes_report').button('reset');
+                    $('#minutes_report-modal').modal('show');
+                    $('#used_minutes_report').html(response);
+                }
+            });
+        }
+    @endif
 </script>
 
 @section('footer_ext')@parent

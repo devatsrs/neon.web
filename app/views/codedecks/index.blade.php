@@ -25,6 +25,10 @@
                     <input type="text" name="ft_description" class="form-control">
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Type</label>
+                    {{ Form::select('ft_type', $Types, Input::get('Type') , array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -102,10 +106,11 @@
         </th>
         <th width="10%">ISO Code</th>
         <th width="15%" class="hide_country">Country</th>
-        <th width="15%">Code</th>
-        <th width="20%">Description</th>
-        <th width="10%">Interval 1</th>
-        <th width="10%">Interval N</th>
+        <th width="10%">Code</th>
+        <th width="15%">Description</th>
+        <th width="5%">Type</th>
+        <th width="5%">Interval 1</th>
+        <th width="5%">Interval N</th>
         <th width="15%">Actions</th>
     </tr>
     </thead>
@@ -128,10 +133,10 @@ var postdata;
         //show_loading_bar(40);
         $("#codedesk_filter").submit(function(e) {
         e.preventDefault();
-
         $searchFilter.ft_country = $("#codedesk_filter [name='ft_country']").val();
         $searchFilter.ft_code = $("#codedesk_filter [name='ft_code']").val();
         $searchFilter.ft_description = $("#codedesk_filter [name='ft_description']").val();
+        $searchFilter.ft_type = $("#codedesk_filter [name='ft_type']").val();
         $searchFilter.ft_codedeckid = $("#codedesk_filter [name='ft_codedeckid']").val();
 
         if($searchFilter.ft_codedeckid == ''){
@@ -147,9 +152,19 @@ var postdata;
             "sAjaxSource": baseurl + "/codedecks/ajax_datagrid",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"ft_country","value":$searchFilter.ft_country},{"name":"ft_code","value":$searchFilter.ft_code},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_codedeckid","value":$searchFilter.ft_codedeckid});
+                aoData.push(
+                    {"name":"ft_country","value":$searchFilter.ft_country},
+                    {"name":"ft_code","value":$searchFilter.ft_code},
+                    {"name":"ft_description","value":$searchFilter.ft_description},
+                    {"name":"ft_type","value":$searchFilter.ft_type},
+                    {"name":"ft_codedeckid","value":$searchFilter.ft_codedeckid});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"ft_country","value":$searchFilter.ft_country},{"name":"ft_code","value":$searchFilter.ft_code},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_codedeckid","value":$searchFilter.ft_codedeckid});
+                data_table_extra_params.push(
+                    {"name":"ft_country","value":$searchFilter.ft_country},
+                    {"name":"ft_code","value":$searchFilter.ft_code},
+                    {"name":"ft_description","value":$searchFilter.ft_description},
+                    {"name":"ft_type","value":$searchFilter.ft_type},
+                    {"name":"ft_codedeckid","value":$searchFilter.ft_codedeckid});
             },
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -165,6 +180,7 @@ var postdata;
                 { "bSortable": true }, //Country
                 { "bSortable": true }, //Code
                 { "bSortable": true }, //Description
+                { "bSortable": true }, //type
                 { "bSortable": true }, //Interval1
                 { "bSortable": true }, //IntervalN
                 {
@@ -180,13 +196,15 @@ var postdata;
                         country = full[2];
                         code = full[3];
                         description = full[4];
-                        Interval1 = ( full[5] == null )? 1:full[5];
-                        IntervalN = ( full[6] == null )? 1:full[6];
+                        Type = full[5];
+                        Interval1 = ( full[6] == null )? 1:full[6];
+                        IntervalN = ( full[7] == null )? 1:full[7];
                         action = '<div class = "hiddenRowData" >';
                         action += '<input type = "hidden"  name = "RateID" value = "' + RateID + '" / >';
                         action += '<input type = "hidden"  name = "Country" value = "' + country + '" / >';
                         action += '<input type = "hidden"  name = "Code" value = "' + code + '" / >';
                         action += '<input type = "hidden"  name = "Description" value = "' + description + '" / >';
+                        action += '<input type = "hidden"  name = "Type" value = "' + Type + '" / >';
                         action += '<input type = "hidden"  name = "Interval1" value = "' +  Interval1 + '" / >' ;
                         action += '<input type = "hidden"  name = "IntervalN" value = "' +  IntervalN + '" / >' ;
                         action += '</div>';
@@ -468,6 +486,7 @@ var postdata;
         $('#add-new-codedeck-form').trigger("reset");
         $("#add-new-codedeck-form [name='RateID']").val(prev_raw.find("input[name='RateID']").val());
         $("#add-new-codedeck-form [name='Description']").val(prev_raw.find("input[name='Description']").val());
+        $("#add-new-codedeck-form [name='Type']").val(prev_raw.find("input[name='Type']").val());
         $("#add-new-codedeck-form [name='Interval1']").val(prev_raw.find("input[name='Interval1']").val());
         $("#add-new-codedeck-form [name='IntervalN']").val(prev_raw.find("input[name='IntervalN']").val());
         var countryid = $('select[name="ft_country"] > option:contains("'+prev_raw.find("input[name='Country']").val()+'")').val()
@@ -563,6 +582,7 @@ function bulk_update(fullurl,data){
                                     <th class="hide_country">Country(Optional)</th>
                                     <th>Code</th>
                                     <th>Description</th>
+                                    <th>Type</th>
                                     <th>Action</th>
                                     <th>Interval1(Opt.)</th>
                                     <th>IntervalN(Opt.)</th>
@@ -573,6 +593,7 @@ function bulk_update(fullurl,data){
                                     <td class="hide_country">Afghanistan</td>
                                     <td>9379 </td>
                                     <td>Afghanistan Cellular-Others</td>
+                                    <td>Mobile</td>
                                     <td>I <span data-original-title="Insert" data-content="When action is set to 'I', It will insert new CodeDeck" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                                     <td>1</td>
                                     <td>1</td>
@@ -581,6 +602,7 @@ function bulk_update(fullurl,data){
                                     <td class="hide_country">Afghanistan</td>
                                     <td>9377 </td>
                                     <td>Afghanistan Cellular-Areeba</td>
+                                    <td>Fixed</td>
                                     <td>U <span data-original-title="Insert" data-content="When action is set to 'U',It will replace existing CodeDeck" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                                     <td>1</td>
                                    <td>1</td>
@@ -589,9 +611,11 @@ function bulk_update(fullurl,data){
                                     <td class="hide_country">Afghanistan</td>
                                     <td> 9378 </td>
                                     <td>Afghanistan Cellular-Etisalat</td>
+                                    <td>Mobile</td>
                                     <td>D <span data-original-title="Insert" data-content="When action is set to 'D',It will delete existing CodeDeck" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                                     <td>1</td>
                                     <td>1</td>
+
                                 </tr>
                             </tbody>
                         </table>
@@ -629,22 +653,21 @@ function bulk_update(fullurl,data){
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <input type="checkbox" name="updateDescription" class="" />
                                 <label for="field-5" class="control-label">Description</label>
-
                                 <input type="text" name="Description" class="form-control" id="field-5" placeholder="">
-
                             </div>
-
+                        </div>
+                         <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateType" class="" />
+                                <label for="field-6" class="control-label">Type</label>
+                                <input type="text" name="Type" class="form-control" id="field-6" placeholder="">
+                            </div>
                         </div>
 
-
-
-
-                    </div>
-                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateInterval1" class="" />
@@ -660,6 +683,7 @@ function bulk_update(fullurl,data){
                             </div>
                         </div>
                     </div>
+                     
                 </div>
 
                 <div class="modal-footer">
@@ -699,7 +723,13 @@ function bulk_update(fullurl,data){
                                 <input type="text" name="Description" class="form-control" id="field-1" placeholder="Description">
                             </div>
                         </div>
-                        <div class="col-md-6 clear">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Type</label>
+                                <input type="text" name="Type" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" id="field-5" placeholder="">
@@ -719,6 +749,7 @@ function bulk_update(fullurl,data){
                                 <input name="RateID" value="" type="hidden" >
                             </div>
                         </div>
+                        
                     </div>
                 </div>
                 <div class="modal-footer">

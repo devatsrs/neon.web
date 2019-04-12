@@ -22,7 +22,7 @@
                     {{ Form::select('CountryID', $country,'', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">Type</label>
+                    <label for="field-1" class="control-label">Access Type</label>
                     {{ Form::select('AccessType', $AccessType, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
@@ -30,9 +30,15 @@
                     {{ Form::select('Prefix', $Prefix, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">City/Tariff</label>
-                    {{ Form::select('CityTariff', $CityTariff, '', array("class"=>"select2")) }}
+                    <label for="field-1" class="control-label">City</label>
+                    {{ Form::select('City', $City, '', array("class"=>"select2")) }}
                 </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Tariff</label>
+                    {{ Form::select('Tariff', $Tariff, '', array("class"=>"select2")) }}
+                </div>
+
+               
                 {{--<div class="form-group">--}}
                     {{--<label for="field-1" class="control-label">Currency</label><br/>--}}
                         {{--{{ Form::select('FilterCurrencyId',Currency::getCurrencyDropdownIDList(),'', array("class"=>"select2 small")) }}--}}
@@ -91,8 +97,9 @@
         <th>Service Name</th>
         <th>Country</th>
         <th>Prefix</th>
-        <th>Type</th>
-        <th>City/Tariff</th>
+        <th>Access Type</th>
+        <th>City</th>
+        <th>Tariff</th>
         {{--<th>Currency</th>--}}
         <th>Actions</th>
     </tr>
@@ -185,7 +192,7 @@
             "sAjaxSource": baseurl + "/servicesTemplate/ajax_datagrid",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
-            "aaSorting"   : [[9, 'desc']],
+            "aaSorting"   : [[10, 'desc']],
             "fnServerParams": function(aoData) {
                 //alert("Called1");
                 $searchFilter.ServiceName = $("#service_filter [name='ServiceName']").val();
@@ -194,14 +201,17 @@
                 $searchFilter.CountryID = $("#service_filter [name='CountryID']").val();
                 $searchFilter.AccessType = $("#service_filter [name='AccessType']").val();
                 $searchFilter.Prefix = $("#service_filter [name='Prefix']").val();
-                $searchFilter.CityTariff = $("#service_filter [name='CityTariff']").val();
+                $searchFilter.City = $("#service_filter [name='City']").val();
+                $searchFilter.Tariff = $("#service_filter [name='Tariff']").val();
+
+                
 
 
 
                 //alert($searchFilter.ServiceId);//{"name":"sSearch_0","value":""}
-                aoData.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"sSearch_0","value":""},{"name":"ServiceId","value":$searchFilter.ServiceId},{"name":"FilterCurrencyId","value":$searchFilter.FilterCurrencyId},{"name":"CountryID","value":$searchFilter.CountryID},{"name":"AccessType","value":$searchFilter.AccessType},{"name":"Prefix","value":$searchFilter.Prefix},{"name":"CityTariff","value":$searchFilter.CityTariff});
+                aoData.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"sSearch_0","value":""},{"name":"ServiceId","value":$searchFilter.ServiceId},{"name":"FilterCurrencyId","value":$searchFilter.FilterCurrencyId},{"name":"CountryID","value":$searchFilter.CountryID},{"name":"AccessType","value":$searchFilter.AccessType},{"name":"Prefix","value":$searchFilter.Prefix},{"name":"City","value":$searchFilter.City},{"name":"Tariff","value":$searchFilter.Tariff});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"CountryID","value":$searchFilter.CountryID},{"name":"AccessType","value":$searchFilter.AccessType},{"name":"Prefix","value":$searchFilter.Prefix},{"name":"CityTariff","value":$searchFilter.CityTariff},{"name":"sSearch_0","value":""},{"name":"ServiceId","value":$searchFilter.ServiceId},{"name":"FilterCurrencyId","value":$searchFilter.FilterCurrencyId},{ "name": "Export", "value": 1});
+                data_table_extra_params.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"CountryID","value":$searchFilter.CountryID},{"name":"AccessType","value":$searchFilter.AccessType},{"name":"Prefix","value":$searchFilter.Prefix},{"name":"City","value":$searchFilter.City},{"name":"Tariff","value":$searchFilter.Tariff},{"name":"sSearch_0","value":""},{"name":"ServiceId","value":$searchFilter.ServiceId},{"name":"FilterCurrencyId","value":$searchFilter.FilterCurrencyId},{ "name": "Export", "value": 1});
             },
             "aoColumns": 
              [
@@ -217,10 +227,11 @@
                  { "bSortable": true }, //Country
                  { "bSortable": true }, //Prefix
                  { "bSortable": true }, //Type
-                 { "bSortable": true }, //City/Tarrif
+                 { "bSortable": true }, //City
+                 { "bSortable": true }, //Tariff
 //                { "bSortable": true }, //Gateway
                 {
-                   "bSortable": true,
+                   "bSortable": false,
                     mRender: function ( id, type, full ) {
                         var action , edit_ , show_, delete_ ;
                         //alert("Called2");
@@ -229,16 +240,16 @@
                         action = '<div class = "hiddenRowData"  >';
                         action += '<input type = "hidden"  name = "ServiceTemplateId" value = "' + (full[0] != null ? full[0] : 0) + '" / >';
                         action += '<input type = "hidden"  name = "ServiceId" value = "' + (full[1] != null ? full[1] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "OutboundTariffId" value = "' + (full[8] != null ? full[8] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "OutboundTariffId" value = "' + (full[9] != null ? full[9] : '') + '" / >';
                         action += '<input type = "hidden"  name = "ServiceName" value = "' + (full[2] != null ? full[2] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "CurrencyID" value = "' + (full[9] != null ? full[9] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "OutboundDiscountPlanID" value = "' + (full[11] != null ? full[11] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "InboundDiscountPlanID" value = "' + (full[10] != null ? full[10] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "PackageDiscountPlanId" value = "' + (full[16] != null ? full[16] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "ContractDuration" value = "' + (full[12] != null ? full[12] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "AutomaticRenewal" value = "' + (full[13] != null ? full[13] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "CancellationCharges" value = "' + (full[14] != null ? full[14] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "CancellationFee" value = "' + (full[15] != null ? full[15] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CurrencyID" value = "' + (full[10] != null ? full[10] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "OutboundDiscountPlanID" value = "' + (full[12] != null ? full[12] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "InboundDiscountPlanID" value = "' + (full[11] != null ? full[11] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "PackageDiscountPlanId" value = "' + (full[17] != null ? full[17] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "ContractDuration" value = "' + (full[13] != null ? full[13] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "AutomaticRenewal" value = "' + (full[14] != null ? full[14] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CancellationCharges" value = "' + (full[15] != null ? full[15] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CancellationFee" value = "' + (full[16] != null ? full[16] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Status" value = "" / ></div>';
                         <?php if(User::checkCategoryPermission('SubscriptionTemplate','Edit')){ ?>
                                 action += ' <a data-name = "'+full[1]+'" data-id="'+ full[0] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
@@ -320,7 +331,8 @@
             $searchFilter.CountryID = $("#service_filter [name='CountryID']").val();
             $searchFilter.AccessType = $("#service_filter [name='AccessType']").val();
             $searchFilter.Prefix = $("#service_filter [name='Prefix']").val();
-            $searchFilter.CityTariff = $("#service_filter [name='CityTariff']").val();
+            $searchFilter.City = $("#service_filter [name='City']").val();
+            $searchFilter.Tariff = $("#service_filter [name='Tariff']").val();
 
             data_table.fnFilter('', 0);
             return false;
@@ -404,7 +416,7 @@
             ServiceTemplateName = $(this).prev("div.hiddenRowData").find("input[name='ServiceName']").val();
             CurrencyID = $(this).prev("div.hiddenRowData").find("input[name='CurrencyID']").val();
 
-            ServiceId = $(this).prev("div.hiddenRowData").find("input[name='ServiceId']").val();
+            var ServiceId = $(this).prev("div.hiddenRowData").find("input[name='ServiceId']").val();
              var OutboundDiscountPlanID1= $(this).prev("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
              var InboundDiscountPlanID1= $(this).prev("div.hiddenRowData").find("input[name='InboundDiscountPlanID']").val();
              var PackageDiscountPlanId1= $(this).prev("div.hiddenRowData").find("input[name='PackageDiscountPlanId']").val();
@@ -426,11 +438,12 @@
             $("#add-new-service-form [name='CancellationFee']").val(CancellationFee);
             $("#add-new-service-form [name='CancellationCharges'][value='" + CancellationCharges+"']").prop("checked", true).trigger("change");
             $("#add-new-service-form [name='AutomaticRenewal']").prop(':checked', AutomaticRenewal == 1).trigger('change');
-            loadValuesBasedOnCurrency(CurrencyID,true,ServiceId,OutboundTariffId);
+            loadValuesBasedOnCurrency(CurrencyID,true);
             editSelectedTemplateSubscription(CurrencyID,id);
             $("#add-new-service-form [name='ServiceId']").select2().select2('val',ServiceId);
             $("#add-new-service-form [name='PackageDiscountPlanId']").select2().select2('val',PackageDiscountPlanId1);
             $("#add-new-service-form [name='InboundDiscountPlanID123']").select2().select2('val',InboundDiscountPlanID1);
+            $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val',OutboundTariffId);
             $("#add-new-service-form [name='OutboundDiscountPlanID123']").select2().select2('val',OutboundDiscountPlanID1);
             $("#add-new-service-form [name='CompanyGatewayID']").select2().select2('val',CompanyGatewayID);
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));

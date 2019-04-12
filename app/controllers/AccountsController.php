@@ -132,7 +132,7 @@ class AccountsController extends \BaseController {
         }elseif($type== EmailTemplate::RATESHEET_TEMPLATE){
             $filter =array('Type'=>EmailTemplate::RATESHEET_TEMPLATE);
         }*/
-		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
+        $filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
         if($privacy == 1){
             $filter ['UserID'] =  User::get_userID();
         }
@@ -145,7 +145,8 @@ class AccountsController extends \BaseController {
      *
      * @return Response
      */
-    public function index() {		
+    public function index() {
+        $CompanyID = User::get_companyID();
         $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
         $accountTags = json_encode(Tags::getTagsArray(Tags::Account_tag));
         $account_owners = User::getOwnerUsersbyRole();
@@ -159,14 +160,14 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-		$bulk_type = 'accounts';
-		$Currencies = Currency::getCurrencyDropdownIDList();
+        $bulk_type = 'accounts';
+        $Currencies = Currency::getCurrencyDropdownIDList();
 
-        $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+        $BillingClass = BillingClass::getBillingClassListByCompanyID($CompanyID);
         $timezones = TimeZone::getTimeZoneDropdownList();
         $rate_timezones = Timezones::getTimezonesIDList();
-        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
-        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',User::get_companyID());
+        $reseller_owners = Reseller::getDropdownIDList($CompanyID);
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
         return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones','ROUTING_PROFILE'));
 
     }
@@ -178,31 +179,37 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function create() {
-            $account_owners = User::getOwnerUsersbyRole();
-            $countries = $this->countries;
+        $account_owners = User::getOwnerUsersbyRole();
+        $countries = $this->countries;
 
-            $company_id = User::get_companyID();
-            $company = Company::find($company_id);
+        $company_id = User::get_companyID();
+        $company = Company::find($company_id);
 
-            $currencies = Currency::getCurrencyDropdownIDList();
-            $timezones = TimeZone::getTimeZoneDropdownList();
-            $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
-            $BillingClass = BillingClass::getDropdownIDList($company_id);
-            $BillingStartDate=date('Y-m-d');
-            $LastAccountNo =  '';
-            $doc_status = Account::$doc_status;
-            if(!User::is_admin()){
-                unset($doc_status[Account::VERIFIED]);
-            }
-            $dynamicfields = Account::getDynamicfields('account',0);
-            $reseller_owners = Reseller::getDropdownIDList($company_id);
-            
-            //As per new question call the routing profile model for fetch the routing profile list.
-            $routingprofile = RoutingProfiles::getRoutingProfile($company_id);
-            //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
-            //----------------------------------------------------------------------
-            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE'));
+        $CompanyID = $company_id;
+        $currencies = Currency::getCurrencyDropdownIDList();
+        $timezones = TimeZone::getTimeZoneDropdownList();
+        $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
+        //$BillingClass = BillingClass::getDropdownIDList($company_id);
+        $BillingClass = BillingClass::getBillingClassListByCompanyID($company_id);
+        $BillingStartDate=date('Y-m-d');
+        $LastAccountNo =  '';
+        $doc_status = Account::$doc_status;
+        if(!User::is_admin()){
+            unset($doc_status[Account::VERIFIED]);
+        }
+        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::VOICECALL_ID);
+        $DiscountPlan = $DiscountPlanVOICECALL;
+        $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::DID_ID);
+        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::PACKAGE_ID);
+        $dynamicfields = Account::getDynamicfields('account',0);
+        $reseller_owners = Reseller::getDropdownIDList($company_id);
+        //As per new question call the routing profile model for fetch the routing profile list.
+        $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
+        $TaxRates = TaxRate::getTaxRateDropdownIDList($company_id);
+        //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
+        //----------------------------------------------------------------------
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
+        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID','TaxRates'));
     }
 
     /**
@@ -212,75 +219,78 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function store() {
-            $ServiceID = 0;
-            $data = Input::all();
-            $companyID = User::get_companyID();
-            $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        $ServiceID = 0;
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
 
 
 
         if($ResellerOwner>0){
-                $Reseller = Reseller::getResellerDetails($ResellerOwner);
-                $ResellerCompanyID = $Reseller->ChildCompanyID;
-                $ResellerUser = User::where('CompanyID', $ResellerCompanyID)->first();
+            $Reseller = Reseller::getResellerDetails($ResellerOwner);
+            $ResellerCompanyID = $Reseller->ChildCompanyID;
+            $ResellerUser = User::where('CompanyID', $ResellerCompanyID)->first();
 
 
-                $ResellerUserID = $ResellerUser->UserID;
-                $companyID=$ResellerCompanyID;
-                $data['Owner'] = $ResellerUserID;
-            }
-            $RoutingProfileID='';
-            if(isset($data['routingprofile'])){
-                $RoutingProfileID=$data['routingprofile'];
-            }
-            $data['CompanyID'] = $companyID;
-            $data['AccountType'] = 1;
-            $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
-            $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
-            $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
-            $data['Billing'] = isset($data['Billing']) ? 1 : 0;
-            $data['created_by'] = User::get_user_full_name();
-            $data['AccountType'] = 1;
-            $data['AccountName'] = trim($data['AccountName']);
-            $CustomerID = '';
+            $ResellerUserID = $ResellerUser->UserID;
+            $companyID=$ResellerCompanyID;
+            $data['Owner'] = $ResellerUserID;
+        }
+        $RoutingProfileID='';
+        if(isset($data['routingprofile'])){
+            $RoutingProfileID=$data['routingprofile'];
+        }
+        $data['CompanyID'] = $companyID;
+        $data['AccountType'] = 1;
+        $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
+        $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+        $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
+        $data['Billing'] = isset($data['Billing']) ? 1 : 0;
+        $data['created_by'] = User::get_user_full_name();
+        $data['AccountType'] = 1;
+        $data['AccountName'] = trim($data['AccountName']);
+        $CustomerID = '';
 
-            if (isset($data['accountgateway'])) {
-                $AccountGateway = implode(',', array_filter(array_unique($data['accountgateway'])));
-                unset($data['accountgateway']);
-            }else{
-                $AccountGateway = '';
-            }
-            /**
-             * If Reseller on backend customer is on
-            */
-            if($data['IsReseller']==1){
-                $data['IsCustomer']=1;
-                $data['IsVendor']=0;
-             }
+        if (isset($data['accountgateway'])) {
+            $AccountGateway = implode(',', array_filter(array_unique($data['accountgateway'])));
+            unset($data['accountgateway']);
+        }else{
+            $AccountGateway = '';
+        }
+        /**
+         * If Reseller on backend customer is on
+         */
+        if($data['IsReseller']==1){
+            $data['IsCustomer']=1;
+            $data['IsVendor']=0;
+        }
 
-            unset($data['ResellerOwner']);
-            unset($data['routingprofile']);
+        if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
-            //when account varification is off in company setting then varified the account by default.
-            $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
+        unset($data['ResellerOwner']);
+        unset($data['routingprofile']);
 
-            if ( $AccountVerification != CompanySetting::ACCOUT_VARIFICATION_ON ) {
-                $data['VerificationStatus'] = Account::VERIFIED;
-            }
+        //when account varification is off in company setting then varified the account by default.
+        $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
+
+        if ( $AccountVerification != CompanySetting::ACCOUT_VARIFICATION_ON ) {
+            $data['VerificationStatus'] = Account::VERIFIED;
+        }
 
 
-            if (isset($data['TaxRateId'])) {
-                $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
-            }
-            if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-                return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
-            }
-            $data['Status'] = isset($data['Status']) ? 1 : 0;
+        if (isset($data['TaxRateId'])) {
+            $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
+        }
+        if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
+            return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
+        }
+        $data['Status'] = isset($data['Status']) ? 1 : 0;
 
-            if (empty($data['Number'])) {
-                $data['Number'] = Account::getLastAccountNo();
-            }
-            $data['Number'] = trim($data['Number']);
+        if (empty($data['Number'])) {
+            $data['Number'] = Account::getLastAccountNo();
+        }
+        $data['Number'] = trim($data['Number']);
 
         unset($data['DataTables_Table_0_length']);
         $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
@@ -298,320 +308,343 @@ class AccountsController extends \BaseController {
 
         }
 
-            Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
-            Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
+        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
+        Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
 
-            if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
-                Account::$rules['vendorname'] = 'required';
-                Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
+        if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
+            Account::$rules['vendorname'] = 'required';
+            Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
+        }
+
+        $validator = Validator::make($data, Account::$rules, Account::$messages);
+        $validator->setAttributeNames(['AccountName' => 'Company Name']);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        if($data['AutoPaymentSetting']!='never'){
+            if($data['AutoPayMethod']==0){
+                return Response::json(array("status" => "failed", "message" => "Please Select Auto Pay Method."));
             }
 
-            $validator = Validator::make($data, Account::$rules, Account::$messages);
-            $validator->setAttributeNames(['AccountName' => 'Company Name']);
+        }
 
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-
-            if($data['AutoPaymentSetting']!='never'){
-                if($data['AutoPayMethod']==0){
-                    return Response::json(array("status" => "failed", "message" => "Please Select Auto Pay Method."));
-                }
-
-            }
-
-            if(isset($data['vendorname'])){
-                $VendorName = $data['vendorname'];
-                unset($data['vendorname']);
-            }else{
-                $VendorName = '';
-            }
+        if(isset($data['vendorname'])){
+            $VendorName = $data['vendorname'];
+            unset($data['vendorname']);
+        }else{
+            $VendorName = '';
+        }
 
 
-            if (isset($data['pbxaccountstatus'])) {
-                $pbxaccountstatus = $data['pbxaccountstatus'];
-                unset($data['pbxaccountstatus']);
-            }else{
-                $pbxaccountstatus = 0;
-            }
+        if (isset($data['pbxaccountstatus'])) {
+            $pbxaccountstatus = $data['pbxaccountstatus'];
+            unset($data['pbxaccountstatus']);
+        }else{
+            $pbxaccountstatus = 0;
+        }
 
-            if (isset($data['CustomerID'])) {
-                $CustomerID = $data['CustomerID'];
-                unset($data['CustomerID']);
-            }else{
-                $CustomerID = '';
-            }
+        if (isset($data['CustomerID'])) {
+            $CustomerID = $data['CustomerID'];
+            unset($data['CustomerID']);
+        }else{
+            $CustomerID = '';
+        }
 
-            if (isset($data['autoblock'])) {
-                $autoblock = $data['autoblock'];
-                unset($data['autoblock']);
-            }else{
-                $autoblock = 0;
-            }
+        if (isset($data['autoblock'])) {
+            $autoblock = $data['autoblock'];
+            unset($data['autoblock']);
+        }else{
+            $autoblock = 0;
+        }
 
-            if (isset($data['COCNumber'])) {
-                $COCNumber = $data['COCNumber'];
-                unset($data['COCNumber']);
-            }else{
-                $COCNumber = '';
-            }
+        if (isset($data['COCNumber'])) {
+            $COCNumber = $data['COCNumber'];
+            unset($data['COCNumber']);
+        }else{
+            $COCNumber = '';
+        }
 
-            if (isset($data['PONumber'])) {
-                $PONumber = $data['PONumber'];
-                unset($data['PONumber']);
-            }else{
-                $PONumber = '';
-            }
+        if (isset($data['PONumber'])) {
+            $PONumber = $data['PONumber'];
+            unset($data['PONumber']);
+        }else{
+            $PONumber = '';
+        }
 
-            if (isset($data['AccountHolder'])) {
-                $AccountHolder = $data['AccountHolder'];
-                unset($data['AccountHolder']);
-            }else{
-                $AccountHolder = '';
-            }
+        if (isset($data['AccountHolder'])) {
+            $AccountHolder = $data['AccountHolder'];
+            unset($data['AccountHolder']);
+        }else{
+            $AccountHolder = '';
+        }
 
-            if (isset($data['RegisterDutchFoundation'])) {
-                $RegisterDutchFoundation = $data['RegisterDutchFoundation'];
-                unset($data['RegisterDutchFoundation']);
-            }else{
-                $RegisterDutchFoundation = 0;
-            }
+        if (isset($data['RegisterDutchFoundation'])) {
+            $RegisterDutchFoundation = $data['RegisterDutchFoundation'];
+            unset($data['RegisterDutchFoundation']);
+        }else{
+            $RegisterDutchFoundation = 0;
+        }
 
-            if (isset($data['DutchProvider'])) {
-                $DutchProvider = $data['DutchProvider'];
-                unset($data['DutchProvider']);
-            }else{
-                $DutchProvider = 0;
-            }
+        if (isset($data['DutchProvider'])) {
+            $DutchProvider = $data['DutchProvider'];
+            unset($data['DutchProvider']);
+        }else{
+            $DutchProvider = 0;
+        }
 
-            if (isset($data['DirectDebit'])) {
-                $DirectDebit = $data['DirectDebit'];
-                unset($data['DirectDebit']);
-            }else{
-                $DirectDebit = 0;
-            }
+        if (isset($data['DirectDebit'])) {
+            $DirectDebit = $data['DirectDebit'];
+            unset($data['DirectDebit']);
+        }else{
+            $DirectDebit = 0;
+        }
 
+        $rules = array(
+            'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+            'AutoOutPayment' => 'numeric',
+            'OutPaymentThreshold' => 'numeric',
+            'OutPaymentAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+
+        );
+
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        $ErrorMessage = "";
+
+        if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1) {
+
+            if (empty($data['OutPaymentAmount']))
+                $ErrorMessage .= "The OutPaymentAmount field is required <br> ";
+
+            if (empty($data['OutPaymentThreshold']))
+                $ErrorMessage .= "The OutPaymentThreshold field is required <br> ";
+        }
+
+        if (isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
+
+            if (empty($data['MinThreshold']))
+                $ErrorMessage .= "The MinThreshold field is required<br> ";
+
+            if (empty($data['TopupAmount']))
+                $ErrorMessage .= "The TopupAmount field is required<br> ";
+
+        }
+
+
+        if ($ErrorMessage != "")
+            return Response::json(array("status" => "failed", "message" => $ErrorMessage));
+
+        $AccountPaymentAutomation['AutoTopup'] = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
+        $AccountPaymentAutomation['MinThreshold'] = $data['MinThreshold'];
+        $AccountPaymentAutomation['AutoOutpayment'] = (isset($data['AutoOutPayment']) ? $data['AutoOutPayment'] : "");
+        $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'];
+        $AccountPaymentAutomation['OutPaymentAmount'] = $data['OutPaymentAmount'];
+        $AccountPaymentAutomation['TopupAmount'] = $data['TopupAmount'];
+
+
+        unset($data['AutoTopup']);
+        unset($data['AutoOutPayment']);
+        unset($data['MinThreshold']);
+        unset($data['TopupAmount']);
+        unset($data['OutPaymentThreshold']);
+        unset($data['OutPaymentAmount']);
+
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] = 1) {
             $rules = array(
-                'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
-                'AutoOutPayment' => 'numeric',
-                'OutPaymentThreshold' => 'numeric',
-                'OutPaymentAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+                'OutPaymentThreshold' => 'required|numeric',
+                'OutPaymentAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
 
             );
-
-
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-
-            $ErrorMessage = "";
-
-            if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1) {
-
-                if (empty($data['OutPaymentAmount']))
-                    $ErrorMessage .= "The OutPaymentAmount field is required <br> ";
-
-                if (empty($data['OutPaymentThreshold']))
-                    $ErrorMessage .= "The OutPaymentThreshold field is required <br> ";
-            }
-
-            if (isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
-
-                if (empty($data['MinThreshold']))
-                    $ErrorMessage .= "The MinThreshold field is required<br> ";
-
-                if (empty($data['TopupAmount']))
-                    $ErrorMessage .= "The TopupAmount field is required<br> ";
-
-            }
+        }
 
 
-            if ($ErrorMessage != "")
-                return Response::json(array("status" => "failed", "message" => $ErrorMessage));
+        if (isset($data['AutoTopup']) && $data['AutoTopup'] = 1) {
+            $rules = array(
+                'MinThreshold' => 'required|numeric',
+                'TopupAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
 
-            $AccountPaymentAutomation['AutoTopup'] = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
-            $AccountPaymentAutomation['MinThreshold'] = $data['MinThreshold'];
-            $AccountPaymentAutomation['AutoOutpayment'] = (isset($data['AutoOutPayment']) ? $data['AutoOutPayment'] : "");
-            $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'];
-            $AccountPaymentAutomation['OutPaymentAmount'] = $data['OutPaymentAmount'];
-            $AccountPaymentAutomation['TopupAmount'] = $data['TopupAmount'];
-
-
-            unset($data['AutoTopup']);
-            unset($data['AutoOutPayment']);
-            unset($data['MinThreshold']);
-            unset($data['TopupAmount']);
-            unset($data['OutPaymentThreshold']);
-            unset($data['OutPaymentAmount']);
-
-
+            );
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+        }
 
-            if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] = 1) {
-                $rules = array(
-                    'OutPaymentThreshold' => 'required|numeric',
-                    'OutPaymentAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
+        if(empty($data['DifferentBillingAddress'])) {
+            $data['BillingAddress1'] = $data['Address1'];
+            $data['BillingAddress2'] = $data['Address2'];
+            $data['BillingAddress3'] = $data['Address3'];
+            $data['BillingCity']     = $data['City'];
+            $data['BillingPostCode'] = $data['PostCode'];
+            $data['BillingCountry']  = $data['Country'];
+        }
+        $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
 
-                );
-                $validator = Validator::make($data, $rules);
+        if ($account = Account::create($data)) {
+            /*
+            $DynamicData = array();
+            $DynamicData['CompanyID']= $companyID;
+            $DynamicData['AccountID']= $account->AccountID;
 
-                if ($validator->fails()) {
-                    return json_validator_response($validator);
-                }
+            if( isset($data['BillingType']) && $data['BillingType'] == 1 ) {
+                $AccountPaymentAutomation['AccountID'] = $DynamicData['AccountID'];
+                AccountPaymentAutomation::create($AccountPaymentAutomation);
             }
+            //
+            if($RoutingProfileID!=''){
+                $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$account->AccountID])->first();
 
-
-            if (isset($data['AutoTopup']) && $data['AutoTopup'] = 1) {
-                $rules = array(
-                    'MinThreshold' => 'required|numeric',
-                    'TopupAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
-
-                );
-                $validator = Validator::make($data, $rules);
-
-                if ($validator->fails()) {
-                    return json_validator_response($validator);
-                }
-            }
-
-            if(empty($data['DifferentBillingAddress'])) {
-                $data['BillingAddress1'] = $data['Address1'];
-                $data['BillingAddress2'] = $data['Address2'];
-                $data['BillingAddress3'] = $data['Address3'];
-                $data['BillingCity']     = $data['City'];
-                $data['BillingPostCode'] = $data['PostCode'];
-                $data['BillingCountry']  = $data['Country'];
-            }
-
-            if ($account = Account::create($data)) {
-
-                $DynamicData = array();
-                $DynamicData['CompanyID']= $companyID;
-                $DynamicData['AccountID']= $account->AccountID;
-
-                if( isset($data['BillingType']) && $data['BillingType'] == 1 ) {
-                    $AccountPaymentAutomation['AccountID'] = $DynamicData['AccountID'];
-                    AccountPaymentAutomation::create($AccountPaymentAutomation);
-                }
-                //
-                if($RoutingProfileID!=''){
-                    $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$account->AccountID])->first();
-
-                    if(isset($RoutingProfileToCustomer->AccountID)){
+                if(isset($RoutingProfileToCustomer->AccountID)){
+                    $routingprofile_table=array();
+                    $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
+                    RoutingProfileToCustomer::where(['AccountID'=>$account->AccountID])->update($routingprofile_table);
+                }else{
+                    if($RoutingProfileID!=''){
                         $routingprofile_table=array();
                         $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
-                        RoutingProfileToCustomer::where(['AccountID'=>$account->AccountID])->update($routingprofile_table);
-                    }else{
-                        if($RoutingProfileID!=''){
-                            $routingprofile_table=array();
-                            $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
-                            $routingprofile_table['AccountID'] = $account->AccountID;
-                            RoutingProfileToCustomer::insert($routingprofile_table);
-                        }
-                    }
-                    unset($data['routingprofile']);
-                }
-        
-                if(!empty($AccountGateway)){
-                    $DynamicData['FieldName'] = 'accountgateway';
-                    $DynamicData['FieldValue']= $AccountGateway;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-                if(!empty($VendorName)){
-                    $DynamicData['FieldName'] = 'vendorname';
-                    $DynamicData['FieldValue']= $VendorName;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-                if(!empty($CustomerID)){
-                    $DynamicData['FieldName'] = 'CustomerID';
-                    $DynamicData['FieldValue']= $CustomerID;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-
-                if(isset($pbxaccountstatus)){
-                    $DynamicData['FieldName'] = 'pbxaccountstatus';
-                    $DynamicData['FieldValue']= $pbxaccountstatus;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-                if(isset($autoblock)){
-                    $DynamicData['FieldName'] = 'autoblock';
-                    $DynamicData['FieldValue']= $autoblock;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-                if(isset($COCNumber)){
-                    $DynamicData['FieldName'] = 'COCNumber';
-                    $DynamicData['FieldValue']= $COCNumber;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-                if(isset($PONumber)){
-                    $DynamicData['FieldName'] = 'PONumber';
-                    $DynamicData['FieldValue']= $PONumber;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-                if(isset($AccountHolder)){
-                    $DynamicData['FieldName'] = 'AccountHolder';
-                    $DynamicData['FieldValue']= $AccountHolder;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-                if(isset($RegisterDutchFoundation)){
-                    $DynamicData['FieldName'] = 'RegisterDutchFoundation';
-                    $DynamicData['FieldValue']= $RegisterDutchFoundation;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-                if(isset($DutchProvider)){
-                    $DynamicData['FieldName'] = 'DutchProvider';
-                    $DynamicData['FieldValue']= $DutchProvider;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-                if(isset($DirectDebit)){
-                    $DynamicData['FieldName'] = 'DirectDebit';
-                    $DynamicData['FieldValue']= $DirectDebit;
-                    Account::addUpdateAccountDynamicfield($DynamicData);
-                }
-
-
-                if($data['Billing'] == 1) {
-                    if($ManualBilling ==0) {
-                        if ($data['BillingStartDate'] == $data['NextInvoiceDate']) {
-                            $data['NextChargeDate'] = $data['BillingStartDate'];
-                        } else {
-                            $BillingStartDate = strtotime($data['BillingStartDate']);
-                            $data['BillingCycleValue'] = empty($data['BillingCycleValue']) ? '' : $data['BillingCycleValue'];
-                            $NextBillingDate = next_billing_date($data['BillingCycleType'], $data['BillingCycleValue'], $BillingStartDate);
-                            $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));;
-                        }
-                    }
-
-                    AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
-                    if($ManualBilling ==0) {
-                        AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, $ServiceID);
+                        $routingprofile_table['AccountID'] = $account->AccountID;
+                        RoutingProfileToCustomer::insert($routingprofile_table);
                     }
                 }
+                unset($data['routingprofile']);
+            }
 
-                if (trim(Input::get('Number')) == '') {
-                    CompanySetting::setKeyVal('LastAccountNo', $account->Number);
-                }
+            if(!empty($AccountGateway)){
+                $DynamicData['FieldName'] = 'accountgateway';
+                $DynamicData['FieldValue']= $AccountGateway;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(!empty($VendorName)){
+                $DynamicData['FieldName'] = 'vendorname';
+                $DynamicData['FieldValue']= $VendorName;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(!empty($CustomerID)){
+                $DynamicData['FieldName'] = 'CustomerID';
+                $DynamicData['FieldValue']= $CustomerID;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
 
-                $AccountDetails=array();
-                //$AccountDetails['ResellerOwner'] = $ResellerOwner;
-                $AccountDetails['AccountID'] = $account->AccountID;
-                AccountDetails::create($AccountDetails);
-
-
-                $account->update($data);
-                return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
+            if(isset($pbxaccountstatus)){
+                $DynamicData['FieldName'] = 'pbxaccountstatus';
+                $DynamicData['FieldValue']= $pbxaccountstatus;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($autoblock)){
+                $DynamicData['FieldName'] = 'autoblock';
+                $DynamicData['FieldValue']= $autoblock;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($COCNumber)){
+                $DynamicData['FieldName'] = 'COCNumber';
+                $DynamicData['FieldValue']= $COCNumber;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($PONumber)){
+                $DynamicData['FieldName'] = 'PONumber';
+                $DynamicData['FieldValue']= $PONumber;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($AccountHolder)){
+                $DynamicData['FieldName'] = 'AccountHolder';
+                $DynamicData['FieldValue']= $AccountHolder;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($RegisterDutchFoundation)){
+                $DynamicData['FieldName'] = 'RegisterDutchFoundation';
+                $DynamicData['FieldValue']= $RegisterDutchFoundation;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($DutchProvider)){
+                $DynamicData['FieldName'] = 'DutchProvider';
+                $DynamicData['FieldValue']= $DutchProvider;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($DirectDebit)){
+                $DynamicData['FieldName'] = 'DirectDebit';
+                $DynamicData['FieldValue']= $DirectDebit;
+                Account::addUpdateAccountDynamicfield($DynamicData);
             }
 
 
-            //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Created');
+            if($data['Billing'] == 1) {
+                if($ManualBilling ==0) {
+                    if ($data['BillingStartDate'] == $data['NextInvoiceDate']) {
+                        $data['NextChargeDate'] = $data['BillingStartDate'];
+                    } else {
+                        $BillingStartDate = strtotime($data['BillingStartDate']);
+                        $data['BillingCycleValue'] = empty($data['BillingCycleValue']) ? '' : $data['BillingCycleValue'];
+                        $NextBillingDate = next_billing_date($data['BillingCycleType'], $data['BillingCycleValue'], $BillingStartDate);
+                        $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));;
+                    }
+                }
+
+                AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
+                if($ManualBilling ==0) {
+                    AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, $ServiceID);
+                }
+
+                $AccountPeriod = AccountBilling::getCurrentPeriod($account->AccountID, date('Y-m-d'),$ServiceID);
+                $OutboundDiscountPlan = empty($data['DiscountPlanID']) ? '' : $data['DiscountPlanID'];
+                $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
+                $PackageDiscountPlan = empty($data['PackageDiscountPlanID']) ? '' : $data['PackageDiscountPlanID'];
+
+                if(!empty($AccountPeriod)) {
+                    $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                    $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                    $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                    $ServiceID=0;
+                    $AccountSubscriptionID = 0;
+                    $AccountName='';
+                    $AccountCLI='';
+                    $SubscriptionDiscountPlanID=0;
+                    $AccountServiceID=0;
+
+                    AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                }
+            }
+
+            if (trim(Input::get('Number')) == '') {
+                CompanySetting::setKeyVal('LastAccountNo', $account->Number);
+            }
+
+            $AccountDetails=array();
+            //$AccountDetails['ResellerOwner'] = $ResellerOwner;
+            $AccountDetails['AccountID'] = $account->AccountID;
+            AccountDetails::create($AccountDetails);
+
+
+            $account->update($data);
+            */
+            return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
+        }
+
+
+        //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Created');
     }
 
     /**
@@ -623,129 +656,129 @@ class AccountsController extends \BaseController {
      */
     public function show_old($id) {
 
-            $account = Account::find($id);
-            $AccountBilling = AccountBilling::getBilling($id,0);
-            $companyID = User::get_companyID();
-            $account_owner = User::find($account->Owner);
-            $notes = Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
-            $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
-            $verificationflag = AccountApprovalList::isVerfiable($id);
-            $outstanding = Account::getOutstandingAmount($companyID, $account->AccountID, get_round_decimal_places($account->AccountID));
-            $currency = Currency::getCurrencySymbol($account->CurrencyId);
-            $activity_type = AccountActivity::$activity_type;
-            $activity_status = [1 => 'Open', 2 => 'Closed'];
-            return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','AccountBilling'));
+        $account = Account::find($id);
+        $AccountBilling = AccountBilling::getBilling($id,0);
+        $companyID = User::get_companyID();
+        $account_owner = User::find($account->Owner);
+        $notes = Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
+        $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
+        $verificationflag = AccountApprovalList::isVerfiable($id);
+        $outstanding = Account::getOutstandingAmount($companyID, $account->AccountID, get_round_decimal_places($account->AccountID));
+        $currency = Currency::getCurrencySymbol($account->CurrencyId);
+        $activity_type = AccountActivity::$activity_type;
+        $activity_status = [1 => 'Open', 2 => 'Closed'];
+        return View::make('accounts.show', compact('account', 'account_owner', 'notes', 'contacts', 'verificationflag', 'outstanding', 'currency', 'activity_type', 'activity_status','AccountBilling'));
     }
 
-	
-		public function show($id) {
-            $account 					= 	 Account::find($id);
-            $companyID 					= 	 User::get_companyID();
-		
-			//get account contacts
-		    $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();			
-			//get account time line data
-            $data['iDisplayStart'] 	    =	 0;
-            $data['iDisplayLength']     =    10;
-            $data['AccountID']          =    $id;
-			$data['GUID']               =    GUID::generate();
-            $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
-            $RowsPerPage                =    $data['iDisplayLength'];			
-			$message 					= 	 '';			
-            $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
-		/*		echo "<pre>";
-				print_r($response_timeline);		
-				exit;*/
-	
-			if($response_timeline['status']!='failed'){
-				if(isset($response_timeline['data']))
-				{
-					$response_timeline =  $response_timeline['data'];
-				}else{
-					$response_timeline = array();
-				}
-			}else{ 	
-				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
-                    \Illuminate\Support\Facades\Log::info("Account 401 ");
-                    \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
-					//return	Redirect::to('/logout');
-				}		
-				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){
-                    \Illuminate\Support\Facades\Log::info("Account token_expired ");
-                    \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
-                    //Redirect::to('/login');
-                }
-				$message = json_response_api($response_timeline,false,false);
-			}
-			
-			$vendor   = $account->IsVendor?1:0;
-			$Customer = $account->IsCustomer?1:0;
-			$Reseller = $account->IsReseller?1:0;
-            $ResellerOwner=0;
-            $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
-            if(is_reseller()){
-                $data['ResellerOwner'] = Reseller::getResellerID();
-            }
 
-            //get account card data
-             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$ResellerOwner."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
-            Log::info("Show My Sql Query:" . $sql);
-            $Account_card  				= 	 DB::select($sql);
-			$Account_card  				=	 array_shift($Account_card);
-			
-			$outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, get_round_decimal_places($account->AccountID));
-            $account_owners 			= 	 User::getUserIDList();
-			//$Board 						=	 CRMBoard::getTaskBoard();
-			
-			
-			
-			//$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
-			$emailTemplates 			= 	EmailTemplate::GetUserDefinedTemplates();
-			$random_token				=	 get_random_number();
-            
-			//Backup code for getting extensions from api
-		   $response_api_extensions 	=   Get_Api_file_extentsions();
-		   //if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}
-		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
-		   
-           //all users email address
-			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
-	 		$users						=	 json_encode(array_merge(array(""),$users));
-			
-			//Account oppertunity data
-			$boards 					= 	 CRMBoard::getTaskBoard(); //opperturnity variables start
-			if(count($boards)<1){
-				
-				$message 				= 	 "No Task Board Found. PLease create task board first";
-			}else{
-				$boards					=	  $boards[0];
-			}
-			$accounts 					= 	 Account::getAccountIDList();
-		 	$leadOrAccountID 			= 	 '';
-	        $leadOrAccount 				= 	 $accounts;
-    	    $leadOrAccountCheck 		= 	 'account';
-			$opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-			
-			/* if (isset($response->status) && $response->status != 'failed') {			
-				$response = $response->data;
-			}else{		
-				if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
-					return	Redirect::to('/logout'); 	
-				}
-				else{  
-					$message	    =	$response->message['error'][0]; 
-			 		Session::set('error_message',$message);
-				}
-			}			*/
-			$FromEmails	 				= 	TicketGroups::GetGroupsFrom();			
-			$max_file_size				=	get_max_file_size();			
-			$per_scroll 				=   $data['iDisplayLength'];
-			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug,$companyID); //freshdesk
-			$SystemTickets				=   Tickets::CheckTicketLicense();			
-			 
-	        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets','FromEmails')); 	
-		}
+    public function show($id) {
+        $account 					= 	 Account::find($id);
+        $companyID 					= 	 User::get_companyID();
+
+        //get account contacts
+        $contacts 					= 	 Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
+        //get account time line data
+        $data['iDisplayStart'] 	    =	 0;
+        $data['iDisplayLength']     =    10;
+        $data['AccountID']          =    $id;
+        $data['GUID']               =    GUID::generate();
+        $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
+        $RowsPerPage                =    $data['iDisplayLength'];
+        $message 					= 	 '';
+        $response_timeline 			= 	 NeonAPI::request('account/GetTimeLine',$data,false,true);
+        /*		echo "<pre>";
+                print_r($response_timeline);
+                exit;*/
+
+        if($response_timeline['status']!='failed'){
+            if(isset($response_timeline['data']))
+            {
+                $response_timeline =  $response_timeline['data'];
+            }else{
+                $response_timeline = array();
+            }
+        }else{
+            if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
+                \Illuminate\Support\Facades\Log::info("Account 401 ");
+                \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
+                //return	Redirect::to('/logout');
+            }
+            if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){
+                \Illuminate\Support\Facades\Log::info("Account token_expired ");
+                \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
+                //Redirect::to('/login');
+            }
+            $message = json_response_api($response_timeline,false,false);
+        }
+
+        $vendor   = $account->IsVendor?1:0;
+        $Customer = $account->IsCustomer?1:0;
+        $Reseller = $account->IsReseller?1:0;
+        $ResellerOwner=0;
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
+        if(is_reseller()){
+            $data['ResellerOwner'] = Reseller::getResellerID();
+        }
+
+        //get account card data
+        $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$ResellerOwner."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
+        Log::info("Show My Sql Query:" . $sql);
+        $Account_card  				= 	 DB::select($sql);
+        $Account_card  				=	 array_shift($Account_card);
+
+        $outstanding 				= 	 Account::getOutstandingAmount($companyID, $account->AccountID, get_round_decimal_places($account->AccountID));
+        $account_owners 			= 	 User::getUserIDList();
+        //$Board 						=	 CRMBoard::getTaskBoard();
+
+
+
+        //$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
+        $emailTemplates 			= 	EmailTemplate::GetUserDefinedTemplates();
+        $random_token				=	 get_random_number();
+
+        //Backup code for getting extensions from api
+        $response_api_extensions 	=   Get_Api_file_extentsions();
+        //if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}
+        $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
+
+        //all users email address
+        $users						=	 USer::select('EmailAddress')->lists('EmailAddress');
+        $users						=	 json_encode(array_merge(array(""),$users));
+
+        //Account oppertunity data
+        $boards 					= 	 CRMBoard::getTaskBoard(); //opperturnity variables start
+        if(count($boards)<1){
+
+            $message 				= 	 "No Task Board Found. PLease create task board first";
+        }else{
+            $boards					=	  $boards[0];
+        }
+        $accounts 					= 	 Account::getAccountIDList();
+        $leadOrAccountID 			= 	 '';
+        $leadOrAccount 				= 	 $accounts;
+        $leadOrAccountCheck 		= 	 'account';
+        $opportunitytags 			= 	 json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+
+        /* if (isset($response->status) && $response->status != 'failed') {
+            $response = $response->data;
+        }else{
+            if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
+                return	Redirect::to('/logout');
+            }
+            else{
+                $message	    =	$response->message['error'][0];
+                 Session::set('error_message',$message);
+            }
+        }			*/
+        $FromEmails	 				= 	TicketGroups::GetGroupsFrom();
+        $max_file_size				=	get_max_file_size();
+        $per_scroll 				=   $data['iDisplayLength'];
+        $current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+        $ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug,$companyID); //freshdesk
+        $SystemTickets				=   Tickets::CheckTicketLicense();
+
+        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets','FromEmails'));
+    }
 
 
     public function log($id) {
@@ -762,50 +795,50 @@ class AccountsController extends \BaseController {
      * @param  int  $id
      * @return Response
      */
-	 
-	 public function GetTimeLineSrollData($id,$start)
-	 {
-		  	$data 					   = 	Input::all();
-		 	$data['iDisplayStart'] 	   =	$start;
-            $data['iDisplayLength']    =    10;
-            $data['AccountID']         =    $id;			
-			$response 				   = 	NeonAPI::request('account/GetTimeLine',$data,false);
-			
-			if($response->status!='failed'){
-				if(!isset($response->data))
-				{
-					return  Response::json(array("status" => "failed", "message" => "No Result Found","scroll"=>"end"));
-				}
-				else
-				{
-					$response =  $response->data;
-				}
-			}
-			else{
-				return json_response_api($response,false,true);
-			}
-					
-			$key 					= 	$data['scrol'];
-			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
-			return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
-	}
-	
-	function AjaxConversations($id){ 
-		if(empty($id) || !is_numeric($id)){
-			return '<div>No conversation found.</div>';
-		}
-		 $data 			= 	Input::all();
-		 $data['id']	=	$id;
-		 $response 		= 	 NeonAPI::request('account/GetConversations',$data,true,true);  
-		  if($response['status']=='failed'){
-			return json_response_api($response,false,true);
-		}else{			
-			return View::make('accounts.conversations', compact("response","data"));
-		}
-	}
-	 
+
+    public function GetTimeLineSrollData($id,$start)
+    {
+        $data 					   = 	Input::all();
+        $data['iDisplayStart'] 	   =	$start;
+        $data['iDisplayLength']    =    10;
+        $data['AccountID']         =    $id;
+        $response 				   = 	NeonAPI::request('account/GetTimeLine',$data,false);
+
+        if($response->status!='failed'){
+            if(!isset($response->data))
+            {
+                return  Response::json(array("status" => "failed", "message" => "No Result Found","scroll"=>"end"));
+            }
+            else
+            {
+                $response =  $response->data;
+            }
+        }
+        else{
+            return json_response_api($response,false,true);
+        }
+
+        $key 					= 	$data['scrol'];
+        $current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+        return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
+    }
+
+    function AjaxConversations($id){
+        if(empty($id) || !is_numeric($id)){
+            return '<div>No conversation found.</div>';
+        }
+        $data 			= 	Input::all();
+        $data['id']	=	$id;
+        $response 		= 	 NeonAPI::request('account/GetConversations',$data,true,true);
+        if($response['status']=='failed'){
+            return json_response_api($response,false,true);
+        }else{
+            return View::make('accounts.conversations', compact("response","data"));
+        }
+    }
+
     public function edit($id) {
-        
+
         Payment::multiLang_init();
         $ServiceID = 0;
         $account = Account::find($id);
@@ -819,7 +852,9 @@ class AccountsController extends \BaseController {
         $currencies = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
-        $BillingClass = BillingClass::getDropdownIDList($companyID);
+        //$BillingClass = BillingClass::getDropdownIDList($companyID);
+        $BillingClass = BillingClass::getBillingClassListByCompanyID($companyID);
+
 
         $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
@@ -843,7 +878,7 @@ class AccountsController extends \BaseController {
         $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::PACKAGE_ID);
         $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
         $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
-		$decimal_places = get_round_decimal_places($id);
+        $decimal_places = get_round_decimal_places($id);
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $services = Service::getAllServices($companyID);
 
@@ -863,21 +898,25 @@ class AccountsController extends \BaseController {
         $dynamicfields = Account::getDynamicfields('account',$id);
         //Log::info("Count for Dynamic fields for Account ." . $id . ' ' . count($dynamicfields));
         $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
-        $reseller_owners = Reseller::getDropdownIDList($companyID);
+        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
+
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $PackageDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::PACKAGE,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
 
         //As per new question call the routing profile model for fetch the routing profile list.
-        $routingprofile = RoutingProfiles::getRoutingProfile($companyID);
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
 
-        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$companyID);
+        $UserCompanyID = User::get_companyID();
+        $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $UserCompanyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
+        $Packages = Package::getDropdownIDListByCompany($companyID);
+
         return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
-            'DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
+            'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
     /**
@@ -909,12 +948,12 @@ class AccountsController extends \BaseController {
         }
         //$DiscountPlanID = $data['DiscountPlanID'];
         //$InboundDiscountPlanID = $data['InboundDiscountPlanID'];
-        
+
         if(isset($data['routingprofile'])){
-            
+
             //$RoutingProfileToCustomer = RoutingProfileToCustomer::where('RoutingProfileID',$data['routingprofile'])->first();
             $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
-            
+
             if(isset($RoutingProfileToCustomer->AccountID)){
                 $routingprofile_table=array();
                 $routingprofile_table['RoutingProfileID'] = $data['routingprofile'];
@@ -928,10 +967,10 @@ class AccountsController extends \BaseController {
                     RoutingProfileToCustomer::insert($routingprofile_table);
                 }
                 //
-               // print_r($data);echo '-N--';
+                // print_r($data);echo '-N--';
             }
             unset($data['routingprofile']);
-           // die();
+            // die();
         }
 
         // assign account to routin profile
@@ -958,6 +997,9 @@ class AccountsController extends \BaseController {
             $data['IsCustomer']=1;
             $data['IsVendor']=0;
         }
+
+        if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
@@ -1138,69 +1180,69 @@ class AccountsController extends \BaseController {
 
         }
 
-            $rules = array(
-                'MinThreshold' => 'numeric',
-                'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
-                'OutPaymentThreshold' => 'numeric',
-                'OutPaymentAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+        $rules = array(
+            'MinThreshold' => 'numeric',
+            'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+            'OutPaymentThreshold' => 'numeric',
+            'OutPaymentAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
 
-            );
+        );
 
-            $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, $rules);
 
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-
-
-            $ErrorMessage = "";
-
-            if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1) {
-
-                if (empty($data['OutPaymentAmount']))
-                    $ErrorMessage .= "The OutPaymentAmount field is required <br> ";
-
-                if (empty($data['OutPaymentThreshold']))
-                    $ErrorMessage .= "The OutPaymentThreshold field is required <br> ";
-            }
-
-            if (isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
-
-                if (empty($data['MinThreshold']))
-                    $ErrorMessage .= "The MinThreshold field is required<br> ";
-
-                if (empty($data['TopupAmount']))
-                    $ErrorMessage .= "The TopupAmount field is required<br> ";
-
-            }
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
 
 
-            if ($ErrorMessage != "")
-                return Response::json(array("status" => "failed", "message" => $ErrorMessage));
+        $ErrorMessage = "";
+
+        if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1) {
+
+            if (empty($data['OutPaymentAmount']))
+                $ErrorMessage .= "The OutPaymentAmount field is required <br> ";
+
+            if (empty($data['OutPaymentThreshold']))
+                $ErrorMessage .= "The OutPaymentThreshold field is required <br> ";
+        }
+
+        if (isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
+
+            if (empty($data['MinThreshold']))
+                $ErrorMessage .= "The MinThreshold field is required<br> ";
+
+            if (empty($data['TopupAmount']))
+                $ErrorMessage .= "The TopupAmount field is required<br> ";
+
+        }
 
 
-            $AccountPaymentAutomation['AutoTopup'] = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
-            $AccountPaymentAutomation['MinThreshold'] = $data['MinThreshold'];
-            $AccountPaymentAutomation['AutoOutpayment'] = (isset($data['AutoOutPayment']) ? $data['AutoOutPayment'] : "");
-            $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'];
-            $AccountPaymentAutomation['OutPaymentAmount'] = $data['OutPaymentAmount'];
-            $AccountPaymentAutomation['TopupAmount'] = $data['TopupAmount'];
-
-            unset($data['AutoTopup']);
-            unset($data['AutoOutPayment']);
-            unset($data['MinThreshold']);
-            unset($data['TopupAmount']);
-            unset($data['OutPaymentThreshold']);
-            unset($data['OutPaymentAmount']);
+        if ($ErrorMessage != "")
+            return Response::json(array("status" => "failed", "message" => $ErrorMessage));
 
 
-            $validator = Validator::make($data, $rules);
+        $AccountPaymentAutomation['AutoTopup'] = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
+        $AccountPaymentAutomation['MinThreshold'] = $data['MinThreshold'];
+        $AccountPaymentAutomation['AutoOutpayment'] = (isset($data['AutoOutPayment']) ? $data['AutoOutPayment'] : "");
+        $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'];
+        $AccountPaymentAutomation['OutPaymentAmount'] = $data['OutPaymentAmount'];
+        $AccountPaymentAutomation['TopupAmount'] = $data['TopupAmount'];
 
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
+        unset($data['AutoTopup']);
+        unset($data['AutoOutPayment']);
+        unset($data['MinThreshold']);
+        unset($data['TopupAmount']);
+        unset($data['OutPaymentThreshold']);
+        unset($data['OutPaymentAmount']);
 
-            AccountPaymentAutomation::where(['AccountID' => $id])->update($AccountPaymentAutomation);
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        AccountPaymentAutomation::where(['AccountID' => $id])->update($AccountPaymentAutomation);
 
 //        else{
 //
@@ -1217,7 +1259,7 @@ class AccountsController extends \BaseController {
             $data['BillingPostCode'] = $data['PostCode'];
             $data['BillingCountry']  = $data['Country'];
         }
-
+        $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -1322,7 +1364,7 @@ class AccountsController extends \BaseController {
                 CompanySetting::setKeyVal('LastAccountNo',$account->Number);
             }
             if(isset($data['password'])) {
-               // $this->sendPasswordEmail($account, $password, $data);
+                // $this->sendPasswordEmail($account, $password, $data);
             }
 
             $AccountDetailsID=AccountDetails::where('AccountID',$id)->pluck('AccountDetailID');
@@ -1355,24 +1397,6 @@ class AccountsController extends \BaseController {
                         }
                     }
                 }
-
-                if ($data['PaymentMethod'] == 'Ingenico') 
-                {
-                    $method = $data['PaymentMethod'];
-                    $value = $data['Ingenico'];
-                    $options = [
-                    'CardID' => $value
-                     ];
-                     $isDefault = 1;
-
-        $PaymentGatewayID = PaymentGateway::where(['title' => $method,'Status' =>1])->first();
-        if(!empty($PaymentGatewayID->PaymentGatewayID)){$payGID = $PaymentGatewayID->PaymentGatewayID;} else {$payGID = 0; }
-        AccountPaymentProfile::updateOrCreate([
-        'CompanyID' => $companyID, 'AccountID' => $id, 'PaymentGatewayID' => $payGID
-        ],[
-            'Options' => json_encode($options), 'Status' => 1, 'isDefault' => $isDefault
-        ]);
-                }
             }
 
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
@@ -1382,12 +1406,27 @@ class AccountsController extends \BaseController {
         //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Updated');;
     }
 
-    
+    public function getAccountPartnerInfo($id){
+        $Reseller = Reseller::getResellerDetails($id);
+
+        $CompanyID = is_numeric($id) && $id < 1 ? User::get_companyID() : $Reseller->ChildCompanyID;
+        if($CompanyID == false)
+            return Response::json(array("status" => "failed", "message" => "Invalid Request."));
+
+        $data['BillingClass'] = BillingClass::getBillingClassListByCompanyID($CompanyID);
+        $data['TerminationDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::VOICECALL_ID);
+        $data['AccessDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::DID_ID);
+        $data['PackageDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::PACKAGE_ID);
+        $data['TaxRates'] = TaxRate::getTaxRateDropdownIDList($CompanyID);
+        //log::info(print_r($data['TaxRates'],true));
+
+        return Response::json(array("status" => "success","CompanyID"=>$CompanyID, "data" => json_decode(json_encode($data), true)));
+    }
 
     /**
      * Add notes to account
      * */
-    public function store_note($id) {		
+    public function store_note($id) {
         $data 					= 	Input::all();
         $companyID 				= 	User::get_companyID();
         $user_name 				= 	User::get_user_full_name();
@@ -1395,73 +1434,73 @@ class AccountsController extends \BaseController {
         $data['AccountID'] 		= 	$id;
         $data['created_by'] 	=	$user_name;
         $data["Note"] 			= 	nl2br($data["Note"]);
-		$key 					= 	$data['scrol']!=""?$data['scrol']:0;	
-		unset($data["scrol"]);		
- 		$response 				= 	NeonAPI::request('account/add_note',$data);
-		
-		if($response->status=='failed'){
-			return json_response_api($response,false,true);
-		}else{
-			$response = $response->data;
-			$response->type = Task::Note;
-		}
-				
-		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
-		return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));      
-	}
-	/**
+        $key 					= 	$data['scrol']!=""?$data['scrol']:0;
+        unset($data["scrol"]);
+        $response 				= 	NeonAPI::request('account/add_note',$data);
+
+        if($response->status=='failed'){
+            return json_response_api($response,false,true);
+        }else{
+            $response = $response->data;
+            $response->type = Task::Note;
+        }
+
+        $current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+        return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));
+    }
+    /**
      * Get a Note
      */
-	function get_note(){
-		$response				=	array();
-		$data 					= 	Input::all(); 
-		$response_note    		=   NeonAPI::request('account/get_note',$data,false,true);
-		if($response_note['status']=='failed'){
-			return json_response_api($response_note,false,true);
-		}else{
-			return json_encode($response_note['data']);
-		}
-	}
-	/**
+    function get_note(){
+        $response				=	array();
+        $data 					= 	Input::all();
+        $response_note    		=   NeonAPI::request('account/get_note',$data,false,true);
+        if($response_note['status']=='failed'){
+            return json_response_api($response_note,false,true);
+        }else{
+            return json_encode($response_note['data']);
+        }
+    }
+    /**
      * Update a Note
-     */	
-	function update_note()
-	{ 
+     */
+    function update_note()
+    {
         $data 					= 	Input::all();
         $companyID 				= 	User::get_companyID();
         $user_name 				= 	User::get_user_full_name();
         $data['CompanyID'] 		= 	$companyID;
         $data['updated_by'] 	=	$user_name;
         $data["Note"] 			= 	nl2br($data["Note"]);
-		unset($data['KeyID']);
- 		$response 				= 	NeonAPI::request('account/update_note',$data);
-		
-		if($response->status=='failed'){
-			return json_response_api($response,false,true);
-		}else{ 
-			$response = $response->data;
-			$response->type = Task::Note;
-		}
-			
-		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
-		return View::make('accounts.show_ajax_single_update', compact('response','current_user_title','key'));   
-	}
+        unset($data['KeyID']);
+        $response 				= 	NeonAPI::request('account/update_note',$data);
+
+        if($response->status=='failed'){
+            return json_response_api($response,false,true);
+        }else{
+            $response = $response->data;
+            $response->type = Task::Note;
+        }
+
+        $current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+        return View::make('accounts.show_ajax_single_update', compact('response','current_user_title','key'));
+    }
 
     /**
      * Delete a Note
      */
     public function delete_note($id) {
         ///$result = Note::find($id)->delete();
-		$postdata				= 	Input::all(); 
-		$data['NoteID']			=	$id;
-		$data['NoteType']		=	$postdata['note_type'];		 		
-		$response 				= 	NeonAPI::request('account/delete_note',$data);
-		
-		if($response->status=='failed'){
-			return json_response_api($response,false,true);
-		}else{ 
-			return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
-		}     
+        $postdata				= 	Input::all();
+        $data['NoteID']			=	$id;
+        $data['NoteType']		=	$postdata['note_type'];
+        $response 				= 	NeonAPI::request('account/delete_note',$data);
+
+        if($response->status=='failed'){
+            return json_response_api($response,false,true);
+        }else{
+            return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
+        }
     }
 
     public  function  upload($id){
@@ -1533,45 +1572,45 @@ class AccountsController extends \BaseController {
     }
 
     public function ajax_datagrid_sheet($type) {
-            $data = Input::all();
+        $data = Input::all();
 
-            $columns = array('AccountName', 'Trunk', 'EffectiveDate');
-            $sort_column = $columns[$data['iSortCol_0']];
+        $columns = array('AccountName', 'Trunk', 'EffectiveDate');
+        $sort_column = $columns[$data['iSortCol_0']];
 
-            $companyID = User::get_companyID();
-            $data['iDisplayStart'] += 1;
+        $companyID = User::get_companyID();
+        $data['iDisplayStart'] += 1;
 
-            $userID = '';
-            if (User::is('AccountManager')) {
-                $userID = User::get_userID();
-            } elseif (User::is_admin()) {
-                $userID = 0;
-            }
+        $userID = '';
+        if (User::is('AccountManager')) {
+            $userID = User::get_userID();
+        } elseif (User::is_admin()) {
+            $userID = 0;
+        }
 
         $query = "call prc_GetRecentDueSheet (".$companyID.",".$userID.",".$data['AccountType'].",'" . $data['DueDate'] . "',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $query = "call prc_GetRecentDueSheet (".$companyID.",".$userID.",".$data['AccountType'] . ",'" . $data['DueDate'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',1)";
-                DB::setFetchMode(PDO::FETCH_ASSOC);
-                $due_sheets = DB::select($query);
-                DB::setFetchMode(Config::get('database.fetch'));
+            DB::setFetchMode(PDO::FETCH_ASSOC);
+            $due_sheets = DB::select($query);
+            DB::setFetchMode(Config::get('database.fetch'));
 
-                if($type=='csv'){
-                    $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Recent Due Sheet.csv';
-                    $NeonExcel = new NeonExcelIO($file_path);
-                    $NeonExcel->download_csv($due_sheets);
-                }elseif($type=='xlsx'){
-                    $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Recent Due Sheet.xls';
-                    $NeonExcel = new NeonExcelIO($file_path);
-                    $NeonExcel->download_excel($due_sheets);
-                }
-                /*Excel::create('Recent Due Sheet', function ($excel) use ($due_sheets) {
-                    $excel->sheet('Recent Due Sheet', function ($sheet) use ($due_sheets) {
-                        $sheet->fromArray($due_sheets);
-                    });
-                })->download('xls');*/
+            if($type=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Recent Due Sheet.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($due_sheets);
+            }elseif($type=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Recent Due Sheet.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($due_sheets);
             }
+            /*Excel::create('Recent Due Sheet', function ($excel) use ($due_sheets) {
+                $excel->sheet('Recent Due Sheet', function ($sheet) use ($due_sheets) {
+                    $sheet->fromArray($due_sheets);
+                });
+            })->download('xls');*/
+        }
 
-            return DataTableSql::of($query)->make();
+        return DataTableSql::of($query)->make();
     }
 
     public function due_ratesheet()
@@ -1588,7 +1627,7 @@ class AccountsController extends \BaseController {
         }
         $customer_new = Account::getAccountIDList(array('IsCustomer'=>1));
         foreach($customer_new as $acontid =>$customerrow){
-           $new_db[$acontid] =  trim($customerrow);
+            $new_db[$acontid] =  trim($customerrow);
         }
         echo '<pre>';
         $missing_account =  array_diff(array_values($new_db),array_values($old_db));
@@ -1606,12 +1645,12 @@ class AccountsController extends \BaseController {
             $account = Account::find($accountid);
 
             if($accountid>0){
-               $already_account =  DB::connection('sqlsrv3')->table('tblcustomer')->where(array('CustomerID'=>$account->Number))->get();
+                $already_account =  DB::connection('sqlsrv3')->table('tblcustomer')->where(array('CustomerID'=>$account->Number))->get();
                 if(empty($already_account)) {
                     echo $query = 'SET IDENTITY_INSERT RateManagement.dbo.tblcustomer ON
 insert into RateManagement.dbo.tblcustomer (CustomerID,CompanyID,CustomerName,Active,Postcode,Address1,Address2,Address3,ContactEmail,RateEmail,BillingEmail,TechnicalEmail,VATNo) values
 (' . " '$account->Number','$account->CompanyId','$account->AccountName','$account->Status','$account->Postcode','$account->Address1','$account->Address2','$account->Address3','$account->Email','$account->RateEmail','$account->BillingEmail','$account->TechnicalEmail','$account->vatnumber')" .
-                      "
+                        "
 SET IDENTITY_INSERT RateManagement.dbo.tblcustomer OFF
 insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,Active) values
 ('$account->AccountName','$account->CompanyId',0,'$account->Number','$account->Status')
@@ -1651,7 +1690,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $email_data['AccountName'] = $data['AccountName'];
             $email_data['Subject'] = "Customer Panel - Password Set";
             $status = sendMail('emails.admin.accounts.password_set', $email_data);
-			$email_data['message_id'] 	=  isset($status['message_id'])?$status['message_id']:"";
+            $email_data['message_id'] 	=  isset($status['message_id'])?$status['message_id']:"";
             $email_data['AccountID'] = $account->AccountID;
             $email_data['message'] = isset($status['body'])?$status['body']:'';
             $email_data['EmailTo'] = $data['BillingEmail'];
@@ -1666,52 +1705,52 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     // not using
     public function get_outstanding_amount($id) {
 
-            $data = Input::all();
-            $account = Account::find($id);
-            $companyID = User::get_companyID();
-            $Invoiceids = $data['InvoiceIDs'];
-            $outstanding = Account::getOutstandingInvoiceAmount($companyID, $account->AccountID, $Invoiceids, get_round_decimal_places($account->AccountID));
-            $currency = Currency::getCurrencySymbol($account->CurrencyId);
-            $outstandingtext = $currency.$outstanding;
-            echo json_encode(array("status" => "success", "message" => "", "outstanding" => $outstanding, "outstadingtext" => $outstandingtext));
+        $data = Input::all();
+        $account = Account::find($id);
+        $companyID = User::get_companyID();
+        $Invoiceids = $data['InvoiceIDs'];
+        $outstanding = Account::getOutstandingInvoiceAmount($companyID, $account->AccountID, $Invoiceids, get_round_decimal_places($account->AccountID));
+        $currency = Currency::getCurrencySymbol($account->CurrencyId);
+        $outstandingtext = $currency.$outstanding;
+        echo json_encode(array("status" => "success", "message" => "", "outstanding" => $outstanding, "outstadingtext" => $outstandingtext));
     }
 
     // not using
     public function paynow($id){
-            $data = Input::all();
-            $CompanyID = User::get_companyID();
-            $CreatedBy = User::get_user_full_name();
-            $Invoiceids = $data['InvoiceIDs'];
-            $AccountPaymentProfileID = $data['AccountPaymentProfileID'];
-            return AccountPaymentProfile::paynow($CompanyID, $id, $Invoiceids, $CreatedBy, $AccountPaymentProfileID);
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $CreatedBy = User::get_user_full_name();
+        $Invoiceids = $data['InvoiceIDs'];
+        $AccountPaymentProfileID = $data['AccountPaymentProfileID'];
+        return AccountPaymentProfile::paynow($CompanyID, $id, $Invoiceids, $CreatedBy, $AccountPaymentProfileID);
     }
 
     public function bulk_mail(){
 
-            $data = Input::all();
-            if (User::is('AccountManager')) { // Account Manager
-                $criteria = json_decode($data['criteria'],true);
-                $criteria['account_owners'] = $userID = User::get_userID();
-                $data['criteria'] = json_encode($criteria);
+        $data = Input::all();
+        if (User::is('AccountManager')) { // Account Manager
+            $criteria = json_decode($data['criteria'],true);
+            $criteria['account_owners'] = $userID = User::get_userID();
+            $data['criteria'] = json_encode($criteria);
+        }
+        $type = $data['type'];
+        if ($type == 'CD') {
+            $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required',);
+
+            if (!isset($data['isMerge'])) {
+                $data['isMerge'] = 0;
             }
-            $type = $data['type'];
-            if ($type == 'CD') {
-                $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required',);
 
-                if (!isset($data['isMerge'])) {
-                    $data['isMerge'] = 0;
-                }
+            $validator = Validator::make($data, $rules);
 
-                $validator = Validator::make($data, $rules);
-
-                if ($validator->fails()) {
-                    return json_validator_response($validator);
-                }
-            } else {
-                unset($data['Format']);
-                unset($data['isMerge']);
+            if ($validator->fails()) {
+                return json_validator_response($validator);
             }
-            return bulk_mail($type, $data);
+        } else {
+            unset($data['Format']);
+            unset($data['isMerge']);
+        }
+        return bulk_mail($type, $data);
     }
 
     public function validate_cli(){
@@ -1757,31 +1796,31 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 
     public function bulk_tags(){
-            $data = Input::all();
-            $rules = array(
-                'tags' => 'required',
-                'SelectedIDs' => 'required',
-            );
+        $data = Input::all();
+        $rules = array(
+            'tags' => 'required',
+            'SelectedIDs' => 'required',
+        );
 
-            $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, $rules);
 
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
 
-            $newTags = array_diff(explode(',', $data['tags']), Tags::getTagsArray());
-            if (count($newTags) > 0) {
-                foreach ($newTags as $tag) {
-                    Tags::create(array('TagName' => $tag, 'CompanyID' => User::get_companyID(), 'TagType' => Tags::Account_tag));
-                }
+        $newTags = array_diff(explode(',', $data['tags']), Tags::getTagsArray());
+        if (count($newTags) > 0) {
+            foreach ($newTags as $tag) {
+                Tags::create(array('TagName' => $tag, 'CompanyID' => User::get_companyID(), 'TagType' => Tags::Account_tag));
             }
-            $SelectedIDs = $data['SelectedIDs'];
-            unset($data['SelectedIDs']);
-            if (Account::whereIn('AccountID', explode(',', $SelectedIDs))->update($data)) {
-                return Response::json(array("status" => "success", "message" => "Account Successfully Updated"));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
-            }
+        }
+        $SelectedIDs = $data['SelectedIDs'];
+        unset($data['SelectedIDs']);
+        if (Account::whereIn('AccountID', explode(',', $SelectedIDs))->update($data)) {
+            return Response::json(array("status" => "success", "message" => "Account Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
+        }
     }
     /**
      * Update InboutRateTable
@@ -1814,8 +1853,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = $account->CompanyId;
         $BillingType=AccountBilling::where(['AccountID'=>$id,'ServiceID'=>0])->pluck('BillingType');
         $getdata['AccountID'] = $id;
-        $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount']);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = 0;
+        $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount', 'OutPaymentAwaiting', 'OutPaymentAvailable', 'OutPaymentPaid']);
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = $OutPaymentAwaiting = $OutPaymentAvailable = $OutPaymentPaid = $OutPaymentPaid = 0;
         if (!empty($response)) {
             if (!empty($response->PermanentCredit)) {
                 $PermanentCredit = $response->PermanentCredit;
@@ -1823,10 +1862,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             if (!empty($response->TemporaryCredit)) {
                 $TemporaryCredit = $response->TemporaryCredit;
             }
+            if (!empty($response->OutPaymentAwaiting)) {
+                $OutPaymentAwaiting = $response->OutPaymentAwaiting;
+            }
+            if (!empty($response->OutPaymentAvailable)) {
+                $OutPaymentAvailable = $response->OutPaymentAvailable;
+            }
+            if (!empty($response->OutPaymentPaid)) {
+                $OutPaymentPaid = $response->OutPaymentPaid;
+            }
             if (!empty($response->BalanceThreshold)) {
                 $BalanceThreshold = $response->BalanceThreshold;
             }else{
-               $BalanceThreshold=0; 
+                $BalanceThreshold=0;
             }
             //$SOA_Amount = AccountBalance::getAccountSOA($CompanyID, $id);
             $SOA_Amount = AccountBalance::getNewAccountBalance($CompanyID, $id);
@@ -1846,15 +1894,15 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $SOA_Amount = AccountBalanceLog::getPrepaidAccountBalance($id);
         }
         if(!empty($id)){
-                $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $id))->get();
-            }
-        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType','AccountBalanceThreshold'));
+            $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $id))->get();
+        }
+        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType','AccountBalanceThreshold', 'OutPaymentAwaiting', 'OutPaymentAvailable', 'OutPaymentPaid'));
     }
 
     public function update_credit(){
         $data = Input::all();
         $postdata= $data;
-        
+
         //Update Account Thread HOld
         try{
             AccountBalanceThreshold::where('AccountID', $postdata['AccountID'])->delete();
@@ -1887,7 +1935,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data       =  Input::all();
         $attachment    =  Input::file('emailattachment');
         if(!empty($attachment)) {
-            try { 
+            try {
                 $data['file'] = $attachment;
                 $returnArray = UploadFile::UploadFileLocal($data);
                 return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
@@ -1908,80 +1956,80 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
     }
 
-	
-	function Delete_task_parent()
-	{
-		$data 		= 	Input::all();
-		
-		if($data['parent_type']==Task::Note)
-		{
-			$data_send  	=  	array("NoteID" => $data['parent_id']);
-			$result 		=  	NeonAPI::request('account/delete_note',$data_send);
-		}
-		
-		if($data['parent_type']==Task::Mail)
-		{
-			$data_send  	=  array("AccountEmailLogID" => $data['parent_id']);
-			$result 		=  NeonAPI::request('account/delete_email',$data_send);
-			
-		}
-		return  json_response_api($result);
 
-	}
-	
-	function UpdateBulkAccountStatus()
-	{
-		$data 		 = 	Input::all();
-		$CompanyID 	 =  User::get_companyID();
-		
-		$type_status =  $data['type_active_deactive'];
-		
-		if(isset($data['type_active_deactive']) && $data['type_active_deactive']!='')
-		{
-			if($data['type_active_deactive']=='active'){
-				$data['status_set']  = 1;
-			}else if($data['type_active_deactive']=='deactive'){
-					$data['status_set']  = 0;
-			}else{
-				return Response::json(array("status" => "failed", "message" => "No account status selected"));
-			}
-		}else{
-			return Response::json(array("status" => "failed", "message" => "No account status selected"));
-		}
-		
-		if($data['criteria_ac']=='criteria'){ //all account checkbox checked
-			$userID = 0;
-			
-			if (User::is('AccountManager')) { // Account Manager
-				$userID = $userID = User::get_userID();
-			}elseif(User::is_admin() && isset($data['account_owners'])  && trim($data['account_owners']) > 0) {
-				$userID = (int)$data['account_owners'];
-			}
-			$data['vendor_on_off'] 	 = $data['vendor_on_off']== 'true'?1:0;
-			$data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
-			$data['reseller_on_off'] = $data['reseller_on_off']== 'true'?1:0;
-			$data['low_balance'] = $data['low_balance']== 'true'?1:0;
+    function Delete_task_parent()
+    {
+        $data 		= 	Input::all();
 
-		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."','".$data['status_set']."')";
-		 
-		 	$result  			= 	DB::select($query);	
-			return Response::json(array("status" => "success", "message" => "Account Status Updated"));				
-		}
-		
-		if($data['criteria_ac']=='selected'){ //selceted ids from current page
-			if(isset($data['SelectedIDs']) && count($data['SelectedIDs'])>0){
-				foreach($data['SelectedIDs'] as $SelectedIDs){
-					Account::find($SelectedIDs)->update(["Status"=>intval($data['status_set'])]);
-				}	
-				return Response::json(array("status" => "success", "message" => "Account Status Updated"));		
-			}else{
-				return Response::json(array("status" => "failed", "message" => "No account selected"));
-			}
-			
-		}
-		
-		
-	}
+        if($data['parent_type']==Task::Note)
+        {
+            $data_send  	=  	array("NoteID" => $data['parent_id']);
+            $result 		=  	NeonAPI::request('account/delete_note',$data_send);
+        }
+
+        if($data['parent_type']==Task::Mail)
+        {
+            $data_send  	=  array("AccountEmailLogID" => $data['parent_id']);
+            $result 		=  NeonAPI::request('account/delete_email',$data_send);
+
+        }
+        return  json_response_api($result);
+
+    }
+
+    function UpdateBulkAccountStatus()
+    {
+        $data 		 = 	Input::all();
+        $CompanyID 	 =  User::get_companyID();
+
+        $type_status =  $data['type_active_deactive'];
+
+        if(isset($data['type_active_deactive']) && $data['type_active_deactive']!='')
+        {
+            if($data['type_active_deactive']=='active'){
+                $data['status_set']  = 1;
+            }else if($data['type_active_deactive']=='deactive'){
+                $data['status_set']  = 0;
+            }else{
+                return Response::json(array("status" => "failed", "message" => "No account status selected"));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => "No account status selected"));
+        }
+
+        if($data['criteria_ac']=='criteria'){ //all account checkbox checked
+            $userID = 0;
+
+            if (User::is('AccountManager')) { // Account Manager
+                $userID = $userID = User::get_userID();
+            }elseif(User::is_admin() && isset($data['account_owners'])  && trim($data['account_owners']) > 0) {
+                $userID = (int)$data['account_owners'];
+            }
+            $data['vendor_on_off'] 	 = $data['vendor_on_off']== 'true'?1:0;
+            $data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
+            $data['reseller_on_off'] = $data['reseller_on_off']== 'true'?1:0;
+            $data['low_balance'] = $data['low_balance']== 'true'?1:0;
+
+            $query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."','".$data['status_set']."')";
+
+            $result  			= 	DB::select($query);
+            return Response::json(array("status" => "success", "message" => "Account Status Updated"));
+        }
+
+        if($data['criteria_ac']=='selected'){ //selceted ids from current page
+            if(isset($data['SelectedIDs']) && count($data['SelectedIDs'])>0){
+                foreach($data['SelectedIDs'] as $SelectedIDs){
+                    Account::find($SelectedIDs)->update(["Status"=>intval($data['status_set'])]);
+                }
+                return Response::json(array("status" => "success", "message" => "Account Status Updated"));
+            }else{
+                return Response::json(array("status" => "failed", "message" => "No account selected"));
+            }
+
+        }
+
+
+    }
 
     public function expense($id){
         $CurrencySymbol = Account::getCurrency($id);
@@ -1997,7 +2045,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function unbilledreport($id){
         $data = Input::all();
-       // $companyID = User::get_companyID();
+        // $companyID = User::get_companyID();
         // @TODO: ServiceID need to fix for show
         $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
@@ -2069,15 +2117,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 
     public function clitable_ajax_datagrid($id){
-        $CompanyID = User::get_companyID();
+
         $data = Input::all();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
+        Log::info("clitable_ajax_datagrid_query " . print_r($data,true));
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblCLIRateTable.RateTableID')
-            ->leftJoin('tblRateTable as prt','prt.RateTableId','=','tblCLIRateTable.PackageRateTableID')
+            ->leftJoin('tblRateTable as termination','termination.RateTableId','=','tblCLIRateTable.TerminationRateTableID')
             ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
-            ->leftJoin('tblPackage','tblPackage.PackageId','=','tblCLIRateTable.PackageID')
-            ->select(['CLIRateTableID','CLI','rt.RateTableName','tblPackage.Name as Package','prt.RateTableName as PackageRateTableName', 'tblCLIRateTable.NoType', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.CityTariff', 'tblCLIRateTable.Status', 'tblCLIRateTable.RateTableID', 'tblCLIRateTable.PackageID', 'tblCLIRateTable.PackageRateTableID'])
+            ->leftJoin('tblCountry','tblCountry.CountryID','=','tblCLIRateTable.CountryID')
+            ->select(['CLIRateTableID', 'CLI', 'rt.RateTableName as AccessRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.AccessDiscountPlanID ) as AccessDiscountPlan"), 'termination.RateTableName as TerminationRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.TerminationDiscountPlanID ) as TerminationDiscountPlan"), 'tblCLIRateTable.ContractID', 'tblCLIRateTable.NoType',
+                'tblCountry.Country as Country', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
+                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
+            ->where("tblCLIRateTable.AccountServiceID",$data['AccountServiceID'])
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
             $rate_tables->WhereRaw('CLI like "%'.$data['CLIName'].'%"');
@@ -2088,6 +2142,15 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($data['ServiceID'])){
             $rate_tables->where('tblCLIRateTable.ServiceID','=',$data['ServiceID']);
         }
+        if(!empty($data['NumberContractID'])){
+            $rate_tables->where('tblCLIRateTable.ContractID','=',$data['NumberContractID']);
+        }
+        if(!empty($data['NumberStartDate'])){
+            $rate_tables->where('tblCLIRateTable.NumberStartDate','>=',$data['NumberStartDate']);
+        }
+        if(!empty($data['NumberEndDate'])){
+            $rate_tables->where('tblCLIRateTable.NumberEndDate','<=',$data['NumberEndDate']);
+        }
         if(!empty($data['AccountServiceID'])){
             $rate_tables->where('tblCLIRateTable.AccountServiceID','=',$data['AccountServiceID']);
         }
@@ -2095,50 +2158,112 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         else{
             $rate_tables->where('tblCLIRateTable.ServiceID','=',0);
         }*/
+        Log::info($rate_tables->toSql());
+        return Datatables::of($rate_tables)->make();
+    }
+
+    public function packagetable_ajax_datagrid($id){
+
+
+        $data = Input::all();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
+        Log::info("packagetable_ajax_datagrid" . print_r($data,true));
+        $rate_tables = AccountServicePackage::
+        leftJoin('tblRateTable as rt','rt.RateTableId','=','tblAccountServicePackage.RateTableID')->
+            leftJoin('tblPackage as package','package.PackageId','=','tblAccountServicePackage.PackageId')
+            ->select(['AccountServicePackageID', 'package.Name','rt.RateTableName',DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblAccountServicePackage.PackageDiscountPlanID ) as PackageDiscountPlan"),'tblAccountServicePackage.ContractID', 'tblAccountServicePackage.PackageStartDate', 'tblAccountServicePackage.PackageEndDate', 'tblAccountServicePackage.Status',
+                'tblAccountServicePackage.PackageId','tblAccountServicePackage.RateTableID','tblAccountServicePackage.PackageDiscountPlanID'])
+            ->where("tblAccountServicePackage.CompanyID",$CompanyID)
+            ->where("package.CompanyID",$CompanyID)
+            ->where("tblAccountServicePackage.AccountServiceID",$data['AccountServiceID'])
+            ->where("tblAccountServicePackage.AccountID",$id);
+
+        if(isset($data['PackageStatus']) && $data['PackageStatus'] != ""){
+            $rate_tables->where('tblAccountServicePackage.Status',"=",$data['PackageStatus']);
+        }
+        if(!empty($data['PackageName'])){
+            $rate_tables->where('tblAccountServicePackage.PackageId','=',$data['PackageName']);
+        }
+        if(!empty($data['AccountServiceID'])){
+            $rate_tables->where('tblAccountServicePackage.AccountServiceID','=',$data['AccountServiceID']);
+        }
+        if(!empty($data['PackageContractID'])){
+            $rate_tables->where('tblAccountServicePackage.ContractID','=',$data['PackageContractID']);
+        }
+        if(!empty($data['PackageStartDate'])){
+            $rate_tables->where('tblAccountServicePackage.PackageStartDate','>=',$data['PackageStartDate']);
+        }
+        if(!empty($data['PackageEndDate'])){
+            $rate_tables->where('tblAccountServicePackage.PackageEndDate','<=',$data['PackageEndDate']);
+        }
+        /*
+        else{
+            $rate_tables->where('tblCLIRateTable.ServiceID','=',0);
+        }*/
+        Log::info("packagetable_ajax_datagrid" . $rate_tables->toSql());
         return Datatables::of($rate_tables)->make();
     }
     public function clitable_store(){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
         $message = '';
 
+        Log::info("clitable_store " . print_r($data,true));
         $rules['CLI'] = 'required';
-        $rules['PackageID'] = 'required_with:PackageRateTableID';
-        $rules['PackageRateTableID'] = 'required_with:PackageID';
+        $rules['NumberStartDate'] = 'required';
+        $rules['NumberEndDate'] = 'required';
+
 
         $validator = Validator::make($data, $rules, [
             'CLI.required' => "Number is required.",
-            'PackageID.required_with' => "Package is required.",
-            'PackageRateTableID.required_with' => "Package Rate Table is required."
         ]);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        if (strtotime($data['NumberEndDate']) <= strtotime($data['NumberStartDate'])) {
+            return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+        }
+
+
+
         $clis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['CLI']),function($var){return trim($var)!='';});
 
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
         $insertArr = [];
-        foreach($clis as $cli){
-            $check = CLIRateTable::where([
-                'CompanyID'=>$CompanyID,
-                'AccountID'=>$data['AccountID'],
-                'CLI'=>$cli,
-                'Status'=>1
-            ])->count();
-            if($check){
-                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'AccountID'=>$data['AccountID'],'CLI'=>$cli,'Status'=>1))->pluck('AccountID');
-                $message .= $cli.' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
+        $cli = $data['CLI'];
+        $check = CLIRateTable::where([
+            'CompanyID' =>  $CompanyID,
+            'AccountID' =>  $data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'Status'    =>  1
+        ])->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
+            ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+
+            if($check->count() > 0){
+                $message = 'Number '. $data['CLI'] . ' already exist between start date '.
+                    $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
+                return Response::json(array("status" => "error", "message" => $message));
             } else {
-                $rate_tables['CLI'] = $cli;
+                $rate_tables['CLI'] = $data['CLI'];
                 $rate_tables['RateTableID'] = $data['RateTableID'];
-                $rate_tables['PackageID'] = !empty($data['PackageID']) ? $data['PackageID'] : 0;
-                $rate_tables['PackageRateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
+                $rate_tables['AccessDiscountPlanID'] = !empty($data['AccessDiscountPlanID']) ? $data['AccessDiscountPlanID'] : 0;
+                $rate_tables['TerminationRateTableID'] = !empty($data['TerminationRateTableID']) ? $data['TerminationRateTableID'] : 0;
+                $rate_tables['TerminationDiscountPlanID'] = !empty($data['TerminationDiscountPlanID']) ? $data['TerminationDiscountPlanID'] : 0;
+                $rate_tables['CountryID'] = !empty($data['CountryID']) ? $data['CountryID'] : 0;
+                $rate_tables['NumberStartDate'] = !empty($data['NumberStartDate']) ? $data['NumberStartDate'] : '';
+                $rate_tables['NumberEndDate'] = !empty($data['NumberEndDate']) ? $data['NumberEndDate'] : '';
+                $rate_tables['NoType'] = !empty($data['NoType']) ? $data['NoType'] : '';
+                $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
+                $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
+                $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
+                $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
                 $rate_tables['AccountID'] = $data['AccountID'];
                 $rate_tables['CompanyID'] = $CompanyID;
-                $rate_tables['CityTariff'] = !empty($data['CityTariff'])?$data['CityTariff']:'';
-                $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
-                $rate_tables['NoType'] = !empty($data['Type'])?$data['Type']:'';
+
+
                 $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
                 if(!empty($data['ServiceID'])) {
                     $rate_tables['ServiceID'] = $data['ServiceID'];
@@ -2148,19 +2273,91 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 }
                 $insertArr[] = $rate_tables;
             }
-        }
+
 
         if(!empty($message)){
             $message = 'Following CLI already exists.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
         }else{
             CLIRateTable::insert($insertArr);
-            return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));
+            return Response::json(array("status" => "success", "message" => "Number Successfully Added"));
+        }
+
+    }
+    public function packagetable_store(){
+        $data = Input::all();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
+        $message = '';
+        $date = date('Y-m-d H:i:s');
+        $CreatedBy = User::get_user_full_name();
+
+        $rules['PackageID'] = 'required';
+        $rules['PackageStartDate'] = 'required';
+        $rules['PackageEndDate'] = 'required';
+
+
+        $validator = Validator::make($data, $rules, [
+            'PackageID.required' => "PackageID is required.",
+        ]);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        if (strtotime($data['PackageEndDate']) <= strtotime($data['PackageStartDate'])) {
+            return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+        }
+
+        $insertArr = [];
+        $PackageId = $data['PackageID'];
+        $check = AccountServicePackage::where([
+            'CompanyID'=>$CompanyID,
+            'AccountID'=>$data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'Status'=>1
+        ])->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
+            ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
+
+        if($check->count() > 0){
+            $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
+        } else {
+            $rate_tables['PackageID'] = $data['PackageID'];
+            $rate_tables['RateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
+            $rate_tables['PackageDiscountPlanID'] = !empty($data['AccountPackageDiscountPlanID']) ? $data['AccountPackageDiscountPlanID'] : 0;
+            $rate_tables['PackageStartDate'] = !empty($data['PackageStartDate']) ? $data['PackageStartDate'] : '';
+            $rate_tables['PackageEndDate'] = !empty($data['PackageEndDate']) ? $data['PackageEndDate'] : '';
+            $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
+            $rate_tables['AccountID'] = $data['AccountID'];
+            $rate_tables['CompanyID'] = $CompanyID;
+            $rate_tables['created_at'] = $date;
+            $rate_tables['created_by'] = $CreatedBy;
+            $rate_tables['updated_at'] = $date;
+            $rate_tables['updated_by'] = $CreatedBy;
+
+            $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
+            if(!empty($data['ServiceID'])) {
+                $rate_tables['ServiceID'] = $data['ServiceID'];
+            }
+            if(!empty($data['AccountServiceID'])) {
+                $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
+            }
+            $insertArr[] = $rate_tables;
+        }
+
+
+        if(!empty($message)){
+
+            return Response::json(array("status" => "error", "message" => $message));
+        }else{
+            AccountServicePackage::insert($insertArr);
+            return Response::json(array("status" => "success", "message" => "Package Successfully Added"));
         }
 
     }
     public function clitable_delete($CLIRateTableID){
         $data = Input::all();
+
         $CompanyID = User::get_companyID();
         $Date = '';
         $Confirm = 0;
@@ -2180,8 +2377,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $AccountServiceID = 0;
         }
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
+
         if ($CLIRateTableID > 0) {
             $CLIs = CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->pluck('CLI');
+            $data['CLIRateTableIDs'] = $CLIRateTableID + ",";
         } else if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
             $CLIRateTables = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')
@@ -2204,15 +2403,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if($recordFound[0]->Status>0){
             return Response::json(array("status" => "check","check"=>1));
         }
-        if ($CLIRateTableID > 0) {
-            //CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->where(array('ServiceID' => $ServiceID))->delete();
-            CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->delete();
-        } else if (!empty($data['criteria'])) {
-            $criteria = json_decode($data['criteria'], true);
-            CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')
-                //->where(array('ServiceID' => $ServiceID))
-                ->where(array('AccountID' => $data['AccountID']))->delete();
-        } else if (!empty($data['CLIRateTableIDs'])) {
+
+        Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
+
+         if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
             //CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->delete();
             CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->delete();
@@ -2221,24 +2415,45 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         return Response::json(array("status" => "success", "message" => "CLI Deleted Successfully"));
     }
 
+    public function packagetable_delete($AccountServicePackageID){
+        $data = Input::all();
+        Log::info("packagetable_delete " . print_r($data,true) . '' . $AccountServicePackageID);
+        $CompanyID = User::get_companyID();
+        if ($AccountServicePackageID > 0) {
+            $data['AccountServicePackageIDs'] = $AccountServicePackageID + ",";
+        }
+        if (!empty($data['AccountServicePackageIDs'])) {
+            $CLIRateTableIDs = explode(',', $data['AccountServicePackageIDs']);
+            AccountServicePackage::whereIn('AccountServicePackageID', $CLIRateTableIDs)->delete();
+        }
+
+        return Response::json(array("status" => "success", "message" => "Package Deleted Successfully"));
+    }
+
     public function clitable_update(){
         $data = Input::all();
-
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
         $rules['CLI'] = 'required';
-        $rules['PackageID'] = 'required_with:PackageRateTableID';
-        $rules['PackageRateTableID'] = 'required_with:PackageID';
+        $rules['NumberStartDate'] = 'required';
+        $rules['NumberEndDate'] = 'required';
+        Log::info("clitable_store " . print_r($data,true));
 
         $validator = Validator::make($data, $rules, [
             'CLI.required' => "Number is required.",
-            'PackageID.required_with' => "Package is required.",
-            'PackageRateTableID.required_with' => "Package Rate Table is required."
+
         ]);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
 
-        $CompanyID = User::get_companyID();
+        if (strtotime($data['NumberEndDate']) <= strtotime($data['NumberStartDate'])) {
+                return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+       }
+
+        $cli = $data['CLI'];
+
         if(!empty($data['ServiceID'])){
             $ServiceID = $data['ServiceID'];
         }else{
@@ -2250,49 +2465,134 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $AccountServiceID = 0;
         }
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
-        $UpdateData=array();
-        $UpdateData['CityTariff']   = !empty($data['CityTariff'])?$data['CityTariff']:'';
-        $UpdateData['Prefix']       = !empty($data['Prefix'])?$data['Prefix']:'';
-        $UpdateData['NoType']       = !empty($data['Type'])?$data['Type']:'';
-        $UpdateData['RateTableID']  = @$data['RateTableID'];
-        $UpdateData['CLI']          = $data['CLI'];
-        $UpdateData['PackageID']    = !empty($data['PackageID']) ? $data['PackageID'] : 0;
-        $UpdateData['PackageRateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
-        $UpdateData['Status']       = isset($data['Status']) ? 1 : 0;
+        $rate_tables['CLI'] = $cli;
+        $rate_tables['RateTableID'] = $data['RateTableID'];
+        $rate_tables['AccessDiscountPlanID'] = !empty($data['AccessDiscountPlanID']) ? $data['AccessDiscountPlanID'] : 0;
+        $rate_tables['TerminationRateTableID'] = !empty($data['TerminationRateTableID']) ? $data['TerminationRateTableID'] : 0;
+        $rate_tables['TerminationDiscountPlanID'] = !empty($data['TerminationDiscountPlanID']) ? $data['TerminationDiscountPlanID'] : 0;
+        $rate_tables['CountryID'] = !empty($data['CountryID']) ? $data['CountryID'] : 0;
+        $rate_tables['NumberStartDate'] = !empty($data['NumberStartDate']) ? $data['NumberStartDate'] : '';
+        $rate_tables['NumberEndDate'] = !empty($data['NumberEndDate']) ? $data['NumberEndDate'] : '';
+        $rate_tables['NoType'] = !empty($data['NoType']) ? $data['NoType'] : '';
+        $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
+        $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
+        $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
+        $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
+        $rate_tables['AccountID'] = $data['AccountID'];
+        $rate_tables['CompanyID'] = $CompanyID;
 
-        if (!empty($data['criteria'])) {
-            $criteria = json_decode($data['criteria'], true);
-            $query = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"');
-            //$query->where(array('ServiceID' => $ServiceID));
-            $query->where(array('AccountID' => $data['AccountID']));
-            $query->update($UpdateData);
-        } else if (!empty($data['CLIRateTableIDs'])) {
-            $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
-            $query = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs);
-            // $query->where(array('ServiceID' => $ServiceID));
-            $query->update($UpdateData);
-        } else if (!empty($data['CLIRateTableID'])) {
+
+        $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
+        if(!empty($data['ServiceID'])) {
+            $rate_tables['ServiceID'] = $data['ServiceID'];
+        }
+        if(!empty($data['AccountServiceID'])) {
+            $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
+        }
+       // $UpdateData[] = $rate_tables;
+
+
+
+         if (!empty($data['CLIRateTableID'])) {
             $oldCLI = CLIRateTable::findOrFail($data['CLIRateTableID']);
 
             // if this cli already exist in table
             $check = false;
-            if($UpdateData['Status'] == 1 || $data['CLI'] != $oldCLI->CLI)
+            if($rate_tables['Status'] == 1 || $data['CLI'] != $oldCLI->CLI)
                 $check = CLIRateTable::where([
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
-                    'CLI'       =>  $data['CLI'],
+                    'AccountServiceID' =>  $data['AccountServiceID'],
                     'Status'    =>  1
-                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->count();
+                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])
+                    ->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
+                    ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
 
-            if($check){
-                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID, 'AccountID'=>$data['AccountID'],'CLI'=>$data['CLI'],'Status'=>1))->pluck('AccountID');
-                $message = 'Following CLI '. $data['CLI'] . ' already exist with active status against '.Account::getCompanyNameByID($AccountID).'.<br>';
+             if($check->count() > 0){
+                $message = 'Number '. $data['CLI'] . ' already exist between start date '.
+                    $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
 
-            $oldCLI->update($UpdateData);
+            $oldCLI->update($rate_tables);
         }
-        return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
+        return Response::json(array("status" => "success", "message" => "Number Updated Successfully"));
+    }
+
+    public function packagetable_update(){
+        $data = Input::all();
+        $account = Account::find($data['AccountID']);
+        $CompanyID = $account->CompanyId;
+
+        $rules['PackageID'] = 'required';
+        $rules['PackageStartDate'] = 'required';
+        $rules['PackageEndDate'] = 'required';
+        $date = date('Y-m-d H:i:s');
+        $CreatedBy = User::get_user_full_name();
+
+
+        $validator = Validator::make($data, $rules, [
+            'PackageID.required' => "Package is required.",
+
+        ]);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        if (strtotime($data['PackageEndDate']) <= strtotime($data['PackageStartDate'])) {
+            return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+        }
+        $rate_tables['PackageID'] = $data['PackageID'];
+        $rate_tables['RateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
+        $rate_tables['PackageDiscountPlanID'] = !empty($data['AccountPackageDiscountPlanID']) ? $data['AccountPackageDiscountPlanID'] : 0;
+        $rate_tables['PackageStartDate'] = !empty($data['PackageStartDate']) ? $data['PackageStartDate'] : '';
+        $rate_tables['PackageEndDate'] = !empty($data['PackageEndDate']) ? $data['PackageEndDate'] : '';
+        $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
+        $rate_tables['AccountID'] = $data['AccountID'];
+        $rate_tables['CompanyID'] = $CompanyID;
+        $rate_tables['updated_at'] = $date;
+        $rate_tables['updated_by'] = $CreatedBy;
+
+        $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
+        if(!empty($data['ServiceID'])) {
+            $rate_tables['ServiceID'] = $data['ServiceID'];
+        }
+        if(!empty($data['AccountServiceID'])) {
+            $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
+        }
+        /* $PackageId = $data['PackageID'];
+        $check = AccountServicePackage::where([
+            'CompanyID'=>$CompanyID,
+            'AccountID'=>$data['AccountID'],
+            'PackageId'=>$PackageId,
+            'Status'=>1
+        ])->count();*/
+
+
+
+        if (!empty($data['AccountServicePackageID'])) {
+            $oldAccountServicePackage = AccountServicePackage::findOrFail($data['AccountServicePackageID']);
+
+            // if this cli already exist in table
+            $check = false;
+            if($rate_tables['Status'] == 1 || $data['PackageID'] != $oldAccountServicePackage->PackageId)
+                $check = AccountServicePackage::where([
+                    'CompanyID' =>  $CompanyID,
+                    'AccountID' =>  $data['AccountID'],
+                    'AccountServiceID' =>  $data['AccountServiceID'],
+                    'Status'    =>  1
+                ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])
+                    ->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
+                    ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
+
+            if($check->count() > 0){
+                $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
+                return Response::json(array("status" => "error", "message" => $message));
+            }
+
+            $oldAccountServicePackage->update($rate_tables);
+        }
+        return Response::json(array("status" => "success", "message" => "Package Updated Successfully"));
     }
 
     public function BulkAction(){
@@ -2304,32 +2604,32 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $ResellerOwner=0;
         $ResellerAccountOwnerUpdate=0;
         if(
-		   !isset($data['OwnerCheck']) &&
-		   !isset($data['CurrencyCheck']) &&
-           !isset($data['VendorCheck']) &&
-           !isset($data['BillingCheck']) &&
-           !isset($data['CustomerCheck'])&&
-           !isset($data['ResellerCheck'])&&
-           !isset($data['CustomerPaymentAddCheck'])&&
-           !isset($data['ResellerOwnerAddCheck'])&&
-           !isset($data['BulkBillingClassCheck'])&&
-           !isset($data['BulkBillingTypeCheck'])&&
-           !isset($data['BulkBillingTimezoneCheck'])&&
-           !isset($data['BulkBillingStartDateCheck'])&&
-           !isset($data['BulkBillingCycleTypeCheck'])&&
-           !isset($data['BulkSendInvoiceSettingCheck'])&&
-           !isset($data['BulkAutoPaymentSettingCheck']) &&
-           !isset($data['BulkAutoPaymentMethodCheck'])
-		  )
-		{
-			return Response::json(array("status" => "error", "message" => "Please select at least one option."));
+            !isset($data['OwnerCheck']) &&
+            !isset($data['CurrencyCheck']) &&
+            !isset($data['VendorCheck']) &&
+            !isset($data['BillingCheck']) &&
+            !isset($data['CustomerCheck'])&&
+            !isset($data['ResellerCheck'])&&
+            !isset($data['CustomerPaymentAddCheck'])&&
+            !isset($data['ResellerOwnerAddCheck'])&&
+            !isset($data['BulkBillingClassCheck'])&&
+            !isset($data['BulkBillingTypeCheck'])&&
+            !isset($data['BulkBillingTimezoneCheck'])&&
+            !isset($data['BulkBillingStartDateCheck'])&&
+            !isset($data['BulkBillingCycleTypeCheck'])&&
+            !isset($data['BulkSendInvoiceSettingCheck'])&&
+            !isset($data['BulkAutoPaymentSettingCheck']) &&
+            !isset($data['BulkAutoPaymentMethodCheck'])
+        )
+        {
+            return Response::json(array("status" => "error", "message" => "Please select at least one option."));
         }
-		elseif(!isset($data['BulkselectedIDs']) || empty($data['BulkselectedIDs']))
-		{
-			return Response::json(array("status" => "error", "message" => "Please select at least one Account."));
+        elseif(!isset($data['BulkselectedIDs']) || empty($data['BulkselectedIDs']))
+        {
+            return Response::json(array("status" => "error", "message" => "Please select at least one Account."));
         }
 
-		
+
         $update = [];
         $billingupdate = array();
         $currencyupdate = array();
@@ -2340,14 +2640,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
         if(isset($data['Currency']) && $data['Currency'] != 0 && isset($data['CurrencyCheck'])){
             $currencyupdate['CurrencyId'] = $data['Currency'];
-        }		
+        }
         if(isset($data['VendorCheck'])){
             $update['IsVendor'] = isset($data['vendor_on_off'])?1:0;
-        }		
-		if(isset($data['CustomerCheck'])){
+        }
+        if(isset($data['CustomerCheck'])){
             $update['IsCustomer'] = isset($data['Customer_on_off'])?1:0;
         }
-		if(isset($data['ResellerCheck'])){
+        if(isset($data['ResellerCheck'])){
             $update['IsReseller'] = isset($data['Reseller_on_off'])?1:0;
         }
         if(isset($data['CustomerPaymentAddCheck'])){
@@ -2359,7 +2659,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
         }
 
-		if(isset($data['BillingCheck'])){
+        if(isset($data['BillingCheck'])){
             $billing_on_off = isset($data['billing_on_off'])?1:0;
             //\Illuminate\Support\Facades\Log::info('billing -- '.$billing_on_off);
             if(!empty($billing_on_off)){
@@ -2466,7 +2766,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         try{
             //Implement loop because boot is triggering for each updated record to log the changes.
             foreach ($selectedIDs as $id)
-			{
+            {
                 $ResellerCount = Account::where("IsReseller",'=',1)->where("AccountID",$id)->count();
 
                 $ResellerCompanyID = Account::where("AccountID",$id)->pluck('CompanyId');
@@ -2495,7 +2795,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
                 //\Illuminate\Support\Facades\Log::info('Account id -- '.$id);
                 //\Illuminate\Support\Facades\Log::info(print_r($update,true));
-				DB::beginTransaction();
+                DB::beginTransaction();
                 $upcurrencyaccount = Account::find($id);
                 if(empty($upcurrencyaccount->CurrencyId) && isset($currencyupdate['CurrencyId'])){
                     $upcurrencyaccount->update($currencyupdate);
@@ -2504,7 +2804,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $upaccount->update($update);
                 //Account::where(['AccountID'=>$id])->update($update);
                 /** Account Details Update
-                */
+                 */
                 if($AccountDetailUpdate==1) {
                     $AccountDetailsID = AccountDetails::where('AccountID', $id)->pluck('AccountDetailID');
                     $AccountDetails['AccountID']=$id;
@@ -2594,13 +2894,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 }
                 //billing section end
 
-				DB::commit();				
+                DB::commit();
             }
-			 return Response::json(array("status" => "success", "message" => "Accounts Updated Successfully"));
+            return Response::json(array("status" => "success", "message" => "Accounts Updated Successfully"));
         }catch (Exception $e) {
             Log::error($e);
             DB::rollback();
-			return Response::json(array("status" => "error", "message" => $e->getMessage()));
+            return Response::json(array("status" => "error", "message" => $e->getMessage()));
         }
     }
 
@@ -2650,5 +2950,37 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
         }
         return Response::json(array("status" => "success", "NextBillingDate" => $NextBillingDate,"NextChargedDate" => $NextChargedDate));
+    }
+
+    public function getAccountTaxes(){
+        $data = Input::all();
+        $Taxes = '';
+        $CompanyID = $data['CompanyID'];
+        $Country = $data['Country'];
+        $RegisterDutchFoundation = 0;
+        $DutchProvider = 0;
+        if(isset($data['RegisterDutchFoundation']) && $data['RegisterDutchFoundation']=='true'){
+            $RegisterDutchFoundation=1;
+        }
+        if(isset($data['DutchProvider']) && $data['DutchProvider']=='true'){
+            $DutchProvider=1;
+        }
+        if($Country=='NETHERLANDS'){
+            $EUCountry = 'NL';
+        }else{
+            $EUCountry = Country::where('Country',$Country)->pluck('EUCountry');
+            $EUCountry = empty($EUCountry) ? 'NEU' : 'EU';
+        }
+        $Results = TaxRate::where(['DutchProvider'=>$DutchProvider,'DutchFoundation'=>$RegisterDutchFoundation,'Country'=>$EUCountry,'CompanyId'=>$CompanyID,'Status'=>1])->get();
+        //log::info(print_r($Results,true));
+        if(!empty($Results)){
+            foreach($Results as $result){
+                $Taxes.=$result->TaxRateId.',';
+            }
+            $Taxes = rtrim($Taxes, ',');
+        }
+        $Taxes = explode(",", $Taxes);
+
+        return Response::json(array("status" => "success", "Taxes" => $Taxes));
     }
 }

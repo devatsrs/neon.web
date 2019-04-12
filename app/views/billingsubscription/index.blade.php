@@ -13,10 +13,14 @@
                     <label for="field-1" class="control-label">Name</label>
                     <input type="text" name="FilterName" class="form-control" id="field-5" placeholder="">
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">Currency</label>
+                <!--<div class="form-group">
+                    <label for="field-1" class="control-label">Recurring Fee Currency</label>
                     {{Form::select('FilterCurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}
                 </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Activation Fee Currency</label>
+                    {{Form::select('FilterOneOffCurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}
+                </div>-->
                 <div class="form-group">
                     <label for="field-1" class="control-label">Advance Subscription</label>
                     <!-- <input id="FilterAdvance" name="FilterAdvance" type="checkbox" value="1" >-->
@@ -27,6 +31,8 @@
                     <!-- <input id="FilterAdvance" name="FilterAdvance" type="checkbox" value="1" >-->
                     {{Form::select('FilterAppliedTo', BillingSubscription::$ALLAppliedTo, '' ,array("class"=>"form-control select2 small"))}}
                 </div>
+                
+                
                 <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
@@ -104,11 +110,13 @@ jQuery(document).ready(function ($) {
     public_vars.$body = $("body");
     //show_loading_bar(40);
 
-    var list_fields  = ["Name","AnnuallyFeeWithSymbol","QuarterlyFeeWithSymbol","MonthlyFeeWithSymbol","WeeklyFeeWithSymbol","DailyFeeWithSymbol","Advance","SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description","AnnuallyFee", "QuarterlyFee", "MonthlyFee", "WeeklyFee", "DailyFee","AppliedTo"];
+    var list_fields  = ["Name","AnnuallyFeeWithSymbol","QuarterlyFeeWithSymbol","MonthlyFeeWithSymbol","WeeklyFeeWithSymbol","DailyFeeWithSymbol","Advance","SubscriptionID" , "ActivationFee","RecurringCurrencyID","InvoiceLineDescription","Description","AnnuallyFee", "QuarterlyFee", "MonthlyFee", "WeeklyFee", "DailyFee","AppliedTo","OneOffCurrencyID"];
+
     $searchFilter.FilterName = $("#billing_subscription_filter [name='FilterName']").val();
     $searchFilter.FilterCurrencyID = $("#billing_subscription_filter select[name='FilterCurrencyID']").val();
     $searchFilter.FilterAdvance = $("#billing_subscription_filter select[name='FilterAdvance']").val();
     $searchFilter.FilterAppliedTo = $("#billing_subscription_filter select[name='FilterAppliedTo']").val();
+    $searchFilter.FilterOneOffCurrencyID = $("#billing_subscription_filter select[name='FilterOneOffCurrencyID']").val();
     //$searchFilter.FilterAdvance = $("#billing_subscription_filter [name='FilterAdvance']").prop("checked");
 
     data_table = $("#table-4").dataTable({
@@ -121,9 +129,17 @@ jQuery(document).ready(function ($) {
         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
         "aaSorting": [[0, 'asc']],
         "fnServerParams": function(aoData) {
-            aoData.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance},{"name":"FilterAppliedTo","value":$searchFilter.FilterAppliedTo});
+            aoData.push({"name":"FilterName","value":$searchFilter.FilterName},
+                {"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},
+                {"name":"FilterAdvance","value":$searchFilter.FilterAdvance},
+                {"name":"FilterAppliedTo","value":$searchFilter.FilterAppliedTo},
+                {"name":"FilterOneOffCurrencyID","value":$searchFilter.FilterOneOffCurrencyID},
+                
+                );
             data_table_extra_params.length = 0;
-            data_table_extra_params.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance},{"name":"FilterAppliedTo","value":$searchFilter.FilterAppliedTo},{"name":"Export","value":1});
+            data_table_extra_params.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance},{"name":"FilterAppliedTo","value":$searchFilter.FilterAppliedTo},
+                {"name":"FilterOneOffCurrencyID","value":$searchFilter.FilterOneOffCurrencyID},
+                {"name":"Export","value":1});
         },
         "aoColumns":
         [
@@ -140,6 +156,8 @@ jQuery(document).ready(function ($) {
                         }
 
                      }, //4   [Advance Subscription]
+            
+
             {                       //5  [SubscriptionID]
                "bSortable": true,
                 mRender: function ( id, type, full ) {
@@ -147,7 +165,7 @@ jQuery(document).ready(function ($) {
                      action = '<div class = "hiddenRowData" >';
 
                      for(var i = 0 ; i< list_fields.length; i++){
-                        action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + full[i] + '" / >';
+                        action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + full[i] + '" / >';
                      }
                      action += '</div>';
                      <?php if(User::checkCategoryPermission('BillingSubscription','Edit')) { ?>
@@ -216,6 +234,7 @@ jQuery(document).ready(function ($) {
             e.preventDefault();
             $searchFilter.FilterName = $("#billing_subscription_filter [name='FilterName']").val();
             $searchFilter.FilterCurrencyID = $("#billing_subscription_filter select[name='FilterCurrencyID']").val();
+            $searchFilter.FilterOneOffCurrencyID = $("#billing_subscription_filter select[name='FilterOneOffCurrencyID']").val();
            // $searchFilter.FilterAdvance = $("#billing_subscription_filter [name='FilterAdvance']").prop("checked");
             $searchFilter.FilterAdvance = $("#billing_subscription_filter select[name='FilterAdvance']").val();
             $searchFilter.FilterAppliedTo = $("#billing_subscription_filter select[name='FilterAppliedTo']").val();
@@ -232,6 +251,8 @@ jQuery(document).ready(function ($) {
         $('#add-new-modal-billing_subscription').modal('show');
         $("#add-new-modal-billing_subscription [name=CurrencyID]").prop("disabled",false);
         $("#add-new-billing_subscription-form select[name=CurrencyID]").val('').trigger("change");
+        $("#add-new-billing_subscription-form select[name=OneOffCurrencyID]").val('').trigger("change");
+        $("#add-new-billing_subscription-form select[name=RecurringCurrencyID]").val('').trigger("change");
 
 
         $.ajax({
@@ -263,7 +284,10 @@ jQuery(document).ready(function ($) {
         $.each(list_fields, function( index, field_name ) {
             var val = $this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val();
             $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val!='null'?val:'');
-            if(field_name =='CurrencyID' || field_name =='AppliedTo'){
+            if(
+                field_name =='AppliedTo' || 
+                field_name == 'OneOffCurrencyID' || 
+                field_name == 'RecurringCurrencyID'){
                 $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val).trigger("change");
             }else if(field_name == 'Advance'){
                 if(val == 1 ){
@@ -293,7 +317,8 @@ jQuery(document).ready(function ($) {
         $.each(list_fields, function( index, field_name ) {
             var val = $this.prev().prev("div.hiddenRowData").find("input[name='"+field_name+"']").val();
             $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val!='null'?val:'');
-            if(field_name =='CurrencyID' || field_name =='AppliedTo'){
+            if(field_name =='CurrencyID' || field_name =='AppliedTo' || field_name == 'OneOffCurrencyID' || 
+                field_name == 'RecurringCurrencyID'){
                 $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val).trigger("change");
             }else if(field_name == 'Advance'){
                 if(val == 1 ){

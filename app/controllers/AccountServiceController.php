@@ -8,6 +8,7 @@ class AccountServiceController extends \BaseController {
         //Account::getAccountIDList(); exit;
         //AccountService::getAccountServiceIDList($id); exit;
         $account = Account::find($id);
+        $AccountCompanyId = $account->CompanyId;
         $ServiceID = AccountService::getServiceIDByAccountServiceID($AccountServiceID);
         $CompanyID = Account::getCompanyIDByAccountID($id);
         $AccountID = $id;
@@ -23,7 +24,11 @@ class AccountServiceController extends \BaseController {
             'types' => [RateGenerator::VoiceCall],
             'NotVendor' => true,
         ]);
-        $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
+        $package_rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::Package],
+            'NotVendor' => true,
+        ]);
+        //$DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
         $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
         $DiscountPlan = $DiscountPlanVOICECALL;
         $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::DID_ID);
@@ -60,7 +65,7 @@ class AccountServiceController extends \BaseController {
         $ServiceDescription = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceDescription');
         $ServiceTitleShow = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceTitleShow');
         $AccountService = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->first();
-
+        //ServiceOrderID = $AccountService->ServiceOrderID;
 
         //As per new question call the routing profile model for fetch the routing profile list.
         $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
@@ -71,7 +76,7 @@ class AccountServiceController extends \BaseController {
 
         $AccountSubscriptionID = $id;
 
-        $Packages = Package::getDropdownIDList();
+        $Packages = Package::getDropdownIDListByCompany($AccountCompanyId);
         $CurrencyID=Account::getCurrencyIDByAccount($id);
         $PackageType=RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
 
@@ -81,14 +86,25 @@ class AccountServiceController extends \BaseController {
         $PackageId="";
         $RateTableID="";
         $allservices = Service::where('Status', 1)->get();
-
+        $countries = Country::getCountryDropdownIDList();
         $AccountServicePackage = AccountServicePackage::where(['AccountID' => $AccountID, 'AccountServiceID' => $AccountServiceID])->first();
         if(!empty($AccountServicePackage) && count($AccountServicePackage) > 0){
             $PackageId=$AccountServicePackage->PackageId;
             $RateTableID=$AccountServicePackage->RateTableID;
         }
+
+        $AccessType         = ServiceTemplate::getAccessTypeDD($AccountCompanyId);
+        $City               = ServiceTemplate::getCityDD($AccountCompanyId);
+        $Tariff             =ServiceTemplate::getTariffDD($AccountCompanyId);
+        $Prefix             = ServiceTemplate::getPrefixDD($AccountCompanyId);
+
+        $AccessType = array('' => "Select") + $AccessType;
+        $Prefix = array('' => "Select") + $Prefix;
+        $City = array('' => "Select") + $City;
+        $Tariff = array('' => "Select") + $Tariff;
+
         return View::make('accountservices.edit', compact('CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table', 'termination_rate_table',
-            'DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
+            'AccessType','Prefix','City','Tariff','package_rate_table','countries','DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
 
     }
 
@@ -191,36 +207,39 @@ class AccountServiceController extends \BaseController {
     // get all account service
     public function ajax_datagrid($id){
         $data = Input::all();
+        Log::info("Account ajax_datagrid " .  print_r($data,true));
         $id=$data['account_id'];
         $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
-        
-
-        $services = AccountService::leftjoin('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')
-        ->leftjoin('tblAccountServiceContract', 'tblAccountService.AccountServiceID', '=', 'tblAccountServiceContract.AccountServiceID')
-        ->leftjoin('tblCLIRateTable', 'tblAccountService.AccountServiceID', '=' , 'tblCLIRateTable.AccountServiceID')
-        ->leftjoin('tblPackage', 'tblPackage.PackageId', '=' , 'tblCLIRateTable.PackageID' )
-        ->select([DB::raw("distinct (tblAccountService.AccountServiceID)"),"tblService.ServiceName",DB::raw("(select GROUP_CONCAT(distinct `tblCLIRateTable`.`CLI`) as cli
-         from `tblCLIRateTable` where `tblCLIRateTable`.`AccountServiceID`= `tblAccountService`.`AccountServiceID`) as Clis"), "tblAccountService.Status", "tblPackage.Name", "tblAccountServiceContract.ContractStartDate","tblAccountServiceContract.ContractEndDate"])
-        ->where("tblAccountService.AccountID",$id);
-
-        //Log::debug($services->toSql());
-
-        if(!empty($data['Number'])){
-            $services->where('tblCLIRateTable.CLI','Like','%'.trim($data['Number']).'%');
-        }
+        $ServiceActive = 0;
+        $ServiceNumber = 0;
+        $ServicePackageId = 0;
+        $AccountServiceOrderID = 0;
+        $iDisplayLength = 0;
         if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
-            $services->where(function($query){
-                $query->where('tblAccountService.Status','=','1');
-            });
-
-        }elseif(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'false'){
-            $services->where(function($query){
-                $query->where('tblAccountService.Status','=','0');
-            });
+            $ServiceActive = 1;
         }
-        //$services->select($select);
+        if(!empty($data['Number'])){
+            $ServiceNumber = $data['Number'];
+        }
 
-        return Datatables::of($services)->make();
+        if(!empty($data['PackageName'])){
+            $ServicePackageId = $data['PackageName'];
+        }
+
+        if(!empty($data['AccountServiceOrderID'])){
+            $AccountServiceOrderID = $data['AccountServiceOrderID'];
+        }
+
+        $iDisplayLength = $data['iDisplayLength'];
+        $p_PageNumber = ceil($data['iDisplayStart'] / $data['iDisplayLength']);
+
+        $query = "call prcGetAccountServiceData('" . $id . "','" . $ServiceNumber . "','" . $ServicePackageId . "'," . $AccountServiceOrderID . "," . $iDisplayLength . " ," . $p_PageNumber . ",0" . ")";
+
+        //$result = DB::select($query);
+        //$services->select($select);
+        Log::info("Account Service SQL " .  $query);
+
+        return DataTableSql::of($query)->make();
     }
 
     // account service edit page data store and update
@@ -283,7 +302,8 @@ class AccountServiceController extends \BaseController {
             $Contract['ContractTerm'] = Input::get('ContractTerm');
             $Contract['Duration'] = Input::get('Duration');
             /**validation*/
-            if($Contract['ContractStartDate'] != "" || $Contract['ContractEndDate'] != "" || $Contract['AutoRenewal'] != 0 || $Contract['Duration'] != "" || $Contract['ContractTerm'] != ""|| count($AccountServiceContract) > 0){
+            /*if($Contract['ContractStartDate'] != "" || $Contract['ContractEndDate'] != "" || $Contract['AutoRenewal'] != 0 || $Contract['Duration'] != "" || $Contract['ContractTerm'] != ""|| count($AccountServiceContract) > 0)
+            {
                 if ($Contract['ContractTerm'] == 3) {
                     AccountServiceContract::$rules['FixedFee'] = 'required|numeric';
                 } else if ($Contract['ContractTerm'] == 4) {
@@ -300,7 +320,7 @@ class AccountServiceController extends \BaseController {
                 if ($validator->fails()) {
                     return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
                 }
-                /**perform actions*/
+                //perform actions/
                 if ($Contract['ContractTerm'] == 3) {
                     $Contract['ContractReason'] = Input::get('FixedFee');
                 } else if ($Contract['ContractTerm'] == 4) {
@@ -315,7 +335,7 @@ class AccountServiceController extends \BaseController {
                 } else {
                     AccountServiceContract::create($Contract);
                 }
-            }
+            }*/
             /** end contract section */
 
             /**Service Billing Section*/
@@ -332,8 +352,9 @@ class AccountServiceController extends \BaseController {
 
             /* Package Section Validation */
             if(!empty($data['PackageId']) || !empty($data['RateTableID'])){
-                AccountService::$rules['PackageId'] = 'required';
-                AccountService::$rules['RateTableID'] = 'required';
+                /*AccountService::$rules['PackageId'] = 'required';
+                AccountService::$rules['RateTableID'] = 'required';*/
+
             }
 
             $validator = Validator::make($data, AccountService::$rules, AccountService::$messages);
@@ -467,6 +488,7 @@ class AccountServiceController extends \BaseController {
             }
 
             $accdata = array();
+            $accdata['ServiceOrderID'] = empty($data['ServiceOrderID']) ? '' : $data['ServiceOrderID'];
             $accdata['ServiceTitle'] = empty($data['ServiceTitle']) ? '' : $data['ServiceTitle'];
             $accdata['ServiceDescription'] = empty($data['ServiceDescription']) ? '' : $data['ServiceDescription'];
             $accdata['ServiceTitleShow'] = isset($data['ServiceTitleShow']) ? 1 : 0;
@@ -676,28 +698,49 @@ class AccountServiceController extends \BaseController {
 
     public function exports($id,$type){
         $data = Input::all();
-
-        $select = ["tblAccountService.ServiceID","tblService.ServiceName","tblAccountService.Status"];
-        $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
-        if(!empty($data['ServiceName'])){
-            $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
-        }
+        Log::info("Account ajax_datagrid " .  print_r($data,true));
+        $id=$data['account_id'];
+        $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
+        $ServiceActive = 0;
+        $ServiceNumber = 0;
+        $ServicePackageId = 0;
+        $AccountServiceOrderID = 0;
+        $iDisplayLength = 0;
         if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
-            $services->where(function($query){
-                $query->where('tblAccountService.Status','=','1');
-            });
-
-        }elseif(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'false'){
-            $services->where(function($query){
-                $query->where('tblAccountService.Status','=','0');
-            });
+            $ServiceActive = 1;
         }
-        $services->select($select);
+        if(!empty($data['Number'])){
+            $ServiceNumber = $data['Number'];
+        }
 
-        $servicedata =  $services->get();
+        if(!empty($data['PackageName'])){
+            $ServicePackageId = $data['PackageName'];
+        }
+
+        if(!empty($data['AccountServiceOrderID'])){
+            $AccountServiceOrderID = $data['AccountServiceOrderID'];
+        }
+
+        $iDisplayLength = $data['iDisplayLength'];
+        $p_PageNumber = (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) == 0 ? 1 : (ceil($data['iDisplayStart'] / $data['iDisplayLength']));
+
+        $query = "call prcGetAccountServiceData('" . $id . "','" . $ServiceNumber . "','" . $ServicePackageId . "'," . $AccountServiceOrderID . "," . $iDisplayLength . " ," . $p_PageNumber . ",1" . ")";
+
+        $result = DB::select($query);
+        //$services->select($select);
+        Log::info("Account Service SQL " .  $query);
 
 
-        $servicedata = json_decode(json_encode($servicedata),true);
+
+
+        //$services->select($select);
+        Log::info("Account Service SQL " .  $query);
+       // $services->select($select);
+
+
+
+
+        $servicedata = json_decode(json_encode($result),true);
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AccountServices.csv';
             $NeonExcel = new NeonExcelIO($file_path);

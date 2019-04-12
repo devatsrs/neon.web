@@ -47,13 +47,13 @@
                     <label class="control-label" for="field-1">Account</label>
                     {{ Form::select('AccountID',$accounts,Input::get('AccountID'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
-                @if(is_reseller())
+<!--                @if(is_reseller())
                 @else
                 <div class="form-group">
                     <label class="control-label" for="field-1">Account Partner</label>
                     {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
                 </div>
-                @endif
+                @endif-->
                 <div class="form-group">
                     <label class="control-label" for="field-1">CLI</label>
                     <input type="text" name="CLI" class="form-control mid_fld "  value=""  />

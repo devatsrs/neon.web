@@ -17,7 +17,8 @@
                         <div class="input-group-btn">
                             <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false" style="width:100%">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_VOICECALL)}}<span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; width:100% ">
-                                <li> <a  href="{{URL::to('did/lcr')}}"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_DID)}}</a></li>
+                                <li> <a  href="{{URL::to('did/lcr?lcrType=Access')}}"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_DID)}}</a></li>
+                                <li> <a  href="{{URL::to('did/lcr?lcrType=Package')}}"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_PACKAGE)}}</a></li>
                             </ul>
                         </div>
 
@@ -164,6 +165,13 @@
             margin-left: -15px;
             padding-right: 0;
         }
+
+        .not-active {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+  color: black;
+}
 
     </style>
 
@@ -503,7 +511,7 @@
                     ];
 
                     aoColumnDefs = [
-                        {    "sClass": "destination", "aTargets": [ 0 ] },
+                        {    "sClass": "destination not-active", "aTargets": [ 0 ] },
                         {    "sClass": "rate1_class", "aTargets": [ 1 ] },
                         {    "sClass": "rate2_class", "aTargets": [ 2 ] },
                         {    "sClass": "rate3_class", "aTargets": [ 3 ] },
@@ -987,49 +995,59 @@
 
                         $('.btn.btn').button('reset');
 
-                        //Clear All Fields on Refresh
-                        $('#dt_company1').html("");
-                        $('#dt_company2').html("");
-                        $('#dt_company3').html("");
-                        $('#dt_company4').html("");
-                        $('#dt_company5').html("");
-                        $('#dt_company6').html("");
-                        $('#dt_company7').html("");
-                        $('#dt_company8').html("");
-                        $('#dt_company9').html("");
-                        $('#dt_company10').html("");
+                        if (typeof results != 'undefined') {
 
-                        // console.log(data_table.oApi.aoColumns);
-                        //data_table.Columns[0].ColumnName = "newColumnName";
-                        if (typeof results.jqXHR.responseJSON.sColumns[1] != 'undefined') {
-                            $('#dt_company1').html( results.jqXHR.responseJSON.sColumns[1] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[2] != 'undefined') {
-                            $('#dt_company2').html( results.jqXHR.responseJSON.sColumns[2] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[3] != 'undefined') {
-                            $('#dt_company3').html( results.jqXHR.responseJSON.sColumns[3] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[4] != 'undefined') {
-                            $('#dt_company4').html( results.jqXHR.responseJSON.sColumns[4] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
-                            $('#dt_company5').html( results.jqXHR.responseJSON.sColumns[5] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
-                            $('#dt_company6').html( results.jqXHR.responseJSON.sColumns[6] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
-                            $('#dt_company7').html( results.jqXHR.responseJSON.sColumns[7] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
-                            $('#dt_company8').html( results.jqXHR.responseJSON.sColumns[8] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
-                            $('#dt_company9').html( results.jqXHR.responseJSON.sColumns[9] );
-                        }
-                        if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
-                            $('#dt_company10').html( results.jqXHR.responseJSON.sColumns[10] );
+                            try {
+
+                                //Clear All Fields on Refresh
+                                $('#dt_company1').html("");
+                                $('#dt_company2').html("");
+                                $('#dt_company3').html("");
+                                $('#dt_company4').html("");
+                                $('#dt_company5').html("");
+                                $('#dt_company6').html("");
+                                $('#dt_company7').html("");
+                                $('#dt_company8').html("");
+                                $('#dt_company9').html("");
+                                $('#dt_company10').html("");
+
+
+                                // console.log(data_table.oApi.aoColumns);
+                                //data_table.Columns[0].ColumnName = "newColumnName";
+                                if (typeof results.jqXHR.responseJSON.sColumns[1] != 'undefined') {
+                                    $('#dt_company1').html(results.jqXHR.responseJSON.sColumns[1]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[2] != 'undefined') {
+                                    $('#dt_company2').html(results.jqXHR.responseJSON.sColumns[2]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[3] != 'undefined') {
+                                    $('#dt_company3').html(results.jqXHR.responseJSON.sColumns[3]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[4] != 'undefined') {
+                                    $('#dt_company4').html(results.jqXHR.responseJSON.sColumns[4]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
+                                    $('#dt_company5').html(results.jqXHR.responseJSON.sColumns[5]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
+                                    $('#dt_company6').html(results.jqXHR.responseJSON.sColumns[6]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
+                                    $('#dt_company7').html(results.jqXHR.responseJSON.sColumns[7]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
+                                    $('#dt_company8').html(results.jqXHR.responseJSON.sColumns[8]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
+                                    $('#dt_company9').html(results.jqXHR.responseJSON.sColumns[9]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
+                                    $('#dt_company10').html(results.jqXHR.responseJSON.sColumns[10]);
+                                }
+                            }
+                            catch(err) {
+
+                            }
                         }
 
                         //mark_lowest_rate_selected(results);

@@ -30,9 +30,6 @@
     <tr>
         <th>Status</th>
         <th>Title</th>
-        <th>Rate Prefix</th>
-        <th>Area Prefix</th>
-        <th>Prefix</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -56,9 +53,6 @@
             "aoColumns": 
              [
                 { "bVisible": false, "bSortable": true  },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
                 { "bSortable": true },
                 {
                    "bSortable": true,

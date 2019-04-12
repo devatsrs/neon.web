@@ -84,6 +84,29 @@ class PaymentProfileCustomerController extends \BaseController {
         }
     }
 
+    public function update_profile()
+    {
+        $data = Input::all();
+        $ProfileResponse = array();
+        $CustomerID = $data['AccountID'];
+        if($CustomerID > 0) {
+            if(empty($data['PaymentGatewayID']) || empty($data['CompanyID'])){
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_MSG_PLEASE_SELECT_PAYMENT_GATEWAY')));
+            }
+            $CompanyID = $data['CompanyID'];
+            $PaymentGatewayID=$data['PaymentGatewayID'];
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
+            $Response = $PaymentIntegration->doValidation($data);
+            if($Response['status']=='failed'){
+                return  Response::json(array("status" => "failed", "message" => $Response['message']));
+            }elseif($Response['status']=='success'){
+                $ProfileResponse = $PaymentIntegration->updateProfile($data);
+            }
+            return $ProfileResponse;
+        }
+    }
+
     public function update(){
 
         $data = Input::all();

@@ -34,4 +34,8 @@ class CodeDeck extends \Eloquent {
     public static function  getCodeDropdownList($CodeDeckId,$CompanyID){
         return array(""=> "Select") +CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])->lists('Code', 'RateID');
     }
+
+    public static function  getCodeckTypes(){
+        return array(""=> "All") +CodeDeck::where('Type', '!=', '')->distinct('Type')->orderBy('Type')->lists('Type', 'Type');
+    }
 }

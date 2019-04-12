@@ -14,9 +14,9 @@ class TrunkController extends BaseController {
 
        $companyID = User::get_companyID();
        if(isset($_GET['sSearch_0']) && $_GET['sSearch_0'] == ''){
-           $trunks = Trunk::select(["Status","Trunk","RatePrefix","AreaPrefix","Prefix","TrunkID"])->where(["CompanyID" => $companyID,"Status"=>1]); // by Default Status 1
+           $trunks = Trunk::select(["Status","Trunk","TrunkID"])->where(["CompanyID" => $companyID,"Status"=>1]); // by Default Status 1
        }else{
-           $trunks = Trunk::select(["Status","Trunk","RatePrefix","AreaPrefix","Prefix","TrunkID"])->where(["CompanyID" => $companyID]);
+           $trunks = Trunk::select(["Status","Trunk","TrunkID"])->where(["CompanyID" => $companyID]);
        }
 
        
@@ -42,9 +42,9 @@ class TrunkController extends BaseController {
             $user_id = User::get_userID();
             $data['CompanyID'] = User::get_companyID();
             $data['Status'] = isset($data['Status']) ? 1 : 0;
-            $data['RatePrefix'] = str_replace("_","",$data['RatePrefix']);
-            $data['AreaPrefix'] = str_replace("_","",$data['AreaPrefix']);
-            $data['Prefix']     = str_replace("_","",$data['Prefix']);
+            //$data['RatePrefix'] = str_replace("_","",$data['RatePrefix']);
+           // $data['AreaPrefix'] = str_replace("_","",$data['AreaPrefix']);
+          //  $data['Prefix']     = str_replace("_","",$data['Prefix']);
             Trunk::$rules['Trunk'] = 'required|unique:tblTrunk,Trunk,NULL,CompanyID,CompanyID,'.$data['CompanyID'];
 
             $validator = Validator::make($data, Trunk::$rules);
@@ -79,9 +79,9 @@ class TrunkController extends BaseController {
         $data['CompanyID'] = User::get_companyID();
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
-        $data['RatePrefix'] = str_replace("_","",$data['RatePrefix']);
-        $data['AreaPrefix'] = str_replace("_","",$data['AreaPrefix']);
-        $data['Prefix']     = str_replace("_","",$data['Prefix']);
+        //$data['RatePrefix'] = str_replace("_","",$data['RatePrefix']);
+      //  $data['AreaPrefix'] = str_replace("_","",$data['AreaPrefix']);
+       // $data['Prefix']     = str_replace("_","",$data['Prefix']);
 
 
         Trunk::$rules["Trunk"] = 'required|unique:tblTrunk,Trunk,'.$id.',TrunkID,CompanyID,'.$data['CompanyID'];
@@ -104,9 +104,9 @@ class TrunkController extends BaseController {
             $companyID = User::get_companyID();
             $data = Input::all();
             if (isset($data['sSearch_0']) && ($data['sSearch_0'] == '' || $data['sSearch_0'] == '1')) {
-                $trunks = Trunk::where(["CompanyID" => $companyID, "Status" => 1])->orderBy("TrunkID", "desc")->get(["Trunk", "RatePrefix", "AreaPrefix", "Prefix"]);
+                $trunks = Trunk::where(["CompanyID" => $companyID, "Status" => 1])->orderBy("TrunkID", "desc")->get(["Trunk"]);
             } else {
-                $trunks = Trunk::where(["CompanyID" => $companyID, "Status" => 0])->orderBy("TrunkID", "desc")->get(["Trunk", "RatePrefix", "AreaPrefix", "Prefix"]);
+                $trunks = Trunk::where(["CompanyID" => $companyID, "Status" => 0])->orderBy("TrunkID", "desc")->get(["Trunk"]);
             }
             $trunks = json_decode(json_encode($trunks),true);
             if($type=='csv'){
