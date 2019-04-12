@@ -186,7 +186,7 @@ class ServicesTemplateController extends BaseController {
             $inbounddiscountplan =   DiscountPlan::lists('Name','DiscountPlanID');
             $BillingSubsForSrvTemplate = BillingSubscription::lists('Name','SubscriptionID');
             $RateType = RateType::select('RateTypeID','Title')->lists('Title','RateTypeID');
-            $country            = ServiceTemplate::getCountryPrefixDD($CompanyID);
+            $country            = ServiceTemplate::getCountryDD($CompanyID);
             $AccessType         = ServiceTemplate::getAccessTypeDD($CompanyID);
             $City               = ServiceTemplate::getCityDD($CompanyID);
             $Tariff             = ServiceTemplate::getTariffDD($CompanyID);

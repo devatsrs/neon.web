@@ -85,4 +85,11 @@ class ServiceTemplate extends \Eloquent
     public static function getCountryPrefixDD(){
         return $country = Country::select('Country AS country','Prefix')->orderBy('country')->lists("country", "Prefix");
     }
+    public static function getCountryDD($CompanyID){
+        $country = ServiceTemplate::Join('tblCountry', function($join) {
+                $join->on('tblServiceTemplate.country','=','tblCountry.country');
+                })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",$CompanyID)
+                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");       
+        return $country;        
+    }
 }

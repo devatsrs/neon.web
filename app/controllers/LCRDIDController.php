@@ -112,7 +112,7 @@ class LCRDIDController extends \BaseController {
 
             //->orderBy('tblServiceTemplate.country');
 
-        $country            = ServiceTemplate::getCountryPrefixDD($companyID);
+        $country            = ServiceTemplate::getCountryDD($companyID);
         $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
         $City               = ServiceTemplate::getCityDD($companyID);
         $Tariff             = ServiceTemplate::getTariffDD($companyID);
