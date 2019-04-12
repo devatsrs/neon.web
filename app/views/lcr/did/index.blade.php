@@ -136,10 +136,10 @@
 
         <tr>
             <th id="dt_Name">Access Type</th>
-            <th>Country</th>
-            <th>Prefix</th>
-            <th>City</th>
-            <th>Tariff</th>
+            <th id="dt_Country">Country</th>
+            <th id="dt_Prefix">Prefix</th>
+            <th id="dt_City">City</th>
+            <th id="dt_Tariff">Tariff</th>
             <th id="dt_company1">Position 1</th>
             <th id="dt_company2">Position 2</th>
             <th id="dt_company3">Position 3</th>
@@ -170,6 +170,11 @@
             @if($lcrType == "Package")
             $('#lcr_type').val('Y');
             $('.didbutton').html(packbtnval+' <span class="caret"></span>');
+            $('#dt_Country').addClass("hidden");
+            $('#dt_Prefix').addClass("hidden");
+            $('#dt_City').addClass("hidden");
+            $('#dt_Tariff').addClass("hidden");
+            $('#dt_Name').html("Package Name");
             $('.packageoption').html(accbtnval);
             $('.packagediv').show();
             $('.productdiv').hide();
@@ -180,6 +185,10 @@
 
             @if($lcrType == "Access")
              $('#lcr_type').val('N');
+            $('#dt_Country').removeClass("hidden");
+            $('#dt_Prefix').removeClass("hidden");
+            $('#dt_City').removeClass("hidden");
+            $('#dt_Tariff').removeClass("hidden");
             $('.didbutton').html(accbtnval+' <span class="caret"></span>');
             $('.packageoption').html(packbtnval);
             $('.packagediv').hide();
@@ -224,6 +233,13 @@
             //var data_table;
             if('{{$LCRPosition}}'=='5'){
                 setTimeout(function(){
+                    if($searchFilter.lcrType=='Package') {
+                        $('#dt_Country').addClass("hidden");
+                        $('#dt_Prefix').addClass("hidden");
+                        $('#dt_City').addClass("hidden");
+                        $('#dt_Tariff').addClass("hidden");
+                    }
+
                     $('#dt_company6').addClass("hidden");
                     $('#dt_company7').addClass("hidden");
                     $('#dt_company8').addClass("hidden");
@@ -283,6 +299,12 @@
                         $('#dt_company8').addClass("hidden");
                         $('#dt_company9').addClass("hidden");
                         $('#dt_company10').addClass("hidden");
+
+                            $('#dt_Country').addClass("hidden");
+                            $('#dt_Prefix').addClass("hidden");
+                            $('#dt_City').addClass("hidden");
+                            $('#dt_Tariff').addClass("hidden");
+
                     },10);
                     aoColumns = [
                         { "bSortable": false}, //1 Access Type
@@ -444,6 +466,12 @@
                     ];
                 }else{
                     setTimeout(function(){
+
+                            $('#dt_Country').removeClass("hidden");
+                            $('#dt_Prefix').removeClass("hidden");
+                            $('#dt_City').removeClass("hidden");
+                            $('#dt_Tariff').removeClass("hidden");
+
                         $('#dt_company6').removeClass("hidden");
                         $('#dt_company7').removeClass("hidden");
                         $('#dt_company8').removeClass("hidden");
