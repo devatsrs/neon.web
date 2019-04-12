@@ -135,11 +135,11 @@
         </tr>--}}
 
         <tr>
-            <th id="dt_Name">Access Type</th>
-            <th id="dt_Country">Country</th>
-            <th id="dt_Prefix">Prefix</th>
-            <th id="dt_City">City</th>
-            <th id="dt_Tariff">Tariff</th>
+            <th>Access Type</th>
+            <th>Country</th>
+            <th>Prefix</th>
+            <th>City</th>
+            <th>Tariff</th>
             <th id="dt_company1">Position 1</th>
             <th id="dt_company2">Position 2</th>
             <th id="dt_company3">Position 3</th>
@@ -170,11 +170,6 @@
             @if($lcrType == "Package")
             $('#lcr_type').val('Y');
             $('.didbutton').html(packbtnval+' <span class="caret"></span>');
-            $('#dt_Country').addClass("hidden");
-            $('#dt_Prefix').addClass("hidden");
-            $('#dt_City').addClass("hidden");
-            $('#dt_Tariff').addClass("hidden");
-            $('#dt_Name').html("Package Name");
             $('.packageoption').html(accbtnval);
             $('.packagediv').show();
             $('.productdiv').hide();
@@ -185,8 +180,6 @@
 
             @if($lcrType == "Access")
              $('#lcr_type').val('N');
-            
-            $('#dt_Name').html("Access Type");
             $('.didbutton').html(accbtnval+' <span class="caret"></span>');
             $('.packageoption').html(packbtnval);
             $('.packagediv').hide();
@@ -283,135 +276,7 @@
                 // alert($searchFilter.lcrType);
 
                 var aoColumnDefs, aoColumnDefs;
-                if($searchFilter.lcrType=='Package') {
-                    setTimeout(function(){
-                        $('#dt_company6').addClass("hidden");
-                        $('#dt_company7').addClass("hidden");
-                        $('#dt_company8').addClass("hidden");
-                        $('#dt_company9').addClass("hidden");
-                        $('#dt_company10').addClass("hidden");
-
-
-
-                    },10);
-                    aoColumns = [
-                        { "bSortable": false}, //1 Access Type
-                        { "bSortable": false,"bVisible" : false}, //2 Country
-                        { "bSortable": false,"bVisible" : false}, //3 Prefix
-                        { "bSortable": false,"bVisible" : false}, //4 City
-                        { "bSortable": false,"bVisible" : false}, //5 Tariff
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if($searchFilter.lcrType=='Package') {
-                                    if (full[1] != null) {
-                                        var array = full[1].split(';');
-                                        var html = "<table>";
-                                        html += "<tr><td>" + array[0] + "</td></tr>";
-                                        html += "<tr><td>" + array[1] + "</td></tr>";
-                                        html += "<tr><td>" + array[2] + "</td></tr>";
-                                        html += "</table>";
-
-                                        return html;
-                                    }
-                                    return full[1];
-                                }
-                                return full[1];
-                            }
-                        }, //6 Position 1
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if($searchFilter.lcrType=='Package') {
-                                    if (full[2] != null) {
-                                        var array = full[2].split(';');
-                                        var html1 = "<table>";
-                                        html1 += "<tr><td>" + array[0] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[1] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[2] + "</td></tr>";
-                                        html1 += "</table>";
-
-                                        return html1;
-                                    }
-                                    return full[2];
-                                }
-                                return full[2];
-                            }
-                        }, //7 Position 2
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if($searchFilter.lcrType=='Package') {
-                                    if (full[3] != null) {
-                                        var array = full[3].split(';');
-                                        var html1 = "<table>";
-                                        html1 += "<tr><td>" + array[0] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[1] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[2] + "</td></tr>";
-                                        html1 += "</table>";
-
-                                        return html1;
-                                    }
-                                    return full[3];
-                                }
-                                return full[3];
-                            }
-                        }, //8 Position 3
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if($searchFilter.lcrType=='Package') {
-                                    if (full[4] != null) {
-                                        var array = full[4].split(';');
-                                        var html1 = "<table>";
-                                        html1 += "<tr><td>" + array[0] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[1] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[2] + "</td></tr>";
-                                        html1 += "</table>";
-
-                                        return html1;
-                                    }
-                                    return full[4];
-                                }
-                                return full[4];
-                            }
-                        }, //9 Position 4
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if($searchFilter.lcrType=='Package') {
-                                    if (full[5] != null) {
-                                        var array = full[5].split(';');
-                                        var html1 = "<table>";
-                                        html1 += "<tr><td>" + array[0] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[1] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[2] + "</td></tr>";
-                                        html1 += "</table>";
-
-                                        return html1;
-                                    }
-                                    return full[5];
-                                }
-                                return full[5];
-                            }
-                        }, //10 Position 5
-                        /* { "bSortable": false}, //11 Position 6
-                         { "bVisible": false},  //12 Position 7
-                         { "bVisible": false},  //13 Position 8
-                         { "bVisible": false},  //14 Position 9
-                         { "bVisible": false},  //15 Company 10*/
-
-
-                    ];
-
-                    aoColumnDefs = [
-                        {    "sClass": "destination", "aTargets": [ 0 ] },
-                        {    "sClass": "destination", "aTargets": [ 1 ] },
-                        {    "sClass": "destination", "aTargets": [ 2 ] },
-                        {    "sClass": "destination", "aTargets": [ 3 ] },
-                        {    "sClass": "destination", "aTargets": [ 4 ] },
-                        {    "sClass": "rate1_class", "aTargets": [ 5 ] },
-                        {    "sClass": "rate2_class", "aTargets": [ 6 ] },
-                        {    "sClass": "rate3_class", "aTargets": [ 7 ] },
-                        {    "sClass": "rate4_class", "aTargets": [ 8 ] },
-                        {    "sClass": "rate5_class", "aTargets": [ 9 ] }
-                    ];
-                } else if($searchFilter.LCRPosition=='5'){
+                if($searchFilter.LCRPosition=='5'){
 
                     setTimeout(function(){
                         $('#dt_company6').addClass("hidden");
@@ -454,9 +319,6 @@
                     ];
                 }else{
                     setTimeout(function(){
-
-
-
                         $('#dt_company6').removeClass("hidden");
                         $('#dt_company7').removeClass("hidden");
                         $('#dt_company8').removeClass("hidden");
@@ -617,23 +479,12 @@
 
                             try {
 
-                                if($searchFilter.lcrType=='Package') {
-                                    $('#dt_Name').html("Package Name");
-
-                                }else {
-                                    $('#dt_Name').html("Access Type");
-
-                                }
-
-                                if($searchFilter.lcrType!='Package') {
-                                    $('#dt_company1').html("");
-                                    $('#dt_company2').html("");
-                                    $('#dt_company3').html("");
-                                    $('#dt_company4').html("");
-                                    $('#dt_company5').html("");
-                                }
                                 //Clear All Fields on Refresh
-
+                                $('#dt_company1').html("");
+                                $('#dt_company2').html("");
+                                $('#dt_company3').html("");
+                                $('#dt_company4').html("");
+                                $('#dt_company5').html("");
                                 $('#dt_company6').html("");
                                 $('#dt_company7').html("");
                                 $('#dt_company8').html("");
@@ -643,37 +494,35 @@
 
                                 // console.log(data_table.oApi.aoColumns);
                                 //data_table.Columns[0].ColumnName = "newColumnName";
-                                if($searchFilter.lcrType!='Package') {
-                                    if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
-                                        $('#dt_company1').html(results.jqXHR.responseJSON.sColumns[5]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
-                                        $('#dt_company2').html(results.jqXHR.responseJSON.sColumns[6]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
-                                        $('#dt_company3').html(results.jqXHR.responseJSON.sColumns[7]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
-                                        $('#dt_company4').html(results.jqXHR.responseJSON.sColumns[8]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
-                                        $('#dt_company5').html(results.jqXHR.responseJSON.sColumns[9]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
-                                        $('#dt_company6').html(results.jqXHR.responseJSON.sColumns[10]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[11] != 'undefined') {
-                                        $('#dt_company7').html(results.jqXHR.responseJSON.sColumns[11]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[12] != 'undefined') {
-                                        $('#dt_company8').html(results.jqXHR.responseJSON.sColumns[12]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[13] != 'undefined') {
-                                        $('#dt_company9').html(results.jqXHR.responseJSON.sColumns[13]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[14] != 'undefined') {
-                                        $('#dt_company10').html(results.jqXHR.responseJSON.sColumns[14]);
-                                    }
+                                if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
+                                    $('#dt_company1').html(results.jqXHR.responseJSON.sColumns[5]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
+                                    $('#dt_company2').html(results.jqXHR.responseJSON.sColumns[6]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
+                                    $('#dt_company3').html(results.jqXHR.responseJSON.sColumns[7]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
+                                    $('#dt_company4').html(results.jqXHR.responseJSON.sColumns[8]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
+                                    $('#dt_company5').html(results.jqXHR.responseJSON.sColumns[9]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
+                                    $('#dt_company6').html(results.jqXHR.responseJSON.sColumns[10]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[11] != 'undefined') {
+                                    $('#dt_company7').html(results.jqXHR.responseJSON.sColumns[11]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[12] != 'undefined') {
+                                    $('#dt_company8').html(results.jqXHR.responseJSON.sColumns[12]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[13] != 'undefined') {
+                                    $('#dt_company9').html(results.jqXHR.responseJSON.sColumns[13]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[14] != 'undefined') {
+                                    $('#dt_company10').html(results.jqXHR.responseJSON.sColumns[14]);
                                 }
                             }
                             catch(err) {
