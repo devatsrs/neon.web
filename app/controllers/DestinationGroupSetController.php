@@ -132,6 +132,7 @@ class DestinationGroupSetController extends \BaseController {
     public function show($id) {
     	$countries  = DestinationGroupSet::getCountriesNames();
         $DestinationGroupSetID = $id;
+        $CompanyID = User::get_companyID();
         $name = DestinationGroupSet::getName($id);
         $terminationtype = DestinationGroupSet::getTerminationTypes();
         $typename  = DestinationGroupSet::getTypeNameByID($id);
@@ -139,13 +140,8 @@ class DestinationGroupSetController extends \BaseController {
         $CityTariffs = DestinationGroupSet::getCityTarrifs();
         $Packages = DestinationGroupSet::getPackages();
         $Prefix = DestinationGroupSet::getAccessPrefixNames();
-        $CityTariffFilter = [];
-            foreach($CityTariffs as $key => $City){
-                if(strpos($City, " per ")){
-                    $CityTariffFilter[$City] = $City;
-                    unset($CityTariffs[$key]);
-                }
-            }
+        $CityTariffFilter  = ServiceTemplate::getTariffDD($CompanyID);
+
         $CityTariffFilter = array('' => 'All') + $CityTariffFilter;    
         //$codes = DB::select("call prc_getDestinationCode(6,0,'0','','0','','1','50')");
         $discountplanapplied = DiscountPlan::isDiscountPlanApplied('DestinationGroupSet',$id,0);

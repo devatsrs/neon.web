@@ -34,7 +34,7 @@ class RateGeneratorRuleController extends \BaseController {
             ])->lists("Name", "PackageId");
 
 
-            $country            = ServiceTemplate::getCountryPrefixDD($companyID);
+            $country            = ServiceTemplate::getCountryDD($companyID);
             $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
             $City               = ServiceTemplate::getCityDD($companyID);
             $Tariff             = ServiceTemplate::getTariffDD($companyID);
@@ -84,7 +84,7 @@ class RateGeneratorRuleController extends \BaseController {
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "PackageId");
 
-            $country            = ServiceTemplate::getCountryPrefixDD($companyID);
+            $country            = ServiceTemplate::getCountryDD($companyID);
             $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
             $City               = ServiceTemplate::getCityDD($companyID);
             $Tariff             = ServiceTemplate::getTariffDD($companyID);

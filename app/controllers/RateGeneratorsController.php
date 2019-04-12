@@ -71,7 +71,7 @@ class RateGeneratorsController extends \BaseController {
         //   })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
         //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
-        $country            = ServiceTemplate::getCountryPrefixDD($companyID);
+        $country            = ServiceTemplate::getCountryDD($companyID);
         $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
         $City               = ServiceTemplate::getCityDD($companyID);
         $Tariff             = ServiceTemplate::getTariffDD($companyID);
@@ -572,7 +572,7 @@ class RateGeneratorsController extends \BaseController {
             //   })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
             //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
-            $country            = ServiceTemplate::getCountryPrefixDD($companyID);
+            $country            = ServiceTemplate::getCountryDD($companyID);
             $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
             $City               = ServiceTemplate::getCityDD($companyID);
             $Tariff             = ServiceTemplate::getTariffDD($companyID);
