@@ -26,13 +26,14 @@ class LCRDIDController extends \BaseController {
             NeonCookie::setCookie('LCRPosition',$data['LCRPosition'],60);
         }
 
+        $data['iDisplayStart'] +=1;
 
 
 
         //$data['ProductID'] = 1; // 1 for local testing , 27825 for staging testing else "Geo number Argentina; Prefix:011"
-if($data['lcr_type']=='Y'){
-    
-    $query = "call prc_GetPACKAGELCR(".$companyID.", '".$data['PackageID']."', '".$data['Currency']."' , '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+        if($data['lcr_type']=='Y'){
+
+            $query = "call prc_GetPACKAGELCR(".$companyID.", '".$data['PackageID']."', '".$data['Currency']."' , '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
@@ -55,8 +56,8 @@ if($data['lcr_type']=='Y'){
 
                 }
                 $query .=',0)';
-}else{
-        $query = "call prc_GetDIDLCR(".$companyID.", '".$data['CountryID']."', '".$data['AccessType']."', '".$data['City']."','".$data['Tariff']."' ,'".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+        }else{
+                $query = "call prc_GetDIDLCR(".$companyID.", '".$data['CountryID']."', '".$data['AccessType']."', '".$data['City']."','".$data['Tariff']."' ,'".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
@@ -79,7 +80,7 @@ if($data['lcr_type']=='Y'){
 
                 }
                 $query .=',0)';
-}
+        }
 
         Log::info('Search procedure query' . $query);
         return DataTableSql::of($query)->make();
