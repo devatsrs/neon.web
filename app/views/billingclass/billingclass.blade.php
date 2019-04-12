@@ -29,7 +29,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                 <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel body -->
                         <div class="panel-body">
-                             @if(empty($PartnerID))
+                             @if(is_reseller())
                              @else
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Partner</label>
