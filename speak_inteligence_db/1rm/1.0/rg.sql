@@ -1561,7 +1561,7 @@ GenerateRateTable:BEGIN
 		END WHILE;
 
 
-		IF p_GroupBy = 'Desc'
+		/*IF p_GroupBy = 'Desc'
 		THEN
 
 			truncate table tmp_Rates2_;
@@ -1585,7 +1585,7 @@ GenerateRateTable:BEGIN
 				inner JOIN tmp_Rates2_ vd on  vd.OriginationDescription = vr.OriginationDescription and  vd.Description = vr.Description and vd.OriginationCode != vr.OriginationCode and vd.Code != vr.Code
 				where vd.Rate is not null;
 
-		END IF;
+		END IF;*/
 
 
 		IF v_LessThenRate > 0 AND v_ChargeRate > 0 THEN
