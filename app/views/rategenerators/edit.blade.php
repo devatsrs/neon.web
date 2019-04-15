@@ -150,6 +150,30 @@
                         </div>
                         {{--<input type="hidden" name="GroupBy" value="Code">--}}
 
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Applied To</label>
+                            <div class="col-sm-4">
+                                <?php
+                                $AppliedToCustomer = $rategenerators->AppliedTo == RateTable::APPLIED_TO_CUSTOMER ? true : false;
+                                $AppliedToReseller = $rategenerators->AppliedTo == RateTable::APPLIED_TO_RESELLER ? true : false;
+                                ?>
+                                <label class="radio-inline">
+                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, $AppliedToCustomer,array("class"=>""))}}
+                                    Customer
+                                </label>
+                                <label class="radio-inline">
+                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, $AppliedToReseller,array("class"=>""))}}
+                                    Partner
+                                </label>
+                            </div>
+                            <div class="ResellerBox" style="display: none;">
+                                <label class="col-sm-2 control-label">Partner</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('Reseller', $ResellerDD, $rategenerators->Reseller,array("class"=>"form-control select2"))}}
+                                </div>
+                            </div>
+                        </div>
+
                         @if($rategenerator->SelectType == 1)
                             <div class="form-group NonDID-Div">
                                 <label for="field-1" class="col-sm-2 control-label">CodeDeck*</label>
@@ -174,29 +198,6 @@
                                 <label class="col-sm-2 control-label IsMerge">Take Price</label>
                                 <div class="col-sm-4 IsMerge">
                                     {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), $rategenerators->TakePrice , array("class"=>"select2")) }}
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label">Applied To</label>
-                                <div class="col-sm-4">
-                                    <?php
-                                        $AppliedToCustomer = $rategenerators->AppliedTo == RateTable::APPLIED_TO_CUSTOMER ? true : false;
-                                        $AppliedToReseller = $rategenerators->AppliedTo == RateTable::APPLIED_TO_RESELLER ? true : false;
-                                    ?>
-                                    <label class="radio-inline">
-                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, $AppliedToCustomer,array("class"=>""))}}
-                                        Customer
-                                    </label>
-                                    <label class="radio-inline">
-                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, $AppliedToReseller,array("class"=>""))}}
-                                        Partner
-                                    </label>
-                                </div>
-                                <div class="ResellerBox" style="display: none;">
-                                    <label class="col-sm-2 control-label">Partner</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('Reseller', $ResellerDD, $rategenerators->Reseller,array("class"=>"form-control select2"))}}
-                                    </div>
                                 </div>
                             </div>
                             <div class="form-group NonDID-Div">
