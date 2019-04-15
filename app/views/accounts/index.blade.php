@@ -505,7 +505,7 @@
 				
                                 try{
                                     if(full[27]==1){
-                                        action += '&nbsp;<button redirecto="" title="Partner" class="btn small_icons btn-info btn-xs"><i class="entypo-users"></i></button>';
+                                        action += '&nbsp;<button id="add-reseller" data-id="'+full[0]+'" onclick="checkreseller('+full[0]+')"  title="Partner" class="btn small_icons btn-info btn-xs"><i class="entypo-users"></i></button>';
                                     }
                                 }catch(exe){}
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
@@ -1251,6 +1251,7 @@
                 });
             }
         }); // billingclass change event over
+           
 
         $('#BulkAction-form select[name="BillingCycleType"]').change(function(e){
             var selection = $(this).val();
@@ -1318,8 +1319,11 @@
                 $("#BulkAction-form [name='ResellerCheck']").prop("checked", false).trigger('change');
             }
         });
+
+     
 		
     }); // main script over
+
 
     function getselectedIDs(){
         var SelectedIDs = [];
@@ -1342,6 +1346,94 @@
         d.setTime(d.getTime() + (exdays*24*60*60*1000));
         var expires = "expires=" + d.toGMTString();
         document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function checkreseller(id) {
+        var id = id;
+            $.ajax({
+                    url: baseurl+'/reseller/getdata/' + id,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        console.log(response.Email);
+                        $(this).button('reset');
+                        if (response.status == 'failed') {
+                            console.log('hi');
+                            $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',id);
+                            $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',false);
+                            $("#add-new-reseller-form [name='ResellerName']").val('');            
+                            $("#add-new-reseller-form [name='FirstName']").val('');
+                            $("#add-new-reseller-form [name='LastName']").val('');
+                            $("#add-new-reseller-form [name='Email']").val('');
+                            $("#add-new-reseller-form [name='Status']").val('');
+                            $("#add-new-reseller-form [name='ResellerID']").val('');
+                            $("#add-new-reseller-form [name='TermsAndCondition']").summernote('code','');
+                            $("#add-new-reseller-form [name='FooterTerm']").summernote('code','');
+                            $("#add-new-reseller-form [name='invoiceTo']").val('');
+                            $("#add-new-reseller-form [name='AccountID']").removeAttr("disabled");
+                            $('#InvoiceTemplateHeader').val('');
+                            $('#copy_data').show();
+                            $('#add-new-modal-reseller h4').html('Partner');
+                            $('#add-new-modal-reseller').modal('show');
+                         }else{
+                            // ev.preventDefault();
+                            // ev.stopPropagation();
+                            $('#add-new-reseller-form').trigger("reset");
+
+                            ResellerName =response.ResellerName;
+                            ResellerID = response.ResellerID;
+                            AccountID = response.AccountID;
+                            FirstName = response.FirstName;
+                            LastName = response.LastName;
+                            AllowWhiteLabel = response.AllowWhiteLabel;
+                            Email = response.Email ;
+                            Status = response.Status;
+                            InvoiceTo = response.InvoiceTo;
+                            InvoiceFrom = response.Status;
+                            Footer = response.FooterTerm;
+                            Terms = response.TermsAndCondition;
+                            invoiceFrom = response.InvoiceFrom;
+                            //AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
+
+                            //getDomainUrl($(this).attr('data-id'));
+                            /*
+                            if(Status == 1 ){
+                                $('#add-new-reseller-form [name="Status"]').prop('checked',true);
+                            }else{
+                                $('#add-new-reseller-form [name="Status"]').prop('checked',false);
+                            }*/
+
+                            $("#add-new-reseller-form [name='ResellerName']").val(ResellerName);            
+                            $("#add-new-reseller-form [name='FirstName']").val(FirstName);
+                            $("#add-new-reseller-form [name='LastName']").val(LastName);
+                            $("#add-new-reseller-form [name='Email']").val(Email);
+                            $("#add-new-reseller-form [name='Status']").val(Status);
+                            $("#add-new-reseller-form [name='invoiceTo']").val(InvoiceTo);
+                            $("#add-new-reseller-form [name='TermsAndCondition']").summernote('code',Terms);
+                            $("#add-new-reseller-form [name='FooterTerm']").summernote('code',Footer);
+                            $('#InvoiceTemplateHeader').val(invoiceFrom);
+                            if(AllowWhiteLabel == 1 ){
+                                $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',true);
+                            }else{
+                                $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',false);
+                            }
+                            $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',AccountID);
+                            $("#add-new-reseller-form [name='UpdateAccountID']").val(AccountID);
+                            $("#add-new-reseller-form [name='ResellerID']").val(ResellerID);
+
+                            //account disabled when edit
+                            $("#add-new-reseller-form [name='AccountIDs']").attr("disabled","disabled");
+                            $("#add-new-reseller-form [name='AccountID']").attr("disabled","disabled");
+                            //hide copy data when edit
+                            $('#copy_data').show();
+                            $('#add-new-modal-reseller h4').html('Partner');
+                            setTimeout(function(){
+                                $('#add-new-modal-reseller').modal('show');
+                            },10); 
+                         }
+                    }
+                });
+
     }
 
     function getCookie(cname) {
@@ -1639,4 +1731,5 @@
     </div>
   </div>
 </div>
+@include('reseller.resellermodal')
 @stop

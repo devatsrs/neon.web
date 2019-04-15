@@ -29,7 +29,7 @@ class CompanyConfiguration extends \Eloquent {
         } else {
             if($CompanyID > 0) {
                 self::$cache['CompanyConfiguration'] = CompanyConfiguration::where(['CompanyID' => $CompanyID])->lists('Value', 'Key');
-                $CACHE_EXPIRE = self::$cache['CompanyConfiguration']['CACHE_EXPIRE'];
+                $CACHE_EXPIRE = @self::$cache['CompanyConfiguration']['CACHE_EXPIRE'];
                 $time = empty($CACHE_EXPIRE) ? 60 : $CACHE_EXPIRE;
                 $minutes = \Carbon\Carbon::now()->addMinutes($time);
                 //Cache::forever($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']));
