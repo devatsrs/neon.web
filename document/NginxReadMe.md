@@ -13,6 +13,8 @@ sudo yum install php55w-fpm
         -A INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT
 
 #/etc/nginx/nginx.conf
+sudo vi /etc/nginx/nginx.conf
+
 change port 80 to 8080
 
 
