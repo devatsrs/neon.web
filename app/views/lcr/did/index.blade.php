@@ -201,6 +201,16 @@
                     $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
+                    $('#dt_AccessType').html("Package Name");
+                    $('#dt_Country').html("Position 1");
+                    $('#dt_Prefix').html("Position 2");
+                    $('#dt_City').html("Position 3");
+                    $('#dt_Tariff').html("Position 4");
+                    $('#dt_company1').html("Position 5");
+                    $('#dt_company2').addClass("hidden");
+                    $('#dt_company3').addClass("hidden");
+                    $('#dt_company4').addClass("hidden");
+                    $('#dt_company5').addClass("hidden");
 
 
                 }else{
@@ -213,6 +223,16 @@
                     $('.productcategory').show();
                     $('#Origination').show();
                     $('#OriginationPercentage').show();
+                    $('#dt_AccessType').html("Access Type");
+                    $('#dt_Country').html("Country");
+                    $('#dt_Prefix').html("Prefix");
+                    $('#dt_City').html("City");
+                    $('#dt_Tariff').html("Tariff");
+                    $('#dt_company1').html("Position 1");
+                    $('#dt_company2').removeClass("hidden");
+                    $('#dt_company3').removeClass("hidden");
+                    $('#dt_company4').removeClass("hidden");
+                    $('#dt_company5').removeClass("hidden");
 
                 }
 
@@ -294,17 +314,17 @@
                         { "bSortable": false}, //1 Access Type
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                    if (full[1] != null) {
-                                        var array = full[1].split(';');
-                                        var html = "<table>";
-                                        html += "<tr><td>" + array[0] + "</td></tr>";
-                                        html += "<tr><td>" + array[1] + "</td></tr>";
-                                        html += "<tr><td>" + array[2] + "</td></tr>";
-                                        html += "</table>";
+                                if (full[1] != null) {
+                                    var array = full[1].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
 
-                                        return html;
-                                    }
-                                    return full[1];
+                                    return html;
+                                }
+                                return full[1];
                             }
                         }, //2 Country
                         { "bSortable": false,
@@ -353,19 +373,19 @@
                             }
                         }, //5 Tariff
                         { "bSortable": false,
-                        mRender: function (id, type, full) {
-                        if (full[5] != null) {
-                            var array = full[5].split(';');
-                            var html = "<table>";
-                            html += "<tr><td>" + array[0] + "</td></tr>";
-                            html += "<tr><td>" + array[1] + "</td></tr>";
-                            html += "<tr><td>" + array[2] + "</td></tr>";
-                            html += "</table>";
+                            mRender: function (id, type, full) {
+                                if (full[5] != null) {
+                                    var array = full[5].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
 
-                            return html;
-                        }
-                        return full[5];
-                    }
+                                    return html;
+                                }
+                                return full[5];
+                            }
                         }, //6 Position 1
                         { "bSortable": false,"bVisible" : false}, //7 Position 2
                         { "bSortable": false,"bVisible" : false}, //8 Position 3
