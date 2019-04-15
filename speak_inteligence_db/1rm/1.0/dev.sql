@@ -260,7 +260,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 			VendorID int,
 			VendorName varchar(200),
 			EffectiveDate DATE,
-			Total double(18,4),
+			Total varchar(200),
 			vPosition int
 
 		);
@@ -313,6 +313,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 		SET @p_Minutes	 							 = p_Minutes;
 
 		set @p_CurrencyID = p_CurrencyID;
+		set @p_CurrencySymbol = (SELECT Symbol from tblCurrency where CurrencyID = @p_CurrencyID);
 
 		SET @p_StartDate	= p_StartDate;
 		SET @p_EndDate		= p_EndDate;
@@ -1396,8 +1397,8 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 
 
 		insert into tmp_final_table_output
-		(AccessType ,Country ,City ,Tariff,Code ,VendorID ,VendorName,EffectiveDate,Total,vPosition)
-			select AccessType ,Country ,City ,Tariff,Code ,VendorID ,VendorName,EffectiveDate, Total,vPosition
+		(AccessType ,Country ,City ,Tariff,Code ,VendorID ,VendorName,EffectiveDate, Total,vPosition)
+			select AccessType ,Country ,City ,Tariff,Code ,VendorID ,VendorName,EffectiveDate, concat( @p_CurrencySymbol, Total ),vPosition
 			from tmp_table_output_2 t
 				LEFT JOIN tblCountry  c on t.CountryID = c.CountryID
 			where vPosition  < @p_Position ;
@@ -1426,12 +1427,11 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 		IF (p_isExport = 0)
 		THEN
 
-			SET @stm_query = CONCAT("SELECT AccessType ,Country ,Code,City ,Tariff, ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff ORDER BY Code, AccessType ,Country ,City ,Tariff  LIMIT ",p_RowspPage," OFFSET ",@v_OffSet_," ;");
+			SET @stm_query = CONCAT("SELECT AccessType ,Country ,Code,City ,Tariff, ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff    ORDER BY Code, AccessType ,Country ,City ,Tariff  LIMIT ",p_RowspPage," OFFSET ",@v_OffSet_," ;");
 
 		ELSE
 
-			SET @stm_query = CONCAT("SELECT AccessType ,Country ,Code,City ,Tariff,  ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff ORDER BY Code, AccessType ,Country ,City ,Tariff  ;");
-
+			SET @stm_query = CONCAT("SELECT AccessType ,Country ,Code,City ,Tariff,  ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff      ORDER BY Code, AccessType ,Country ,City ,Tariff  ;");
 
 		END IF;
 
