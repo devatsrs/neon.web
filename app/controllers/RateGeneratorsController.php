@@ -100,7 +100,10 @@ class RateGeneratorsController extends \BaseController {
         $Products = ServiceTemplate::where([
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "ServiceTemplateId");
-        return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones','country','AccessType','Prefix','City','Tariff'));
+
+        $ResellerDD  = RateTable::getResellerDropdownIDList();
+
+        return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones','country','AccessType','Prefix','City','Tariff','ResellerDD'));
     }
 
     public function store() {
@@ -597,8 +600,11 @@ class RateGeneratorsController extends \BaseController {
                 "status" => 1,
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "PackageId");
+
+            $ResellerDD  = RateTable::getResellerDropdownIDList();
+
             // Debugbar::info($rategenerator_rules);
-            return View::make('rategenerators.edit', compact('id', 'Products','Package', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones','country','AccessType','Prefix','City','country_rule','Tariff'));
+            return View::make('rategenerators.edit', compact('id', 'Products','Package', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones','country','AccessType','Prefix','City','country_rule','Tariff','ResellerDD'));
         }
     }
 
@@ -1248,16 +1254,19 @@ class RateGeneratorsController extends \BaseController {
             $filterdata['Type']       = intval($data['Type']);
             $filterdata['TrunkID']    = intval($data['TrunkID']);
             $filterdata['CodeDeckId'] = intval($data['CodeDeckId']);
-            $filterdata['NotVendor']  = true;
+            $filterdata['AppliedTo']  = intval($data['AppliedTo']);
+            //$filterdata['NotVendor']  = true;
             $rate_table = RateTable::getRateTableCache($filterdata);
         } elseif(@$data['Type'] == RateGenerator::DID) {
             $filterdata['Type']       = intval($data['Type']);
             $filterdata['CodeDeckId'] = intval($data['CodeDeckId']);
-            $filterdata['NotVendor']  = true;
+            $filterdata['AppliedTo']  = intval($data['AppliedTo']);
+            //$filterdata['NotVendor']  = true;
             $rate_table = RateTable::getRateTableCache($filterdata);
         } elseif(@$data['Type'] == RateGenerator::Package) {
             $filterdata['Type']       = intval($data['Type']);
-            $filterdata['NotVendor']  = true;
+            $filterdata['AppliedTo']  = intval($data['AppliedTo']);
+            //$filterdata['NotVendor']  = true;
 
             $rate_table = RateTable::getRateTableCache($filterdata);
         } else {

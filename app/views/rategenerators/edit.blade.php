@@ -34,7 +34,7 @@
                 <button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>
                 <ul class="dropdown-menu dropdown-green" role="menu">
                     <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/create" class="generate_rate create" >Create New Rate Table</a></li>
-                    <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/update" class="generate_rate update" data-trunk="{{$rategenerators->TrunkID}}" data-codedeck="{{$rategenerators->CodeDeckId}}" data-currency="{{$rategenerators->CurrencyID}}" data-type="{{$rategenerators->SelectType}}">Update Existing Rate Table</a></li>
+                    <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/update" class="generate_rate update" data-trunk="{{$rategenerators->TrunkID}}" data-codedeck="{{$rategenerators->CodeDeckId}}" data-currency="{{$rategenerators->CurrencyID}}" data-type="{{$rategenerators->SelectType}}" data-AppliedTo="{{$rategenerators->AppliedTo}}">Update Existing Rate Table</a></li>
                 </ul>
             </div>
         @endif
@@ -149,6 +149,30 @@
                             </div>
                         </div>
                         {{--<input type="hidden" name="GroupBy" value="Code">--}}
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Applied To</label>
+                            <div class="col-sm-4">
+                                <?php
+                                $AppliedToCustomer = $rategenerators->AppliedTo == RateTable::APPLIED_TO_CUSTOMER ? true : false;
+                                $AppliedToReseller = $rategenerators->AppliedTo == RateTable::APPLIED_TO_RESELLER ? true : false;
+                                ?>
+                                <label class="radio-inline">
+                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, $AppliedToCustomer,array("class"=>""))}}
+                                    Customer
+                                </label>
+                                <label class="radio-inline">
+                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, $AppliedToReseller,array("class"=>""))}}
+                                    Partner
+                                </label>
+                            </div>
+                            <div class="ResellerBox" style="display: none;">
+                                <label class="col-sm-2 control-label">Partner</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('Reseller', $ResellerDD, $rategenerators->Reseller,array("class"=>"form-control select2"))}}
+                                </div>
+                            </div>
+                        </div>
 
                         @if($rategenerator->SelectType == 1)
                             <div class="form-group NonDID-Div">
@@ -1165,6 +1189,7 @@
                 var codeDeckId = $(this).attr("data-codedeck");
                 var CurrencyID = $(this).attr("data-currency");
                 var Type = $(this).attr("data-type");
+                var AppliedTo = $(this).attr("data-AppliedTo");
                 $.ajax({
                     url: baseurl + "/rategenerators/ajax_load_rate_table_dropdown",
                     type: 'GET',
@@ -1178,7 +1203,7 @@
 
                     },
                     // Form data
-                    data: "TrunkID="+trunkID+'&CodeDeckId='+codeDeckId+'&CurrencyID='+CurrencyID+'&Type='+Type,
+                    data: "TrunkID="+trunkID+'&CodeDeckId='+codeDeckId+'&CurrencyID='+CurrencyID+'&Type='+Type+'&AppliedTo='+AppliedTo,
                     cache: false,
                     contentType: false,
                     processData: false
@@ -1465,6 +1490,20 @@
                     $(".NonDID-Div").show();
                 }
             });
+
+            $('#rategenerator-from input[name="AppliedTo"]').change(function() {
+                var AppliedTo = $('#rategenerator-from input[name="AppliedTo"]:checked').val();
+
+                if(AppliedTo == {{ RateTable::APPLIED_TO_RESELLER }}) {
+                    $('#rategenerator-from select[name="Reseller"]').select2("val","{{$rategenerators->Reseller}}");
+                    $('.ResellerBox').show();
+                } else {
+                    $('.ResellerBox').hide();
+                    $('#rategenerator-from select[name="Reseller"]').select2("val","0");
+                }
+            });
+            $('#rategenerator-from input[name="AppliedTo"]').trigger('change');
+
         });
 
 

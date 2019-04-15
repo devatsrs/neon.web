@@ -190,4 +190,15 @@ class RateTable extends \Eloquent
 
     }
 
+    public static function getResellerDropdownIDList() {
+        /*
+            Reseller -
+             0  = For Main Company
+            -1  = For All
+            >0  = For Specific Reseller
+        */
+        $DropdownIDList = Reseller::where(array("Status"=>1))->lists('ResellerName', 'ResellerID');
+        $DropdownIDList = array('0' => "Select",'-1' => "All") + $DropdownIDList;
+        return $DropdownIDList;
+    }
 }

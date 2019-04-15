@@ -13,6 +13,10 @@
                     <label for="Search" class="control-label">Search</label>
                     <input class="form-control" name="Search" id="Search"  type="text" >
                 </div>
+                <div class="form-group ">
+                    <label class="control-label">Partner</label><br/>
+                    {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
+                </div>
                 <div class="form-group">
                     <label class="control-label">Type</label>
                     {{Form::select('Type', [""=>"select"]+$RateTypes, '',array("class"=>"form-control select2"))}}
@@ -82,6 +86,7 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                     <tr>
+                                        <th >Reseller</th>
                                         <th >Type</th>
                                         <th >Applied To</th>
                                         <th >Name</th>
@@ -117,6 +122,7 @@ jQuery(document).ready(function($) {
     $searchFilter.Type = $('#ratetable_filter [name="Type"]').val();
     $searchFilter.DIDCategoryID = $('#ratetable_filter [name="DIDCategoryID"]').val();
     $searchFilter.AppliedTo = $('#ratetable_filter [name="AppliedTo"]').val();
+    $searchFilter.Reseller = $('#ratetable_filter [name="Reseller"]').val();
 
     data_table = $("#table-4").dataTable({
         "bDestroy": true,
@@ -127,27 +133,28 @@ jQuery(document).ready(function($) {
         "sPaginationType": "bootstrap",
         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
         "oTableTools": {},
-        "aaSorting": [[0, "asc"]],
+        "aaSorting": [[3, "asc"]],
         "fnServerParams": function(aoData) {
-            aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID},{"name":"AppliedTo","value":$searchFilter.AppliedTo});
+            aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID},{"name":"AppliedTo","value":$searchFilter.AppliedTo},{"name":"Reseller","value":$searchFilter.Reseller});
             data_table_extra_params.length = 0;
-            data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID},{"name":"AppliedTo","value":$searchFilter.AppliedTo});
+            data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID},{"name":"AppliedTo","value":$searchFilter.AppliedTo},{"name":"Reseller","value":$searchFilter.Reseller});
         },
         "fnRowCallback": function(nRow, aData) {
             $(nRow).attr("id", "host_row_" + aData[2]);
         },
         "aoColumns":
                 [
+                    {},
                     {
                         mRender: function(id, type, full) {
                             var Types = JSON.parse('{{json_encode($RateTypes)}}');
-                            return Types[full[0]];
+                            return Types[full[1]];
                         }
                     },
                     {
                         mRender: function(id, type, full) {
                             var AppliedTo = JSON.parse('{{json_encode(RateTable::$AppliedTo)}}');
-                            return AppliedTo[full[1]];
+                            return AppliedTo[full[2]];
                         }
                     },
                     {},
@@ -162,14 +169,14 @@ jQuery(document).ready(function($) {
                             view_ = "{{ URL::to('/rate_tables/{id}/view')}}";
                             delete_ = "{{ URL::to('/rate_tables/{id}/delete')}}";
 
-                            view_ = view_.replace('{id}', full[8]);
-                            delete_ = delete_.replace('{id}', full[8]);
+                            view_ = view_.replace('{id}', full[9]);
+                            delete_ = delete_.replace('{id}', full[9]);
 
                             full[11] = full[11] == null ? "" : full[11];
                             full[12] = full[12] == null ? "" : full[12];
 
                             action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
-                            action += '<a title="Edit" data-id="'+  full[8] +'" data-Type="'+full[0]+'" data-rateTableName="'+full[2]+'" data-TrunkID="'+full[9]+'" data-CurrencyID="'+full[10]+'" data-RoundChargedAmount="'+full[11]+'" data-MinimumCallCharge="'+full[12]+'" data-DIDCategoryID="'+full[13]+'" data-CustomerTrunkID="'+full[14]+'" data-VendorConnectionID="'+full[15]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                            action += '<a title="Edit" data-id="'+  full[9] +'" data-Type="'+full[1]+'" data-AppliedTo="'+full[2]+'" data-rateTableName="'+full[3]+'" data-TrunkID="'+full[10]+'" data-CurrencyID="'+full[11]+'" data-RoundChargedAmount="'+full[12]+'" data-MinimumCallCharge="'+full[13]+'" data-DIDCategoryID="'+full[14]+'" data-CustomerTrunkID="'+full[15]+'" data-VendorConnectionID="'+full[16]+'" data-Reseller="'+full[17]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                             <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                 action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
@@ -273,6 +280,14 @@ jQuery(document).ready(function($) {
         $("#modal-edit-new-rate-table [name='RoundChargedAmount']").val($(this).attr('data-RoundChargedAmount'));
         $("#modal-edit-new-rate-table [name='MinimumCallCharge']").val($(this).attr('data-MinimumCallCharge'));
         $("#modal-edit-new-rate-table [name='DIDCategoryID']").select2('val', $(this).attr('data-DIDCategoryID'));
+        $("#modal-edit-new-rate-table [name='Reseller']").select2('val', $(this).attr('data-Reseller'));
+
+        if($(this).attr('data-AppliedTo') == {{RateTable::APPLIED_TO_RESELLER}}) {
+            $('#EditResellerBox').show();
+        } else {
+            $('#EditResellerBox').hide();
+        }
+
         var CustomerTrunkID     = $(this).attr('data-CustomerTrunkID');
         var VendorConnectionID  = $(this).attr('data-VendorConnectionID');
         if(CustomerTrunkID == 'null' && VendorConnectionID == 'null') {
@@ -302,12 +317,14 @@ jQuery(document).ready(function($) {
         $searchFilter.Type = $('#ratetable_filter [name="Type"]').val();
         $searchFilter.DIDCategoryID = $('#ratetable_filter [name="DIDCategoryID"]').val();
         $searchFilter.AppliedTo = $('#ratetable_filter [name="AppliedTo"]').val();
+        $searchFilter.Reseller = $('#ratetable_filter [name="Reseller"]').val();
         data_table.fnFilter('', 0);
         return false;
      });
      $("#add-new-rate-table").click(function(ev) {
          ev.preventDefault();
          $('#add-new-form select[name=Type]').trigger('change');
+         $('#add-new-form input[name="AppliedTo"]').trigger('change');
          $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
      });
      $("#add-new-form").submit(function(ev){
@@ -361,6 +378,17 @@ jQuery(document).ready(function($) {
         }
     });
     $('#ratetable_filter select[name="Type"]').trigger('change');
+
+    $('#add-new-form input[name="AppliedTo"]').change(function() {
+        var AppliedTo = $('#add-new-form input[name="AppliedTo"]:checked').val();
+
+        if(AppliedTo == {{ RateTable::APPLIED_TO_RESELLER }}) {
+            $('#ResellerBox').show();
+        } else {
+            $('#ResellerBox').hide();
+            $('#add-new-form select[name="Reseller"]').select2("val","0");
+        }
+    });
 });
 
 </script>
@@ -380,6 +408,14 @@ jQuery(document).ready(function($) {
                     <h4 class="modal-title">Add New RateTable</h4>
                 </div>
                 <div class="modal-body">
+                    <div class="row" id="ResellerBox">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="control-label">Partner</label><br/>
+                                {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group ">
@@ -481,9 +517,17 @@ jQuery(document).ready(function($) {
             <form id="edit-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Edit New RateTable</h4>
+                    <h4 class="modal-title">Edit RateTable</h4>
                 </div>
                 <div class="modal-body">
+                    <div class="row" id="EditResellerBox">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="control-label">Partner</label><br/>
+                                {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6" id="box-edit-Trunk">
                             <div class="form-group ">
