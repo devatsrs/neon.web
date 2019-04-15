@@ -189,33 +189,31 @@
             $('#OriginationPercentage').show();
             @endif
 
+            $('.didbutton').click(function(){
+                //alert("Access Called");
+                $('#lcr_type').val('N');
+                $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+                //$('.packageoption').html(packbtnval);
+                $('.packagediv').hide();
+                $('.productdiv').show();
+                $('.productcategory').show();
+                $('#Origination').show();
+                $('#OriginationPercentage').show();
+            });
+
             // alert(accbtnval);
             $('.packageoption').click(function(){
                 if($('.packageoption').text()=='Package'){
 
                     $('#lcr_type').val('Y');
                     $('.didbutton').html(packbtnval+' <span class="caret"></span>');
-                    $('.packageoption').html(accbtnval);
+                   // $('.packageoption').html(accbtnval);
                     $('.packagediv').show();
                     $('.productdiv').hide();
                     $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
-
-
-                }else{
-
-                    $('#lcr_type').val('N');
-                    $('.didbutton').html(accbtnval+' <span class="caret"></span>');
-                    $('.packageoption').html(packbtnval);
-                    $('.packagediv').hide();
-                    $('.productdiv').show();
-                    $('.productcategory').show();
-                    $('#Origination').show();
-                    $('#OriginationPercentage').show();
-
                 }
-
             });
 
 
@@ -294,17 +292,17 @@
                         { "bSortable": false}, //1 Access Type
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                    if (full[1] != null) {
-                                        var array = full[1].split(';');
-                                        var html = "<table>";
-                                        html += "<tr><td>" + array[0] + "</td></tr>";
-                                        html += "<tr><td>" + array[1] + "</td></tr>";
-                                        html += "<tr><td>" + array[2] + "</td></tr>";
-                                        html += "</table>";
+                                if (full[1] != null) {
+                                    var array = full[1].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
 
-                                        return html;
-                                    }
-                                    return full[1];
+                                    return html;
+                                }
+                                return full[1];
                             }
                         }, //2 Country
                         { "bSortable": false,
@@ -353,19 +351,19 @@
                             }
                         }, //5 Tariff
                         { "bSortable": false,
-                        mRender: function (id, type, full) {
-                        if (full[5] != null) {
-                            var array = full[5].split(';');
-                            var html = "<table>";
-                            html += "<tr><td>" + array[0] + "</td></tr>";
-                            html += "<tr><td>" + array[1] + "</td></tr>";
-                            html += "<tr><td>" + array[2] + "</td></tr>";
-                            html += "</table>";
+                            mRender: function (id, type, full) {
+                                if (full[5] != null) {
+                                    var array = full[5].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
 
-                            return html;
-                        }
-                        return full[5];
-                    }
+                                    return html;
+                                }
+                                return full[5];
+                            }
                         }, //6 Position 1
                         { "bSortable": false,"bVisible" : false}, //7 Position 2
                         { "bSortable": false,"bVisible" : false}, //8 Position 3
