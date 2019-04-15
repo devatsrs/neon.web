@@ -189,33 +189,31 @@
             $('#OriginationPercentage').show();
             @endif
 
+            $('.didbutton').click(function(){
+                //alert("Access Called");
+                $('#lcr_type').val('N');
+                $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+                //$('.packageoption').html(packbtnval);
+                $('.packagediv').hide();
+                $('.productdiv').show();
+                $('.productcategory').show();
+                $('#Origination').show();
+                $('#OriginationPercentage').show();
+            });
+
             // alert(accbtnval);
             $('.packageoption').click(function(){
                 if($('.packageoption').text()=='Package'){
 
                     $('#lcr_type').val('Y');
                     $('.didbutton').html(packbtnval+' <span class="caret"></span>');
-                    $('.packageoption').html(accbtnval);
+                   // $('.packageoption').html(accbtnval);
                     $('.packagediv').show();
                     $('.productdiv').hide();
                     $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
-
-
-                }else{
-
-                    $('#lcr_type').val('N');
-                    $('.didbutton').html(accbtnval+' <span class="caret"></span>');
-                    $('.packageoption').html(packbtnval);
-                    $('.packagediv').hide();
-                    $('.productdiv').show();
-                    $('.productcategory').show();
-                    $('#Origination').show();
-                    $('#OriginationPercentage').show();
-
                 }
-
             });
 
 
