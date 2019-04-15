@@ -393,12 +393,17 @@
                         {    "sClass": "rate5_class", "aTargets": [ 9 ] }
                     ];
                 }else  if($searchFilter.LCRPosition=='5'){
+
                     $('#dt_AccessType').html("Access Type");
                     $('#dt_Country').html("Country");
                     $('#dt_Prefix').html("Prefix");
                     $('#dt_City').html("City");
                     $('#dt_Tariff').html("Tariff");
                     $('#dt_company1').html("Position 1");
+                    $('#dt_company2').html("Position 2");
+                    $('#dt_company3').html("Position 3");
+                    $('#dt_company4').html("Position 4");
+                    $('#dt_company5').html("Position 5");
 
                     setTimeout(function(){
                         $('#dt_company6').addClass("hidden");
@@ -440,6 +445,13 @@
                         {    "sClass": "rate5_class", "aTargets": [ 9 ] }
                     ];
                 }else{
+
+                    $('#dt_company6').html("Position 6");
+                    $('#dt_company7').html("Position 7");
+                    $('#dt_company8').html("Position 8");
+                    $('#dt_company9').html("Position 9");
+                    $('#dt_company10').html("Position 10");
+
                     setTimeout(function(){
                         $('#dt_company6').removeClass("hidden");
                         $('#dt_company7').removeClass("hidden");
@@ -459,10 +471,10 @@
                         { "bSortable": false}, //9 Position 4
                         { "bSortable": false}, //10 Position 5
                         { "bSortable": false}, //11 Position 6
-                        { "bVisible": false},  //12 Position 7
-                        { "bVisible": false},  //13 Position 8
-                        { "bVisible": false},  //14 Position 9
-                        { "bVisible": false},  //15 Company 10
+                        { "bSortable": false},  //12 Position 7
+                        { "bSortable": false},  //13 Position 8
+                        { "bSortable": false},  //14 Position 9
+                        { "bSortable": false},  //15 Company 10
 
 
 
