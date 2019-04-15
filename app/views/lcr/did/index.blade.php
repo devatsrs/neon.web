@@ -169,55 +169,121 @@
 
             @if($lcrType == "Package")
             $('#lcr_type').val('Y');
-            $('.didbutton').html(packbtnval+' <span class="caret"></span>');
+            var packbtnval = "Package";
+           // $('.didbutton').html(packbtnval+' <span class="caret"></span>');
             $('.packageoption').html(accbtnval);
             $('.packagediv').show();
             $('.productdiv').hide();
             $('.productcategory').hide();
             $('#Origination').hide();
             $('#OriginationPercentage').hide();
+            if (packbtnval == "Package") {
+                $('.didbutton').html("Package" + ' <span class="caret"></span>');
+                $('.packageoption').html("Access");
+            }else {
+                $('.didbutton').html("Access" + ' <span class="caret"></span>');
+                $('.packageoption').html("Package");
+            }
             @endif
 
             @if($lcrType == "Access")
+            var packbtnval = "Access";
+           // alert(packbtnval);
+            //var packbtnval = $('.didbutton').html();
              $('#lcr_type').val('N');
-            $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+           // $('.didbutton').html(accbtnval+' <span class="caret"></span>');
             $('.packageoption').html(packbtnval);
             $('.packagediv').hide();
             $('.productdiv').show();
             $('.productcategory').show();
             $('#Origination').show();
             $('#OriginationPercentage').show();
+            if (packbtnval == "Package") {
+                $('.didbutton').html("Package" + ' <span class="caret"></span>');
+                $('.packageoption').html("Access");
+            }else {
+                $('.didbutton').html("Access" + ' <span class="caret"></span>');
+                $('.packageoption').html("Package");
+            }
             @endif
 
             $('.didbutton').click(function(){
-                //alert("Access Called");
-                $('#lcr_type').val('N');
-                $('.didbutton').html(accbtnval+' <span class="caret"></span>');
-                //$('.packageoption').html(packbtnval);
-                $('.packagediv').hide();
-                $('.productdiv').show();
-                $('.productcategory').show();
-                $('#Origination').show();
-                $('#OriginationPercentage').show();
+              //  alert("Access Called");
+                var packbtnval = $('.didbutton').html();
+                if(packbtnval=='Package'){
+                    var accbtnval=$('.didbutton').text();
+                    var packbtnval=$('.packageoption').text();
+                    $('#lcr_type').val('Y');
+
+                    // $('.packageoption').html(accbtnval);
+                    $('.packagediv').show();
+                    $('.productdiv').hide();
+                    $('.productcategory').hide();
+                    $('#Origination').hide();
+                    $('#OriginationPercentage').hide();
+                    $('.didbutton').html(packbtnval+' <span class="caret"></span>');
+                    //  $('.packageoption').html(accbtnval);
+                }else {
+                    var accbtnval = $('.didbutton').text();
+                    var packbtnval = $('.packageoption').text();
+                    $('#lcr_type').val('N');
+                    //$('.packageoption').html(packbtnval);
+                    $('.packagediv').hide();
+                    $('.productdiv').show();
+                    $('.productcategory').show();
+                    $('#Origination').show();
+                    $('#OriginationPercentage').show();
+                }
+              //  $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+              //  $('.packageoption').html(packbtnval);
             });
 
             // alert(accbtnval);
             $('.packageoption').click(function(){
-                if($('.packageoption').text()=='Package'){
-
+               // alert("Package Called");
+               // var packbtnval = $('.didbutton').html();
+                var packbtnval =$('.packageoption').html();
+                if(packbtnval=='Package'){
+                    var accbtnval=$('.didbutton').text();
+                    var packbtnval=$('.packageoption').text();
                     $('#lcr_type').val('Y');
-                    $('.didbutton').html(packbtnval+' <span class="caret"></span>');
+
                    // $('.packageoption').html(accbtnval);
                     $('.packagediv').show();
                     $('.productdiv').hide();
                     $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
+                    if (packbtnval == "Package") {
+                        $('.didbutton').html("Package" + ' <span class="caret"></span>');
+                        $('.packageoption').html("Access");
+                    }else {
+                        $('.didbutton').html("Access" + ' <span class="caret"></span>');
+                        $('.packageoption').html("Package");
+                    }
+                  //  $('.packageoption').html(accbtnval);
+                } else {
+                    var accbtnval = $('.didbutton').text();
+                    var packbtnval = $('.packageoption').text();
+                    $('#lcr_type').val('N');
+                    //$('.packageoption').html(packbtnval);
+                    $('.packagediv').hide();
+                    $('.productdiv').show();
+                    $('.productcategory').show();
+                    $('#Origination').show();
+                    $('#OriginationPercentage').show();
+                    if (packbtnval == "Package") {
+                        $('.didbutton').html("Package" + ' <span class="caret"></span>');
+                        $('.packageoption').html("Access");
+                    }else {
+                        $('.didbutton').html("Access" + ' <span class="caret"></span>');
+                        $('.packageoption').html("Package");
+                    }
                 }
             });
 
 
-            $('#filter-button-toggle').show();
+           // $('#filter-button-toggle').show();
 
             //var data_table;
             if('{{$LCRPosition}}'=='5'){
@@ -270,11 +336,19 @@
                     $searchFilter.lcrType = "Access";
                 }
 
+                var packbtnval = $searchFilter.lcrType;
+                if (packbtnval == "Package") {
+                    $('.didbutton').html("Package" + ' <span class="caret"></span>');
+                    $('.packageoption').html("Access");
+                }else {
+                    $('.didbutton').html("Access" + ' <span class="caret"></span>');
+                    $('.packageoption').html("Package");
+                }
 
                 // alert($searchFilter.lcrType);
 
                 var aoColumnDefs, aoColumnDefs;
-                if($searchFilter.lcrType == "Package"){
+                if($searchFilter.lcrType == "Package" && $searchFilter.LCRPosition=='5'){
                     $('#dt_AccessType').html("Package Name");
                     $('#dt_Country').html("Position 1");
                     $('#dt_Prefix').html("Position 2");
@@ -390,7 +464,193 @@
                         {    "sClass": "rate4_class", "aTargets": [ 8 ] },
                         {    "sClass": "rate5_class", "aTargets": [ 9 ] }
                     ];
-                }else  if($searchFilter.LCRPosition=='5'){
+                }else if ($searchFilter.lcrType == "Package" && $searchFilter.LCRPosition=='10') {
+                    $('#dt_AccessType').html("Package Name");
+                    $('#dt_Country').html("Position 1");
+                    $('#dt_Prefix').html("Position 2");
+                    $('#dt_City').html("Position 3");
+                    $('#dt_Tariff').html("Position 4");
+                    $('#dt_company1').html("Position 5");
+                    setTimeout(function(){
+                        $('#dt_company6').removeClass("hidden");
+                        $('#dt_company7').addClass("hidden");
+                        $('#dt_company8').addClass("hidden");
+                        $('#dt_company9').addClass("hidden");
+                        $('#dt_company10').addClass("hidden");
+                    },10);
+                    aoColumns = [
+                        { "bSortable": false}, //1 Access Type
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[1] != null) {
+                                    var array = full[1].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[1];
+                            }
+                        }, //2 Country
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[2] != null) {
+                                    var array = full[2].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[2];
+                            }
+                        }, //3 Prefix
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[3] != null) {
+                                    var array = full[3].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[3];
+                            }
+                        }, //4 City
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[4] != null) {
+                                    var array = full[4].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[4];
+                            }
+                        }, //5 Tariff
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[5] != null) {
+                                    var array = full[5].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[5];
+                            }
+                        }, //6 Position 1
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[6] != null) {
+                                    var array = full[6].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[6];
+                            }
+                        }, //7 Position 2
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[7] != null) {
+                                    var array = full[7].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[7];
+                            }
+                        }, //8 Position 3
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[8] != null) {
+                                    var array = full[8].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[8];
+                            }
+                        }, //9 Position 4
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[9] != null) {
+                                    var array = full[9].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[9];
+                            }
+                        }, //10 Position 5
+                         { "bSortable": false,
+                             mRender: function (id, type, full) {
+                                 if (full[10] != null) {
+                                     var array = full[10].split(';');
+                                     var html = "<table>";
+                                     html += "<tr><td>" + array[0] + "</td></tr>";
+                                     html += "<tr><td>" + array[1] + "</td></tr>";
+                                     html += "<tr><td>" + array[2] + "</td></tr>";
+                                     html += "</table>";
+
+                                     return html;
+                                 }
+                                 return full[10];
+                             }
+                         }, //11 Position 6
+                        /* { "bVisible": false},  //12 Position 7
+                         { "bVisible": false},  //13 Position 8
+                         { "bVisible": false},  //14 Position 9
+                         { "bVisible": false},  //15 Company 10*/
+
+
+                    ];
+
+                    aoColumnDefs = [
+                        {    "sClass": "destination", "aTargets": [ 0 ] },
+                        {    "sClass": "destination", "aTargets": [ 1 ] },
+                        {    "sClass": "destination", "aTargets": [ 2 ] },
+                        {    "sClass": "destination", "aTargets": [ 3 ] },
+                        {    "sClass": "destination", "aTargets": [ 4 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 5 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 6 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 7 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 8 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 9 ] }
+                    ];
+                } else  if($searchFilter.LCRPosition=='5'){
                     $('#dt_AccessType').html("Access Type");
                     $('#dt_Country').html("Country");
                     $('#dt_Prefix').html("Prefix");
@@ -593,7 +853,7 @@
                     },
                     "fnDrawCallback": function (results) {
 
-                        $('.btn').button('reset');
+                       // $('.btn').button('reset');
 
                         if (typeof results != 'undefined') {
 
