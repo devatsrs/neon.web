@@ -233,7 +233,7 @@
                     $('#dt_company3').removeClass("hidden");
                     $('#dt_company4').removeClass("hidden");
                     $('#dt_company5').removeClass("hidden");
-                    $('#dt_company2').removeClass("Position 2");
+
 
                 }
 
@@ -422,11 +422,17 @@
                     $('#dt_company1').html("Position 1");
 
                     setTimeout(function(){
+                        $('#dt_company2').removeClass("hidden");
+                        $('#dt_company3').removeClass("hidden");
+                        $('#dt_company4').removeClass("hidden");
+                        $('#dt_company5').removeClass("hidden");
+                        
                         $('#dt_company6').addClass("hidden");
                         $('#dt_company7').addClass("hidden");
                         $('#dt_company8').addClass("hidden");
                         $('#dt_company9').addClass("hidden");
                         $('#dt_company10').addClass("hidden");
+
                     },10);
                     aoColumns = [
                         { "bSortable": false}, //1 Access Type
