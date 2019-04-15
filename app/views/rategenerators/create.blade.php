@@ -153,7 +153,10 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">Applied To</label>
+                            <label class="col-sm-2 control-label">
+                                Applied To
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This option is for Rate Tables created from this Rate Generator." data-original-title="Applied To">?</span>
+                            </label>
                             <div class="col-sm-4">
                                 <label class="radio-inline">
                                     {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, true,array("class"=>""))}}

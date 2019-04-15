@@ -371,9 +371,9 @@
         var all_available_timezone_fields    = ['CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber'];
         var all_occupied_timezone_fields     = [];
         var all_occupied_timezone_fields2    = [];
-        var dual_mapping_columns_all         = ['Code','OriginationCode','AccessType','CountryCode','City','Tariff'];
+        var dual_mapping_columns_all         = ['Code','AccessType','CountryCode','City','Tariff'];
         var dual_mapping_columns_static      = ['Code','AccessType','City','Tariff','CountryCode'];
-        var dual_mapping_columns_dynamic     = ['OriginationCode'];
+        var dual_mapping_columns_dynamic     = [];
         var relational_columns_timezone      = {
             CostPerCall                 : [],
             CostPerMinute               : [],

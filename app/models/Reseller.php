@@ -16,8 +16,8 @@ class Reseller extends \Eloquent
     );
 	
 	public static $messages = array(
-        'AccountID.required' =>'Reseller Account is required',
-        'AccountID.unique' =>'Reseller exists',
+        'AccountID.required' =>'Partner Account is required',
+        'AccountID.unique' =>'Partner exists',
         'Email.required' =>'Email Value field is required',
         'Password.required' =>'Password Value field is required'
     );

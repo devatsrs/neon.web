@@ -712,15 +712,41 @@ class RateTablesController extends \BaseController {
                 $rate_tables->where('TrunkID',$data['TrunkID']);
             }
             $rate_tables = $rate_tables->get(["RateTableName"]);*/
+
+            $Partner    = 'IF(tblRateTable.Reseller=0,"",IF(tblRateTable.Reseller=-1,"All",tblReseller.ResellerName)) AS Partner';
+            $Type       = 'IF(tblRateTable.Type='.RateTable::RATE_TABLE_TYPE_ACCESS.', "Access",IF(tblRateTable.Type='.RateTable::RATE_TABLE_TYPE_PACKAGE.', "Package","Termination"))';
+            $AppliedTo  = 'IF(tblRateTable.AppliedTo='.RateTable::APPLIED_TO_VENDOR.', "Vendor",IF(tblRateTable.AppliedTo='.RateTable::APPLIED_TO_RESELLER.', "Partner","Customer"))';
+
             $rate_tables = RateTable::
-            join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
+            Join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
                 ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
-                ->select(['tblRateTable.RateTableName','tblCurrency.Code as Currency Code','tblCodeDeck.CodeDeckName'])
+                ->leftjoin('tblTrunk','tblTrunk.TrunkID','=','tblRateTable.TrunkID')
+                ->leftjoin('tblDIDCategory','tblDIDCategory.DIDCategoryID','=','tblRateTable.DIDCategoryID')
+                ->leftjoin('tblCustomerTrunk','tblCustomerTrunk.CustomerTrunkID','=',DB::RAW('(SELECT CustomerTrunkID FROM tblCustomerTrunk WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
+                ->leftjoin('tblVendorConnection','tblVendorConnection.VendorConnectionID','=',DB::RAW('(SELECT VendorConnectionID FROM tblVendorConnection WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
+                ->leftjoin('tblReseller','tblReseller.ResellerID','=','tblRateTable.Reseller')
+                ->select([DB::RAW($Partner),DB::RAW($Type),DB::RAW($AppliedTo),'tblRateTable.RateTableName','tblCurrency.Code AS Currency', 'tblTrunk.Trunk as Trunk', 'tblDIDCategory.CategoryName as AccessCategory','tblCodeDeck.CodeDeckName AS Codedeck','tblRateTable.updated_at AS LastUpdated'])
                 ->where("tblRateTable.CompanyId",$CompanyID);
             //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
+
             $data = Input::all();
+            if(isset($data['Reseller']) && $data['Reseller'] != 0){
+                $rate_tables->where('tblRateTable.Reseller',$data['Reseller']);
+            }
             if($data['TrunkID']){
-                $rate_tables = $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
+                $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
+            }
+            if(!empty($data['Type'])){
+                $rate_tables->where('tblRateTable.Type',$data['Type']);
+            }
+            if(!empty($data['DIDCategoryID'])){
+                $rate_tables->where('tblRateTable.DIDCategoryID',$data['DIDCategoryID']);
+            }
+            if(!empty($data['AppliedTo'])){
+                $rate_tables->where('tblRateTable.AppliedTo',$data['AppliedTo']);
+            }
+            if($data['Search']!=''){
+                $rate_tables->WhereRaw('tblRateTable.RateTableName like "%'.$data['Search'].'%"');
             }
             $rate_tables = $rate_tables->get();
             $excel_data = json_decode(json_encode($rate_tables),true);

@@ -130,11 +130,11 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-2 control-label">Origination Code </label>
+            <label class="col-sm-2 control-label">Origination </label>
             <div class="col-sm-2">
                 {{Form::select('selection2[OriginationCode]', $columns,(isset($attrselection2->OriginationCode)?$attrselection2->OriginationCode:''),array("class"=>"select2 small"))}}
             </div>
-            <div class="col-sm-2 popover-primary " data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Origination Code Separator">
+            <div class="col-sm-2 popover-primary " data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Origination Separator">
                 {{Form::select('selection2[OriginationDialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection2->OriginationDialCodeSeparator)?$attrselection2->OriginationDialCodeSeparator:''),array("class"=>"select2 small dialcodeseperator"))}}
             </div>
             <label class="col-sm-2 control-label">Prefix* </label>
@@ -184,7 +184,7 @@
         </div>
     </div>
     <div class="control-OriginationCode">
-        <label class="col-sm-2 control-label control-OriginationCode-controls">Origination Code </label>
+        <label class="col-sm-2 control-label control-OriginationCode-controls">Origination </label>
         <div class="col-sm-2 control-OriginationCode-controls">
             {{Form::select('selection[OriginationCode]', $Codes,(isset($attrselection->OriginationCode)?$attrselection->OriginationCode:''),array("class"=>"DualMapping small"))}}
         </div>

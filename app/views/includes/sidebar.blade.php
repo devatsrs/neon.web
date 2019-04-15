@@ -60,9 +60,9 @@
         <li class="{{ active_url_class("accounts") }} {{ active_url_class("accountservices") }}"> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a></li>
       @endif
     @endif
-    @if(User::checkCategoryPermission('Reseller','View'))
+    {{-- @if(User::checkCategoryPermission('Reseller','View'))
     <li class="{{ active_url_class("reseller") }}"> <a href="{{URL::to('/reseller')}}">  <i class="entypo-users"></i><span>Partner</span> </a> </li>
-    @endif
+    @endif --}}
          <!--tickets start -->
     @if(Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','View'))
     <li class="{{check_uri('tickets')}} {{ Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','Add') ? "two-links" : "" }}"><a href="#" class="first"><i class="fa fa-ticket"></i><span>Ticket Management</span></a>
@@ -226,9 +226,9 @@
           {{--@if(User::checkCategoryPermission('Products','View'))--}}
             {{--<li class="{{ active_url_class("products") }}"> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li>--}}
           {{--@endif--}}
-          @if(User::checkCategoryPermission('InvoiceTemplates','View'))
+          {{-- @if(User::checkCategoryPermission('InvoiceTemplates','View'))
             <li class="{{ active_url_class("invoice_template") }}"> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li>
-          @endif
+          @endif --}}
           @if(User::checkCategoryPermission('TaxRates','View'))
             <li class="{{ active_url_class("taxrate") }}"> <a href="{{URL::to('/taxrate')}}">  <span>VAT Rate</span> </a> </li>
           @endif
