@@ -201,16 +201,6 @@
                     $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
-                    $('#dt_AccessType').html("Package Name");
-                    $('#dt_Country').html("Position 1");
-                    $('#dt_Prefix').html("Position 2");
-                    $('#dt_City').html("Position 3");
-                    $('#dt_Tariff').html("Position 4");
-                    $('#dt_company1').html("Position 5");
-                    $('#dt_company2').addClass("hidden");
-                    $('#dt_company3').addClass("hidden");
-                    $('#dt_company4').addClass("hidden");
-                    $('#dt_company5').addClass("hidden");
 
 
                 }else{
@@ -223,17 +213,6 @@
                     $('.productcategory').show();
                     $('#Origination').show();
                     $('#OriginationPercentage').show();
-                    $('#dt_AccessType').html("Access Type");
-                    $('#dt_Country').html("Country");
-                    $('#dt_Prefix').html("Prefix");
-                    $('#dt_City').html("City");
-                    $('#dt_Tariff').html("Tariff");
-                    $('#dt_company1').html("Position 1");
-                    $('#dt_company2').removeClass("hidden");
-                    $('#dt_company3').removeClass("hidden");
-                    $('#dt_company4').removeClass("hidden");
-                    $('#dt_company5').removeClass("hidden");
-
 
                 }
 
@@ -422,17 +401,11 @@
                     $('#dt_company1').html("Position 1");
 
                     setTimeout(function(){
-                        $('#dt_company2').removeClass("hidden");
-                        $('#dt_company3').removeClass("hidden");
-                        $('#dt_company4').removeClass("hidden");
-                        $('#dt_company5').removeClass("hidden");
-                        
                         $('#dt_company6').addClass("hidden");
                         $('#dt_company7').addClass("hidden");
                         $('#dt_company8').addClass("hidden");
                         $('#dt_company9').addClass("hidden");
                         $('#dt_company10').addClass("hidden");
-
                     },10);
                     aoColumns = [
                         { "bSortable": false}, //1 Access Type
