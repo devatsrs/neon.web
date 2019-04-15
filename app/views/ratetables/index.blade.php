@@ -86,7 +86,7 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                     <tr>
-                                        <th >Reseller</th>
+                                        <th >Partner</th>
                                         <th >Type</th>
                                         <th >Applied To</th>
                                         <th >Name</th>
@@ -323,6 +323,8 @@ jQuery(document).ready(function($) {
      });
      $("#add-new-rate-table").click(function(ev) {
          ev.preventDefault();
+         $('#add-new-form select.select2').select2('val','');
+         $('#add-new-form')[0].reset();
          $('#add-new-form select[name=Type]').trigger('change');
          $('#add-new-form input[name="AppliedTo"]').trigger('change');
          $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
@@ -408,14 +410,6 @@ jQuery(document).ready(function($) {
                     <h4 class="modal-title">Add New RateTable</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="row" id="ResellerBox">
-                        <div class="col-md-6">
-                            <div class="form-group ">
-                                <label class="control-label">Partner</label><br/>
-                                {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
-                            </div>
-                        </div>
-                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group ">
@@ -495,6 +489,12 @@ jQuery(document).ready(function($) {
                                 </label>
                             </div>
                         </div>
+                        <div class="col-md-6" id="ResellerBox">
+                            <div class="form-group ">
+                                <label class="control-label">Partner</label><br/>
+                                {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -520,14 +520,14 @@ jQuery(document).ready(function($) {
                     <h4 class="modal-title">Edit RateTable</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="row" id="EditResellerBox">
+                    {{--<div class="row" id="EditResellerBox">
                         <div class="col-md-6">
                             <div class="form-group ">
                                 <label class="control-label">Partner</label><br/>
                                 {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
                             </div>
                         </div>
-                    </div>
+                    </div>--}}
                     <div class="row">
                         <div class="col-md-6" id="box-edit-Trunk">
                             <div class="form-group ">
