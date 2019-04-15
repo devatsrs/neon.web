@@ -233,6 +233,7 @@
                     $('#dt_company3').removeClass("hidden");
                     $('#dt_company4').removeClass("hidden");
                     $('#dt_company5').removeClass("hidden");
+                    $('#dt_company2').removeClass("Position 2");
 
                 }
 
