@@ -43,6 +43,10 @@
 						}
 				});		
         });
+
+        $('#modal-2').click(function(){
+            $('#Test_smtp_mail_modal').modal('hide');
+        });
 		
 		$('.ValidateSmtp').click(function(e) {
         	$(this).attr('disabled', 'disabled');  
@@ -174,6 +178,8 @@
 
         .invoice-footer .editable-inline .control-group.form-group{width: 90%;}
         .invoice-footer .editable-container .form-control ,.invoice-footer .editable-input{width: 100%;}
+
+        .modal { overflow: auto !important; }
 
 	</style>
 
@@ -395,7 +401,7 @@
                   </div>
                   <div class="modal-footer">           
                     <button type="submit"   class="btn_smtp_submit btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" id="modal-2"> <i class="entypo-cancel"></i> Close </button>
                   </div>
                 </form>
               </div>
