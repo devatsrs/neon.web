@@ -42,6 +42,7 @@ class ResellerController extends BaseController {
 
     public function store() {
         $data = Input::all();
+        //dd($data);
         $items = empty($data['reseller-item']) ? '' : array_filter($data['reseller-item']);
         $subscriptions = empty($data['reseller-subscription']) ? '' : array_filter($data['reseller-subscription']);
         //$trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
@@ -131,6 +132,13 @@ class ResellerController extends BaseController {
                 $CompanyData['Email'] = $data['Email'];
                 $CompanyData['Status'] = '1';
                 $CompanyData['TimeZone'] = 'Etc/GMT';
+                $CompanyData['SMTPServer'] = $data['SMTPServer'];
+                $CompanyData['SMTPUsername'] = $data['SMTPUsername'];
+                $CompanyData['SMTPPassword'] = Crypt::encrypt($data['SMTPPassword']);
+                $CompanyData['Port'] = $data['Port'];
+                $CompanyData['EmailFrom'] = $data['EmailFrom'];
+                $CompanyData['IsSSL'] = isset($data['IsSSL']) ? 1 : 0;
+
                 $CompanyData['created_at'] = $CurrentTime;
                 $CompanyData['created_by'] = $CreatedBy;
 
@@ -204,10 +212,12 @@ class ResellerController extends BaseController {
 
     public function update($id) {
         $data = Input::all();
+        //dd($data);
         $Reseller = Reseller::find($id);
         $data['CompanyID'] = User::get_companyID();
         $data['Status'] = isset($data['Status']) ? 1 : 0;
         $data['AllowWhiteLabel'] = isset($data['AllowWhiteLabel']) ? 1 : 0;
+        $Company = Company::find($Reseller->ChildCompanyID);
         $CurrentTime = date('Y-m-d H:i:s');
         $CreatedBy = User::get_user_full_name();
 
@@ -247,7 +257,7 @@ class ResellerController extends BaseController {
                 $data['DomainUrl'] = CompanyConfiguration::where(['CompanyID'=>$data['CompanyID'],'Key'=>'WEB_URL'])->pluck('Value');
             }
             if(!Reseller::IsAllowDomainUrl($data['DomainUrl'],$id)){
-                return  Response::json(array("status" => "failed", "message" => "please setup different domain for your reseller."));
+                return  Response::json(array("status" => "failed", "message" => "please setup different domain for your partner."));
             }
         }
 
@@ -303,6 +313,15 @@ class ResellerController extends BaseController {
         }
         $UserData['updated_at'] = $CurrentTime;
         $UserData['updated_by'] = $CreatedBy;
+
+        $CompanyData = array();
+        $CompanyData['SMTPServer'] = $data['SMTPServer'];
+        $CompanyData['SMTPUsername'] = $data['SMTPUsername'];
+        $CompanyData['SMTPPassword'] = Crypt::encrypt($data['SMTPPassword']);
+        $CompanyData['Port'] = $data['Port'];
+        $CompanyData['EmailFrom'] = $data['EmailFrom'];
+        $CompanyData['IsSSL'] = isset($data['IsSSL']) ? 1 : 0;
+        $Company->update($CompanyData);
 
         try{
             DB::beginTransaction();
@@ -503,11 +522,15 @@ class ResellerController extends BaseController {
     }
 
     public function getdataofreseller($id){
-        $reseller = Reseller::where('AccountID',$id)->first();
-        if($reseller != NULL){
+        //$reseller = Reseller::where('AccountID',$id)->first();
+        $reseller = Reseller::Join('tblCompany', function($join) {
+            $join->on('tblReseller.ChildCompanyID','=','tblCompany.CompanyID');
+            })->select('tblReseller.*','tblCompany.*')->where('tblReseller.AccountID',$id)->first();
+        
+        if(!empty($reseller)){
             return Response::json($reseller);
         }else{
-            return Response::json(array("status" => "failed", "message" => "Reseller Not Found!"));
+            return Response::json(array("status" => "failed", "message" => "Partner Not Found!"));
         }
     }
 }
