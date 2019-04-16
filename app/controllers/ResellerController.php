@@ -42,7 +42,6 @@ class ResellerController extends BaseController {
 
     public function store() {
         $data = Input::all();
-
         $items = empty($data['reseller-item']) ? '' : array_filter($data['reseller-item']);
         $subscriptions = empty($data['reseller-subscription']) ? '' : array_filter($data['reseller-subscription']);
         //$trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
@@ -53,6 +52,8 @@ class ResellerController extends BaseController {
         $productids = '';
         $subscriptionids = '';
         $trunkids = '';
+        $LogoAS3Key = '';
+        $LogoUrl = '';
         if(!empty($items)){
             $is_product  = 1;
             $productids=implode(',',$items);
@@ -89,15 +90,20 @@ class ResellerController extends BaseController {
             }
 
             //$data['Password'] = Hash::make($data['Password']);
+            $Account = Account::find($data['AccountID']);
+            $AccountName = $Account->AccountName;
             $data['Password'] = Crypt::encrypt($data['Password']);
 
-            $Account = Account::find($data['AccountID']);
+          
             $data['AllowWhiteLabel'] = isset($data['AllowWhiteLabel']) ? 1 : 0;
             $AccountID = $data['AccountID'];
             $Email = $data['Email'];
             $Password = $data['Password'];
             $AllowWhiteLabel = $data['AllowWhiteLabel'];
-            $AccountName = $Account->AccountName;
+            $invoiceTo = $data['invoiceTo'];
+            $FooterTerm = $data['FooterTerm'];
+            $TermsCondition = $data['TermsAndCondition'];
+            $invoiceFrom = $data['InvoiceFrom'];
             if(!empty($Account->FirstName) && !empty($Account->LastName)){
                 $FirstName = empty($Account->FirstName) ? '' : $Account->FirstName;
                 $LastName =  empty($Account->LastName)  ? '' : $Account->LastName;
@@ -132,10 +138,36 @@ class ResellerController extends BaseController {
 
                 if ($ChildCompany = Company::create($CompanyData)) {
                     $ChildCompanyID = $ChildCompany->CompanyID;
-
                     log::info('Child Company ID '.$ChildCompanyID);
+                    $file = Input::file('CompanyLogo');
+                    if (!empty($file))
+                    {
+                        $ext = $file->getClientOriginalExtension();
 
-                    $JobStatusMessage = DB::select("CALL  prc_insertResellerData ($CompanyID,$ChildCompanyID,'".$AccountName."','".$FirstName."','".$LastName."',$AccountID,'".$Email."','".$Password."',$is_product,'".$productids."',$is_subscription,'".$subscriptionids."',$is_trunk,'".$trunkids."',$AllowWhiteLabel)");
+                        if (!in_array(strtolower($ext) , array("jpg"))){
+                            return Response::json(array("status" => "failed", "message" => "Please Upload only jpg file."));
+                        }
+                        $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
+                        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PARTNER_LOGO'],'',$ChildCompanyID) ;
+                        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH',$ChildCompanyID) . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
+
+                        //Create profile company_logo dir if not exists
+                        if (!file_exists($destinationPath)) {
+                            mkdir($destinationPath, 0777, true);
+                        }
+
+                        $fileName = strtolower(filter_var(str_replace(' ', '', $FirstName),FILTER_SANITIZE_URL)) .'_'. GUID::generate() .$extension;
+                        Input::file('CompanyLogo')->move($destinationPath, $fileName);
+                        if(!AmazonS3::upload($destinationPath.$fileName,$amazonPath)){
+                            return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                        }
+                        $AmazonS3Key = $amazonPath . $fileName;
+                        $LogoAS3Key  = $AmazonS3Key;
+                        $LogoUrl  = AmazonS3::unSignedUrl($AmazonS3Key,$ChildCompanyID);
+                        //@unlink($destinationPath.$fileName); // Remove temp local file.
+                    }
+                   
+                    $JobStatusMessage = DB::select("CALL  prc_insertResellerData ($CompanyID,$ChildCompanyID,'".$AccountName."','".$FirstName."','".$LastName."',$AccountID,'".$Email."','".$Password."',$is_product,'".$productids."',$is_subscription,'".$subscriptionids."',$is_trunk,'".$trunkids."',$AllowWhiteLabel,'".$invoiceTo."','".$FooterTerm."','".$LogoAS3Key."','".$LogoUrl."','".$TermsCondition."','".$invoiceFrom."')");
                     Log::info("CALL  prc_insertResellerData ($CompanyID,$ChildCompanyID,'".$AccountName."','".$FirstName."','".$LastName."',$AccountID,'".$Email."','".$Password."',$is_product,'".$productids."',$is_subscription,'".$subscriptionids."',$is_trunk,'".$trunkids."')");
                     Log::info($JobStatusMessage);
 
@@ -151,11 +183,11 @@ class ResellerController extends BaseController {
                         }
                         CompanyGateway::createDefaultCronJobs($ChildCompanyID);
                         DB::commit();
-                        return Response::json(array("status" => "success", "message" => "Reseller Successfully Created" ));
+                        return Response::json(array("status" => "success", "message" => "Partner Successfully Created" ));
                     }
 
                 }else{
-                    return Response::json(array("status" => "failed", "message" => "Problem Creating Reseller."));
+                    return Response::json(array("status" => "failed", "message" => "Problem Creating Partner."));
                 }
             }catch( Exception $e){
                 try {
@@ -219,12 +251,45 @@ class ResellerController extends BaseController {
             }
         }
 
+        $file = Input::file('CompanyLogo');
+        if (!empty($file))
+        {
+            $ext = $file->getClientOriginalExtension();
+            
+            if (!in_array(strtolower($ext) , array("jpg"))){
+                return Response::json(array("status" => "failed", "message" => "Please Upload only jpg file."));
+
+            }
+            $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PARTNER_LOGO'],'',$Reseller->ChildCompanyID) ;
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH',$Reseller->ChildCompanyID) . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
+
+            //Create profile company_logo dir if not exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+
+            $fileName = strtolower(filter_var(str_replace(' ', '', $FirstName),FILTER_SANITIZE_URL)) .'_'. GUID::generate() .$extension;
+            Input::file('CompanyLogo')->move($destinationPath, $fileName);
+            if(!AmazonS3::upload($destinationPath.$fileName,$amazonPath)){
+                return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+            }
+            $AmazonS3Key = $amazonPath . $fileName;
+           
+            $ResellerData['LogoAS3Key'] = $AmazonS3Key;
+            $ResellerData['LogoUrl'] = AmazonS3::unSignedUrl($AmazonS3Key,$Reseller->ChildCompanyID);
+        }
+
         $updatedata = array();
         $ResellerData['ResellerName'] = $AccountName;
         $ResellerData['FirstName'] = $FirstName;
         $ResellerData['LastName'] = $LastName;
         $ResellerData['Email'] = $data['Email'];
         $ResellerData['AllowWhiteLabel'] = $data['AllowWhiteLabel'];
+        $ResellerData['invoiceTo'] = $data['invoiceTo'];
+        $ResellerData['FooterTerm'] = $data['FooterTerm'];
+        $ResellerData['TermsAndCondition'] = $data['TermsAndCondition'];
+        $ResellerData['InvoiceFrom'] = $data['InvoiceFrom'];
         if(isset($data['Password'])){
             $ResellerData['Password'] = $data['Password'];
         }
@@ -258,9 +323,9 @@ class ResellerController extends BaseController {
                     $ResellerDomain = CompanyConfiguration::where(['CompanyID'=>$Reseller->CompanyID,'Key'=>'WEB_URL'])->pluck('Value');
                     CompanyConfiguration::where(['Key'=>'WEB_URL','CompanyID'=>$Reseller->ChildCompanyID])->update(['Value'=>$ResellerDomain]);
                 }
-                return  Response::json(array("status" => "success", "message" => "Reseller Successfully Updated"));
+                return  Response::json(array("status" => "success", "message" => "Patner Successfully Updated"));
             } else {
-                return  Response::json(array("status" => "failed", "message" => "Problem Updating Reseller."));
+                return  Response::json(array("status" => "failed", "message" => "Problem Updating Partner."));
             }
 
         }catch( Exception $e){
@@ -435,5 +500,14 @@ class ResellerController extends BaseController {
 
     public function view($id) {
 
+    }
+
+    public function getdataofreseller($id){
+        $reseller = Reseller::where('AccountID',$id)->first();
+        if($reseller != NULL){
+            return Response::json($reseller);
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Reseller Not Found!"));
+        }
     }
 }
