@@ -355,8 +355,8 @@
             bVisiblePreferenceBlock = true;
         @endif
 
-        var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
-        var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
+        var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode','Type'];
+        var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode','Type'];
         var all_occupied_fields     = [];
         var relational_columns      = {
             EndDate                 : ['EndDate'],
@@ -368,7 +368,8 @@
             OriginationCountryCode  : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
             OriginationCode         : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
             OriginationDescription  : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
-            CountryCode             : ['CountryCode']
+            CountryCode             : ['CountryCode'],
+            Type                    : ['Type']
         };
         var columns_text            = {
             EndDate                 : 'End Date',
@@ -380,7 +381,8 @@
             OriginationCountryCode  : 'Origination Country Code',
             OriginationCode         : 'Origination Code',
             OriginationDescription  : 'Origination Description',
-            CountryCode             : 'Destination Country Code'
+            CountryCode             : 'Destination Country Code',
+            Type                    : 'Destination Type'
         };
         var columnsMultiSelect;
         var fileData;
@@ -890,13 +892,13 @@
                     var Timezone        = $('#reviewrates-new-search select[name="Timezone"]').val();
                     var RoutingCategory = $('#reviewrates-new-search select[name="RoutingCategory"]').val();
                     var RateUploadType  = $("input[name=RateUploadType]:checked").val();
-                    var VendorID        = $("select[name=Vendor]:checked").val();
-                    var CustomerID      = $("select[name=Customer]:checked").val();
-                    var RateTableID     = $("select[name=RateTable]:checked").val();
+                    var VendorID        = $("select[name=Vendor]").val();
+                    var CustomerID      = $("select[name=Customer]").val();
+                    var RateTableID     = $("select[name=Ratetable]").val();
 
                     $.ajax({
                         url: '{{URL::to('rate_upload/updateTempReviewRates')}}',
-                        data: 'Action=New&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-intervals').serialize(),
+                        data: 'Action=New&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&OriginationCode='+OriginationCode+'&OriginationDescription='+OriginationDescription+'&RoutingCategory='+RoutingCategory+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-intervals').serialize(),
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
                         },
@@ -961,6 +963,7 @@
 
                 var ProcessID = $('#ProcessID').val();
                 var TrunkID   = $('#Trunk').val();
+                var TempRateIDs = '';
 
                 if($('#selectallbutton-deleted').is(':checked')){
                     criteria = 1;
@@ -991,13 +994,13 @@
                     var Timezone        = $('#reviewrates-deleted-search select[name="Timezone"]').val();
                     var RoutingCategory = $('#reviewrates-deleted-search select[name="RoutingCategory"]').val();
                     var RateUploadType  = $("input[name=RateUploadType]:checked").val();
-                    var VendorID        = $("select[name=Vendor]:checked").val();
-                    var CustomerID      = $("select[name=Customer]:checked").val();
-                    var RateTableID     = $("select[name=RateTable]:checked").val();
+                    var VendorID        = $("select[name=Vendor]").val();
+                    var CustomerID      = $("select[name=Customer]").val();
+                    var RateTableID     = $("select[name=Ratetable]").val();
 
                     $.ajax({
                         url: '{{URL::to('rate_upload/updateTempReviewRates')}}',
-                        data: 'Action=Deleted&TrunkID='+TrunkID+'&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
+                        data: 'Action=Deleted&TrunkID='+TrunkID+'&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&OriginationCode='+OriginationCode+'&OriginationDescription='+OriginationDescription+'&RoutingCategory='+RoutingCategory+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
                         },
