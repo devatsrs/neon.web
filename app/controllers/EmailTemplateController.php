@@ -292,7 +292,7 @@ class EmailTemplateController extends \BaseController {
         $data 		= Input::all();
 		try
 		{
-			$status 	= $data['s'];
+			$status 	= $data['status'];
 			$statusdb 	= 0;
 			if($status=='true'){
 				$statusdb = 1;
