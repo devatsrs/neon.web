@@ -701,6 +701,7 @@
 
                 var ProcessID = $('#ProcessID').val();
                 var TrunkID   = $('#Trunk').val();
+                var TempRateIDs = '';
 
                 if($('#selectallbutton-deleted').is(':checked')){
                     criteria = 1;
