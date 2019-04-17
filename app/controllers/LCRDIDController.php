@@ -41,7 +41,7 @@ class LCRDIDController extends \BaseController {
                     $excel_data = json_decode(json_encode($excel_data),true);
                     foreach($excel_data as $rowno => $rows){
                         foreach($rows as $colno => $colval){
-                            $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
+                            $excel_data[$rowno][$colno] = str_replace( ";" , "\n" ,$colval );
                         }
                     }
 
