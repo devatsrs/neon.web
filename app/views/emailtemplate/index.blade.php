@@ -126,9 +126,9 @@ var popup_type  = 0;
               readonly_title = 'Cannot deactivate';
             }
           if(id){         
-            action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[5]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1"></p>';
+            action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[6]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1"></p>';
           }else{
-            action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[5]+'" class="changestatus"  name="template_status" value="1"></p>';
+            action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[6]+'" class="changestatus"  name="template_status" value="1"></p>';
           } return action;
           
            } }, //status
@@ -311,6 +311,13 @@ var popup_type  = 0;
         }else{ 
           $('.status_switch').bootstrapSwitch('setState', false);
         }
+
+        if(data['IsReseller']==1 && data['ResellerOwner']=='-1'){
+            $("#template-update").hide();
+        }else{
+            $("#template-update").show();
+        }
+
             $('#add-new-modal-template h4').html('Edit template');
             template_type_val = $('#add-new-modal-template').find('.template_type').val();        
             //  $('#add-new-modal-template').modal('show');

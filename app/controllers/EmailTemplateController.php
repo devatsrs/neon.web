@@ -186,6 +186,10 @@ class EmailTemplateController extends \BaseController {
                 $PartnerID = -1;
             }
         }
+        $instance['IsReseller'] = 0;
+        if(is_reseller()){
+            $instance['IsReseller'] = 1;
+        }
         $instance['ResellerOwner'] = $PartnerID;
         return $instance;
     }
@@ -288,7 +292,7 @@ class EmailTemplateController extends \BaseController {
         $data 		= Input::all();
 		try
 		{
-			$status 	= $data['status'];
+			$status 	= $data['s'];
 			$statusdb 	= 0;
 			if($status=='true'){
 				$statusdb = 1;
