@@ -714,8 +714,8 @@ class RateTablesController extends \BaseController {
             $rate_tables = $rate_tables->get(["RateTableName"]);*/
 
             $Partner    = 'IF(tblRateTable.Reseller=0,"",IF(tblRateTable.Reseller=-1,"All",tblReseller.ResellerName)) AS Partner';
-            $Type       = 'IF(tblRateTable.Type='.RateTable::RATE_TABLE_TYPE_ACCESS.', "Access",IF(tblRateTable.Type='.RateTable::RATE_TABLE_TYPE_PACKAGE.', "Package","Termination"))';
-            $AppliedTo  = 'IF(tblRateTable.AppliedTo='.RateTable::APPLIED_TO_VENDOR.', "Vendor",IF(tblRateTable.AppliedTo='.RateTable::APPLIED_TO_RESELLER.', "Partner","Customer"))';
+            $Type       = 'IF(tblRateTable.Type='.RateTable::RATE_TABLE_TYPE_ACCESS.', "Access",IF(tblRateTable.Type='.RateTable::RATE_TABLE_TYPE_PACKAGE.', "Package","Termination")) AS Type';
+            $AppliedTo  = 'IF(tblRateTable.AppliedTo='.RateTable::APPLIED_TO_VENDOR.', "Vendor",IF(tblRateTable.AppliedTo='.RateTable::APPLIED_TO_RESELLER.', "Partner","Customer")) AS AppliedTo';
 
             $rate_tables = RateTable::
             Join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
