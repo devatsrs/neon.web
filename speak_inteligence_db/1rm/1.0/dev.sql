@@ -1429,18 +1429,23 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 
 			SET @stm_query = CONCAT("SELECT AccessType ,Country ,Code,City ,Tariff, ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff    ORDER BY Code, AccessType ,Country ,City ,Tariff  LIMIT ",p_RowspPage," OFFSET ",@v_OffSet_," ;");
 
+			select count(Code) as totalcount from tmp_final_table_output;
+
+
+			PREPARE stm_query FROM @stm_query;
+			EXECUTE stm_query;
+			DEALLOCATE PREPARE stm_query;
+
 		ELSE
 
 			SET @stm_query = CONCAT("SELECT AccessType ,Country ,Code,City ,Tariff,  ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff      ORDER BY Code, AccessType ,Country ,City ,Tariff  ;");
 
+			PREPARE stm_query FROM @stm_query;
+			EXECUTE stm_query;
+			DEALLOCATE PREPARE stm_query;
+
 		END IF;
 
-		select count(Code) as totalcount from tmp_final_table_output;
-
-
-		PREPARE stm_query FROM @stm_query;
-		EXECUTE stm_query;
-		DEALLOCATE PREPARE stm_query;
 
 
 		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

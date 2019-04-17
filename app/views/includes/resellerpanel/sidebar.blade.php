@@ -36,24 +36,24 @@
         <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
             <ul>
                 <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
-                <li> <a href="{{URL::to('/lcr')}}">  <span>Compare Vendor Rate</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('/lcr')}}">  <span>Compare Vendor Rate</span> </a> </li> --}}
                 <li> <a href="{{URL::to('/rategenerators')}}">  <span>Rate Generator</span> </a> </li>
-                <li> <a href="{{URL::to('/rate_compare')}}">  <span>Rate Analysis</span> </a> </li>
-                <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('/rate_compare')}}">  <span>Rate Analysis</span> </a> </li> --}}
+                {{-- <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li> --}}
             </ul>
         </li>
         <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-credit-card" ></i> <span>Billing</span> </a>
             <ul>
-                <li> <a href="{{URL::to('/estimates')}}">  <span>Estimates</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('/estimates')}}">  <span>Estimates</span> </a> </li> --}}
                 <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
                 <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
-                <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li> --}}
                 <li> <a href="{{URL::to('/servicesTemplate')}}">  <span>Products</span> </a> </li>
                 <li> <a href="{{URL::to('/package')}}">  <span>Packages</span> </a> </li>
-                <li> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li>
-                <li> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li> --}}
+                {{-- <li> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li> --}}
                 <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
-                <li> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li> --}}
                 <li> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
                 <li> <a href="{{URL::to('/cdr_upload')}}">  <span>CDR Upload</span> </a> </li>
                 <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
@@ -64,9 +64,9 @@
             <ul>
                 <!--<li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>-->
                 <li> <a href="{{Url::to('/codedecks')}}">  <span>Code Decks</span> </a> </li>
-                <li> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li> --}}
                 <!--<li> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>-->
-                <li> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li>
+                {{-- <li> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li> --}}
                 <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
             </ul>
         </li>
@@ -96,7 +96,7 @@
                 <li><a href="{{URL::to('customer/cdr')}}"><span>CDR</span></a></li>
             </ul>
         </li>
-        <li><a href="{{URL::to('customer/customers_rates')}}"><i class="fa fa-table"></i><span>Commercial</span></a></li>
+        {{-- <li><a href="{{URL::to('customer/customers_rates')}}"><i class="fa fa-table"></i><span>Commercial</span></a></li> --}}
         <li><a href="{{URL::to('reseller/profile')}}"><i class="glyphicon glyphicon-user"></i><span>Profile</span></a></li>
     </ul>
 

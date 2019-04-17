@@ -9,9 +9,10 @@ class IntegrationConfiguration extends \Eloquent {
     public static $rules = array(
     );	
 	
-   static function GetIntegrationDataBySlug($slug){
-	   
-	   $companyID	=  User::get_companyID();
+   static function GetIntegrationDataBySlug($slug,$companyID=0){
+	   if($companyID==0) {
+		   $companyID = User::get_companyID();
+	   }
 	   
 	  $Subcategory = Integration::select("*");
 	  $Subcategory->leftJoin('tblIntegrationConfiguration', function($join) use($companyID)

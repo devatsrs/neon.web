@@ -7,6 +7,66 @@
         show_summerinvoicetemplate(modal1.find(".invoiceFooterTerm"));
         show_summerinvoicetemplate(modal2.find(".TermsAndCondition"));
 
+        $('#Test_smtp_mail_form').submit(function(e) {
+			$('.model-title-set').html('Sending Test Email...');
+			 $('.btn_smtp_submit').button('loading');
+			 console.log('form submitted');
+			e.preventDefault();
+			e.stopImmediatePropagation();
+				var SampleEmail 	=  $("#Test_smtp_mail_form [name='SampleEmail']").val();				
+				var SMTPServer 		=  $("#SMTP-SERVER [name='SMTPServer']").val();
+				var EmailFrom 		=  $("#SMTP-SERVER [name='EmailFrom']").val();
+				var SMTPUsername 	=  $("#SMTP-SERVER [name='SMTPUsername']").val();
+				var SMTPPassword 	=  $("#SMTP-SERVER [name='SMTPPassword']").val();
+				var Port 			=  $("#SMTP-SERVER [name='Port']").val();
+				var IsSSL 			=  $("#SMTP-SERVER [name='IsSSL']").prop("checked");
+				var ValidateUrl 			=  "<?php echo URL::to('/company/validatesmtp'); ?>";
+
+				 $.ajax({
+					url: ValidateUrl,
+					type: 'POST',
+					dataType: 'json',
+					data:{SampleEmail:SampleEmail,SMTPServer:SMTPServer,EmailFrom:EmailFrom,SMTPUsername:SMTPUsername,SMTPPassword:SMTPPassword,Port:Port,IsSSL:IsSSL},
+					success: function(Response) {
+				    $('.ValidateSmtp').button('reset');
+					$('.btn_smtp_submit').button('reset');
+					$('.ValidateSmtp').removeAttr('disabled');
+						 if (Response.status == 'failed') {
+	                           toastr.error(Response.message, "Error", toastr_opts);
+							   return false;
+                          }
+						  alert(Response.response);
+						  $('#Test_smtp_mail_modal').modal('hide'); 
+						  //$('.SmtpResponse').html(Response.response);
+						  $('.model-title-set').html('Test Mail Settings');
+						  
+						}
+				});		
+        });
+
+        $('#modal-2').click(function(){
+            $('#Test_smtp_mail_modal').modal('hide');
+        });
+		
+		$('.ValidateSmtp').click(function(e) {
+        	$(this).attr('disabled', 'disabled');  
+			
+				$('#Test_smtp_mail_modal').modal('show'); return false;
+				
+        });
+		
+		
+		 $('#Test_smtp_mail_modal').on('shown.bs.modal', function(event){
+			  $('.model-title-set').html('Test Mail Settings');
+		 });
+		 
+		  $('#Test_smtp_mail_modal').on('hidden.bs.modal', function(event){
+			  $('.model-title-set').html('Test Mail Settings');
+			  $('.ValidateSmtp').button('reset');
+			  $('.ValidateSmtp').removeAttr('disabled');
+		 });
+		
+
         
         
         $("select[name=InvoiceToInfo]").change( function (e) {
@@ -118,6 +178,8 @@
 
         .invoice-footer .editable-inline .control-group.form-group{width: 90%;}
         .invoice-footer .editable-container .form-control ,.invoice-footer .editable-input{width: 100%;}
+
+        .modal { overflow: auto !important; }
 
 	</style>
 
@@ -245,12 +307,64 @@
                                                     </div>                                                                                    
                                                 </div>
                                             </div>
-                                    <div class="clear"></div>
+                                    </div>
                                 </div>
-
                             </div>
-                        </div>
-
+                        </div> 
+                        <div class="panel panel-primary" data-collapsed="0" id="SMTP-SERVER">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        Mail Settings  <button data-loading-text="Loading..." title="Validate Mail Settings"  type="button" class="ValidateSmtp btn btn-primary btn-sm">Test</button> 
+                                    </div>
+                
+                                    <div class="panel-options">
+                                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-sm-2 control-label">SMTP Server</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" name="SMTPServer" class="form-control" id="field-1" placeholder="SMTP Server" value="" />
+                                        </div>
+                
+                                        <label for="field-1" class="col-sm-2 control-label">Email From</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" name="EmailFrom" class="form-control" id="field-1" placeholder="Email From" value="" />
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <br>
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-sm-2 control-label">SMTP User</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" name="SMTPUsername" class="form-control" id="field-1" placeholder="SMTP User" value="" />
+                                        </div>
+                
+                                        <label for="field-1" class="col-sm-2 control-label">Password</label>
+                                        <div class="col-sm-4">
+                                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="" />
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <br>
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-sm-2 control-label">Port</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" name="Port" class="form-control" id="field-1" placeholder="Port" value="" />
+                                        </div>
+                
+                                        <label for="field-1" class="col-sm-2 control-label">Enable SSL</label>
+                                        <div class="col-sm-4">
+                                            <div class="make-switch switch-small" data-on-label="ON" data-off-label="OFF">
+                                                <input type="checkbox" name="IsSSL" value="1">
+                                            </div>
+                                        </div>
+                                    </div>
+                
+                                </div>
+                            </div>
+                                            
                     <div class="modal-footer">
                         <button type="submit" id="Reseller-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
@@ -265,4 +379,33 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="Test_smtp_mail_modal">
+            <div class="modal-dialog" style="width: 70%;">
+              <div class="modal-content">
+                <form id="Test_smtp_mail_form" method="post">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="model-title-set modal-title">Test Mail Settings</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row">            
+                      <div class="col-md-10 margin-top">
+                        <div class="form-group">
+                          <label for="SampleEmail" class="control-label col-sm-3">Send Test Email To *</label>
+                          <div class="col-sm-5">
+                            <input type="email" required name="SampleEmail" id="SampleEmail" class="form-control"  placeholder="">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">           
+                    <button type="submit"   class="btn_smtp_submit btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" id="modal-2"> <i class="entypo-cancel"></i> Close </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
 @stop

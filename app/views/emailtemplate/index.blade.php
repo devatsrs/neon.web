@@ -65,8 +65,8 @@
   <thead>
     <tr>
       <th width="20%">Template Name</th>
+      <th width="20%">Partner</th>
       <th width="20%">Subject</th>
-      <!--<th width="10%">Type</th>-->
       <th width="15%">Created By</th>
       <th width="15%">Last Updated</th>
       <th width="10%">Status</th>
@@ -101,12 +101,12 @@ var popup_type  = 0;
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/email_template/ajax_datagrid",
+            "sAjaxSource": baseurl + "/email_template/ajax_datagrid/type",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates});
+                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name": "Export", "value": 1});
             },
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -114,25 +114,21 @@ var popup_type  = 0;
              "aoColumns":
             [
                 {  "bSortable": true },  //0  Template Name', '', '', '
-                {  "bSortable": true }, //1   CreatedBy
-                /*{  "bSortable": true,
-                        mRender: function ( id, type, full ) {
-                            return tempatetype[id];
-                     }
-                 },*/ //updated Date
+                {  "bSortable": true },  //1  partner
+                {  "bSortable": true }, //2   subject
                 {  "bSortable": true }, //updated Date
                 {  "bSortable": true }, //updated Date
         {  "bSortable": true,
                     mRender: function ( id, type, full ) { 
           var readonly = '';  var readonly_title = '';
-            if(full[8]){
+            if(full[7]){
               readonly  = "deactivate";
               readonly_title = 'Cannot deactivate';
             }
-          if(id){         
-            action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[5]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1"></p>';
+          if(id){
+            action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[6]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1"></p>';
           }else{
-            action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[5]+'" class="changestatus"  name="template_status" value="1"></p>';
+            action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[6]+'" class="changestatus"  name="template_status" value="1"></p>';
           } return action;
           
            } }, //status
@@ -146,7 +142,7 @@ var popup_type  = 0;
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
-            if(full[6]==0){
+            if(full[7]==0){
                             action += ' <a data-id="'+id+'"  title="Delete" class="delete-template btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>'; }
                         <?php } ?>
                         return action;
@@ -158,13 +154,13 @@ var popup_type  = 0;
                     {
                         "sExtends": "download",
                         "sButtonText": "EXCEL",
-                        "sUrl": baseurl + "/email_template/exports/xlsx", //baseurl + "/generate_xlsx.php",
+                        "sUrl": baseurl + "/email_template/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                         sButtonClass: "save-collection btn-sm"
                     },
                     {
                         "sExtends": "download",
                         "sButtonText": "CSV",
-                        "sUrl": baseurl + "/email_template/exports/csv", //baseurl + "/generate_csv.php",
+                        "sUrl": baseurl + "/email_template/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
@@ -228,7 +224,6 @@ var popup_type  = 0;
   $('table tbody').on('change','.changestatus',function(eve){
     var current_status  =   $(this).prop("checked");
     var current_id    =   $(this).attr("data-id");
-    
     if(current_id && !isNaN(current_id))
     {
       setTimeout(update_template_status(current_id,current_status),2000);
@@ -274,6 +269,9 @@ var popup_type  = 0;
                 $("#add-new-template-form [name='TemplateName']").val(data['TemplateName']);
                 $("#add-new-template-form [name='Subject']").val(data['Subject']);
                 $("#add-new-template-form [name='TemplateBody']").val(data['TemplateBody']);
+                $("#add-new-template-form [name='ResellerOwner']").select2('val', data['ResellerOwner']);
+                $("#add-new-template-form [name='ResellerOwner']").select2('enable', false);
+                $("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', false);
                 //$("#add-new-template-form [name='Type']").val(data['Type']).trigger("change");
         $("#add-new-template-form [name='Type']").val(data['Type']);
         if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;}
@@ -284,7 +282,7 @@ var popup_type  = 0;
           $("#add-new-template-form #email_from").val(data['email_from']).trigger('change');
           $("#add-new-template-form .email_from").removeClass('hidden');  
           $("#add-new-template-form #TemplateName").attr('readonly','readonly');
-          $("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', false);
+          //$("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', false);
 
           if(data['TicketTemplate']){
             $("#add-new-template-form .email_from").addClass('hidden');
@@ -293,7 +291,7 @@ var popup_type  = 0;
           //$("#add-new-template-form .email_from").hide();     
           $("#add-new-template-form .email_from").addClass('hidden');  
           $("#add-new-template-form #TemplateName").removeAttr('readonly');
-          $("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', true);
+          //$("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', true);
         }
         if(data['StatusDisabled'])
         {   
@@ -312,6 +310,13 @@ var popup_type  = 0;
         }else{ 
           $('.status_switch').bootstrapSwitch('setState', false);
         }
+
+        if(data['IsReseller']==1 && data['ResellerOwner']=='-1'){
+            $("#template-update").hide();
+        }else{
+            $("#template-update").show();
+        }
+
             $('#add-new-modal-template h4').html('Edit template');
             template_type_val = $('#add-new-modal-template').find('.template_type').val();        
             //  $('#add-new-modal-template').modal('show');

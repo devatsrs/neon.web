@@ -44,8 +44,8 @@ class BillingClassController extends \BaseController {
             //$accounts = BillingClass::getAccounts($id);
             $privacy = EmailTemplate::$privacy;
             $type = EmailTemplate::$Type;*/
-            //$BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
-            $BillingClassList = array();
+            $BillingClassList = BillingClass::getBillingClassListByCompanyID(User::get_companyID());
+            //$BillingClassList = array();
             //print_r($response->data);
             $BillingClass = $response->data;
             $InvoiceReminders = json_decode($response->data->InvoiceReminderSettings);

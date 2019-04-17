@@ -1349,17 +1349,16 @@
     }
 
     function checkreseller(id) {
-        var id = id;
+        var PartnerID = id;
             $.ajax({
-                    url: baseurl+'/reseller/getdata/' + id,
+                    url: baseurl+'/reseller/getdata/' + PartnerID,
                     type: 'POST',
                     dataType: 'json',
                     success: function (response) {
                         console.log(response.Email);
                         $(this).button('reset');
                         if (response.status == 'failed') {
-                            console.log('hi');
-                            $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',id);
+                            $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',PartnerID);
                             $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',false);
                             $("#add-new-reseller-form [name='ResellerName']").val('');            
                             $("#add-new-reseller-form [name='FirstName']").val('');
@@ -1371,6 +1370,11 @@
                             $("#add-new-reseller-form [name='FooterTerm']").summernote('code','');
                             $("#add-new-reseller-form [name='invoiceTo']").val('');
                             $("#add-new-reseller-form [name='AccountID']").removeAttr("disabled");
+                            $("#SMTP-SERVER [name='SMTPServer']").val('');
+                            $("#SMTP-SERVER [name='EmailFrom']").val('');
+                            $("#SMTP-SERVER [name='SMTPUsername']").val('');
+                            $("#SMTP-SERVER [name='Port']").val('');
+                            $("#SMTP-SERVER [name='IsSSL']").prop('checked',false);
                             $('#InvoiceTemplateHeader').val('');
                             $('#copy_data').show();
                             $('#add-new-modal-reseller h4').html('Partner');
@@ -1379,7 +1383,6 @@
                             // ev.preventDefault();
                             // ev.stopPropagation();
                             $('#add-new-reseller-form').trigger("reset");
-
                             ResellerName =response.ResellerName;
                             ResellerID = response.ResellerID;
                             AccountID = response.AccountID;
@@ -1393,6 +1396,11 @@
                             Footer = response.FooterTerm;
                             Terms = response.TermsAndCondition;
                             invoiceFrom = response.InvoiceFrom;
+                            SMTPServer = response.SMTPServer;
+                            SMTPUsername = response.SMTPUsername;
+                            EmailFrom = response.EmailFrom;
+                            Port = response.Port;
+                            IsSSL = response.IsSSL;
                             //AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
 
                             //getDomainUrl($(this).attr('data-id'));
@@ -1412,6 +1420,20 @@
                             $("#add-new-reseller-form [name='TermsAndCondition']").summernote('code',Terms);
                             $("#add-new-reseller-form [name='FooterTerm']").summernote('code',Footer);
                             $('#InvoiceTemplateHeader').val(invoiceFrom);
+                            $("#SMTP-SERVER [name='SMTPServer']").val(SMTPServer);
+                            $("#SMTP-SERVER [name='EmailFrom']").val(EmailFrom);
+                            $("#SMTP-SERVER [name='SMTPUsername']").val(SMTPUsername);
+                            $("#SMTP-SERVER [name='Port']").val(Port);
+                            //$("#SMTP-SERVER [name='IsSSL']").val(IsSSL);
+                           
+
+                            
+                            if(IsSSL == 1 ){
+                                $("#SMTP-SERVER [name='IsSSL']").prop('checked',true);
+                            }else{
+                                $("#SMTP-SERVER [name='IsSSL']").prop('checked',false);
+                            }
+
                             if(AllowWhiteLabel == 1 ){
                                 $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',true);
                             }else{

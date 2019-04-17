@@ -1,4 +1,7 @@
-<?php $emailfrom  = array(); if(isset($email_from)){$emailfrom = $email_from;}else{$emailfrom = TicketGroups::GetGroupsFrom();} ?>
+<?php $emailfrom  = array();
+if(empty($CompanyID)){$CompanyID=User::get_companyID();};
+if(isset($email_from)){$emailfrom = $email_from;}else{$emailfrom = TicketGroups::GetGroupsFrom($CompanyID);}
+?>
 <script>
     $(document).ready(function ($) {
 
@@ -178,6 +181,20 @@
                         <h4 class="modal-title">Add New Template</h4>
                     </div>
                     <div class="modal-body">
+                        <div class="row">
+                            @if(is_reseller())
+                            @else
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">Partner</label>
+                                    <div class="col-sm-4" >
+                                        {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+
+                                    </div>
+                                    <br />
+                                    <br />
+                                </div>
+                            @endif
+                        </div>
                         <div class="row">
                             <div class="form-group">
                                 <label for="field-1" class="control-label col-sm-2">Language</label>

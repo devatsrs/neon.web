@@ -1,9 +1,8 @@
 use speakintelligentRM;
-use speakintelligentRM;
 -- --------------------------------------------------------
--- Host:                         188.227.186.98
--- Server version:               5.7.18 - MySQL Community Server (GPL)
--- Server OS:                    Linux
+-- Host:                         localhost
+-- Server version:               5.7.23-log - MySQL Community Server (GPL)
+-- Server OS:                    Win64
 -- HeidiSQL Version:             9.5.0.5196
 -- --------------------------------------------------------
 
@@ -29,16 +28,11 @@ CREATE PROCEDURE `prc_WSGenerateRateTableDID`(
 )
 GenerateRateTable:BEGIN
 
-
-
-
 		DECLARE EXIT HANDLER FOR SQLEXCEPTION
 		BEGIN
 			show warnings;
 			ROLLBACK;
 			INSERT INTO tmp_JobLog_ (Message) VALUES ('RateTable generation failed');
-
-
 		END;
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
@@ -63,7 +57,8 @@ GenerateRateTable:BEGIN
 			CountryID int,
 			AccessType varchar(100),
 			Prefix varchar(100),
-			CityTariff varchar(100),
+			City varchar(100),
+			Tariff varchar(100),
 			`Order` INT,
 			RowNo INT
 		);
@@ -79,7 +74,8 @@ GenerateRateTable:BEGIN
 			`CountryID` INT(11) NULL DEFAULT NULL,
 			`AccessType` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 			`Prefix` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
-			`CityTariff` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+			`City` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+			`Tariff` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 			RowNo INT
 		);
 
@@ -92,7 +88,8 @@ GenerateRateTable:BEGIN
 				CountryID int,
 				AccessType varchar(100),
 				CountryPrefix varchar(100),
-				CityTariff varchar(100),
+				City varchar(100),
+				Tariff varchar(100),
 				Code varchar(100),
 				OriginationCode  varchar(100),
 				VendorID int,
@@ -139,7 +136,8 @@ GenerateRateTable:BEGIN
 				CountryID int,
 				AccessType varchar(100),
 				CountryPrefix varchar(100),
-				CityTariff varchar(100),
+				City varchar(100),
+				Tariff varchar(100),
 				Code varchar(100),
 				OriginationCode  varchar(100),
 				VendorID int,
@@ -191,7 +189,8 @@ GenerateRateTable:BEGIN
 				CountryID int,
 				AccessType varchar(100),
 				CountryPrefix varchar(100),
-				CityTariff varchar(100),
+				City varchar(100),
+				Tariff varchar(100),
 				Code varchar(100),
 				OriginationCode  varchar(100),
 				VendorID int,
@@ -237,7 +236,8 @@ GenerateRateTable:BEGIN
 				CountryID int,
 				AccessType varchar(100),
 				CountryPrefix varchar(100),
-				CityTariff varchar(100),
+				City varchar(100),
+				Tariff varchar(100),
 				Code varchar(100),
 				OriginationCode  varchar(100),
 				VendorID int,
@@ -349,27 +349,12 @@ GenerateRateTable:BEGIN
 		END IF;
 
 
-		-- SELECT CurrencyID INTO @v_CurrencyID_ FROM  tblRateGenerator WHERE RateGeneratorId = @p_RateGeneratorId;
+
 		SET @p_EffectiveDate = p_EffectiveDate;
 
 
 
-		/*SELECT IFNULL(REPLACE(JSON_EXTRACT(Options, '$.IncreaseEffectiveDate'),'"',''), @p_EffectiveDate) , IFNULL(REPLACE(JSON_EXTRACT(Options, '$.DecreaseEffectiveDate'),'"',''), @p_EffectiveDate)
-		INTO @v_IncreaseEffectiveDate_ , @v_DecreaseEffectiveDate_  FROM tblJob WHERE Jobid = p_jobId;
 
-
-		IF v_IncreaseEffectiveDate_ is null OR v_IncreaseEffectiveDate_ = '' THEN
-
-			SET @v_IncreaseEffectiveDate_ = @p_EffectiveDate;
-
-		END IF;
-
-		IF @v_DecreaseEffectiveDate_ is null OR @v_DecreaseEffectiveDate_ = '' THEN
-
-			SET @v_DecreaseEffectiveDate_ = @p_EffectiveDate;
-
-		END IF;
-		*/
 
 
 		SELECT
@@ -378,7 +363,7 @@ GenerateRateTable:BEGIN
 			tblRateGenerator.RateGeneratorName,
 			RateGeneratorId,
 			CurrencyID,
-		--	ProductID,
+
 			DIDCategoryID,
 			Calls,
 			Minutes,
@@ -391,15 +376,18 @@ GenerateRateTable:BEGIN
 
 			IFNULL(CountryID,''),
 			IFNULL(AccessType,''),
-			IFNULL(CityTariff,''),
+			IFNULL(City,''),
+			IFNULL(Tariff,''),
 			IFNULL(Prefix,''),
+			IFNULL(AppliedTo,''),
+			IFNULL(Reseller,''),
 
 
 
 			IF( percentageRate = '' OR percentageRate is null	,0, percentageRate )
 
 			INTO @v_RatePosition_, @v_CompanyId_,   @v_RateGeneratorName_,@p_RateGeneratorId, @v_CurrencyID_,
-			-- @v_ProductID_,
+
 			@v_DIDCategoryID_,
 			@v_Calls,
 			@v_Minutes,
@@ -408,8 +396,11 @@ GenerateRateTable:BEGIN
 
 			@p_CountryID,
 			@p_AccessType,
-			@p_CityTariff,
+			@p_City,
+			@p_Tariff,
 			@p_Prefix,
+			@p_AppliedTo,
+			@p_Reseller,
 
 
 			@v_percentageRate_
@@ -421,6 +412,18 @@ GenerateRateTable:BEGIN
 
 		SELECT IFNULL(Value,0) INTO @v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = @v_CompanyId_ AND `Key`='RateApprovalProcess';
 
+		SET @v_RateApprovalStatus_ = 0;
+
+		IF @v_RateApprovalProcess_ = 1 THEN
+
+			SET @v_RateApprovalStatus_ = 0;
+
+		ELSE
+
+			SET @v_RateApprovalStatus_ = 1;
+
+		END IF;
+
 
 		INSERT INTO tmp_Raterules_(
 			rateruleid ,
@@ -430,7 +433,8 @@ GenerateRateTable:BEGIN
 			CountryID ,
 			AccessType,
 			Prefix ,
-			CityTariff,
+			City,
+			Tariff,
 			`Order` ,
 			RowNo
 		)
@@ -442,7 +446,8 @@ GenerateRateTable:BEGIN
 				IF(CountryID ='',NULL,CountryID) as CountryID,
 				AccessType,
 				Prefix ,
-				CityTariff,
+				City,
+				Tariff,
 				`Order`,
 				@row_num := @row_num+1 AS RowID
 			FROM tblRateRule,(SELECT @row_num := 0) x
@@ -462,7 +467,8 @@ GenerateRateTable:BEGIN
 			CountryID ,
 			AccessType,
 			Prefix ,
-			CityTariff,
+			City,
+			Tariff,
 			RowNo )
 			SELECT
 
@@ -475,7 +481,8 @@ GenerateRateTable:BEGIN
 			IF(CountryID ='',NULL,CountryID) as CountryID,
 			AccessType,
 			Prefix ,
-			CityTariff,
+			City,
+			Tariff,
 			@row_num := @row_num+1 AS RowID
 			FROM tblRateGeneratorCalculatedRate,(SELECT @row_num := 0) x
 			WHERE RateGeneratorId = @p_RateGeneratorId
@@ -484,21 +491,21 @@ GenerateRateTable:BEGIN
 
 				set @v_ApprovedStatus = 1;
 
-				set @v_DIDType = 2; -- did
+				set @v_DIDType = 2;
 
-			  	set @v_AppliedToCustomer = 1; -- customer
-				set @v_AppliedToVendor = 2; -- vendor
-				set @v_AppliedToReseller = 3; -- reseller
-
-
+			  	set @v_AppliedToCustomer = 1;
+				set @v_AppliedToVendor = 2;
+				set @v_AppliedToReseller = 3;
 
 
-	-- arguments usage input
+
+
+
 			SET @p_Calls	 							 = @v_Calls;
 			SET @p_Minutes	 							 = @v_Minutes;
 			SET @v_PeakTimeZoneID	 				 = @v_TimezonesID;
-			SET @p_PeakTimeZonePercentage	 		 = @v_TimezonesPercentage;		-- peak percentage
-			SET @p_MobileOriginationPercentage	 = @v_OriginationPercentage ;	-- mobile percentage
+			SET @p_PeakTimeZonePercentage	 		 = @v_TimezonesPercentage;
+			SET @p_MobileOriginationPercentage	 = @v_OriginationPercentage ;
 
 			SET @p_Prefix = TRIM(LEADING '0' FROM @p_Prefix);
 
@@ -521,7 +528,9 @@ GenerateRateTable:BEGIN
 
 				AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
 
-				AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
+				AND (@p_City = '' OR d.City  = @p_City)
+
+				AND (@p_Tariff = '' OR d.Tariff  = @p_Tariff)
 
 				AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) );
 
@@ -543,7 +552,9 @@ GenerateRateTable:BEGIN
 
 				AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
 
-				AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
+				AND (@p_City = '' OR d.City  = @p_City)
+
+				AND (@p_Tariff = '' OR d.Tariff  = @p_Tariff)
 
 				AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) )
 
@@ -566,7 +577,9 @@ GenerateRateTable:BEGIN
 
 				AND (@p_AccessType = '' OR d.NoType = @p_AccessType)
 
-				AND (@p_CityTariff = '' OR d.CityTariff  = @p_CityTariff)
+				AND (@p_City = '' OR d.City  = @p_City)
+
+				AND (@p_Tariff = '' OR d.Tariff  = @p_Tariff)
 
 				AND ( @p_Prefix = '' OR ( d.area_prefix   = concat(c.Prefix,  @p_Prefix )  ) )
 
@@ -578,13 +591,13 @@ GenerateRateTable:BEGIN
 
 
 
-				-- Helper calculations...
-				SET @p_MobileOrigination				 = @v_Origination ; -- 'Mobile';	--
-				SET @v_PeakTimeZoneMinutes				 =  ( (@p_Minutes/ 100) * @p_PeakTimeZonePercentage ) 	; -- Peak minutes:
-				SET @v_MinutesFromMobileOrigination  =  ( (@p_Minutes/ 100) * @p_MobileOriginationPercentage ) 	; -- Minutes from mobile:
+
+				SET @p_MobileOrigination				 = @v_Origination ;
+				SET @v_PeakTimeZoneMinutes				 =  ( (@p_Minutes/ 100) * @p_PeakTimeZonePercentage ) 	;
+				SET @v_MinutesFromMobileOrigination  =  ( (@p_Minutes/ 100) * @p_MobileOriginationPercentage ) 	;
 
 
-				 -- ///////////////////////////////////////////////////// Timezone minutes logic
+
 				insert into tmp_timezones (TimezonesID) select TimezonesID from 	tblTimezones;
 
 				insert into tmp_timezone_minutes (TimezonesID, minutes) select @v_TimezonesID, @v_PeakTimeZoneMinutes as minutes;
@@ -630,14 +643,9 @@ GenerateRateTable:BEGIN
 		insert into tmp_timezone_minutes_3 (TimezonesID, minutes) select TimezonesID, minutes from tmp_timezone_minutes;
 
 
-/*
-SET @p_CountryID = '' ;
-SET @p_CityTariff = '' ;
-SET @p_Prefix = '' ;
-SET @p_AccessType = '' ;
-*/
 
-		-- ///////////////////////////////////////////////////// Timezone minutes logic
+
+
 
 
 
@@ -649,7 +657,8 @@ SET @p_AccessType = '' ;
 																CountryID,
 																AccessType,
 																CountryPrefix,
-																CityTariff,
+																City,
+																Tariff,
 																Code,
 																OriginationCode,
 																VendorID,
@@ -695,7 +704,8 @@ SET @p_AccessType = '' ;
 								c.CountryID,
 								drtr.AccessType,
 								c.Prefix,
-								drtr.CityTariff,
+								drtr.City,
+								drtr.Tariff,
 								r.Code,
 								r2.Code as OriginationCode,
 								a.AccountID,
@@ -708,7 +718,7 @@ SET @p_AccessType = '' ;
 									drtr.OneOffCost
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_  )
 									* (drtr.OneOffCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OneOffCostCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -718,19 +728,19 @@ SET @p_AccessType = '' ;
 									drtr.OneOffCost
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.OneOffCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
 								END as OneOffCost,
-								@MonthlyCost := ( ( CASE WHEN ( MonthlyCostCurrency is not null)  -- (MonthlyCost * @p_months) as MonthlyCost,
+								@MonthlyCost := ( ( CASE WHEN ( MonthlyCostCurrency is not null)
 								THEN
 
 								CASE WHEN  @v_CurrencyID_ = MonthlyCostCurrency THEN
 									drtr.MonthlyCost
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_  )
 									* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -740,7 +750,7 @@ SET @p_AccessType = '' ;
 									drtr.MonthlyCost
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -753,7 +763,7 @@ SET @p_AccessType = '' ;
 									drtr.CostPerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerCallCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -763,7 +773,7 @@ SET @p_AccessType = '' ;
 									drtr.CostPerCall
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -776,7 +786,7 @@ SET @p_AccessType = '' ;
 									drtr.CostPerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerMinuteCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -786,7 +796,7 @@ SET @p_AccessType = '' ;
 									drtr.CostPerMinute
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -800,7 +810,7 @@ SET @p_AccessType = '' ;
 									drtr.SurchargePerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerCallCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -810,7 +820,7 @@ SET @p_AccessType = '' ;
 									drtr.SurchargePerCall
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -824,7 +834,7 @@ SET @p_AccessType = '' ;
 									drtr.SurchargePerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerMinuteCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -834,7 +844,7 @@ SET @p_AccessType = '' ;
 									drtr.SurchargePerMinute
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -847,7 +857,7 @@ SET @p_AccessType = '' ;
 									drtr.OutpaymentPerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerCallCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -857,7 +867,7 @@ SET @p_AccessType = '' ;
 									drtr.OutpaymentPerCall
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -870,7 +880,7 @@ SET @p_AccessType = '' ;
 									drtr.OutpaymentPerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerMinuteCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -880,7 +890,7 @@ SET @p_AccessType = '' ;
 									drtr.OutpaymentPerMinute
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -893,7 +903,7 @@ SET @p_AccessType = '' ;
 									drtr.Surcharges
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargesCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -903,7 +913,7 @@ SET @p_AccessType = '' ;
 									drtr.Surcharges
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -916,7 +926,7 @@ SET @p_AccessType = '' ;
 									drtr.Chargeback
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = ChargebackCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -926,7 +936,7 @@ SET @p_AccessType = '' ;
 									drtr.Chargeback
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -939,7 +949,7 @@ SET @p_AccessType = '' ;
 									drtr.CollectionCostAmount
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -949,7 +959,7 @@ SET @p_AccessType = '' ;
 									drtr.CollectionCostAmount
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -963,7 +973,7 @@ SET @p_AccessType = '' ;
 									drtr.CollectionCostPercentage
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -973,7 +983,7 @@ SET @p_AccessType = '' ;
 									drtr.CollectionCostPercentage
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -986,7 +996,7 @@ SET @p_AccessType = '' ;
 									drtr.RegistrationCostPerNumber
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = RegistrationCostPerNumberCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -996,7 +1006,7 @@ SET @p_AccessType = '' ;
 									drtr.RegistrationCostPerNumber
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1016,19 +1026,7 @@ SET @p_AccessType = '' ;
 								CollectionCostAmountCurrency,
 								RegistrationCostPerNumberCurrency,
 
-								/*
-								Total =
-								Cost per month +
-								( Cost per min * Minutes ) +
-								(Cost per minute peak(Tz) * Peak(Tz) minutes ) +
-								(Cost per minute off-peak(Tz) * Off Peak (Tz)minutes)
-								(Cost per call * Calls )+
-								(Surcharge from mobile per min * Minutes from mobile (Origination) ) +
-								(Outpayment per minute * Minutes) +
-								(Out payment per call * Calls)+
-								(Collection Cost *Caller Rate )+
-								(Collection Cost amount *Minutes)
-								*/
+
 
 									@Total1 := (
 
@@ -1038,31 +1036,32 @@ SET @p_AccessType = '' ;
 									(IFNULL(@SurchargePerCall,0) * IFNULL(tom.minutes,0)) +
 									(IFNULL(@OutpaymentPerMinute,0) *  IFNULL((select minutes from tmp_timezone_minutes_2 tm2 where tm2.TimezonesID = t.TimezonesID ),0))	+
 									(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
-									-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
+
 									(IFNULL(@CollectionCostAmount,0) * IFNULL((select minutes from tmp_timezone_minutes_3 tm3 where tm3.TimezonesID = t.TimezonesID ),0) )
 
 
 								)
 								 as Total1,
 								@Total := (
-								@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = @v_CompanyId_ AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+								@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = @v_CompanyId_ AND TaxType in  (1,2)   )
 									) as Total
 
 
 
 				from tblRateTableDIDRate  drtr
-				inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId -- and rt.DIDCategoryID = 2
+				inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId
 				 inner join tblVendorConnection vc on vc.RateTableID = rt.RateTableId and vc.DIDCategoryID = rt.DIDCategoryID and vc.CompanyID = rt.CompanyId  and vc.Active=1
 				inner join tblAccount a on vc.AccountId = a.AccountID and rt.CompanyId = a.CompanyId
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		 		inner join tblCountry c on c.CountryID = r.CountryID
 
-				-- inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
-				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID ) -- AND (st.country IS NOT NULL AND c.Country = st.country) )
-				AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff ) -- AND st.city_tariff  =  drtr.CityTariff )
-				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) ) ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
-				AND ( @p_AccessType = '' OR drtr.AccessType = @p_AccessType ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+
+				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID )
+				AND ( @p_City = '' OR drtr.City  = @p_City )
+				AND ( @p_Tariff = '' OR drtr.Tariff  = @p_Tariff )
+				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) ) )
+				AND ( @p_AccessType = '' OR drtr.AccessType = @p_AccessType )
 
 
 				inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
@@ -1076,9 +1075,9 @@ SET @p_AccessType = '' ;
 
 				and drtr.ApprovedStatus = @v_ApprovedStatus
 
-				and rt.Type = @v_DIDType -- did
+				and rt.Type = @v_DIDType
 
-			  	and rt.AppliedTo = @v_AppliedToVendor -- vendor
+			  	and rt.AppliedTo = @v_AppliedToVendor
 
 				and (
 					 (p_EffectiveRate = 'now' AND EffectiveDate <= NOW())
@@ -1089,7 +1088,7 @@ SET @p_AccessType = '' ;
 							 AND ( drtr.EndDate IS NULL OR (drtr.EndDate > DATE(@p_EffectiveDate)) )
 					 )
 				)
-			--	and t.TimezonesID = @v_TimezonesID
+
 			;
 
 
@@ -1103,7 +1102,8 @@ SET @p_AccessType = '' ;
 																CountryID,
 																AccessType,
 																CountryPrefix,
-																CityTariff,
+																City,
+																Tariff,
 																Code,
 																OriginationCode,
 																VendorID,
@@ -1148,7 +1148,8 @@ SET @p_AccessType = '' ;
 								c.CountryID,
 								drtr.AccessType,
 								c.Prefix,
-								drtr.CityTariff,
+								drtr.City,
+								drtr.Tariff,
 								r.Code,
 								r2.Code as OriginationCode,
 								a.AccountID,
@@ -1161,7 +1162,7 @@ SET @p_AccessType = '' ;
 									drtr.OneOffCost
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_  )
 									* (drtr.OneOffCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OneOffCostCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1171,19 +1172,19 @@ SET @p_AccessType = '' ;
 									drtr.OneOffCost
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.OneOffCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
 								END as OneOffCost,
-								@MonthlyCost := ( ( CASE WHEN ( MonthlyCostCurrency is not null)  -- (MonthlyCost * @p_months) as MonthlyCost,
+								@MonthlyCost := ( ( CASE WHEN ( MonthlyCostCurrency is not null)
 								THEN
 
 								CASE WHEN  @v_CurrencyID_ = MonthlyCostCurrency THEN
 									drtr.MonthlyCost
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_  )
 									* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1193,7 +1194,7 @@ SET @p_AccessType = '' ;
 									drtr.MonthlyCost
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1206,7 +1207,7 @@ SET @p_AccessType = '' ;
 									drtr.CostPerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerCallCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1216,7 +1217,7 @@ SET @p_AccessType = '' ;
 									drtr.CostPerCall
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1229,7 +1230,7 @@ SET @p_AccessType = '' ;
 									drtr.CostPerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CostPerMinuteCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1239,7 +1240,7 @@ SET @p_AccessType = '' ;
 									drtr.CostPerMinute
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1253,7 +1254,7 @@ SET @p_AccessType = '' ;
 									drtr.SurchargePerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerCallCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1263,7 +1264,7 @@ SET @p_AccessType = '' ;
 									drtr.SurchargePerCall
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1277,7 +1278,7 @@ SET @p_AccessType = '' ;
 									drtr.SurchargePerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargePerMinuteCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1287,7 +1288,7 @@ SET @p_AccessType = '' ;
 									drtr.SurchargePerMinute
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1300,7 +1301,7 @@ SET @p_AccessType = '' ;
 									drtr.OutpaymentPerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerCallCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1310,7 +1311,7 @@ SET @p_AccessType = '' ;
 									drtr.OutpaymentPerCall
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1323,7 +1324,7 @@ SET @p_AccessType = '' ;
 									drtr.OutpaymentPerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = OutpaymentPerMinuteCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1333,7 +1334,7 @@ SET @p_AccessType = '' ;
 									drtr.OutpaymentPerMinute
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1346,7 +1347,7 @@ SET @p_AccessType = '' ;
 									drtr.Surcharges
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = SurchargesCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1356,7 +1357,7 @@ SET @p_AccessType = '' ;
 									drtr.Surcharges
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1369,7 +1370,7 @@ SET @p_AccessType = '' ;
 									drtr.Chargeback
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = ChargebackCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1379,7 +1380,7 @@ SET @p_AccessType = '' ;
 									drtr.Chargeback
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1392,7 +1393,7 @@ SET @p_AccessType = '' ;
 									drtr.CollectionCostAmount
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1402,7 +1403,7 @@ SET @p_AccessType = '' ;
 									drtr.CollectionCostAmount
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1416,7 +1417,7 @@ SET @p_AccessType = '' ;
 									drtr.CollectionCostPercentage
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = CollectionCostAmountCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1426,7 +1427,7 @@ SET @p_AccessType = '' ;
 									drtr.CollectionCostPercentage
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1439,7 +1440,7 @@ SET @p_AccessType = '' ;
 									drtr.RegistrationCostPerNumber
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 									* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = RegistrationCostPerNumberCurrency and  CompanyID = @v_CompanyId_ ))
 								)
@@ -1449,7 +1450,7 @@ SET @p_AccessType = '' ;
 									drtr.RegistrationCostPerNumber
 								ELSE
 									(
-										-- Convert to base currrncy and x by RateGenerator Exhange
+
 										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
 										* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
@@ -1470,19 +1471,7 @@ SET @p_AccessType = '' ;
 								RegistrationCostPerNumberCurrency,
 
 
-								/*
-								Total =
-								Cost per month +
-								( Cost per min * Minutes ) +
-								(Cost per minute peak(Tz) * Peak(Tz) minutes ) +
-								(Cost per minute off-peak(Tz) * Off Peak (Tz)minutes)
-								(Cost per call * Calls )+
-								(Surcharge from mobile per min * Minutes from mobile (Origination) ) +
-								(Outpayment per minute * Minutes) +
-								(Out payment per call * Calls)+
-								(Collection Cost *Caller Rate )+
-								(Collection Cost amount *Minutes)
-								*/
+
 
 
 							 @Total1 := (
@@ -1492,30 +1481,31 @@ SET @p_AccessType = '' ;
 									(IFNULL(@SurchargePerCall,0) * IFNULL(tom.minutes,0)) +
 									(IFNULL(@OutpaymentPerMinute,0) * 	IFNULL(tom.minutes,0))	+
 									(IFNULL(@OutpaymentPerCall,0) * 	@p_Calls) +
-									-- (IFNULL(@CollectionCostPercentage,0) * @v_CallerRate) +
+
 									(IFNULL(@CollectionCostAmount,0) * IFNULL(tom.minutes,0))
 
 
 								) as Total1,
 
 								@Total := (
-								@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = @v_CompanyId_ AND TaxType in  (1,2)  /* 1 OVerall 2 Usage	*/)
+								@Total1 + @Total1 * (select sum( IF(FlatStatus = 0 ,(Amount/100), Amount ) * IFNULL(@CollectionCostPercentage,0))  from tblTaxRate where CompanyID = @v_CompanyId_ AND TaxType in  (1,2)   )
 									) as Total
 
 
 				from tblRateTableDIDRate  drtr
-				inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId -- and rt.DIDCategoryID = 2
+				inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId
 				 inner join tblVendorConnection vc on vc.RateTableID = rt.RateTableId and vc.DIDCategoryID = rt.DIDCategoryID and vc.CompanyID = rt.CompanyId  and vc.Active=1
 				inner join tblAccount a on vc.AccountId = a.AccountID and rt.CompanyId = a.CompanyId
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		 		inner join tblCountry c on c.CountryID = r.CountryID
 
-				-- inner join tblServiceTemplate st on st.CompanyID = rt.CompanyId
-				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID ) -- AND (st.country IS NOT NULL AND c.Country = st.country) )
-				AND ( @p_CityTariff = '' OR drtr.CityTariff  = @p_CityTariff ) -- AND st.city_tariff  =  drtr.CityTariff )
-				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) ) ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
-				AND ( @p_AccessType = '' OR drtr.AccessType = @p_AccessType ) -- AND r.Code = concat(c.Prefix ,  TRIM(LEADING '0' FROM st.prefixName) )) )
+
+				AND ( @p_CountryID = '' OR  c.CountryID = @p_CountryID )
+				AND ( @p_City = '' OR drtr.City  = @p_City )
+				AND ( @p_Tariff = '' OR drtr.Tariff  = @p_Tariff )
+				AND ( @p_Prefix = '' OR (r.Code  = concat(c.Prefix ,@p_Prefix) ) )
+				AND ( @p_AccessType = '' OR drtr.AccessType = @p_AccessType )
 
 
 				inner join tblTimezones t on t.TimezonesID =  drtr.TimezonesID
@@ -1528,9 +1518,9 @@ SET @p_AccessType = '' ;
 
 				and drtr.ApprovedStatus = @v_ApprovedStatus
 
-				and rt.Type = @v_DIDType -- did
+				and rt.Type = @v_DIDType
 
-			  	and rt.AppliedTo = @v_AppliedToVendor -- vendor
+			  	and rt.AppliedTo = @v_AppliedToVendor
 
 				and (
 					 (p_EffectiveRate = 'now' AND EffectiveDate <= NOW())
@@ -1541,7 +1531,7 @@ SET @p_AccessType = '' ;
 							 AND ( drtr.EndDate IS NULL OR (drtr.EndDate > DATE(@p_EffectiveDate)) )
 					 )
 				)
-			--	and t.TimezonesID = @v_TimezonesID
+
 			;
 
 
@@ -1555,7 +1545,8 @@ SET @p_AccessType = '' ;
 										CountryID,
 										AccessType,
 										CountryPrefix,
-										CityTariff,
+										City,
+										Tariff,
 										Code,
 										OriginationCode,
 										VendorID,
@@ -1597,7 +1588,8 @@ SET @p_AccessType = '' ;
 										CountryID,
 										AccessType,
 										CountryPrefix,
-										CityTariff,
+										City,
+										Tariff,
 										Code,
 										OriginationCode,
 										VendorID,
@@ -1638,7 +1630,8 @@ SET @p_AccessType = '' ;
 												CountryID,
 												AccessType,
 												CountryPrefix,
-												CityTariff,
+												City,
+												Tariff,
 												Code,
 												OriginationCode,
 												VendorID,
@@ -1683,7 +1676,8 @@ SET @p_AccessType = '' ;
 												CountryID,
 												AccessType,
 												CountryPrefix,
-												CityTariff,
+												City,
+												Tariff,
 												Code,
 												OriginationCode,
 												VendorID,
@@ -1722,8 +1716,8 @@ SET @p_AccessType = '' ;
 										where Total is not null;
 
 
- 		-- testing output
-		-- select * from tmp_tblRateTableDIDRate;
+
+
 
 			insert into tmp_vendor_position (VendorID , vPosition,Total)
 			select
@@ -1744,6 +1738,7 @@ SET @p_AccessType = '' ;
 
 				FROM (
 
+--						select distinct  VendorID , sum(Total) as Total from tmp_tblRateTableDIDRate group by VendorID
 						select distinct  VendorID , sum(Total) as Total from tmp_tblRateTableDIDRate group by VendorID order by Total
 					) v
 					, (SELECT  @prev_VendorID := NUll ,  @rank := 0 ,  @prev_Total := 0 ) f
@@ -1754,9 +1749,9 @@ SET @p_AccessType = '' ;
 
 			SET @v_SelectedVendor = ( select VendorID from tmp_vendor_position where vPosition <= @v_RatePosition_ order by vPosition , Total  limit 1 );
 
-		-- testing output
-		-- select * from tmp_vendor_position;
-		-- select @v_SelectedVendor;
+
+
+
 
 
 
@@ -1772,7 +1767,8 @@ SET @p_AccessType = '' ;
 					CountryID,
 					AccessType,
 					CountryPrefix,
-					CityTariff,
+					City,
+					Tariff,
 					VendorName,
 					EndDate,
 					OneOffCost,
@@ -1813,7 +1809,8 @@ SET @p_AccessType = '' ;
 					CountryID,
 					AccessType,
 					CountryPrefix,
-					CityTariff,
+					City,
+					Tariff,
 					VendorName,
 					EndDate,
 
@@ -1848,8 +1845,8 @@ SET @p_AccessType = '' ;
 
 			where VendorID = @v_SelectedVendor ;
 
-		-- testing output
-		-- select * from tmp_SelectedVendortblRateTableDIDRate;
+
+
 
 
 			DROP TEMPORARY TABLE IF EXISTS tmp_MergeComponents;
@@ -1868,8 +1865,10 @@ SET @p_AccessType = '' ;
 				ToAccessType VARCHAR(50)    ,
 				FromPrefix VARCHAR(50)    ,
 				ToPrefix VARCHAR(50)    ,
-				FromCityTariff VARCHAR(50)    ,
-				ToCityTariff VARCHAR(50)    ,
+				FromCity VARCHAR(50)    ,
+				FromTariff VARCHAR(50)    ,
+				ToCity VARCHAR(50)    ,
+				ToTariff VARCHAR(50)    ,
 				primary key (ID)
 			);
 
@@ -1887,8 +1886,10 @@ SET @p_AccessType = '' ;
 									ToAccessType,
 									FromPrefix,
 									ToPrefix,
-									FromCityTariff,
-									ToCityTariff
+									FromCity,
+									FromTariff,
+									ToCity,
+									ToTariff
 
 			)
 			select
@@ -1905,15 +1906,17 @@ SET @p_AccessType = '' ;
 									ToAccessType,
 									FromPrefix,
 									ToPrefix,
-									FromCityTariff,
-									ToCityTariff
+									FromCity,
+									FromTariff,
+									ToCity,
+									ToTariff
 
 			from tblRateGeneratorCostComponent
 			where RateGeneratorId = @p_RateGeneratorId
 			order by CostComponentID asc;
 
-		 -- testing output
-		-- select * from tmp_MergeComponents;
+
+
 
 
 	 	SET @v_pointer_ = 1;
@@ -1937,8 +1940,10 @@ SET @p_AccessType = '' ;
 						ToAccessType,
 						FromPrefix,
 						ToPrefix,
-						FromCityTariff,
-						ToCityTariff
+						FromCity,
+						FromTariff,
+						ToCity,
+						ToTariff
 
 				INTO
 
@@ -1955,8 +1960,10 @@ SET @p_AccessType = '' ;
 						@v_ToAccessType,
 						@v_FromPrefix,
 						@v_ToPrefix,
-						@v_FromCityTariff,
-						@v_ToCityTariff
+						@v_FromCity,
+						@v_FromTariff,
+						@v_ToCity,
+						@v_ToTariff
 
 				FROM tmp_MergeComponents WHERE ID = @v_pointer_;
 
@@ -1988,10 +1995,11 @@ SET @p_AccessType = '' ;
 
 								AND (  @v_TimezonesID = "" OR  TimezonesID = @v_TimezonesID)
 								AND (  @v_Origination = "" OR  OriginationCode = @v_Origination)
-								AND (  @v_FromCountryID =  ''  OR CountryID = 	@v_FromCountryID )
-								AND (  @v_FromAccessType =  ''  OR AccessType = 	@v_FromAccessType )
-								AND (  @v_FromPrefix =  '' OR Code = 	concat(CountryPrefix ,@v_FromPrefix) )
-								AND (  @v_FromCityTariff =  '' OR CityTariff = 	@v_FromCityTariff )
+								AND (  @v_FromCountryID =  ""  OR CountryID = 	@v_FromCountryID )
+								AND (  @v_FromAccessType =  ""  OR AccessType = 	@v_FromAccessType )
+								AND (  @v_FromPrefix =  "" OR Code = 	concat(CountryPrefix ,@v_FromPrefix) )
+								AND (  @v_FromCity =  "" OR City = 	@v_FromCity )
+								AND (  @v_FromTariff =  "" OR Tariff = 	@v_FromTariff )
 
 
 
@@ -2000,17 +2008,18 @@ SET @p_AccessType = '' ;
 								tmp.Code = srt.Code
 								AND (  @v_ToTimezonesID = "" OR  srt.TimezonesID = @v_ToTimezonesID)
 								AND (  @v_ToOrigination = "" OR  srt.OriginationCode = @v_ToOrigination)
-								AND (  @v_ToCountryID =  ''  OR srt.CountryID = 	@v_ToCountryID )
-								AND (  @v_ToAccessType =  ''  OR srt.AccessType = 	@v_ToAccessType )
-								AND (  @v_ToPrefix =  '' OR Code = 	concat(srt.CountryPrefix ,@v_ToPrefix) )
-								AND (  @v_ToCityTariff =  '' OR srt.CityTariff = 	@v_ToCityTariff )
+								AND (  @v_ToCountryID =  ""  OR srt.CountryID = 	@v_ToCountryID )
+								AND (  @v_ToAccessType =  ""  OR srt.AccessType = 	@v_ToAccessType )
+								AND (  @v_ToPrefix =  "" OR srt.Code = 	concat(srt.CountryPrefix ,@v_ToPrefix) )
+								AND (  @v_ToCity =  "" OR srt.City = 	@v_ToCity )
+								AND (  @v_ToTariff =  "" OR srt.Tariff = 	@v_ToTariff )
 						set
 
 						' , 'new_', @v_MergeTo , ' = tmp.componentValue;
 				');
 				PREPARE stm1 FROM @stm1;
 				EXECUTE stm1;
-				-- dont use dealocate statement here...
+
 
 				IF ROW_COUNT()  = 0 THEN
 
@@ -2028,7 +2037,8 @@ SET @p_AccessType = '' ;
 								AccessType,
 								CountryPrefix,
 
-								CityTariff,
+								City,
+								Tariff,
 								EndDate,
 								VendorName,
 								OneOffCost,
@@ -2067,7 +2077,8 @@ SET @p_AccessType = '' ;
 								IF(@v_ToCountryID = '',CountryID,@v_ToCountryID) as CountryID,
 								IF(@v_ToAccessType = '',AccessType,@v_ToAccessType) as AccessType,
 								CountryPrefix,
-								IF(@v_ToCityTariff = '',CityTariff,@v_ToCityTariff) as CityTariff,
+								IF(@v_ToCity = '',City,@v_ToCity) as City,
+								IF(@v_ToTariff = '',Tariff,@v_ToTariff) as Tariff,
 								VendorName,
 								EndDate,
 								OneOffCost,
@@ -2105,7 +2116,8 @@ SET @p_AccessType = '' ;
 							AND (  @v_FromCountryID =  ''  OR CountryID = 	@v_FromCountryID )
 							AND (  @v_FromAccessType =  ''  OR AccessType = 	@v_FromAccessType )
 							AND (  @v_FromPrefix =  '' OR Code = 	concat(CountryPrefix ,@v_FromPrefix) )
-							AND (  @v_FromCityTariff =  '' OR CityTariff = 	@v_FromCityTariff );
+							AND (  @v_FromCity =  '' OR City = 	@v_FromCity )
+							AND (  @v_FromTariff =  '' OR Tariff = 	@v_FromTariff );
 
 
 
@@ -2119,29 +2131,28 @@ SET @p_AccessType = '' ;
 
 		END WHILE;
 
-		 -- testing output
-		-- select * from tmp_SelectedVendortblRateTableDIDRate;
+
+
 
 
 		update tmp_SelectedVendortblRateTableDIDRate
 		SET
-			OneOffCost  = IF(new_OneOffCost is null , OneOffCost ,new_OneOffCost)  	,
-			MonthlyCost  = IF(new_MonthlyCost is null , MonthlyCost ,new_MonthlyCost)  	,
-			CostPerCall  = IF(new_CostPerCall is null , CostPerCall ,new_CostPerCall)  	,
-			CostPerMinute  = IF(new_CostPerMinute is null , CostPerMinute ,new_CostPerMinute)  	,
-			SurchargePerCall  = IF(new_SurchargePerCall is null , SurchargePerCall ,new_SurchargePerCall)  	,
-			SurchargePerMinute  = IF(new_SurchargePerMinute is null , SurchargePerMinute ,new_SurchargePerMinute)  	,
-			OutpaymentPerCall  = IF(new_OutpaymentPerCall is null , OutpaymentPerCall ,new_OutpaymentPerCall)  	,
-			OutpaymentPerMinute  = IF(new_OutpaymentPerMinute is null , OutpaymentPerMinute ,new_OutpaymentPerMinute)  	,
-			Surcharges  = IF(new_Surcharges is null , Surcharges ,new_Surcharges)  	,
-			Chargeback  = IF(new_Chargeback is null , Chargeback ,new_Chargeback)  	,
-			CollectionCostAmount  = IF(new_CollectionCostAmount is null , CollectionCostAmount ,new_CollectionCostAmount)  	,
-			CollectionCostPercentage  = IF(new_CollectionCostPercentage is null , CollectionCostPercentage ,new_CollectionCostPercentage)  	,
-			RegistrationCostPerNumber  = IF(new_RegistrationCostPerNumber is null , RegistrationCostPerNumber ,new_RegistrationCostPerNumber) ;
+			OneOffCost  = CASE WHEN new_OneOffCost is null THEN OneOffCost ELSE new_OneOffCost END ,
+			MonthlyCost  = CASE WHEN new_MonthlyCost is null THEN MonthlyCost ELSE new_MonthlyCost END ,
+			CostPerCall  = CASE WHEN new_CostPerCall is null THEN CostPerCall ELSE new_CostPerCall END ,
+			CostPerMinute  = CASE WHEN new_CostPerMinute is null THEN CostPerMinute ELSE new_CostPerMinute END ,
+			SurchargePerCall  = CASE WHEN new_SurchargePerCall is null THEN SurchargePerCall ELSE new_SurchargePerCall END ,
+			SurchargePerMinute  = CASE WHEN new_SurchargePerMinute is null THEN SurchargePerMinute ELSE new_SurchargePerMinute END ,
+			OutpaymentPerCall  = CASE WHEN new_OutpaymentPerCall is null THEN OutpaymentPerCall ELSE new_OutpaymentPerCall END ,
+			OutpaymentPerMinute  = CASE WHEN new_OutpaymentPerMinute is null THEN OutpaymentPerMinute ELSE new_OutpaymentPerMinute END ,
+			Surcharges  = CASE WHEN new_Surcharges is null THEN Surcharges ELSE new_Surcharges END ,
+			Chargeback  = CASE WHEN new_Chargeback is null THEN Chargeback ELSE new_Chargeback END ,
+			CollectionCostAmount  = CASE WHEN new_CollectionCostAmount is null THEN CollectionCostAmount ELSE new_CollectionCostAmount END ,
+			CollectionCostPercentage  = CASE WHEN new_CollectionCostPercentage is null THEN CollectionCostPercentage ELSE new_CollectionCostPercentage END ,
+			RegistrationCostPerNumber  = CASE WHEN new_RegistrationCostPerNumber is null THEN RegistrationCostPerNumber ELSE new_RegistrationCostPerNumber END ;
 
-		 -- testing output
-		-- select * from tmp_Raterules_;
-		-- select * from tmp_SelectedVendortblRateTableDIDRate;
+
+
 
 	 	SET @v_pointer_ = 1;
 		SET @v_rowCount_ = ( SELECT COUNT(*) FROM tmp_Raterules_ );
@@ -2159,7 +2170,8 @@ SET @p_AccessType = '' ;
 						AND (  rr.CountryID = ''  OR rt.CountryID = 	rr.CountryID )
 						AND (  rr.AccessType = '' OR rt.AccessType = 	rr.AccessType )
 						AND (  rr.Prefix = ''  OR rt.Code = 	concat(rt.CountryPrefix ,rr.Prefix) )
-						AND (  rr.CityTariff = '' OR rt.CityTariff = 	rr.CityTariff )
+						AND (  rr.City = '' OR rt.City = 	rr.City )
+						AND (  rr.Tariff = '' OR rt.Tariff = 	rr.Tariff )
 
 						LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = @v_rateRuleId_
 						AND
@@ -2345,9 +2357,9 @@ SET @p_AccessType = '' ;
 		END WHILE;
 
 
-	 -- testing output
-		-- select * from tmp_RateGeneratorCalculatedRate_;
-		-- select * from tmp_SelectedVendortblRateTableDIDRate;
+
+
+
 
 	 	SET @v_pointer_ = 1;
 		SET @v_rowCount_ = ( SELECT COUNT(*) FROM tmp_RateGeneratorCalculatedRate_ );
@@ -2355,9 +2367,9 @@ SET @p_AccessType = '' ;
 		WHILE @v_pointer_ <= @v_rowCount_
 		DO
 
-						--	SET @v_rateRuleId_ = (SELECT rateruleid FROM tmp_RateGeneratorCalculatedRate_ rr WHERE rr.RowNo = @v_pointer_);
 
-						-- Rate <  v_LessThenRate
+
+
 
 						update tmp_SelectedVendortblRateTableDIDRate rt
 						inner join tmp_RateGeneratorCalculatedRate_ rr on
@@ -2366,7 +2378,8 @@ SET @p_AccessType = '' ;
 						AND (  rr.CountryID = ''  OR rt.CountryID = 	rr.CountryID )
 						AND (  rr.AccessType = ''  OR rt.AccessType = 	rr.AccessType )
 						AND (  rr.Prefix = ''  OR rt.Code = 	concat(rt.CountryPrefix ,rr.Prefix) )
-						AND (  rr.CityTariff = ''  OR rt.CityTariff = 	rr.CityTariff )
+						AND (  rr.City = ''  OR rt.City = 	rr.City )
+						AND (  rr.Tariff = ''  OR rt.Tariff = 	rr.Tariff )
 
 
 
@@ -2443,10 +2456,10 @@ SET @p_AccessType = '' ;
 		END WHILE;
 
 
-	 -- testing output
-	--	 select * from tmp_SelectedVendortblRateTableDIDRate;
 
---		 leave GenerateRateTable;
+
+
+
 
 
 		SET @v_SelectedRateTableID = ( select RateTableID from tmp_SelectedVendortblRateTableDIDRate limit 1 );
@@ -2465,8 +2478,8 @@ SET @p_AccessType = '' ;
 
 			SET @v_codedeckid_ = ( select CodeDeckId from tmp_SelectedVendortblRateTableDIDRate limit 1 );
 
-			INSERT INTO tblRateTable (Type, CompanyId, RateTableName, RateGeneratorID,DIDCategoryID, TrunkID, CodeDeckId,CurrencyID,Status, RoundChargedAmount,MinimumCallCharge,AppliedTo,created_at,updated_at, CreatedBy,ModifiedBy)
-			select  @v_DIDType as Type, @v_CompanyId_, p_rateTableName , @p_RateGeneratorId,DIDCategoryID, 0 as TrunkID,  CodeDeckId , CurrencyID, Status, RoundChargedAmount,MinimumCallCharge, @v_AppliedToCustomer as AppliedTo , now() ,now() ,p_ModifiedBy,p_ModifiedBy
+			INSERT INTO tblRateTable (Type, CompanyId, RateTableName, RateGeneratorID,DIDCategoryID, TrunkID, CodeDeckId,CurrencyID,Status, RoundChargedAmount,MinimumCallCharge,AppliedTo,Reseller,created_at,updated_at, CreatedBy,ModifiedBy)
+			select  @v_DIDType as Type, @v_CompanyId_, p_rateTableName , @p_RateGeneratorId,DIDCategoryID, 0 as TrunkID,  CodeDeckId , CurrencyID, Status, RoundChargedAmount,MinimumCallCharge, @p_AppliedTo as AppliedTo, @p_Reseller as Reseller, now() ,now() ,p_ModifiedBy,p_ModifiedBy
 			from tblRateTable where RateTableID = @v_SelectedRateTableID  limit 1;
 
 			SET @p_RateTableId = LAST_INSERT_ID();
@@ -2481,7 +2494,7 @@ SET @p_AccessType = '' ;
 
 					IF (@v_RateApprovalProcess_ = 1 ) THEN
 
-					-- when approval process is on
+
 
 
 							INSERT INTO tblRateTableDIDRateAA (
@@ -2491,7 +2504,8 @@ SET @p_AccessType = '' ;
 														TimezonesID,
 														EffectiveDate,
 														EndDate,
-														CityTariff,
+														City,
+														Tariff,
 														OneOffCost,
 														MonthlyCost,
 														CostPerCall,
@@ -2534,7 +2548,8 @@ SET @p_AccessType = '' ;
 														TimezonesID,
 														EffectiveDate,
 														NOW() as EndDate,
-														CityTariff,
+														City,
+														Tariff,
 														OneOffCost,
 														MonthlyCost,
 														CostPerCall,
@@ -2598,7 +2613,7 @@ SET @p_AccessType = '' ;
 
 								IF (@v_RateApprovalProcess_ = 1 ) THEN
 
-								-- when approval process is on
+
 
 
 							INSERT INTO tblRateTableDIDRateAA (
@@ -2608,7 +2623,8 @@ SET @p_AccessType = '' ;
 														TimezonesID,
 														EffectiveDate,
 														EndDate,
-														CityTariff,
+														City,
+														Tariff,
 														OneOffCost,
 														MonthlyCost,
 														CostPerCall,
@@ -2651,7 +2667,8 @@ SET @p_AccessType = '' ;
 														rtd.TimezonesID,
 														rtd.EffectiveDate,
 														NOW() as EndDate,
-														rtd.CityTariff,
+														rtd.City,
+														rtd.Tariff,
 														rtd.OneOffCost,
 														rtd.MonthlyCost,
 														rtd.CostPerCall,
@@ -2694,9 +2711,9 @@ SET @p_AccessType = '' ;
 												ON rtd.OriginationRateID  = rr.RateID
 											inner join tmp_SelectedVendortblRateTableDIDRate drtr on
 											drtr.Code = r.Code and drtr.OriginationCode = rr.Code
-											and rtd.TimezonesID = drtr.TimezonesID and rtd.CityTariff = drtr.CityTariff and  r.CodeDeckId = rr.CodeDeckId  AND  r.CodeDeckId = drtr.CodeDeckId
+											and rtd.TimezonesID = drtr.TimezonesID and rtd.City = drtr.City and rtd.Tariff = drtr.Tariff and  r.CodeDeckId = rr.CodeDeckId  AND  r.CodeDeckId = drtr.CodeDeckId
 
-											-- SET rtd.EndDate = NOW()
+
 
 											where
 											rtd.RateTableID = @p_RateTableId and rtd.EffectiveDate = @p_EffectiveDate;
@@ -2706,7 +2723,7 @@ SET @p_AccessType = '' ;
 
 						ELSE
 
-							-- end all rates where code is same
+
 
 							update tblRateTableDIDRate rtd
 							INNER JOIN tblRateTable rt  on rt.RateTableID = rtd.RateTableID
@@ -2716,7 +2733,7 @@ SET @p_AccessType = '' ;
 								ON rtd.OriginationRateID  = rr.RateID
 							inner join tmp_SelectedVendortblRateTableDIDRate drtr on
 							drtr.Code = r.Code and drtr.OriginationCode = rr.Code
-							and rtd.TimezonesID = drtr.TimezonesID and rtd.CityTariff = drtr.CityTariff and  r.CodeDeckId = rr.CodeDeckId  AND  r.CodeDeckId = drtr.CodeDeckId
+							and rtd.TimezonesID = drtr.TimezonesID and rtd.City = drtr.City and rtd.Tariff = drtr.Tariff and  r.CodeDeckId = rr.CodeDeckId  AND  r.CodeDeckId = drtr.CodeDeckId
 
 							SET rtd.EndDate = NOW()
 
@@ -2736,7 +2753,7 @@ SET @p_AccessType = '' ;
 
 		IF (@v_RateApprovalProcess_ = 1 ) THEN
 
-		-- when approval process is on
+
 
 
 
@@ -2746,7 +2763,8 @@ SET @p_AccessType = '' ;
 									TimezonesID,
 									OriginationRateID,
 									RateId,
-									CityTariff,
+									City,
+									Tariff,
 									AccessType,
 									OneOffCost,
 									MonthlyCost,
@@ -2790,7 +2808,8 @@ SET @p_AccessType = '' ;
 								drtr.TimezonesID,
 								IFNULL(rr.RateID,0) as OriginationRateID,
 								r.RateId,
-								drtr.CityTariff,
+								drtr.City,
+								drtr.Tariff,
 								drtr.AccessType,
 
 
@@ -2801,7 +2820,7 @@ SET @p_AccessType = '' ;
 								drtr.OneOffCost
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  drtr.OneOffCostCurrency  and  CompanyID = @v_CompanyId_  )
 								* (drtr.OneOffCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2811,20 +2830,20 @@ SET @p_AccessType = '' ;
 								drtr.OneOffCost
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.OneOffCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
 								END as OneOffCost,
 
-								( CASE WHEN ( drtr.MonthlyCostCurrency is not null)  -- (MonthlyCost * p_months) as MonthlyCost,
+								( CASE WHEN ( drtr.MonthlyCostCurrency is not null)
 								THEN
 
 								CASE WHEN  @v_CurrencyID_ = drtr.MonthlyCostCurrency THEN
 								drtr.MonthlyCost
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  drtr.MonthlyCostCurrency  and  CompanyID = @v_CompanyId_  )
 								* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2834,7 +2853,7 @@ SET @p_AccessType = '' ;
 								drtr.MonthlyCost
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2847,7 +2866,7 @@ SET @p_AccessType = '' ;
 								drtr.CostPerCall
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.CostPerCallCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_   and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2857,7 +2876,7 @@ SET @p_AccessType = '' ;
 								drtr.CostPerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2870,7 +2889,7 @@ SET @p_AccessType = '' ;
 								drtr.CostPerMinute
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  drtr.CostPerMinuteCurrency  and  CompanyID = @v_CompanyId_ )
 								* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2880,7 +2899,7 @@ SET @p_AccessType = '' ;
 								drtr.CostPerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_   and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2894,7 +2913,7 @@ SET @p_AccessType = '' ;
 								drtr.SurchargePerCall
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.SurchargePerCallCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_   and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2904,7 +2923,7 @@ SET @p_AccessType = '' ;
 								drtr.SurchargePerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2918,7 +2937,7 @@ SET @p_AccessType = '' ;
 								drtr.SurchargePerMinute
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  drtr.SurchargePerMinuteCurrency  and  CompanyID = @v_CompanyId_ )
 								* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2928,7 +2947,7 @@ SET @p_AccessType = '' ;
 								drtr.SurchargePerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2941,7 +2960,7 @@ SET @p_AccessType = '' ;
 								drtr.OutpaymentPerCall
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.OutpaymentPerCallCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2951,7 +2970,7 @@ SET @p_AccessType = '' ;
 								drtr.OutpaymentPerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2964,7 +2983,7 @@ SET @p_AccessType = '' ;
 								drtr.OutpaymentPerMinute
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.OutpaymentPerMinuteCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2974,7 +2993,7 @@ SET @p_AccessType = '' ;
 								drtr.OutpaymentPerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =   @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2987,7 +3006,7 @@ SET @p_AccessType = '' ;
 								drtr.Surcharges
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.SurchargesCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_   and  CompanyID = @v_CompanyId_ ))
 								)
@@ -2997,7 +3016,7 @@ SET @p_AccessType = '' ;
 								drtr.Surcharges
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3010,7 +3029,7 @@ SET @p_AccessType = '' ;
 								drtr.Chargeback
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.ChargebackCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =   @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3020,7 +3039,7 @@ SET @p_AccessType = '' ;
 								drtr.Chargeback
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3033,7 +3052,7 @@ SET @p_AccessType = '' ;
 								drtr.CollectionCostAmount
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  drtr.CollectionCostAmountCurrency    and  CompanyID = @v_CompanyId_ )
 								* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3043,7 +3062,7 @@ SET @p_AccessType = '' ;
 								drtr.CollectionCostAmount
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3057,7 +3076,7 @@ SET @p_AccessType = '' ;
 								drtr.CollectionCostPercentage
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.CollectionCostAmountCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3067,7 +3086,7 @@ SET @p_AccessType = '' ;
 								drtr.CollectionCostPercentage
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3080,7 +3099,7 @@ SET @p_AccessType = '' ;
 								drtr.RegistrationCostPerNumber
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =   drtr.RegistrationCostPerNumberCurrency  and  CompanyID = @v_CompanyId_ )
 								* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3090,7 +3109,7 @@ SET @p_AccessType = '' ;
 								drtr.RegistrationCostPerNumber
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_   and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3113,7 +3132,7 @@ SET @p_AccessType = '' ;
 
 								@p_EffectiveDate as EffectiveDate,
 								date(drtr.EndDate) as EndDate,
-								@v_RateApprovalProcess_ as ApprovedStatus,
+								@v_RateApprovalStatus_ as ApprovedStatus,
 
 
 									now() as  created_at ,
@@ -3124,11 +3143,11 @@ SET @p_AccessType = '' ;
 
 
 								from tmp_SelectedVendortblRateTableDIDRate drtr
-								inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId -- and rt.DIDCategoryID = 2
+								inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId
 								INNER JOIN tblRate r ON drtr.Code = r.Code and r.CodeDeckId = drtr.CodeDeckId
 								LEFT JOIN tblRate rr ON drtr.OriginationCode = rr.Code and r.CodeDeckId = rr.CodeDeckId
 								LEFT join tblRateTableDIDRate rtd  on rtd.RateID  = r.RateID and rtd.OriginationRateID  = rr.RateID
-								and  rtd.TimezonesID = drtr.TimezonesID and rtd.CityTariff = drtr.CityTariff
+								and  rtd.TimezonesID = drtr.TimezonesID and rtd.City = drtr.City and rtd.Tariff = drtr.Tariff
 								and rtd.RateTableID = @p_RateTableId
 								and rtd.EffectiveDate = @p_EffectiveDate
 								WHERE rtd.RateTableDIDRateID is null;
@@ -3142,7 +3161,8 @@ SET @p_AccessType = '' ;
 									TimezonesID,
 									OriginationRateID,
 									RateId,
-									CityTariff,
+									City,
+									Tariff,
 									AccessType,
 									OneOffCost,
 									MonthlyCost,
@@ -3186,7 +3206,8 @@ SET @p_AccessType = '' ;
 								drtr.TimezonesID,
 								IFNULL(rr.RateID,0) as OriginationRateID,
 								r.RateId,
-								drtr.CityTariff,
+								drtr.City,
+								drtr.Tariff,
 								drtr.AccessType,
 
 
@@ -3197,7 +3218,7 @@ SET @p_AccessType = '' ;
 								drtr.OneOffCost
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  drtr.OneOffCostCurrency  and  CompanyID = @v_CompanyId_  )
 								* (drtr.OneOffCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3207,20 +3228,20 @@ SET @p_AccessType = '' ;
 								drtr.OneOffCost
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.OneOffCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
 								END as OneOffCost,
 
-								( CASE WHEN ( drtr.MonthlyCostCurrency is not null)  -- (MonthlyCost * p_months) as MonthlyCost,
+								( CASE WHEN ( drtr.MonthlyCostCurrency is not null)
 								THEN
 
 								CASE WHEN  @v_CurrencyID_ = drtr.MonthlyCostCurrency THEN
 								drtr.MonthlyCost
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  drtr.MonthlyCostCurrency  and  CompanyID = @v_CompanyId_  )
 								* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3230,7 +3251,7 @@ SET @p_AccessType = '' ;
 								drtr.MonthlyCost
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3243,7 +3264,7 @@ SET @p_AccessType = '' ;
 								drtr.CostPerCall
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.CostPerCallCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_   and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3253,7 +3274,7 @@ SET @p_AccessType = '' ;
 								drtr.CostPerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CostPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3266,7 +3287,7 @@ SET @p_AccessType = '' ;
 								drtr.CostPerMinute
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  drtr.CostPerMinuteCurrency  and  CompanyID = @v_CompanyId_ )
 								* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3276,7 +3297,7 @@ SET @p_AccessType = '' ;
 								drtr.CostPerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.CostPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_   and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3290,7 +3311,7 @@ SET @p_AccessType = '' ;
 								drtr.SurchargePerCall
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.SurchargePerCallCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_   and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3300,7 +3321,7 @@ SET @p_AccessType = '' ;
 								drtr.SurchargePerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.SurchargePerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3314,7 +3335,7 @@ SET @p_AccessType = '' ;
 								drtr.SurchargePerMinute
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  drtr.SurchargePerMinuteCurrency  and  CompanyID = @v_CompanyId_ )
 								* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3324,7 +3345,7 @@ SET @p_AccessType = '' ;
 								drtr.SurchargePerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.SurchargePerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3337,7 +3358,7 @@ SET @p_AccessType = '' ;
 								drtr.OutpaymentPerCall
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.OutpaymentPerCallCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3347,7 +3368,7 @@ SET @p_AccessType = '' ;
 								drtr.OutpaymentPerCall
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.OutpaymentPerCall  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3360,7 +3381,7 @@ SET @p_AccessType = '' ;
 								drtr.OutpaymentPerMinute
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.OutpaymentPerMinuteCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3370,7 +3391,7 @@ SET @p_AccessType = '' ;
 								drtr.OutpaymentPerMinute
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.OutpaymentPerMinute  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =   @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3383,7 +3404,7 @@ SET @p_AccessType = '' ;
 								drtr.Surcharges
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.SurchargesCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_   and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3393,7 +3414,7 @@ SET @p_AccessType = '' ;
 								drtr.Surcharges
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.Surcharges  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3406,7 +3427,7 @@ SET @p_AccessType = '' ;
 								drtr.Chargeback
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.ChargebackCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =   @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3416,7 +3437,7 @@ SET @p_AccessType = '' ;
 								drtr.Chargeback
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.Chargeback  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3429,7 +3450,7 @@ SET @p_AccessType = '' ;
 								drtr.CollectionCostAmount
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  drtr.CollectionCostAmountCurrency    and  CompanyID = @v_CompanyId_ )
 								* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3439,7 +3460,7 @@ SET @p_AccessType = '' ;
 								drtr.CollectionCostAmount
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID  and  CompanyID = @v_CompanyId_ )
 									* (drtr.CollectionCostAmount  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3453,7 +3474,7 @@ SET @p_AccessType = '' ;
 								drtr.CollectionCostPercentage
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = drtr.CollectionCostAmountCurrency and  CompanyID = @v_CompanyId_ )
 								* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3463,7 +3484,7 @@ SET @p_AccessType = '' ;
 								drtr.CollectionCostPercentage
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.CollectionCostPercentage  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3476,7 +3497,7 @@ SET @p_AccessType = '' ;
 								drtr.RegistrationCostPerNumber
 								ELSE
 								(
-								-- Convert to base currrncy and x by RateGenerator Exhange
+
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =   drtr.RegistrationCostPerNumberCurrency  and  CompanyID = @v_CompanyId_ )
 								* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_ and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3486,7 +3507,7 @@ SET @p_AccessType = '' ;
 								drtr.RegistrationCostPerNumber
 								ELSE
 								(
-									-- Convert to base currrncy and x by RateGenerator Exhange
+
 									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ )
 									* (drtr.RegistrationCostPerNumber  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_   and  CompanyID = @v_CompanyId_ ))
 								)
@@ -3509,7 +3530,7 @@ SET @p_AccessType = '' ;
 
 								@p_EffectiveDate as EffectiveDate,
 								date(drtr.EndDate) as EndDate,
-								@v_RateApprovalProcess_ as ApprovedStatus,
+								@v_RateApprovalStatus_ as ApprovedStatus,
 
 
 									now() as  created_at ,
@@ -3520,11 +3541,11 @@ SET @p_AccessType = '' ;
 
 
 								from tmp_SelectedVendortblRateTableDIDRate drtr
-								inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId -- and rt.DIDCategoryID = 2
+								inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId
 								INNER JOIN tblRate r ON drtr.Code = r.Code and r.CodeDeckId = drtr.CodeDeckId
 								LEFT JOIN tblRate rr ON drtr.OriginationCode = rr.Code and r.CodeDeckId = rr.CodeDeckId
 								LEFT join tblRateTableDIDRate rtd  on rtd.RateID  = r.RateID and rtd.OriginationRateID  = rr.RateID
-								and  rtd.TimezonesID = drtr.TimezonesID and rtd.CityTariff = drtr.CityTariff
+								and  rtd.TimezonesID = drtr.TimezonesID and rtd.City = drtr.City and rtd.Tariff = drtr.Tariff
 								and rtd.RateTableID = @p_RateTableId
 								and rtd.EffectiveDate = @p_EffectiveDate
 								WHERE rtd.RateTableDIDRateID is null;
@@ -3565,7 +3586,7 @@ SET @p_AccessType = '' ;
 
 
 				IF (@v_RateApprovalProcess_ = 1 ) THEN
-				-- when approval process is on.
+
 
 						UPDATE  tblRateTableDIDRateAA vr1
 						inner join
@@ -3576,7 +3597,8 @@ SET @p_AccessType = '' ;
 								RateID,
 								EffectiveDate,
 								TimezonesID,
-								CityTariff
+								City,
+								Tariff
 							FROM tblRateTableDIDRate
 							WHERE RateTableId = @p_RateTableId
 								AND EffectiveDate =   @EffectiveDate
@@ -3587,7 +3609,8 @@ SET @p_AccessType = '' ;
 							AND vr1.OriginationRateID = tmpvr.OriginationRateID
 							AND vr1.RateID = tmpvr.RateID
 							AND vr1.TimezonesID = tmpvr.TimezonesID
-							AND vr1.CityTariff = tmpvr.CityTariff
+							AND vr1.City = tmpvr.City
+							AND vr1.Tariff = tmpvr.Tariff
 							AND vr1.EffectiveDate < tmpvr.EffectiveDate
 						SET
 							vr1.EndDate = @EffectiveDate
@@ -3607,7 +3630,8 @@ SET @p_AccessType = '' ;
 								RateID,
 								EffectiveDate,
 								TimezonesID,
-								CityTariff
+								City,
+								Tariff
 							FROM tblRateTableDIDRate
 							WHERE RateTableId = @p_RateTableId
 								AND EffectiveDate =   @EffectiveDate
@@ -3618,7 +3642,8 @@ SET @p_AccessType = '' ;
 							AND vr1.OriginationRateID = tmpvr.OriginationRateID
 							AND vr1.RateID = tmpvr.RateID
 							AND vr1.TimezonesID = tmpvr.TimezonesID
-							AND vr1.CityTariff = tmpvr.CityTariff
+							AND vr1.City = tmpvr.City
+							AND vr1.Tariff = tmpvr.Tariff
 							AND vr1.EffectiveDate < tmpvr.EffectiveDate
 						SET
 							vr1.EndDate = @EffectiveDate
@@ -3637,7 +3662,7 @@ SET @p_AccessType = '' ;
 
 
 			IF (@v_RateApprovalProcess_ = 1 ) THEN
-			-- when approval process is on.
+
 
 
 				update tblRateTableDIDRateAA
@@ -3698,7 +3723,7 @@ SET @p_AccessType = '' ;
 
 
 		IF (@v_RateApprovalProcess_ = 1 ) THEN
-		-- when approval process is on.
+
 
 			call prc_ArchiveOldRateTableDIDRateAA(@p_RateTableId, NULL,p_ModifiedBy);
 
@@ -3722,4 +3747,4 @@ DELIMITER ;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
