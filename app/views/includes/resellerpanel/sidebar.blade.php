@@ -78,7 +78,7 @@
                     <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
                 @endif
                 <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
-                <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li> --}}
             </ul>
         </li>
         <li> <a href="{{Url::to('cronjob_monitor')}}"> <i class="glyphicon glyphicon-time"></i> <span>&nbsp;Cron Jobs</span> </a> </li>
