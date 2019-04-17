@@ -1726,6 +1726,12 @@ class RateUploadController extends \BaseController {
 
                             } else {
 
+                                if (!empty($attrselection->Type) && !empty($temp_row[$attrselection->Type])) {
+                                    $tempdata['Type'] = $temp_row[$attrselection->Type];
+                                } else {
+                                    $tempdata['Type'] = NULL;
+                                }
+
                                 if (!empty($attrselection->$Rate1Column) && isset($temp_row[$attrselection->$Rate1Column])) {
                                     $temp_row[$attrselection->$Rate1Column] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->$Rate1Column]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
                                     if (is_numeric(trim($temp_row[$attrselection->$Rate1Column]))) {
@@ -2027,7 +2033,9 @@ class RateUploadController extends \BaseController {
         $sort_column_did                = $columns_did[$data['iSortCol_0']];
         $sort_column_pkg                = $columns_pkg[$data['iSortCol_0']];
         $data['OriginationCode']        = !empty($data['OriginationCode']) ? "'".$data['OriginationCode']."'" : 'NULL';
+        $data['OriginationDescription'] = !empty($data['OriginationDescription']) ? "'".$data['OriginationDescription']."'" : 'NULL';
         $data['Code']                   = !empty($data['Code']) ? "'".$data['Code']."'" : 'NULL';
+        $data['Description']            = !empty($data['Description']) ? "'".$data['Description']."'" : 'NULL';
         $data['RoutingCategory']        = !empty($data['RoutingCategory']) ? $data['RoutingCategory'] : 'NULL';
         $data['City']                   = !empty($data['City']) ? "'".$data['City']."'" : 'NULL';
         $data['Tariff']                 = !empty($data['Tariff']) ? "'".$data['Tariff']."'" : 'NULL';
@@ -2058,7 +2066,9 @@ class RateUploadController extends \BaseController {
         $data = Input::all();
 
         $data['OriginationCode']        = !empty($data['OriginationCode']) ? "'".$data['OriginationCode']."'" : 'NULL';
+        $data['OriginationDescription'] = !empty($data['OriginationDescription']) ? "'".$data['OriginationDescription']."'" : 'NULL';
         $data['Code']                   = !empty($data['Code']) ? "'".$data['Code']."'" : 'NULL';
+        $data['Description']            = !empty($data['Description']) ? "'".$data['Description']."'" : 'NULL';
         $data['RoutingCategory']        = !empty($data['RoutingCategory']) ? $data['RoutingCategory'] : 'NULL';
         $data['City']                   = !empty($data['City']) ? $data['City'] : 'NULL';
         $data['Tariff']                 = !empty($data['Tariff']) ? $data['Tariff'] : 'NULL';
@@ -2071,7 +2081,7 @@ class RateUploadController extends \BaseController {
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
             $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",0 ,0,'','',1)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
-            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['City'].",".$data['Tariff'].",0 ,0,'','',1)";
+            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['Code'].",".$data['Timezone'].",".$data['City'].",".$data['Tariff'].",0 ,0,'','',1)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
             $query = "call prc_getReviewRateTablePKGRates ('".$data['ProcessID']."','".$data['Action']."',".$data['Code'].",".$data['Timezone'].",0 ,0,'','',1)";
         }
@@ -2101,6 +2111,10 @@ class RateUploadController extends \BaseController {
         $Description            = !empty($data['Description']) ? $data['Description'] : '';
         $OriginationCode        = !empty($data['OriginationCode']) ? $data['OriginationCode'] : '';
         $OriginationDescription = !empty($data['OriginationDescription']) ? $data['OriginationDescription'] : '';
+        $RoutingCategory        = !empty($data['RoutingCategory']) ? $data['RoutingCategory'] : '';
+        $City                   = !empty($data['City']) ? $data['City'] : '';
+        $Tariff                 = !empty($data['Tariff']) ? $data['Tariff'] : '';
+        $AccessType             = !empty($data['AccessType']) ? $data['AccessType'] : '';
         $VendorID               = !empty($data['VendorID']) ? $data['VendorID'] : 0;
         $CustomerID             = !empty($data['CustomerID']) ? $data['CustomerID'] : 0;
         $RateTableID            = $data['RateTableID'];
@@ -2158,9 +2172,9 @@ class RateUploadController extends \BaseController {
                 } else if($RateUploadType == RateUpload::customer) {
                     $query = "call prc_WSReviewCustomerRateUpdate ('".$CustomerID."','".$TrunkID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')";
                 } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
-                    $query = "call prc_WSReviewRateTableRateUpdate ('".$RateTableID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."','".$OriginationCode."','".$OriginationDescription."')";
+                    $query = "call prc_WSReviewRateTableRateUpdate ('".$RateTableID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."','".$OriginationCode."','".$OriginationDescription."','".$RoutingCategory."')";
                 } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
-                    $query = "call prc_WSReviewRateTableDIDRateUpdate ('".$RateTableID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$EndDate."','".$Code."','".$Description."','".$OriginationCode."','".$OriginationDescription."')";
+                    $query = "call prc_WSReviewRateTableDIDRateUpdate ('".$RateTableID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$EndDate."','".$Code."','".$OriginationCode."','".$City."','".$Tariff."','".$AccessType."')";
                 } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
                     $query = "call prc_WSReviewRateTablePKGRateUpdate ('".$RateTableID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$EndDate."','".$Code."')";
                 }
