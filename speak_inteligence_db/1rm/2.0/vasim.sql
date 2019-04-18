@@ -5614,7 +5614,6 @@ CREATE PROCEDURE `prc_RateTableDIDRateAAUpdateDelete`(
 	IN `p_ChargebackCurrency` DECIMAL(18,6),
 	IN `p_CollectionCostAmountCurrency` DECIMAL(18,6),
 	IN `p_RegistrationCostPerNumberCurrency` DECIMAL(18,6),
-	IN `p_Critearea_TrunkID` INT,
 	IN `p_Critearea_CountryId` INT,
 	IN `p_Critearea_OriginationCode` VARCHAR(50),
 	IN `p_Critearea_Code` varchar(50),
@@ -5758,7 +5757,6 @@ ThisSP:BEGIN
 					(p_Critearea_Tariff IS NULL OR rtr.Tariff = p_Critearea_Tariff) AND
 					(p_Critearea_AccessType IS NULL OR rtr.AccessType = p_Critearea_AccessType) AND
 					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
-					TrunkID = p_Critearea_TrunkID AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
@@ -5982,7 +5980,6 @@ CREATE PROCEDURE `prc_RateTableDIDRateUpdateDelete`(
 	IN `p_ChargebackCurrency` DECIMAL(18,6),
 	IN `p_CollectionCostAmountCurrency` DECIMAL(18,6),
 	IN `p_RegistrationCostPerNumberCurrency` DECIMAL(18,6),
-	IN `p_Critearea_TrunkID` INT,
 	IN `p_Critearea_CountryId` INT,
 	IN `p_Critearea_OriginationCode` VARCHAR(50),
 	IN `p_Critearea_Code` varchar(50),
@@ -6137,7 +6134,6 @@ ThisSP:BEGIN
 					(p_Critearea_Tariff IS NULL OR rtr.Tariff = p_Critearea_Tariff) AND
 					(p_Critearea_AccessType IS NULL OR rtr.AccessType = p_Critearea_AccessType) AND
 					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
-					TrunkID = p_Critearea_TrunkID AND
 					(
 						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
