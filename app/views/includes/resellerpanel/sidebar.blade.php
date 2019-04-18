@@ -73,12 +73,12 @@
         <li> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li>
         <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
             <ul>
-                <li> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li>
+                {{-- <li> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li> --}}
                 @if(Reseller::is_AllowWhiteLabel())
                     <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
                 @endif
                 <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
-                <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li> --}}
             </ul>
         </li>
         <li> <a href="{{Url::to('cronjob_monitor')}}"> <i class="glyphicon glyphicon-time"></i> <span>&nbsp;Cron Jobs</span> </a> </li>
