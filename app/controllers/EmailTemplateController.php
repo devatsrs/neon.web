@@ -4,6 +4,7 @@ class EmailTemplateController extends \BaseController {
 
     public function ajax_datagrid($exporttype) {
         $data = Input::all();
+        //dd($data);
         $CompanyID = User::get_companyID();
         $data['is_reseller']=0;
         $data['is_IsGlobal'] = 0;
@@ -41,7 +42,7 @@ class EmailTemplateController extends \BaseController {
         $columns = ["TemplateName","ResellerName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType"];
         $data['iDisplayStart'] +=1;
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getEmailTemplate(" . $data['CompanyID']  . ",'" . $Name . "',".$data['is_reseller']."," . $data['is_IsGlobal'] . "," . $data["templateLanguage"] . "," . $Type . "," . $userID . "," . $Status . "," . $StaticType . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
+        $query = "call prc_getEmailTemplate(" . $data['CompanyID']  . ",'" . $Name . "',".$data['is_reseller'].",'".$data['SystemType']."'," . $data['is_IsGlobal'] . "," . $data["templateLanguage"] . "," . $Type . "," . $userID . "," . $Status . "," . $StaticType . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

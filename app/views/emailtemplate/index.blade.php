@@ -32,6 +32,10 @@
                     </p>
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="control-label">Type</label>
+                    {{ Form::select('SystemType',array('' => 'All') + EmailTemplate::getSystemTypeArray(), '', array("class"=>"select2", "id"=>"SystemType")) }}
+                </div>
+                <div class="form-group">
                     <label class="control-label">Status</label><br/>
                     <p class="make-switch switch-small">
                         <input type="checkbox" checked=""  name="template_status" value="1">
@@ -67,6 +71,8 @@
       <th width="20%">Template Name</th>
       <th width="20%">Partner</th>
       <th width="20%">Subject</th>
+      <th width="15%">Type</th>
+      <th width="10%">Language</th>
       <th width="15%">Created By</th>
       <th width="15%">Last Updated</th>
       <th width="10%">Status</th>
@@ -91,11 +97,13 @@ var popup_type  = 0;
         //show_loading_bar(40);
         var tempatetype           =   {{json_encode($type)}};
     $searchFilter.searchTxt       =   $("#template_filter [name='search']").val();
-        $searchFilter.template_privacy    =   $("#template_filter [name='template_privacy']").val();
-        $searchFilter.template_type     =   $("#template_filter [name='template_type']").val();
+    $searchFilter.template_privacy    =   $("#template_filter [name='template_privacy']").val();
+    $searchFilter.template_type     =   $("#template_filter [name='template_type']").val();
     $searchFilter.template_status     =   $("#template_filter [name='template_status']").prop("checked");
     $searchFilter.system_templates    =   $("#template_filter [name='system_templates']").prop("checked");
     $searchFilter.templateLanguage    =   $("#template_filter [name='templateLanguage']").val();
+    $searchFilter.SystemType    =         $("#template_filter [name='SystemType']").val();    
+   
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -104,9 +112,9 @@ var popup_type  = 0;
             "sAjaxSource": baseurl + "/email_template/ajax_datagrid/type",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage});
+                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name":"SystemType","value":$searchFilter.SystemType});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name": "Export", "value": 1});
+                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"SystemType","value":$searchFilter.SystemType},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name": "Export", "value": 1});
             },
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -118,17 +126,19 @@ var popup_type  = 0;
                 {  "bSortable": true }, //2   subject
                 {  "bSortable": true }, //updated Date
                 {  "bSortable": true }, //updated Date
+                {  "bSortable": true }, //updated Date
+                {  "bSortable": true }, //updated Date
         {  "bSortable": true,
                     mRender: function ( id, type, full ) { 
           var readonly = '';  var readonly_title = '';
-            if(full[7]){
+            if(full[9]){
               readonly  = "deactivate";
               readonly_title = 'Cannot deactivate';
             }
           if(id){
-            action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[6]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1"></p>';
+            action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[8]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1"></p>';
           }else{
-            action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[6]+'" class="changestatus"  name="template_status" value="1"></p>';
+            action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[8]+'" class="changestatus"  name="template_status" value="1"></p>';
           } return action;
           
            } }, //status
@@ -142,7 +152,7 @@ var popup_type  = 0;
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
-            if(full[7]==0){
+            if(full[9]==0){
                             action += ' <a data-id="'+id+'"  title="Delete" class="delete-template btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>'; }
                         <?php } ?>
                         return action;
@@ -200,11 +210,12 @@ var popup_type  = 0;
         $('#template_filter').submit(function(e){
             e.preventDefault();
       $searchFilter.searchTxt     =   $("#template_filter [name='search']").val();
-            $searchFilter.template_privacy  =   $("#template_filter [name='template_privacy']").val();
-            $searchFilter.template_type   =   $("#template_filter [name='template_type']").val();
+      $searchFilter.template_privacy  =   $("#template_filter [name='template_privacy']").val();
+      $searchFilter.template_type   =   $("#template_filter [name='template_type']").val();
       $searchFilter.template_status   =   $("#template_filter [name='template_status']").prop("checked");
       $searchFilter.system_templates  =   $("#template_filter [name='system_templates']").prop("checked");
       $searchFilter.templateLanguage  =   $("#template_filter [name='templateLanguage']").val();
+      $searchFilter.SystemType    =         $("#template_filter [name='SystemType']").val();
             data_table.fnFilter('', 0);
             return false;
         });
