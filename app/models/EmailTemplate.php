@@ -166,7 +166,7 @@ class EmailTemplate extends \Eloquent {
             $CompanyID = User::get_companyID();
             $EmailTemplate = EmailTemplate::where('StaticType',1)->where('CompanyID', $CompanyID)
             ->where('TemplateName','like', '%'.self::INVOICETEMPLATE.'%');
-            $row = $EmailTemplate->select(array('TemplateID', 'SystemType'))->orderBy('TemplateID')->lists('SystemType','TemplateID');
+            $row = $EmailTemplate->select(array('TemplateID', 'SystemType'))->orderBy('TemplateID')->lists('SystemType','SystemType');
             if(count($row)>=1)
             {
                 $row = array(""=> "Select")+$row;
