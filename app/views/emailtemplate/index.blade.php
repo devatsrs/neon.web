@@ -121,14 +121,14 @@ var popup_type  = 0;
         {  "bSortable": true,
                     mRender: function ( id, type, full ) { 
           var readonly = '';  var readonly_title = '';
-            if(full[8]){
+            if(full[7]){
               readonly  = "deactivate";
               readonly_title = 'Cannot deactivate';
             }
-          if(id){         
-            action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[5]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1"></p>';
+          if(id){
+            action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[6]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1"></p>';
           }else{
-            action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[5]+'" class="changestatus"  name="template_status" value="1"></p>';
+            action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[6]+'" class="changestatus"  name="template_status" value="1"></p>';
           } return action;
           
            } }, //status
@@ -142,7 +142,7 @@ var popup_type  = 0;
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
-            if(full[6]==0){
+            if(full[7]==0){
                             action += ' <a data-id="'+id+'"  title="Delete" class="delete-template btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>'; }
                         <?php } ?>
                         return action;
@@ -224,7 +224,6 @@ var popup_type  = 0;
   $('table tbody').on('change','.changestatus',function(eve){
     var current_status  =   $(this).prop("checked");
     var current_id    =   $(this).attr("data-id");
-    
     if(current_id && !isNaN(current_id))
     {
       setTimeout(update_template_status(current_id,current_status),2000);
@@ -311,6 +310,13 @@ var popup_type  = 0;
         }else{ 
           $('.status_switch').bootstrapSwitch('setState', false);
         }
+
+        if(data['IsReseller']==1 && data['ResellerOwner']=='-1'){
+            $("#template-update").hide();
+        }else{
+            $("#template-update").show();
+        }
+
             $('#add-new-modal-template h4').html('Edit template');
             template_type_val = $('#add-new-modal-template').find('.template_type').val();        
             //  $('#add-new-modal-template').modal('show');

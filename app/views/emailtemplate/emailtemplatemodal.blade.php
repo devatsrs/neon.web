@@ -155,6 +155,8 @@ if(isset($email_from)){$emailfrom = $email_from;}else{$emailfrom = TicketGroups:
                 modal.find('#TemplateName').removeAttr('readonly');
                 modal.find('#SystemType').select2('enable', true);
                 modal.find('[name=LanguageID]').select2('enable', true);
+                modal.find('[name=ResellerOwner]').select2('enable', true);
+                $("#template-update").show();
       });
 
      $("select[name='SystemType']").change(function(){

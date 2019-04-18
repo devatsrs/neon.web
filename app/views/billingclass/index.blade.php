@@ -57,7 +57,7 @@
         <tr>
             <th width="20%">Name</th>
             <th width="20%">Partner</th>
-            <th width="20%">IsGlobal</th>
+            <th width="20%">Global</th>
             <th width="15%">Modified By</th>
             <th width="15%">Modified Date</th>
             <th width="20%">Action</th>

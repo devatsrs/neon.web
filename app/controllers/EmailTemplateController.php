@@ -186,6 +186,10 @@ class EmailTemplateController extends \BaseController {
                 $PartnerID = -1;
             }
         }
+        $instance['IsReseller'] = 0;
+        if(is_reseller()){
+            $instance['IsReseller'] = 1;
+        }
         $instance['ResellerOwner'] = $PartnerID;
         return $instance;
     }

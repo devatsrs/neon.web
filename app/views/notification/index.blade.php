@@ -73,16 +73,16 @@
     <br/>
     <ul class="nav nav-tabs">
         <li class="active"><a href=".notification" data-toggle="tab">Notification</a></li>
-        <li ><a href=".qos" data-toggle="tab">QoS</a></li>
+        {{-- <li ><a href=".qos" data-toggle="tab">QoS</a></li> --}}
         <li ><a href=".callmonitor" data-toggle="tab">Monitoring</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active notification" id="notification" >
             @include('notification.notification')
         </div>
-        <div class="tab-pane qos" id="qos" >
+        {{-- <div class="tab-pane qos" id="qos" >
             @include('notification.qos')
-        </div>
+        </div> --}}
         <div class="tab-pane callmonitor" id="callmonitor" >
             @include('notification.callmonitor')
         </div>
