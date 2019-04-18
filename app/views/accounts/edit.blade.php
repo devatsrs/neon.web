@@ -1049,7 +1049,7 @@
                             @if(is_wiretransfer($account->CompanyId))
                                 <li>
                                     <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-24-12" name="PayoutMethod" value="WireTransfer" @if( $account->PayoutMethod == 'WireTransfer' ) checked="" @endif />
-                                    <label for="minimal-radio-24-12">Wire Transfer</label>
+                                    <label for="minimal-radio-24-12">Bank Transfer</label>
                                 </li>
                             @endif
                         </ul>

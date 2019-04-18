@@ -714,8 +714,8 @@ class RateTablesController extends \BaseController {
             $rate_tables = $rate_tables->get(["RateTableName"]);*/
 
             $Partner    = 'IF(tblRateTable.Reseller=0,"",IF(tblRateTable.Reseller=-1,"All",tblReseller.ResellerName)) AS Partner';
-            $Type       = 'IF(tblRateTable.Type='.RateTable::RATE_TABLE_TYPE_ACCESS.', "Access",IF(tblRateTable.Type='.RateTable::RATE_TABLE_TYPE_PACKAGE.', "Package","Termination"))';
-            $AppliedTo  = 'IF(tblRateTable.AppliedTo='.RateTable::APPLIED_TO_VENDOR.', "Vendor",IF(tblRateTable.AppliedTo='.RateTable::APPLIED_TO_RESELLER.', "Partner","Customer"))';
+            $Type       = 'IF(tblRateTable.Type='.RateTable::RATE_TABLE_TYPE_ACCESS.', "Access",IF(tblRateTable.Type='.RateTable::RATE_TABLE_TYPE_PACKAGE.', "Package","Termination")) AS Type';
+            $AppliedTo  = 'IF(tblRateTable.AppliedTo='.RateTable::APPLIED_TO_VENDOR.', "Vendor",IF(tblRateTable.AppliedTo='.RateTable::APPLIED_TO_RESELLER.', "Partner","Customer")) AS AppliedTo';
 
             $rate_tables = RateTable::
             Join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
@@ -788,7 +788,7 @@ class RateTablesController extends \BaseController {
         $data['Blocked']                = isset($data['Blocked']) && $data['Blocked'] != '' ? "'".$data['Blocked']."'" : 'null';
         $data['ApprovedStatus']         = isset($data['ApprovedStatus']) && $data['ApprovedStatus'] != '' ? "'".$data['ApprovedStatus']."'" : 'null';
         $data['Timezones']              = !empty($data['Timezones']) && $data['Timezones'] != '' ?  $data['Timezones']  : 'null';
-
+        $data['AccessType']             = !empty($data['AccessType']) ? "'".$data['AccessType']."'" : 'NULL';
 
         $data['City']                   = !empty($data['City']) ? "'".$data['City']."'" : 'NULL';
         $data['Tariff']                 = !empty($data['Tariff']) ? "'".$data['Tariff']."'" : 'NULL';
@@ -808,9 +808,9 @@ class RateTablesController extends \BaseController {
                 }
             } else if($rateTable->Type == $TypeDID) { // did
                 if(!empty($data['DiscontinuedRates'])) {
-                    $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode']."," . $data['Code'] . "," . $data['City'] . "," . $data['Tariff'] . "," . $data['ApprovedStatus'] . ",null,null,null,null,".$data['isExport'].")";
+                    $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode']."," . $data['Code'] . "," . $data['City'] . "," . $data['Tariff'] . "," . $data['AccessType'] . "," . $data['ApprovedStatus'] . ",null,null,null,null,".$data['isExport'].")";
                 } else {
-                    $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code']."," . $data['City'] . "," . $data['Tariff'] . ",'".$data['Effective']."',".$data['ApprovedStatus'].",null,null,null,null,".$data['isExport'].")";
+                    $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code']."," . $data['City'] . "," . $data['Tariff'] . ",".$data['AccessType'].",'".$data['Effective']."',".$data['ApprovedStatus'].",null,null,null,null,".$data['isExport'].")";
                 }
             } else { // package
                 if(!empty($data['DiscontinuedRates'])) {
