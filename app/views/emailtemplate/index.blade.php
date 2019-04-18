@@ -22,8 +22,12 @@
                             </div>-->
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="control-label">Partner</label>
+                    {{ Form::select('partner',$reseller_owners_For_Filter,'', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <label class="control-label">Language</label>
-                    {{ddl_language("", "templateLanguage", Translation::$default_lang_id, "", "id")}}
+                    {{  ddl_language("", "templateLanguage",'', "", "id",'','1')}}
                 </div>
                 <div class="form-group">
                     <label class="control-label">System Templates</label><br/>
@@ -68,11 +72,11 @@
 <table class="table table-bordered datatable" id="table-4">
   <thead>
     <tr>
-      <th width="20%">Template Name</th>
-      <th width="20%">Partner</th>
-      <th width="20%">Subject</th>
       <th width="15%">Type</th>
       <th width="10%">Language</th>
+      <th width="20%">Partner</th>
+      <th width="20%">Template Name</th>
+      <th width="20%">Subject</th>
       <th width="15%">Created By</th>
       <th width="15%">Last Updated</th>
       <th width="10%">Status</th>
@@ -102,7 +106,10 @@ var popup_type  = 0;
     $searchFilter.template_status     =   $("#template_filter [name='template_status']").prop("checked");
     $searchFilter.system_templates    =   $("#template_filter [name='system_templates']").prop("checked");
     $searchFilter.templateLanguage    =   $("#template_filter [name='templateLanguage']").val();
-    $searchFilter.SystemType    =         $("#template_filter [name='SystemType']").val();    
+    $searchFilter.SystemType    =         $("#template_filter [name='SystemType']").val();  
+    $searchFilter.partner       =         $("#template_filter [name='partner']").val();    
+
+     
    
 
         data_table = $("#table-4").dataTable({
@@ -112,13 +119,13 @@ var popup_type  = 0;
             "sAjaxSource": baseurl + "/email_template/ajax_datagrid/type",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name":"SystemType","value":$searchFilter.SystemType});
+                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name":"SystemType","value":$searchFilter.SystemType},{"name":"partner","value":$searchFilter.partner});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"SystemType","value":$searchFilter.SystemType},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name": "Export", "value": 1});
+                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"SystemType","value":$searchFilter.SystemType},{"name":"partner","value":$searchFilter.partner},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name": "Export", "value": 1});
             },
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[0, 'asc']],
+            "aaSorting": [[3, 'asc']],
              "aoColumns":
             [
                 {  "bSortable": true },  //0  Template Name', '', '', '
@@ -216,6 +223,7 @@ var popup_type  = 0;
       $searchFilter.system_templates  =   $("#template_filter [name='system_templates']").prop("checked");
       $searchFilter.templateLanguage  =   $("#template_filter [name='templateLanguage']").val();
       $searchFilter.SystemType    =         $("#template_filter [name='SystemType']").val();
+      $searchFilter.partner       =         $("#template_filter [name='partner']").val();
             data_table.fnFilter('', 0);
             return false;
         });
