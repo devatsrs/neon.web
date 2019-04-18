@@ -318,6 +318,10 @@
                     LastDigit               = $(this).prev("div.hiddenRowData").find("input[name='LastDigit']").val();
                     CVC               = $(this).prev("div.hiddenRowData").find("input[name='CVC']").val();
 
+                    var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
+                    $("#add-card-form").find('input[name="PaymentGatewayID"]').val(pgid);
+                    $("#add-card-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
+                    $("#add-card-form").find('input[name="CompanyID"]').val('{{$account->CompanyId}}');
                     $("#add-card-form").find('[name="AccountPaymentProfileID"]').val(AccountPaymentProfileID);
                     $("#add-card-form").find('[name="Title"]').val(Title);
                     $("#add-card-form").find('[name="CardToken"]').val(CardToken);
