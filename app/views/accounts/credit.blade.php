@@ -148,7 +148,7 @@
                                     <i></i>
                                     +
                                 </button>
-                                <a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm " data-loading-text="Loading...">
+                                <a onclick="deleteRow(this.id)" id="{{$key}}" class="btn btn-danger btn-sm " data-loading-text="Loading...">
                                     <i></i>
                                     -
 
