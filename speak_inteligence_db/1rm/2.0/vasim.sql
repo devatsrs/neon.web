@@ -3978,7 +3978,6 @@ DELIMITER ;
 
 
 
-
 DROP PROCEDURE IF EXISTS `prc_GetRateTableDIDRate`;
 DELIMITER //
 CREATE PROCEDURE `prc_GetRateTableDIDRate`(
@@ -4168,9 +4167,9 @@ BEGIN
 		AND (p_contryID is null OR tblRate.CountryID = p_contryID)
 		AND (p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
-		AND (p_City IS NULL OR tblRateTableDIDRate.City LIKE REPLACE(p_City, '*', '%'))
-		AND (p_Tariff IS NULL OR tblRateTableDIDRate.Tariff LIKE REPLACE(p_Tariff, '*', '%'))
-		AND (p_AccessType IS NULL OR tblRateTableDIDRate.AccessType LIKE REPLACE(p_AccessType, '*', '%'))
+		AND (p_City IS NULL OR tblRateTableDIDRate.City = p_City)
+		AND (p_Tariff IS NULL OR tblRateTableDIDRate.Tariff = p_Tariff)
+		AND (p_AccessType IS NULL OR tblRateTableDIDRate.AccessType = p_AccessType)
 		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND (p_TimezonesID IS NULL OR tblRateTableDIDRate.TimezonesID = p_TimezonesID)
@@ -4610,9 +4609,9 @@ BEGIN
 		AND (p_contryID is null OR tblRate.CountryID = p_contryID)
 		AND (p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
-		AND (p_City IS NULL OR tblRateTableDIDRate.City LIKE REPLACE(p_City, '*', '%'))
-		AND (p_Tariff IS NULL OR tblRateTableDIDRate.Tariff LIKE REPLACE(p_Tariff, '*', '%'))
-		AND (p_AccessType IS NULL OR tblRateTableDIDRate.AccessType LIKE REPLACE(p_AccessType, '*', '%'))
+		AND (p_City IS NULL OR tblRateTableDIDRate.City = p_City)
+		AND (p_Tariff IS NULL OR tblRateTableDIDRate.Tariff = p_Tariff)
+		AND (p_AccessType IS NULL OR tblRateTableDIDRate.AccessType = p_AccessType)
 		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND (p_TimezonesID IS NULL OR tblRateTableDIDRate.TimezonesID = p_TimezonesID)
@@ -5616,12 +5615,11 @@ CREATE PROCEDURE `prc_RateTableDIDRateAAUpdateDelete`(
 	IN `p_CollectionCostAmountCurrency` DECIMAL(18,6),
 	IN `p_RegistrationCostPerNumberCurrency` DECIMAL(18,6),
 	IN `p_Critearea_CountryId` INT,
+	IN `p_Critearea_OriginationCode` VARCHAR(50),
 	IN `p_Critearea_Code` varchar(50),
-	IN `p_Critearea_Description` varchar(200),
 	IN `p_Critearea_City` VARCHAR(50),
 	IN `p_Critearea_Tariff` VARCHAR(50),
-	IN `p_Critearea_OriginationCode` VARCHAR(50),
-	IN `p_Critearea_OriginationDescription` VARCHAR(200),
+	IN `p_Critearea_AccessType` VARCHAR(50),
 	IN `p_Critearea_Effective` VARCHAR(50),
 	IN `p_TimezonesID` INT,
 	IN `p_Critearea_ApprovedStatus` TINYINT,
@@ -5729,6 +5727,8 @@ ThisSP:BEGIN
 		tblRate r ON r.RateID = rtr.RateId
 	LEFT JOIN
 		tblRate r2 ON r2.RateID = rtr.OriginationRateID
+   INNER JOIN
+		tblRateTable ON tblRateTable.RateTableId = rtr.RateTableId
 	WHERE
 		(
 			p_EffectiveDate IS NULL OR (
@@ -5752,11 +5752,10 @@ ThisSP:BEGIN
 				(
 					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
 					((p_Critearea_OriginationCode IS NULL) OR (p_Critearea_OriginationCode IS NOT NULL AND r2.Code LIKE REPLACE(p_Critearea_OriginationCode,'*', '%'))) AND
-					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
-					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
-					(p_Critearea_City IS NULL OR rtr.City LIKE REPLACE(p_Critearea_City, '*', '%')) AND
-					(p_Critearea_Tariff IS NULL OR rtr.Tariff LIKE REPLACE(p_Critearea_Tariff, '*', '%')) AND
+					(p_Critearea_City IS NULL OR rtr.City = p_Critearea_City) AND
+					(p_Critearea_Tariff IS NULL OR rtr.Tariff = p_Critearea_Tariff) AND
+					(p_Critearea_AccessType IS NULL OR rtr.AccessType = p_Critearea_AccessType) AND
 					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
@@ -5982,12 +5981,11 @@ CREATE PROCEDURE `prc_RateTableDIDRateUpdateDelete`(
 	IN `p_CollectionCostAmountCurrency` DECIMAL(18,6),
 	IN `p_RegistrationCostPerNumberCurrency` DECIMAL(18,6),
 	IN `p_Critearea_CountryId` INT,
+	IN `p_Critearea_OriginationCode` VARCHAR(50),
 	IN `p_Critearea_Code` varchar(50),
-	IN `p_Critearea_Description` varchar(200),
 	IN `p_Critearea_City` VARCHAR(50),
 	IN `p_Critearea_Tariff` VARCHAR(50),
-	IN `p_Critearea_OriginationCode` VARCHAR(50),
-	IN `p_Critearea_OriginationDescription` VARCHAR(200),
+	IN `p_Critearea_AccessType` VARCHAR(50),
 	IN `p_Critearea_Effective` VARCHAR(50),
 	IN `p_TimezonesID` INT,
 	IN `p_Critearea_ApprovedStatus` TINYINT,
@@ -6106,6 +6104,8 @@ ThisSP:BEGIN
 		tblRate r ON r.RateID = rtr.RateId
 	LEFT JOIN
 		tblRate r2 ON r2.RateID = rtr.OriginationRateID
+   INNER JOIN
+		tblRateTable ON tblRateTable.RateTableId = rtr.RateTableId
 	WHERE
 		(
 			p_EffectiveDate IS NULL OR (
@@ -6129,11 +6129,10 @@ ThisSP:BEGIN
 				(
 					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
 					((p_Critearea_OriginationCode IS NULL) OR (p_Critearea_OriginationCode IS NOT NULL AND r2.Code LIKE REPLACE(p_Critearea_OriginationCode,'*', '%'))) AND
-					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
-					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
-					(p_Critearea_City IS NULL OR rtr.City LIKE REPLACE(p_Critearea_City, '*', '%')) AND
-					(p_Critearea_Tariff IS NULL OR rtr.Tariff LIKE REPLACE(p_Critearea_Tariff, '*', '%')) AND
+					(p_Critearea_City IS NULL OR rtr.City = p_Critearea_City) AND
+					(p_Critearea_Tariff IS NULL OR rtr.Tariff = p_Critearea_Tariff) AND
+					(p_Critearea_AccessType IS NULL OR rtr.AccessType = p_Critearea_AccessType) AND
 					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
