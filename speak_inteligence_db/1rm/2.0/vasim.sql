@@ -6216,6 +6216,7 @@ ThisSP:BEGIN
 
 
 		INSERT INTO tblRateTableDIDRateAA (
+			RateTableDIDRateID,
 			OriginationRateID,
 			RateId,
 			RateTableId,
@@ -6259,6 +6260,7 @@ ThisSP:BEGIN
 			ApprovedDate
 		)
 		SELECT
+			RateTableDIDRateId,
 			OriginationRateID,
 			RateId,
 			RateTableId,
@@ -17460,6 +17462,301 @@ ThisSP:BEGIN
 
 	END IF;
 
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_RateTablePKGRateUpdateDelete`;
+DELIMITER //
+CREATE PROCEDURE `prc_RateTablePKGRateUpdateDelete`(
+	IN `p_RateTableId` INT,
+	IN `p_RateTablePKGRateId` LONGTEXT,
+	IN `p_EffectiveDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_OneOffCost` VARCHAR(255),
+	IN `p_MonthlyCost` VARCHAR(255),
+	IN `p_PackageCostPerMinute` VARCHAR(255),
+	IN `p_RecordingCostPerMinute` VARCHAR(255),
+	IN `p_OneOffCostCurrency` DECIMAL(18,6),
+	IN `p_MonthlyCostCurrency` DECIMAL(18,6),
+	IN `p_PackageCostPerMinuteCurrency` DECIMAL(18,6),
+	IN `p_RecordingCostPerMinuteCurrency` DECIMAL(18,6),
+	IN `p_Critearea_Code` varchar(50),
+	IN `p_Critearea_Effective` VARCHAR(50),
+	IN `p_TimezonesID` INT,
+	IN `p_Critearea_ApprovedStatus` TINYINT,
+	IN `p_ModifiedBy` varchar(50),
+	IN `p_Critearea` INT,
+	IN `p_action` INT
+)
+ThisSP:BEGIN
+
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_RateTableAppliedTo_ INT;
+
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = (SELECT CompanyId FROM tblRateTable WHERE RateTableID = p_RateTableId) AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_RateTableAppliedTo_ FROM tblRateTable WHERE RateTableID = p_RateTableId;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTablePKGRate_;
+	CREATE TEMPORARY TABLE tmp_TempRateTablePKGRate_ (
+		`RateTablePKGRateId` int(11) NOT NULL,
+		`RateId` int(11) NOT NULL,
+		`RateTableId` int(11) NOT NULL,
+		`TimezonesID` int(11) NOT NULL,
+		`OneOffCost` decimal(18,6) NULL DEFAULT NULL,
+		`MonthlyCost` decimal(18,6) NULL DEFAULT NULL,
+		`PackageCostPerMinute` decimal(18,6) NULL DEFAULT NULL,
+		`RecordingCostPerMinute` decimal(18,6) NULL DEFAULT NULL,
+		`OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
+		`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
+		`PackageCostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
+		`RecordingCostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
+		`EffectiveDate` datetime NOT NULL,
+		`EndDate` datetime DEFAULT NULL,
+		`created_at` datetime DEFAULT NULL,
+		`updated_at` datetime DEFAULT NULL,
+		`CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`ApprovedStatus` tinyint,
+		`ApprovedBy` varchar(50),
+		`ApprovedDate` datetime
+	);
+
+	INSERT INTO tmp_TempRateTablePKGRate_
+	SELECT
+		rtr.RateTablePKGRateId,
+		rtr.RateId,
+		rtr.RateTableId,
+		rtr.TimezonesID,
+		IF(p_OneOffCost IS NOT NULL,IF(p_OneOffCost='NULL',NULL,p_OneOffCost),rtr.OneOffCost) AS OneOffCost,
+		IF(p_MonthlyCost IS NOT NULL,IF(p_MonthlyCost='NULL',NULL,p_MonthlyCost),rtr.MonthlyCost) AS MonthlyCost,
+		IF(p_PackageCostPerMinute IS NOT NULL,IF(p_PackageCostPerMinute='NULL',NULL,p_PackageCostPerMinute),rtr.PackageCostPerMinute) AS PackageCostPerMinute,
+		IF(p_RecordingCostPerMinute IS NOT NULL,IF(p_RecordingCostPerMinute='NULL',NULL,p_RecordingCostPerMinute),rtr.RecordingCostPerMinute) AS RecordingCostPerMinute,
+		IFNULL(p_OneOffCostCurrency,rtr.OneOffCostCurrency) AS OneOffCostCurrency,
+		IFNULL(p_MonthlyCostCurrency,rtr.MonthlyCostCurrency) AS MonthlyCostCurrency,
+		IFNULL(p_PackageCostPerMinuteCurrency,rtr.PackageCostPerMinuteCurrency) AS PackageCostPerMinuteCurrency,
+		IFNULL(p_RecordingCostPerMinuteCurrency,rtr.RecordingCostPerMinuteCurrency) AS RecordingCostPerMinuteCurrency,
+		IFNULL(p_EffectiveDate,rtr.EffectiveDate) AS EffectiveDate,
+		IFNULL(p_EndDate,rtr.EndDate) AS EndDate,
+		rtr.created_at,
+		NOW() AS updated_at,
+		rtr.CreatedBy,
+		p_ModifiedBy AS ModifiedBy,
+		rtr.ApprovedStatus,
+		rtr.ApprovedBy,
+		rtr.ApprovedDate
+	FROM
+		tblRateTablePKGRate rtr
+	INNER JOIN
+		tblRate r ON r.RateID = rtr.RateId
+	WHERE
+		(
+			p_EffectiveDate IS NULL OR (
+				(rtr.RateID,rtr.TimezonesID) NOT IN (
+						SELECT
+							RateID,TimezonesID
+						FROM
+							tblRateTablePKGRate
+						WHERE
+							EffectiveDate=p_EffectiveDate AND (p_TimezonesID IS NULL OR TimezonesID = p_TimezonesID) AND
+							((p_Critearea = 0 AND (FIND_IN_SET(RateTablePKGRateID,p_RateTablePKGRateID) = 0 )) OR p_Critearea = 1) AND
+							RateTableId = p_RateTableId
+				)
+			)
+		)
+		AND
+		(
+			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTablePKGRateID,p_RateTablePKGRateID) != 0 )) OR
+			(
+				p_Critearea = 1 AND
+				(
+					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(
+						p_Critearea_Effective = 'All' OR
+						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
+						(p_Critearea_Effective = 'Future' AND rtr.EffectiveDate > NOW() )
+					)
+				)
+			)
+		) AND
+		rtr.RateTableId = p_RateTableId AND
+		(p_TimezonesID IS NULL OR rtr.TimezonesID = p_TimezonesID);
+
+
+	IF p_action = 1
+	THEN
+
+		IF p_EffectiveDate IS NOT NULL
+		THEN
+			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTablePKGRate_2 as (select * from tmp_TempRateTablePKGRate_);
+			DELETE n1 FROM tmp_TempRateTablePKGRate_ n1, tmp_TempRateTablePKGRate_2 n2 WHERE n1.RateTablePKGRateID < n2.RateTablePKGRateID AND  n1.RateID = n2.RateID AND n1.TimezonesID = n2.TimezonesID;
+		END IF;
+
+		-- delete records which can be duplicates, we will not update them
+		DELETE n1.* FROM tmp_TempRateTablePKGRate_ n1, tblRateTablePKGRate n2 WHERE n1.RateTablePKGRateID <> n2.RateTablePKGRateID AND n1.RateTableID = n2.RateTableID AND n1.TimezonesID = n2.TimezonesID AND n1.EffectiveDate = n2.EffectiveDate AND n1.RateID = n2.RateID AND n2.RateTableID=p_RateTableId;
+
+		/*
+			it was creating history evan if no columns are updating of row
+			so, using this query we are removing rows which are not updating any columns
+		*/
+		DELETE
+			temp
+		FROM
+			tmp_TempRateTablePKGRate_ temp
+		JOIN
+			tblRateTablePKGRate rtr ON rtr.RateTablePKGRateID = temp.RateTablePKGRateID
+		WHERE
+			(rtr.EffectiveDate = temp.EffectiveDate) AND
+			(rtr.TimezonesID = temp.TimezonesID) AND
+			((rtr.OneOffCost IS NULL && temp.OneOffCost IS NULL) || rtr.OneOffCost = temp.OneOffCost) AND
+			((rtr.MonthlyCost IS NULL && temp.MonthlyCost IS NULL) || rtr.MonthlyCost = temp.MonthlyCost) AND
+			((rtr.PackageCostPerMinute IS NULL && temp.PackageCostPerMinute IS NULL) || rtr.PackageCostPerMinute = temp.PackageCostPerMinute) AND
+			((rtr.RecordingCostPerMinute IS NULL && temp.RecordingCostPerMinute IS NULL) || rtr.RecordingCostPerMinute = temp.RecordingCostPerMinute) AND
+			((rtr.OneOffCostCurrency IS NULL && temp.OneOffCostCurrency IS NULL) || rtr.OneOffCostCurrency = temp.OneOffCostCurrency) AND
+			((rtr.MonthlyCostCurrency IS NULL && temp.MonthlyCostCurrency IS NULL) || rtr.MonthlyCostCurrency = temp.MonthlyCostCurrency) AND
+			((rtr.PackageCostPerMinuteCurrency IS NULL && temp.PackageCostPerMinuteCurrency IS NULL) || rtr.PackageCostPerMinuteCurrency = temp.PackageCostPerMinuteCurrency) AND
+			((rtr.RecordingCostPerMinuteCurrency IS NULL && temp.RecordingCostPerMinuteCurrency IS NULL) || rtr.RecordingCostPerMinuteCurrency = temp.RecordingCostPerMinuteCurrency);
+
+	END IF;
+
+
+	-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+	IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+	THEN
+		UPDATE
+			tmp_TempRateTablePKGRate_
+		SET
+			ApprovedStatus = 0,
+			ApprovedBy = NULL,
+			ApprovedDate = NULL;
+
+		INSERT INTO tblRateTablePKGRateAA (
+			RateTablePKGRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			OneOffCost,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			PackageCostPerMinuteCurrency,
+			RecordingCostPerMinuteCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		)
+		SELECT
+			RateTablePKGRateId,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			OneOffCost,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			PackageCostPerMinuteCurrency,
+			RecordingCostPerMinuteCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			IF(p_action=1,v_StatusAwaitingApproval_,v_StatusDelete_) AS ApprovedStatus, -- if action=update then status=aa else status=aadelete
+			ApprovedBy,
+			ApprovedDate
+		FROM
+			tmp_TempRateTablePKGRate_;
+
+		LEAVE ThisSP;
+
+	END IF;
+
+
+	UPDATE
+		tblRateTablePKGRate rtr
+	INNER JOIN
+		tmp_TempRateTablePKGRate_ temp ON temp.RateTablePKGRateID = rtr.RateTablePKGRateID
+	SET
+		rtr.EndDate = NOW()
+	WHERE
+		temp.RateTablePKGRateID = rtr.RateTablePKGRateID;
+
+	CALL prc_ArchiveOldRateTablePKGRate(p_RateTableId,p_TimezonesID,p_ModifiedBy);
+
+	IF p_action = 1
+	THEN
+
+		INSERT INTO tblRateTablePKGRate (
+			RateId,
+			RateTableId,
+			TimezonesID,
+			OneOffCost,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			PackageCostPerMinuteCurrency,
+			RecordingCostPerMinuteCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		)
+		SELECT
+			RateId,
+			RateTableId,
+			TimezonesID,
+			OneOffCost,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			PackageCostPerMinuteCurrency,
+			RecordingCostPerMinuteCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		FROM
+			tmp_TempRateTablePKGRate_;
+
+	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
