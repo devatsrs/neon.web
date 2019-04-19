@@ -2769,10 +2769,13 @@ function set_cus_language($language){
     }
 }
 
-function ddl_language($id="",$name="",$defaultVal="",$class="",$valuetype="isocode",$selectOne=""){
+function ddl_language($id="",$name="",$defaultVal="",$class="",$valuetype="isocode",$selectOne="",$addAll=""){
     $return = '<select id="'.$id.'" name="'.$name.'" class="ddl_language '.$class.'">';
                 if($selectOne!=""){
                     $return .= '<option data-flag="" value="" >Select</option>';
+                }
+                if($addAll != ""){
+                    $return .= '<option data-flag="" value="" >All</option>';
                 }
                 foreach(Translation::getLanguageDropdownWithFlagList() as $key=>$value){
                     $selected="";

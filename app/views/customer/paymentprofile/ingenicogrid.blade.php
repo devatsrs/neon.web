@@ -158,6 +158,7 @@
                                 action += '<input type = "hidden"  name = "ExpirationMonth" value = "' + verify_obj.ExpirationMonth + '" / >';
                                 action += '<input type = "hidden"  name = "ExpirationYear" value = "' + verify_obj.ExpirationYear + '" / >';
                                 action += '<input type = "hidden"  name = "LastDigit" value = "' + verify_obj.LastDigit + '" / >';
+                                //action += '<input type = "hidden"  name = "CVC" value = "' + verify_obj.CVC + '" / >';
                                 action += '<input type = "hidden"  name = "Title" value = "' + full[0] + '" / >';
                                 action += '</div>';
 
@@ -305,7 +306,12 @@
                     ExpirationMonth         = $(this).prev("div.hiddenRowData").find("input[name='ExpirationMonth']").val();
                     ExpirationYear          = $(this).prev("div.hiddenRowData").find("input[name='ExpirationYear']").val();
                     LastDigit               = $(this).prev("div.hiddenRowData").find("input[name='LastDigit']").val();
+                    //CVC               = $(this).prev("div.hiddenRowData").find("input[name='CVC']").val();
 
+                    var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
+                    $("#add-card-form").find('input[name="PaymentGatewayID"]').val(pgid);
+                    $("#add-card-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
+                    $("#add-card-form").find('input[name="CompanyID"]').val('{{$account->CompanyId}}');
                     $("#add-card-form").find('[name="AccountPaymentProfileID"]').val(AccountPaymentProfileID);
                     $("#add-card-form").find('[name="Title"]').val(Title);
                     $("#add-card-form").find('[name="CardToken"]').val(CardToken);
@@ -313,6 +319,7 @@
                     $("#add-card-form").find('[name="ExpirationMonth"]').val(ExpirationMonth).trigger('change');
                     $("#add-card-form").find('[name="ExpirationYear"]').val(ExpirationYear).trigger('change');
                     $("#add-card-form").find('[name="LastDigit"]').val(LastDigit);
+                    //$("#add-card-form").find('[name="CVC"]').val(CVC);
                     $('#add-modal-card').modal('show');
                 })
 
@@ -416,6 +423,12 @@
                                     <input type="text" name="LastDigit" autocomplete="off" class="form-control" placeholder="">
                                 </div>
                             </div>
+                            {{--<div class="col-md-12 clear">
+                                <div class="form-group">
+                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_CVV_NUMBER')</label>
+                                    <input type="text" name="CVC" autocomplete="off" class="form-control" placeholder="">
+                                </div>
+                            </div>--}}
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <input type="hidden" name="AccountID" />
@@ -427,7 +440,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" id="card-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
+                        <button type="submit" id="card-update" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
                             <i class="entypo-floppy"></i>
                             @lang('routes.BUTTON_SAVE_CAPTION')
                         </button>

@@ -1902,7 +1902,20 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function update_credit(){
         $data = Input::all();
         $postdata= $data;
-
+        
+        //$validator = Validator::make($data, $rules);
+//        if(!empty($post['BalanceThresholdnew'])){
+//            foreach ($post['BalanceThresholdnew'] as $key => $value) {
+//                $rules['BalanceThresholdnew'] = 'required';
+//                $messages['BalanceThresholdnew.required'] = "Balance Threshold required";
+//            }
+//        }
+//        
+//        $validator = Validator::make($data, $rules,$messages);
+//        if ($validator->fails()) {
+//            return json_validator_response($validator,$DiscountValueError);
+//        }
+//        
         //Update Account Thread HOld
         try{
             AccountBalanceThreshold::where('AccountID', $postdata['AccountID'])->delete();
