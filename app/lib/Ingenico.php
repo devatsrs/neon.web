@@ -49,7 +49,7 @@ class Ingenico {
             'ExpirationMonth'   => 'required',
             'ExpirationYear'    => 'required',
             'LastDigit'         => 'required|digits:4',
-            'CVC'               => 'required',
+            //'CVC'               => 'required',
         );
 
         $validator = Validator::make($data, $rules);
@@ -103,7 +103,7 @@ class Ingenico {
 
         $option = array(
             'CardToken'       => $data['CardToken'],
-            'CVC'             => $data['CVC'],
+            //'CVC'             => $data['CVC'],
             'CardHolderName'  => $data['CardHolderName'],
             'ExpirationMonth' => $data['ExpirationMonth'],
             'ExpirationYear'  => $data['ExpirationYear'],
@@ -133,7 +133,7 @@ class Ingenico {
 
         $option = array(
             'CardToken'       => $data['CardToken'],
-            'CVC'             => $data['CVC'],
+            //'CVC'             => $data['CVC'],
             'CardHolderName'  => $data['CardHolderName'],
             'ExpirationMonth' => $data['ExpirationMonth'],
             'ExpirationYear'  => $data['ExpirationYear'],
@@ -201,15 +201,15 @@ class Ingenico {
         $OrderID = date("ymdhis") . rand(10, 99);
 
         $request = [];
-        $request['ORDERID']  = $OrderID;
-        $request['ALIAS']    = $IngenicoObj->CardToken;
-        $request['CVC']      = $IngenicoObj->CVC;
-        $request['PSPID']    = $this->PSPID;
-        $request['USERID']   = $this->UserID;
-        $request['PSWD']     = $this->UserPassword;
-        $request['AMOUNT']   = $data['outstanginamount'];
-        $request['CURRENCY'] = $CurrencyCode;
-        $request['SHASIGN']  = $this->SHASIGN;
+        $request['ORDERID']   = $OrderID;
+        $request['ALIAS']     = $IngenicoObj->CardToken;
+        $request['PSPID']     = $this->PSPID;
+        $request['USERID']    = $this->UserID;
+        $request['PSWD']      = $this->UserPassword;
+        $request['AMOUNT']    = $data['outstanginamount'] * 100;
+        $request['CURRENCY']  = $CurrencyCode;
+        $request['SHASIGN']   = $this->SHASIGN;
+        $request['ECI']       = 9;
         $request['OPERATION'] = 'SAL';
 
         $query = "";
