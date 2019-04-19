@@ -630,30 +630,32 @@
         ?>
         <div class="subcategorycontent" id="subcategorycontent{{$IngenicoDbData->Slug}}">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <div class="form-group">
-                        <label class="control-label">* Merchant ID:</label>
-                        <input type="text"  class="form-control" name="MerchantID" value="{{isset($IngenicoData->MerchantID)?$IngenicoData->MerchantID:''}}" />
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label class="control-label">* API Key ID:</label>
-                        <input type="text" class="form-control" name="APIKeyID" value="{{isset($IngenicoData->APIKeyID)?$IngenicoData->APIKeyID:''}}" />
+                        <label class="control-label">* PSPID:</label>
+                        <input type="text"  class="form-control" name="PSPID" value="{{isset($IngenicoData->PSPID)?$IngenicoData->PSPID:''}}" />
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label class="control-label">* API Secret:</label>
-                        <input type="text" class="form-control" name="APISecret" value="{{isset($IngenicoData->APISecret)?$IngenicoData->APISecret:''}}" />
+                        <label class="control-label">* User ID:</label>
+                        <input type="text" class="form-control" name="UserID" value="{{isset($IngenicoData->UserID)?$IngenicoData->UserID:''}}" />
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label class="control-label">* Integrator:</label>
-                        <input type="text" class="form-control" name="Integrator" value="{{isset($IngenicoData->Integrator)?$IngenicoData->Integrator:''}}" />
+                        <label class="control-label">* Password:</label>
+                        <input type="text" class="form-control" name="Password" value="{{isset($IngenicoData->Password)?$IngenicoData->Password:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="control-label">* SHA-IN:</label>
+                        <input type="text" class="form-control" name="SHASIGN" value="{{isset($IngenicoData->SHASIGN)?$IngenicoData->SHASIGN:''}}" />
                     </div>
                 </div>
             </div>

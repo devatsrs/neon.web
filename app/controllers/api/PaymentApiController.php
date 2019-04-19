@@ -363,7 +363,7 @@ class PaymentApiController extends ApiController {
 			$PaymentData=array();
 			$CompanyID=$Account->CompanyID;
 			$PaymentMethod=$Account->PaymentMethod;
-			if (!empty($PaymentMethod) && ($PaymentMethod=='Stripe' || $PaymentMethod=='AuthorizeNet' || $PaymentMethod=='StripeACH')) {
+			if (!empty($PaymentMethod) && ($PaymentMethod=='Stripe' || $PaymentMethod=='AuthorizeNet' || $PaymentMethod=='StripeACH' || $PaymentMethod == "Ingenico")) {
 				$PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentMethod);
 				Log::info("$PaymentGatewayID = ".$PaymentGatewayID);
 				$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);

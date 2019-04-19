@@ -9,23 +9,23 @@
 class Ingenico {
 
     var $status;
-    var $MerchantID;
-    var $APIKeyID;
-    var $APISecret;
-    var $Integrator;
+    var $PSPID;
+    var $UserID;
+    var $UserPassword;
+    var $SHASIGN;
     var $SandboxUrl;
     var $LiveUrl;
 
     function __Construct($CompanyID=0){
         $Ingenicoobj = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$IngenicoSlug,$CompanyID);
         if($Ingenicoobj){
-            $this->SandboxUrl       = "https://gateway20.Ingenico.biz/services/";
-            $this->LiveUrl          = "https://gateway20.Ingenico.biz/services/";
+            $this->SandboxUrl   = "https://secure.ogone.com/ncol/test/orderdirect.asp";
+            $this->LiveUrl      = "https://secure.ogone.com/ncol/prod/orderdirect.asp";
 
-            $this->MerchantID 	= 	$Ingenicoobj->MerchantID;
-            $this->APIKeyID 	= 	$Ingenicoobj->APIKeyID;
-            $this->APISecret 	= 	$Ingenicoobj->APISecret;
-            $this->Integrator 	= 	$Ingenicoobj->Integrator;
+            $this->PSPID 	    = 	$Ingenicoobj->PSPID;
+            $this->UserID 	    = 	$Ingenicoobj->UserID;
+            $this->UserPassword = 	$Ingenicoobj->Password;
+            $this->SHASIGN      = 	$Ingenicoobj->SHASIGN;
             $this->IngenicoLive = 	$Ingenicoobj->IngenicoLive;
 
             if(intval($this->IngenicoLive) == 1) {
@@ -35,7 +35,6 @@ class Ingenico {
                 $this->IngenicoUrl	= 	$this->SandboxUrl;
                 $this->SaveCardUrl	= 	$this->SandboxUrl;
             }
-
             $this->status           =   true;
         }else{
             $this->status           =   false;
@@ -50,7 +49,7 @@ class Ingenico {
             'ExpirationMonth'   => 'required',
             'ExpirationYear'    => 'required',
             'LastDigit'         => 'required|digits:4',
-            //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
+            //'CVC'               => 'required',
         );
 
         $validator = Validator::make($data, $rules);
@@ -77,9 +76,9 @@ class Ingenico {
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=UTF-8', 'Content-Length: ' . strlen($data)));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded', 'Content-Length: ' . strlen($data)));
         $result = curl_exec($ch);
-        $res = json_decode($result, true);
+        $res    = $result != false ? @self::xml2array(simplexml_load_string($result))["@attributes"] : false;
         return $res;
     }
 
@@ -103,12 +102,14 @@ class Ingenico {
         }
 
         $option = array(
-            'CardToken'         => $data['CardToken'],
-            'CardHolderName'    => $data['CardHolderName'],
-            'ExpirationMonth'   => $data['ExpirationMonth'],
-            'ExpirationYear'    => $data['ExpirationYear'],
-            'LastDigit'         => $data['LastDigit'],
+            'CardToken'       => $data['CardToken'],
+            //'CVC'             => $data['CVC'],
+            'CardHolderName'  => $data['CardHolderName'],
+            'ExpirationMonth' => $data['ExpirationMonth'],
+            'ExpirationYear'  => $data['ExpirationYear'],
+            'LastDigit'       => $data['LastDigit'],
         );
+
         $CardDetail = array('Title' => $data['Title'],
             'Options' => json_encode($option),
             'Status' => 1,
@@ -131,11 +132,12 @@ class Ingenico {
         //$account = Account::where(array('AccountID' => $AccountID))->first();
 
         $option = array(
-            'CardToken'         => $data['CardToken'],
-            'CardHolderName'    => $data['CardHolderName'],
-            'ExpirationMonth'   => $data['ExpirationMonth'],
-            'ExpirationYear'    => $data['ExpirationYear'],
-            'LastDigit'         => $data['LastDigit'],
+            'CardToken'       => $data['CardToken'],
+            //'CVC'             => $data['CVC'],
+            'CardHolderName'  => $data['CardHolderName'],
+            'ExpirationMonth' => $data['ExpirationMonth'],
+            'ExpirationYear'  => $data['ExpirationYear'],
+            'LastDigit'       => $data['LastDigit'],
         );
         $CardDetail = array(
             'Title' => $data['Title'],
@@ -143,6 +145,7 @@ class Ingenico {
             'updated_at' => date('Y-m-d H:i:s'),
             'updated_by' => Customer::get_accountName()
         );
+
         if (AccountPaymentProfile::where(['AccountPaymentProfileID'=>$AccountPaymentProfileID])->update($CardDetail)) {
             return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_UPDATED")));
         } else {
@@ -176,4 +179,92 @@ class Ingenico {
         }
     }
 
+    public function paymentValidateWithProfile($data){
+        $Response = array();
+        $Response['status']='success';
+        $account = Account::find($data['AccountID']);
+        $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+        if(empty($CurrencyCode)){
+            $Response['status']='failed';
+            $Response['message']=cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
+        }
+        return $Response;
+    }
+
+    public function paymentWithApiProfile($data){
+
+        $Account = Account::find($data['AccountID']);
+        $CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
+        $IngenicoObj = json_decode($CustomerProfile->Options);
+
+        $CurrencyCode = Currency::getCurrency($Account->CurrencyId);
+        $OrderID = date("ymdhis") . rand(10, 99);
+
+        $request = [];
+        $request['ORDERID']   = $OrderID;
+        $request['ALIAS']     = $IngenicoObj->CardToken;
+        $request['PSPID']     = $this->PSPID;
+        $request['USERID']    = $this->UserID;
+        $request['PSWD']      = $this->UserPassword;
+        $request['AMOUNT']    = $data['outstanginamount'] * 100;
+        $request['CURRENCY']  = $CurrencyCode;
+        $request['SHASIGN']   = $this->SHASIGN;
+        $request['ECI']       = 9;
+        $request['OPERATION'] = 'SAL';
+
+        $query = "";
+        foreach($request as $key => $q)
+            $query .= $key . "=" . $q . "&";
+        $query = rtrim($query, "&");
+
+        $response = ['status' => 'failed', 'msg' => "Invalid Request.", "response_code" => ''];
+
+        try {
+            $resp = $this->sendCurlRequest($this->IngenicoUrl, $query);
+
+            if($resp != false){
+                if(@$resp['PAYID'] != 0 && (@$resp['STATUS'] == "5" || @$resp['STATUS'] == "9")){
+                    $Notes      = 'Stripe transaction_id ' . $resp['PAYID'];
+                    $Status     = TransactionLog::SUCCESS;
+                    $response['transaction_id'] = $resp['PAYID'];
+                    $response['status']         = 'success';
+                    $response['response_code']  = 1;
+                    $response['msg']            = $Notes;
+                    $transactiondata['Transaction'] = $resp['PAYID'];
+                    $transactiondata['Amount']  = floatval($resp['amount']);
+                } else {
+                    $Notes  = "Error: " . @$resp['NCERRORPLUS'];
+                    $Status = TransactionLog::FAILED;
+                    $response['failed_reason']     = $Notes;
+                }
+
+                $response['transaction_notes'] = $Notes;
+                $response['PaymentMethod']     = 'CREDIT CARD';
+                $response['Response']          = $resp;
+                $transactiondata['CompanyID']  = $Account->CompanyId;
+                $transactiondata['AccountID']  = $Account->AccountID;
+                $transactiondata['Notes']      = $Notes;
+                $transactiondata['Status']     = $Status;
+                $transactiondata['created_at'] = date('Y-m-d H:i:s');
+                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+                $transactiondata['CreatedBy']  = "API";
+                $transactiondata['ModifyBy']   = "API";
+                $transactiondata['Response']   = json_encode($resp);
+                TransactionLog::insert($transactiondata);
+            }
+
+        } catch(Exception $e){
+            $response['msg'] = "Error: ". $e->getMessage();
+        }
+
+        return $response;
+    }
+
+    public static function xml2array ( $xmlObject, $out = array () )
+    {
+        foreach ( (array) $xmlObject as $index => $node )
+            $out[$index] = ( is_object ( $node ) ) ? self::xml2array ( $node ) : $node;
+
+        return $out;
+    }
 }

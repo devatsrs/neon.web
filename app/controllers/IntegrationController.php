@@ -533,17 +533,17 @@ class IntegrationController extends \BaseController
 
 				if(count($IngenicoDbData)>0) { // update
 					$rules = array(
-						'MerchantID' 	=> 'required',
-						'APIKeyID' 		=> 'required',
-						'APISecret' 	=> 'required',
-						'Integrator' 	=> 'required'
+						'PSPID' 	=> 'required',
+						'UserID'    => 'required',
+						'Password' 	=> 'required',
+						'SHASIGN' 	=> 'required'
 					);
 				} else { // create
 					$rules = array(
-						'MerchantID' 	=> 'required',
-						'APIKeyID' 		=> 'required',
-						'APISecret' 	=> 'required',
-						'Integrator' 	=> 'required'
+						'PSPID' 	=> 'required',
+						'UserID'    => 'required',
+						'Password' 	=> 'required',
+						'SHASIGN' 	=> 'required'
 					);
 				}
 
@@ -557,10 +557,10 @@ class IntegrationController extends \BaseController
 				$data['Status'] 		= 	isset($data['Status'])?1:0;
 
 				$IngenicoData = array(
-					"MerchantID"	=>	$data['MerchantID'],
-					"APIKeyID"		=>	$data['APIKeyID'],
-					"APISecret"		=>	$data['APISecret'],
-					"Integrator"	=>	$data['Integrator'],
+					"PSPID"			=>	$data['PSPID'],
+					"UserID"		=>	$data['UserID'],
+					"Password"		=>	$data['Password'],
+					"SHASIGN"		=>	$data['SHASIGN'],
 					"IngenicoLive"	=>	$data['IngenicoLive']
 				);
 
