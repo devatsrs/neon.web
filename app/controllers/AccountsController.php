@@ -1904,12 +1904,16 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $postdata= $data;
         
         //$validator = Validator::make($data, $rules);
-//        $rules = array(
-//            'email' => 'required|array|min:3',
-//        );
-//        $validator = Validator::make($data, $rules);
+//        if(!empty($post['BalanceThresholdnew'])){
+//            foreach ($post['BalanceThresholdnew'] as $key => $value) {
+//                $rules['BalanceThresholdnew'] = 'required';
+//                $messages['BalanceThresholdnew.required'] = "Balance Threshold required";
+//            }
+//        }
+//        
+//        $validator = Validator::make($data, $rules,$messages);
 //        if ($validator->fails()) {
-//            return json_validator_response($validator);
+//            return json_validator_response($validator,$DiscountValueError);
 //        }
 //        
         //Update Account Thread HOld
