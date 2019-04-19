@@ -10,15 +10,20 @@ class AccountBalanceThreshold extends \Eloquent {
     public $timestamps = false; // no created_at and updated_at
     public static function saveAccountBalanceThreshold($accountid, $post)
     {
-        
-        foreach ($post['BalanceThresholdnew'] as $key => $value) {
-            $data = [
-            'AccountID' => $accountid,
-            'BalanceThreshold' => $value,
-            "BalanceThresholdEmail" =>$post['email'][$key]
-        ];
-            AccountBalanceThreshold::insert($data);
+        $date = date('Y-m-d H:i:s');
+        $CreatedBy = User::get_user_full_name();
+        if(!empty($post['BalanceThresholdnew'])){
+            foreach ($post['BalanceThresholdnew'] as $key => $value) {
+                if(!empty($value)){
+                    $data = [
+                        'AccountID'         => $accountid,
+                        'BalanceThreshold'  => $value,
+                        'created_at'        => $date,
+                        "BalanceThresholdEmail" =>$post['email'][$key]
+                    ];
+                    AccountBalanceThreshold::insert($data);
+                }
+            }
         }
-
     }
 }

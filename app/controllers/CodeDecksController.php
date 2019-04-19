@@ -22,7 +22,7 @@ class CodeDecksController extends \BaseController {
 
 
         $data['iDisplayStart'] +=1;
-        $columns = array('RateID','ISO2','Country','Code','Description','Type','Interval1','IntervalN','RateID');
+        $columns = array('RateID','ISO2','Country','Code','Description','Type','Interval1','IntervalN','MinimumDuration','RateID');
         $sort_column = $columns[$data['iSortCol_0']];
 
         $query = "call prc_GetCodeDeck (".$companyID.",".$data['ft_codedeckid'].",".$data['ft_country'].",".$data['ft_code'].",".$data['ft_description'].",".$data['ft_type'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength'])).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','0')";
@@ -263,7 +263,7 @@ class CodeDecksController extends \BaseController {
             $updatedta = array();
             $error = array();
             $rules = array();
-            if(!empty($data['updateCountryID']) || !empty($data['updateType']) || !empty($data['updateDescription']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN'])){
+            if(!empty($data['updateCountryID']) || !empty($data['updateType']) || !empty($data['updateDescription']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateMinimumDuration'])){
                 if(!empty($data['updateCountryID'])){
                     $updatedta['CountryID'] = $data['CountryID'];
                 }
@@ -298,6 +298,13 @@ class CodeDecksController extends \BaseController {
 
                     }
 
+                }
+                if(!empty($data['updateMinimumDuration'])){
+                    if(!empty($data['MinimumDuration'])){
+                        $updatedta['MinimumDuration'] = $data['MinimumDuration'];
+                    }else{
+                        $rules['MinimumDuration'] = 'required | numeric';
+                    }
                 }
 
                 $validator = Validator::make($data, $rules);

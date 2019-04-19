@@ -1176,7 +1176,7 @@
                     var self = $('#add-template-form [name="'+el.name+'"]');
                     var label = 'Map From File';
                     rebuildSelectComposite(self, data.columns, label);
-                } else if (el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[OriginationDialCodeSeparator]' && el.name != 'selection[FromCurrency]'){
+                } else if (el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[OriginationDialCodeSeparator]' && el.name != 'selection[FromCurrency]' && el.name.indexOf('Interval1Index') == -1 && el.name.indexOf('IntervalNIndex') == -1 && el.name.indexOf('MinimumDurationIndex') == -1){
                     var self = $('#add-template-form [name="'+el.name+'"]');
                     rebuildSelect2(self,data.columns,'Skip loading');
                 }
@@ -1408,6 +1408,7 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
+                            { "bSortable": false},//13 MinimumDuration
                             {
                                 "bVisible" : bVisiblePreferenceBlock,
                                 "bSortable": false
@@ -1562,6 +1563,7 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
+                            { "bSortable": false},//13 MinimumDuration
                             {
                                 "bVisible" : bVisiblePreferenceBlock,
                                 "bSortable": false
@@ -1669,6 +1671,7 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
+                            { "bSortable": false},//13 MinimumDuration
                             {
                                 "bVisible" : bVisiblePreferenceBlock,
                                 "bSortable": false
@@ -1781,6 +1784,7 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
+                            { "bSortable": false},//13 MinimumDuration
                             {
                                 "bVisible" : bVisiblePreferenceBlock,
                                 "bSortable": false
@@ -2110,6 +2114,7 @@
                             <th>Connection Fee(Opt.)</th>
                             <th>Interval1(Opt.)</th>
                             <th>IntervalN(Opt.)</th>
+                            <th>MinimumDuration(Opt.)</th>
                             <th>Blocked(Opt.)</th>
                             <th>Preference(Opt.)</th>
                         </tr>
@@ -2126,6 +2131,7 @@
                             <td>1</td>
                             <td>1</td>
                             <td>0</td>
+                            <td>0</td>
                             <td>5</td>
                         </tr>
                         <tr>
@@ -2138,6 +2144,7 @@
                             <td>0.05</td>
                             <td>1</td>
                             <td>1</td>
+                            <td>0</td>
                             <td>1</td>
                             <td>2</td>
                         </tr>
@@ -2151,6 +2158,7 @@
                             <td>0.05</td>
                             <td>1</td>
                             <td>1</td>
+                            <td>0</td>
                             <td>1</td>
                             <td>1</td>
                         </tr>
@@ -2270,6 +2278,7 @@
                                             <th width="15%" >Connection Fee</th>
                                             <th width="15%" >Interval 1</th>
                                             <th width="15%" >Interval N</th>
+                                            <th width="15%" >Minimum Duration</th>
                                             <th width="15%" >Preference</th>
                                             <th width="15%" >Blocked</th>
                                             <th width="15%" >Routing Category</th>
@@ -2354,6 +2363,7 @@
                                             <th width="15%" >Connection Fee</th>
                                             <th width="15%" >Interval 1</th>
                                             <th width="15%" >Interval N</th>
+                                            <th width="15%" >Minimum Duration</th>
                                             <th width="15%" >Preference</th>
                                             <th width="15%" >Blocked</th>
                                             <th width="15%" >Routing Category</th>
@@ -2438,6 +2448,7 @@
                                             <th width="15%" >Connection Fee</th>
                                             <th width="15%" >Interval 1</th>
                                             <th width="15%" >Interval N</th>
+                                            <th width="15%" >Minimum Duration</th>
                                             <th width="15%" >Preference</th>
                                             <th width="15%" >Blocked</th>
                                             <th width="15%" >Routing Category</th>
@@ -2522,6 +2533,7 @@
                                             <th width="15%" >Connection Fee</th>
                                             <th width="15%" >Interval 1</th>
                                             <th width="15%" >Interval N</th>
+                                            <th width="15%" >Minimum Duration</th>
                                             <th width="15%" >Preference</th>
                                             <th width="15%" >Blocked</th>
                                             <th width="15%" >Routing Category</th>

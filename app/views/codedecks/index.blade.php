@@ -111,6 +111,7 @@
         <th width="5%">Type</th>
         <th width="5%">Interval 1</th>
         <th width="5%">Interval N</th>
+        <th width="5%">Minimum Duration</th>
         <th width="15%">Actions</th>
     </tr>
     </thead>
@@ -183,6 +184,7 @@ var postdata;
                 { "bSortable": true }, //type
                 { "bSortable": true }, //Interval1
                 { "bSortable": true }, //IntervalN
+                { "bSortable": true }, //MinimumDuration
                 {
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
@@ -199,6 +201,7 @@ var postdata;
                         Type = full[5];
                         Interval1 = ( full[6] == null )? 1:full[6];
                         IntervalN = ( full[7] == null )? 1:full[7];
+                        MinimumDuration = ( full[8] == null )? 0:full[8];
                         action = '<div class = "hiddenRowData" >';
                         action += '<input type = "hidden"  name = "RateID" value = "' + RateID + '" / >';
                         action += '<input type = "hidden"  name = "Country" value = "' + country + '" / >';
@@ -207,6 +210,7 @@ var postdata;
                         action += '<input type = "hidden"  name = "Type" value = "' + Type + '" / >';
                         action += '<input type = "hidden"  name = "Interval1" value = "' +  Interval1 + '" / >' ;
                         action += '<input type = "hidden"  name = "IntervalN" value = "' +  IntervalN + '" / >' ;
+                        action += '<input type = "hidden"  name = "MinimumDuration" value = "' +  MinimumDuration + '" / >' ;
                         action += '</div>';
 
                         <?php if(User::checkCategoryPermission('CodeDecks','Edit')){ ?>
@@ -489,6 +493,7 @@ var postdata;
         $("#add-new-codedeck-form [name='Type']").val(prev_raw.find("input[name='Type']").val());
         $("#add-new-codedeck-form [name='Interval1']").val(prev_raw.find("input[name='Interval1']").val());
         $("#add-new-codedeck-form [name='IntervalN']").val(prev_raw.find("input[name='IntervalN']").val());
+        $("#add-new-codedeck-form [name='MinimumDuration']").val(prev_raw.find("input[name='MinimumDuration']").val());
         var countryid = $('select[name="ft_country"] > option:contains("'+prev_raw.find("input[name='Country']").val()+'")').val()
         $("#add-new-codedeck-form [name='CountryID']").select2().select2('val',countryid);
         $("#add-new-codedeck-form [name='Code']").val(prev_raw.find("input[name='Code']").val());
@@ -586,6 +591,7 @@ function bulk_update(fullurl,data){
                                     <th>Action</th>
                                     <th>Interval1(Opt.)</th>
                                     <th>IntervalN(Opt.)</th>
+                                    <th>Minimum Duration(Opt.)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -597,6 +603,7 @@ function bulk_update(fullurl,data){
                                     <td>I <span data-original-title="Insert" data-content="When action is set to 'I', It will insert new CodeDeck" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                                     <td>1</td>
                                     <td>1</td>
+                                    <td>0</td>
                                 </tr>
                                 <tr>
                                     <td class="hide_country">Afghanistan</td>
@@ -606,6 +613,7 @@ function bulk_update(fullurl,data){
                                     <td>U <span data-original-title="Insert" data-content="When action is set to 'U',It will replace existing CodeDeck" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                                     <td>1</td>
                                    <td>1</td>
+                                   <td>0</td>
                                 </tr>
                                 <tr>
                                     <td class="hide_country">Afghanistan</td>
@@ -615,6 +623,7 @@ function bulk_update(fullurl,data){
                                     <td>D <span data-original-title="Insert" data-content="When action is set to 'D',It will delete existing CodeDeck" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                                     <td>1</td>
                                     <td>1</td>
+                                    <td>0</td>
 
                                 </tr>
                             </tbody>
@@ -682,6 +691,13 @@ function bulk_update(fullurl,data){
                                 <input type="text" name="IntervalN"  class="form-control numbercheck" value="1" />
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateMinimumDuration" class="" />
+                                <label class="control-label">Minimum Duration</label>
+                                <input type="text" name="MinimumDuration"  class="form-control numbercheck" value="1" />
+                            </div>
+                        </div>
                     </div>
                      
                 </div>
@@ -739,6 +755,12 @@ function bulk_update(fullurl,data){
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Interval N</label>
                                 <input type="text" name="IntervalN" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Minimum Duration</label>
+                                <input type="text" name="MinimumDuration" class="form-control" value="" />
                             </div>
                         </div>
                         <div class="col-md-6 hide_country">

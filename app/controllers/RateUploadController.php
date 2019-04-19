@@ -59,11 +59,13 @@ class RateUploadController extends \BaseController {
         $City               = array('Map From Database'=>$City);
         $Tariff             = array('Map From Database'=>$Tariff);
 
+        $IntervalIndexes = [""=>"Select","0"=>"One","1"=>"Two","2"=>"Three"];
+
         $component_currencies = Currency::getCurrencyDropdownIDList();
         $component_currencies = array('Currency'=>$component_currencies);
 
         if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) { // voice call
-            return View::make('rateupload.index', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall', 'component_currencies', 'rateTable', 'ROUTING_PROFILE'));
+            return View::make('rateupload.index', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall', 'component_currencies', 'rateTable', 'ROUTING_PROFILE', 'IntervalIndexes'));
         } else if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) { // did
             return View::make('rateupload.index_did', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'TypeVoiceCall', 'component_currencies', 'AccessTypes', 'Codes', 'City', 'Tariff', 'CountryPrefix', 'AccessTypeFilter', 'CityFilter', 'TariffFilter'));
         } else { // package
@@ -1125,6 +1127,10 @@ class RateUploadController extends \BaseController {
                 $RateNColumn                      = 'RateN'.$id;
                 $Interval1Column                  = 'Interval1'.$id;
                 $IntervalNColumn                  = 'IntervalN'.$id;
+                $MinimumDurationColumn            = 'MinimumDuration'.$id;
+                $Interval1IndexColumn             = 'Interval1Index'.$id;
+                $IntervalNIndexColumn             = 'IntervalNIndex'.$id;
+                $MinimumDurationIndexColumn       = 'MinimumDurationIndex'.$id;
                 $PreferenceColumn                 = 'Preference'.$id;
                 $ConnectionFeeColumn              = 'ConnectionFee'.$id;
                 $BlockedColumn                    = 'Blocked'.$id;
@@ -1782,11 +1788,36 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$Interval1Column) && isset($temp_row[$attrselection->$Interval1Column])) {
-                                    $tempdata['Interval1'] = intval(trim($temp_row[$attrselection->$Interval1Column]));
+                                    if (isset($attrselection->$Interval1IndexColumn) && $attrselection->$Interval1IndexColumn != '') { // check if index is mapped for Interval1 - Intervals seperated by - or /
+                                        $Interval1Index         = $attrselection->$Interval1IndexColumn; // which index to get from seperated value
+                                        $Interval1Seperator     = strpos($temp_row[$attrselection->$Interval1Column], '-') !== false ? '-' : '/'; // check by which seperator Intervals are seperated - allowed seperators (-,/)
+                                        $Intervals              = explode($Interval1Seperator,$temp_row[$attrselection->$Interval1Column]);
+                                        $tempdata['Interval1']  = $Intervals[$Interval1Index];
+                                    } else {
+                                        $tempdata['Interval1']  = intval(trim($temp_row[$attrselection->$Interval1Column]));
+                                    }
                                 }
 
                                 if (!empty($attrselection->$IntervalNColumn) && isset($temp_row[$attrselection->$IntervalNColumn])) {
-                                    $tempdata['IntervalN'] = intval(trim($temp_row[$attrselection->$IntervalNColumn]));
+                                    if (isset($attrselection->$IntervalNIndexColumn) && $attrselection->$IntervalNIndexColumn != '') { // check if index is mapped for IntervalN - Intervals seperated by - or /
+                                        $IntervalNIndex         = $attrselection->$IntervalNIndexColumn; // which index to get from seperated value
+                                        $IntervalNSeperator     = strpos($temp_row[$attrselection->$IntervalNColumn], '-') !== false ? '-' : '/'; // check by which seperator Intervals are seperated - allowed seperators (-,/)
+                                        $Intervals              = explode($IntervalNSeperator,$temp_row[$attrselection->$IntervalNColumn]);
+                                        $tempdata['IntervalN']  = $Intervals[$IntervalNIndex];
+                                    } else {
+                                        $tempdata['IntervalN']  = intval(trim($temp_row[$attrselection->$IntervalNColumn]));
+                                    }
+                                }
+
+                                if (!empty($attrselection->$MinimumDurationColumn) && isset($temp_row[$attrselection->$MinimumDurationColumn])) {
+                                    if (isset($attrselection->$MinimumDurationIndexColumn) && $attrselection->$MinimumDurationIndexColumn != '') { // check if index is mapped for MinimumDuration - Intervals seperated by - or /
+                                        $MinimumDurationIndex           = $attrselection->$MinimumDurationIndexColumn; // which index to get from seperated value
+                                        $MinimumDurationSeperator       = strpos($temp_row[$attrselection->$MinimumDurationColumn], '-') !== false ? '-' : '/'; // check by which seperator Intervals are seperated - allowed seperators (-,/)
+                                        $Intervals                      = explode($MinimumDurationSeperator,$temp_row[$attrselection->$MinimumDurationColumn]);
+                                        $tempdata['MinimumDuration']    = $Intervals[$MinimumDurationIndex];
+                                    } else {
+                                        $tempdata['MinimumDuration']    = intval(trim($temp_row[$attrselection->$MinimumDurationColumn]));
+                                    }
                                 }
 
                                 if (!empty($attrselection->$PreferenceColumn) && isset($temp_row[$attrselection->$PreferenceColumn])) {
@@ -2026,7 +2057,7 @@ class RateUploadController extends \BaseController {
         $data                   = Input::all();
         $data['iDisplayStart'] +=1;
 
-        $columns                        = array('TempVendorRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','Rate','RateN','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN','Preference','Blocked','RoutingCategory');
+        $columns                        = array('TempVendorRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','Rate','RateN','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN','MinimumDuration','Preference','Blocked','RoutingCategory');
         $columns_did                    = array('TempRateTableDIDRateID','AccessType','OriginationCode','Code','City','Tariff','Timezones','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate');
         $columns_pkg                    = array('TempRateTablePKGRateID','Code','Timezones','OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute','EffectiveDate','EndDate');
         $sort_column                    = $columns[$data['iSortCol_0']];

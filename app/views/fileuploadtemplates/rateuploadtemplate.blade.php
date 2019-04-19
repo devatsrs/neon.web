@@ -48,6 +48,10 @@
                     $RateNColumn           = 'RateN'.$id;
                     $Interval1Column       = 'Interval1'.$id;
                     $IntervalNColumn       = 'IntervalN'.$id;
+                    $MinimumDurationColumn = 'MinimumDuration'.$id;
+                    $Interval1IndexColumn  = 'Interval1Index'.$id;
+                    $IntervalNIndexColumn  = 'IntervalNIndex'.$id;
+                    $MinimumDurationIndexColumn = 'MinimumDurationIndex'.$id;
                     $PreferenceColumn      = 'Preference'.$id;
                     $ConnectionFeeColumn   = 'ConnectionFee'.$id;
                     $BlockedColumn         = 'Blocked'.$id;
@@ -83,13 +87,35 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-2 control-label">Connection Fee</label>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$ConnectionFeeColumn.']', $columns,(isset($attrselection->$ConnectionFeeColumn)?$attrselection->$ConnectionFeeColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$ConnectionFeeCurrencyColumn.']', $component_currencies,(isset($attrselection->$ConnectionFeeCurrencyColumn)?$attrselection->$ConnectionFeeCurrencyColumn:''),array("class"=>"select2 CurrencyDD small"))}}
+                            </div>
+                            <label class="col-sm-2 control-label">Minimum Duration</label>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$MinimumDurationColumn.']', $columns,(isset($attrselection->$MinimumDurationColumn)?$attrselection->$MinimumDurationColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$MinimumDurationIndexColumn.']', $IntervalIndexes,(isset($attrselection->$MinimumDurationIndexColumn)?$attrselection->$MinimumDurationIndexColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-2 control-label">Interval1</label>
-                            <div class="col-sm-4">
+                            <div class="col-sm-2">
                                 {{Form::select('selection['.$Interval1Column.']', $columns,(isset($attrselection->$Interval1Column)?$attrselection->$Interval1Column:''),array("class"=>"select2 small"))}}
                             </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$Interval1IndexColumn.']', $IntervalIndexes,(isset($attrselection->$Interval1IndexColumn)?$attrselection->$Interval1IndexColumn:''),array("class"=>"select2 small"))}}
+                            </div>
                             <label class="col-sm-2 control-label">IntervalN</label>
-                            <div class="col-sm-4">
+                            <div class="col-sm-2">
                                 {{Form::select('selection['.$IntervalNColumn.']', $columns,(isset($attrselection->$IntervalNColumn)?$attrselection->$IntervalNColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$IntervalNIndexColumn.']', $IntervalIndexes,(isset($attrselection->$IntervalNIndexColumn)?$attrselection->$IntervalNIndexColumn:''),array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group vendor_selection_box">
@@ -102,14 +128,7 @@
                                 {{Form::select('selection['.$BlockedColumn.']', $columns,(isset($attrselection->$BlockedColumn)?$attrselection->$BlockedColumn:''),array("class"=>"select2 small"))}}
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Connection Fee</label>
-                            <div class="col-sm-2">
-                                {{Form::select('selection['.$ConnectionFeeColumn.']', $columns,(isset($attrselection->$ConnectionFeeColumn)?$attrselection->$ConnectionFeeColumn:''),array("class"=>"select2 small"))}}
-                            </div>
-                            <div class="col-sm-2">
-                                {{Form::select('selection['.$ConnectionFeeCurrencyColumn.']', $component_currencies,(isset($attrselection->$ConnectionFeeCurrencyColumn)?$attrselection->$ConnectionFeeCurrencyColumn:''),array("class"=>"select2 CurrencyDD small"))}}
-                            </div>
+                        <div class="form-group vendor_selection_box">
                             <label class="col-sm-2 control-label vendor_selection_routing_box">Routing Category</label>
                             <div class="col-sm-4 vendor_selection_routing_box">
                                 {{Form::select('selection['.$RoutingCategory.']', $columns,(isset($attrselection->$RoutingCategory)?$attrselection->$RoutingCategory:''),array("class"=>"select2 small"))}}
