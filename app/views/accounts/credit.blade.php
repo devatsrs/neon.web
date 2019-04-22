@@ -349,20 +349,10 @@
     jQuery(document).ready(function($) {
         var acountiptable;
         $('#save_account').click(function(){
-            
-            if(checkEmpty('BalanceThresholdcls')){
-                alert('Balance is required.');
-                return false;
-            } 
-            if(checkEmpty('emailcls')){
-                alert('Email is required.');
-                return false;
-            } 
             if(checkDuplicates('BalanceThresholdcls')){
                 alert('Has duplication value in Balance Threshold.');
                 return false;
             } 
-            
             if(validateEmails()){
                 alert('Email is not valid.');
                 return false;
@@ -469,15 +459,10 @@
         var $elems = $('.BalanceThresholdcls');
         var cntindex=0;
         $elems.each(function () {
-            
             string=this.value;
             var value = string;
-            var regex = new RegExp(/^\+?[0-9]+$/);
-            var suffix = value.match(/\d+/); // 123456
-            suffixP =suffix+'p';
-            suffixPer =suffix+'%';
-            console.log(suffix+'--oooo');
-            if(value.match(regex) || suffixP==value || suffixPer==value) {
+            var regex = new RegExp(/^\+?[0-9()%pP]+$/);
+            if(value.match(regex)) {
                 console.log('YS-'+value);
             }else{
                 console.log(cntindex+'Wrong-'+value);
@@ -488,33 +473,6 @@
             cntindex++;
         });
         return ErrorNumber;
-    }
-    function checkEmpty(clsName) {
-        // get all input elements
-        var $elems = $('.'+clsName);
-
-        // we store the inputs value inside this array
-        var values = [];
-        // return this
-        var isDuplicated = false;
-        // loop through elements
-         var cntindex=0;
-        $elems.each(function () {
-          //If value is empty then move to the next iteration.
-          if(!this.value){ 
-                if(clsName=='BalanceThresholdcls'){
-                        $("input[name='BalanceThresholdnew-"+cntindex+"']").focus(); 
-                }else{
-                    $("input[name='email-"+cntindex+"']").focus(); 
-                }
-                isDuplicated = true;
-                return false;
-          }
-          // store the value
-          values.push(this.value);
-          cntindex++;
-        });   
-        return isDuplicated;     
     }
     function checkDuplicates(clsName) {
         // get all input elements
