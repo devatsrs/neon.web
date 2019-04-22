@@ -469,6 +469,7 @@
         var $elems = $('.BalanceThresholdcls');
         var cntindex=0;
         $elems.each(function () {
+            
             string=this.value;
             var value = string;
             var regex = new RegExp(/^\+?[0-9]+$/);
