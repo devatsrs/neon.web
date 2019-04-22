@@ -353,10 +353,6 @@
                 alert('Has duplication value in Balance Threshold.');
                 return false;
             } 
-            if(checkDuplicates('emailcls')){
-                alert('Has duplication value in Email.');
-                return false;
-            } 
             if(validateEmails()){
                 alert('Email is not valid.');
                 return false;
