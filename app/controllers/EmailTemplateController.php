@@ -4,23 +4,27 @@ class EmailTemplateController extends \BaseController {
 
     public function ajax_datagrid($exporttype) {
         $data = Input::all();
-        //dd($data);
-        $CompanyID = User::get_companyID();
+        $CompanyID = $data['CompanyID'];
         $data['is_reseller']=0;
         $data['is_IsGlobal'] = 0;
+       
         $Count = Reseller::IsResellerByCompanyID($CompanyID);
+        $p_resellerComapyId='';
         if($Count>0){
             $data['is_reseller']=1;
-            $data['CompanyID'] = $CompanyID;
         }else{
             $data['CompanyID'] = 0;
-            if(isset($data['ResellerOwner']) && $data['ResellerOwner'] > 0){
-                $data['CompanyID'] = $data['ResellerOwner'];
-            }elseif(isset($data['ResellerOwner']) && $data['ResellerOwner']=='-1'){
+            if (isset($data['partner']) && $data['partner'] > 0) {
+                $data['CompanyID'] = $data['partner'];
+            }elseif($data['partner']=='-1'){
                 $data['is_IsGlobal'] = 1;
             }
         }
 
+        if($data['iDisplayLength'] == 'NaN'){
+            $data['iDisplayLength'] = '50';
+        }
+        
         $Name = empty($data['search']) ? '' : $data['search'];
         $Type = 0;
         $userID = 0;
@@ -41,7 +45,7 @@ class EmailTemplateController extends \BaseController {
         $columns = ["TemplateName","ResellerName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType"];
         $data['iDisplayStart'] +=1;
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getEmailTemplate(" . $data['CompanyID']  . ",'" . $Name . "',".$data['is_reseller'].",'".$data['SystemType']."'," . $data['is_IsGlobal'] . ",'" . $data["templateLanguage"] . "'," . $Type . "," . $userID . "," . $Status . "," . $StaticType . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "','" . $data['partner'] . "'";
+        $query = "call prc_getEmailTemplate(" . $data['CompanyID']  . ",'" . $Name . "',".$data['is_reseller'].",'".$data['SystemType']."'," . $data['is_IsGlobal'] . ",'" . $data["templateLanguage"] . "'," . $Type . "," . $userID . "," . $Status . "," . $StaticType . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -57,7 +61,6 @@ class EmailTemplateController extends \BaseController {
         }
         $query .=',0)';
        
-
         return DataTableSql::of($query)->make();
     }
     /**
@@ -74,9 +77,8 @@ class EmailTemplateController extends \BaseController {
 		$emailfrom	 	=	TicketGroups::GetGroupsFrom($CompanyID);
 		$email_from		=	array_merge(array(""=>"Select"),$emailfrom);
         $reseller_owners = Reseller::getDropdownIDListAll();
-        $reseller_owners_For_Filter = Reseller::getDropdownIDListAllForFilter();
         
-        return View::make('emailtemplate.index',compact('privacy','type',"TemplateType","email_from","reseller_owners","CompanyID","reseller_owners_For_Filter"));
+        return View::make('emailtemplate.index',compact('privacy','type',"TemplateType","email_from","reseller_owners","CompanyID"));
     }
 
 

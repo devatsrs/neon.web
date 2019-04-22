@@ -124,7 +124,7 @@
                 <div class="col-md-12">
                     <br/>
                     <input type="hidden" id="getIDs" name="getIDs" value=""/>
-                    <input type="hidden" id="counttr" name="counttr" value=""/>
+                    <input type="hidden" id="counttr" name="counttr" value="{{count($AccountBalanceThreshold)}}"/>
                     <table id="servicetableSubBox" class="table table-bordered datatable">
                         <thead>
                         <tr>
@@ -141,12 +141,12 @@
                         <tbody id="tbody">
                             @if(count($AccountBalanceThreshold))
             @foreach($AccountBalanceThreshold as $key=>$AccountBalanceThresholdRow)
-                        <tr id="selectedRow-{{$key}}">
+                        <tr id="selectedRow-{{$key}}" class="fieldwrapper">
                             <td id="testValues">
-                                <input type="text" class="form-control"  name="BalanceThresholdnew[]" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
+                                <input type="text" class="form-control"  name="BalanceThresholdnew-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
                             </td>
                             <td>
-                                <input type="text" class="form-control"  name="email[]" value="{{$AccountBalanceThresholdRow->BalanceThresholdEmail}}" id="email">
+                                <input type="text" class="form-control"  name="email-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThresholdEmail}}" id="email">
                             </td>
                             
                             <td>
@@ -230,10 +230,14 @@
     {
         
         
+        var currentVal = parseInt($('#counttr').val());
+        if (!isNaN(currentVal)) {
+            $('#counttr').val(currentVal + 1);
+        }
         var rowCountMain = $("#servicetableSubBox > tbody").children().length;
         console.log(rowCountMain);
         if(rowCountMain==0){
-            htmldata='<tr id="selectedRow-0"  ><td id="testValues"><input type="text" class="form-control"  name="BalanceThresholdnew[]" value="" id="Threshold Limit"></td><td> <input type="text" class="form-control"  name="email[]" value="" id="email"></td><td><a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm " data-loading-text="Loading..."><i></i> - </a></td></tr>';
+            htmldata='<tr id="selectedRow-0" class="fieldwrapper"  ><td id="testValues"><input type="text" class="form-control"  name="BalanceThresholdnew-0" value="" id="Threshold Limit"></td><td> <input type="text" class="form-control"  name="email-0" value="" id="email"></td><td><a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm " data-loading-text="Loading..."><i></i> - </a></td></tr>';
             $('#tbody').html(htmldata);
         }else{
             var $item = $('#servicetableSubBox tr:last').attr('id');
@@ -247,10 +251,14 @@
             $("#"+$item).clone().appendTo("#tbody");
 
             $('#servicetableSubBox tr:last').attr('id', 'selectedRow-'+numb);
+            $('#servicetableSubBox tr:last a').attr('id', numb);
 
             $('#servicetableSubBox tr:last').children('td:eq(0)').children('input').val('');
             $('#servicetableSubBox tr:last').children('td:eq(1)').children('input').val('');
 
+            $('#servicetableSubBox tr:last').children('td:eq(0)').children('input').attr('name', 'BalanceThresholdnew-'+numb);;
+            $('#servicetableSubBox tr:last').children('td:eq(1)').children('input').attr('name', 'email-'+numb);;
+            
             if($('#getIDs').val() == '' ){
                 $('#getIDs').val(numb+',');
             }else{
@@ -287,10 +295,16 @@
             $('#servicetableSubBox tr:last').children('td:eq(2)').find('div:first').remove();
             $('#servicetableSubBox tr:last').closest('tr').children('td:eq(3)').find('a').removeClass('hidden'); 
         }
+        setTimeout(function(){ reorderingids(); }, 50);
     }
 
     function deleteRow(id)
     {
+        
+        var currentVal = parseInt($('#counttr').val());
+        if (!isNaN(currentVal) && currentVal > 0) {
+            $('#counttr').val(currentVal - 1);
+        }
         if(confirm("Are You Sure?")) {
             var selectedSubscription = $('#getIDs').val();
             var removeValue = id + ",";
@@ -307,6 +321,8 @@
             var rowCount = $("#servicetableSubBox > tbody").children().length;
             
             $("#" + id).closest("tr").remove();
+            setTimeout(function(){ reorderingids(); }, 50);
+            
 //            if (rowCount > 1) {
 //                $("#" + id).closest("tr").remove();
 //            } else {
@@ -314,6 +330,21 @@
 //                toastr.error("You cannot delete. At least one component is required.", "Error", toastr_opts);
 //            }
         }
+    }
+    
+    function reorderingids(){
+        var fields = $('.fieldwrapper');
+        var count = 0;
+        $.each(fields, function() {
+            //$(this).attr('id','field' + count);
+            $(this).children('td:eq(0)').children('input').attr('name', 'BalanceThresholdnew-'+count);;
+            $(this).children('td:eq(1)').children('input').attr('name', 'email-'+count);
+            
+            $(this).attr('id', 'selectedRow-'+count);
+            $(this).children('a').attr('id', count);
+            
+            count++;
+        });
     }
     jQuery(document).ready(function($) {
         var acountiptable;

@@ -1903,18 +1903,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $postdata= $data;
         
-        //$validator = Validator::make($data, $rules);
-//        if(!empty($post['BalanceThresholdnew'])){
-//            foreach ($post['BalanceThresholdnew'] as $key => $value) {
-//                $rules['BalanceThresholdnew'] = 'required';
-//                $messages['BalanceThresholdnew.required'] = "Balance Threshold required";
-//            }
-//        }
-//        
-//        $validator = Validator::make($data, $rules,$messages);
-//        if ($validator->fails()) {
-//            return json_validator_response($validator,$DiscountValueError);
-//        }
+        $rules=array();$messages=array();
+        if(!empty($postdata['counttr'])){
+            $thList = $postdata['counttr'];
+            for ($k = 0; $k < $thList; $k++) {
+                $rules['BalanceThresholdnew-' . ($k)] = 'required';
+                $messages['BalanceThresholdnew-' . ($k).'.required'] = "Balance Threshold Value for the Row " . ($k+1 ) . " required";
+                
+                $rules['email-' . ($k)] = 'required';
+                $messages['email-' . ($k).'.required'] = "Balance Threshold Email Value for the Row " . ($k+1 ) . " required";
+            }
+        }
+        $validator = Validator::make($data, $rules,$messages);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
 //        
         //Update Account Thread HOld
         try{
