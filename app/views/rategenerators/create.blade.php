@@ -158,14 +158,17 @@
                                 <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This option is for Rate Tables created from this Rate Generator." data-original-title="Applied To">?</span>
                             </label>
                             <div class="col-sm-4">
-                                <label class="radio-inline">
-                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, true,array("class"=>""))}}
-                                    Customer
-                                </label>
-                                <label class="radio-inline">
-                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, false,array("class"=>""))}}
-                                    Partner
-                                </label>
+                                    @if(is_reseller())
+                                        <label class="radio-inline">
+                                                {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, true,array("class"=>""))}}
+                                                Customer
+                                        </label>
+                                    @else
+                                        <label class="radio-inline">
+                                                {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, true,array("class"=>""))}}
+                                                Partner
+                                        </label>
+                                    @endif 
                             </div>
                             <div class="ResellerBox" style="display: none;">
                                 <label class="col-sm-2 control-label">Partner</label>

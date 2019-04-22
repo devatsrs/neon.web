@@ -29,7 +29,7 @@
     <div class="row">
         <div class="col-md-12">
             <ul class="nav nav-tabs bordered" >
-                @if($rategenerator->SelectType == 1)
+                @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))
                     <li class="active"><a data-toggle="tab" href="#tab-code_description">Call Codes</a></li>
                     <li><a data-toggle="tab" href="#tab-source">Sources</a></li>
                 @else
@@ -38,18 +38,18 @@
                 <li><a data-toggle="tab" href="#tab-margin">Margin</a></li>
             </ul>
             <div class="tab-content">
-                @if($rategenerator->SelectType == 1)
+                @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))
                     <div class="tab-pane active" id="tab-code_description">
                         @include('rategenerators.rules.edit_code', array('id', 'RateRuleID', 'rategenerator_rules'))
                     </div>
                     <div class="tab-pane" id="tab-source">
                         @include('rategenerators.rules.edit_source', array('id', 'RateRuleID', 'rategenerator_sources', 'vendors', 'rategenerator'))
                     </div>
-                @elseif($rategenerator->SelectType == 2)
+                @elseif($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                     <div class="tab-pane active" id="tab-details">
                         @include('rategenerators.rules.edit_details', array('id', 'RateRuleID', 'rategenerator_rules'))
                     </div>
-                @elseif($rategenerator->SelectType == 3)
+                @elseif($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                     <div class="tab-pane active" id="tab-details">
                         @include('rategenerators.rules.edit_details_package', array('id', 'RateRuleID', 'rategenerator_rules'))
                     </div>
@@ -66,7 +66,7 @@
 
             $(".saveall.btn").click(function(e){
 
-                @if($rategenerator->SelectType == 1)
+                @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))
                     var DestinationCode         = $("#rategenerator-code-from input[name='Code']").val();
                     var DestinationDescription  = $("#rategenerator-code-from input[name='Description']").val();
                     var OriginationCode         = $("#rategenerator-code-from input[name='OriginationCode']").val();
@@ -85,7 +85,7 @@
                     return false;
                 }
 
-                @elseif($rategenerator->SelectType == 2)
+                @elseif($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
 
                     var Origination = $("#rategenerator-code-from input[name='Origination']").val();
                     var Component = $("#rategenerator-code-from select[name='Component']").val();
@@ -96,7 +96,7 @@
                         toastr.error("Please Select Origination, Component, Time of Day", "Error", toastr_opts);
                         return false;
                     }
-                @elseif($rategenerator->SelectType == 3)
+                @elseif($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                     var Component = $("#rategenerator-code-from select[name='Component']").val();
                     var TimeOfDay = $("#rategenerator-code-from select[name='TimeOfDay']").val();
 
@@ -121,7 +121,7 @@
                         return false;
                     }
 
-                    @if($rategenerator->SelectType == 1)
+                    @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))
                     //source
                     var _url = $('#rategenerator-source-from').attr("action");
                     var formData = $('#rategenerator-source-from').serialize();
