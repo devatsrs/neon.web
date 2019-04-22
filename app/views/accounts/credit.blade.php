@@ -143,10 +143,10 @@
             @foreach($AccountBalanceThreshold as $key=>$AccountBalanceThresholdRow)
                         <tr id="selectedRow-{{$key}}" class="fieldwrapper">
                             <td id="testValues">
-                                <input type="text" class="form-control"  name="BalanceThresholdnew-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
+                                <input type="text" class="form-control BalanceThresholdcls"  name="BalanceThresholdnew-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
                             </td>
                             <td>
-                                <input type="text" class="form-control"  name="email-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThresholdEmail}}" id="email">
+                                <input type="text" class="form-control emailcls"  name="email-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThresholdEmail}}" id="email">
                             </td>
                             
                             <td>
@@ -237,7 +237,7 @@
         var rowCountMain = $("#servicetableSubBox > tbody").children().length;
         console.log(rowCountMain);
         if(rowCountMain==0){
-            htmldata='<tr id="selectedRow-0" class="fieldwrapper"  ><td id="testValues"><input type="text" class="form-control"  name="BalanceThresholdnew-0" value="" id="Threshold Limit"></td><td> <input type="text" class="form-control"  name="email-0" value="" id="email"></td><td><a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm " data-loading-text="Loading..."><i></i> - </a></td></tr>';
+            htmldata='<tr id="selectedRow-0" class="fieldwrapper"  ><td id="testValues"><input type="text" class="form-control BalanceThresholdcls"  name="BalanceThresholdnew-0" value="" id="Threshold Limit"></td><td> <input type="text" class="form-control emailcls"  name="email-0" value="" id="email"></td><td><a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm " data-loading-text="Loading..."><i></i> - </a></td></tr>';
             $('#tbody').html(htmldata);
         }else{
             var $item = $('#servicetableSubBox tr:last').attr('id');
@@ -349,9 +349,28 @@
     jQuery(document).ready(function($) {
         var acountiptable;
         $('#save_account').click(function(){
+            if(checkDuplicates('BalanceThresholdcls')){
+                alert('Has duplication value in Balance Threshold.');
+                return false;
+            } 
+            if(checkDuplicates('emailcls')){
+                alert('Has duplication value in Email.');
+                return false;
+            } 
+            if(validateEmails()){
+                alert('Email is not valid.');
+                return false;
+            }
+            if(validateNumber()){
+                alert('Number is not valid.');
+                return false;
+            }
+            
             $("#save_account").button('loading');
             var post_data = $('#vendor_detail').serialize()+'&'+$('#customer_detail').serialize()+'&AccountID='+'{{$account->AccountID}}';
             var post_url = '{{URL::to('account/update_credit')}}';
+            
+ 
             submit_ajaxbtn(post_url,post_data,'',$(this),1);
         });
         data_table = $("#table-4").dataTable({
@@ -404,8 +423,90 @@
             }
 
         });
-    });
+        //----------------------------------------------------------------------
+        
+        
 
+    });
+    
+    
+    function validateEmail(value) {
+        var regex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+        return (regex.test(value)) ? true : false;
+    }
+    function validateEmails() {
+        var ErrorEmail = false;
+        var $elems = $('.emailcls');
+        var cntindex=0;
+        $elems.each(function () {
+            string=this.value;
+            if(string.indexOf(',') !== -1){
+                var result = string.replace(/\s/g, "").split(/,|;/);
+                for(var i = 0;i < result.length;i++) {
+                    if(!validateEmail(result[i])) {
+                        $("input[name='email-"+cntindex+"']").focus(); 
+                        ErrorEmail= true;
+                    }
+                }
+            }else{
+                if(!validateEmail(string)) {
+                    $("input[name='email-"+cntindex+"']").focus(); 
+                    ErrorEmail=  true;
+                }
+            }
+            cntindex++;
+        }); 
+        return ErrorEmail;
+    }
+    function validateNumber() {
+        var ErrorNumber = false;
+        var $elems = $('.BalanceThresholdcls');
+        var cntindex=0;
+        $elems.each(function () {
+            string=this.value;
+            var value = string;
+            var regex = new RegExp(/^\+?[0-9()%pP]+$/);
+            if(value.match(regex)) {
+                console.log('YS-'+value);
+            }else{
+                console.log(cntindex+'Wrong-'+value);
+                $("input[name='BalanceThresholdnew-"+cntindex+"']").focus(); 
+                ErrorNumber=true;
+                
+            }
+            cntindex++;
+        });
+        return ErrorNumber;
+    }
+    function checkDuplicates(clsName) {
+        // get all input elements
+        var $elems = $('.'+clsName);
+
+        // we store the inputs value inside this array
+        var values = [];
+        // return this
+        var isDuplicated = false;
+        // loop through elements
+         var cntindex=0;
+        $elems.each(function () {
+          //If value is empty then move to the next iteration.
+          if(!this.value) return true;
+          //If the stored array has this value, break from the each method
+          if(values.indexOf(this.value) !== -1) {
+                if(clsName=='BalanceThresholdcls'){
+                    $("input[name='BalanceThresholdnew-"+cntindex+"']").focus(); 
+                }else{
+                    $("input[name='email-"+cntindex+"']").focus(); 
+                }
+                isDuplicated = true;
+                return false;
+           }
+          // store the value
+          values.push(this.value);
+          cntindex++;
+        });   
+        return isDuplicated;     
+    }
 </script>
 @include('accounts.unbilledreportmodal')
 @stop
