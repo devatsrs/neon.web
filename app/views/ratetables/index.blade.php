@@ -475,18 +475,22 @@ jQuery(document).ready(function($) {
                         <div class="col-md-6">
                             <div class="form-group ">
                                 <label class="control-label">Applied To</label><br/>
-                                <label class="radio-inline">
-                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, true,array("class"=>""))}}
-                                    Customer
-                                </label>
+                                @if(is_reseller())
+                                    <label class="radio-inline">
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, true,array("class"=>""))}}
+                                        Customer
+                                    </label>
+                                @else
+                                    <label class="radio-inline">
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, true,array("class"=>""))}}
+                                        Partner
+                                    </label>
+                                @endif 
                                 <label class="radio-inline">
                                     {{Form::radio('AppliedTo', RateTable::APPLIED_TO_VENDOR, false,array("class"=>""))}}
                                     Vendor
                                 </label>
-                                <label class="radio-inline">
-                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, false,array("class"=>""))}}
-                                    Partner
-                                </label>
+                                
                             </div>
                         </div>
                         <div class="col-md-6" id="ResellerBox">

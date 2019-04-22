@@ -179,7 +179,7 @@ class RateGeneratorRuleController extends \BaseController {
             }
             $rateGenerator = RateGenerator::findOrFail($id);
 
-            if($rateGenerator->SelectType == 2 || $rateGenerator->SelectType == 3) {
+            if($rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
                 $rules = array(
                     'Component'  => 'required',
                     'TimeOfDay'  => 'required',
@@ -192,7 +192,7 @@ class RateGeneratorRuleController extends \BaseController {
                 return json_validator_response($validator);
             }
 
-            if($rateGenerator->SelectType != 2) {
+            if($rateGenerator->SelectType != RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
                 if (isset($data['Code']) && !empty($data['Code'])) {
                     $rateRuleDesination = RateRule::select('Code')->where(["RateGeneratorId" => $data['RateGeneratorId'], "Code" => $data['Code'],'DestinationType' => $data['DestinationType']])->first();
                     if ($rateRuleDesination) {
@@ -235,7 +235,7 @@ class RateGeneratorRuleController extends \BaseController {
 
                 // If type is not DID
                 // Selecting all vendors as sources by default
-                if($rateGenerator->SelectType != 2){
+                if($rateGenerator->SelectType != RateType::getRateTypeIDBySlug(RateType::SLUG_DID)){
                     $companyID = User::get_companyID();
                     $vendors = Account::select(["AccountID"])->where(["Status" => 1, "IsVendor" => 1, "AccountType" => 1, "CompanyID" => $companyID])->get();
                     if($vendors != false){
@@ -287,7 +287,7 @@ class RateGeneratorRuleController extends \BaseController {
                 unset($data['Origination']);
             }
 
-            if($rateGenerator->SelectType == 2 || $rateGenerator->SelectType == 3) {
+            if($rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
                 $rules = array(
                     'Component'   => 'required',
                     'TimeOfDay'   => 'required',

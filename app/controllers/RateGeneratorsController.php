@@ -118,8 +118,9 @@ class RateGeneratorsController extends \BaseController {
         $getNumberString = @$data['getIDs'];
         $getRateNumberString = @$data['getRateIDs'];
         $SelectType = $data['SelectType'];
+       
 
-        if($SelectType == 1) {
+        if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
             $rules = array(
                 'CompanyID' => 'required',
                 'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,' . $data['CompanyID'],
@@ -130,7 +131,7 @@ class RateGeneratorsController extends \BaseController {
                 'ChargeRate' => 'numeric',
                 'percentageRate' => 'numeric',
             );
-            if($SelectType == 1){
+            if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)){
                 $rules['codedeckid']='required';
             }
             
@@ -148,16 +149,16 @@ class RateGeneratorsController extends \BaseController {
                 'percentageRate'    => 'numeric',
             );
         }
-        if($SelectType == 3){
+        if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)){
             $rules['RatePosition']='required|numeric';
         }
 
-        if($SelectType == 1) {
+        if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
             $rules['TrunkID']='required';
             $rules['RatePosition']='required|numeric';
             $rules['UseAverage']='required';
         }
-        if($SelectType == 2){
+        if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)){
             $rules['RatePosition']='required|numeric';
             $rules['Category']='required';
         }
@@ -196,7 +197,7 @@ class RateGeneratorsController extends \BaseController {
 
             DB::beginTransaction();
 
-            if ($SelectType == 2 ||$SelectType == 3) {
+            if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) ||$SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
 
                 $numberArray = array_unique(explode(",", $getNumberString));
                 $GetComponent = array();
@@ -406,7 +407,7 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['Package1-1']);
                 unset($data['Package-1']);
             }
-            if ($SelectType == 2 || $SelectType == 1) {
+            if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
                  unset($data['PackageID']);
             }
 
@@ -420,8 +421,8 @@ class RateGeneratorsController extends \BaseController {
             $rateg = RateGenerator::create($data);
             if (isset($rateg->RateGeneratorId) && !empty($rateg->RateGeneratorId)) {
                 $CostComponentSaved = "Created";
-
-                if ($SelectType == 2 ||$SelectType == 3) {
+    
+                if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) ||$SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
 
                     $numberArray = explode(",", $getNumberString);
                     $GetComponent = array();
@@ -642,8 +643,7 @@ class RateGeneratorsController extends \BaseController {
             $SelectType = $Type->SelectType;
         }
 
-
-        if($SelectType == 1) {
+        if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
             $rules = array(
                 'CompanyID' => 'required',
                 'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
@@ -655,7 +655,7 @@ class RateGeneratorsController extends \BaseController {
                 'percentageRate' => 'numeric',
             );
 
-            if($SelectType == 1){
+            if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)){
                 $rules['codedeckid']='required';
             }
 
@@ -674,19 +674,19 @@ class RateGeneratorsController extends \BaseController {
             );
         }
 
-        if($SelectType == 1) {
+        if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
             $rules['TrunkID']='required';
             $rules['RatePosition']='required|numeric';
             $rules['UseAverage']='required';
         }
-        if($SelectType == 2){
+        if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)){
             $rules['RatePosition']='required|numeric';
             $rules['Category']='required';
         }
-        if($SelectType == 3){
+        if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)){
             $rules['RatePosition']='required|numeric';
         }
-        if ($SelectType == 2 || $SelectType == 1) {
+        if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
                 unset($data['PackageID']);
         }
 
@@ -727,7 +727,7 @@ class RateGeneratorsController extends \BaseController {
 
             DB::beginTransaction();
 
-            if ($SelectType == 2 ||$SelectType == 3) {
+            if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) ||$SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
 
                 $numberArray = array_unique(explode(",", $getNumberString));
                 $GetComponent = array();
@@ -948,7 +948,7 @@ class RateGeneratorsController extends \BaseController {
                 RateGeneratorComponent::where("RateGeneratorId", $id)->delete();
                 RateGeneratorCalculatedRate::where("RateGeneratorId", $id)->delete();
 
-                if ($SelectType == 2 ||$SelectType == 3) {
+                if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) ||$SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
 
                     $numberArray = explode(",", $getNumberString);
                     $GetComponent = array();
