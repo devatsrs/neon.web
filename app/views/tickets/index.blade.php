@@ -39,6 +39,18 @@
                     @endif
                 </div>
                 <div class="form-group">
+                    @if(User::is_admin())
+                        <label for="field-1" class="control-label small_label">Requester</label>
+                        {{Form::select('requester[]', $Requester, (Input::get('requester')?0:'') ,array("class"=>"select2 requestersearch ","multiple"=>"multiple"))}}
+                    @else
+                        @if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
+                            <input type="hidden" name="requester" value="{{user::get_userID()}}" >
+                        @else
+                            <input type="hidden" name="requester" value="" >
+                        @endif
+                    @endif
+                </div>
+                <div class="form-group">
                     <label for="field-1" class="control-label small_label">Due by</label>
                     {{Form::select('overdue[]', TicketsTable::$DueFilter, $overdueVal ,array("class"=>"select2","multiple"=>"multiple"))}}
                 </div>
@@ -49,6 +61,10 @@
                 <div class="form-group">
                     <label for="field-1" class="control-label"> Date End</label>
                     {{ Form::text('EndDate', !empty(Input::get('EndDate'))?Input::get('EndDate'):'', array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label small_label">Last Reply</label>
+                    {{Form::select('LastReply', TicketsTable::$LastReply ,'',array("class"=>"select2"))}}
                 </div>
                 <div class="form-group">
                     <br/>
@@ -206,6 +222,8 @@ $(document).ready(function(e) {
 		$search.DueBy 		= 	$("#tickets_filter").find('[name="overdue[]"]').val();
         $search.StartDate 	= 	$("#tickets_filter").find('[name="StartDate"]').val();
         $search.EndDate 	= 	$("#tickets_filter").find('[name="EndDate"]').val();
+        $search.requester 	= 	$("#tickets_filter").find('[name="requester[]"]').val();
+        $search.LastReply 	= 	$("#tickets_filter").find('[name="LastReply"]').val();
 
 		 $.ajax({
 					url: ajax_url,

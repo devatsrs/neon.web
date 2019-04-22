@@ -62,8 +62,10 @@ class TicketsController extends \BaseController {
 		{
 			$overdueVal = TicketsTable::$DueFilter['Today'];
 		}
-		//echo $overdueVal;exit;
-        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus",'OpenTicketStatus','overdueVal'));  
+		 $Requester=TicketsTable::getTicketsRequester();
+		 //echo "<pre>";print_r($Requester);die;
+		 //echo $overdueVal;exit;
+        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus",'OpenTicketStatus','overdueVal','Requester'));
 
 	}	
 	  
@@ -91,7 +93,9 @@ class TicketsController extends \BaseController {
 		$data['priority']	 		= 	 isset($data['formData']['priority'])?$data['formData']['priority']:'';
 		$data['group'] 				= 	 isset($data['formData']['group'])?$data['formData']['group']:'';		
 		$data['agent']				= 	 isset($data['formData']['agent'])?$data['formData']['agent']:'';
-		$data['DueBy']				= 	 isset($data['formData']['DueBy'])?$data['formData']['DueBy']:'';		
+		$data['requester']			= 	 isset($data['formData']['requester'])?$data['formData']['requester']:'';
+		$data['LastReply']			= 	 isset($data['formData']['LastReply'])?$data['formData']['LastReply']:'';
+		$data['DueBy']				= 	 isset($data['formData']['DueBy'])?$data['formData']['DueBy']:'';
 		$data['iSortCol_0']			= 	 $data['sort_fld'];
 		$data['sSortDir_0']			= 	 $data['sort_type'];
 		$data['iDisplayLength'] 	= 	 $data['per_page'];
@@ -112,7 +116,7 @@ class TicketsController extends \BaseController {
 			return json_response_api($array);  
 		}
 		
-		$resultpage  				=  	 $array->resultpage;			
+		$resultpage  				=  	 $array->resultpage;
 		$result 					= 	 $array->ResultCurrentPage;
 		$totalResults 				=    $array->totalcount; 
 		$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
@@ -220,11 +224,15 @@ class TicketsController extends \BaseController {
 		
 		 if(User::is_admin())	{		
 		   	$data['agent']					=	isset($data['agent'])?is_array($data['agent'])?implode(",",$data['agent']):'':'';
+		   	$data['requester']					=	isset($data['requester'])?is_array($data['requester'])?implode(",",$data['requester']):'':'';
+
 		 }else{
 			 if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)	{
 			 	$data['agent']				=	user::get_userID();
+			 	$data['requester']				=	user::get_userID();
 			 }else{
 				 $data['agent']					=	'';
+				 $data['requester']					=	'';
 			 }
 		 }
 		
@@ -272,7 +280,8 @@ class TicketsController extends \BaseController {
             ->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()          
             ->select('tblUser.UserID', 'tblUser.FirstName', 'tblUser.LastName')
             ->get();
-			$AllEmailsccbcc  =   json_encode(Messages::GetAllSystemEmails());				
+			$AllEmailsccbcc  =   json_encode(Messages::GetAllSystemEmails());
+
 			return View::make('tickets.create', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','default_status',"AllEmailsccbcc"));  
 	  }	
 	  
