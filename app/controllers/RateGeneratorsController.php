@@ -164,7 +164,7 @@ class RateGeneratorsController extends \BaseController {
             $rules['Category']='required';
         }
 
-        if(!is_reseller()){
+        if(isset($data['AppliedTo']) && $data['AppliedTo'] == 3){
             $rules['Reseller'] = 'required';
         }
 
@@ -697,10 +697,10 @@ class RateGeneratorsController extends \BaseController {
         if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
                 unset($data['PackageID']);
         }
-
-        if(!is_reseller()){
+        if(isset($data['AppliedTo']) && $data['AppliedTo'] == 3){
             $rules['Reseller'] = 'required';
         }
+
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone',
             'ProductID.required' => 'Please select product.',
