@@ -388,7 +388,7 @@ jQuery(document).ready(function($) {
             $('#ResellerBox').show();
         } else {
             $('#ResellerBox').hide();
-            $('#add-new-form select[name="Reseller"]').select2("val","0");
+            $('#add-new-form select[name="Reseller"]').select2("val","");
         }
     });
 });
@@ -495,7 +495,7 @@ jQuery(document).ready(function($) {
                         <div class="col-md-6" id="ResellerBox">
                             <div class="form-group ">
                                 <label class="control-label">Partner</label><br/>
-                                {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
+                                {{Form::select('Reseller', $ResellerDD, '' ,array("class"=>"form-control select2"))}}
                             </div>
                         </div>
                     </div>

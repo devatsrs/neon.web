@@ -184,9 +184,10 @@ class RateTablesController extends \BaseController {
             'CurrencyID'=>'required',
             'Type'=>'required',
             'AppliedTo'=>'required',
-            'Reseller' => 'required'
-
         );
+        if(isset($data['Reseller'])){
+            $rules['Reseller'] = 'required';
+        }
         $message = ['CurrencyID.required'=>'Currency field is required',
                     //'TrunkID.required'=>'Trunk field is required',
                     'CodedeckId.required'=>'Codedeck field is required',

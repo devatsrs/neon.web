@@ -118,8 +118,7 @@ class RateGeneratorsController extends \BaseController {
         $getNumberString = @$data['getIDs'];
         $getRateNumberString = @$data['getRateIDs'];
         $SelectType = $data['SelectType'];
-       
-
+        
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
             $rules = array(
                 'CompanyID' => 'required',
@@ -130,11 +129,11 @@ class RateGeneratorsController extends \BaseController {
                 'LessThenRate' => 'numeric',
                 'ChargeRate' => 'numeric',
                 'percentageRate' => 'numeric',
-                'Reseller' => 'required'
+               
             );
             if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)){
                 $rules['codedeckid']='required';
-                $rules['Reseller']='required';
+              
             }
             
         } else {
@@ -149,7 +148,6 @@ class RateGeneratorsController extends \BaseController {
                 'TimezonesPercentage'   => 'numeric',
                 'OriginationPercentage' => 'numeric',
                 'percentageRate'    => 'numeric',
-                'Reseller' => 'required'
             );
         }
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)){
@@ -164,6 +162,10 @@ class RateGeneratorsController extends \BaseController {
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)){
             $rules['RatePosition']='required|numeric';
             $rules['Category']='required';
+        }
+
+        if(isset($data['Reseller'])){
+            $rules['Reseller'] = 'required';
         }
 
         $message = array(
@@ -647,6 +649,8 @@ class RateGeneratorsController extends \BaseController {
             $SelectType = $Type->SelectType;
         }
 
+        
+
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
             $rules = array(
                 'CompanyID' => 'required',
@@ -657,12 +661,10 @@ class RateGeneratorsController extends \BaseController {
                 'LessThenRate' => 'numeric',
                 'ChargeRate' => 'numeric',
                 'percentageRate' => 'numeric',
-                'Reseller' => 'required'
             );
 
             if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)){
                 $rules['codedeckid']='required';
-                $rules['Reseller']='required';
             }
 
         } else {
@@ -677,7 +679,6 @@ class RateGeneratorsController extends \BaseController {
                 'TimezonesPercentage'   => 'numeric',
                 'OriginationPercentage' => 'numeric',
                 'percentageRate'    => 'numeric',
-                'Reseller' => 'required'
             );
         }
 
@@ -697,6 +698,9 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['PackageID']);
         }
 
+        if(isset($data['Reseller'])){
+            $rules['Reseller'] = 'required';
+        }
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone',
             'ProductID.required' => 'Please select product.',
