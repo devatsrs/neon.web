@@ -473,14 +473,25 @@
         var cntindex=0;
         $elems.each(function () {
             
-            string=this.value;
+            string=this.value.toLowerCase();
             var value = string;
             var regex = new RegExp(/^\+?[0-9]+$/);
             var suffix = value.match(/\d+/); // 123456
             suffixP =suffix+'p';suffixP1 =suffix+'P';
             suffixPer =suffix+'%';
+            havefloat=0;
+            floatval = value.replace("p", "");
+            floatval = floatval.replace("%", "");
+            floatvalp='';
+            floatvalper='';
+            console.log(floatval);
+            if((!isNaN(floatval) && floatval.toString().indexOf('.') != -1)){
+                havefloat=1;
+                floatvalp=floatval+'p';
+                floatvalper=floatval+'%';
+            }
             
-            if(value.match(regex) || suffixP==value || suffixP1==value || suffixPer==value) {
+            if((value.match(regex) || suffixP==value || suffixP1==value || suffixPer==value) || (havefloat==1 || floatvalp==value || floatvalper==value)) {
                 console.log('YS-'+value);
             }else{
                 console.log(cntindex+'Wrong-'+value);
