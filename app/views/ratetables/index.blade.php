@@ -485,12 +485,11 @@ jQuery(document).ready(function($) {
                                         {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, true,array("class"=>""))}}
                                         Partner
                                     </label>
-                                @endif 
-                                <label class="radio-inline">
-                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_VENDOR, false,array("class"=>""))}}
-                                    Vendor
-                                </label>
-                                
+                                    <label class="radio-inline">
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_VENDOR, false,array("class"=>""))}}
+                                        Vendor
+                                    </label>
+                                @endif     
                             </div>
                         </div>
                         <div class="col-md-6" id="ResellerBox">

@@ -130,9 +130,11 @@ class RateGeneratorsController extends \BaseController {
                 'LessThenRate' => 'numeric',
                 'ChargeRate' => 'numeric',
                 'percentageRate' => 'numeric',
+                'Reseller' => 'required'
             );
             if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)){
                 $rules['codedeckid']='required';
+                $rules['Reseller']='required';
             }
             
         } else {
@@ -147,6 +149,7 @@ class RateGeneratorsController extends \BaseController {
                 'TimezonesPercentage'   => 'numeric',
                 'OriginationPercentage' => 'numeric',
                 'percentageRate'    => 'numeric',
+                'Reseller' => 'required'
             );
         }
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)){
@@ -166,7 +169,8 @@ class RateGeneratorsController extends \BaseController {
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone',
             'ProductID.required' => 'Please select product.',
-            'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.'
+            'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.',
+            'Reseller.required' => 'The partner field is required'
         );
 
         if(!empty($data['IsMerge'])) {
@@ -653,10 +657,12 @@ class RateGeneratorsController extends \BaseController {
                 'LessThenRate' => 'numeric',
                 'ChargeRate' => 'numeric',
                 'percentageRate' => 'numeric',
+                'Reseller' => 'required'
             );
 
             if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)){
                 $rules['codedeckid']='required';
+                $rules['Reseller']='required';
             }
 
         } else {
@@ -671,6 +677,7 @@ class RateGeneratorsController extends \BaseController {
                 'TimezonesPercentage'   => 'numeric',
                 'OriginationPercentage' => 'numeric',
                 'percentageRate'    => 'numeric',
+                'Reseller' => 'required'
             );
         }
 
@@ -693,7 +700,8 @@ class RateGeneratorsController extends \BaseController {
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone',
             'ProductID.required' => 'Please select product.',
-            'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.'
+            'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.',
+            'Reseller.required' => 'The partner field is required'
         );
 
         if(!empty($data['IsMerge'])) {
