@@ -185,7 +185,7 @@ class RateTablesController extends \BaseController {
             'Type'=>'required',
             'AppliedTo'=>'required',
         );
-        if(isset($data['AppliedTo']) && $data['AppliedTo'] == 3){
+        if(isset($data['AppliedTo']) && $data['AppliedTo'] == RateTable::APPLIED_TO_RESELLER){
             $rules['Reseller'] = 'required';
         }
         $message = ['CurrencyID.required'=>'Currency field is required',

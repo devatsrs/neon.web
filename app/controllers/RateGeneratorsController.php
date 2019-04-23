@@ -164,7 +164,7 @@ class RateGeneratorsController extends \BaseController {
             $rules['Category']='required';
         }
 
-        if(isset($data['AppliedTo']) && $data['AppliedTo'] == 3){
+        if(isset($data['AppliedTo']) && $data['AppliedTo'] == RateTable::APPLIED_TO_RESELLER){
             $rules['Reseller'] = 'required';
         }
 
@@ -697,7 +697,7 @@ class RateGeneratorsController extends \BaseController {
         if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
                 unset($data['PackageID']);
         }
-        if(isset($data['AppliedTo']) && $data['AppliedTo'] == 3){
+        if(isset($data['AppliedTo']) && $data['AppliedTo'] == RateTable::APPLIED_TO_RESELLER){
             $rules['Reseller'] = 'required';
         }
 
