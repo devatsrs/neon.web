@@ -164,7 +164,7 @@ class RateGeneratorsController extends \BaseController {
             $rules['Category']='required';
         }
 
-        if(isset($data['Reseller'])){
+        if(!is_reseller()){
             $rules['Reseller'] = 'required';
         }
 
@@ -698,7 +698,7 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['PackageID']);
         }
 
-        if(isset($data['Reseller'])){
+        if(!is_reseller()){
             $rules['Reseller'] = 'required';
         }
         $message = array(
