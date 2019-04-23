@@ -452,6 +452,31 @@ DELIMITER ;
 
 USE Ratemanagement3;
 
+/* Lock wait timeout - 1wordtec and other env */
+
+DROP PROCEDURE IF EXISTS `prc_UpdateMysqlPID`;
+DELIMITER //
+CREATE PROCEDURE `prc_UpdateMysqlPID`(
+	IN `p_processId` VARCHAR(200)
+)
+BEGIN
+	DECLARE MysqlPID VARCHAR(200);
+--	  SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+		
+		SELECT CONNECTION_ID() into MysqlPID;
+		
+		UPDATE tblCronJob
+			SET MysqlPID=MysqlPID
+		WHERE ProcessID=p_processId;
+		
+		COMMIT;
+
+--	  SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+/* END- Lock wait timeout - 1wordtec and other env */
 
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'SIDEBAR_ACTIVECALL_MENU', '1');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VENDOR_ACTIVECALL_BTN_LOADACTIVECALL', '1');
@@ -1077,16 +1102,16 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 
 /* Above Done ON LIVE */
 
-INSERT INTO `tblresourcecategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1382, 'VOSAccountIP.View', 1, 7);
-INSERT INTO `tblresourcecategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1381, 'VOSAccountBalance.View', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1382, 'VOSAccountIP.View', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1381, 'VOSAccountBalance.View', 1, 7);
 
 
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2726, 'VOSAccountIP.ajax_datagrid', 'VOSAccountIPController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2725, 'VOSAccountIP.*', 'VOSAccountIPController.*', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2724, 'VOSAccountIP.index', 'VOSAccountIPController.index', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2723, 'VOSAccountBalance.ajax_datagrid', 'VOSAccountBalanceController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2722, 'VOSAccountBalance.*', 'VOSAccountBalanceController.*', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
-INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2721, 'VOSAccountBalance.index', 'VOSAccountBalanceController.index', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2726, 'VOSAccountIP.ajax_datagrid', 'VOSAccountIPController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2725, 'VOSAccountIP.*', 'VOSAccountIPController.*', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2724, 'VOSAccountIP.index', 'VOSAccountIPController.index', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2723, 'VOSAccountBalance.ajax_datagrid', 'VOSAccountBalanceController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2722, 'VOSAccountBalance.*', 'VOSAccountBalanceController.*', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2721, 'VOSAccountBalance.index', 'VOSAccountBalanceController.index', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1381);
 
 
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 14, 'Import VOS Customer Rate', 'getvoscustomerrate', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2019-02-18 13:45:49', 'RateManagementSystem');
@@ -1113,23 +1138,24 @@ CREATE TABLE IF NOT EXISTS `tblVOSCustomerFeeRateGroup` (
   `IvrPeriod` int(11) DEFAULT NULL,
   `FeeRateGroup` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`VOSCustomerFeeRateGroupID`)
-) ENGINE=InnoDB AUTO_INCREMENT=67182 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
-DROP TABLE IF EXISTS `tblVOSVendorFreeRateGroup`;
-CREATE TABLE IF NOT EXISTS `tblVOSVendorFreeRateGroup` (
-  `VOSVendorFreeRateGroupID` int(11) NOT NULL AUTO_INCREMENT,
+
+DROP TABLE IF EXISTS `tblVOSVendorFeeRateGroup`;
+CREATE TABLE IF NOT EXISTS `tblVOSVendorFeeRateGroup` (
+  `VOSVendorFeeRateGroupID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) DEFAULT NULL,
   `FeePrefix` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `AreaCode` varchar(255) DEFAULT NULL,
+  `AreaCode` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `AreaName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Fee` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Period` int(11) DEFAULT NULL,
   `Type` int(11) DEFAULT NULL,
   `IvrFee` int(11) DEFAULT NULL,
   `IvrPeriod` int(11) DEFAULT NULL,
-  `FeeRateGroup` VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY (`VOSVendorFreeRateGroupID`)
+  `FeeRateGroup` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`VOSVendorFeeRateGroupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -1140,16 +1166,18 @@ DELIMITER //
 CREATE PROCEDURE `prc_VOSImportCustomerFeeRate`(
 	IN `p_CompanyID` INT	
 
+
 )
-BEGIN
+sp:BEGIN
 	DECLARE v_AccountIds LONGTEXT;
 	DECLARE v_TrunkIds LONGTEXT; 
 	DECLARE v_TimezoneIds LONGTEXT;
 	  
-    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
     
+    SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
              
 	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	  
 	  
 	  DROP TEMPORARY TABLE IF EXISTS tmp_customer_VOSData;
 				CREATE TEMPORARY TABLE tmp_customer_VOSData (
@@ -1212,7 +1240,8 @@ BEGIN
 				--		and r.Code = cfg.AreaCode
 					WHERE ct.CompanyID=p_CompanyID
 					GROUP BY cfg.AreaCode,cfg.FeeRateGroup 
-					ORDER BY cfg.VOSCustomerFeeRateGroupID;	
+					ORDER BY cfg.VOSCustomerFeeRateGroupID
+					;	
 					
 				-- Not Found AreaCode imported	
 				INSERT INTO tblRate
@@ -1252,7 +1281,8 @@ BEGIN
 						and b.CodeDeckId=a.CodeDeckId 
 						WHERE 
 							b.RateID is NULL
-					) tbl1;
+						group by a.CodeDeckId,a.AreaCode
+					) tbl1 ;
 					
 					
 				INSERT INTO tmp_customer_feerate_group
@@ -1281,6 +1311,7 @@ BEGIN
 
 			CALL prc_LoadVOSCustomerRates(p_CompanyID);
 			
+						
 			-- SELECT * FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID JOIN tblRate c ON c.RateID=a.RateID;
 		
 					
@@ -1309,9 +1340,10 @@ BEGIN
 			CALL prc_LoadVOSCustomerRates(p_CompanyID);
 			
 			
-			SELECT GROUP_CONCAT(a.CustomerID) INTO v_AccountIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID GROUP BY a.CustomerID;
-			SELECT GROUP_CONCAT(a.TrunkID) INTO v_TrunkIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID GROUP BY a.TrunkID;
-			SELECT GROUP_CONCAT(a.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID GROUP BY a.TimezonesID;	
+			
+			SELECT GROUP_CONCAT(distinct a.CustomerID) INTO v_AccountIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.CustomerID;
+			SELECT GROUP_CONCAT(distinct a.TrunkID) INTO v_TrunkIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.TrunkID;
+			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.TimezonesID;	
 			
 					
 			UPDATE tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID set a.EndDate=NOW();
@@ -1330,6 +1362,8 @@ BEGIN
 			--  Import Rates 
 			--	select * from tmp_customer_feerate_group a INNER JOIN tblCustomerTrunk b on a.FeeRateGroup=b.Prefix;		
 			-- select * from tmp_customer_feerate_group a INNER JOIN tblCustomerTrunk b on a.FeeRateGroup=b.Prefix INNER JOIN tblRate c on c.CodeDeckId=b.CodeDeckId;
+			
+			-- select * from tmp_customer_feerate_group;
 			
 			INSERT INTO tblCustomerRate
 			(
@@ -1361,10 +1395,10 @@ BEGIN
 					NOW(),
 					'VOS-System',
 					TrunkID,
-					1,
+					1 as TimezonesID,
 					Fee,
 					Fee,
-					CURDATE(),
+					CURDATE() as EffectiveDate,
 					NULL,
 					'0.000000',
 					Period,
@@ -1374,7 +1408,9 @@ BEGIN
 					FeePrefix
 					
 				FROM 
-				tmp_customer_feerate_group;
+				tmp_customer_feerate_group
+				group by RateID,AccountID,TrunkID,TimezonesID,EffectiveDate,FeePrefix
+				;
 				
 				select FOUND_ROWS() as TotalCustomerRatesImport;
 				 
@@ -1382,6 +1418,7 @@ BEGIN
 	
 END//
 DELIMITER ;
+
 
 
 
@@ -1394,7 +1431,7 @@ CREATE PROCEDURE `prc_LoadVOSCustomerRates`(
 )
 BEGIN
 
-    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+    SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
             
 	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	  
@@ -1446,6 +1483,7 @@ DELIMITER ;
 
 
 
+
 ALTER TABLE `tblCustomerRate`
 	ADD COLUMN `RatePrefix` VARCHAR(255) NULL DEFAULT NULL AFTER `ConnectionFee`;
 
@@ -1454,19 +1492,18 @@ ALTER TABLE `tblVendorRate`
 	
 
 
-	
 DROP PROCEDURE IF EXISTS `prc_VOSImportVendorFeeRate`;
 DELIMITER //
 CREATE PROCEDURE `prc_VOSImportVendorFeeRate`(
 	IN `p_CompanyID` INT	
 
 )
-BEGIN
+sp:BEGIN
 	DECLARE v_AccountIds LONGTEXT;
 	DECLARE v_TrunkIds LONGTEXT; 
 	DECLARE v_TimezoneIds LONGTEXT;
 	  
-    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+    SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
     
              
 	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -1531,7 +1568,8 @@ BEGIN
 				--		and r.Code = cfg.AreaCode
 					WHERE ct.CompanyID=p_CompanyID
 					GROUP BY vfg.AreaCode,vfg.FeeRateGroup 
-					ORDER BY vfg.VOSVendorFeeRateGroupID;
+					ORDER BY vfg.VOSVendorFeeRateGroupID
+					;
 				
 				
 				-- Not Found AreaCode imported	
@@ -1572,6 +1610,7 @@ BEGIN
 						and b.CodeDeckId=a.CodeDeckId 
 						WHERE 
 							b.RateID is NULL
+							group by a.CodeDeckId,a.AreaCode
 					) tbl1;
 				
 				
@@ -1602,7 +1641,8 @@ BEGIN
 				
 					
 		--	SELECT * FROM tmp_vendor_feerate_group;
-
+		
+			
 			CALL prc_LoadVOSVendorRates(p_CompanyID);
 			
 			 -- SELECT * FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID JOIN tblRate c ON c.RateID=a.RateID;
@@ -1619,12 +1659,13 @@ BEGIN
 			join tmp_vendor_rates_id d ON d.VendorRateID=c.VendorRateID;
 			
 			-- Load TempTable 
+				
 			
 			CALL prc_LoadVOSVendorRates(p_CompanyID);
 			
-			
-			SELECT GROUP_CONCAT(a.AccountId) INTO v_AccountIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID GROUP BY a.AccountId;
-			SELECT GROUP_CONCAT(a.TrunkID) INTO v_TrunkIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID GROUP BY a.TrunkID;
+						
+			SELECT GROUP_CONCAT( distinct a.AccountId) INTO v_AccountIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID; -- GROUP BY a.AccountId;
+			SELECT GROUP_CONCAT(distinct a.TrunkID) INTO v_TrunkIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID; -- GROUP BY a.TrunkID;
 			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID; -- GROUP BY a.TimezonesID;	
 			
 			
@@ -1634,6 +1675,7 @@ BEGIN
 		
 		--	select v_AccountIds;
 		--	select v_TrunkIds;
+		
 			
 			IF v_AccountIds != '' AND v_TrunkIds != '' THEN
 				
@@ -1668,11 +1710,11 @@ BEGIN
 				SELECT 
 					AccountID,
 					TrunkID,
-					1,
+					1 as TimezonesID,
 					RateID,
 					Fee,
 					Fee,
-					NOW(),
+					NOW() as EffectiveDate,
 					NULL,
 					NOW(),
 					NOW(),
@@ -1685,7 +1727,9 @@ BEGIN
 					FeePrefix
 					
 				FROM 
-				tmp_vendor_feerate_group;
+				tmp_vendor_feerate_group
+				group by AccountID,TrunkID,RateID,EffectiveDate,TimezonesID,FeePrefix
+				;
 				
 				select FOUND_ROWS() as TotalVendorRatesImport;
 				 
@@ -1696,17 +1740,15 @@ DELIMITER ;
 
 
 
-
 DROP PROCEDURE IF EXISTS `prc_LoadVOSVendorRates`;
 DELIMITER //
 CREATE PROCEDURE `prc_LoadVOSVendorRates`(
 	IN `p_CompanyID` INT	
 
-
 )
 BEGIN
 
-    SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+    SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
             
 	  SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	  
@@ -1778,3 +1820,380 @@ CREATE TABLE IF NOT EXISTS `tblVOSVendorFeeRateGroup` (
 	ALTER TABLE `tblVendorRate`
 	DROP INDEX `IXUnique_AccountId_TrunkId_TimezonesID_RateId_EffectiveDate`,
 	ADD UNIQUE INDEX `IXUnique_AccountId_TrunkId_TimezonesID_RateId_EffectiveDate` (`AccountId`, `TrunkID`, `TimezonesID`, `RateId`, `EffectiveDate`, `RatePrefix`);
+
+	
+/* Tickets Changes */
+	
+use Ratemanagement3;	
+
+DELIMITER //
+CREATE PROCEDURE `prc_GetSystemTicket`(
+	IN `p_CompanyID` int,
+	IN `p_Search` VARCHAR(100),
+	IN `P_Status` VARCHAR(100),
+	IN `P_Priority` VARCHAR(100),
+	IN `P_Group` VARCHAR(100),
+	IN `P_Agent` VARCHAR(100),
+	IN `P_DueBy` VARCHAR(50),
+	IN `P_CurrentDate` DATETIME,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_is_StartDate` INT,
+	IN `p_is_EndDate` INT,
+	IN `p_Requester` VARCHAR(255),
+	IN `p_LastReply` INT
+
+)
+BEGIN
+
+	DECLARE v_OffSet_ int;
+	DECLARE v_Round_ int;
+	DECLARE v_Groups_ varchar(200);
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	IF p_isExport = 0
+	THEN
+		SELECT
+			T.TicketID,
+			T.Subject,
+
+
+  CASE
+ 	 WHEN T.AccountID>0   THEN     (SELECT CONCAT(IFNULL(TAA.AccountName,''),' (',T.Requester,')') FROM tblAccount TAA WHERE TAA.AccountID = T.AccountID  )
+  	 WHEN T.ContactID>0   THEN     (select CONCAT(IFNULL(TCCC.FirstName,''),' ',IFNULL(TCCC.LastName,''),' (',T.Requester,')') FROM tblContact TCCC WHERE TCCC.ContactID = T.ContactID)
+     WHEN T.UserID>0      THEN  	 (select CONCAT(IFNULL(TUU.FirstName,''),' ',IFNULL(TUU.LastName,''),' (',T.Requester,')') FROM tblUser TUU WHERE TUU.UserID = T.UserID )
+    ELSE CONCAT(T.RequesterName,' (',T.Requester,')')
+  END AS Requester,
+			T.Requester as RequesterEmail,
+			TFV.FieldValueAgent  as TicketStatus,
+			TP.PriorityValue,
+			concat(TU.FirstName,' ',TU.LastName) as Agent,
+			TG.GroupName,
+			T.created_at,
+
+			(select tc.created_at from AccountEmailLog tc where tc.TicketID = T.TicketID  and tc.EmailCall =1 and tc.EmailParent>0 order by tc.AccountEmailLogID desc limit 1) as CustomerResponse,
+		    (select tc.created_at from AccountEmailLog tc where tc.TicketID = T.TicketID  and tc.EmailCall =0  order by tc.AccountEmailLogID desc limit 1) as AgentResponse,
+			(select TAC.AccountID from tblAccount TAC where 	TAC.Email = T.Requester or TAC.BillingEmail =T.Requester limit 1) as ACCOUNTID,
+			T.`Read` as `Read`,
+			T.TicketSlaID,
+			T.DueDate,
+			T.updated_at,
+         T.Status,
+         T.AgentRepliedDate,
+         T.CustomerRepliedDate
+		FROM
+			tblTickets T
+		LEFT JOIN tblTicketfieldsValues TFV
+			ON TFV.ValuesID = T.Status
+		LEFT JOIN tblTicketPriority TP
+			ON TP.PriorityID = T.Priority
+		LEFT JOIN tblUser TU
+			ON TU.UserID = T.Agent
+		LEFT JOIN tblTicketGroups TG
+			ON TG.GroupID = T.`Group`
+
+		WHERE
+			T.CompanyID = p_CompanyID
+			AND (p_Search = '' OR ( p_Search != '' AND (T.Subject like Concat('%',p_Search,'%') OR  T.Description like Concat('%',p_Search,'%') OR  T.Requester like Concat('%',p_Search,'%') OR  T.RequesterName like Concat('%',p_Search,'%') ) OR (T.TicketID in  ( select ael.TicketID from AccountEmailLog ael where  ael.CompanyID = p_CompanyID AND (ael.Subject like Concat('%',p_Search,'%') OR  ael.Emailfrom like Concat('%',p_Search,'%') OR  ael.EmailfromName like Concat('%',p_Search,'%') OR  ael.Message like Concat('%',p_Search,'%') )   ) ) ) )
+			AND (P_Status = '' OR find_in_set(T.`Status`,P_Status))
+			AND (P_Priority = '' OR find_in_set(T.`Priority`,P_Priority))
+			AND (P_Group = '' OR find_in_set(T.`Group`,P_Group))
+			AND (P_Agent = '' OR find_in_set(T.`Agent`,P_Agent))
+			AND (p_Requester = '' OR find_in_set(T.`Requester`,p_Requester))
+			AND (p_is_StartDate = 0 OR ( p_is_StartDate != 0 AND DATE(T.created_at) >= p_StartDate))
+			AND (p_is_EndDate = 0 OR ( p_is_EndDate != 0 AND DATE(T.created_at) <= p_EndDate))
+			AND (
+					P_DueBy = '' OR
+					(  P_DueBy != '' AND
+						(
+							   (find_in_set('Today',P_DueBy) AND DATE(T.DueDate) = DATE(P_CurrentDate))
+							OR (find_in_set('Tomorrow',P_DueBy) AND DATE(T.DueDate) =  DATE(DATE_ADD(P_CurrentDate, INTERVAL 1 Day)))
+							OR (find_in_set('Next_8_hours',P_DueBy) AND T.DueDate BETWEEN P_CurrentDate AND DATE_ADD(P_CurrentDate, INTERVAL 8 Hour))
+							OR (find_in_set('Overdue',P_DueBy) AND P_CurrentDate >=  T.DueDate )
+						)
+					)
+				)
+				
+			AND 
+			(
+				p_LastReply = 0 OR
+				
+				CASE 
+					WHEN T.AgentRepliedDate is not null AND T.CustomerRepliedDate is not null				   
+				THEN
+				
+					CASE 
+						WHEN p_LastReply = 7 THEN
+							DATE(T.AgentRepliedDate) <=  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate > T.CustomerRepliedDate THEN 
+							DATE(T.AgentRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate < T.CustomerRepliedDate THEN 
+							DATE(T.CustomerRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+					END
+				
+			 WHEN T.AgentRepliedDate is null OR T.CustomerRepliedDate is null					   
+			  THEN	
+					CASE 
+						WHEN p_LastReply = 7 THEN
+							DATE(T.AgentRepliedDate) <=  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.CustomerRepliedDate is null AND (T.AgentRepliedDate is not null) THEN 
+							DATE(T.AgentRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate is null AND (T.CustomerRepliedDate is not null) THEN  
+							DATE(T.CustomerRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+					END	
+			
+				END 
+				
+			)	
+
+			ORDER BY
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SubjectASC') THEN T.Subject
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SubjectDESC') THEN T.Subject
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusASC') THEN TicketStatus
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusDESC') THEN TicketStatus
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AgentASC') THEN TU.FirstName
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AgentDESC') THEN TU.FirstName
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN T.created_at
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN T.created_at
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN T.updated_at
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN T.updated_at
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RequesterASC') THEN T.Requester
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RequesterDESC') THEN T.Requester
+			END DESC
+			LIMIT
+				p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(*) AS totalcount
+				FROM
+			tblTickets T
+		LEFT JOIN tblTicketfieldsValues TFV
+			ON TFV.ValuesID = T.Status
+		LEFT JOIN tblTicketPriority TP
+			ON TP.PriorityID = T.Priority
+		LEFT JOIN tblUser TU
+			ON TU.UserID = T.Agent
+		LEFT JOIN tblTicketGroups TG
+			ON TG.GroupID = T.`Group`
+		WHERE
+			T.CompanyID = p_CompanyID
+			AND (p_Search = '' OR ( p_Search != '' AND (T.Subject like Concat('%',p_Search,'%') OR  T.Description like Concat('%',p_Search,'%') OR  T.Requester like Concat('%',p_Search,'%') OR  T.RequesterName like Concat('%',p_Search,'%') ) OR (T.TicketID in  ( select ael.TicketID from AccountEmailLog ael where  ael.CompanyID = p_CompanyID AND (ael.Subject like Concat('%',p_Search,'%') OR  ael.Emailfrom like Concat('%',p_Search,'%') OR  ael.EmailfromName like Concat('%',p_Search,'%') OR  ael.Message like Concat('%',p_Search,'%') )   ) ) ) )
+			AND (P_Status = '' OR find_in_set(T.`Status`,P_Status))
+			AND (P_Priority = '' OR find_in_set(T.`Priority`,P_Priority))
+			AND (P_Group = '' OR find_in_set(T.`Group`,P_Group))
+			AND (P_Agent = '' OR find_in_set(T.`Agent`,P_Agent))
+			AND (p_Requester = '' OR find_in_set(T.`Requester`,p_Requester))
+			AND (p_is_StartDate = 0 OR ( p_is_StartDate != 0 AND DATE(T.created_at) >= p_StartDate))
+			AND (p_is_EndDate = 0 OR ( p_is_EndDate != 0 AND DATE(T.created_at) <= p_EndDate))
+			AND ((P_DueBy = ''
+			OR (find_in_set('Today',P_DueBy) AND DATE(T.DueDate) = DATE(P_CurrentDate)))
+			OR (find_in_set('Tomorrow',P_DueBy) AND DATE(T.DueDate) =  DATE(DATE_ADD(P_CurrentDate, INTERVAL 1 Day)))
+			OR (find_in_set('Next_8_hours',P_DueBy) AND T.DueDate BETWEEN P_CurrentDate AND DATE_ADD(P_CurrentDate, INTERVAL 8 Hour))
+			OR (find_in_set('Overdue',P_DueBy) AND P_CurrentDate >=  T.DueDate))
+			
+			AND 
+			(
+				p_LastReply = 0 OR
+				
+				CASE 
+					WHEN T.AgentRepliedDate is not null AND T.CustomerRepliedDate is not null				   
+				THEN
+				
+					CASE 
+						WHEN p_LastReply = 7 THEN
+							DATE(T.AgentRepliedDate) <=  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate > T.CustomerRepliedDate THEN 
+							DATE(T.AgentRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate < T.CustomerRepliedDate THEN 
+							DATE(T.CustomerRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+					END
+				
+			 WHEN T.AgentRepliedDate is null OR T.CustomerRepliedDate is null					   
+			  THEN	
+					CASE 
+						WHEN p_LastReply = 7 THEN
+							DATE(T.AgentRepliedDate) <=  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.CustomerRepliedDate is null AND (T.AgentRepliedDate is not null) THEN 
+							DATE(T.AgentRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate is null AND (T.CustomerRepliedDate is not null) THEN  
+							DATE(T.CustomerRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+					END	
+			
+				END 
+				
+			);
+
+	SELECT
+			DISTINCT(TG.GroupID),
+			TG.GroupName
+	FROM
+			tblTickets T
+		LEFT JOIN tblTicketfieldsValues TFV
+			ON TFV.ValuesID = T.Status
+		LEFT JOIN tblTicketPriority TP
+			ON TP.PriorityID = T.Priority
+		LEFT JOIN tblUser TU
+			ON TU.UserID = T.Agent
+		LEFT JOIN tblTicketGroups TG
+			ON TG.GroupID = T.`Group`
+		WHERE
+			T.CompanyID = p_CompanyID
+			AND (p_Search = '' OR ( p_Search != '' AND (T.Subject like Concat('%',p_Search,'%') OR  T.Description like Concat('%',p_Search,'%') OR  T.Requester like Concat('%',p_Search,'%') OR  T.RequesterName like Concat('%',p_Search,'%') ) OR (T.TicketID in  ( select ael.TicketID from AccountEmailLog ael where  ael.CompanyID = p_CompanyID AND (ael.Subject like Concat('%',p_Search,'%') OR  ael.Emailfrom like Concat('%',p_Search,'%') OR  ael.EmailfromName like Concat('%',p_Search,'%') OR  ael.Message like Concat('%',p_Search,'%') )   ) ) ) )
+			AND (P_Status = '' OR find_in_set(T.`Status`,P_Status))
+			AND (P_Priority = '' OR find_in_set(T.`Priority`,P_Priority))
+			AND (P_Group = '' OR find_in_set(T.`Group`,P_Group))
+			AND (P_Agent = '' OR find_in_set(T.`Agent`,P_Agent))
+			AND (p_Requester = '' OR find_in_set(T.`Requester`,p_Requester))
+			AND (p_is_StartDate = 0 OR ( p_is_StartDate != 0 AND DATE(T.created_at) >= p_StartDate))
+			AND (p_is_EndDate = 0 OR ( p_is_EndDate != 0 AND DATE(T.created_at) <= p_EndDate))
+			AND ((P_DueBy = ''
+			OR (find_in_set('Today',P_DueBy) AND DATE(T.DueDate) = DATE(P_CurrentDate)))
+			OR (find_in_set('Tomorrow',P_DueBy) AND DATE(T.DueDate) =  DATE(DATE_ADD(P_CurrentDate, INTERVAL 1 Day)))
+			OR (find_in_set('Next_8_hours',P_DueBy) AND T.DueDate BETWEEN P_CurrentDate AND DATE_ADD(P_CurrentDate, INTERVAL 8 Hour))
+			OR (find_in_set('Overdue',P_DueBy) AND P_CurrentDate >=  T.DueDate ) )
+			
+			AND 
+			(
+				p_LastReply = 0 OR
+				
+				CASE 
+					WHEN T.AgentRepliedDate is not null AND T.CustomerRepliedDate is not null				   
+				THEN
+				
+					CASE 
+						WHEN p_LastReply = 7 THEN
+							DATE(T.AgentRepliedDate) <=  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate > T.CustomerRepliedDate THEN 
+							DATE(T.AgentRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate < T.CustomerRepliedDate THEN 
+							DATE(T.CustomerRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+					END
+				
+			 WHEN T.AgentRepliedDate is null OR T.CustomerRepliedDate is null					   
+			  THEN	
+					CASE 
+						WHEN p_LastReply = 7 THEN
+							DATE(T.AgentRepliedDate) <=  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.CustomerRepliedDate is null AND (T.AgentRepliedDate is not null) THEN 
+							DATE(T.AgentRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate is null AND (T.CustomerRepliedDate is not null) THEN  
+							DATE(T.CustomerRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+					END	
+			
+				END
+			);
+
+	END IF;
+	IF p_isExport = 1
+	THEN
+	SELECT
+			T.TicketID,
+			T.Subject,
+			T.Requester,
+			T.RequesterCC as 'CC',
+			TFV.FieldValueAgent  as 'Status',
+			TP.PriorityValue as 'Priority',
+			concat(TU.FirstName,' ',TU.LastName) as Agent,
+			T.created_at as 'Date Created',
+			TG.GroupName as 'Group'
+		FROM
+			tblTickets T
+		LEFT JOIN tblTicketfieldsValues TFV
+			ON TFV.ValuesID = T.Status
+		LEFT JOIN tblTicketPriority TP
+			ON TP.PriorityID = T.Priority
+		LEFT JOIN tblUser TU
+			ON TU.UserID = T.Agent
+		LEFT JOIN tblTicketGroups TG
+			ON TG.GroupID = T.`Group`
+		LEFT JOIN tblContact TCC
+			ON TCC.Email = T.`Requester`
+
+		WHERE
+			T.CompanyID = p_CompanyID
+			AND (p_Search = '' OR ( p_Search != '' AND (T.Subject like Concat('%',p_Search,'%') OR  T.Description like Concat('%',p_Search,'%') OR  T.Requester like Concat('%',p_Search,'%') OR  T.RequesterName like Concat('%',p_Search,'%') ) OR (T.TicketID in  ( select ael.TicketID from AccountEmailLog ael where  ael.CompanyID = p_CompanyID AND (ael.Subject like Concat('%',p_Search,'%') OR  ael.Emailfrom like Concat('%',p_Search,'%') OR  ael.EmailfromName like Concat('%',p_Search,'%') OR  ael.Message like Concat('%',p_Search,'%') )   ) ) ) )
+			AND (P_Status = '' OR find_in_set(T.`Status`,P_Status))
+			AND (P_Priority = '' OR find_in_set(T.`Priority`,P_Priority))
+			AND (P_Group = '' OR find_in_set(T.`Group`,P_Group))
+			AND (P_Agent = '' OR find_in_set(T.`Agent`,P_Agent))
+			AND (p_Requester = '' OR find_in_set(T.`Requester`,p_Requester))
+			AND (p_is_StartDate = 0 OR ( p_is_StartDate != 0 AND DATE(T.created_at) >= p_StartDate))
+			AND (p_is_EndDate = 0 OR ( p_is_EndDate != 0 AND DATE(T.created_at) <= p_EndDate))
+			AND ((P_DueBy = ''
+			OR (find_in_set('Today',P_DueBy) AND DATE(T.DueDate) = DATE(P_CurrentDate)))
+			OR (find_in_set('Tomorrow',P_DueBy) AND DATE(T.DueDate) =  DATE(DATE_ADD(P_CurrentDate, INTERVAL 1 Day)))
+			OR (find_in_set('Next_8_hours',P_DueBy) AND T.DueDate BETWEEN P_CurrentDate AND DATE_ADD(P_CurrentDate, INTERVAL 8 Hour))
+			OR (find_in_set('Overdue',P_DueBy) AND P_CurrentDate >=  T.DueDate ))
+			
+			AND 
+			(
+				p_LastReply = 0 OR
+				
+				CASE 
+					WHEN T.AgentRepliedDate is not null AND T.CustomerRepliedDate is not null				   
+				THEN
+				
+					CASE 
+						WHEN p_LastReply = 7 THEN
+							DATE(T.AgentRepliedDate) <=  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate > T.CustomerRepliedDate THEN 
+							DATE(T.AgentRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate < T.CustomerRepliedDate THEN 
+							DATE(T.CustomerRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+					END
+				
+			 WHEN T.AgentRepliedDate is null OR T.CustomerRepliedDate is null					   
+			  THEN	
+					CASE 
+						WHEN p_LastReply = 7 THEN
+							DATE(T.AgentRepliedDate) <=  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.CustomerRepliedDate is null AND (T.AgentRepliedDate is not null) THEN 
+							DATE(T.AgentRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+						WHEN T.AgentRepliedDate is null AND (T.CustomerRepliedDate is not null) THEN  
+							DATE(T.CustomerRepliedDate) =  DATE_ADD(CURDATE(), INTERVAL CONCAT("-",p_LastReply) DAY)
+					END	
+			
+				END	
+			);
+	END IF;
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+
+	
