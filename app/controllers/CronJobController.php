@@ -161,7 +161,9 @@ class CronJobController extends \BaseController {
                 }
             }else if($CronJobCommand->Command == 'updatepbxvendorrate'){
                 $vendorList = Account::getOnlyVendorIDList();
-                $vendorList = array_diff($vendorList, array('Select'));
+                if(!empty($vendorList)){
+                    $vendorList = array(""=> "Select")+$vendorList;
+                }
             }else if($CronJobCommand->Command == 'rategenerator'){
                 $day_limit= 2;
                 $rateGenerators = RateGenerator::rateGeneratorList($companyID);
