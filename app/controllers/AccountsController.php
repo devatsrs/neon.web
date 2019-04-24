@@ -2523,6 +2523,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
                     'AccountServiceID' =>  $data['AccountServiceID'],
+                    'CLI'=>  $data['CLI'],
                     'Status'    =>  1
                 ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])
                     ->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
@@ -2600,6 +2601,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
                     'AccountServiceID' =>  $data['AccountServiceID'],
+                    'PackageId'=>  $data['PackageID'],
                     'Status'    =>  1
                 ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])
                     ->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
