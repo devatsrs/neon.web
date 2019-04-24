@@ -14,13 +14,13 @@
             <div class="row">
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label for="field-4" class="control-label">Min Rate*</label>
+                            <label for="field-4" class="control-label">Min Rate</label>
                             <input type="text" name="MinRate" class="form-control" id="field-5" placeholder="">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label for="field-5" class="control-label">Max Rate*</label>
+                            <label for="field-5" class="control-label">Max Rate</label>
                             <input type="text" name="MaxRate" class="form-control" id="field-5" placeholder="">
                         </div>
                     </div>
@@ -252,7 +252,14 @@
                 var AddMargin = $("#add-margin-form input[name='AddMargin']").val();
                 var FixedValue = $("#add-margin-form input[name='FixedValue']").val();
 
-                if((typeof MinRate  == 'undefined' || MinRate.trim() == '' ) && (typeof MaxRate  == 'undefined' || MaxRate.trim() == '' )){
+                if((typeof MinRate  == 'undefined' || MinRate.trim() != '' ) && (typeof MaxRate  == 'undefined' || MaxRate.trim() == '' )){
+
+                    setTimeout(function(){$('.btn').button('reset');},10);
+                    toastr.error("Please Enter a Min Rate or Max Rate", "Error", toastr_opts);
+                    return false;
+
+                }
+                if((typeof MinRate  == 'undefined' || MinRate.trim() == '' ) && (typeof MaxRate  == 'undefined' || MaxRate.trim() != '' )){
 
                     setTimeout(function(){$('.btn').button('reset');},10);
                     toastr.error("Please Enter a Min Rate or Max Rate", "Error", toastr_opts);
