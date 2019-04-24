@@ -116,6 +116,17 @@ class DiscountPlan extends \Eloquent
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
         return $DropdownIDList;
     }
+    public static function verifyDiscountPlanID($CompanyID,$CurrencyID,$RateType,$DiscountPlanID){
+
+
+
+        $DropdownIDListQry = DiscountPlan::Join('tblDestinationGroupSet as dgs','dgs.DestinationGroupSetID','=','tblDiscountPlan.DestinationGroupSetID')->
+        where(array("tblDiscountPlan.CompanyID"=>$CompanyID,
+            'dgs.RateTypeID'=>$RateType))
+            ->where('tblDiscountPlan.DiscountPlanID', '=', $DiscountPlanID);
+
+        return $DropdownIDListQry->count();
+    }
     public static function getName($DiscountPlanID){
         return DiscountPlan::where("DiscountPlanID",$DiscountPlanID)->pluck('Name');
     }
