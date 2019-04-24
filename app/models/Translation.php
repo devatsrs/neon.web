@@ -11,6 +11,8 @@ class Translation extends \Eloquent {
 	public static $enable_cache = false;
 	public static $default_lang_id = 43; // English
 	public static $default_lang_ISOcode = "en"; // English
+    public static $translation_name = "Import Language Translation";
+
 
     public static $cache = array(
     "language_dropdown1_cache",   // Country => Country
@@ -85,6 +87,7 @@ class Translation extends \Eloquent {
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
             ->where(["tblLanguage.ISOCode"=>$languageCode])
             ->first();
+
         return $data_langs;
     }
 
