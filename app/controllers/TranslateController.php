@@ -17,6 +17,7 @@ class TranslateController extends \BaseController {
     public function search_ajax_datagrid() {
 
         $data = Input::all();
+
         $all_langs = DB::table('tblLanguage')
             ->select("tblLanguage.LanguageID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
@@ -90,10 +91,12 @@ class TranslateController extends \BaseController {
     public function exports($languageCode,$type) {
 
         $data_langs = Translation::get_language_labels($languageCode);
+        //Log::info($data_langs->Language);
+        //return false;
         $translation_data = json_decode($data_langs->Translation, true);
         $json_file=array();
         foreach($translation_data as $key=>$value){
-            $json_file[]=array("System Name"=>$key, "Language"=> $value);
+            $json_file[]=array("System Name"=>$key, "Translation"=> $value,"Language" => $data_langs->Language, "ISO Code" => $data_langs->ISOCode);
         }
 
         if($type=='csv'){
@@ -201,6 +204,66 @@ class TranslateController extends \BaseController {
         ];
 
         return Response::json($arr_label);
+    }
+
+    public function download_sample_excel_file(){
+            $filePath = public_path() .'/uploads/sample_upload/TranslateImportSample.csv';
+            download_file($filePath);
+
+    }
+
+    public function upload() {
+        //   $total_records = $this->import("I:\bk\www\projects\aamir\rm\laravel\rm\public\uploads\fxHv86yN\Snq4Obmf0XlJNFz2.csv");
+        //   exit;
+        ini_set('max_execution_time', 0);
+        $data = Input::all();
+
+        if (Input::hasFile('excel')) {
+            Log::info("file got");
+            $id = User::get_companyID();
+            $company_name = Account::getCompanyNameByID($id);
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
+            $excel = Input::file('excel'); // ->move($destinationPath);
+            $ext = $excel->getClientOriginalExtension();
+
+            if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
+                $file_name = "Translat_". GUID::generate() . '.' . $ext;
+                Log::info("file name ".$file_name);
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TRANSLATION_IMPORT']) ;
+                Log::info('upload path '.$amazonPath);
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+                $excel->move($destinationPath, $file_name);
+                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $fullPath = $amazonPath . $file_name;
+                Log::info("fulll path ".$fullPath);
+                $data['full_path'] = $fullPath;
+                $data['translationname'] = Translation::$translation_name;
+
+                try {
+                    DB::beginTransaction();
+                    unset($data['excel']); //remove unnecesarry object.
+                    $result = Job::logJob("ILT", $data);
+                    Log::info("result ".json_encode($result));
+                    if ($result['status'] != "success") {
+                        DB::rollback();
+                        Log::info("failed");
+                        return Response::json(["status" => "failed", "message" => $result['message']]);
+                    }
+                    DB::commit();
+                    return Response::json(["status" => "success", "message" => "File Uploaded, Job Added in queue to process. You will be informed once Job Done. "]);
+                } catch (Exception $ex) {
+                    DB::rollback();
+                    return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+                }
+
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Allowed Extension .xls, .xlxs, .csv."));
+            }
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Please upload excel/csv file <5MB."));
+        }
     }
 
 }

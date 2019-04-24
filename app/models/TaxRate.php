@@ -194,4 +194,36 @@ class TaxRate extends \Eloquent {
         return $Result;
     }
 
+
+    public static function getAccountTaxes($data){
+
+        $Taxes = '';
+        $CompanyID = $data['CompanyID'];
+        $Country = $data['Country'];
+        $RegisterDutchFoundation = 0;
+        $DutchProvider = 0;
+        if(isset($data['RegisterDutchFoundation']) && $data['RegisterDutchFoundation']=='true'){
+            $RegisterDutchFoundation=1;
+        }
+        if(isset($data['DutchProvider']) && $data['DutchProvider']=='true'){
+            $DutchProvider=1;
+        }
+        if($Country=='NETHERLANDS'){
+            $EUCountry = 'NL';
+        }else{
+            $EUCountry = Country::where('Country',$Country)->pluck('EUCountry');
+            $EUCountry = empty($EUCountry) ? 'NEU' : 'EU';
+        }
+        $Results = TaxRate::where(['DutchProvider'=>$DutchProvider,'DutchFoundation'=>$RegisterDutchFoundation,'Country'=>$EUCountry,'CompanyId'=>$CompanyID,'Status'=>1])->get();
+        //log::info(print_r($Results,true));
+        if(!empty($Results)){
+            foreach($Results as $result){
+                $Taxes.=$result->TaxRateId.',';
+            }
+            $Taxes = rtrim($Taxes, ',');
+        }
+        //$Taxes = explode(",", $Taxes);
+
+        return $Taxes;
+    }
 }
