@@ -2256,6 +2256,8 @@ class AccountsApiController extends ApiController {
 
 			DB::beginTransaction();
 
+			Log::info("CreateAccountAPI Account" . print_r($data,true));
+
 			if ($account = Account::create($data)) {
 
 
