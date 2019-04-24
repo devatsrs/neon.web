@@ -176,14 +176,14 @@ class CompaniesController extends \BaseController {
         CompanySetting::setKeyVal('AccountVerification',$data['AccountVerification']);
         unset($data['AccountVerification']);
 
-        CompanySetting::setKeyVal('DefaultDashboard',$data['DefaultDashboard']);//Added by Abubakar
-        unset($data['DefaultDashboard']);
+        // CompanySetting::setKeyVal('DefaultDashboard',$data['DefaultDashboard']);//Added by Abubakar
+        // unset($data['DefaultDashboard']);
         CompanySetting::setKeyVal('RoundChargesAmount',$data['RoundChargesAmount']);
         unset($data['RoundChargesAmount']);
         //CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
         //unset($data['PincodeWidget']);
-        LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
-        unset($data['LastPrefixNo']);
+        // LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
+        // unset($data['LastPrefixNo']);
 		
         if(!empty($data['CurrencyId'])){
             //add default currency value in exchange rate

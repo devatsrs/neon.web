@@ -71,5 +71,14 @@ class Codes
     public static $Code1044 =["402","The value of Status must be between 0 or 1"];
     public static $Code1045 =["402","More then one inactive CLI found"];
     public static $Code1046 =["402","Country is not set against the product"];
-
+    public static $Code1047 =["402","Please provide the valid serviceID"];
+    public static $Code1048 =["402","Please provide the valid Rate Table ID"];
+    public static $Code1049 =["402","Please provide the valid Discount Plan ID"];
+    public static $Code1050 =["402","Please provide the valid Country ID"];
+    public static $Code1051 =["402","Please provide the valid Type"];
+    public static $Code1052 =["402","Please provide the valid Prefix"];
+    public static $Code1053 =["402","Please provide the valid City"];
+    public static $Code1054 =["402","Please provide the valid Tariff"];
+    public static $Code1055 =["402","Please specified the Package Subscription End Date"];
+    public static $Code1056 =["402","Valid Package exists between the dates"];
 }

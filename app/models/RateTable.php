@@ -198,7 +198,7 @@ class RateTable extends \Eloquent
             >0  = For Specific Reseller
         */
         $DropdownIDList = Reseller::where(array("Status"=>1))->lists('ResellerName', 'ResellerID');
-        $DropdownIDList = array('0' => "Select",'-1' => "All") + $DropdownIDList;
+        $DropdownIDList = array('' => "Select",'-1' => "All") + $DropdownIDList;
         return $DropdownIDList;
     }
 }

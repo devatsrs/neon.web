@@ -73,6 +73,19 @@ class ServiceTemplate extends \Eloquent
     public static function getAccessTypeDD($CompanyID){
         return ServiceTemplate::where("CompanyID",$CompanyID)->where("accessType",'!=','')->orderBy('accessType')->lists("accessType", "accessType");
     }
+    public static function verifyAccessTypeDD($CompanyID,$accessType){
+        return ServiceTemplate::where("CompanyID",$CompanyID)->where("accessType",'=',$accessType)->count();
+    }
+    public static function verifyPrefixDD($CompanyID,$prefixName){
+        return ServiceTemplate::where("CompanyID",$CompanyID)->where("prefixName",'=',$prefixName)->count();
+    }
+    public static function verifyCityDD($CompanyID,$City){
+        return ServiceTemplate::where("CompanyID",$CompanyID)->where("City",'=',$City)->count();
+    }
+    public static function verifyTariffDD($CompanyID,$Tariff){
+        return ServiceTemplate::where("CompanyID",$CompanyID)->where("Tariff",'=',$Tariff)->count();
+    }
+
     public static function getPrefixDD($CompanyID){
         return ServiceTemplate::where("CompanyID",$CompanyID)->where("prefixName",'!=','')->orderBy('prefixName')->lists("prefixName", "prefixName");
     }

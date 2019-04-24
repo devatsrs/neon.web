@@ -118,8 +118,7 @@ class RateGeneratorsController extends \BaseController {
         $getNumberString = @$data['getIDs'];
         $getRateNumberString = @$data['getRateIDs'];
         $SelectType = $data['SelectType'];
-       
-
+        
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
             $rules = array(
                 'CompanyID' => 'required',
@@ -130,9 +129,11 @@ class RateGeneratorsController extends \BaseController {
                 'LessThenRate' => 'numeric',
                 'ChargeRate' => 'numeric',
                 'percentageRate' => 'numeric',
+               
             );
             if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)){
                 $rules['codedeckid']='required';
+              
             }
             
         } else {
@@ -163,10 +164,15 @@ class RateGeneratorsController extends \BaseController {
             $rules['Category']='required';
         }
 
+        if(isset($data['AppliedTo']) && $data['AppliedTo'] == RateTable::APPLIED_TO_RESELLER){
+            $rules['Reseller'] = 'required';
+        }
+
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone',
             'ProductID.required' => 'Please select product.',
-            'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.'
+            'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.',
+            'Reseller.required' => 'The partner field is required'
         );
 
         if(!empty($data['IsMerge'])) {
@@ -643,6 +649,8 @@ class RateGeneratorsController extends \BaseController {
             $SelectType = $Type->SelectType;
         }
 
+        
+
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
             $rules = array(
                 'CompanyID' => 'required',
@@ -689,11 +697,15 @@ class RateGeneratorsController extends \BaseController {
         if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
                 unset($data['PackageID']);
         }
+        if(isset($data['AppliedTo']) && $data['AppliedTo'] == RateTable::APPLIED_TO_RESELLER){
+            $rules['Reseller'] = 'required';
+        }
 
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone',
             'ProductID.required' => 'Please select product.',
-            'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.'
+            'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.',
+            'Reseller.required' => 'The partner field is required'
         );
 
         if(!empty($data['IsMerge'])) {

@@ -231,9 +231,15 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Applied To</label>
-                    <div class="col-sm-4">
-                        {{Form::select('AppliedTo',BillingSubscription::$AppliedTo,'',array("class"=>"form-control select2 small"))}}
-                    </div>
+                    @if(is_reseller())
+                        <div class="col-sm-4">
+                            {{ Form::select('AppliedTo',BillingSubscription::$AppliedToForPartner,'0',array("class"=>"form-control select2 small")) }}
+                        </div>
+                    @else
+                        <div class="col-sm-4">
+                            {{ Form::select('AppliedTo',BillingSubscription::$AppliedToForAdmin,'1',array("class"=>"form-control select2 small")) }}
+                        </div>
+                    @endif  
                     <label for="field-1" class="col-sm-2 control-label">Advance Subscription</label>
                     <div class="col-sm-4">
                         <p class="make-switch switch-small">

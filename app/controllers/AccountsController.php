@@ -1259,7 +1259,9 @@ class AccountsController extends \BaseController {
             $data['BillingPostCode'] = $data['PostCode'];
             $data['BillingCountry']  = $data['Country'];
         }
-        $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
+        if (isset($data['TaxRateID']) && !empty($data['TaxRateID'])) {
+            $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
+        }
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -2254,6 +2256,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CompanyID' =>  $CompanyID,
             'AccountID' =>  $data['AccountID'],
             'AccountServiceID' =>  $data['AccountServiceID'],
+            'CLI'=>  $data['CLI'],
             'Status'    =>  1
         ])->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
             ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
@@ -2331,6 +2334,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CompanyID'=>$CompanyID,
             'AccountID'=>$data['AccountID'],
             'AccountServiceID' =>  $data['AccountServiceID'],
+            'PackageId'=>  $data['PackageID'],
             'Status'=>1
         ])->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
             ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
@@ -2519,6 +2523,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
                     'AccountServiceID' =>  $data['AccountServiceID'],
+                    'CLI'=>  $data['CLI'],
                     'Status'    =>  1
                 ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])
                     ->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
@@ -2596,6 +2601,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
                     'AccountServiceID' =>  $data['AccountServiceID'],
+                    'PackageId'=>  $data['PackageID'],
                     'Status'    =>  1
                 ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])
                     ->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
