@@ -2261,7 +2261,7 @@ class AccountsApiController extends ApiController {
 
 			if ($account = Account::create($data)) {
 
-
+				Log::info("CreateAccountAPI Account Created" );
 
 				if (trim($data['Number']) == '') {
 					CompanySetting::setKeyVal('LastAccountNo', $account->Number);
