@@ -2133,6 +2133,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
 			}
 			$data['LanguageID'] = Language::where('ISOCode',$data['Language'])->pluck('LanguageID');
+			unset($data['Language']);
 			if (!isset($data['LanguageID'])) {
 				return Response::json(["ErrorMessage" => Codes::$Code1014[1]],Codes::$Code1014[0]);
 			}
