@@ -29,7 +29,7 @@
     @if(intval($global_admin))
                <a href="javascript:;" id="upload-modal" class="btn btn-sm upload btn-primary ">
             <i class="entypo-upload"></i>
-            Upload
+            Import Translations
         </a>
         @endif
     
