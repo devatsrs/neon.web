@@ -2311,6 +2311,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 if(!empty($data['AccountServiceID'])) {
                     $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
                 }
+
+                $rate_tables['PrefixWithoutCountry'] = $rate_tables['Prefix'];
+                if (!empty($rate_tables['CountryID']) && !empty($rate_tables['Prefix'])) {
+                    $ProductCountry = Country::where(array('Country' => $rate_tables['CountryID']))->first();
+                    if (substr($rate_tables['Prefix'], 0, 1) == "0") {
+                        $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['Prefix'], 1, strlen($rate_tables['Prefix']));
+                    } else {
+                        $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['Prefix']) ? "" : $rate_tables['Prefix'];
+                    }
+                    $rate_tables['Prefix'] = $ProductCountryPrefix;
+                }
+
                 $insertArr[] = $rate_tables;
             }
 
@@ -2592,6 +2604,17 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
+
+             $rate_tables['PrefixWithoutCountry'] = $rate_tables['Prefix'];
+             if (!empty($rate_tables['CountryID']) && !empty($rate_tables['Prefix'])) {
+                 $ProductCountry = Country::where(array('Country' => $rate_tables['CountryID']))->first();
+                 if (substr($rate_tables['Prefix'], 0, 1) == "0") {
+                     $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['Prefix'], 1, strlen($rate_tables['Prefix']));
+                 } else {
+                     $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['Prefix']) ? "" : $rate_tables['Prefix'];
+                 }
+                 $rate_tables['Prefix'] = $ProductCountryPrefix;
+             }
 
             $oldCLI->update($rate_tables);
         }
