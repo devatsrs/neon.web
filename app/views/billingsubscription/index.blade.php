@@ -28,8 +28,12 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Applied To</label>
+                    @if(is_reseller())
+                        {{ Form::select('FilterAppliedTo',array(''=>'Select') + BillingSubscription::$AppliedToForPartner,'',array("class"=>"form-control select2 small")) }}
+                    @else
+                        {{ Form::select('FilterAppliedTo',array(''=>'Select') + BillingSubscription::$AppliedToForAdmin,'',array("class"=>"form-control select2 small")) }}
+                    @endif 
                     <!-- <input id="FilterAdvance" name="FilterAdvance" type="checkbox" value="1" >-->
-                    {{Form::select('FilterAppliedTo', BillingSubscription::$ALLAppliedTo, '' ,array("class"=>"form-control select2 small"))}}
                 </div>
                 
                 

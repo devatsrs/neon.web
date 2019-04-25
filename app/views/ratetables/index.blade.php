@@ -19,12 +19,20 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label">Type</label>
-                    {{Form::select('Type', [""=>"select"]+$RateTypes, '',array("class"=>"form-control select2"))}}
+                    {{Form::select('Type', [""=>"Select"]+$RateTypes, '',array("class"=>"form-control select2"))}}
                 </div>
-                <div class="form-group">
-                    <label class="control-label">Applied To</label>
-                    {{Form::select('AppliedTo', [""=>"select"]+RateTable::$AppliedTo, '',array("class"=>"form-control select2"))}}
-                </div>
+                @if(is_reseller())
+                    <div class="form-group">
+                        <label class="control-label">Applied To</label>
+                        {{Form::select('AppliedTo', [""=>"Select"]+RateTable::$AppliedToForPartner, '',array("class"=>"form-control select2"))}}
+                    </div>
+                @else
+                    <div class="form-group">
+                        <label class="control-label">Applied To</label>
+                        {{Form::select('AppliedTo', [""=>"Select"]+RateTable::$AppliedToForAdmin, '',array("class"=>"form-control select2"))}}
+                    </div>
+                @endif
+
                 <div class="form-group" id="filter-TrunkID-box">
                     <label class="control-label" for="field-1">Trunk</label>
                     {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
