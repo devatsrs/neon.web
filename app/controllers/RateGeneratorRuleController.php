@@ -513,8 +513,8 @@ class RateGeneratorRuleController extends \BaseController {
             $RateGeneratorID  = $data['RateGeneratorId'];
             unset($data['RateGeneratorId']);
             $rules = array(
-                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
-                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
+                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,RateRuleMarginId,RateRuleId,'.$RateRuleId,
+                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'AddMargin' => 'required_without:FixedValue',
                 'FixedValue' => 'required_without:AddMargin',
                 'RateRuleId' => 'required',
