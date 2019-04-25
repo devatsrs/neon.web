@@ -576,7 +576,7 @@ class RateGeneratorRuleController extends \BaseController {
                     "message" => "MaxRate should greater then MinRate."
                 ));
             }
-
+            dd($data);
             if (RateRuleMargin::insert($data)) {
                 return Response::json(array(
                     "status" => "success",
