@@ -12,14 +12,16 @@ class AccountBalanceThreshold extends \Eloquent {
     {
         $date = date('Y-m-d H:i:s');
         $CreatedBy = User::get_user_full_name();
-        if(!empty($post['BalanceThresholdnew'])){
-            foreach ($post['BalanceThresholdnew'] as $key => $value) {
-                if(!empty($value)){
+        
+        if(!empty($post['counttr'])){
+            $thList = $post['counttr'];
+            for ($k = 0; $k <= $thList; $k++) {
+                if(!empty($post['BalanceThresholdnew-'.$k])){
                     $data = [
                         'AccountID'         => $accountid,
-                        'BalanceThreshold'  => $value,
+                        'BalanceThreshold'  => $post['BalanceThresholdnew-'.$k],
                         'created_at'        => $date,
-                        "BalanceThresholdEmail" =>$post['email'][$key]
+                        "BalanceThresholdEmail" =>$post['email-'.$k]
                     ];
                     AccountBalanceThreshold::insert($data);
                 }

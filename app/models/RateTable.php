@@ -17,6 +17,8 @@ class RateTable extends \Eloquent
     const APPLIED_TO_RESELLER = 3;
     //public static $types = array( self::TYPE_VOICECALL => 'Voice Call',self::TYPE_DID=>'DID');
     public static $AppliedTo = array( self::APPLIED_TO_CUSTOMER => 'Customer',self::APPLIED_TO_VENDOR=>'Vendor',self::APPLIED_TO_RESELLER=>'Partner');
+    public static $AppliedToForAdmin = array(self::APPLIED_TO_VENDOR=>'Vendor',self::APPLIED_TO_RESELLER=>'Partner');
+    public static $AppliedToForPartner = array( self::APPLIED_TO_CUSTOMER => 'Customer');
 
 
     const RATE_STATUS_AWAITING  = 0;
@@ -198,7 +200,7 @@ class RateTable extends \Eloquent
             >0  = For Specific Reseller
         */
         $DropdownIDList = Reseller::where(array("Status"=>1))->lists('ResellerName', 'ResellerID');
-        $DropdownIDList = array('0' => "Select",'-1' => "All") + $DropdownIDList;
+        $DropdownIDList = array('' => "Select",'-1' => "All") + $DropdownIDList;
         return $DropdownIDList;
     }
 }

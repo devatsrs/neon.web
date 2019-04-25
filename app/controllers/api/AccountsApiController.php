@@ -4,21 +4,11 @@ use app\controllers\api\Codes;
 
 class AccountsApiController extends ApiController {
 
-	public static $API_PaymentMethod = array('0'=>'' ,
-		'1' => 'AuthorizeNet',
-		'2'=>'AuthorizeNetEcheck',
-		'3'=>'FideliPay',
-		'4'=>'Paypal',
-		'5'=>'PeleCard',
-		'6'=>'SagePay',
-		'7'=>'SagePayDirectDebit',
-		'8'=>'Stripe',
-		'9'=>'StripeACH',
-		'10'=>'FastPay',
-		'11'=>'MerchantWarrior',
-		'12'=>'Wire Transfer',
-		'13'=>'Other',
-		'14'=>'Ingenico',
+	public static $API_PaymentMethod = array(
+		'1' => 'DirectDebit',
+		'2'=>'DirectDebit',
+		'3'=>'Ingenico',
+		'4'=>'Other',
 	);
 
 	public function validEmail() {
@@ -651,6 +641,325 @@ class AccountsApiController extends ApiController {
 			return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
 		}
 	}
+	/*public function createAccountService1()
+	{
+		$message = '';
+		$post_vars = '';
+		$accountData = '';
+		$DefaultSubscriptionID = '';
+		$DefaultSubscriptionPackageID = '';
+		$ServiceTitle = '';
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			//$post_vars = Input::all();
+			$accountData=json_decode(json_encode($post_vars),true);
+			$countValues = count($accountData);
+			if ($countValues == 0) {
+				Log::info('Exception in createAccountService.Invalid JSON String');
+				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+			}
+		}catch(Exception $ex) {
+			Log::info('Exception in RcreateAccountService.Invalid JSON String' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+		}
+
+		$CompanyID = User::get_companyID();
+		$CreatedBy = User::get_user_full_name();
+		$date = date('Y-m-d H:i:s');
+		$accdata = array();
+		$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
+		$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
+		$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
+		$data['AccountDynamicField'] = isset($accountData['AccountDynamicField']) ? $accountData['AccountDynamicField'] : '';
+
+		$accdata['ServiceOrderID'] = empty($accountData['ServiceOrderID']) ? '' : $accountData['ServiceOrderID'];
+		$accdata['ServiceTitle'] = empty($accountData['ServiceTitle']) ? '' : $accountData['ServiceTitle'];
+		$accdata['ServiceDescription'] = empty($accountData['ServiceDescription']) ? '' : $accountData['ServiceDescription'];
+		$accdata['ServiceTitleShow'] = isset($accountData['ServiceTitleShow']) ? 1 : 0;
+		$accdata['ServiceID'] = empty($accountData['ServiceID']) ? '' : $accountData['ServiceID'];
+		$data['ServiceID'] = $accdata['ServiceID'];
+		$rules = array(
+			'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
+			'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
+			'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
+			'ServiceTitleShow'=>'in:1,0',
+			'ServiceID' =>      'required',
+		);
+
+		$validator = Validator::make($data, $rules);
+
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+		}
+
+		$AccountServiceID = Service::where(array('ServiceID' => $accdata['ServiceID']));
+		if ($AccountServiceID->count() == 0) {
+			return Response::json(array("ErrorMessage" => Codes::$Code1047[1]),Codes::$Code1047[0]);
+		}
+
+		if (!empty($accountData['AccountDynamicField'])) {
+			$AccountIDRef = '';
+			$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if (empty($AccountIDRef)) {
+				return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
+			}
+			$data['AccountID'] = $AccountIDRef;
+		}
+
+		if (!empty($data['AccountNo'])) {
+			$Account = Account::where(array('Number' => $data['AccountNo'],'CompanyId' => $CompanyID))->first();
+		}else {
+			$Account = Account::find($data['AccountID']);
+		}
+		if (!$Account) {
+			return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
+		}
+		$CompanyID = $Account->CompanyId;
+		$NumberPurchasedRef = [];
+		if (!empty($data['NumberPurchased'])) {
+			$NumberPurchasedRef = json_decode(json_encode($data['NumberPurchased']), true);
+		}
+		$PackagePurchasedRef = [];
+		if (isset($accountData['PackagePurchased'])) {
+			$PackagePurchasedRef = json_decode(json_encode($accountData['PackagePurchased']), true);
+		}
+		$NumberPurchaseds = [];
+		$PackagePurchaseds = [];
+		for ($i =0; $i <count($PackagePurchasedRef);$i++) {
+			$PackagePurchaseds = $PackagePurchasedRef[$i];
+			if (!empty($PackagePurchaseds['PackageDynamicField'])) {
+				$PackagedataRecord =  Package::findPackageByDynamicField($PackagePurchaseds['PackageDynamicField']);
+				if (empty($PackagedataRecord)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1031[1]], Codes::$Code1031[0]);
+				}
+				$PackagedataRecord = Package::where(array('PackageId' => $PackagedataRecord,'CompanyID' => $CompanyID))->first();
+
+				if (!isset($PackagedataRecord) || $PackagedataRecord == '') {
+					return Response::json(["ErrorMessage" => Codes::$Code1031[1]], Codes::$Code1031[0]);
+				}
+			}
+			if (!empty($PackagePurchaseds['PackageRateTableID'])) {
+				$AccountServiceID = RateTable::where('Type', '=', RateGenerator::Package)
+					->where("AppliedTo", "!=", RateTable::APPLIED_TO_VENDOR)
+					->where('RateTableId', '=', $PackagePurchaseds['PackageRateTableID'])
+					->where('CompanyId', '=', $CompanyID);
+				if ($AccountServiceID->count() == 0) {
+					return Response::json(array("ErrorMessage" => Codes::$Code1048[1]), Codes::$Code1048[0]);
+				}
+			}
+			if (!empty($PackagePurchaseds['PackageDiscountPlanID'])) {
+				$PackagePlanID = DiscountPlan::verifyDiscountPlanID($CompanyID,(int)$Account->CurrencyId,RateType::PACKAGE_ID,$PackagePurchaseds['PackageDiscountPlanID']);
+				if ($PackagePlanID == 0) {
+					return Response::json(array("ErrorMessage" => Codes::$Code1049[1]), Codes::$Code1049[0]);
+				}
+			}
+
+			if (!isset($PackagePurchaseds['PackageStartDate']) || empty($PackagePurchaseds['PackageStartDate'])) {
+				return Response::json(["ErrorMessage"=>Codes::$Code1040[1]],Codes::$Code1040[0]);
+			}
+			if (!isset($PackagePurchaseds['PackageEndDate']) || empty($PackagePurchaseds['PackageEndDate'])) {
+				return Response::json(["ErrorMessage"=>Codes::$Code1055[1]],Codes::$Code1055[0]);
+			}
+			if (isset($PackagePurchaseds['PackageEndDate']) && !empty($PackagePurchaseds['PackageEndDate'])) {
+				if ($PackagePurchaseds['PackageStartDate'] > $PackagePurchaseds['PackageStartDate']) {
+					return Response::json(["ErrorMessage" => Codes::$Code1002[1]], Codes::$Code1002[0]);
+				}
+			}
+		}
+
+
+		for ($i =0; $i <count($NumberPurchasedRef);$i++) {
+			$NumberPurchased = $NumberPurchasedRef[$i];
+
+			if (!empty($NumberPurchased['AccessRateTableID'])) {
+				$AccountServiceID = RateTable::where('Type', '=', RateGenerator::DID)
+					->where("AppliedTo", "!=", RateTable::APPLIED_TO_VENDOR)
+					->where('RateTableId', '=', $NumberPurchased['AccessRateTableID'])
+					->where('CompanyId', '=', $CompanyID);
+				if ($AccountServiceID->count() == 0) {
+					return Response::json(array("ErrorMessage" => Codes::$Code1048[1]), Codes::$Code1048[0]);
+				}
+			}
+			if (!empty($NumberPurchased['AccessDiscountPlanID'])) {
+				$NumberPlanID = DiscountPlan::verifyDiscountPlanID($CompanyID,(int)$Account->CurrencyId,RateType::DID_ID,$NumberPurchased['AccessDiscountPlanID']);
+				if ($NumberPlanID == 0) {
+					return Response::json(array("ErrorMessage" => Codes::$Code1049[1]), Codes::$Code1049[0]);
+				}
+			}
+			if (!empty($NumberPurchased['TerminationDiscountPlanID'])) {
+				$NumberPlanID = DiscountPlan::verifyDiscountPlanID($CompanyID,(int)$Account->CurrencyId,RateType::VOICECALL_ID,$NumberPurchased['TerminationDiscountPlanID']);
+				if ($NumberPlanID == 0) {
+					return Response::json(array("ErrorMessage" => Codes::$Code1049[1]), Codes::$Code1049[0]);
+				}
+			}
+
+			if (!empty($NumberPurchased['TerminationRateTableID'])) {
+				$AccountServiceID = RateTable::where('Type', '=', RateGenerator::VoiceCall)
+					->where("AppliedTo", "!=", RateTable::APPLIED_TO_VENDOR)
+					->where('RateTableId', '=', $NumberPurchased['TerminationRateTableID'])
+					->where('CompanyId', '=', $CompanyID);
+				if ($AccountServiceID->count() == 0) {
+					return Response::json(array("ErrorMessage" => Codes::$Code1048[1]), Codes::$Code1048[0]);
+				}
+			}
+			if (!empty($NumberPurchased['CountryID'])) {
+				$ProductCountry = Country::where(array('CountryID' => $NumberPurchased['CountryID']))->first();
+				if (!isset($ProductCountry) || $ProductCountry == '') {
+					return Response::json(array("ErrorMessage" => Codes::$Code1050[1]), Codes::$Code1050[0]);
+				}
+			}
+			if (!empty($NumberPurchased['Type'])) {
+				$NumberData = ServiceTemplate::verifyAccessTypeDD($CompanyID,$NumberPurchased['Type']);
+				if ($NumberData == 0) {
+					return Response::json(array("ErrorMessage" => Codes::$Code1051[1]), Codes::$Code1051[0]);
+				}
+			}
+			if (!empty($NumberPurchased['City'])) {
+				$NumberData = ServiceTemplate::verifyCityDD($CompanyID,$NumberPurchased['City']);
+				if ($NumberData == 0) {
+					return Response::json(array("ErrorMessage" => Codes::$Code1053[1]), Codes::$Code1053[0]);
+				}
+			}
+			if (!empty($NumberPurchased['Prefix'])) {
+				$NumberData = ServiceTemplate::verifyPrefixDD($CompanyID,$NumberPurchased['Prefix']);
+				if ($NumberData == 0) {
+					return Response::json(array("ErrorMessage" => Codes::$Code1052[1]), Codes::$Code1052[0]);
+				}
+			}
+
+			if (!empty($NumberPurchased['Tariff'])) {
+				$NumberData = ServiceTemplate::verifyTariffDD($CompanyID,$NumberPurchased['Tariff']);
+				if ($NumberData == 0) {
+					return Response::json(array("ErrorMessage" => Codes::$Code1054[1]), Codes::$Code1054[0]);
+				}
+			}
+
+			if (!isset($NumberPurchased['NumberStartDate']) || empty($NumberPurchased['NumberStartDate'])) {
+				return Response::json(["ErrorMessage"=>Codes::$Code1038[1]],Codes::$Code1038[0]);
+			}
+			if (!isset($NumberPurchased['NumberEndDate']) || empty($NumberPurchased['NumberEndDate'])) {
+				return Response::json(["ErrorMessage"=>Codes::$Code1039[1]],Codes::$Code1039[0]);
+			}
+			if (isset($NumberPurchased['NumberEndDate']) && !empty($NumberPurchased['NumberEndDate'])) {
+				if ($NumberPurchased['NumberStartDate'] > $NumberPurchased['NumberEndDate']) {
+					return Response::json(["ErrorMessage" => Codes::$Code1002[1]], Codes::$Code1002[0]);
+				}
+			}
+		}
+
+		try{
+		DB::beginTransaction();
+
+
+			$accdata['AccountID'] = $Account->AccountID;
+			$accdata['CompanyID'] = $CompanyID;
+			$accdata['Status'] = 1;
+
+		$AccountService = AccountService::create($accdata);
+
+		for ($i = 0; $i < count($NumberPurchasedRef); $i++) {
+			$NumberPurchased = $NumberPurchasedRef[$i];
+			$rate_tables = [];
+			$check = CLIRateTable::where([
+				'CompanyID' =>  $CompanyID,
+				'AccountID' =>  $Account->AccountID,
+				'AccountServiceID' =>  $AccountService ->AccountServiceID,
+				'Status'    =>  1
+			])->whereRaw("'" . $NumberPurchased['NumberStartDate'] . "'" .  " >= NumberStartDate")
+				->whereRaw("'" .$NumberPurchased['NumberEndDate']. "'" . " <= NumberEndDate");
+
+			if($check->count() > 0){
+				return Response::json(array("ErrorMessage" => Codes::$Code1008[1]),Codes::$Code1008[0]);
+			}
+
+			$rate_tables['CLI'] = !empty($NumberPurchased['Number']) ? $NumberPurchased['Number'] : '';
+			$rate_tables['RateTableID'] = !empty($NumberPurchased['AccessRateTableID']) ? $NumberPurchased['AccessRateTableID'] : 0;
+			$rate_tables['AccessDiscountPlanID'] = !empty($NumberPurchased['AccessDiscountPlanID']) ? $NumberPurchased['AccessDiscountPlanID'] : 0;
+			$rate_tables['TerminationRateTableID'] = !empty($NumberPurchased['TerminationRateTableID']) ? $NumberPurchased['TerminationRateTableID'] : 0;
+			$rate_tables['TerminationDiscountPlanID'] = !empty($NumberPurchased['TerminationDiscountPlanID']) ? $NumberPurchased['TerminationDiscountPlanID'] : 0;
+			$rate_tables['CountryID'] = !empty($NumberPurchased['CountryID']) ? $NumberPurchased['CountryID'] : 0;
+			$rate_tables['NumberStartDate'] = !empty($NumberPurchased['NumberStartDate']) ? $NumberPurchased['NumberStartDate'] : '';
+			$rate_tables['NumberEndDate'] = !empty($NumberPurchased['NumberEndDate']) ? $NumberPurchased['NumberEndDate'] : '';
+			$rate_tables['NoType'] = !empty($NumberPurchased['Type']) ? $NumberPurchased['Type'] : '';
+			$rate_tables['Prefix'] = !empty($NumberPurchased['Prefix'])?$NumberPurchased['Prefix']:'';
+			$rate_tables['ContractID'] = !empty($NumberPurchased['ContractID'])?$NumberPurchased['ContractID']:'';
+			$rate_tables['City'] = !empty($NumberPurchased['City'])?$NumberPurchased['City']:'';
+			$rate_tables['Tariff'] = !empty($NumberPurchased['Tariff'])?$NumberPurchased['Tariff']:'';
+			$rate_tables['AccountID'] = $Account->AccountID;
+			$rate_tables['CompanyID'] = $CompanyID;
+
+
+			$rate_tables['Status'] = isset($NumberPurchased['Status']) ? 1 : 0;
+			$rate_tables['ServiceID'] = $accdata['ServiceID'];
+
+			$rate_tables['AccountServiceID'] =$AccountService ->AccountServiceID;
+
+			Log::info('createAccountService:rate_tables.' . print_r($rate_tables,true));
+			CLIRateTable::insert($rate_tables);
+		}
+
+			for ($i =0; $i <count($PackagePurchasedRef);$i++) {
+				$PackagePurchaseds = $PackagePurchasedRef[$i];
+				$rate_tables = [];
+				$check = AccountServicePackage::where([
+					'CompanyID'=>$CompanyID,
+					'AccountID' =>  $Account->AccountID,
+					'AccountServiceID' =>  $AccountService ->AccountServiceID,
+					'Status'=>1
+				])->whereRaw("'" . $PackagePurchaseds['PackageStartDate'] . "'" .  " >= PackageStartDate")
+					->whereRaw("'" .$PackagePurchaseds['PackageEndDate']. "'" . " <= PackageEndDate");
+
+				if($check->count() > 0){
+					return Response::json(array("ErrorMessage" => Codes::$Code1056[1]),Codes::$Code1056[0]);
+				}
+
+				if (!empty($PackagePurchaseds['PackageDynamicField'])) {
+					$PackagedataRecord =  Package::findPackageByDynamicField($PackagePurchaseds['PackageDynamicField']);
+					if (empty($PackagedataRecord)) {
+						return Response::json(["ErrorMessage" => Codes::$Code1031[1]], Codes::$Code1031[0]);
+					}
+					$PackagedataRecord = Package::where(array('PackageId' => $PackagedataRecord,'CompanyID' => $CompanyID))->first();
+
+					$rate_tables['PackageID'] = $PackagedataRecord->PackageId;
+				}
+
+				$rate_tables['RateTableID'] = !empty($PackagePurchaseds['PackageRateTableID']) ? $PackagePurchaseds['PackageRateTableID'] : 0;
+				$rate_tables['PackageDiscountPlanID'] = !empty($PackagePurchaseds['PackageDiscountPlanID']) ? $PackagePurchaseds['PackageDiscountPlanID'] : 0;
+				$rate_tables['PackageStartDate'] = $PackagePurchaseds['PackageStartDate'] ;
+				$rate_tables['PackageEndDate'] = $PackagePurchaseds['PackageEndDate'];
+				$rate_tables['ContractID'] = !empty($PackagePurchaseds['ContractID'])?$PackagePurchaseds['ContractID']:'';
+				$rate_tables['AccountID'] = $Account->AccountID;
+				$rate_tables['CompanyID'] = $CompanyID;
+				$rate_tables['created_at'] = $date;
+				$rate_tables['created_by'] = $CreatedBy;
+				$rate_tables['updated_at'] = $date;
+				$rate_tables['updated_by'] = $CreatedBy;
+
+				$rate_tables['Status'] = isset($PackagePurchaseds['Status']) ? 1 : 0;
+				$rate_tables['ServiceID'] = $accdata['ServiceID'];
+				$rate_tables['AccountServiceID'] = $AccountService ->AccountServiceID;
+				AccountServicePackage::insert($rate_tables);
+			}
+		$message = "Account Service Successfully Added";
+
+
+
+
+		DB::commit();
+
+		return Response::json(json_decode('{}'),Codes::$Code200[0]);
+
+
+	} catch (Exception $ex) {
+		DB::rollback();
+		Log::info('createAccountService:Exception.' . $ex->getTraceAsString());
+		return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
+	}
+}*/
 	public function createAccountService()
 	{
 		// <!--"PackageSubscriptionID":"13" -->
@@ -1436,6 +1745,8 @@ class AccountsApiController extends ApiController {
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
 			$data['Language']= isset($accountData['LanguageIso2']) ? $accountData['LanguageIso2'] : '';
+			$data['tags']= isset($accountData['tags']) ? $accountData['tags'] : '';
+
 
 
 			$data['AccountType'] = 1;
@@ -1487,6 +1798,13 @@ class AccountsApiController extends ApiController {
 			}
 
 			$data['CompanyID'] = $CompanyID;
+
+			try {
+				$data['TimeZone'] = $accountData['AccountTimeZones'];
+				TimeZone::$timeZones[$accountData['AccountTimeZones']];
+			}catch(Exception $ex) {
+				unset($data['TimeZone']);
+			}
 
 			if (!empty($accountData['IsVendor']) && ($accountData['IsVendor'] != 0 && $accountData['IsVendor'] != 1)) {
 				return Response::json(["ErrorMessage" => Codes::$Code1025[1]],Codes::$Code1025[0]);
@@ -1601,9 +1919,24 @@ class AccountsApiController extends ApiController {
 					}
 
 				}else if ($data['PaymentMethod'] == "Ingenico") {
+
+
 					$rules = [];
-					$rules['CardToken'] = 'required';
+					$rules = array(
+						'CardToken'         => 'required',
+						'CardHolderName'    => 'required',
+						'ExpirationMonth'   => 'required',
+						'ExpirationYear'    => 'required',
+						'LastDigit'         => 'required|digits:4',
+						//'CVC'               => 'required',
+					);
+
 					$PaymentProfile['CardToken'] = isset($accountData['CardToken']) ? $accountData['CardToken'] : '' ;
+					$PaymentProfile['CardHolderName'] = isset($accountData['CardHolderName']) ? $accountData['CardHolderName'] : '' ;
+					$PaymentProfile['ExpirationMonth'] = isset($accountData['ExpirationMonth']) ? $accountData['ExpirationMonth'] : '' ;
+					$PaymentProfile['ExpirationYear'] = isset($accountData['ExpirationYear']) ? $accountData['ExpirationYear'] : '' ;
+					$PaymentProfile['LastDigit'] = isset($accountData['LastDigit']) ? $accountData['LastDigit'] : '' ;
+					$PaymentProfile['Title'] = isset($accountData['Title']) ? $accountData['Title'] : '' ;
 					$validator = Validator::make($PaymentProfile, $rules);
 					if ($validator->fails()) {
 						$errors = "";
@@ -1612,6 +1945,29 @@ class AccountsApiController extends ApiController {
 						}
 						return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 
+					}
+				}else if ($data['PaymentMethod'] == "DirectDebit") {
+					$rules = array(
+						'BankAccount'       => 'required',
+						'BIC'               => 'required',
+						'AccountHolderName' => 'required',
+						'MandateCode'       => 'required'
+
+					);
+					$PaymentProfile['BankAccount'] = isset($accountData['BankAccount']) ? $accountData['BankAccount'] : '' ;
+					$PaymentProfile['BIC'] = isset($accountData['BIC']) ? $accountData['BIC'] : '' ;
+					$PaymentProfile['AccountHolderName'] = isset($accountData['AccountHolderName']) ? $accountData['AccountHolderName'] : '' ;
+					$PaymentProfile['MandateCode'] = isset($accountData['MandateCode']) ? $accountData['MandateCode'] : '' ;
+					$PaymentProfile['Title'] = isset($accountData['Title']) ? $accountData['Title'] : '' ;
+
+					$validator = Validator::make($PaymentProfile, $rules);
+					if ($validator->fails()) {
+						$errors = "";
+						foreach ($validator->messages()->all() as $error){
+							$errors .= $error."<br>";
+						}
+
+						return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 					}
 				}
 			}
@@ -1777,6 +2133,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
 			}
 			$data['LanguageID'] = Language::where('ISOCode',$data['Language'])->pluck('LanguageID');
+			unset($data['Language']);
 			if (!isset($data['LanguageID'])) {
 				return Response::json(["ErrorMessage" => Codes::$Code1014[1]],Codes::$Code1014[0]);
 			}
@@ -1900,9 +2257,11 @@ class AccountsApiController extends ApiController {
 
 			DB::beginTransaction();
 
+			Log::info("CreateAccountAPI Account" . print_r($data,true));
+
 			if ($account = Account::create($data)) {
 
-
+				Log::info("CreateAccountAPI Account Created" );
 
 				if (trim($data['Number']) == '') {
 					CompanySetting::setKeyVal('LastAccountNo', $account->Number);
@@ -1967,27 +2326,64 @@ class AccountsApiController extends ApiController {
 						}
 
 					}else if ($data['PaymentMethod'] == "Ingenico") {
-						$isDefault = '';
-						$options = [
-							'CardID' => $PaymentProfile['CardToken']
-						];
-						if($account->PaymentMethod == $data['PaymentMethod']) {
-							AccountPaymentProfile::where('AccountID',$account->AccountID)->update(['isDefault' =>0]);
-							$isDefault = 1;
-						} else {
+						$isDefault = 1;
+						$PaymentGatewayID = 10;
+						$count = AccountPaymentProfile::where(['AccountID' =>  $account->AccountID])
+							->where(['CompanyID' => $CompanyID])
+							->where(['PaymentGatewayID' => $PaymentGatewayID])
+							->where(['isDefault' => 1])
+							->count();
+
+						if($count>0){
 							$isDefault = 0;
 						}
-						$PaymentGatewayID = PaymentGateway::where(['title' => $data['PaymentMethod'],'Status' =>1])->first();
-						if(!empty($PaymentGatewayID->PaymentGatewayID)){
-							$payGID = $PaymentGatewayID->PaymentGatewayID;
-						} else {
-							$payGID = 0;
+
+						$option = array(
+							'CardToken'       => $PaymentProfile['CardToken'],
+							//'CVC'             => $data['CVC'],
+							'CardHolderName'  => $PaymentProfile['CardHolderName'],
+							'ExpirationMonth' => $PaymentProfile['ExpirationMonth'],
+							'ExpirationYear'  => $PaymentProfile['ExpirationYear'],
+							'LastDigit'       => $PaymentProfile['LastDigit'],
+						);
+
+						$CardDetail = array('Title' => $PaymentProfile['Title'],
+							'Options' => json_encode($option),
+							'Status' => 1,
+							'isDefault' => $isDefault,
+							'created_by' => $CreatedBy,
+							'CompanyID' => $CompanyID,
+							'AccountID' =>  $account->AccountID,
+							'PaymentGatewayID' => $PaymentGatewayID);
+						AccountPaymentProfile::create($CardDetail);
+					} else if ($data['PaymentMethod'] == "DirectDebit") {
+						$isDefault = 1;
+						$PaymentGatewayID = 12;
+						$count = AccountPaymentProfile::where(['AccountID' => $account->AccountID])
+							->where(['CompanyID' => $CompanyID])
+							->where(['PaymentGatewayID' => $PaymentGatewayID])
+							->where(['isDefault' => 1])
+							->count();
+
+						if($count>0){
+							$isDefault = 0;
 						}
-						AccountPaymentProfile::updateOrCreate([
-							'CompanyID' => $CompanyID, 'AccountID' => $account->AccountID, 'PaymentGatewayID' => $payGID
-						],[
-							'Options' => json_encode($options), 'Status' => 1, 'isDefault' => $isDefault
-						]);
+
+						$option = array(
+							'BankAccount'       => $PaymentProfile['BankAccount'],
+							'BIC'               => $PaymentProfile['BIC'],
+							'AccountHolderName' => $PaymentProfile['AccountHolderName'],
+							'MandateCode'       => $PaymentProfile['MandateCode'],
+						);
+						$CardDetail = array('Title' => $PaymentProfile['Title'],
+							'Options' => json_encode($option),
+							'Status' => 1,
+							'isDefault' => $isDefault,
+							'created_by' => $CreatedBy,
+							'CompanyID' => $CompanyID,
+							'AccountID' => $account->AccountID,
+							'PaymentGatewayID' => $PaymentGatewayID);
+						AccountPaymentProfile::create($CardDetail);
 					}
 				}
 
@@ -2017,6 +2413,32 @@ class AccountsApiController extends ApiController {
 					AccountPaymentAutomation::create($AccountPaymentAutomation);
 				}
 				if ($data['Billing'] == 1) {
+					$TaxRateCalculation = [];
+					$TaxRateID = [];
+					$TaxRateCalculation['CompanyID'] = $CompanyID;
+					$TaxRateCalculation['Country'] = $data['Country'];
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+						'Type'=>'account','Status'=>1])
+						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", "Register Dutch Foundation") . "'")
+						->pluck('DynamicFieldsID');
+					$DynamicFieldsValue = DynamicFieldsValue::where('CompanyID',$CompanyID)
+						->where('ParentID',$account->AccountID)
+						->where('DynamicFieldsID',$DynamicFieldsID)->pluck('FieldValue');
+					$TaxRateCalculation['RegisterDutchFoundation'] = !empty($DynamicFieldsValue) ? $DynamicFieldsValue : 0;
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+						'Type'=>'account','Status'=>1])
+						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", "Dutch Provider") . "'")
+						->pluck('DynamicFieldsID');
+					$DynamicFieldsValue = DynamicFieldsValue::where('CompanyID',$CompanyID)
+						->where('ParentID',$account->AccountID)
+						->where('DynamicFieldsID',$DynamicFieldsID)->pluck('FieldValue');
+					$TaxRateCalculation['DutchProvider'] = !empty($DynamicFieldsValue) ? $DynamicFieldsValue : 0;
+
+					//Log::info("Tax Rate Calculation " . print_r($TaxRateCalculation,true));
+					$TaxRateID['TaxRateID'] = TaxRate::getAccountTaxes($TaxRateCalculation);
+					//Log::info("Tax Rate Calculation " . print_r($TaxRateID,true));
+					$account->update($TaxRateID);
+
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
 					$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$CompanyID);
 					$BillingClass = $BillingClassSql->first();
@@ -2377,6 +2799,7 @@ class AccountsApiController extends ApiController {
 			}
 
 			$data['AccountID'] = $accountInfo->AccountID;
+			$CompanyID = $accountInfo->CompanyId;
 			$data['CompanyID'] =$accountInfo->CompanyId;
 			$data['Number'] =$accountInfo->Number;
 			if (isset($accountData['FirstName']) && !empty($accountData['FirstName'])) {
@@ -2470,6 +2893,12 @@ class AccountsApiController extends ApiController {
 			if (isset($accountData['LanguageIso2']) && !empty($accountData['LanguageIso2'])) {
 				$data['Language']= isset($accountData['LanguageIso2']) ? $accountData['LanguageIso2'] : '';
 			}
+			if (isset($accountData['tags']) && !empty($accountData['tags'])) {
+				$data['tags']= isset($accountData['tags']) ? $accountData['tags'] : '';
+			}
+			if (isset($accountData['AccountTimeZones']) && !empty($accountData['AccountTimeZones'])) {
+				$data['TimeZone']= isset($accountData['AccountTimeZones']) ? $accountData['AccountTimeZones'] : '';
+			}
 
 			//when account varification is off in company setting then varified the account by default.
 			$AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
@@ -2537,7 +2966,11 @@ class AccountsApiController extends ApiController {
 					}
 				}
 
-
+				try {
+					TimeZone::$timeZones[$data['TimeZone']];
+				}catch(Exception $ex) {
+					 unset($data['TimeZone']);
+				}
 
 
 
@@ -2582,8 +3015,21 @@ class AccountsApiController extends ApiController {
 						}
 					}else if ($data['PaymentMethod'] == "Ingenico") {
 						$rules = [];
-						$rules['CardToken'] = 'required';
+						$rules = array(
+							'CardToken'         => 'required',
+							'CardHolderName'    => 'required',
+							'ExpirationMonth'   => 'required',
+							'ExpirationYear'    => 'required',
+							'LastDigit'         => 'required|digits:4',
+							//'CVC'               => 'required',
+						);
+
 						$PaymentProfile['CardToken'] = isset($accountData['CardToken']) ? $accountData['CardToken'] : '' ;
+						$PaymentProfile['CardHolderName'] = isset($accountData['CardHolderName']) ? $accountData['CardHolderName'] : '' ;
+						$PaymentProfile['ExpirationMonth'] = isset($accountData['ExpirationMonth']) ? $accountData['ExpirationMonth'] : '' ;
+						$PaymentProfile['ExpirationYear'] = isset($accountData['ExpirationYear']) ? $accountData['ExpirationYear'] : '' ;
+						$PaymentProfile['LastDigit'] = isset($accountData['LastDigit']) ? $accountData['LastDigit'] : '' ;
+						$PaymentProfile['Title'] = isset($accountData['CardTitle']) ? $accountData['CardTitle'] : '' ;
 						$validator = Validator::make($PaymentProfile, $rules);
 						if ($validator->fails()) {
 							$errors = "";
@@ -2593,13 +3039,83 @@ class AccountsApiController extends ApiController {
 							return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 
 						}
+					}else if ($data['PaymentMethod'] == "DirectDebit") {
+						$rules = array(
+							'BankAccount'       => 'required',
+							'BIC'               => 'required',
+							'AccountHolderName' => 'required',
+							'MandateCode'       => 'required'
+
+						);
+						$PaymentProfile['BankAccount'] = isset($accountData['BankAccount']) ? $accountData['BankAccount'] : '' ;
+						$PaymentProfile['BIC'] = isset($accountData['BIC']) ? $accountData['BIC'] : '' ;
+						$PaymentProfile['AccountHolderName'] = isset($accountData['AccountHolderName']) ? $accountData['AccountHolderName'] : '' ;
+						$PaymentProfile['MandateCode'] = isset($accountData['MandateCode']) ? $accountData['MandateCode'] : '' ;
+						$PaymentProfile['Title'] = isset($accountData['Title']) ? $accountData['Title'] : '' ;
+
+						$validator = Validator::make($PaymentProfile, $rules);
+						if ($validator->fails()) {
+							$errors = "";
+							foreach ($validator->messages()->all() as $error){
+								$errors .= $error."<br>";
+							}
+
+							return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+						}
 					}
-
-
 				}
 			}
 
 			DB::beginTransaction();
+
+			if (isset($accountData['AccountDynamicFieldValues'])) {
+				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
+				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
+				for ($i =0; $i <count($AccountReferenceArr);$i++) {
+					$AccountReference = $AccountReferenceArr[$i];
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+						'Type'=>'account','Status'=>1])
+						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
+						->pluck('DynamicFieldsID');
+					$DynamicFieldsValue = DynamicFieldsValue::where(['ParentID'=>$accountInfo->AccountID,'DynamicFieldsID'=>$DynamicFieldsID])->first();
+					$DynamicFields['ParentID'] = $accountInfo->AccountID;
+					$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
+					$DynamicFields['CompanyID'] = $CompanyID;
+					$DynamicFields['created_at'] = $date;
+					$DynamicFields['created_by'] = $CreatedBy;
+					$DynamicFields['FieldValue'] = $AccountReference["Value"];
+					if (isset($DynamicFieldsValue)) {
+						$DynamicFieldsUpdate['FieldValue'] = $AccountReference["Value"];
+						$DynamicFieldsValue->update($DynamicFieldsUpdate);
+					}else {
+						DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
+					}
+				}
+			}
+
+			$TaxRateCalculation = [];
+			$TaxRateID = [];
+			$TaxRateCalculation['CompanyID'] = $CompanyID;
+			$TaxRateCalculation['Country'] = $data['Country'];
+			$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+				'Type'=>'account','Status'=>1])
+				->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", "Register Dutch Foundation") . "'")
+				->pluck('DynamicFieldsID');
+			$DynamicFieldsValue = DynamicFieldsValue::where('CompanyID',$CompanyID)
+				->where('ParentID',$accountInfo->AccountID)
+				->where('DynamicFieldsID',$DynamicFieldsID)->pluck('FieldValue');
+			$TaxRateCalculation['RegisterDutchFoundation'] = !empty($DynamicFieldsValue) ? $DynamicFieldsValue : 0;
+			$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
+				'Type'=>'account','Status'=>1])
+				->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", "Dutch Provider") . "'")
+				->pluck('DynamicFieldsID');
+			$DynamicFieldsValue = DynamicFieldsValue::where('CompanyID',$CompanyID)
+				->where('ParentID',$accountInfo->AccountID)
+				->where('DynamicFieldsID',$DynamicFieldsID)->pluck('FieldValue');
+			$TaxRateCalculation['DutchProvider'] = !empty($DynamicFieldsValue) ? $DynamicFieldsValue : 0;
+
+			//Log::info("Tax Rate Calculation " . print_r($TaxRateCalculation,true));
+			$data['TaxRateID'] = TaxRate::getAccountTaxes($TaxRateCalculation);
 
 			$accountInfo->update($data);
 			if (!empty($BillingClass)) {
@@ -2659,54 +3175,78 @@ class AccountsApiController extends ApiController {
 					}
 
 				}else if ($data['PaymentMethod'] == "Ingenico") {
-					$isDefault = '';
-					$options = [
-						'CardID' => $PaymentProfile['CardToken']
-					];
-					if($accountInfo->PaymentMethod == $data['PaymentMethod']) {
-						AccountPaymentProfile::where('AccountID',$accountInfo->AccountID)->update(['isDefault' =>0]);
-						$isDefault = 1;
-					} else {
+					$isDefault = 1;
+					$PaymentGatewayID = 10;
+					$count = AccountPaymentProfile::where(['AccountID' =>  $accountInfo->AccountID])
+						->where(['CompanyID' => $CompanyID])
+						->where(['PaymentGatewayID' => $PaymentGatewayID])
+						->where(['isDefault' => 1])
+						->count();
+
+					if($count>0){
 						$isDefault = 0;
 					}
-					$PaymentGatewayID = PaymentGateway::where(['title' => $data['PaymentMethod'],'Status' =>1])->first();
-					if(!empty($PaymentGatewayID->PaymentGatewayID)){
-						$payGID = $PaymentGatewayID->PaymentGatewayID;
-					} else {
-						$payGID = 0;
+
+					AccountPaymentProfile::where(['AccountID' =>  $accountInfo->AccountID])
+						->where(['CompanyID' => $CompanyID])
+						->where(['PaymentGatewayID' => $PaymentGatewayID])
+						->delete();
+
+					$option = array(
+						'CardToken'       => $PaymentProfile['CardToken'],
+						//'CVC'             => $data['CVC'],
+						'CardHolderName'  => $PaymentProfile['CardHolderName'],
+						'ExpirationMonth' => $PaymentProfile['ExpirationMonth'],
+						'ExpirationYear'  => $PaymentProfile['ExpirationYear'],
+						'LastDigit'       => $PaymentProfile['LastDigit'],
+					);
+
+					$CardDetail = array('Title' => $PaymentProfile['Title'],
+						'Options' => json_encode($option),
+						'Status' => 1,
+						'isDefault' => $isDefault,
+						'created_by' => $CreatedBy,
+						'CompanyID' => $CompanyID,
+						'AccountID' =>  $accountInfo->AccountID,
+						'PaymentGatewayID' => $PaymentGatewayID);
+					AccountPaymentProfile::create($CardDetail);
+				}else if ($data['PaymentMethod'] == "DirectDebit") {
+					$isDefault = 1;
+					$PaymentGatewayID = 12;
+					$count = AccountPaymentProfile::where(['AccountID' => $accountInfo->AccountID])
+						->where(['CompanyID' => $CompanyID])
+						->where(['PaymentGatewayID' => $PaymentGatewayID])
+						->where(['isDefault' => 1])
+						->count();
+
+					if($count>0){
+						$isDefault = 0;
 					}
-					AccountPaymentProfile::updateOrCreate([
-						'CompanyID' => $CompanyID, 'AccountID' => $accountInfo->AccountID, 'PaymentGatewayID' => $payGID
-					],[
-						'Options' => json_encode($options), 'Status' => 1, 'isDefault' => $isDefault
-					]);
+
+					AccountPaymentProfile::where(['AccountID' =>  $accountInfo->AccountID])
+						->where(['CompanyID' => $CompanyID])
+						->where(['PaymentGatewayID' => $PaymentGatewayID])
+						->delete();
+
+					$option = array(
+						'BankAccount'       => $PaymentProfile['BankAccount'],
+						'BIC'               => $PaymentProfile['BIC'],
+						'AccountHolderName' => $PaymentProfile['AccountHolderName'],
+						'MandateCode'       => $PaymentProfile['MandateCode'],
+					);
+					$CardDetail = array('Title' => $PaymentProfile['Title'],
+						'Options' => json_encode($option),
+						'Status' => 1,
+						'isDefault' => $isDefault,
+						'created_by' => $CreatedBy,
+						'CompanyID' => $CompanyID,
+						'AccountID' => $accountInfo->AccountID,
+						'PaymentGatewayID' => $PaymentGatewayID);
+					AccountPaymentProfile::create($CardDetail);
 				}
 			}
 
-			if (isset($accountData['AccountDynamicFieldValues'])) {
-				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
-				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldValues']),true);
-				for ($i =0; $i <count($AccountReferenceArr);$i++) {
-					$AccountReference = $AccountReferenceArr[$i];
-					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
-						'Type'=>'account','Status'=>1])
-						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
-						->pluck('DynamicFieldsID');
-					$DynamicFieldsValue = DynamicFieldsValue::where(['ParentID'=>$accountInfo->AccountID,'DynamicFieldsID'=>$DynamicFieldsID])->first();
-					$DynamicFields['ParentID'] = $accountInfo->AccountID;
-					$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
-					$DynamicFields['CompanyID'] = $CompanyID;
-					$DynamicFields['created_at'] = $date;
-					$DynamicFields['created_by'] = $CreatedBy;
-					$DynamicFields['FieldValue'] = $AccountReference["Value"];
-					if (isset($DynamicFieldsValue)) {
-						$DynamicFieldsUpdate['FieldValue'] = $AccountReference["Value"];
-						$DynamicFieldsValue->update($DynamicFieldsUpdate);
-					}else {
-						DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
-					}
-				}
-			}
+
 
 
 

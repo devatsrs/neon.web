@@ -19,12 +19,20 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label">Type</label>
-                    {{Form::select('Type', [""=>"select"]+$RateTypes, '',array("class"=>"form-control select2"))}}
+                    {{Form::select('Type', [""=>"Select"]+$RateTypes, '',array("class"=>"form-control select2"))}}
                 </div>
-                <div class="form-group">
-                    <label class="control-label">Applied To</label>
-                    {{Form::select('AppliedTo', [""=>"select"]+RateTable::$AppliedTo, '',array("class"=>"form-control select2"))}}
-                </div>
+                @if(is_reseller())
+                    <div class="form-group">
+                        <label class="control-label">Applied To</label>
+                        {{Form::select('AppliedTo', [""=>"Select"]+RateTable::$AppliedToForPartner, '',array("class"=>"form-control select2"))}}
+                    </div>
+                @else
+                    <div class="form-group">
+                        <label class="control-label">Applied To</label>
+                        {{Form::select('AppliedTo', [""=>"Select"]+RateTable::$AppliedToForAdmin, '',array("class"=>"form-control select2"))}}
+                    </div>
+                @endif
+
                 <div class="form-group" id="filter-TrunkID-box">
                     <label class="control-label" for="field-1">Trunk</label>
                     {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
@@ -388,7 +396,7 @@ jQuery(document).ready(function($) {
             $('#ResellerBox').show();
         } else {
             $('#ResellerBox').hide();
-            $('#add-new-form select[name="Reseller"]').select2("val","0");
+            $('#add-new-form select[name="Reseller"]').select2("val","");
         }
     });
 });
@@ -475,24 +483,27 @@ jQuery(document).ready(function($) {
                         <div class="col-md-6">
                             <div class="form-group ">
                                 <label class="control-label">Applied To</label><br/>
-                                <label class="radio-inline">
-                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, true,array("class"=>""))}}
-                                    Customer
-                                </label>
-                                <label class="radio-inline">
-                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_VENDOR, false,array("class"=>""))}}
-                                    Vendor
-                                </label>
-                                <label class="radio-inline">
-                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, false,array("class"=>""))}}
-                                    Partner
-                                </label>
+                                @if(is_reseller())
+                                    <label class="radio-inline">
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, true,array("class"=>""))}}
+                                        Customer
+                                    </label>
+                                @else
+                                    <label class="radio-inline">
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, true,array("class"=>""))}}
+                                        Partner
+                                    </label>
+                                    <label class="radio-inline">
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_VENDOR, false,array("class"=>""))}}
+                                        Vendor
+                                    </label>
+                                @endif     
                             </div>
                         </div>
                         <div class="col-md-6" id="ResellerBox">
                             <div class="form-group ">
                                 <label class="control-label">Partner</label><br/>
-                                {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
+                                {{Form::select('Reseller', $ResellerDD, '' ,array("class"=>"form-control select2"))}}
                             </div>
                         </div>
                     </div>

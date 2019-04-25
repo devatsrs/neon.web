@@ -1259,7 +1259,9 @@ class AccountsController extends \BaseController {
             $data['BillingPostCode'] = $data['PostCode'];
             $data['BillingCountry']  = $data['Country'];
         }
-        $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
+        if (isset($data['TaxRateID']) && !empty($data['TaxRateID'])) {
+            $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
+        }
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -1903,18 +1905,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $postdata= $data;
         
-        //$validator = Validator::make($data, $rules);
-//        if(!empty($post['BalanceThresholdnew'])){
-//            foreach ($post['BalanceThresholdnew'] as $key => $value) {
-//                $rules['BalanceThresholdnew'] = 'required';
-//                $messages['BalanceThresholdnew.required'] = "Balance Threshold required";
-//            }
-//        }
-//        
-//        $validator = Validator::make($data, $rules,$messages);
-//        if ($validator->fails()) {
-//            return json_validator_response($validator,$DiscountValueError);
-//        }
+        $rules=array();$messages=array();
+        if(!empty($postdata['counttr'])){
+            $thList = $postdata['counttr'];
+            for ($k = 0; $k < $thList; $k++) {
+                $rules['BalanceThresholdnew-' . ($k)] = 'required';
+                $messages['BalanceThresholdnew-' . ($k).'.required'] = "Balance Threshold Value for the Row " . ($k+1 ) . " required";
+                
+                $rules['email-' . ($k)] = 'required';
+                $messages['email-' . ($k).'.required'] = "Balance Threshold Email Value for the Row " . ($k+1 ) . " required";
+            }
+        }
+        $validator = Validator::make($data, $rules,$messages);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
 //        
         //Update Account Thread HOld
         try{
@@ -2251,11 +2256,33 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CompanyID' =>  $CompanyID,
             'AccountID' =>  $data['AccountID'],
             'AccountServiceID' =>  $data['AccountServiceID'],
+            'CLI'=>  $data['CLI'],
             'Status'    =>  1
-        ])->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
-            ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+        ])->whereBetween('NumberStartDate', array($data['NumberStartDate'], $data['NumberEndDate']));
 
-            if($check->count() > 0){
+      //  whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
+        //    ->whereRaw("'" .$data['NumberStartDate']. "'" . " <= NumberEndDate");
+
+        $check1 = CLIRateTable::where([
+            'CompanyID' =>  $CompanyID,
+            'AccountID' =>  $data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'CLI'=>  $data['CLI'],
+            'Status'    =>  1
+        ])->whereBetween('NumberEndDate', array($data['NumberStartDate'], $data['NumberEndDate']));
+
+        //whereRaw("'" . $data['NumberEndDate'] . "'" .  " >= NumberStartDate")
+          //  ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+
+        $check2 = CLIRateTable::where([
+            'CompanyID' =>  $CompanyID,
+            'AccountID' =>  $data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'CLI'=>  $data['CLI'],
+            'Status'    =>  1
+        ])->where('NumberEndDate','>=',$data['NumberStartDate'])->where('NumberStartDate','<=',$data['NumberStartDate']);
+
+            if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
                 $message = 'Number '. $data['CLI'] . ' already exist between start date '.
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
@@ -2328,11 +2355,27 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CompanyID'=>$CompanyID,
             'AccountID'=>$data['AccountID'],
             'AccountServiceID' =>  $data['AccountServiceID'],
+            'PackageId'=>  $data['PackageID'],
             'Status'=>1
-        ])->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
-            ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
+        ])->whereBetween('PackageStartDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+        $check1 = AccountServicePackage::where([
+            'CompanyID'=>$CompanyID,
+            'AccountID'=>$data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'PackageId'=>  $data['PackageID'],
+            'Status'=>1
+        ])->whereBetween('PackageEndDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+        $check2 = AccountServicePackage::where([
+            'CompanyID'=>$CompanyID,
+            'AccountID'=>$data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'PackageId'=>  $data['PackageID'],
+            'Status'=>1
+        ])->where('PackageEndDate','>=',$data['PackageStartDate'])->where('PackageStartDate','<=',$data['PackageStartDate']);
+        //->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
+         //   ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
 
-        if($check->count() > 0){
+        if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
             $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
         } else {
             $rate_tables['PackageID'] = $data['PackageID'];
@@ -2516,12 +2559,35 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
                     'AccountServiceID' =>  $data['AccountServiceID'],
+                    'CLI'=>  $data['CLI'],
                     'Status'    =>  1
-                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])
-                    ->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
-                    ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->whereBetween('NumberStartDate', array($data['NumberStartDate'], $data['NumberEndDate']));
 
-             if($check->count() > 0){
+             //  whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
+             //    ->whereRaw("'" .$data['NumberStartDate']. "'" . " <= NumberEndDate");
+
+             $check1 = CLIRateTable::where([
+                 'CompanyID' =>  $CompanyID,
+                 'AccountID' =>  $data['AccountID'],
+                 'AccountServiceID' =>  $data['AccountServiceID'],
+                 'CLI'=>  $data['CLI'],
+                 'Status'    =>  1
+             ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->whereBetween('NumberEndDate', array($data['NumberStartDate'], $data['NumberEndDate']));
+
+             //whereRaw("'" . $data['NumberEndDate'] . "'" .  " >= NumberStartDate")
+             //  ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+
+             $check2 = CLIRateTable::where([
+                 'CompanyID' =>  $CompanyID,
+                 'AccountID' =>  $data['AccountID'],
+                 'AccountServiceID' =>  $data['AccountServiceID'],
+                 'CLI'=>  $data['CLI'],
+                 'Status'    =>  1
+             ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->where('NumberEndDate','>=',$data['NumberStartDate'])->where('NumberStartDate','<=',$data['NumberStartDate']);
+
+
+
+             if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
                 $message = 'Number '. $data['CLI'] . ' already exist between start date '.
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
@@ -2590,15 +2656,30 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $check = false;
             if($rate_tables['Status'] == 1 || $data['PackageID'] != $oldAccountServicePackage->PackageId)
                 $check = AccountServicePackage::where([
-                    'CompanyID' =>  $CompanyID,
-                    'AccountID' =>  $data['AccountID'],
+                    'CompanyID'=>$CompanyID,
+                    'AccountID'=>$data['AccountID'],
                     'AccountServiceID' =>  $data['AccountServiceID'],
-                    'Status'    =>  1
-                ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])
-                    ->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
-                    ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
+                    'PackageId'=>  $data['PackageID'],
+                    'Status'=>1
+                ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])->whereBetween('PackageStartDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+            $check1 = AccountServicePackage::where([
+                'CompanyID'=>$CompanyID,
+                'AccountID'=>$data['AccountID'],
+                'AccountServiceID' =>  $data['AccountServiceID'],
+                'PackageId'=>  $data['PackageID'],
+                'Status'=>1
+            ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])->whereBetween('PackageEndDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+            $check2 = AccountServicePackage::where([
+                'CompanyID'=>$CompanyID,
+                'AccountID'=>$data['AccountID'],
+                'AccountServiceID' =>  $data['AccountServiceID'],
+                'PackageId'=>  $data['PackageID'],
+                'Status'=>1
+            ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])->where('PackageEndDate','>=',$data['PackageStartDate'])->where('PackageStartDate','<=',$data['PackageStartDate']);
 
-            if($check->count() > 0){
+
+
+            if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
                 $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }

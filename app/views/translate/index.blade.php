@@ -23,8 +23,16 @@
                             {{ddl_language("language", "user_language", Translation::$default_lang_ISOcode)}}
                         </div>
 
+
                         <div class="text-right" >
                             {{--add new table button--}}
+    @if(intval($global_admin))
+               <a href="javascript:;" id="upload-modal" class="btn btn-sm upload btn-primary ">
+            <i class="entypo-upload"></i>
+            Import Translations
+        </a>
+        @endif
+    
                             @if(intval($global_admin))
                             <a class="btn btn-primary btn-sm btn-icon icon-left" id="set_new_label" href="javascript:;" data-toggle="modal" data-target="#set_new_system_name_model">
                                 <i class="entypo-plus"></i>
@@ -163,6 +171,56 @@
                 }
             });
 
+            $("#form-upload").submit(function () {
+
+           // return false;
+            var formData = new FormData($('#form-upload')[0]);
+            show_loading_bar(100);
+            $.ajax({
+                url: baseurl + '/translations/upload',  //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+               /* xhr: function() {  // Custom XMLHttpRequest
+                    var myXhr = $.ajaxSettings.xhr();
+                    if(myXhr.upload){ // Check if upload property exists
+                        myXhr.upload.addEventListener('progress',function(e){
+                            if (e.lengthComputable) {
+                                //$('progress').attr({value:e.loaded,max:e.total});
+                            }
+                        }, false); // For handling the progress of the upload
+                    }
+                    return myXhr;
+                },*/
+                //Ajax events
+                beforeSend: function(){
+                    $('.btn.upload').button('loading');
+                },
+                afterSend: function(){
+                    console.log("Afer Send");
+                },
+                success: function (response) {
+
+                    if(response.status =='success'){
+                        toastr.success(response.message, "Success", toastr_opts);
+                        $('#upload-modal-import_translations').modal('hide');
+                        reloadJobsDrodown(0);
+
+                    }else{
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                    $('.btn.upload').button('reset');
+                },
+                // Form data
+                data: formData,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            return false;
+
+        });
+
         });
         function rebindLanguageTable(){
             table.fnDestroy();
@@ -270,6 +328,12 @@
                 }
             });
         }
+        $('#upload-modal').click(function(ev){
+        ev.preventDefault();
+        $('#upload-modal-import_translations').modal('show');
+    });
+
+        
     </script>
 
     <style>
@@ -339,6 +403,47 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="upload-modal-import_translations">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <form role="form" id="form-upload" method="post" action="{{URL::to('translations/upload')}}"
+              class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Upload Translations</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">File Select</label>
+                    <div class="col-sm-5">
+                        <input type="file" id="excel" type="file" name="excel" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                        
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Note</label>
+                    <div class="col-sm-5">
+                        <p>Allowed Extension .xls, .xlxs, .csv</p>
+                        <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');jQuery('#modal-fileformat').css('z-index',1999)" class="label label-info">Format</span></p>
+                        <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('translation/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" id="tanslate-update"  class="btn upload btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                    <i class="entypo-upload"></i>
+                     Upload
+                </button>
+                <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                     <i class="entypo-cancel"></i>
+                     Close
+                </button>
+             </div>
+        </form>
+        </div>
+    </div>
+</div>
 
 @stop
 

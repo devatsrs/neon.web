@@ -12,6 +12,7 @@
                 <div class="form-group">
                     <label class="control-label">Search</label>
                     <input class="form-control" name="search"  type="text" >
+                    <input type="hidden" name="CompanyID" class="form-control" value={{$CompanyID}} />
                 </div>
                 <div class="form-group">
                     <label class="control-label">Privacy</label>
@@ -21,10 +22,13 @@
                     {{Form::select('template_type',$type,'',array("class"=>"select2 small"))}}
                             </div>-->
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">Partner</label>
-                    {{ Form::select('partner',$reseller_owners_For_Filter,'', array("class"=>"select2")) }}
-                </div>
+                @if(is_reseller())
+                @else
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">Partner</label>
+                        {{ Form::select('partner',$reseller_owners,'', array("class"=>"select2")) }}
+                    </div>
+                @endif
                 <div class="form-group">
                     <label class="control-label">Language</label>
                     {{  ddl_language("", "templateLanguage",'', "", "id",'','1')}}
@@ -107,7 +111,8 @@ var popup_type  = 0;
     $searchFilter.system_templates    =   $("#template_filter [name='system_templates']").prop("checked");
     $searchFilter.templateLanguage    =   $("#template_filter [name='templateLanguage']").val();
     $searchFilter.SystemType    =         $("#template_filter [name='SystemType']").val();  
-    $searchFilter.partner       =         $("#template_filter [name='partner']").val();    
+    $searchFilter.partner       =         $("#template_filter [name='partner']").val(); 
+    $searchFilter.CompanyID       =        $("#template_filter [name='CompanyID']").val();   
 
      
    
@@ -119,9 +124,9 @@ var popup_type  = 0;
             "sAjaxSource": baseurl + "/email_template/ajax_datagrid/type",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name":"SystemType","value":$searchFilter.SystemType},{"name":"partner","value":$searchFilter.partner});
+                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name":"SystemType","value":$searchFilter.SystemType},{"name":"partner","value":$searchFilter.partner},{"name":"CompanyID","value":$searchFilter.CompanyID});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"SystemType","value":$searchFilter.SystemType},{"name":"partner","value":$searchFilter.partner},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name": "Export", "value": 1});
+                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"SystemType","value":$searchFilter.SystemType},{"name":"partner","value":$searchFilter.partner},{"name":"CompanyID","value":$searchFilter.CompanyID},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage},{"name": "Export", "value": 1});
             },
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -156,7 +161,7 @@ var popup_type  = 0;
                          action += '<input type = "hidden"  name = "templateID" value = "' + id + '" / >';
                          action += '</div>';
                         <?php if(User::checkCategoryPermission('EmailTemplate','Edit')) { ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                            action += ' <a data-name = "'+full[3]+'" data-id="'+ id +'" title="Edit" class="edit-template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
             if(full[9]==0){
@@ -224,6 +229,9 @@ var popup_type  = 0;
       $searchFilter.templateLanguage  =   $("#template_filter [name='templateLanguage']").val();
       $searchFilter.SystemType    =         $("#template_filter [name='SystemType']").val();
       $searchFilter.partner       =         $("#template_filter [name='partner']").val();
+      $searchFilter.CompanyID       =        $("#template_filter [name='CompanyID']").val();
+
+      
             data_table.fnFilter('', 0);
             return false;
         });
