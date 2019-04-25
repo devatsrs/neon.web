@@ -501,12 +501,12 @@ class RateGeneratorRuleController extends \BaseController {
             if(!empty($data ['MinRate'])){
                 $data ['MinRate'] = doubleval($data ['MinRate']);
             }else{
-                $data ['MinRate']='(NULL)';
+                $data ['MinRate']='null';
             }
             if(!empty($data ['MaxRate'])){
                 $data ['MaxRate'] = doubleval($data ['MaxRate']);
             }else{
-                $data ['MaxRate']='(NULL)';
+                $data ['MaxRate']='null';
             }
             
             $data ['FixedValue'] = doubleval($data ['FixedValue']);
