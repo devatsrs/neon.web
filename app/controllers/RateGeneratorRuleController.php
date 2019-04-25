@@ -487,8 +487,17 @@ class RateGeneratorRuleController extends \BaseController {
             $data = Input::all();
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateRuleId'] = $RateRuleId;
-            $data ['MinRate'] = doubleval($data ['MinRate']);
-            $data ['MaxRate'] = doubleval($data ['MaxRate']);
+            if(!empty($data ['MinRate'])){
+                $data ['MinRate'] = doubleval($data ['MinRate']);
+            }else{
+                $data ['MinRate']='';
+            }
+            if(!empty($data ['MaxRate'])){
+                $data ['MaxRate'] = doubleval($data ['MaxRate']);
+            }else{
+                $data ['MaxRate']='';
+            }
+            
             $data ['FixedValue'] = doubleval($data ['FixedValue']);
             $RateGeneratorID  = $data['RateGeneratorId'];
             unset($data['RateGeneratorId']);
