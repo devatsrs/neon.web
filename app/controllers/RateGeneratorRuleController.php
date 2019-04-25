@@ -501,12 +501,12 @@ class RateGeneratorRuleController extends \BaseController {
             if(!empty($data ['MinRate'])){
                 $data ['MinRate'] = doubleval($data ['MinRate']);
             }else{
-                $data ['MinRate']='null';
+                $data ['MinRate']=null;
             }
             if(!empty($data ['MaxRate'])){
                 $data ['MaxRate'] = doubleval($data ['MaxRate']);
             }else{
-                $data ['MaxRate']='null';
+                $data ['MaxRate']=null;
             }
             
             $data ['FixedValue'] = doubleval($data ['FixedValue']);
@@ -527,11 +527,11 @@ class RateGeneratorRuleController extends \BaseController {
                     "message" => "Add Margin or Fixed Rate, Both are not allowed"
                 ));
             }
-
-            $minRateCount = RateRuleMargin::whereBetween('MinRate', array(doubleval($data['MinRate']), doubleval($data['MaxRate'])))
+            
+            $minRateCount = RateRuleMargin::whereBetween('MinRate', array($data['MinRate'], $data['MaxRate']))
                 ->where(['RateRuleId'=>$RateRuleId])
                 ->count();
-            $maxRateCount = RateRuleMargin::whereBetween('MaxRate', array(doubleval($data['MinRate']), doubleval($data['MaxRate'])))
+            $maxRateCount = RateRuleMargin::whereBetween('MaxRate', array($data['MinRate'], $data['MaxRate']))
                 ->where(['RateRuleId'=>$RateRuleId])
                 ->count();
 
