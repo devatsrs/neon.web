@@ -461,7 +461,7 @@ class RateGeneratorRuleController extends \BaseController {
             if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
                 $maxRate = $data ['MinRate']>$data ['MaxRate']?1:0;
             }else{
-                $EmptyRate = RateRuleMargin::where('MaxRate','=','')->where('MinRate','=','')
+                $EmptyRate = RateRuleMargin::where('MaxRate','=',null)->where('MinRate','=',null)
                     ->where(['RateRuleId'=>$RateRuleId])
                     ->count();
             }
@@ -558,7 +558,7 @@ class RateGeneratorRuleController extends \BaseController {
             if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
                 $maxRate = $data ['MinRate']>$data ['MaxRate']?1:0;
             }else{
-                $EmptyRate = RateRuleMargin::where('MaxRate','=','')->where('MinRate','=','')
+                $EmptyRate = RateRuleMargin::where('MaxRate','=',null)->where('MinRate','=',null)
                     ->where(['RateRuleId'=>$RateRuleId])
                     ->count();
             }
