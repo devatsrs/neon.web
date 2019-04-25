@@ -444,23 +444,21 @@ class RateGeneratorRuleController extends \BaseController {
             }
             $minRateCount=0;$maxRateCount=0;$minRate=0;$maxRate=0;$EmptyRate=0;
             if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
+                
                 $minRateCount = RateRuleMargin::whereBetween('MinRate', array($data['MinRate'], $data['MaxRate']))
                     ->where(['RateRuleId'=>$RateRuleId])
                     ->count();
-            }
-            if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
+                
                 $maxRateCount = RateRuleMargin::whereBetween('MaxRate', array($data['MinRate'], $data['MaxRate']))
                     ->where(['RateRuleId'=>$RateRuleId])
                     ->count();
-            }
-            if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
+                
                 $minRate = RateRuleMargin::where('MaxRate','>=',$data['MinRate'])->where('MinRate','<=',$data['MinRate'])
                     ->where(['RateRuleId'=>$RateRuleId])
                     ->count();
-            }
-            if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
                 $maxRate = $data ['MinRate']>$data ['MaxRate']?1:0;
-            }else{
+                
+            }else {
                 $EmptyRate = RateRuleMargin::where('MaxRate','=',null)->where('MinRate','=',null)
                     ->where(['RateRuleId'=>$RateRuleId])
                     ->count();
@@ -544,26 +542,22 @@ class RateGeneratorRuleController extends \BaseController {
                 $minRateCount = RateRuleMargin::whereBetween('MinRate', array($data['MinRate'], $data['MaxRate']))
                     ->where(['RateRuleId'=>$RateRuleId])
                     ->count();
-            }
-            if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
+                
                 $maxRateCount = RateRuleMargin::whereBetween('MaxRate', array($data['MinRate'], $data['MaxRate']))
                     ->where(['RateRuleId'=>$RateRuleId])
                     ->count();
-            }
-            if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
+                
                 $minRate = RateRuleMargin::where('MaxRate','>=',$data['MinRate'])->where('MinRate','<=',$data['MinRate'])
                     ->where(['RateRuleId'=>$RateRuleId])
                     ->count();
-            }
-            if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
+                
                 $maxRate = $data ['MinRate']>$data ['MaxRate']?1:0;
-            }else{
-                if(empty($data ['MinRate']) && empty($data ['MaxRate'])){
-                    $EmptyRate = RateRuleMargin::where('MaxRate','=',null)->where('MinRate','=',null)
-                        ->where(['RateRuleId'=>$RateRuleId])
-                        ->count();
-                }
+            }else {
+                $EmptyRate = RateRuleMargin::where('MaxRate','=',null)->where('MinRate','=',null)
+                    ->where(['RateRuleId'=>$RateRuleId])
+                    ->count();
             }
+                
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
