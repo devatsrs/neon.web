@@ -3539,3 +3539,2773 @@ BEGIN
 
 END//
 DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_GetRateTableRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetRateTableRate`(
+	IN `p_companyid` INT,
+	IN `p_RateTableId` INT,
+	IN `p_trunkID` INT,
+	IN `p_TimezonesID` VARCHAR(50),
+	IN `p_contryID` INT,
+	IN `p_origination_code` VARCHAR(50),
+	IN `p_origination_description` VARCHAR(50),
+	IN `p_code` VARCHAR(50),
+	IN `p_description` VARCHAR(50),
+	IN `p_effective` VARCHAR(50),
+	IN `p_RoutingCategoryID` INT,
+	IN `p_Preference` TEXT,
+	IN `p_Blocked` TINYINT,
+	IN `p_ApprovedStatus` TINYINT,
+	IN `p_view` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+	DECLARE v_ROUTING_PROFILE_ INT;
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_AppliedTo_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	SET SESSION GROUP_CONCAT_MAX_LEN = 1000000;
+
+	SELECT Value INTO v_ROUTING_PROFILE_ FROM tblCompanyConfiguration WHERE CompanyID=p_companyid AND `Key`='ROUTING_PROFILE';
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID=p_companyid AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_AppliedTo_ FROM tblRateTable WHERE CompanyID=p_companyid AND RateTableId=p_RateTableId;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
+   CREATE TEMPORARY TABLE tmp_RateTableRate_ (
+		ID INT,
+		TimezoneTitle VARCHAR(50),
+		OriginationCode VARCHAR(50),
+		OriginationDescription VARCHAR(200),
+		Code VARCHAR(50),
+		Description VARCHAR(200),
+		MinimumDuration INT,
+		Interval1 INT,
+		IntervalN INT,
+		ConnectionFee DECIMAL(18, 6),
+		PreviousRate DECIMAL(18, 6),
+		Rate DECIMAL(18, 6),
+		RateN DECIMAL(18, 6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		ModifiedBy VARCHAR(50),
+		RateTableRateID INT,
+		OriginationRateID INT,
+		RateID INT,
+		RoutingCategoryID INT,
+		RoutingCategoryName VARCHAR(50),
+		Preference INT,
+		Blocked TINYINT,
+		ApprovedStatus TINYINT,
+		ApprovedBy VARCHAR(50),
+		ApprovedDate DATETIME,
+		RateCurrency INT(11),
+		ConnectionFeeCurrency INT(11),
+		RateCurrencySymbol VARCHAR(255),
+		ConnectionFeeCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
+		INDEX tmp_RateTableRate_RateID (`RateID`)
+    );
+
+
+
+    INSERT INTO tmp_RateTableRate_
+    SELECT
+		RateTableRateID AS ID,
+		tblTimezones.Title AS TimezoneTitle,
+		OriginationRate.Code AS OriginationCode,
+		OriginationRate.Description AS OriginationDescription,
+		tblRate.Code,
+		tblRate.Description,
+		IFNULL(tblRateTableRate.MinimumDuration,0) AS MinimumDuration,
+		IFNULL(tblRateTableRate.Interval1,1) AS Interval1,
+		IFNULL(tblRateTableRate.IntervalN,1) AS IntervalN,
+		tblRateTableRate.ConnectionFee,
+		NULL AS PreviousRate,
+		IFNULL(tblRateTableRate.Rate, 0) AS Rate,
+		IFNULL(tblRateTableRate.RateN, 0) AS RateN,
+		IFNULL(tblRateTableRate.EffectiveDate, NOW()) AS EffectiveDate,
+		tblRateTableRate.EndDate,
+		tblRateTableRate.updated_at,
+		tblRateTableRate.ModifiedBy,
+		RateTableRateID,
+		OriginationRate.RateID AS OriginationRateID,
+		tblRate.RateID,
+		tblRateTableRate.RoutingCategoryID,
+		RC.Name AS RoutingCategoryName,
+		tblRateTableRate.Preference,
+		tblRateTableRate.Blocked,
+		tblRateTableRate.ApprovedStatus,
+		tblRateTableRate.ApprovedBy,
+		tblRateTableRate.ApprovedDate,
+		tblRateCurrency.CurrencyID AS RateCurrency,
+		tblConnectionFeeCurrency.CurrencyID AS ConnectionFeeCurrency,
+		IFNULL(tblRateCurrency.Symbol,'') AS RateCurrencySymbol,
+		IFNULL(tblConnectionFeeCurrency.Symbol,'') AS ConnectionFeeCurrencySymbol,
+		tblRateTableRate.TimezonesID
+    FROM tblRate
+    LEFT JOIN tblRateTableRate
+        ON tblRateTableRate.RateID = tblRate.RateID
+        AND tblRateTableRate.RateTableId = p_RateTableId
+    INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = tblRateTableRate.TimezonesID
+    LEFT JOIN tblCurrency AS tblRateCurrency
+        ON tblRateCurrency.CurrencyID = tblRateTableRate.RateCurrency
+    LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+        ON tblConnectionFeeCurrency.CurrencyID = tblRateTableRate.ConnectionFeeCurrency
+    LEFT JOIN tblRate AS OriginationRate
+		ON OriginationRate.RateID = tblRateTableRate.OriginationRateID
+    INNER JOIN tblRateTable
+        ON tblRateTable.RateTableId = tblRateTableRate.RateTableId
+    LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
+    	  ON RC.RoutingCategoryID = tblRateTableRate.RoutingCategoryID
+    WHERE		(tblRate.CompanyID = p_companyid)
+		AND (p_contryID IS NULL OR tblRate.CountryID = p_contryID)
+		AND (p_origination_code IS NULL OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
+		AND (p_origination_description IS NULL OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%'))
+		AND (p_code IS NULL OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
+		AND (p_description IS NULL OR tblRate.Description LIKE REPLACE(p_description, '*', '%'))
+		AND (p_RoutingCategoryID IS NULL OR RC.RoutingCategoryID = p_RoutingCategoryID)
+		AND (p_Preference IS NULL OR tblRateTableRate.Preference = p_Preference)
+		AND (p_Blocked IS NULL OR tblRateTableRate.Blocked = p_Blocked)
+		AND (p_ApprovedStatus IS NULL OR tblRateTableRate.ApprovedStatus = p_ApprovedStatus)
+		AND TrunkID = p_trunkID
+		AND (p_TimezonesID IS NULL OR tblRateTableRate.TimezonesID = p_TimezonesID)
+		AND (
+			p_effective = 'All'
+		OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
+		OR (p_effective = 'Future' AND EffectiveDate > NOW())
+			);
+
+	  IF p_effective = 'Now'
+		THEN
+		   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);
+         DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+		   AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID;
+		END IF;
+
+
+	UPDATE
+		tmp_RateTableRate_ tr
+	SET
+		PreviousRate = (SELECT Rate FROM tblRateTableRate WHERE RateTableID=p_RateTableId AND TimezonesID = tr.TimezonesID AND RateID=tr.RateID AND OriginationRateID=tr.OriginationRateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1);
+
+	UPDATE
+		tmp_RateTableRate_ tr
+	SET
+		PreviousRate = (SELECT Rate FROM tblRateTableRateArchive WHERE RateTableID=p_RateTableId AND TimezonesID = tr.TimezonesID AND RateID=tr.RateID AND OriginationRateID=tr.OriginationRateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1)
+	WHERE
+		PreviousRate is null;
+
+    IF p_isExport = 0
+    THEN
+
+		IF p_view = 1
+		THEN
+       	SELECT * FROM tmp_RateTableRate_
+					ORDER BY
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionDESC') THEN OriginationDescription
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN OriginationDescription
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN Description
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreviousRateDESC') THEN PreviousRate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreviousRateASC') THEN PreviousRate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateDESC') THEN Rate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MinimumDurationDESC') THEN MinimumDuration
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MinimumDurationASC') THEN MinimumDuration
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN Interval1
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1ASC') THEN Interval1
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNDESC') THEN Interval1
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNASC') THEN Interval1
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
+                END ASC,
+				    CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ConnectionFee
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN ConnectionFee
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN RoutingCategoryName
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN RoutingCategoryName
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN Preference
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN Preference
+                END ASC
+			LIMIT p_RowspPage OFFSET v_OffSet_;
+
+			SELECT
+            COUNT(RateID) AS totalcount
+        	FROM tmp_RateTableRate_;
+
+		ELSE
+			SELECT group_concat(ID) AS ID,MAX(TimezoneTitle) AS TimezoneTitle,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,MAX(Description),MinimumDuration,Interval1,IntervalN,ConnectionFee,MAX(PreviousRate),Rate,MAX(RateN),EffectiveDate,MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate, MAX(RateCurrency) AS RateCurrency, MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency, MAX(RateCurrencySymbol) AS RateCurrencySymbol, MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol,TimezonesID FROM tmp_RateTableRate_
+					GROUP BY Description, OriginationDescription, MinimumDuration, Interval1, IntervalN, ConnectionFee, Rate, EffectiveDate, ApprovedStatus, TimezonesID
+					ORDER BY
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN ANY_VALUE(OriginationCode)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN ANY_VALUE(OriginationCode)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionDESC') THEN ANY_VALUE(OriginationDescription)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN ANY_VALUE(OriginationDescription)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN ANY_VALUE(Description)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN ANY_VALUE(Description)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreviousRateDESC') THEN ANY_VALUE(PreviousRate)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreviousRateASC') THEN ANY_VALUE(PreviousRate)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateDESC') THEN ANY_VALUE(Rate)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN ANY_VALUE(Rate)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN ANY_VALUE(RateN)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN ANY_VALUE(RateN)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MinimumDurationDESC') THEN MinimumDuration
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MinimumDurationASC') THEN MinimumDuration
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN ANY_VALUE(Interval1)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1ASC') THEN ANY_VALUE(Interval1)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNDESC') THEN ANY_VALUE(Interval1)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNASC') THEN ANY_VALUE(Interval1)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN ANY_VALUE(EffectiveDate)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN ANY_VALUE(EffectiveDate)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN ANY_VALUE(EndDate)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN ANY_VALUE(EndDate)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN ANY_VALUE(updated_at)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN ANY_VALUE(updated_at)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ANY_VALUE(ModifiedBy)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ANY_VALUE(ModifiedBy)
+                END ASC,
+				    CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ANY_VALUE(ConnectionFee)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN ANY_VALUE(ConnectionFee)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN RoutingCategoryName
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN RoutingCategoryName
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN Preference
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN Preference
+                END ASC
+			LIMIT p_RowspPage OFFSET v_OffSet_;
+
+			SELECT COUNT(*) AS `totalcount`
+			FROM (
+				SELECT
+	            Description
+	        	FROM tmp_RateTableRate_
+					GROUP BY Description, OriginationDescription, MinimumDuration, Interval1, IntervalN, ConnectionFee, Rate, EffectiveDate, ApprovedStatus, TimezonesID
+			) totalcount;
+
+
+		END IF;
+
+    END IF;
+
+
+	-- export
+	IF p_isExport <> 0
+	THEN
+		SET @stm1='',@stm2='',@stm3='',@stm4='';
+
+		SET @stm1 = "
+			SELECT
+        		TimezoneTitle AS `Time of Day`,
+				OriginationCode AS `Orig. Code`,
+				OriginationDescription AS `Orig. Description`,
+				Code AS `Destination Code`,
+				Description AS `Destination Description`,
+				MinimumDuration AS `Min. Duration`,
+				CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+				CONCAT(ConnectionFeeCurrencySymbol,ConnectionFee) AS `Connection Fee`,
+				CONCAT(RateCurrencySymbol,Rate) AS Rate,
+				CONCAT(RateCurrencySymbol,RateN) AS RateN,
+				EffectiveDate AS `Effective Date`
+		";
+
+	   IF(v_ROUTING_PROFILE_ = 1)
+		THEN
+			SET @stm3 = ', RoutingCategoryName AS `Routing Category Name`';
+		END IF;
+
+		-- if vendor rate table
+		IF(v_AppliedTo_ = 2)
+		THEN
+		   SET @stm4 = ', Preference, Blocked';
+	   END IF;
+
+	   -- advance view
+		IF p_isExport = 11
+		THEN
+	   	SET @stm2 = ", PreviousRate AS `Previous Rate`, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
+
+	   	-- rate approval process is on and rate table is vendor rate table
+			IF(v_RateApprovalProcess_ = 1 && v_AppliedTo_ <> 2)
+			THEN
+	   		SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus AS `Approved Status`");
+	   	END IF;
+
+	   END IF;
+
+	   SET @stm = CONCAT(@stm1,@stm2,@stm3,@stm4,' FROM tmp_RateTableRate_;');
+
+	   PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_GetRateTableRateAA`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetRateTableRateAA`(
+	IN `p_companyid` INT,
+	IN `p_RateTableId` INT,
+	IN `p_trunkID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_contryID` INT,
+	IN `p_origination_code` VARCHAR(50),
+	IN `p_origination_description` VARCHAR(50),
+	IN `p_code` VARCHAR(50),
+	IN `p_description` VARCHAR(50),
+	IN `p_effective` VARCHAR(50),
+	IN `p_ApprovedStatus` TINYINT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	SET SESSION GROUP_CONCAT_MAX_LEN = 1000000;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
+	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
+		ID INT,
+		TimezoneTitle VARCHAR(50),
+		OriginationCode VARCHAR(50),
+		OriginationDescription VARCHAR(200),
+		Code VARCHAR(50),
+		Description VARCHAR(200),
+		MinimumDuration INT,
+		Interval1 INT,
+		IntervalN INT,
+		ConnectionFee DECIMAL(18, 6),
+		PreviousRate DECIMAL(18, 6),
+		Rate DECIMAL(18, 6),
+		RateN DECIMAL(18, 6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		ModifiedBy VARCHAR(50),
+		RateTableRateID INT,
+		OriginationRateID INT,
+		RateID INT,
+		RoutingCategoryID INT,
+		RoutingCategoryName VARCHAR(50),
+		Preference INT,
+		Blocked TINYINT,
+		ApprovedStatus TINYINT,
+		ApprovedBy VARCHAR(50),
+		ApprovedDate DATETIME,
+		RateCurrency INT(11),
+		ConnectionFeeCurrency INT(11),
+		RateCurrencySymbol VARCHAR(255),
+		ConnectionFeeCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
+		INDEX tmp_RateTableRate_RateID (`RateID`)
+	);
+
+
+
+	INSERT INTO tmp_RateTableRate_
+	SELECT
+		RateTableRateAAID AS ID,
+		tblTimezones.Title AS TimezoneTitle,
+		OriginationRate.Code AS OriginationCode,
+		OriginationRate.Description AS OriginationDescription,
+		tblRate.Code,
+		tblRate.Description,
+		IFNULL(tblRateTableRate.MinimumDuration,0) AS MinimumDuration,
+		IFNULL(tblRateTableRate.Interval1,1) AS Interval1,
+		IFNULL(tblRateTableRate.IntervalN,1) AS IntervalN,
+		tblRateTableRate.ConnectionFee,
+		NULL AS PreviousRate,
+		IFNULL(tblRateTableRate.Rate, 0) AS Rate,
+		IFNULL(tblRateTableRate.RateN, 0) AS RateN,
+		IFNULL(tblRateTableRate.EffectiveDate, NOW()) AS EffectiveDate,
+		tblRateTableRate.EndDate,
+		tblRateTableRate.updated_at,
+		tblRateTableRate.ModifiedBy,
+		RateTableRateAAID AS RateTableRateID,
+		OriginationRate.RateID AS OriginationRateID,
+		tblRate.RateID,
+		tblRateTableRate.RoutingCategoryID,
+		'' AS RoutingCategoryName,
+		tblRateTableRate.Preference,
+		tblRateTableRate.Blocked,
+		tblRateTableRate.ApprovedStatus,
+		tblRateTableRate.ApprovedBy,
+		tblRateTableRate.ApprovedDate,
+		tblRateCurrency.CurrencyID AS RateCurrency,
+		tblConnectionFeeCurrency.CurrencyID AS ConnectionFeeCurrency,
+		IFNULL(tblRateCurrency.Symbol,'') AS RateCurrencySymbol,
+		IFNULL(tblConnectionFeeCurrency.Symbol,'') AS ConnectionFeeCurrencySymbol,
+		tblRateTableRate.TimezonesID
+	FROM tblRate
+	LEFT JOIN tblRateTableRateAA AS tblRateTableRate
+		ON tblRateTableRate.RateID = tblRate.RateID
+		AND tblRateTableRate.RateTableId = p_RateTableId
+   INNER JOIN tblTimezones
+    	ON tblTimezones.TimezonesID = tblRateTableRate.TimezonesID
+	LEFT JOIN tblCurrency AS tblRateCurrency
+		ON tblRateCurrency.CurrencyID = tblRateTableRate.RateCurrency
+	LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+		ON tblConnectionFeeCurrency.CurrencyID = tblRateTableRate.ConnectionFeeCurrency
+	LEFT JOIN tblRate AS OriginationRate
+		ON OriginationRate.RateID = tblRateTableRate.OriginationRateID
+	INNER JOIN tblRateTable
+		ON tblRateTable.RateTableId = tblRateTableRate.RateTableId
+	WHERE		(tblRate.CompanyID = p_companyid)
+		AND (p_contryID IS NULL OR tblRate.CountryID = p_contryID)
+		AND (p_origination_code IS NULL OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
+		AND (p_origination_description IS NULL OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%'))
+		AND (p_code IS NULL OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
+		AND (p_description IS NULL OR tblRate.Description LIKE REPLACE(p_description, '*', '%'))
+		AND (p_ApprovedStatus IS NULL OR tblRateTableRate.ApprovedStatus = p_ApprovedStatus)
+		AND TrunkID = p_trunkID
+		AND (p_TimezonesID IS NULL OR tblRateTableRate.TimezonesID = p_TimezonesID)
+		AND (
+			p_effective = 'All'
+			OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
+			OR (p_effective = 'Future' AND EffectiveDate > NOW())
+		);
+
+	IF p_effective = 'Now'
+	THEN
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);
+		DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+		AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID;
+	END IF;
+
+
+	IF p_isExport = 0
+	THEN
+
+		SELECT * FROM tmp_RateTableRate_
+		ORDER BY
+			CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+         END DESC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+         END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionDESC') THEN OriginationDescription
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN OriginationDescription
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN Description
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreviousRateDESC') THEN PreviousRate
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreviousRateASC') THEN PreviousRate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateDESC') THEN Rate
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
+			END ASC,
+       	CASE
+           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MinimumDurationDESC') THEN MinimumDuration
+       	END DESC,
+       	CASE
+           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MinimumDurationASC') THEN MinimumDuration
+       	END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN Interval1
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1ASC') THEN Interval1
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNDESC') THEN Interval1
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNASC') THEN Interval1
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ConnectionFee
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN ConnectionFee
+			END ASC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+         END DESC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+         END ASC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN RoutingCategoryName
+         END DESC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN RoutingCategoryName
+         END ASC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN Preference
+         END DESC,
+         CASE
+            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN Preference
+         END ASC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(RateID) AS totalcount
+		FROM tmp_RateTableRate_;
+
+	END IF;
+
+
+	-- export
+	IF p_isExport <> 0
+	THEN
+		SET @stm1='',@stm2='';
+
+		SET @stm1 = "
+			SELECT
+        		TimezoneTitle AS `Time of Day`,
+				OriginationCode AS `Orig. Code`,
+				OriginationDescription AS `Orig. Description`,
+				Code AS `Destination Code`,
+				Description AS `Destination Description`,
+				MinimumDuration AS `Min. Duration`,
+				CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+				CONCAT(ConnectionFeeCurrencySymbol,ConnectionFee) AS `Connection Fee`,
+				CONCAT(RateCurrencySymbol,Rate) AS Rate,
+				CONCAT(RateCurrencySymbol,RateN) AS RateN,
+				EffectiveDate AS `Effective Date`
+		";
+
+		-- advance view
+		IF p_isExport = 11
+		THEN
+			SET @stm2 = ", PreviousRate AS `Previous Rate`, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
+			SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus AS `Approved Status`");
+		END IF;
+
+		SET @stm = CONCAT(@stm1,@stm2,' FROM tmp_RateTableRate_;');
+
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_GetRateTableRatesArchiveGrid`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetRateTableRatesArchiveGrid`(
+	IN `p_CompanyID` INT,
+	IN `p_RateTableID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_RateID` LONGTEXT,
+	IN `p_OriginationRateID` LONGTEXT,
+	IN `p_View` INT
+)
+BEGIN
+
+	SET SESSION GROUP_CONCAT_MAX_LEN = 1000000;
+
+	CALL prc_SplitAndInsertRateIDs(p_RateID,p_OriginationRateID);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
+	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
+		OriginationCode VARCHAR(50),
+		OriginationDescription VARCHAR(200),
+		Code VARCHAR(50),
+		Description VARCHAR(200),
+		MinimumDuration INT,
+		Interval1 INT,
+		IntervalN INT,
+		ConnectionFee VARCHAR(50),
+		PreviousRate DECIMAL(18, 6),
+		Rate DECIMAL(18, 6),
+		RateN DECIMAL(18, 6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		ModifiedBy VARCHAR(50),
+		ApprovedStatus tinyint(4),
+		ApprovedDate DATETIME,
+		ApprovedBy VARCHAR(50),
+		RoutingCategoryName VARCHAR(50),
+		Preference INT,
+		Blocked TINYINT,
+		RateCurrency VARCHAR(255),
+		ConnectionFeeCurrency VARCHAR(255)
+	);
+
+	IF p_View = 1
+	THEN
+		INSERT INTO tmp_RateTableRate_ (
+			OriginationCode,
+		  	OriginationDescription,
+			Code,
+		  	Description,
+		  	MinimumDuration,
+		  	Interval1,
+		  	IntervalN,
+		  	ConnectionFee,
+		  	Rate,
+		  	RateN,
+		  	EffectiveDate,
+		  	EndDate,
+		  	updated_at,
+		  	ModifiedBy,
+			ApprovedStatus,
+			ApprovedDate,
+			ApprovedBy,
+		  	RoutingCategoryName,
+        	Preference,
+        	Blocked,
+			RateCurrency,
+			ConnectionFeeCurrency
+		)
+	   SELECT
+			o_r.Code AS OriginationCode,
+			o_r.Description AS OriginationDescription,
+			r.Code,
+			r.Description,
+			CASE WHEN vra.MinimumDuration IS NOT NULL THEN vra.MinimumDuration ELSE r.MinimumDuration END AS MinimumDuration,
+			CASE WHEN vra.Interval1 IS NOT NULL THEN vra.Interval1 ELSE r.Interval1 END AS Interval1,
+			CASE WHEN vra.IntervalN IS NOT NULL THEN vra.IntervalN ELSE r.IntervalN END AS IntervalN,
+			IFNULL(vra.ConnectionFee,'') AS ConnectionFee,
+			vra.Rate,
+			vra.RateN,
+			vra.EffectiveDate,
+			IFNULL(vra.EndDate,'') AS EndDate,
+			IFNULL(vra.created_at,'') AS ModifiedDate,
+			IFNULL(vra.created_by,'') AS ModifiedBy,
+			vra.ApprovedStatus,
+			vra.ApprovedDate,
+			vra.ApprovedBy,
+        	RC.Name AS RoutingCategoryName,
+        	vra.Preference,
+        	vra.Blocked,
+			tblRateCurrency.Symbol AS RateCurrency,
+			tblConnectionFeeCurrency.Symbol AS ConnectionFeeCurrency
+		FROM
+			tblRateTableRateArchive vra
+		JOIN
+			tblRate r ON r.RateID=vra.RateId
+		LEFT JOIN
+			tblRate o_r ON o_r.RateID=vra.OriginationRateID
+		LEFT JOIN tblCurrency AS tblRateCurrency
+			ON tblRateCurrency.CurrencyID = vra.RateCurrency
+		LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+			ON tblConnectionFeeCurrency.CurrencyID = vra.ConnectionFeeCurrency
+    	LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
+    	  	ON RC.RoutingCategoryID = vra.RoutingCategoryID
+		WHERE
+			r.CompanyID = p_CompanyID AND
+			vra.RateTableId = p_RateTableID AND
+			vra.TimezonesID = p_TimezonesID AND
+			(
+				(vra.RateID, vra.OriginationRateID) IN (
+					SELECT RateID,OriginationRateID FROM temp_rateids_
+				)
+			)
+		ORDER BY
+			vra.EffectiveDate DESC, vra.created_at DESC;
+	ELSE
+		INSERT INTO tmp_RateTableRate_ (
+			OriginationCode,
+		  	OriginationDescription,
+			Code,
+		  	Description,
+		  	MinimumDuration,
+		  	Interval1,
+		  	IntervalN,
+		  	ConnectionFee,
+		  	Rate,
+		  	RateN,
+		  	EffectiveDate,
+		  	EndDate,
+		  	updated_at,
+		  	ModifiedBy,
+			ApprovedStatus,
+			ApprovedDate,
+			ApprovedBy,
+			RoutingCategoryName,
+        	Preference,
+        	Blocked,
+			RateCurrency,
+			ConnectionFeeCurrency
+		)
+	   SELECT
+			GROUP_CONCAT(DISTINCT o_r.Code) AS OriginationCode,
+			MAX(o_r.Description) AS OriginationDescription,
+			GROUP_CONCAT(r.Code),
+			r.Description,
+			CASE WHEN vra.MinimumDuration IS NOT NULL THEN vra.MinimumDuration ELSE r.MinimumDuration END AS MinimumDuration,
+			CASE WHEN vra.Interval1 IS NOT NULL THEN vra.Interval1 ELSE r.Interval1 END AS Interval1,
+			CASE WHEN vra.IntervalN IS NOT NULL THEN vra.IntervalN ELSE r.IntervalN END AS IntervalN,
+			IFNULL(vra.ConnectionFee,'') AS ConnectionFee,
+			vra.Rate,
+		  	MAX(vra.RateN) AS RateN,
+			vra.EffectiveDate,
+			IFNULL(vra.EndDate,'') AS EndDate,
+			IFNULL(MAX(vra.created_at),'') AS ModifiedDate,
+			IFNULL(MAX(vra.created_by),'') AS ModifiedBy,
+			vra.ApprovedStatus,
+			MAX(vra.ApprovedDate) AS ApprovedDate,
+			MAX(vra.ApprovedBy) AS ApprovedBy,
+        	MAX(RC.Name) AS RoutingCategoryName,
+        	MAX(vra.Preference) AS Preference,
+        	MAX(vra.Blocked) AS Blocked,
+			MAX(tblRateCurrency.Symbol) AS RateCurrency,
+			MAX(tblConnectionFeeCurrency.Symbol) AS ConnectionFeeCurrency
+		FROM
+			tblRateTableRateArchive vra
+		JOIN
+			tblRate r ON r.RateID=vra.RateId
+		LEFT JOIN
+			tblRate o_r ON o_r.RateID=vra.OriginationRateID
+		LEFT JOIN tblCurrency AS tblRateCurrency
+			ON tblRateCurrency.CurrencyID = vra.RateCurrency
+		LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+			ON tblConnectionFeeCurrency.CurrencyID = vra.ConnectionFeeCurrency
+    	LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
+    	  	ON RC.RoutingCategoryID = vra.RoutingCategoryID
+		WHERE
+			r.CompanyID = p_CompanyID AND
+			vra.RateTableId = p_RateTableID AND
+			vra.TimezonesID = p_TimezonesID AND
+			(
+				(vra.RateID, vra.OriginationRateID) IN (
+					SELECT RateID,OriginationRateID FROM temp_rateids_
+				)
+			)
+		GROUP BY
+			Description, MinimumDuration, Interval1, IntervalN, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus
+		ORDER BY
+			vra.EffectiveDate DESC, MAX(vra.created_at) DESC;
+	END IF;
+
+	SELECT
+		OriginationCode,
+	  	OriginationDescription,
+		Code,
+		Description,
+		MinimumDuration,
+		Interval1,
+		IntervalN,
+		CONCAT(IFNULL(ConnectionFeeCurrency,''), ConnectionFee) AS ConnectionFee,
+		CONCAT(IFNULL(RateCurrency,''), Rate) AS Rate,
+		CONCAT(IFNULL(RateCurrency,''), RateN) AS RateN,
+		EffectiveDate,
+		EndDate,
+		IFNULL(updated_at,'') AS ModifiedDate,
+		IFNULL(ModifiedBy,'') AS ModifiedBy,
+		ApprovedStatus,
+		ApprovedDate,
+		ApprovedBy,
+		RoutingCategoryName,
+		Preference,
+		Blocked
+	FROM tmp_RateTableRate_;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getDiscontinuedRateTableRateGrid`;
+DELIMITER //
+CREATE PROCEDURE `prc_getDiscontinuedRateTableRateGrid`(
+	IN `p_CompanyID` INT,
+	IN `p_RateTableID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_CountryID` INT,
+	IN `p_origination_code` VARCHAR(50),
+	IN `p_origination_description` VARCHAR(200),
+	IN `p_Code` VARCHAR(50),
+	IN `p_Description` VARCHAR(200),
+	IN `p_RoutingCategoryID` INT,
+	IN `p_Preference` TEXT,
+	IN `p_Blocked` TINYINT,
+	IN `p_ApprovedStatus` TINYINT,
+	IN `p_View` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+	DECLARE v_ROUTING_PROFILE_ INT;
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_AppliedTo_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT Value INTO v_ROUTING_PROFILE_ FROM tblCompanyConfiguration WHERE CompanyID=p_companyid AND `Key`='ROUTING_PROFILE';
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID=p_companyid AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_AppliedTo_ FROM tblRateTable WHERE CompanyID=p_companyid AND RateTableId=p_RateTableId;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
+	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
+		RateTableRateID INT,
+		TimezoneTitle VARCHAR(50),
+		OriginationCode VARCHAR(50),
+		OriginationDescription VARCHAR(200),
+		Code VARCHAR(50),
+		Description VARCHAR(200),
+		MinimumDuration INT,
+		Interval1 INT,
+		IntervalN INT,
+		ConnectionFee VARCHAR(50),
+		PreviousRate DECIMAL(18, 6),
+		Rate DECIMAL(18, 6),
+		RateN DECIMAL(18, 6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		updated_by VARCHAR(50),
+		OriginationRateID INT,
+		RateID INT,
+     	RoutingCategoryID INT,
+     	RoutingCategoryName VARCHAR(50),
+     	Preference INT,
+     	Blocked TINYINT,
+     	ApprovedStatus TINYINT,
+     	ApprovedBy VARCHAR(50),
+     	ApprovedDate DATE,
+		RateCurrency INT(11),
+		ConnectionFeeCurrency INT(11),
+		RateCurrencySymbol VARCHAR(255),
+		ConnectionFeeCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
+		INDEX tmp_RateTableRate_RateID (`Code`)
+	);
+
+	INSERT INTO tmp_RateTableRate_
+	SELECT
+		vra.RateTableRateID,
+		tblTimezones.Title AS TimezoneTitle,
+		OriginationRate.Code AS OriginationCode,
+		OriginationRate.Description AS OriginationDescription,
+		r.Code,
+		r.Description,
+		CASE WHEN vra.MinimumDuration IS NOT NULL THEN vra.MinimumDuration ELSE r.MinimumDuration END AS MinimumDuration,
+		CASE WHEN vra.Interval1 IS NOT NULL THEN vra.Interval1 ELSE r.Interval1 END AS Interval1,
+		CASE WHEN vra.IntervalN IS NOT NULL THEN vra.IntervalN ELSE r.IntervalN END AS IntervalN,
+		'' AS ConnectionFee,
+		NULL AS PreviousRate,
+		vra.Rate,
+		vra.RateN,
+		vra.EffectiveDate,
+		vra.EndDate,
+		vra.created_at AS updated_at,
+		vra.created_by AS updated_by,
+		vra.OriginationRateID,
+		vra.RateID,
+     	vra.RoutingCategoryID,
+     	RC.Name AS RoutingCategoryName,
+		vra.Preference,
+		vra.Blocked,
+		vra.ApprovedStatus,
+		vra.ApprovedBy,
+		vra.ApprovedDate,
+		tblRateCurrency.CurrencyID AS RateCurrency,
+		tblConnectionFeeCurrency.CurrencyID AS ConnectionFeeCurrency,
+		IFNULL(tblRateCurrency.Symbol,'') AS RateCurrencySymbol,
+		IFNULL(tblConnectionFeeCurrency.Symbol,'') AS ConnectionFeeCurrencySymbol,
+		vra.TimezonesID
+	FROM
+		tblRateTableRateArchive vra
+	JOIN
+		tblRate r ON r.RateID=vra.RateId
+   INNER JOIN tblTimezones
+    	ON tblTimezones.TimezonesID = vra.TimezonesID
+	LEFT JOIN
+		tblRate AS OriginationRate ON OriginationRate.RateID = vra.OriginationRateID
+   LEFT JOIN tblCurrency AS tblRateCurrency
+      ON tblRateCurrency.CurrencyID = vra.RateCurrency
+   LEFT JOIN tblCurrency AS tblConnectionFeeCurrency
+      ON tblConnectionFeeCurrency.CurrencyID = vra.ConnectionFeeCurrency
+	LEFT JOIN
+		tblRateTableRate vr ON vr.RateTableId = vra.RateTableId AND vr.RateId = vra.RateId AND vr.OriginationRateID = vra.OriginationRateID AND vr.TimezonesID = vra.TimezonesID
+	LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
+    	ON RC.RoutingCategoryID = vra.RoutingCategoryID
+	WHERE
+		r.CompanyID = p_CompanyID AND
+		vra.RateTableId = p_RateTableID AND
+		(p_TimezonesID IS NULL OR 	vra.TimezonesID = p_TimezonesID)AND
+		(p_CountryID IS NULL OR r.CountryID = p_CountryID) AND
+		(p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%')) AND
+		(p_origination_description is null OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%')) AND
+		(p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%')) AND
+		(p_description IS NULL OR r.Description LIKE REPLACE(p_description, '*', '%')) AND
+		(p_RoutingCategoryID IS NULL OR RC.RoutingCategoryID = p_RoutingCategoryID ) AND
+		(p_Preference IS NULL OR vra.Preference = p_Preference) AND
+		(p_Blocked IS NULL OR vra.Blocked = p_Blocked) AND
+		-- (p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
+		vr.RateTableRateID is NULL;
+
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate2_ as (select * from tmp_RateTableRate_);
+	DELETE
+		n1
+	FROM
+		tmp_RateTableRate_ n1, tmp_RateTableRate2_ n2
+	WHERE
+		n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID AND n1.RateTableRateID < n2.RateTableRateID;
+
+	IF p_isExport = 0
+	THEN
+		IF p_view = 1
+		THEN
+			SELECT
+				RateTableRateID AS ID,
+        		TimezoneTitle,
+				OriginationCode,
+				OriginationDescription,
+				Code,
+				Description,
+				MinimumDuration,
+				Interval1,
+				IntervalN,
+				ConnectionFee,
+				PreviousRate,
+				Rate,
+				RateN,
+				EffectiveDate,
+				EndDate,
+				updated_at,
+				updated_by,
+        		RateTableRateID,
+				OriginationRateID,
+				RateID,
+				RoutingCategoryID,
+				RoutingCategoryName,
+				Preference,
+				Blocked,
+				ApprovedStatus,
+				ApprovedBy,
+				ApprovedDate,
+				RateCurrency,
+				ConnectionFeeCurrency,
+				RateCurrencySymbol,
+				ConnectionFeeCurrencySymbol,
+				TimezonesID
+			FROM
+				tmp_RateTableRate_
+			ORDER BY
+				CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+            END ASC,
+				CASE
+              	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
+          	END DESC,
+          	CASE
+              	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
+          	END ASC,
+	        	CASE
+	           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionDESC') THEN OriginationDescription
+	        	END DESC,
+	        	CASE
+	           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN OriginationDescription
+	        	END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN Description
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateDESC') THEN Rate
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ConnectionFee
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN ConnectionFee
+				END ASC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MinimumDurationDESC') THEN MinimumDuration
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MinimumDurationASC') THEN MinimumDuration
+            END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN Interval1
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1ASC') THEN Interval1
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNDESC') THEN IntervalN
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNASC') THEN IntervalN
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN updated_by
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN updated_by
+				END ASC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+            END ASC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN RoutingCategoryName
+	         END DESC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN RoutingCategoryName
+	         END ASC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN Preference
+	         END DESC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN Preference
+	         END ASC
+			LIMIT
+				p_RowspPage
+			OFFSET
+				v_OffSet_;
+
+			SELECT
+				COUNT(code) AS totalcount
+			FROM tmp_RateTableRate_;
+
+		ELSE
+
+			SELECT
+				group_concat(RateTableRateID) AS ID,
+				MAX(TimezoneTitle) AS TimezoneTitle,
+				group_concat(OriginationCode) AS OriginationCode,
+				OriginationDescription,
+				group_concat(Code) AS Code,
+				Description,
+				ConnectionFee,
+				MinimumDuration,
+				Interval1,
+				IntervalN,
+				ANY_VALUE(PreviousRate),
+				Rate,
+				ANY_VALUE(RateN) AS RateN,
+				EffectiveDate,
+				EndDate,
+				MAX(updated_at),
+				MAX(updated_by),
+				GROUP_CONCAT(RateTableRateID) AS RateTableRateID,
+				GROUP_CONCAT(OriginationRateID) AS OriginationRateID,
+				GROUP_CONCAT(RateID) AS RateID,
+				MAX(RoutingCategoryID) AS RoutingCategoryID,
+				MAX(RoutingCategoryName) AS RoutingCategoryName,
+				MAX(Preference) AS Preference,
+				MAX(Blocked) AS Blocked,
+				ApprovedStatus,
+				MAX(ApprovedBy) AS ApprovedBy,
+				MAX(ApprovedDate) AS ApprovedDate,
+				MAX(RateCurrency) AS RateCurrency,
+				MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency,
+				MAX(RateCurrencySymbol) AS RateCurrencySymbol,
+				MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol,
+				TimezonesID
+			FROM
+				tmp_RateTableRate_
+			GROUP BY
+				Description, OriginationDescription, MinimumDuration, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus, TimezonesID
+			ORDER BY
+				CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+            END ASC,
+          	CASE
+              	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN ANY_VALUE(OriginationCode)
+          	END DESC,
+          	CASE
+              	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN ANY_VALUE(OriginationCode)
+          	END ASC,
+          	CASE
+              	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionDESC') THEN ANY_VALUE(OriginationDescription)
+          	END DESC,
+          	CASE
+              	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN ANY_VALUE(OriginationDescription)
+          	END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN ANY_VALUE(Description)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN ANY_VALUE(Description)
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateDESC') THEN ANY_VALUE(Rate)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN ANY_VALUE(Rate)
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN ANY_VALUE(RateN)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN ANY_VALUE(RateN)
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ANY_VALUE(ConnectionFee)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN ANY_VALUE(ConnectionFee)
+				END ASC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MinimumDurationDESC') THEN MinimumDuration
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MinimumDurationASC') THEN MinimumDuration
+            END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN ANY_VALUE(Interval1)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1ASC') THEN ANY_VALUE(Interval1)
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNDESC') THEN ANY_VALUE(IntervalN)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IntervalNASC') THEN ANY_VALUE(IntervalN)
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN ANY_VALUE(EffectiveDate)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN ANY_VALUE(EffectiveDate)
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN ANY_VALUE(EndDate)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN ANY_VALUE(EndDate)
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN ANY_VALUE(updated_at)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN ANY_VALUE(updated_at)
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ANY_VALUE(updated_by)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ANY_VALUE(updated_by)
+				END ASC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ANY_VALUE(ApprovedBy)
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ANY_VALUE(ApprovedBy)
+            END ASC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN ANY_VALUE(RoutingCategoryName)
+	         END DESC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN ANY_VALUE(RoutingCategoryName)
+	         END ASC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN ANY_VALUE(Preference)
+	         END DESC,
+	         CASE
+	            WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN ANY_VALUE(Preference)
+	         END ASC
+			LIMIT
+				p_RowspPage
+			OFFSET
+				v_OffSet_;
+
+
+			SELECT COUNT(*) AS `totalcount`
+			FROM (
+				SELECT
+	            Description
+	        	FROM tmp_RateTableRate_
+					GROUP BY Description, OriginationDescription, MinimumDuration, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus, TimezonesID
+			) totalcount;
+
+		END IF;
+
+	END IF;
+
+
+	-- export
+	IF p_isExport <> 0
+	THEN
+		SET @stm1='',@stm2='',@stm3='',@stm4='';
+
+		SET @stm1 = "
+			SELECT
+        		TimezoneTitle AS `Time of Day`,
+				OriginationCode AS `Orig. Code`,
+				OriginationDescription AS `Orig. Description`,
+				Code AS `Destination Code`,
+				Description AS `Destination Description`,
+				MinimumDuration AS `Min. Duration`,
+				CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+				CONCAT(ConnectionFeeCurrencySymbol,ConnectionFee) AS `Connection Fee`,
+				CONCAT(RateCurrencySymbol,Rate) AS Rate,
+				CONCAT(RateCurrencySymbol,RateN) AS RateN,
+				EffectiveDate AS `Effective Date`
+		";
+
+	   IF(v_ROUTING_PROFILE_ = 1)
+		THEN
+			SET @stm3 = ', RoutingCategoryName AS `Routing Category Name`';
+		END IF;
+
+		-- if vendor rate table
+		IF(v_AppliedTo_ = 2)
+		THEN
+		   SET @stm4 = ', Preference, Blocked';
+	   END IF;
+
+	   -- advance view
+		IF p_isExport = 11
+	   THEN
+	   	SET @stm2 = ", PreviousRate AS `Previous Rate`, CONCAT(updated_by,'\n',updated_at) AS `Modified By/Date`";
+
+	   	-- rate approval process is on and rate table is vendor rate table
+			IF(v_RateApprovalProcess_ = 1 && v_AppliedTo_ <> 2)
+			THEN
+	   		SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus AS `Approved Status`");
+	   	END IF;
+
+	   END IF;
+
+	   SET @stm = CONCAT(@stm1,@stm2,@stm3,@stm4,' FROM tmp_RateTableRate_;');
+
+	   PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+	END IF;
+
+	-- basic view
+   /*IF p_isExport = 10
+   THEN
+      SELECT
+         OriginationCode,
+         OriginationDescription,
+         Code AS DestinationCode,
+         Description AS DestinationDescription,
+         CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+         ConnectionFee,
+         Rate,
+         RateN,
+         EffectiveDate,
+         RoutingCategoryName,
+         Preference,
+         Blocked,
+         ApprovedStatus
+      FROM   tmp_RateTableRate_;
+   END IF;
+
+ 	-- advance view
+ 	IF p_isExport = 11
+ 	THEN
+      SELECT
+         OriginationCode,
+         OriginationDescription,
+         Code AS DestinationCode,
+         Description AS DestinationDescription,
+         CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+         ConnectionFee,
+         PreviousRate,
+         Rate,
+         RateN,
+         EffectiveDate,
+         CONCAT(updated_at,'\n',updated_by) AS `Modified Date/By`,
+         RoutingCategoryName,
+         Preference,
+         CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`,
+         Blocked,
+         ApprovedStatus
+      FROM   tmp_RateTableRate_;
+   END IF;*/
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_RateTableRateAAUpdateDelete`;
+DELIMITER //
+CREATE PROCEDURE `prc_RateTableRateAAUpdateDelete`(
+	IN `p_RateTableId` INT,
+	IN `p_RateTableRateAAId` LONGTEXT,
+	IN `p_OriginationRateID` INT,
+	IN `p_EffectiveDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_Rate` DECIMAL(18,6),
+	IN `p_RateN` VARCHAR(255),
+	IN `p_MinimumDuration` INT,
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_ConnectionFee` VARCHAR(255),
+	IN `p_RateCurrency` DECIMAL(18,6),
+	IN `p_ConnectionFeeCurrency` DECIMAL(18,6),
+	IN `p_Critearea_CountryId` INT,
+	IN `p_Critearea_Code` VARCHAR(50),
+	IN `p_Critearea_Description` VARCHAR(200),
+	IN `p_Critearea_OriginationCode` VARCHAR(50),
+	IN `p_Critearea_OriginationDescription` VARCHAR(200),
+	IN `p_Critearea_Effective` VARCHAR(50),
+	IN `p_TimezonesID` INT,
+	IN `p_Critearea_ApprovedStatus` TINYINT,
+	IN `p_ModifiedBy` VARCHAR(50),
+	IN `p_Critearea` INT,
+	IN `p_action` INT
+)
+ThisSP:BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableRate_;
+	CREATE TEMPORARY TABLE tmp_TempRateTableRate_ (
+		`RateTableRateAAId` int(11) NOT NULL,
+		`OriginationRateID` int(11) NOT NULL DEFAULT '0',
+		`RateId` int(11) NOT NULL,
+		`RateTableId` int(11) NOT NULL,
+		`TimezonesID` int(11) NOT NULL,
+		`Rate` decimal(18,6) NOT NULL DEFAULT '0.000000',
+		`RateN` decimal(18,6) NOT NULL DEFAULT '0.000000',
+		`EffectiveDate` datetime NOT NULL,
+		`EndDate` datetime DEFAULT NULL,
+		`created_at` datetime DEFAULT NULL,
+		`updated_at` datetime DEFAULT NULL,
+		`CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`MinimumDuration` int(11) DEFAULT NULL,
+		`Interval1` int(11) DEFAULT NULL,
+		`IntervalN` int(11) DEFAULT NULL,
+		`ConnectionFee` decimal(18,6) DEFAULT NULL,
+		`RoutingCategoryID` int(11) DEFAULT NULL,
+		`Preference` int(11) DEFAULT NULL,
+		`Blocked` tinyint NOT NULL DEFAULT 0,
+		`ApprovedStatus` tinyint,
+		`ApprovedBy` varchar(50),
+		`ApprovedDate` datetime,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL
+	);
+
+	INSERT INTO tmp_TempRateTableRate_
+	SELECT
+		rtr.RateTableRateAAId,
+		IF(rtr.OriginationRateID=0,IFNULL(p_OriginationRateID,rtr.OriginationRateID),rtr.OriginationRateID) AS OriginationRateID,
+		rtr.RateId,
+		rtr.RateTableId,
+		rtr.TimezonesID,
+		IF(p_Rate=0,0,IFNULL(p_Rate,rtr.Rate)) AS Rate,
+		IF(p_RateN IS NOT NULL,IF(p_RateN='NULL',NULL,p_RateN),rtr.RateN) AS RateN,
+		IFNULL(p_EffectiveDate,rtr.EffectiveDate) AS EffectiveDate,
+		IFNULL(p_EndDate,rtr.EndDate) AS EndDate,
+		rtr.created_at,
+		NOW() AS updated_at,
+		rtr.CreatedBy,
+		p_ModifiedBy AS ModifiedBy,
+		IFNULL(p_MinimumDuration,rtr.MinimumDuration) AS MinimumDuration,
+		IFNULL(p_Interval1,rtr.Interval1) AS Interval1,
+		IFNULL(p_IntervalN,rtr.IntervalN) AS IntervalN,
+		IF(p_ConnectionFee IS NOT NULL,IF(p_ConnectionFee='NULL',NULL,p_ConnectionFee),rtr.ConnectionFee) AS ConnectionFee,
+		rtr.RoutingCategoryID AS RoutingCategoryID,
+		rtr.Preference AS Preference,
+		rtr.Blocked AS Blocked,
+		rtr.ApprovedStatus,
+		NULL AS ApprovedBy,
+		NULL AS ApprovedDate,
+		IFNULL(p_RateCurrency,rtr.RateCurrency) AS RateCurrency,
+		IFNULL(p_ConnectionFeeCurrency,rtr.ConnectionFeeCurrency) AS ConnectionFeeCurrency
+	FROM
+		tblRateTableRateAA rtr
+	INNER JOIN
+		tblRate r ON r.RateID = rtr.RateId
+	LEFT JOIN
+		tblRate r2 ON r2.RateID = rtr.OriginationRateID
+	WHERE
+		(
+			p_EffectiveDate IS NULL OR (
+				(rtr.RateID,rtr.OriginationRateID,rtr.TimezonesID) NOT IN (
+						SELECT
+							RateID,OriginationRateID,TimezonesID
+						FROM
+							tblRateTableRateAA
+						WHERE
+							EffectiveDate=p_EffectiveDate AND (p_TimezonesID IS NULL OR TimezonesID = p_TimezonesID) AND
+							((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateAAID,p_RateTableRateAAID) = 0 )) OR p_Critearea = 1) AND
+							RateTableId = p_RateTableId
+				)
+			)
+		)
+		AND
+		(
+			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTableRateAAID,p_RateTableRateAAID) != 0 )) OR
+			(
+				p_Critearea = 1 AND
+				(
+					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
+					((p_Critearea_OriginationCode IS NULL) OR (p_Critearea_OriginationCode IS NOT NULL AND r2.Code LIKE REPLACE(p_Critearea_OriginationCode,'*', '%'))) AND
+					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
+					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
+					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(
+						p_Critearea_Effective = 'All' OR
+						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
+						(p_Critearea_Effective = 'Future' AND rtr.EffectiveDate > NOW() )
+					)
+				)
+			)
+		) AND
+		rtr.RateTableId = p_RateTableId AND
+		(p_TimezonesID IS NULL OR rtr.TimezonesID = p_TimezonesID);
+	
+	IF p_action = 1
+	THEN
+		IF p_EffectiveDate IS NOT NULL
+		THEN
+			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableRate_2 as (select * from tmp_TempRateTableRate_);
+			DELETE n1 FROM tmp_TempRateTableRate_ n1, tmp_TempRateTableRate_2 n2 WHERE n1.RateTableRateAAID < n2.RateTableRateAAID AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID;
+		END IF;
+
+		-- remove rejected rates from temp table while updating so, it can't be update and delete
+		DELETE n1 FROM tmp_TempRateTableRate_ n1 WHERE ApprovedStatus = 2;
+
+		/*
+			it was creating history evan if no columns are updating of row
+			so, using this query we are removing rows which are not updating any columns
+		*/
+		DELETE
+			temp
+		FROM
+			tmp_TempRateTableRate_ temp
+		JOIN
+			tblRateTableRateAA rtr ON rtr.RateTableRateAAID = temp.RateTableRateAAID
+		WHERE
+			(rtr.OriginationRateID = temp.OriginationRateID) AND
+			(rtr.EffectiveDate = temp.EffectiveDate) AND
+			(rtr.TimezonesID = temp.TimezonesID) AND
+			((rtr.Rate IS NULL && temp.Rate IS NULL) || rtr.Rate = temp.Rate) AND
+			((rtr.RateN IS NULL && temp.RateN IS NULL) || rtr.RateN = temp.RateN) AND
+			((rtr.ConnectionFee IS NULL && temp.ConnectionFee IS NULL) || rtr.ConnectionFee = temp.ConnectionFee) AND
+			((rtr.MinimumDuration IS NULL && temp.MinimumDuration IS NULL) || rtr.MinimumDuration = temp.MinimumDuration) AND
+			((rtr.Interval1 IS NULL && temp.Interval1 IS NULL) || rtr.Interval1 = temp.Interval1) AND
+			((rtr.IntervalN IS NULL && temp.IntervalN IS NULL) || rtr.IntervalN = temp.IntervalN) AND
+			((rtr.RoutingCategoryID IS NULL && temp.RoutingCategoryID IS NULL) || rtr.RoutingCategoryID = temp.RoutingCategoryID) AND
+			((rtr.Preference IS NULL && temp.Preference IS NULL) || rtr.Preference = temp.Preference) AND
+			((rtr.Blocked IS NULL && temp.Blocked IS NULL) || rtr.Blocked = temp.Blocked) AND
+			((rtr.RateCurrency IS NULL && temp.RateCurrency IS NULL) || rtr.RateCurrency = temp.RateCurrency) AND
+			((rtr.ConnectionFeeCurrency IS NULL && temp.ConnectionFeeCurrency IS NULL) || rtr.ConnectionFeeCurrency = temp.ConnectionFeeCurrency);
+
+	END IF;
+
+
+
+
+	UPDATE
+		tblRateTableRateAA rtr
+	INNER JOIN
+		tmp_TempRateTableRate_ temp ON temp.RateTableRateAAID = rtr.RateTableRateAAID
+	SET
+		rtr.EndDate = NOW()
+	WHERE
+		temp.RateTableRateAAID = rtr.RateTableRateAAID;
+
+	CALL prc_ArchiveOldRateTableRateAA(p_RateTableId,p_TimezonesID,p_ModifiedBy);
+
+	IF p_action = 1
+	THEN
+
+		INSERT INTO tblRateTableRateAA (
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			MinimumDuration,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency
+		)
+		SELECT
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			MinimumDuration,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency
+		FROM
+			tmp_TempRateTableRate_
+		WHERE
+			ApprovedStatus = 0; -- only allow awaiting approval rates to be updated
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_RateTableRateApprove`;
+DELIMITER //
+CREATE PROCEDURE `prc_RateTableRateApprove`(
+	IN `p_RateTableId` INT,
+	IN `p_RateTableRateAAID` LONGTEXT,
+	IN `p_ApprovedStatus` TINYINT,
+	IN `p_Critearea_CountryId` INT,
+	IN `p_Critearea_Code` VARCHAR(50),
+	IN `p_Critearea_Description` VARCHAR(200),
+	IN `p_Critearea_OriginationCode` VARCHAR(50),
+	IN `p_Critearea_OriginationDescription` VARCHAR(200),
+	IN `p_Critearea_Effective` VARCHAR(50),
+	IN `p_TimezonesID` INT,
+	IN `p_Critearea_RoutingCategoryID` INT,
+	IN `p_Critearea_Preference` TEXT,
+	IN `p_Critearea_Blocked` TINYINT,
+	IN `p_Critearea_ApprovedStatus` TINYINT,
+	IN `p_ApprovedBy` VARCHAR(50),
+	IN `p_Critearea` INT,
+	IN `p_action` INT
+)
+ThisSP:BEGIN
+
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
+	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
+		`RateTableRateAAID` INT,
+		`OriginationRateID` BIGINT(20),
+		`RateID` INT(11),
+		`RateTableId` BIGINT(20),
+		`TimezonesID` INT(11),
+		`Rate` DECIMAL(18,6),
+		`RateN` DECIMAL(18,6),
+		`EffectiveDate` DATE,
+		`EndDate` DATE,
+		`created_at` DATETIME,
+		`updated_at` DATETIME,
+		`CreatedBy` VARCHAR(100),
+		`ModifiedBy` VARCHAR(50),
+		`PreviousRate` DECIMAL(18,6),
+		`MinimumDuration` INT(11),
+		`Interval1` INT(11),
+		`IntervalN` INT(11),
+		`ConnectionFee` DECIMAL(18,6),
+		`RoutingCategoryID` INT(11),
+		`Preference` INT(11),
+		`Blocked` TINYINT(4),
+		`ApprovedStatus` TINYINT(4),
+		`ApprovedBy` VARCHAR(50),
+		`ApprovedDate` DATETIME,
+		`RateCurrency` INT(11),
+		`ConnectionFeeCurrency` INT(11),
+		`VendorID` INT(11),
+		`RateTableRateID` INT(11),
+		INDEX tmp_RateTableRate_RateID (`RateID`,`OriginationRateID`,`TimezonesID`,`EffectiveDate`)
+	);
+	
+	INSERT INTO	tmp_RateTableRate_
+	SELECT
+		rtr.RateTableRateAAID,
+		rtr.OriginationRateID,
+		rtr.RateID,
+		rtr.RateTableId,
+		rtr.TimezonesID,
+		rtr.Rate,
+		rtr.RateN,
+		IF(rtr.EffectiveDate < CURDATE(), CURDATE(), rtr.EffectiveDate) AS EffectiveDate,
+		rtr.EndDate,
+		rtr.created_at,
+		rtr.updated_at,
+		rtr.CreatedBy,
+		rtr.ModifiedBy,
+		rtr.PreviousRate,
+		rtr.MinimumDuration,
+		rtr.Interval1,
+		rtr.IntervalN,
+		rtr.ConnectionFee,
+		rtr.RoutingCategoryID,
+		rtr.Preference,
+		rtr.Blocked,
+		rtr.ApprovedStatus AS ApprovedStatus,
+		p_ApprovedBy AS ApprovedBy,
+		NOW() AS ApprovedDate,
+		rtr.RateCurrency,
+		rtr.ConnectionFeeCurrency,
+		rtr.VendorID,
+		rtr.RateTableRateID
+	FROM
+		tblRateTableRateAA rtr
+	INNER JOIN
+		tblRate r ON r.RateID = rtr.RateId
+	LEFT JOIN
+		tblRate r2 ON r2.RateID = rtr.OriginationRateID
+	WHERE
+		(
+			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTableRateAAID,p_RateTableRateAAID) != 0 )) OR
+			(
+				p_Critearea = 1 AND
+				(
+					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
+					((p_Critearea_OriginationCode IS NULL) OR (p_Critearea_OriginationCode IS NOT NULL AND r2.Code LIKE REPLACE(p_Critearea_OriginationCode,'*', '%'))) AND
+					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
+					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
+					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(
+						p_Critearea_Effective = 'All' OR
+						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
+						(p_Critearea_Effective = 'Future' AND rtr.EffectiveDate > NOW() )
+					)
+				)
+			)
+		) AND
+		rtr.RateTableId = p_RateTableId AND
+		(p_TimezonesID IS NULL OR rtr.TimezonesID = p_TimezonesID) AND
+		rtr.ApprovedStatus IN (v_StatusAwaitingApproval_,v_StatusDelete_); -- only awaitng approval and awaitng approval delete rates
+
+
+
+	IF p_ApprovedStatus = v_StatusApproved_ -- approve rates
+	THEN
+		
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate2_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate2_ AS (SELECT * FROM tmp_RateTableRate_);
+		
+		-- delete all duplicate records, keep only one - only last aa rate will be approved and all other will be ignored
+		DELETE temp2
+		FROM
+			tmp_RateTableRate2_ temp2
+		INNER JOIN
+			tmp_RateTableRate_ temp1 ON temp1.OriginationRateID = temp2.OriginationRateID
+			AND temp1.RateID = temp2.RateID
+			AND temp1.RateTableId = temp2.RateTableId
+			AND temp1.TimezonesID = temp2.TimezonesID
+			AND (
+					temp1.EffectiveDate = temp2.EffectiveDate OR 
+					(temp1.EffectiveDate <= NOW() AND temp2.EffectiveDate <= NOW())
+				)
+		WHERE
+			temp2.RateTableRateAAID < temp1.RateTableRateAAID;
+
+		-- set EndDate to archive rates which needs to approve and exist with same effective date
+		UPDATE
+			tblRateTableRate rtr
+		INNER JOIN
+			tmp_RateTableRate2_ temp ON temp.RateId = rtr.RateId AND temp.OriginationRateID = rtr.OriginationRateID AND temp.TimezonesID = rtr.TimezonesID AND temp.EffectiveDate = rtr.EffectiveDate
+		SET
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusAwaitingApproval_;
+
+		-- set EndDate to archive rates which needs to approve and exist with old effective date new rate is <=now() effective date
+		UPDATE
+			tblRateTableRate rtr
+		INNER JOIN
+			tmp_RateTableRate2_ temp ON temp.RateId = rtr.RateId AND 
+			temp.OriginationRateID = rtr.OriginationRateID AND 
+			temp.TimezonesID = rtr.TimezonesID AND 
+			(temp.EffectiveDate <= NOW() AND rtr.EffectiveDate <= temp.EffectiveDate)
+		SET
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusAwaitingApproval_;
+		
+		-- set EndDate to archive rates which rate's status is - awaiting approval delete
+		UPDATE
+			tblRateTableRate rtr
+		INNER JOIN
+			tmp_RateTableRate2_ temp ON temp.RateTableRateID = rtr.RateTableRateID
+		SET
+			rtr.EndDate = NOW()
+		WHERE
+			temp.ApprovedStatus = v_StatusDelete_;
+				
+		--	archive rates
+		CALL prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_ApprovedBy);
+
+		-- insert approved rates to tblRateTableRate
+		INSERT INTO	tblRateTableRate
+		(
+			OriginationRateID,
+			RateID,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			PreviousRate,
+			MinimumDuration,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency,
+			VendorID
+		)
+		SELECT 
+			OriginationRateID,
+			RateID,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			PreviousRate,
+			MinimumDuration,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			v_StatusApproved_ AS ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency,
+			VendorID
+		FROM
+			tmp_RateTableRate2_
+		WHERE
+			ApprovedStatus = v_StatusAwaitingApproval_;
+		
+		-- delete from Awaiting Approval table after inserting into tblRateTableRate
+		DELETE AA
+		FROM
+			tblRateTableRateAA AS AA
+		INNER JOIN
+			tmp_RateTableRate_ AS temp ON temp.RateTableRateAAID = AA.RateTableRateAAID;
+			
+		
+		CALL prc_RateTableRateUpdatePreviousRate(p_RateTableId,'');
+		CALL prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_ApprovedBy);
+			
+	ELSE -- reject/disapprove rates
+		
+		UPDATE
+			tblRateTableRateAA rtr
+		INNER JOIN
+			tmp_RateTableRate_ temp ON temp.RateTableRateAAID = rtr.RateTableRateAAID		
+		SET
+			rtr.ApprovedStatus = p_ApprovedStatus, rtr.ApprovedBy = temp.ApprovedBy, rtr.ApprovedDate = temp.ApprovedDate;
+
+	END IF;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_RateTableRateUpdateDelete`;
+DELIMITER //
+CREATE PROCEDURE `prc_RateTableRateUpdateDelete`(
+	IN `p_RateTableId` INT,
+	IN `p_RateTableRateId` LONGTEXT,
+	IN `p_OriginationRateID` INT,
+	IN `p_EffectiveDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_Rate` DECIMAL(18,6),
+	IN `p_RateN` VARCHAR(255),
+	IN `p_MinimumDuration` INT,
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_ConnectionFee` VARCHAR(255),
+	IN `p_RoutingCategoryID` INT,
+	IN `p_Preference` TEXT,
+	IN `p_Blocked` TINYINT,
+	IN `p_RateCurrency` DECIMAL(18,6),
+	IN `p_ConnectionFeeCurrency` DECIMAL(18,6),
+	IN `p_Critearea_CountryId` INT,
+	IN `p_Critearea_Code` VARCHAR(50),
+	IN `p_Critearea_Description` VARCHAR(200),
+	IN `p_Critearea_OriginationCode` VARCHAR(50),
+	IN `p_Critearea_OriginationDescription` VARCHAR(200),
+	IN `p_Critearea_Effective` VARCHAR(50),
+	IN `p_TimezonesID` INT,
+	IN `p_Critearea_RoutingCategoryID` INT,
+	IN `p_Critearea_Preference` TEXT,
+	IN `p_Critearea_Blocked` TINYINT,
+	IN `p_Critearea_ApprovedStatus` TINYINT,
+	IN `p_ModifiedBy` VARCHAR(50),
+	IN `p_Critearea` INT,
+	IN `p_action` INT
+)
+ThisSP:BEGIN
+
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_RateTableAppliedTo_ INT;
+
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = (SELECT CompanyId FROM tblRateTable WHERE RateTableID = p_RateTableId) AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_RateTableAppliedTo_ FROM tblRateTable WHERE RateTableID = p_RateTableId;
+
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableRate_;
+	CREATE TEMPORARY TABLE tmp_TempRateTableRate_ (
+		`RateTableRateId` int(11) NOT NULL,
+		`OriginationRateID` int(11) NOT NULL DEFAULT '0',
+		`RateId` int(11) NOT NULL,
+		`RateTableId` int(11) NOT NULL,
+		`TimezonesID` int(11) NOT NULL,
+		`Rate` decimal(18,6) NOT NULL DEFAULT '0.000000',
+		`RateN` decimal(18,6) NOT NULL DEFAULT '0.000000',
+		`EffectiveDate` datetime NOT NULL,
+		`EndDate` datetime DEFAULT NULL,
+		`created_at` datetime DEFAULT NULL,
+		`updated_at` datetime DEFAULT NULL,
+		`CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`MinimumDuration` int(11) DEFAULT NULL,
+		`Interval1` int(11) DEFAULT NULL,
+		`IntervalN` int(11) DEFAULT NULL,
+		`ConnectionFee` decimal(18,6) DEFAULT NULL,
+		`RoutingCategoryID` int(11) DEFAULT NULL,
+		`Preference` int(11) DEFAULT NULL,
+		`Blocked` tinyint NOT NULL DEFAULT 0,
+		`ApprovedStatus` tinyint,
+		`ApprovedBy` varchar(50),
+		`ApprovedDate` datetime,
+		`RateCurrency` INT(11) NULL DEFAULT NULL,
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL
+	);
+
+	INSERT INTO tmp_TempRateTableRate_
+	SELECT
+		rtr.RateTableRateId,
+		IF(rtr.OriginationRateID=0,IFNULL(p_OriginationRateID,rtr.OriginationRateID),rtr.OriginationRateID) AS OriginationRateID,
+		rtr.RateId,
+		rtr.RateTableId,
+		rtr.TimezonesID,
+		IF(p_Rate=0,0,IFNULL(p_Rate,rtr.Rate)) AS Rate,
+		IF(p_RateN IS NOT NULL,IF(p_RateN='NULL',NULL,p_RateN),rtr.RateN) AS RateN,
+		IFNULL(p_EffectiveDate,rtr.EffectiveDate) AS EffectiveDate,
+		IFNULL(p_EndDate,rtr.EndDate) AS EndDate,
+		rtr.created_at,
+		NOW() AS updated_at,
+		rtr.CreatedBy,
+		p_ModifiedBy AS ModifiedBy,
+		IFNULL(p_MinimumDuration,rtr.MinimumDuration) AS MinimumDuration,
+		IFNULL(p_Interval1,rtr.Interval1) AS Interval1,
+		IFNULL(p_IntervalN,rtr.IntervalN) AS IntervalN,
+		IF(p_ConnectionFee IS NOT NULL,IF(p_ConnectionFee='NULL',NULL,p_ConnectionFee),rtr.ConnectionFee) AS ConnectionFee,
+		IF(p_RoutingCategoryID='',NULL,IFNULL(p_RoutingCategoryID,rtr.RoutingCategoryID)) AS RoutingCategoryID,
+		IF(p_Preference='',NULL,IFNULL(p_Preference,rtr.Preference)) AS Preference,
+		IFNULL(p_Blocked,rtr.Blocked) AS Blocked,
+		rtr.ApprovedStatus AS ApprovedStatus,
+		rtr.ApprovedBy,
+		rtr.ApprovedDate,
+		IFNULL(p_RateCurrency,rtr.RateCurrency) AS RateCurrency,
+		IFNULL(p_ConnectionFeeCurrency,rtr.ConnectionFeeCurrency) AS ConnectionFeeCurrency
+	FROM
+		tblRateTableRate rtr
+	INNER JOIN
+		tblRate r ON r.RateID = rtr.RateId
+	LEFT JOIN
+		tblRate r2 ON r2.RateID = rtr.OriginationRateID
+	LEFT JOIN speakintelligentRouting.tblRoutingCategory AS RC
+    	ON RC.RoutingCategoryID = rtr.RoutingCategoryID
+	WHERE
+		(
+			p_EffectiveDate IS NULL OR (
+				(rtr.RateID,rtr.OriginationRateID,rtr.TimezonesID) NOT IN (
+						SELECT
+							RateID,OriginationRateID,TimezonesID
+						FROM
+							tblRateTableRate
+						WHERE
+							EffectiveDate=p_EffectiveDate AND (p_TimezonesID IS NULL OR TimezonesID = p_TimezonesID) AND
+							((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1) AND
+							RateTableId = p_RateTableId
+				)
+			)
+		)
+		AND
+		(
+			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTableRateID,p_RateTableRateID) != 0 )) OR
+			(
+				p_Critearea = 1 AND
+				(
+					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
+					((p_Critearea_OriginationCode IS NULL) OR (p_Critearea_OriginationCode IS NOT NULL AND r2.Code LIKE REPLACE(p_Critearea_OriginationCode,'*', '%'))) AND
+					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
+					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
+					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
+					(p_Critearea_RoutingCategoryID IS NULL OR RC.RoutingCategoryID = p_Critearea_RoutingCategoryID ) AND
+					(p_Critearea_Preference IS NULL OR rtr.Preference = p_Critearea_Preference) AND
+					(p_Critearea_Blocked IS NULL OR rtr.Blocked = p_Critearea_Blocked) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(
+						p_Critearea_Effective = 'All' OR
+						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
+						(p_Critearea_Effective = 'Future' AND rtr.EffectiveDate > NOW() )
+					)
+				)
+			)
+		) AND
+		rtr.RateTableId = p_RateTableId AND
+		(p_TimezonesID IS NULL OR 	rtr.TimezonesID = p_TimezonesID);
+	
+	IF p_action = 1 -- update
+	THEN
+		IF p_EffectiveDate IS NOT NULL
+		THEN
+			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableRate_2 as (select * from tmp_TempRateTableRate_);
+	      DELETE n1 FROM tmp_TempRateTableRate_ n1, tmp_TempRateTableRate_2 n2 WHERE n1.RateTableRateID < n2.RateTableRateID AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID;
+      END IF;
+
+		/*
+			it was creating history evan if no columns are updating of row
+			so, using this query we are removing rows which are not updating any columns
+		*/
+		DELETE
+			temp
+		FROM
+			tmp_TempRateTableRate_ temp
+		JOIN
+			tblRateTableRate rtr ON rtr.RateTableRateID = temp.RateTableRateID
+		WHERE
+			(rtr.OriginationRateID = temp.OriginationRateID) AND
+			(rtr.EffectiveDate = temp.EffectiveDate) AND
+			(rtr.TimezonesID = temp.TimezonesID) AND
+			((rtr.Rate IS NULL && temp.Rate IS NULL) || rtr.Rate = temp.Rate) AND
+			((rtr.RateN IS NULL && temp.RateN IS NULL) || rtr.RateN = temp.RateN) AND
+			((rtr.ConnectionFee IS NULL && temp.ConnectionFee IS NULL) || rtr.ConnectionFee = temp.ConnectionFee) AND
+			((rtr.MinimumDuration IS NULL && temp.MinimumDuration IS NULL) || rtr.MinimumDuration = temp.MinimumDuration) AND
+			((rtr.Interval1 IS NULL && temp.Interval1 IS NULL) || rtr.Interval1 = temp.Interval1) AND
+			((rtr.IntervalN IS NULL && temp.IntervalN IS NULL) || rtr.IntervalN = temp.IntervalN) AND
+			((rtr.RoutingCategoryID IS NULL && temp.RoutingCategoryID IS NULL) || rtr.RoutingCategoryID = temp.RoutingCategoryID) AND
+			((rtr.Preference IS NULL && temp.Preference IS NULL) || rtr.Preference = temp.Preference) AND
+			((rtr.Blocked IS NULL && temp.Blocked IS NULL) || rtr.Blocked = temp.Blocked) AND
+			((rtr.RateCurrency IS NULL && temp.RateCurrency IS NULL) || rtr.RateCurrency = temp.RateCurrency) AND
+			((rtr.ConnectionFeeCurrency IS NULL && temp.ConnectionFeeCurrency IS NULL) || rtr.ConnectionFeeCurrency = temp.ConnectionFeeCurrency);
+
+	END IF;
+
+
+	-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+	IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+	THEN
+		UPDATE
+			tmp_TempRateTableRate_
+		SET
+			ApprovedStatus = 0,
+			ApprovedBy = NULL,
+			ApprovedDate = NULL;
+			
+			
+		INSERT INTO tblRateTableRateAA (
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			MinimumDuration,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency,
+			RateTableRateID
+		)
+		SELECT
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			MinimumDuration,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			IF(p_action=1,v_StatusAwaitingApproval_,v_StatusDelete_) AS ApprovedStatus, -- if action=update then status=aa else status=aadelete
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency,
+			RateTableRateID
+		FROM
+			tmp_TempRateTableRate_;
+		
+		LEAVE ThisSP;
+		
+	END IF;
+
+
+	UPDATE
+		tblRateTableRate rtr
+	INNER JOIN
+		tmp_TempRateTableRate_ temp ON temp.RateTableRateID = rtr.RateTableRateID
+	SET
+		rtr.EndDate = NOW()
+	WHERE
+		temp.RateTableRateID = rtr.RateTableRateID;
+
+	CALL prc_ArchiveOldRateTableRate(p_RateTableId,p_TimezonesID,p_ModifiedBy);
+
+	IF p_action = 1
+	THEN
+
+		INSERT INTO tblRateTableRate (
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			MinimumDuration,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency
+		)
+		SELECT
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			Rate,
+			RateN,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			MinimumDuration,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			RoutingCategoryID,
+			Preference,
+			Blocked,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate,
+			RateCurrency,
+			ConnectionFeeCurrency
+		FROM
+			tmp_TempRateTableRate_;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSCronJobDeleteOldRateTableDIDRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSCronJobDeleteOldRateTableDIDRate`(
+	IN `p_DeletedBy` TEXT
+)
+BEGIN
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	UPDATE
+		tblRateTableDIDRate rtr
+	INNER JOIN tblRateTableDIDRate rtr2
+		ON rtr2.RateTableId = rtr.RateTableId
+		AND rtr2.RateID = rtr.RateID
+		AND rtr2.OriginationRateID = rtr.OriginationRateID
+		AND rtr2.TimezonesID = rtr.TimezonesID
+		AND rtr2.City = rtr.City
+		AND rtr2.Tariff = rtr.Tariff
+	SET
+		rtr.EndDate=NOW()
+	WHERE
+		rtr.EffectiveDate <= NOW() AND
+		rtr2.EffectiveDate <= NOW() AND
+		rtr.EffectiveDate < rtr2.EffectiveDate;
+
+
+	INSERT INTO tblRateTableDIDRateArchive
+	(
+		RateTableDIDRateID,
+		OriginationRateID,
+		RateId,
+		RateTableId,
+		TimezonesID,
+		EffectiveDate,
+		EndDate,
+		City,
+		Tariff,
+		AccessType,
+		OneOffCost,
+		MonthlyCost,
+		CostPerCall,
+		CostPerMinute,
+		SurchargePerCall,
+		SurchargePerMinute,
+		OutpaymentPerCall,
+		OutpaymentPerMinute,
+		Surcharges,
+		Chargeback,
+		CollectionCostAmount,
+		CollectionCostPercentage,
+		RegistrationCostPerNumber,
+		OneOffCostCurrency,
+		MonthlyCostCurrency,
+		CostPerCallCurrency,
+		CostPerMinuteCurrency,
+		SurchargePerCallCurrency,
+		SurchargePerMinuteCurrency,
+		OutpaymentPerCallCurrency,
+		OutpaymentPerMinuteCurrency,
+		SurchargesCurrency,
+		ChargebackCurrency,
+		CollectionCostAmountCurrency,
+		RegistrationCostPerNumberCurrency,
+		created_at,
+		updated_at,
+		CreatedBy,
+		ModifiedBy,
+		ApprovedStatus,
+		ApprovedBy,
+		ApprovedDate,
+		Notes
+	)
+	SELECT DISTINCT -- null ,
+		`RateTableDIDRateID`,
+		`OriginationRateID`,
+		`RateId`,
+		`RateTableId`,
+		`TimezonesID`,
+		`EffectiveDate`,
+		IFNULL(`EndDate`,DATE(NOW())) AS EndDate,
+		`City`,
+		`Tariff`,
+		`AccessType`,
+		`OneOffCost`,
+		`MonthlyCost`,
+		`CostPerCall`,
+		`CostPerMinute`,
+		`SurchargePerCall`,
+		`SurchargePerMinute`,
+		`OutpaymentPerCall`,
+		`OutpaymentPerMinute`,
+		`Surcharges`,
+		`Chargeback`,
+		`CollectionCostAmount`,
+		`CollectionCostPercentage`,
+		`RegistrationCostPerNumber`,
+		`OneOffCostCurrency`,
+        `MonthlyCostCurrency`,
+        `CostPerCallCurrency`,
+        `CostPerMinuteCurrency`,
+        `SurchargePerCallCurrency`,
+        `SurchargePerMinuteCurrency`,
+        `OutpaymentPerCallCurrency`,
+        `OutpaymentPerMinuteCurrency`,
+        `SurchargesCurrency`,
+        `ChargebackCurrency`,
+        `CollectionCostAmountCurrency`,
+        `RegistrationCostPerNumberCurrency`,
+		NOW() AS `created_at`,
+		`updated_at`,
+		p_DeletedBy AS `CreatedBy`,
+		`ModifiedBy`,
+		`ApprovedStatus`,
+		`ApprovedBy`,
+		`ApprovedDate`,
+		CONCAT('Ends Today rates @ ' , NOW() ) AS `Notes`
+	FROM 
+		tblRateTableDIDRate
+	WHERE 
+		EndDate <= NOW();
+
+
+
+	DELETE rtr
+	FROM tblRateTableDIDRate rtr
+	INNER JOIN tblRateTableDIDRateArchive rtra
+	ON rtr.RateTableDIDRateID = rtra.RateTableDIDRateID;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSCronJobDeleteOldRateTablePKGRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSCronJobDeleteOldRateTablePKGRate`(
+	IN `p_DeletedBy` TEXT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	UPDATE
+		tblRateTablePKGRate rtr
+	INNER JOIN tblRateTablePKGRate rtr2
+		ON rtr2.RateTableId = rtr.RateTableId
+		AND rtr2.RateID = rtr.RateID
+		AND rtr2.TimezonesID = rtr.TimezonesID
+	SET
+		rtr.EndDate=NOW()
+	WHERE
+		rtr.EffectiveDate <= NOW() AND
+		rtr2.EffectiveDate <= NOW() AND
+		rtr.EffectiveDate < rtr2.EffectiveDate;
+
+
+	INSERT INTO tblRateTablePKGRateArchive
+	(
+		RateTablePKGRateID,
+		RateId,
+		RateTableId,
+		TimezonesID,
+		EffectiveDate,
+		EndDate,
+		OneOffCost,
+		MonthlyCost,
+		PackageCostPerMinute,
+		RecordingCostPerMinute,
+		OneOffCostCurrency,
+		MonthlyCostCurrency,
+		PackageCostPerMinuteCurrency,
+		RecordingCostPerMinuteCurrency,
+		created_at,
+		updated_at,
+		CreatedBy,
+		ModifiedBy,
+		ApprovedStatus,
+		ApprovedBy,
+		ApprovedDate,
+		Notes
+	)
+	SELECT DISTINCT -- null ,
+		`RateTablePKGRateID`,
+		`RateId`,
+		`RateTableId`,
+		`TimezonesID`,
+		`EffectiveDate`,
+		IFNULL(`EndDate`,DATE(NOW())) AS EndDate,
+		`OneOffCost`,
+		`MonthlyCost`,
+		`PackageCostPerMinute`,
+		`RecordingCostPerMinute`,
+		`OneOffCostCurrency`,
+        `MonthlyCostCurrency`,
+        `PackageCostPerMinuteCurrency`,
+        `RecordingCostPerMinuteCurrency`,
+        NOW() AS `created_at`,
+		`updated_at`,
+		p_DeletedBy AS `CreatedBy`,
+		`ModifiedBy`,
+		`ApprovedStatus`,
+		`ApprovedBy`,
+		`ApprovedDate`,
+		CONCAT('Ends Today rates @ ' , NOW() ) AS `Notes`
+	FROM 
+		tblRateTablePKGRate
+	WHERE 
+		EndDate <= NOW();
+		
+
+	DELETE rtr
+	FROM tblRateTablePKGRate rtr
+	INNER JOIN tblRateTablePKGRateArchive rtra
+	ON rtr.RateTablePKGRateID = rtra.RateTablePKGRateID;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSCronJobDeleteOldRateTableRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSCronJobDeleteOldRateTableRate`(
+	IN `p_DeletedBy` TEXT
+)
+ThisSP:BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	UPDATE
+		tblRateTableRate rtr
+	INNER JOIN tblRateTableRate rtr2
+		ON rtr2.RateTableId = rtr.RateTableId
+		AND rtr2.RateID = rtr.RateID
+		AND rtr2.OriginationRateID = rtr.OriginationRateID
+		AND rtr2.TimezonesID = rtr.TimezonesID
+	SET
+		rtr.EndDate=NOW()
+	WHERE
+		rtr.EffectiveDate <= NOW() AND
+		rtr2.EffectiveDate <= NOW() AND
+		rtr.EffectiveDate < rtr2.EffectiveDate;
+
+	INSERT INTO tblRateTableRateArchive
+	(
+		RateTableRateID,
+		RateTableId,
+		TimezonesID,
+		OriginationRateID,
+		RateId,
+		Rate,
+		RateN,
+		EffectiveDate,
+		EndDate,
+		updated_at,
+		created_at,
+		created_by,
+		updated_by,
+		Interval1,
+		IntervalN,
+		MinimumDuration,
+		ConnectionFee,
+		RoutingCategoryID,
+		Preference,
+		Blocked,
+		ApprovedStatus,
+		ApprovedBy,
+		ApprovedDate,
+		RateCurrency,
+		ConnectionFeeCurrency,
+		Notes
+	)
+	SELECT DISTINCT  -- null , 
+		`RateTableRateID`,
+		`RateTableId`,
+		`TimezonesID`,
+		`OriginationRateID`,
+		`RateId`,
+		`Rate`,
+		`RateN`,
+		`EffectiveDate`,
+		IFNULL(`EndDate`,DATE(NOW())) AS EndDate,
+		`updated_at`,
+		NOW() AS `created_at`,
+		p_DeletedBy AS `CreatedBy`,
+		`ModifiedBy`,
+		`Interval1`,
+		`IntervalN`,
+		`MinimumDuration`,
+		`ConnectionFee`,
+		`RoutingCategoryID`,
+		`Preference`,
+		`Blocked`,
+		`ApprovedStatus`,
+		`ApprovedBy`,
+		`ApprovedDate`,
+		`RateCurrency`,
+		`ConnectionFeeCurrency`,
+		CONCAT('Ends Today rates @ ' , NOW() ) AS `Notes`
+	FROM
+		tblRateTableRate
+	WHERE
+		EndDate <= NOW();
+
+
+	DELETE rtr
+	FROM tblRateTableRate rtr
+	INNER JOIN tblRateTableRateArchive rtra
+	ON rtr.RateTableRateID = rtra.RateTableRateID;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
