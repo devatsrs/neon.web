@@ -523,8 +523,8 @@ class RateGeneratorRuleController extends \BaseController {
             $RateGeneratorID  = $data['RateGeneratorId'];
             unset($data['RateGeneratorId']);
             $rules = array(
-                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,RateRuleMarginId,RateRuleId,'.$RateRuleId,
-                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,RateRuleMarginId,RateRuleId,'.$RateRuleId,
+                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
+                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'AddMargin' => 'required_without:FixedValue',
                 'FixedValue' => 'required_without:AddMargin',
                 'RateRuleId' => 'required',
@@ -576,7 +576,6 @@ class RateGeneratorRuleController extends \BaseController {
                     "message" => "MaxRate should greater then MinRate."
                 ));
             }
-            dd($data);
             if (RateRuleMargin::insert($data)) {
                 return Response::json(array(
                     "status" => "success",
