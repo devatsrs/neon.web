@@ -2314,7 +2314,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
                 $rate_tables['PrefixWithoutCountry'] = $rate_tables['Prefix'];
                 if (!empty($rate_tables['CountryID']) && !empty($rate_tables['Prefix'])) {
-                    $ProductCountry = Country::where(array('Country' => $rate_tables['CountryID']))->first();
+                    $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
                     if (substr($rate_tables['Prefix'], 0, 1) == "0") {
                         $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['Prefix'], 1, strlen($rate_tables['Prefix']));
                     } else {
@@ -2607,7 +2607,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
              $rate_tables['PrefixWithoutCountry'] = $rate_tables['Prefix'];
              if (!empty($rate_tables['CountryID']) && !empty($rate_tables['Prefix'])) {
-                 $ProductCountry = Country::where(array('Country' => $rate_tables['CountryID']))->first();
+                 $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
                  if (substr($rate_tables['Prefix'], 0, 1) == "0") {
                      $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['Prefix'], 1, strlen($rate_tables['Prefix']));
                  } else {
