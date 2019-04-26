@@ -154,7 +154,7 @@
         accessURL += "&Country=" +"0";
         //accessURL += "&City=" +City;
         //accessURL += "&Tariff=" +Tariff;
-        
+
         location.href = accessURL;
         /* var TerminationRateTable = $this.prevAll("div.hiddenRowData").find("input[name='TerminationRateTableID']").val();
          var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
@@ -174,6 +174,7 @@
         var Country = $this.prevAll("div.hiddenRowData").find("input[name='CountryID']").val();
         var City = $this.prevAll("div.hiddenRowData").find("input[name='City']").val();
         var Tariff = $this.prevAll("div.hiddenRowData").find("input[name='Tariff']").val();
+        var Prefix = $this.prevAll("div.hiddenRowData").find("input[name='Prefix']").val();
         var accessURL = baseurl + "/rate_tables/" + AccessRateTable + "/view?AccessType=" + Type;
         accessURL += "&Country=" +Country;
         accessURL += "&City=" +City;
@@ -183,10 +184,10 @@
         var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
 
 
-        getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff);
+        getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff,Prefix);
     });
 
-    function getArchiveRateTableDIDRates12($clickedButton,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff) {
+    function getArchiveRateTableDIDRates12($clickedButton,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff,Prefix) {
        data_table_clitable = $("#table-clitable").DataTable();
        // alert($("#table-clitable").DataTable().rows().count());
         var tr = $clickedButton.closest('tr');
@@ -205,7 +206,7 @@
                 url: baseurl + "/rate_tables/search_ajax_datagrid_rates_account_service",
                 type: 'POST',
                 data: "AccessRateTable=" + AccessRateTable + "&TerminationRateTable=" + TerminationRateTable
-                + "&Type=" + Type + "&Country=" + Country + "&City=" + City+ "&Tariff=" + Tariff,
+                + "&Type=" + Type + "&Country=" + Country + "&City=" + City+ "&Tariff=" + Tariff + "&Prefix=" +Prefix,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -269,7 +270,7 @@
 
     jQuery(document).ready(function ($) {
         var cli_list_fields = ["CLIRateTableID", "CLI", "AccessRateTable", 'AccessDicountPlan', 'TerminationRateTable',
-            'TerminationDiscountPlan','ContractID', 'Type','Country', 'Prefix', 'City','Tariff','NumberStartDate','NumberEndDate', 'Status',
+            'TerminationDiscountPlan','ContractID', 'Type','Country', 'PrefixWithoutCountry', 'City','Tariff','NumberStartDate','NumberEndDate', 'Status',
             'RateTableID','AccessDiscountPlanID','TerminationRateTableID','TerminationDiscountPlanID','CountryID'];
         public_vars.$body = $("body");
         var $searchcli = {};
@@ -494,7 +495,7 @@
             $("#clitable-form [name=ContractID]").val("");
             $("#clitable-form [name=City]").select2().select2('val', "");
             $("#clitable-form [name=Tariff]").select2().select2('val', "");
-            $("#clitable-form [name=Prefix]").select2().select2('val', "");
+            $("#clitable-form [name=PrefixWithoutCountry]").select2().select2('val', "");
             $("#clitable-form [name=NoType]").select2().select2('val', "");
             $("#clitable-form [name=Status]").prop("checked", 1 == 1).trigger("change");
             $("#clitable-form [name=TerminationRateTableID]").select2().select2('val', "");
@@ -524,7 +525,7 @@
             var RateTableID = fields.find("[name='RateTableID']").val();
             var City = fields.find("[name='City']").val();
             var Tariff = fields.find("[name='Tariff']").val();
-            var Prefix = fields.find("[name='Prefix']").val();
+            var PrefixWithoutCountry = fields.find("[name='PrefixWithoutCountry']").val();
             var NoType = fields.find("[name='Type']").val();
             var Status = fields.find("[name='Status']").val();
             var NumberStartDate = fields.find("[name='NumberStartDate']").val();
@@ -552,7 +553,7 @@
             $("#clitable-form [name=ContractID]").val(ContractID);
             $("#clitable-form [name=City]").select2().select2('val', City);
             $("#clitable-form [name=Tariff]").select2().select2('val', Tariff);
-            $("#clitable-form [name=Prefix]").select2().select2('val', Prefix);
+            $("#clitable-form [name=PrefixWithoutCountry]").select2().select2('val', PrefixWithoutCountry);
             $("#clitable-form [name=NoType]").select2().select2('val', NoType);
             $("#clitable-form [name=Status]").prop("checked", Status == 1).trigger("change");
             $("#clitable-form [name=TerminationRateTableID]").select2().select2('val', TerminationRateTableID);
@@ -755,7 +756,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">Access RateTable</label>
+                                    <label for="field-225" class="control-label">Default Access RateTable</label>
                                     {{ Form::select('RateTableID', $rate_table , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
@@ -771,7 +772,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">Termination Rate Table</label>
+                                    <label for="field-225" class="control-label">Default Termination Rate Table</label>
                                     {{ Form::select('TerminationRateTableID', $termination_rate_table , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
@@ -784,6 +785,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -805,7 +807,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-115" class="control-label">Prefix</label>
-                                    {{ Form::select('Prefix', $Prefix , '' , array("class"=>"select2")) }}
+                                    {{ Form::select('$PrefixWithoutCountry', $Prefix , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>
