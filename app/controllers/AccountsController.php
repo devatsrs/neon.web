@@ -2146,8 +2146,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
             ->leftJoin('tblCountry','tblCountry.CountryID','=','tblCLIRateTable.CountryID')
             ->select(['CLIRateTableID', 'CLI', 'rt.RateTableName as AccessRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.AccessDiscountPlanID ) as AccessDiscountPlan"), 'termination.RateTableName as TerminationRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.TerminationDiscountPlanID ) as TerminationDiscountPlan"), 'tblCLIRateTable.ContractID', 'tblCLIRateTable.NoType',
-                'tblCountry.Country as Country', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
-                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID'])
+                'tblCountry.Country as Country', 'tblCLIRateTable.PrefixWithoutCountry', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
+                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID','tblCLIRateTable.Prefix'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountServiceID",$data['AccountServiceID'])
             ->where("tblCLIRateTable.AccountID",$id);
@@ -2296,7 +2296,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $rate_tables['NumberStartDate'] = !empty($data['NumberStartDate']) ? $data['NumberStartDate'] : '';
                 $rate_tables['NumberEndDate'] = !empty($data['NumberEndDate']) ? $data['NumberEndDate'] : '';
                 $rate_tables['NoType'] = !empty($data['NoType']) ? $data['NoType'] : '';
-                $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
+                $rate_tables['PrefixWithoutCountry'] = !empty($data['PrefixWithoutCountry'])?$data['PrefixWithoutCountry']:'';
                 $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
                 $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
                 $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
@@ -2311,6 +2311,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 if(!empty($data['AccountServiceID'])) {
                     $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
                 }
+
+                $rate_tables['Prefix'] = $rate_tables['PrefixWithoutCountry'];
+                if (!empty($rate_tables['CountryID']) && !empty($rate_tables['PrefixWithoutCountry'])) {
+                    $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
+                    if (substr($rate_tables['PrefixWithoutCountry'], 0, 1) == "0") {
+                        $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], 1, strlen($rate_tables['PrefixWithoutCountry']));
+                    } else {
+                        $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry'];
+                    }
+                    $rate_tables['Prefix'] = $ProductCountryPrefix;
+                }
+
                 $insertArr[] = $rate_tables;
             }
 
@@ -2530,7 +2542,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rate_tables['NumberStartDate'] = !empty($data['NumberStartDate']) ? $data['NumberStartDate'] : '';
         $rate_tables['NumberEndDate'] = !empty($data['NumberEndDate']) ? $data['NumberEndDate'] : '';
         $rate_tables['NoType'] = !empty($data['NoType']) ? $data['NoType'] : '';
-        $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
+        $rate_tables['PrefixWithoutCountry'] = !empty($data['PrefixWithoutCountry'])?$data['PrefixWithoutCountry']:'';
         $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
         $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
         $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
@@ -2592,6 +2604,17 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
+
+             $rate_tables['Prefix'] = $rate_tables['PrefixWithoutCountry'];
+             if (!empty($rate_tables['CountryID']) && !empty($rate_tables['PrefixWithoutCountry'])) {
+                 $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
+                 if (substr($rate_tables['PrefixWithoutCountry'], 0, 1) == "0") {
+                     $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], 1, strlen($rate_tables['PrefixWithoutCountry']));
+                 } else {
+                     $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry'];
+                 }
+                 $rate_tables['Prefix'] = $ProductCountryPrefix;
+             }
 
             $oldCLI->update($rate_tables);
         }
