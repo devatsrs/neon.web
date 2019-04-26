@@ -2146,8 +2146,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
             ->leftJoin('tblCountry','tblCountry.CountryID','=','tblCLIRateTable.CountryID')
             ->select(['CLIRateTableID', 'CLI', 'rt.RateTableName as AccessRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.AccessDiscountPlanID ) as AccessDiscountPlan"), 'termination.RateTableName as TerminationRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.TerminationDiscountPlanID ) as TerminationDiscountPlan"), 'tblCLIRateTable.ContractID', 'tblCLIRateTable.NoType',
-                'tblCountry.Country as Country', 'tblCLIRateTable.PrefixWithoutCountry as Prefix', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
-                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID'])
+                'tblCountry.Country as Country', 'tblCLIRateTable.PrefixWithoutCountry', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
+                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID','tblCLIRateTable.Prefix'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountServiceID",$data['AccountServiceID'])
             ->where("tblCLIRateTable.AccountID",$id);
