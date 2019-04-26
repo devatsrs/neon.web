@@ -271,7 +271,7 @@
     jQuery(document).ready(function ($) {
         var cli_list_fields = ["CLIRateTableID", "CLI", "AccessRateTable", 'AccessDicountPlan', 'TerminationRateTable',
             'TerminationDiscountPlan','ContractID', 'Type','Country', 'PrefixWithoutCountry', 'City','Tariff','NumberStartDate','NumberEndDate', 'Status',
-            'RateTableID','AccessDiscountPlanID','TerminationRateTableID','TerminationDiscountPlanID','CountryID'];
+            'RateTableID','AccessDiscountPlanID','TerminationRateTableID','TerminationDiscountPlanID','CountryID','Prefix'];
         public_vars.$body = $("body");
         var $searchcli = {};
         var data_table_clitable;
