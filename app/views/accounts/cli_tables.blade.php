@@ -807,7 +807,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-115" class="control-label">Prefix</label>
-                                    {{ Form::select('$PrefixWithoutCountry', $Prefix , '' , array("class"=>"select2")) }}
+                                    {{ Form::select('PrefixWithoutCountry', $Prefix , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>
