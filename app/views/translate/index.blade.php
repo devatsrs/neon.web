@@ -333,7 +333,7 @@
         $('#upload-modal-import_translations').modal('show');
     });
 
-        
+
 
         
     </script>
@@ -453,7 +453,7 @@
 
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Code Decks File Format</h4>
+                <h4 class="modal-title">Translations Import File Format</h4>
             </div>
 
 
