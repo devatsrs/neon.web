@@ -142,13 +142,15 @@ class NeonExcelIO
             return $this->read_csv($this->file,$limit);
         }
         if($this->file_type == self::$EXCEL){
-            //return $this->readExcel($this->file,$limit);
-            return $this->readExcel2($this->file,$limit);
+
+            //return $this->read_excel($this->file,$limit);
+            return $this->readExcel($this->file,$limit);
         }
 		
 		if($this->file_type == self::$EXCELs){
-            //return $this->readExcel($this->file,$limit);
-            return $this->readExcel2($this->file,$limit);
+
+            //return $this->read_xls_excel($this->file,$limit);
+            return $this->readExcel($this->file,$limit);
         }
     }
 
@@ -727,83 +729,9 @@ class NeonExcelIO
         return $result;
     }
 
-    //same function in service when change this need to change in service too
-    public function readExcel2($filepath,$limit=0) {
-        $start_time1 = round(microtime(true) * 1000);
-
-        $reader = ReaderFactory::create(Type::XLSX); // for XLSX files
-        $reader->setShouldFormatDates(true);
-        $reader->open($filepath);
-
-        $i=0;$all_rows=[];
-        foreach ($reader->getSheetIterator() as $sheet) {
-            if($sheet->getName() == $this->Sheet) {
-                foreach ($sheet->getRowIterator() as $row) {
-                    $i++;
-
-                    if ($i <= self::$start_row) continue;
-                    if ($limit != 0 && $i > (self::$start_row+$limit)) break;
-
-                    $all_rows[] = $row;
-                }
-            }
-        }
-
-        if($this->first_row == self::$COLUMN_NAMES) {
-            $result = $first_row = array();
-
-            $i = 0;
-            foreach ($all_rows as $row) {
-                if ($i == 0) {
-                    $first_row = $row;
-                } else {
-                    $j = 0;
-                    foreach ($row as $column) {
-                        $result[$i - 1][$first_row[$j]] = $column;
-                        $j++;
-                    }
-                }
-                $i++;
-            }
-        } else {
-            $result = $all_rows;
-        }
-
-        $reader->close();
-
-        $end_time1 = round(microtime(true) * 1000);
-        $process_time1 = ($end_time1 - $start_time1) / 1000;
-        Log::info('readExcel2 call time : ' . $process_time1 . ' Seconds');
-
-        return $result;
-    }
-
     public static function getSheetNamesFromExcel($filepath) {
+        $objPHPExcelReader = PHPExcel_IOFactory::load($filepath);
 
-        $time_start = round(microtime(true) * 1000);
-
-        $ext = strtolower(pathinfo($filepath, PATHINFO_EXTENSION));
-
-        if($ext == 'csv') {
-            // We will only use this for csv as this is too slow
-            $objPHPExcelReader = PHPExcel_IOFactory::load($filepath);
-            $sheets = $objPHPExcelReader->getSheetNames();
-        } else {
-            // we use this is because this is too much faster tha above code
-            // but this is not working with csv so, we need to use above code when csv file is uploaded
-            $reader = ReaderFactory::create(Type::XLSX);
-            $reader->open($filepath);
-            $sheets = [];
-            foreach ($reader->getSheetIterator() as $sheet) {
-                $sheets[] = $sheet->getName();
-            }
-            $reader->close();
-        }
-
-        $time_end = round(microtime(true) * 1000);
-        $process_time = ($time_end - $time_start) / 1000;
-        Log::info('getSheetNamesFromExcel time : ' . $process_time . ' Seconds');
-
-        return $sheets;
+        return $objPHPExcelReader->getSheetNames();
     }
 }

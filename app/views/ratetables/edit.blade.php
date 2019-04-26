@@ -84,7 +84,7 @@
                     </div>
                 @endif
 
-                <div class="form-group filter_naa">
+                <div class="form-group">
                     <label for="field-1" class="control-label">Group By</label>
                     <select class="select2" name="GroupBy" id="GroupBy">
                         <option value="GroupByCode">Code</option>

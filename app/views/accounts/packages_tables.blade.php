@@ -96,8 +96,9 @@
             <tr>
                 <th width="5%"><input type="checkbox" id="packageSelectall" name="checkbox[]" class="" /></th>
                 <th width="12%">Package</th>
-                <th width="15%">Rate Table</th>
+                <th width="15%">Default Rate Table</th>
                 <th width="15%">Discount Plan</th>
+                <th width="15%">Special Rate Table</th>
                 <th width="15%">Contract ID</th>
                 <th width="10%">Start Date</th>
                 <th width="10%">End Date</th>
@@ -132,6 +133,17 @@
        // location.href = accessURL;
 
         getArchiveRateTableDIDRates1($this,RateTableID,'',PackageId,'5');
+    });
+
+    $('table tbody').on('click', '.special-package-clitable', function (ev) {
+        var $this   = $(this);
+        var SpecialPackageRateTableID   = $this.prevAll("div.hiddenRowData").find("input[name='SpecialPackageRateTableID']").val();
+        if (SpecialPackageRateTableID == 0) {
+            alert("Please add rate table against the package");
+            return;
+        }
+        var PackageId   = $this.prevAll("div.hiddenRowData").find("input[name='PackageId']").val();
+        getArchiveRateTableDIDRates1($this,SpecialPackageRateTableID,'',PackageId,'5');
     });
 
     function getArchiveRateTableDIDRates1($clickedButton,RateTableID,TerminationRateTable,PackageId,CityTariff) {
@@ -199,8 +211,8 @@
     }
 
     jQuery(document).ready(function ($) {
-        var package_list_fields = ["AccountServicePackageID", "PackageName","RateTableName", "PackageDiscountPlan",'ContractID', 'PackageStartDate', 'PackageEndDate',
-            'Status','PackageId','RateTableID','AccountPackageDiscountPlanID'];
+        var package_list_fields = ["AccountServicePackageID", "PackageName","RateTableName", "PackageDiscountPlan","SpecialRateTableName",'ContractID', 'PackageStartDate', 'PackageEndDate',
+            'Status','PackageId','RateTableID','AccountPackageDiscountPlanID','SpecialPackageRateTableID'];
         public_vars.$body = $("body");
         var $searchcli = {};
         var data_table_packagetable;
@@ -324,6 +336,7 @@
                         "defaultContent": ''
                     },    // Rate table
                     {"bSortable": true},//Contract ID
+                    {"bSortable": true},//Contract ID
                     {"bSortable": true},//Start Date
                     {"bSortable": true},//End Date
                     {"bSortable": true},
@@ -335,7 +348,7 @@
                             console.log(full);
                             var action , edit_ , show_ , delete_;
                             //console.log(id);
-                            if(full[7] == 1){
+                            if(full[8] == 1){
                                 action='<i class="entypo-check" style="font-size:22px;color:green"></i>';
                             }else{
                                 action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
@@ -354,6 +367,11 @@
                             action += ' <a href="javascript:;" title="Edit" class="edit-packagetable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                             action += ' <a href="' + packagetable_delete_url.replace("{id}", full[0]) + '" class="delete-packagetable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
                             action += '<a title="Package Rate Table" href="javascript:;" class="history-packagetable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+
+                            //Check if Special Package Rate Table exist
+                            if(full[12] != undefined && full[12] != '' && full[12] != 0) {
+                                action += '<a title="Special Package Rate Table" href="javascript:;" class="special-package-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                            }
                             return action;
                         }
                     }
@@ -408,6 +426,7 @@
             $('#modal-packagetable h4').html('Add Package');
             $("#packagetable-form [name=PackageID]").select2().select2('val', "");
             $("#packagetable-form [name=PackageRateTableID]").select2().select2('val', "");
+            $("#packagetable-form [name=SpecialPackageRateTableID]").select2().select2('val', "");
             $("#packagetable-form [name=AccountPackageDiscountPlanID]").select2().select2('val', "");
             $("#packagetable-form [name=PackageStartDate]").val("");
             $("#packagetable-form [name=PackageEndDate]").val("");
@@ -436,10 +455,12 @@
             var Status = fields.find("[name='Status']").val();
             var PackageId = fields.find("[name='PackageId']").val();
             var RateTableID = fields.find("[name='RateTableID']").val();
+            var SpecialPackageRateTableID = fields.find("[name='SpecialPackageRateTableID']").val();
             var AccountPackageDiscountPlanID = fields.find("[name='AccountPackageDiscountPlanID']").val();
 
 
             RateTableID = RateTableID == 0 ? '' : RateTableID;
+            SpecialPackageRateTableID = SpecialPackageRateTableID == 0 ? '' : SpecialPackageRateTableID;
             AccountPackageDiscountPlanID = AccountPackageDiscountPlanID == 0 ? '' : AccountPackageDiscountPlanID;
 
 
@@ -447,6 +468,7 @@
 
             $("#packagetable-form [name=PackageID]").select2().select2('val', PackageId);
             $("#packagetable-form [name=PackageRateTableID]").select2().select2('val', RateTableID);
+            $("#packagetable-form [name=SpecialPackageRateTableID]").select2().select2('val', SpecialPackageRateTableID);
             $("#packagetable-form [name=AccountPackageDiscountPlanID]").select2().select2('val', AccountPackageDiscountPlanID);
             $("#packagetable-form [name=PackageStartDate]").val(PackageStartDate);
             $("#packagetable-form [name=PackageEndDate]").val(PackageEndDate);
@@ -614,7 +636,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">Package Rate Table</label>
+                                    <label for="field-225" class="control-label">Default Package Rate Table*</label>
                                     {{ Form::select('PackageRateTableID', $package_rate_table , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
@@ -624,6 +646,14 @@
                                 <div class="form-group">
                                     <label for="field-225" class="control-label">Package Discount Plan</label>
                                     {{ Form::select('AccountPackageDiscountPlanID', $DiscountPlanPACKAGE , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-225" class="control-label">Special Package Rate Table</label>
+                                    {{ Form::select('SpecialPackageRateTableID', $package_rate_table , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>
