@@ -333,6 +333,8 @@
         $('#upload-modal-import_translations').modal('show');
     });
 
+
+
         
     </script>
 
@@ -441,6 +443,56 @@
                 </button>
              </div>
         </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-fileformat">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Translations Import File Format</h4>
+            </div>
+
+
+
+            <div class="modal-body">
+            <p>All columns are mandatory and the first line should have the column headings.</p>
+                        <table class="table responsive">
+                            <thead>
+                                <tr>
+                                    <th>SystemName</th>
+                                    <th>Translation</th>
+                                    <th>ISOCode</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CONTROLLER_MSG_SUCCESS</td>
+                                    <td>Successfully Updated</td>
+                                    <td>EN</td>
+                                </tr>
+                                <tr>
+                                    <td>CONTROLLER_MSG_SUCCESS</td>
+                                    <td>Successfully Updated</td>
+                                    <td>ES</td>
+                                </tr>
+                                <tr>
+                                    <td>CONTROLLER_MSG_ERROR</td>
+                                    <td>Error Message</td>
+                                    <td>EN</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
