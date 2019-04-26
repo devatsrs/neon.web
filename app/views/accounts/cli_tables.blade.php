@@ -476,11 +476,11 @@
                             action += '<a title="Termination Table" data-original-title="Termination Table" href="javascript:;" class="history-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a></td></tr></table>&nbsp;';
                             //Check if Special Access Rate Table exist
                             if(full[22] != undefined && full[22] != '' && full[22] != 0) {
-                                action += '<a title="Special Access Table" data-original-title="Special Access Table" href="javascript:;" class="special-Access-clitable btn btn-default btn-sm1"><i class="fa fa-eye" data-toggle="tooltip"></i></a>&nbsp;';
+                                action += '<a title="Special Access Table" data-original-title="Special Access Table" href="javascript:;" class="special-Access-clitable btn btn-success btn-sm1"><i class="fa fa-eye" data-toggle="tooltip"></i></a>&nbsp;';
                             }
                             //Check if Special Termination Rate Table exist
                             if(full[23] != undefined && full[23] != '' && full[23] != 0) {
-                                action += '<a title="Special Termination Table" data-original-title="Special Termination Table" href="javascript:;" class="special-Termination-clitable btn btn-default btn-sm1" data-toggle="tooltip"><i class="fa fa-eye"></i></a></td></tr></table>&nbsp;';
+                                action += '<a title="Special Termination Table" data-original-title="Special Termination Table" href="javascript:;" class="special-Termination-clitable btn btn-success btn-sm1" data-toggle="tooltip"><i class="fa fa-eye"></i></a></td></tr></table>&nbsp;';
                             }
                             return action;
                         }

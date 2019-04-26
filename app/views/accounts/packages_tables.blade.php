@@ -369,7 +369,7 @@
 
                             //Check if Special Package Rate Table exist
                             if(full[12] != undefined && full[12] != '' && full[12] != 0) {
-                                action += '<a title="Special Package Rate Table" href="javascript:;" class="special-package-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                                action += '<a title="Special Package Rate Table" href="javascript:;" class="special-package-clitable btn btn-success btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
                             }
                             return action;
                         }
