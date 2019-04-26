@@ -218,6 +218,7 @@
         var load = {
             duesheet: function(){
                 var table = $('#duesheets');
+                var TotalColumn = 3;
                 loadingUnload(table,1);
                 var url = baseurl+'/dashboard/ajax_get_recent_due_sheets';
                 $.ajax({
@@ -226,20 +227,47 @@
                     dataType: 'json',
                     success: function (response) {
                         var TotalDueCustomerarray = response.TotalDueCustomerarray;
-                        var TotalDueCustomerarray = response.TotalDueVendorarray;
+                        var TotalDueVendorarray = response.TotalDueVendorarray;
+                        var DiffCustomerColumn=TotalColumn-TotalDueCustomerarray.length;
+                        var DiffVendorColumn=TotalColumn-TotalDueVendorarray.length;
                         html = '';
                         table.find('tbody>tr').eq(0).html('');
                         if(TotalDueCustomerarray.length > 0){
-                            $.each(TotalDueCustomerarray,function(i,el){
+                           /* $.each(TotalDueCustomerarray,function(i,el){
                                 html+=el;
-                            });
+                            });*/
+                            for (i = 0; i < TotalDueCustomerarray.length; i++) {
+                                var dataCustomer = TotalDueCustomerarray[i];
+
+                                html +='<td>'+dataCustomer['TotalDueCustomer']+'</td>';
+
+                            }
+                            //Append blank td For Row
+                            for (i = 0; i < DiffCustomerColumn; i++) {
+                                html+='<td></td>';
+                            }
                         }else{
                             html = '<td colspan="3">No Records found.</td>';
                         }
-                        if(TotalDueCustomerarray.length > 0){
-                            $.each(TotalDueCustomerarray,function(i,el){
+                        if(TotalDueVendorarray.length > 0){
+                            /*$.each(TotalDueCustomerarray,function(i,el){
                                 html+=el;
-                            });
+                            });*/
+
+                            for (i = 0; i < TotalDueVendorarray.length; i++) {
+                                var dataVendor = TotalDueVendorarray[i];
+
+                                html +='<td>'+dataVendor['TotalDueVendor']+'</td>';
+
+                            }
+
+                            //Append blank td For Row
+                            for (i = 0; i < DiffVendorColumn; i++) {
+                                html+='<td></td>';
+                            }
+
+                            html +='</tr>';
+
                         }else{
                             html += '<td colspan="3">No Records found.</td>';
                         }
