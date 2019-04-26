@@ -195,7 +195,7 @@ class RateTable extends \Eloquent
     public static function getResellerDropdownIDList() {
         /*
             Reseller -
-             0  = For Main Company
+            -- 0  = For Main Company -- not in use now
             -1  = For All
             >0  = For Specific Reseller
         */

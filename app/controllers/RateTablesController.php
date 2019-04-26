@@ -105,7 +105,7 @@ class RateTablesController extends \BaseController {
             }
         }
 
-        Log::info($query);
+        //Log::info($query);
 
         return DataTableSql::of($query)->make();
     }
@@ -366,17 +366,19 @@ class RateTablesController extends \BaseController {
                 }
 
                 if($data['ApprovedStatus'] == RateTable::RATE_STATUS_APPROVED) {
+                    $success_message = 'Rates Successfully Deleted';
                     $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 } else {
+                    $success_message = 'Rates Successfully added for approval to Delete';
                     $query = "call prc_RateTableRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "'," . $p_criteria . "," . $action . ")";
                 }
 
-                Log::info($query);
+                //Log::info($query);
                 $results = DB::statement($query);
 
                 if ($results) {
                     DB::commit();
-                    return Response::json(array("status" => "success", "message" => "Rates Successfully Deleted"));
+                    return Response::json(array("status" => "success", "message" => $success_message));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Rate Table Rates."));
                 }
@@ -535,7 +537,7 @@ class RateTablesController extends \BaseController {
                 } else {
                     $query = "call prc_RateTableRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "'," . $p_criteria . "," . $action . ")";
                 }
-                Log::info($query);
+                //Log::info($query);
                 $results = DB::statement($query);
 
                 if ($results) {
@@ -589,7 +591,7 @@ class RateTablesController extends \BaseController {
                 }
 
                 $query = "call prc_RateTableRateApprove (" . $RateTableID . ",'" . $RateTableRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
-                Log::info($query);
+                //Log::info($query);
                 $results = DB::statement($query);
 
                 if ($results) {
@@ -642,7 +644,7 @@ class RateTablesController extends \BaseController {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
                 $query = "call prc_RateTableDIDRateApprove (" . $RateTableID . ",'" . $RateTableDIDRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['OriginationCode'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . "," . $criteria['City'] . "," . $criteria['Tariff'] . ",'" . $username . "',".$p_criteria.",".$action.")";
-                Log::info($query);
+                //Log::info($query);
                 $results = DB::statement($query);
 
                 if ($results) {
@@ -685,7 +687,7 @@ class RateTablesController extends \BaseController {
                 }
 
                 $query = "call prc_RateTablePKGRateApprove (" . $RateTableID . ",'" . $RateTablePKGRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID']  . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
-                Log::info($query);
+                //Log::info($query);
                 $results = DB::statement($query);
 
                 if ($results) {
@@ -839,7 +841,7 @@ class RateTablesController extends \BaseController {
             }
         }
 
-        Log::info($query);
+        //Log::info($query);
         DB::setFetchMode( PDO::FETCH_ASSOC );
         $rate_table_rates  = DB::select($query);
         DB::setFetchMode( Config::get('database.fetch'));
@@ -1270,17 +1272,17 @@ class RateTablesController extends \BaseController {
         $Prefix = isset($data['Prefix']) ? $data['Prefix'] : "";
 
         $PackageID = isset($data['PackageID']) ? $data['PackageID'] : "0";
-        Log::info("search_ajax_datagrid_rates_account_service " . print_r($data,true));
+        //Log::info("search_ajax_datagrid_rates_account_service " . print_r($data,true));
 
         if(!empty($data['AccessRateTable'])) {
                 $query = 'call prc_getRateTablesRateForAccountService (' . $data['AccessRateTable'] .",'" .
                     $Type . "','" . $City. "','" . $Tariff. "','" . $Country . "','" . $PackageID .
                     "','" . $Prefix . "'" . ')';
-            Log::info("search_ajax_datagrid_rates_account_service " . $query);
+            //Log::info("search_ajax_datagrid_rates_account_service " . $query);
             $response['status']     = "success";
             $response['message']    = "Data fetched successfully!";
             $response['data']       = DB::select($query);
-            Log::info("search_ajax_datagrid_rates_account_service " . count($response['data']));
+            //Log::info("search_ajax_datagrid_rates_account_service " . count($response['data']));
         } else {
             $response['status']     = "success";
             $response['message']    = "Data fetched successfully!";
@@ -1505,7 +1507,7 @@ class RateTablesController extends \BaseController {
                     $query = "call prc_RateTableDIDRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $City . "," . $Tariff . "," . $AccessType . "," . $OneOffCost . "," . $MonthlyCost . "," . $CostPerCall . "," . $CostPerMinute . "," . $SurchargePerCall . "," . $SurchargePerMinute . "," . $OutpaymentPerCall . "," . $OutpaymentPerMinute . "," . $Surcharges . "," . $Chargeback . "," . $CollectionCostAmount . "," . $CollectionCostPercentage . "," . $RegistrationCostPerNumber . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $CostPerCallCurrency . "," . $CostPerMinuteCurrency . "," . $SurchargePerCallCurrency . "," . $SurchargePerMinuteCurrency . "," . $OutpaymentPerCallCurrency . "," . $OutpaymentPerMinuteCurrency . "," . $SurchargesCurrency . "," . $ChargebackCurrency . "," . $CollectionCostAmountCurrency . "," . $RegistrationCostPerNumberCurrency . "," . $criteria['Country'] . "," . $criteria['OriginationCode'] . "," . $criteria['Code'] . "," . $criteria['City'] . "," . $criteria['Tariff'] . "," . $criteria['AccessType'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 }
 
-                Log::info($query);
+                //info($query);
                 $results = DB::statement($query);
 
                 if ($results) {
@@ -1552,7 +1554,6 @@ class RateTablesController extends \BaseController {
                 $RateTableID                = $id;
                 $RateTableDIDRateID         = $data['RateTableDIDRateID'];
 
-
                 if (empty($data['RateTableDIDRateID']) && !empty($data['criteria'])) {
                     $p_criteria = 1;
                 }
@@ -1562,17 +1563,19 @@ class RateTablesController extends \BaseController {
                 }
 
                 if($data['ApprovedStatus'] == RateTable::RATE_STATUS_APPROVED) {
+                    $success_message = 'Rates Successfully Deleted';
                     $query = "call prc_RateTableDIDRateUpdateDelete (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $City . "," . $Tariff . "," . $AccessType . "," . $OneOffCost . "," . $MonthlyCost . "," . $CostPerCall . "," . $CostPerMinute . "," . $SurchargePerCall . "," . $SurchargePerMinute . "," . $OutpaymentPerCall . "," . $OutpaymentPerMinute . "," . $Surcharges . "," . $Chargeback . "," . $CollectionCostAmount . "," . $CollectionCostPercentage . "," . $RegistrationCostPerNumber . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $CostPerCallCurrency . "," . $CostPerMinuteCurrency . "," . $SurchargePerCallCurrency . "," . $SurchargePerMinuteCurrency . "," . $OutpaymentPerCallCurrency . "," . $OutpaymentPerMinuteCurrency . "," . $SurchargesCurrency . "," . $ChargebackCurrency . "," . $CollectionCostAmountCurrency . "," . $RegistrationCostPerNumberCurrency . "," . $criteria['Country'] . "," . $criteria['OriginationCode'] . "," . $criteria['Code'] . "," . $criteria['City'] . "," . $criteria['Tariff'] . "," . $criteria['AccessType'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 } else {
+                    $success_message = 'Rates Successfully added for approval to Delete';
                     $query = "call prc_RateTableDIDRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $City . "," . $Tariff . "," . $AccessType . "," . $OneOffCost . "," . $MonthlyCost . "," . $CostPerCall . "," . $CostPerMinute . "," . $SurchargePerCall . "," . $SurchargePerMinute . "," . $OutpaymentPerCall . "," . $OutpaymentPerMinute . "," . $Surcharges . "," . $Chargeback . "," . $CollectionCostAmount . "," . $CollectionCostPercentage . "," . $RegistrationCostPerNumber . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $CostPerCallCurrency . "," . $CostPerMinuteCurrency . "," . $SurchargePerCallCurrency . "," . $SurchargePerMinuteCurrency . "," . $OutpaymentPerCallCurrency . "," . $OutpaymentPerMinuteCurrency . "," . $SurchargesCurrency . "," . $ChargebackCurrency . "," . $CollectionCostAmountCurrency . "," . $RegistrationCostPerNumberCurrency . "," . $criteria['Country'] . "," . $criteria['OriginationCode'] . "," . $criteria['Code'] . "," . $criteria['City'] . "," . $criteria['Tariff'] . "," . $criteria['AccessType'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 }
 
-                Log::info($query);
+                //Log::info($query);
                 $results = DB::statement($query);
 
                 if ($results) {
                     DB::commit();
-                    return Response::json(array("status" => "success", "message" => "Rates Successfully Deleted"));
+                    return Response::json(array("status" => "success", "message" => $success_message));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Rates."));
                 }
@@ -1679,7 +1682,7 @@ class RateTablesController extends \BaseController {
                     $query = "call prc_RateTablePKGRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTablePKGRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $OneOffCost . "," . $MonthlyCost . "," . $PackageCostPerMinute . "," . $RecordingCostPerMinute . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $PackageCostPerMinuteCurrency . "," . $RecordingCostPerMinuteCurrency . "," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 }
 
-                Log::info($query);
+                //Log::info($query);
                 $results = DB::statement($query);
 
                 if ($results) {
@@ -1733,17 +1736,19 @@ class RateTablesController extends \BaseController {
                 }
 
                 if($data['ApprovedStatus'] == RateTable::RATE_STATUS_APPROVED) {
+                    $success_message = 'Rates Successfully Deleted';
                     $query = "call prc_RateTablePKGRateUpdateDelete (" . $RateTableID . ",'" . $RateTablePKGRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $OneOffCost . "," . $MonthlyCost . "," . $PackageCostPerMinute . "," . $RecordingCostPerMinute . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $PackageCostPerMinuteCurrency . "," . $RecordingCostPerMinuteCurrency . "," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 } else {
+                    $success_message = 'Rates Successfully added for approval to Delete';
                     $query = "call prc_RateTablePKGRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTablePKGRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $OneOffCost . "," . $MonthlyCost . "," . $PackageCostPerMinute . "," . $RecordingCostPerMinute . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $PackageCostPerMinuteCurrency . "," . $RecordingCostPerMinuteCurrency . "," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 }
 
-                Log::info($query);
+                //Log::info($query);
                 $results = DB::statement($query);
 
                 if ($results) {
                     DB::commit();
-                    return Response::json(array("status" => "success", "message" => "Rates Successfully Deleted"));
+                    return Response::json(array("status" => "success", "message" => $success_message));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Rates."));
                 }
