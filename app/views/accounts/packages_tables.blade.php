@@ -130,7 +130,7 @@
         var PackageId   = $this.prevAll("div.hiddenRowData").find("input[name='PackageId']").val();
         var Code   = $this.prevAll("div.hiddenRowData").find("input[name='PackageName']").val();
         var accessURL = baseurl + "/rate_tables/" + RateTableID + "/view?Code=" + Code;
-       // location.href = accessURL;
+        // location.href = accessURL;
 
         getArchiveRateTableDIDRates1($this,RateTableID,'',PackageId,'5');
     });
@@ -150,15 +150,16 @@
         data_table_packagetable = $("#table-packagetable").DataTable();
         // alert($("#table-packagetable").DataTable().rows().count());
         var tr = $clickedButton.closest('tr');
+        var checkIfSame = $clickedButton.find('i').hasClass('entypo-plus-squared');
         // alert('Called 1' + data_table_packagetable + "1" + tr.id);
         //alert(data_table_packagetable.rows().count());
         var row = data_table_packagetable.row(tr);
-        if (row.child.isShown()) {
-            tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
-            $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
-            row.child.hide();
-            tr.removeClass('shown');
-        } else {
+        tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+        tr.find('.special-package-clitable i, .history-packagetable i').removeClass('entypo-plus-squared entypo-minus-squared');
+        row.child.hide();
+        tr.removeClass('shown');
+
+        if(!checkIfSame)
             $.ajax({
                 url: baseurl + "/rate_tables/search_ajax_datagrid_rates_account_service",
                 type: 'POST',
@@ -169,7 +170,7 @@
                     if (response.status == 'success') {
                         ArchiveRates = response.data;
                         // alert(ArchiveRates);
-                        $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                        $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
                         tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
                         var header = "<thead><tr><th>One Off Cost</th><th>Monthly Cost</th><th>Cost Per Minute</th><th>Recording Cost per Minute</th>" +
@@ -206,8 +207,6 @@
 
                 }
             });
-
-        }
     }
 
     jQuery(document).ready(function ($) {
@@ -366,7 +365,7 @@
                             action += '</div>';
                             action += ' <a href="javascript:;" title="Edit" class="edit-packagetable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                             action += ' <a href="' + packagetable_delete_url.replace("{id}", full[0]) + '" class="delete-packagetable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
-                            action += '<a title="Package Rate Table" href="javascript:;" class="history-packagetable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                            action += '<a title="Default Package Rate Table" href="javascript:;" class="history-packagetable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
 
                             //Check if Special Package Rate Table exist
                             if(full[12] != undefined && full[12] != '' && full[12] != 0) {
