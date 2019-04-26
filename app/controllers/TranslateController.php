@@ -17,34 +17,32 @@ class TranslateController extends \BaseController {
     public function search_ajax_datagrid() {
 
         $data = Input::all();
+        if(isset($data["Language"]))
+        {
+            $langid = $data["Language"];
+        } else {$langid = Translation::$default_lang_ISOcode; }
 
         $all_langs = DB::table('tblLanguage')
             ->select("tblLanguage.LanguageID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
-            ->where(["tblLanguage.ISOCode"=>$data["Language"]])
-            ->orWhere(["tblLanguage.ISOCode"=>Translation::$default_lang_ISOcode])
+            ->where(["tblLanguage.ISOCode"=>$langid])
+            //->orWhere(["tblLanguage.ISOCode"=>Translation::$default_lang_ISOcode])
             ->get();
+            
 
         foreach($all_langs as $val){
-            if($val->ISOCode==Translation::$default_lang_ISOcode){
-                $arr_english=json_decode($val->Translation, true);
-            }else{
                 $arr_translation=json_decode($val->Translation, true);
-            }
         }
 
         $arr_return=array();
 
-        foreach($arr_english as $key=>$val){
+        foreach($arr_translation as $key=>$val){
             $row=array();
             $row[]=$key;
             $row[]=$val;
             $translation="";
-            if($data["Language"]==Translation::$default_lang_ISOcode){
-                $translation=$val;
-            }else if(isset($arr_translation[$key])){
+            
                 $translation=$arr_translation[$key];
-            }
 
             $html_translation='<label data-languages="'.$data["Language"].'" class="label_language hidden" data-system-name="'.$key.'" >'.htmlentities($translation).'</label>
                                 <input type="text" value="'.htmlentities($translation).'" data-languages="'.$data["Language"].'" class="text_language form-control"  data-system-name="'.$key.'" />';
@@ -94,9 +92,10 @@ class TranslateController extends \BaseController {
         //Log::info($data_langs->Language);
         //return false;
         $translation_data = json_decode($data_langs->Translation, true);
+        Log::info(json_encode($translation_data));
         $json_file=array();
         foreach($translation_data as $key=>$value){
-            $json_file[]=array("System Name"=>$key, "Translation"=> $value,"Language" => $data_langs->Language, "ISO Code" => $data_langs->ISOCode);
+            $json_file[]=array("System Name"=>$key, "Translation"=> $value, "ISO Code" => $data_langs->ISOCode);
         }
 
         if($type=='csv'){
