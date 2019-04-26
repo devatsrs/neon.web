@@ -1116,6 +1116,7 @@ class RateUploadController extends \BaseController {
             } else {
                 $CodeText = 'Code';
             }
+            $IntervalIndexes = [""=>"Select","0"=>"One","1"=>"Two","2"=>"Three"];
 
             //get how many rates mapped against timezones
             //$RatesKeys = array_key_exists_wildcard((array)$attrselection,'Rate*');
@@ -1788,30 +1789,59 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$Interval1Column) && isset($temp_row[$attrselection->$Interval1Column])) {
+                                    $tempdata['Interval1'] = 1;
                                     if (!empty($attrselection->IntervalSeperator) && isset($attrselection->$Interval1IndexColumn) && $attrselection->$Interval1IndexColumn != '') { // check if intervals seperator is mapped and index is mapped for Interval1
-                                        $Interval1Index         = $attrselection->$Interval1IndexColumn; // which index to get from seperated value
-                                        $Intervals              = explode($attrselection->IntervalSeperator,$temp_row[$attrselection->$Interval1Column]);
-                                        $tempdata['Interval1']  = $Intervals[$Interval1Index];
+                                        if (strpos($temp_row[$attrselection->$Interval1Column], $attrselection->IntervalSeperator) !== false) {
+                                            $Interval1Index         = $attrselection->$Interval1IndexColumn; // which index to get from seperated value
+                                            $Intervals              = explode($attrselection->IntervalSeperator,$temp_row[$attrselection->$Interval1Column]);
+                                            if(isset($Intervals[$Interval1Index])) {
+                                                $tempdata['Interval1'] = $Intervals[$Interval1Index];
+                                            } else {
+                                                $error[] = 'Selected Index ('. $IntervalIndexes[$Interval1Index] .') not found in Interval1 column at line no:' . $lineno;
+                                            }
+                                        } else {
+                                            $error[] = 'Selected Separator ('. $attrselection->IntervalSeperator .') not found in Interval1 column at line no:' . $lineno;
+                                        }
                                     } else {
                                         $tempdata['Interval1']  = intval(trim($temp_row[$attrselection->$Interval1Column]));
                                     }
                                 }
 
                                 if (!empty($attrselection->$IntervalNColumn) && isset($temp_row[$attrselection->$IntervalNColumn])) {
+                                    $tempdata['IntervalN'] = 1;
                                     if (!empty($attrselection->IntervalSeperator) && isset($attrselection->$IntervalNIndexColumn) && $attrselection->$IntervalNIndexColumn != '') { // check if intervals seperator is mapped and index is mapped for IntervalN - Intervals seperated by - or /
-                                        $IntervalNIndex         = $attrselection->$IntervalNIndexColumn; // which index to get from seperated value
-                                        $Intervals              = explode($attrselection->IntervalSeperator,$temp_row[$attrselection->$IntervalNColumn]);
-                                        $tempdata['IntervalN']  = $Intervals[$IntervalNIndex];
+                                        if (strpos($temp_row[$attrselection->$IntervalNColumn], $attrselection->IntervalSeperator) !== false) {
+                                            $IntervalNIndex         = $attrselection->$IntervalNIndexColumn; // which index to get from seperated value
+                                            $Intervals              = explode($attrselection->IntervalSeperator,$temp_row[$attrselection->$IntervalNColumn]);
+
+                                            if(isset($Intervals[$IntervalNIndex])) {
+                                                $tempdata['IntervalN']  = $Intervals[$IntervalNIndex];
+                                            } else {
+                                                $error[] = 'Selected Index ('. $IntervalIndexes[$IntervalNIndex] .') not found in IntervalN column at line no:' . $lineno;
+                                            }
+                                        } else {
+                                            $error[] = 'Selected Separator ('. $attrselection->IntervalSeperator .') not found in IntervalN column at line no:' . $lineno;
+                                        }
                                     } else {
                                         $tempdata['IntervalN']  = intval(trim($temp_row[$attrselection->$IntervalNColumn]));
                                     }
                                 }
 
                                 if (!empty($attrselection->$MinimumDurationColumn) && isset($temp_row[$attrselection->$MinimumDurationColumn])) {
+                                    $tempdata['MinimumDuration'] = 0;
                                     if (!empty($attrselection->IntervalSeperator) && isset($attrselection->$MinimumDurationIndexColumn) && $attrselection->$MinimumDurationIndexColumn != '') { // check if intervals seperator is mapped and index is mapped for MinimumDuration - Intervals seperated by - or /
-                                        $MinimumDurationIndex           = $attrselection->$MinimumDurationIndexColumn; // which index to get from seperated value
-                                        $Intervals                      = explode($attrselection->IntervalSeperator,$temp_row[$attrselection->$MinimumDurationColumn]);
-                                        $tempdata['MinimumDuration']    = $Intervals[$MinimumDurationIndex];
+                                        if (strpos($temp_row[$attrselection->$MinimumDurationColumn], $attrselection->IntervalSeperator) !== false) {
+                                            $MinimumDurationIndex           = $attrselection->$MinimumDurationIndexColumn; // which index to get from seperated value
+                                            $Intervals                      = explode($attrselection->IntervalSeperator,$temp_row[$attrselection->$MinimumDurationColumn]);
+
+                                            if(isset($Intervals[$MinimumDurationIndex])) {
+                                                $tempdata['MinimumDuration']    = $Intervals[$MinimumDurationIndex];
+                                            } else {
+                                                $error[] = 'Selected Index ('. $IntervalIndexes[$MinimumDurationIndex] .') not found in Min. Duration column at line no:' . $lineno;
+                                            }
+                                        } else {
+                                            $error[] = 'Selected Separator ('. $attrselection->IntervalSeperator .') not found in Min. Duration column at line no:' . $lineno;
+                                        }
                                     } else {
                                         $tempdata['MinimumDuration']    = intval(trim($temp_row[$attrselection->$MinimumDurationColumn]));
                                     }
