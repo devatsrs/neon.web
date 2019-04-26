@@ -1278,7 +1278,7 @@ class RateTablesController extends \BaseController {
                 $query = 'call prc_getRateTablesRateForAccountService (' . $data['AccessRateTable'] .",'" .
                     $Type . "','" . $City. "','" . $Tariff. "','" . $Country . "','" . $PackageID .
                     "','" . $Prefix . "'" . ')';
-            //Log::info("search_ajax_datagrid_rates_account_service " . $query);
+            Log::info("search_ajax_datagrid_rates_account_service " . $query);
             $response['status']     = "success";
             $response['message']    = "Data fetched successfully!";
             $response['data']       = DB::select($query);
