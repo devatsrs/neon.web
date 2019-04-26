@@ -1788,10 +1788,9 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$Interval1Column) && isset($temp_row[$attrselection->$Interval1Column])) {
-                                    if (isset($attrselection->$Interval1IndexColumn) && $attrselection->$Interval1IndexColumn != '') { // check if index is mapped for Interval1 - Intervals seperated by - or /
+                                    if (!empty($attrselection->IntervalSeperator) && isset($attrselection->$Interval1IndexColumn) && $attrselection->$Interval1IndexColumn != '') { // check if intervals seperator is mapped and index is mapped for Interval1
                                         $Interval1Index         = $attrselection->$Interval1IndexColumn; // which index to get from seperated value
-                                        $Interval1Seperator     = strpos($temp_row[$attrselection->$Interval1Column], '-') !== false ? '-' : '/'; // check by which seperator Intervals are seperated - allowed seperators (-,/)
-                                        $Intervals              = explode($Interval1Seperator,$temp_row[$attrselection->$Interval1Column]);
+                                        $Intervals              = explode($attrselection->IntervalSeperator,$temp_row[$attrselection->$Interval1Column]);
                                         $tempdata['Interval1']  = $Intervals[$Interval1Index];
                                     } else {
                                         $tempdata['Interval1']  = intval(trim($temp_row[$attrselection->$Interval1Column]));
@@ -1799,10 +1798,9 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$IntervalNColumn) && isset($temp_row[$attrselection->$IntervalNColumn])) {
-                                    if (isset($attrselection->$IntervalNIndexColumn) && $attrselection->$IntervalNIndexColumn != '') { // check if index is mapped for IntervalN - Intervals seperated by - or /
+                                    if (!empty($attrselection->IntervalSeperator) && isset($attrselection->$IntervalNIndexColumn) && $attrselection->$IntervalNIndexColumn != '') { // check if intervals seperator is mapped and index is mapped for IntervalN - Intervals seperated by - or /
                                         $IntervalNIndex         = $attrselection->$IntervalNIndexColumn; // which index to get from seperated value
-                                        $IntervalNSeperator     = strpos($temp_row[$attrselection->$IntervalNColumn], '-') !== false ? '-' : '/'; // check by which seperator Intervals are seperated - allowed seperators (-,/)
-                                        $Intervals              = explode($IntervalNSeperator,$temp_row[$attrselection->$IntervalNColumn]);
+                                        $Intervals              = explode($attrselection->IntervalSeperator,$temp_row[$attrselection->$IntervalNColumn]);
                                         $tempdata['IntervalN']  = $Intervals[$IntervalNIndex];
                                     } else {
                                         $tempdata['IntervalN']  = intval(trim($temp_row[$attrselection->$IntervalNColumn]));
@@ -1810,10 +1808,9 @@ class RateUploadController extends \BaseController {
                                 }
 
                                 if (!empty($attrselection->$MinimumDurationColumn) && isset($temp_row[$attrselection->$MinimumDurationColumn])) {
-                                    if (isset($attrselection->$MinimumDurationIndexColumn) && $attrselection->$MinimumDurationIndexColumn != '') { // check if index is mapped for MinimumDuration - Intervals seperated by - or /
+                                    if (!empty($attrselection->IntervalSeperator) && isset($attrselection->$MinimumDurationIndexColumn) && $attrselection->$MinimumDurationIndexColumn != '') { // check if intervals seperator is mapped and index is mapped for MinimumDuration - Intervals seperated by - or /
                                         $MinimumDurationIndex           = $attrselection->$MinimumDurationIndexColumn; // which index to get from seperated value
-                                        $MinimumDurationSeperator       = strpos($temp_row[$attrselection->$MinimumDurationColumn], '-') !== false ? '-' : '/'; // check by which seperator Intervals are seperated - allowed seperators (-,/)
-                                        $Intervals                      = explode($MinimumDurationSeperator,$temp_row[$attrselection->$MinimumDurationColumn]);
+                                        $Intervals                      = explode($attrselection->IntervalSeperator,$temp_row[$attrselection->$MinimumDurationColumn]);
                                         $tempdata['MinimumDuration']    = $Intervals[$MinimumDurationIndex];
                                     } else {
                                         $tempdata['MinimumDuration']    = intval(trim($temp_row[$attrselection->$MinimumDurationColumn]));

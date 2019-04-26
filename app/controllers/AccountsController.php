@@ -2258,10 +2258,31 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'AccountServiceID' =>  $data['AccountServiceID'],
             'CLI'=>  $data['CLI'],
             'Status'    =>  1
-        ])->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
-            ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+        ])->whereBetween('NumberStartDate', array($data['NumberStartDate'], $data['NumberEndDate']));
 
-            if($check->count() > 0){
+      //  whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
+        //    ->whereRaw("'" .$data['NumberStartDate']. "'" . " <= NumberEndDate");
+
+        $check1 = CLIRateTable::where([
+            'CompanyID' =>  $CompanyID,
+            'AccountID' =>  $data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'CLI'=>  $data['CLI'],
+            'Status'    =>  1
+        ])->whereBetween('NumberEndDate', array($data['NumberStartDate'], $data['NumberEndDate']));
+
+        //whereRaw("'" . $data['NumberEndDate'] . "'" .  " >= NumberStartDate")
+          //  ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+
+        $check2 = CLIRateTable::where([
+            'CompanyID' =>  $CompanyID,
+            'AccountID' =>  $data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'CLI'=>  $data['CLI'],
+            'Status'    =>  1
+        ])->where('NumberEndDate','>=',$data['NumberStartDate'])->where('NumberStartDate','<=',$data['NumberStartDate']);
+
+            if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
                 $message = 'Number '. $data['CLI'] . ' already exist between start date '.
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
@@ -2290,6 +2311,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 if(!empty($data['AccountServiceID'])) {
                     $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
                 }
+
+                $rate_tables['PrefixWithoutCountry'] = $rate_tables['Prefix'];
+                if (!empty($rate_tables['CountryID']) && !empty($rate_tables['Prefix'])) {
+                    $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
+                    if (substr($rate_tables['Prefix'], 0, 1) == "0") {
+                        $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['Prefix'], 1, strlen($rate_tables['Prefix']));
+                    } else {
+                        $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['Prefix']) ? "" : $rate_tables['Prefix'];
+                    }
+                    $rate_tables['Prefix'] = $ProductCountryPrefix;
+                }
+
                 $insertArr[] = $rate_tables;
             }
 
@@ -2336,10 +2369,25 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'AccountServiceID' =>  $data['AccountServiceID'],
             'PackageId'=>  $data['PackageID'],
             'Status'=>1
-        ])->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
-            ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
+        ])->whereBetween('PackageStartDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+        $check1 = AccountServicePackage::where([
+            'CompanyID'=>$CompanyID,
+            'AccountID'=>$data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'PackageId'=>  $data['PackageID'],
+            'Status'=>1
+        ])->whereBetween('PackageEndDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+        $check2 = AccountServicePackage::where([
+            'CompanyID'=>$CompanyID,
+            'AccountID'=>$data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'PackageId'=>  $data['PackageID'],
+            'Status'=>1
+        ])->where('PackageEndDate','>=',$data['PackageStartDate'])->where('PackageStartDate','<=',$data['PackageStartDate']);
+        //->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
+         //   ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
 
-        if($check->count() > 0){
+        if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
             $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
         } else {
             $rate_tables['PackageID'] = $data['PackageID'];
@@ -2525,15 +2573,48 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     'AccountServiceID' =>  $data['AccountServiceID'],
                     'CLI'=>  $data['CLI'],
                     'Status'    =>  1
-                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])
-                    ->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
-                    ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->whereBetween('NumberStartDate', array($data['NumberStartDate'], $data['NumberEndDate']));
 
-             if($check->count() > 0){
+             //  whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
+             //    ->whereRaw("'" .$data['NumberStartDate']. "'" . " <= NumberEndDate");
+
+             $check1 = CLIRateTable::where([
+                 'CompanyID' =>  $CompanyID,
+                 'AccountID' =>  $data['AccountID'],
+                 'AccountServiceID' =>  $data['AccountServiceID'],
+                 'CLI'=>  $data['CLI'],
+                 'Status'    =>  1
+             ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->whereBetween('NumberEndDate', array($data['NumberStartDate'], $data['NumberEndDate']));
+
+             //whereRaw("'" . $data['NumberEndDate'] . "'" .  " >= NumberStartDate")
+             //  ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+
+             $check2 = CLIRateTable::where([
+                 'CompanyID' =>  $CompanyID,
+                 'AccountID' =>  $data['AccountID'],
+                 'AccountServiceID' =>  $data['AccountServiceID'],
+                 'CLI'=>  $data['CLI'],
+                 'Status'    =>  1
+             ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->where('NumberEndDate','>=',$data['NumberStartDate'])->where('NumberStartDate','<=',$data['NumberStartDate']);
+
+
+
+             if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
                 $message = 'Number '. $data['CLI'] . ' already exist between start date '.
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
+
+             $rate_tables['PrefixWithoutCountry'] = $rate_tables['Prefix'];
+             if (!empty($rate_tables['CountryID']) && !empty($rate_tables['Prefix'])) {
+                 $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
+                 if (substr($rate_tables['Prefix'], 0, 1) == "0") {
+                     $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['Prefix'], 1, strlen($rate_tables['Prefix']));
+                 } else {
+                     $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['Prefix']) ? "" : $rate_tables['Prefix'];
+                 }
+                 $rate_tables['Prefix'] = $ProductCountryPrefix;
+             }
 
             $oldCLI->update($rate_tables);
         }
@@ -2598,16 +2679,30 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $check = false;
             if($rate_tables['Status'] == 1 || $data['PackageID'] != $oldAccountServicePackage->PackageId)
                 $check = AccountServicePackage::where([
-                    'CompanyID' =>  $CompanyID,
-                    'AccountID' =>  $data['AccountID'],
+                    'CompanyID'=>$CompanyID,
+                    'AccountID'=>$data['AccountID'],
                     'AccountServiceID' =>  $data['AccountServiceID'],
                     'PackageId'=>  $data['PackageID'],
-                    'Status'    =>  1
-                ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])
-                    ->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
-                    ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
+                    'Status'=>1
+                ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])->whereBetween('PackageStartDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+            $check1 = AccountServicePackage::where([
+                'CompanyID'=>$CompanyID,
+                'AccountID'=>$data['AccountID'],
+                'AccountServiceID' =>  $data['AccountServiceID'],
+                'PackageId'=>  $data['PackageID'],
+                'Status'=>1
+            ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])->whereBetween('PackageEndDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+            $check2 = AccountServicePackage::where([
+                'CompanyID'=>$CompanyID,
+                'AccountID'=>$data['AccountID'],
+                'AccountServiceID' =>  $data['AccountServiceID'],
+                'PackageId'=>  $data['PackageID'],
+                'Status'=>1
+            ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])->where('PackageEndDate','>=',$data['PackageStartDate'])->where('PackageStartDate','<=',$data['PackageStartDate']);
 
-            if($check->count() > 0){
+
+
+            if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
                 $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
