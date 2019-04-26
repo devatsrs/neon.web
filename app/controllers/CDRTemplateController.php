@@ -135,7 +135,7 @@ class CDRTemplateController extends BaseController {
                 $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
-                if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
+                if (in_array(strtolower($ext), array("csv", "xls", "xlsx","txt"))) {
                     $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
                     $excel->move($upload_path, $file_name);
                     $file_name = $upload_path . '/' . $file_name;

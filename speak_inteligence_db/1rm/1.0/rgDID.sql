@@ -15,7 +15,7 @@ use speakintelligentRM;
 -- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTableDID
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTableDID`;
 DELIMITER //
-CREATE PROCEDURE `prc_WSGenerateRateTableDID`(
+CREATE  PROCEDURE `prc_WSGenerateRateTableDID`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
@@ -24,6 +24,9 @@ CREATE PROCEDURE `prc_WSGenerateRateTableDID`(
 	IN `p_delete_exiting_rate` INT,
 	IN `p_EffectiveRate` VARCHAR(50),
 	IN `p_ModifiedBy` VARCHAR(50)
+
+
+
 
 )
 GenerateRateTable:BEGIN
@@ -2176,19 +2179,20 @@ GenerateRateTable:BEGIN
 						LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = @v_rateRuleId_
 						AND
 						(
-							(rr.Component = 'OneOffCost' AND OneOffCost Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'MonthlyCost' AND MonthlyCost Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'CostPerCall' AND CostPerCall Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'CostPerMinute' AND CostPerMinute Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'SurchargePerCall' AND SurchargePerCall Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'SurchargePerMinute' AND SurchargePerMinute Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'OutpaymentPerCall' AND OutpaymentPerCall Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'OutpaymentPerMinute' AND OutpaymentPerMinute Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'Surcharges' AND Surcharges Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'Chargeback' AND Chargeback Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'CollectionCostAmount' AND CollectionCostAmount Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'CollectionCostPercentage' AND CollectionCostPercentage Between rule_mgn1.MinRate and rule_mgn1.MaxRate) OR
-							(rr.Component = 'RegistrationCostPerNumber' AND RegistrationCostPerNumber Between rule_mgn1.MinRate and rule_mgn1.MaxRate)
+							(rr.Component = 'OneOffCost' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  OneOffCost Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'MonthlyCost' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  MonthlyCost Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'CostPerCall' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  CostPerCall Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'CostPerMinute' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  CostPerMinute Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'SurchargePerCall' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  SurchargePerCall Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'SurchargePerMinute' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  SurchargePerMinute Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'OutpaymentPerCall' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  OutpaymentPerCall Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'OutpaymentPerMinute' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  OutpaymentPerMinute Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'Surcharges' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  Surcharges Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'Chargeback' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  Chargeback Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'CollectionCostAmount' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  CollectionCostAmount Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'CollectionCostPercentage' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  CollectionCostPercentage Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  ) OR
+							(rr.Component = 'RegistrationCostPerNumber' AND ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null ) OR (  RegistrationCostPerNumber Between rule_mgn1.MinRate and rule_mgn1.MaxRate ) )  )
+
 
 						)
 
@@ -3744,6 +3748,7 @@ GenerateRateTable:BEGIN
 
 	END//
 DELIMITER ;
+
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
