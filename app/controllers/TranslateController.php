@@ -90,7 +90,7 @@ class TranslateController extends \BaseController {
 
     public function exports($languageCode,$type) {
 
-        $data_langs = Translation::get_language_labels($languageCode);
+        $data_langs = Translation::get_language_labels_export($languageCode);
         //Log::info($data_langs->Language);
         //return false;
         /*$translation_data = json_decode($data_langs->Translation, true);
