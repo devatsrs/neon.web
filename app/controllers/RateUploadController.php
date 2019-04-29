@@ -951,7 +951,7 @@ class RateUploadController extends \BaseController {
             };
 
             //convert excel to CSV
-            $file_name_with_path = $temp_path.$file_name;
+            $file_name = $file_name2 = $file_name_with_path = $temp_path.$file_name;
             //$NeonExcel = new NeonExcelIO($file_name_with_path, $data, $data['importratesheet']);
             //$file_name = $NeonExcel->convertExcelToCSV($data);
 
@@ -981,14 +981,14 @@ class RateUploadController extends \BaseController {
                 $lineno = 2;
             }
 
-            $NeonExcel = new NeonExcelIO($file_name_with_path, (array) $csvoption, $data['importratesheet']);
+            $NeonExcel = new NeonExcelIO($file_name, (array) $csvoption, $data['importratesheet']);
             $ratesheet = $NeonExcel->read();
 
             if(!empty($data['importdialcodessheet'])) {
                 $skipRows_sheet2 = $templateoptions->skipRows_sheet2;
                 NeonExcelIO::$start_row = intval($skipRows_sheet2->start_row);
                 NeonExcelIO::$end_row = intval($skipRows_sheet2->end_row);
-                $NeonExcel2 = new NeonExcelIO($file_name_with_path, (array)$csvoption, $data2['importdialcodessheet']);
+                $NeonExcel2 = new NeonExcelIO($file_name, (array)$csvoption, $data2['importdialcodessheet']);
                 $dialcodessheet = $NeonExcel2->read();
             }
 
@@ -1309,6 +1309,8 @@ class RateUploadController extends \BaseController {
                             } else {
                                 $tempdata['Change'] = 'I';
                             }
+
+                            $CostComponentsMapped = 0; // for access/DID
 
                             if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_did)) {
 
@@ -1632,8 +1634,6 @@ class RateUploadController extends \BaseController {
                                 $CostComponents[] = 'MonthlyCost';
                                 $CostComponents[] = 'PackageCostPerMinute';
                                 $CostComponents[] = 'RecordingCostPerMinute';
-
-                                $CostComponentsMapped = 0;
 
                                 if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn])) {
                                     $tempdata['OneOffCost'] = trim($temp_row[$attrselection->$OneOffCostColumn]);
