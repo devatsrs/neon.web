@@ -110,7 +110,7 @@ class Translation extends \Eloquent {
                 $translation=$arr_translation[$key];
             }
 
-$html_translation[] = array("SystemName"=>$key, "Translation"=> htmlentities($translation),"ISOCode" => $languageCode);
+$html_translation[] = array("SystemName"=>$key, "Translation"=> $translation,"ISOCode" => $languageCode);
             
            /* $html_translation='<label data-languages="'.$languageCode.'" class="label_language hidden" data-system-name="'.$key.'" >'.htmlentities($translation).'</label>
                                 <input type="text" value="'.htmlentities($translation).'" data-languages="'.$languageCode.'" class="text_language form-control"  data-system-name="'.$key.'" />';*/
