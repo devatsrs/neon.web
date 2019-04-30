@@ -735,9 +735,9 @@ class NeonExcelIO
         $reader->setShouldFormatDates(true);
         $reader->open($filepath);
 
-        $i=0;$all_rows=[];
+        $i=0;$all_rows=[];$sheet_index=0;
         foreach ($reader->getSheetIterator() as $sheet) {
-            if($sheet->getName() == $this->Sheet) {
+            if((!empty($this->Sheet) && $sheet->getName() == $this->Sheet) || (empty($this->Sheet) && $sheet_index==0)) {
                 foreach ($sheet->getRowIterator() as $row) {
                     $i++;
 
@@ -747,6 +747,7 @@ class NeonExcelIO
                     $all_rows[] = $row;
                 }
             }
+            $sheet_index++;
         }
 
         if($this->first_row == self::$COLUMN_NAMES) {
