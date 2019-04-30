@@ -82,6 +82,16 @@ class Translation extends \Eloquent {
     }
 
     public static function get_language_labels($languageCode="en"){
+        $data_langs = DB::table('tblLanguage')
+            ->select("TranslationID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
+            ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
+            ->where(["tblLanguage.ISOCode"=>$languageCode])
+            ->first();
+
+        return $data_langs;
+    }
+
+    public static function get_language_labels_export($languageCode="en"){
         $all_langs = DB::table('tblLanguage')
             ->select("tblLanguage.LanguageID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
