@@ -23,6 +23,7 @@ class FileUploadTemplate extends \Eloquent {
     const TEMPLATE_RATETABLE_RATE   = 'RatetableRate';
     const TEMPLATE_CUSTOMER_RATE    = 'CustomerRate';
     const TEMPLATE_FTPCDR           = 'FTPCDR';
+    const TEMPLATE_VENDORFTPCDR     = 'VENDORFTPCDR';
 
     public static function getTemplateIDList($Type){
         if(!empty($Type)) {

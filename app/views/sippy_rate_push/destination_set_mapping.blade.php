@@ -1,5 +1,37 @@
 @extends('layout.main')
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="destination_mapping_filter" method="get" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Account Name</label>
+                    {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Trunk</label>
+                    {{ Form::select('Trunk', $trunks, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Trunk")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Destination Set</label>
+                    {{ Form::text('DestinationSet', '', array("class"=>"form-control")) }}
+                </div>
 
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
 @section('content')
     <script src="<?php echo URL::to('/').'/assets/js/bootstrap-tagsinput.min.js'; ?>" ></script>
 
@@ -21,33 +53,86 @@
 
     @include('includes.errors')
     @include('includes.success')
+    <form class="form-horizontal form-groups-bordered" method="post" id="destination-mapping-form" role="form">
+        <div style="text-align: right;padding:10px 0 ">
+            <button class="btn btn-primary btn-sm btn-icon icon-left" id="btn-save">
+                <i class="entypo-floppy"></i>
+                Save
+            </button>
+        </div>
 
-    <div style="text-align: right;padding:10px 0 ">
-        <button class="btn btn-primary btn-sm btn-icon icon-left" id="btn-save">
-            <i class="entypo-floppy"></i>
-            Save
-        </button>
-    </div>
+        <table class="table table-bordered datatable" id="table-4">
+            <thead>
+            <tr>
+                <th width="20%">Account Name</th>
+                <th width="20%">Code-Rule</th>
+                <th width="10%">Trunk</th>
+                <th width="20%">Destination Set</th>
+                <!--<th width="20%">Is Mapped</th>-->
+            </tr>
+            </thead>
+            <tbody>
 
-    <table class="table table-bordered datatable" id="table-4">
-        <thead>
-        <tr>
-            <th width="20%">Account Name</th>
-            <th width="20%">Code-Rule</th>
-            <th width="10%">Trunk</th>
-            <th width="20%">Destination Set</th>
-            <th width="20%">Is Mapped</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        </tbody>
-    </table>
-
+            </tbody>
+        </table>
+    </form>
     <script>
+        var $searchFilter 	= 	{};
         CompanyGatewayID = $('#CompanyGatewayID').val();
         var $searchFilter = {};
         $(document).ready(function() {
+            $('#filter-button-toggle').show();
+
+            var form_action = '/sippy_rate_push/updatedestinationsetlist/{{$id}}';
+            $("#destination-mapping-form").submit(function () {
+
+                var formData = new FormData($('#destination-mapping-form')[0]);
+
+                $.ajax({
+                    url: baseurl+form_action,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        $(".save.btn").button('reset');
+
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            if( typeof data_table != 'undefined' ){
+                                data_table.fnFilter('', 0);
+                            }
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    },
+
+                    // Form data
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                }).success(function(response){
+                    if(typeof response.warning != 'undefined' && response.warning != '') {
+                        toastr.warning(response.warning, "Error", toastr_opts);
+                    }
+                    if (typeof ajax_form_success !== 'undefined' && $.isFunction(ajax_form_success)) {
+                        ajax_form_success(response);
+                    }
+
+                });
+                return false;
+            });
+
+
+            $("#destination_mapping_filter").submit(function(e){
+                e.preventDefault();
+                $searchFilter.AccountID 	= 	$("#destination_mapping_filter select[name='AccountID']").val();
+                $searchFilter.Trunk 		= 	$("#destination_mapping_filter [name='Trunk']").val();
+                $searchFilter.DestinationSet 		= 	$("#destination_mapping_filter [name='DestinationSet']").val();
+                data_table.fnFilter('', 0);
+                return false;
+            });
+
+
             $('#CompanyGatewayID').change(function() {
                 var CompanyGatewayID = $(this).val();
                 location.href = baseurl+"/sippy_rate_push/"+CompanyGatewayID+"/destinationsetmapping";
@@ -57,6 +142,9 @@
 
             //hide datatable warnings
             $.fn.dataTable.ext.errMode = 'none';
+            $searchFilter.AccountID 		= 	$("#destination_mapping_filter select[name='AccountID']").val();
+            $searchFilter.Trunk 		= 	$("#destination_mapping_filter [name='Trunk']").val();
+            $searchFilter.DestinationSet 		= 	$("#destination_mapping_filter [name='DestinationSet']").val();
 
             data_table = $("#table-4").on( 'error.dt', function ( e, settings, techNote, message ) {
                 var error_message = message.replace('DataTables warning: table id=table-4 - ','');
@@ -70,9 +158,9 @@
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"Gateway","value":$searchFilter.Gateway});
+                    aoData.push({"name":"Gateway","value":$searchFilter.Gateway},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"Trunk","value":$searchFilter.Trunk},{"name":"DestinationSet","value":$searchFilter.DestinationSet});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"Export","value":1},{"name":"Gateway","value":$searchFilter.Gateway});
+                    data_table_extra_params.push({"name":"Export","value":1},{"name":"Gateway","value":$searchFilter.Gateway},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"Trunk","value":$searchFilter.Trunk},{"name":"DestinationSet","value":$searchFilter.DestinationSet});
                 },
                 "aaSorting": [[0, 'asc']],
                 "aoColumns":
@@ -81,34 +169,31 @@
                             {
                                 "bSortable": false,
                                 mRender: function(status, type, full) {
-                                    html =    '        <input type="text" value="'+full[1]+'" class="tagsinput-control" />';
+                                    html =    '<input type="text" name="code-rule[]" value="'+full[1]+'" class="tagsinput-control" />';
                                     return html
                                 }
                             },  //1 code-rule
                             {},  //2 TrunkName
-                            {},  //3 DestinationSet Name
+                            // {},  //3 DestinationSet Name
                             {
                                 "bSortable": false,
                                 mRender: function(status, type, full) {
                                     var action = '';
 
                                     action = '<div class = "hiddenRowData" >';
-                                    action += '<input type = "hidden"  name = "AccountName" value = "' + full[0] + '" / >';
-                                    action += '<input type = "hidden"  name = "destination_set_name" value = "' + full[3] + '" / >';
-                                    action += '<input type = "hidden"  name = "SippyDestinationSetID" value = "' + full[4] + '" / >';
-                                    action += '<input type = "hidden"  name = "CompanyGatewayID" value = "' + full[5] + '" / >';
-                                    action += '<input type = "hidden"  name = "AccountID" value = "' + full[6] + '" / >';
-                                    action += '<input type = "hidden"  name = "TrunkID" value = "' + full[7] + '" / >';
-                                    action += '<input type = "hidden"  name = "i_vendor" value = "' + full[8] + '" / >';
-                                    action += '<input type = "hidden"  name = "i_connection" value = "' + full[9] + '" / >';
-                                    action += '<input type = "hidden"  name = "i_destination_set" value = "' + full[10] + '" / >';
+                                    action += '<input type = "hidden"  name = "AccountName[]" value = "' + full[0] + '" / >';
+                                    action += '<input type = "hidden"  name = "destination_set_name[]" value = "' + full[3] + '" / >';
+                                    action += '<input type = "hidden"  name = "SippyDestinationSetID[]" value = "' + full[4] + '" / >';
+                                    action += '<input type = "hidden"  name = "CompanyGatewayID[]" value = "' + full[5] + '" / >';
+                                    action += '<input type = "hidden"  name = "AccountID[]" value = "' + full[6] + '" / >';
+                                    action += '<input type = "hidden"  name = "TrunkID[]" value = "' + full[7] + '" / >';
+                                    action += '<input type = "hidden"  name = "i_vendor[]" value = "' + full[8] + '" / >';
+                                    action += '<input type = "hidden"  name = "i_connection[]" value = "' + full[9] + '" / >';
+                                    action += '<input type = "hidden"  name = "i_destination_set[]" value = "' + full[10] + '" / >';
                                     action += '</div>';
 
-                                    if (full[4] != "") {
-                                        action += '<i style="font-size:22px;color:green" class="entypo-check"></i>';
-                                    } else {
-                                        action += '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
-                                    }
+                                    action += full[3];
+
                                     return action;
                                 }
                             }, //0 if destination set is mapped in our database
@@ -119,7 +204,6 @@
                     ]
                 },
                 "fnDrawCallback": function() {
-
                     $(".tagsinput-control").tagsinput('items');
 
                     //onDelete Click

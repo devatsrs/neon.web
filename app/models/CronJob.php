@@ -146,6 +146,14 @@ class CronJob extends \Eloquent {
                 unset($data['EffectiveRate']);
 
             }
+            if(isset($data['rateTables'])){
+                $data['Setting']['rateTables'] = $data['rateTables'];
+                unset($data['rateTables']);
+            }
+            if(isset($data['vendors'])){
+                $data['Setting']['vendors'] = $data['vendors'];
+                unset($data['vendors']);
+            }
             if(isset($data['CompanyGatewayID'])){
                 $data['Setting']['CompanyGatewayID'] = $data['CompanyGatewayID'];
                 unset($data['CompanyGatewayID']);

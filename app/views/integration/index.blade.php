@@ -1212,6 +1212,38 @@
                             </div>
                         </div>
 
+                        <div class="panel panel-primary" data-collapsed="0">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    Chart of Accounts Mapping - Usage (For Invoice Posting)
+                                </div>
+
+                                <div class="panel-options">
+                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                </div>
+                            </div>
+
+                            <div class="panel-body">
+                                <?php $count=0; ?>
+                                @if(!empty($Products[2])&& count($Products[2])>0)
+                                    @foreach($Products[2] as $key=>$Prod)
+                                        <div class="col-md-6  margin-top">
+                                            <div class="form-group">
+                                                <label for="field-1" class="col-sm-4 control-label">{{$Prod}}:</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text"  class="form-control" name="Usage[{{$key}}]" value="{{isset($XeroData['Usage'][$key])?$XeroData['Usage'][$key]:""}}" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php $count++; ?>
+                                        @if($count%2 == 0)
+                                            <div class="clear"></div>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
+
                         <!-- Xero form end-->
                     </div>
                     <!-- Xero End-->

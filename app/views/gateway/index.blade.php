@@ -201,6 +201,7 @@ var postdata;
     $('#add-new-config').click(function(ev){
         ev.preventDefault();
         $('#CDRMapping').addClass('hidden');
+        $('#VendorCDRMapping').addClass('hidden');
         $('#add-new-config-form').trigger("reset");
         $("#add-new-config-form [name='CompanyGatewayID']").val('');
         $("#add-new-config-form [name='BillingTimeZone']").select2().select2('val','');
@@ -221,6 +222,7 @@ var postdata;
         ev.preventDefault();
         ev.stopPropagation();
         $('#CDRMapping').addClass('hidden');
+        $('#VendorCDRMapping').addClass('hidden');
         $('#add-new-config-form').trigger("reset");
         var prevrow = $(this).prev("div.hiddenRowData");
         $("#add-new-config-form [name='CompanyGatewayID']").val(prevrow.find("input[name='CompanyGatewayID']").val())
@@ -239,6 +241,9 @@ var postdata;
 
         if(GatewayName == 'FTP'){
             $('#CDRMapping').removeClass('hidden');
+        }
+        if(GatewayName == 'FTPVENDOR'){
+            $('#VendorCDRMapping').removeClass('hidden');
         }
 
         // if SippySFTP or SippySQL then
@@ -471,6 +476,13 @@ var postdata;
             openInNewTab(url);
         });
 
+        $('#vendorcdrtemplatelink').click(function(e){
+            e.preventDefault();
+            var CompanyGatewayID = $('#add-new-config-form [name="CompanyGatewayID"]').val();
+            var url = "{{URL::to('vendor_cdr_template/gateway')}}/"+CompanyGatewayID;
+            openInNewTab(url);
+        });
+
         function initializeSelect2(){
             $("#ajax_config_html .select2").each(function(i, el) {
                 buildselect2(el);
@@ -604,6 +616,14 @@ var postdata;
                         </a>
                     </div>
                 </div>
+                    <div id="VendorCDRMapping" class="row hidden">
+                        <label for="field-5" class="control-label col-md-3">Vendor CDR Mapping</label>
+                        <div class="clear col-md-3">
+                            <a id="vendorcdrtemplatelink" href="#" target="_blank" class="btn btn-primary btn-sm btn-icon icon-left">
+                                <i class="entypo-link"></i>Vendor CDR Mapping
+                            </a>
+                        </div>
+                    </div>
                 <div class="row"><br></div>
                 <div class="modal-footer">
                     <input type="hidden" name="CompanyGatewayID" value="">

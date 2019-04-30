@@ -334,6 +334,8 @@
 
         </div>
     @endif
+
+
     @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
     <div class="row">
         <div class="col-sm-6">
@@ -369,6 +371,9 @@
         </div>
     </div>
     @endif
+
+
+
     <script src="{{ URL::asset('assets/js/highcharts.js') }}"></script>
     <script type="text/javascript">
 

@@ -28,15 +28,18 @@
                 <!-- panel head -->
                 <div class="panel-heading">
                     <div class="panel-title">{{Input::get('report')=='run'?'<strong>'.$report->Name.'</strong>':'Report'}}</div>
-                    @if(User::checkCategoryPermission('Report','Update') )
+
                     <div class="panel-options dropdown">
                         <a href="{{URL::to('report')}}"  data-original-title="Back" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-times"></i></a>
+                    @if(User::checkCategoryPermission('Report','Edit') )
                         <a type="submit" id="save_report"  data-original-title="Save" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-floppy"></i></a>
                         @if(empty(Input::get('report')) && !empty($report))
                             <a href="{{URL::to('report/edit/'.$report->ReportID)}}?report=run"  data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>
                         @elseif(!empty($report) && !empty(Input::get('report')))
                             <a href="{{URL::to('report/edit/'.$report->ReportID)}}"  data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>
                         @endif
+                    @endif
+                    @if(User::checkCategoryPermission('Report','Download'))
                             <a  data-original-title="Export" title="" data-placement="top" data-toggle="dropdown" aria-expanded="true" class="dropdown-toggle"><i class="fa fa-download"></i>&nbsp;</a>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; min-width: 0">
                                 <li>
@@ -55,9 +58,9 @@
                                 </li>
 
                             </ul>
+                    @endif
 
-
-
+                @if(User::checkCategoryPermission('Report','Schedule'))
                     @if(!empty($ReportSchedule))
                             <a href="{{URL::to('report/schedule_update/'.$ReportSchedule->ReportScheduleID)}}" class="schedule_report"  data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>
                             <div class = "hiddenRowData pull-left" >
@@ -76,9 +79,8 @@
                                 <input disabled name="ReportID" value="{{$report->ReportID}}" type="hidden">
                             </div>
                     @endif
+                @endif
                     </div>
-
-                    @endif
 
                 </div>
                 <!-- panel body -->

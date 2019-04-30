@@ -13,7 +13,7 @@ class GatewayConfig extends \Eloquent {
     public static $Vos_NameFormat = array('NAMENUB'=>'Account Name - Account Number','NUBNAME'=>'Account Number - Account Name','NAME'=>'Account Name','NUB'=>'Account Number','IP'=>'IP');
     public static $Porta_NameFormat = array('NAMENUB'=>'Account Name - Account Number','NUBNAME'=>'Account Number - Account Name','NAME'=>'Account Name','NUB'=>'Account Number');
     public static $Sippy_NameFormat = array('IP'=>'IP','NAME'=>'Account Name');
-    public static $SippySQL_NameFormat = array('IP'=>'IP','NAME'=>'Account Name');
+    public static $SippySQL_NameFormat = array('IP'=>'IP','NUMBER'=>'Account Number','NAME'=>'Account Name');
     public static $Mirta_NameFormat = array('NUB'=>'Account Number');
     public static $MOR_NameFormat = array('NUB'=>'Account Number','IP'=>'IP');
     public static $CallShop_NameFormat = array('NUB'=>'Account Number');

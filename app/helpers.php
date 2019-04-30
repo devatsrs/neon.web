@@ -1092,8 +1092,11 @@ function formatSmallDate($date,$dateformat='d-m-y') {
 function SortBillingType($account=0){
     ksort(Company::$BillingCycleType);
     ksort(Company::$BillingCycleType2);
+    ksort(Company::$BillingCycleType3);
     if($account == 0) {
         return Company::$BillingCycleType;
+    }elseif($account == 3){
+        return Company::$BillingCycleType3;
     }else{
         return Company::$BillingCycleType2;
     }

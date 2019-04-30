@@ -246,9 +246,6 @@ DELIMITER ;
 INSERT INTO `Ratemanagement3`.`tblFileUploadTemplateType` (`TemplateType`, `Title`, `UploadDir`, `created_at`) VALUES ('FTPCDR', 'FTP CDR', 'CDR_UPLOAD', '2018-11-19 16:28:34');
 
 
-/* Above Done on Staging */
-
-
 
 /* Task:- PBX Re-Import CDR */
 
@@ -378,7 +375,140 @@ BEGIN
 END//
 DELIMITER ;
 
+/* Above Done on Staging */
 
+
+/* Sippy Vendor Rate push */
+use NeonRMDev;
+
+-- Dumping structure for table NeonRMDev.tblSippyVendorDestiMap
+CREATE TABLE IF NOT EXISTS `tblSippyVendorDestiMap` (
+  `SippyVendorDestiMapID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) NOT NULL DEFAULT '0',
+  `VendorID` int(11) NOT NULL DEFAULT '0',
+  `CodeRule` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `TrunkID` int(11) DEFAULT NULL,
+  `DestinationSetID` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `created_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`SippyVendorDestiMapID`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- Dumping structure for table NeonRMDev.tblDestinationSet
+CREATE TABLE IF NOT EXISTS `tblDestinationSet` (
+  `DestinationSetID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) NOT NULL DEFAULT '0',
+  `Name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `created_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`DestinationSetID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- Dumping structure for procedure NeonRMDev.prc_getSippyVendorDesti
+DROP PROCEDURE IF EXISTS `prc_getSippyVendorDesti`;
+DELIMITER //
+CREATE PROCEDURE `prc_getSippyVendorDesti`(
+	IN `p_CompanyID` INT,
+	IN `p_VendorID` INT,
+	IN `p_TrunkID` INT,
+	IN `p_CodeRule` VARCHAR(255),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_Export` INT
+
+)
+BEGIN
+     DECLARE v_OffSet_ int;
+     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	      
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+
+	if p_Export = 0
+	THEN
+
+    SELECT   
+			tblAccount.AccountName,
+			tblSippyVendorDestiMap.CodeRule,
+			tblTrunk.Trunk,
+			tblDestinationSet.name,
+			tblSippyVendorDestiMap.SippyVendorDestiMapID,
+			tblSippyVendorDestiMap.VendorID,
+			tblSippyVendorDestiMap.TrunkID,
+			tblSippyVendorDestiMap.DestinationSetID
+            from tblSippyVendorDestiMap
+            INNER JOIN tblAccount
+            ON tblAccount.AccountID=tblSippyVendorDestiMap.VendorID
+            LEFT JOIN tblDestinationSet 
+				ON tblDestinationSet.DestinationSetID=tblSippyVendorDestiMap.DestinationSetID
+				LEFT JOIN tblTrunk
+				ON tblTrunk.TrunkID=tblSippyVendorDestiMap.TrunkID
+            where tblSippyVendorDestiMap.CompanyID = p_CompanyID
+				and ((p_VendorID=0 OR tblSippyVendorDestiMap.VendorID=p_VendorID))
+				AND(p_CodeRule = '' OR tblSippyVendorDestiMap.CodeRule like Concat(p_CodeRule,'%'))
+            AND((p_TrunkID = '' OR tblSippyVendorDestiMap.TrunkID = p_TrunkID))
+         ORDER BY
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
+                END ASC
+				
+            LIMIT p_RowspPage OFFSET v_OffSet_;
+
+			SELECT
+            COUNT(SippyVendorDestiMapID) AS totalcount
+            from tblSippyVendorDestiMap
+            INNER JOIN tblAccount
+            ON tblAccount.AccountID=tblSippyVendorDestiMap.VendorID
+            LEFT JOIN tblDestinationSet 
+				ON tblDestinationSet.DestinationSetID=tblSippyVendorDestiMap.DestinationSetID
+				LEFT JOIN tblTrunk
+				ON tblTrunk.TrunkID=tblSippyVendorDestiMap.TrunkID
+            where tblSippyVendorDestiMap.CompanyID = p_CompanyID
+				and ((p_VendorID=0 OR tblSippyVendorDestiMap.VendorID=p_VendorID))
+				AND(p_CodeRule = '' OR tblSippyVendorDestiMap.CodeRule like Concat(p_CodeRule,'%'))
+            AND((p_TrunkID = '' OR tblSippyVendorDestiMap.TrunkID = p_TrunkID));
+
+	ELSE
+
+			SELECT
+			tblAccount.AccountName,
+			tblSippyVendorDestiMap.CodeRule,
+			tblTrunk.Trunk,
+			tblDestinationSet.name as DestinationSet,
+			tblSippyVendorDestiMap.SippyVendorDestiMapID,
+			tblSippyVendorDestiMap.VendorID,
+			tblSippyVendorDestiMap.TrunkID,
+			tblSippyVendorDestiMap.DestinationSetID
+            from tblSippyVendorDestiMap
+            INNER JOIN tblAccount
+            ON tblAccount.AccountID=tblSippyVendorDestiMap.VendorID
+            LEFT JOIN tblDestinationSet 
+				ON tblDestinationSet.DestinationSetID=tblSippyVendorDestiMap.DestinationSetID
+				LEFT JOIN tblTrunk
+				ON tblTrunk.TrunkID=tblSippyVendorDestiMap.TrunkID
+            where tblSippyVendorDestiMap.CompanyID = p_CompanyID
+				and ((p_VendorID=0 OR tblSippyVendorDestiMap.VendorID=p_VendorID))
+				AND(p_CodeRule = '' OR tblSippyVendorDestiMap.CodeRule like Concat(p_CodeRule,'%'))
+            AND((p_TrunkID = '' OR tblSippyVendorDestiMap.TrunkID = p_TrunkID));
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
 
 
 

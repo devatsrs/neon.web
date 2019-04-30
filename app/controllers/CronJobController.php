@@ -52,6 +52,7 @@ class CronJobController extends \BaseController {
 	{
         $isvalid = CronJob::validate();
         if($isvalid['valid']==1){
+            $isvalid['data']['PID']='';
             if ($CronJobID = CronJob::insertGetId($isvalid['data'])) {
                 CronJob::upadteNextTimeRun($CronJobID);
                 return Response::json(array("status" => "success", "message" => "Cron Job Successfully Created"));
@@ -142,7 +143,7 @@ class CronJobController extends \BaseController {
             }
             $hour_limit = 24;
             $day_limit = 32;
-            if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'sippyratefilestatus'){
+            if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'sippyratefilestatus' || $CronJobCommand->Command == 'updatepbxcustomerrate' || $CronJobCommand->Command == 'updatepbxvendorrate'){
                 $CompanyGateway = CompanyGateway::getCompanyGatewayIdList();
             } else if($CronJobCommand->GatewayID > 0){
                 $CompanyGateway = CompanyGateway::getGatewayIDList($CronJobCommand->GatewayID);
@@ -151,6 +152,18 @@ class CronJobController extends \BaseController {
                 $hour_limit = 3;
             }else if($CronJobCommand->Command == 'portaaccountusage'){
                 $day_limit= 2;
+            }else if($CronJobCommand->Command == 'updatepbxcustomerrate'){
+                $day_limit= 2;
+                $rateTableList = RateTable::where(["CompanyId" => $companyID])
+                    ->lists('RateTableName', 'RateTableId');
+                if(!empty($rateTableList)){
+                    $rateTableList = array(""=> "Select")+$rateTableList;
+                }
+            }else if($CronJobCommand->Command == 'updatepbxvendorrate'){
+                $vendorList = Account::getOnlyVendorIDList();
+                if(!empty($vendorList)){
+                    $vendorList = array(""=> "Select")+$vendorList;
+                }
             }else if($CronJobCommand->Command == 'rategenerator'){
                 $day_limit= 2;
                 $rateGenerators = RateGenerator::rateGeneratorList($companyID);
@@ -168,10 +181,10 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'accountbalanceprocess'){
                 //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
 				$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
-            }else if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'customerratefilegeneration' || $CronJobCommand->Command == 'morcustomerrateimport' || $CronJobCommand->Command == 'callshopcustomerrateimport'){
+            }else if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'customerratefilegeneration' || $CronJobCommand->Command == 'morcustomerrateimport' || $CronJobCommand->Command == 'callshopcustomerrateimport' || $CronJobCommand->Command == 'getvoscustomerrate'){
                 $customers = Account::getCustomerIDList();
                 $customers = array_diff($customers, array('Select'));
-            }else if($CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'vendorratefilegeneration'){
+            }else if($CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'vendorratefilegeneration' || $CronJobCommand->Command == 'getvosvendorrate'){
                 $vendors = Account::getVendorIDList();
                 $vendors = array_diff($vendors, array('Select'));
             }else if($CronJobCommand->Command == 'createsummary'){
@@ -182,7 +195,7 @@ class CronJobController extends \BaseController {
 
             $commandconfig = json_decode($commandconfig,true);
 
-            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors','StartDateMessage'));
+            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors','StartDateMessage', 'rateTableList', 'vendorList'));
         }
         return '';
     }
