@@ -91,6 +91,46 @@ class Translation extends \Eloquent {
         return $data_langs;
     }
 
+    public static function get_language_labels_export($languageCode="en"){
+        $all_langs = DB::table('tblLanguage')
+            ->select("tblLanguage.LanguageID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
+            ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
+            ->where(["tblLanguage.ISOCode"=>$languageCode])
+            ->orWhere(["tblLanguage.ISOCode"=>Translation::$default_lang_ISOcode])
+            ->get();
+ 
+        foreach($all_langs as $val){
+            if($val->ISOCode==Translation::$default_lang_ISOcode){
+                $arr_english=json_decode($val->Translation, true);
+            }else{
+                $arr_translation=json_decode($val->Translation, true);
+            }
+        }
+
+        $arr_return=array();
+
+        foreach($arr_english as $key=>$val){
+            $row=array();
+            $row[]=$key;
+            $row[]=$val;
+            $translation="";
+            if($languageCode==Translation::$default_lang_ISOcode){
+                $translation=$val;
+            }else if(isset($arr_translation[$key])){
+                $translation=$arr_translation[$key];
+            }
+
+$html_translation[] = array("SystemName"=>$key, "Translation"=> str_replace("&nbsp;"," ",$translation),"ISOCode" => $languageCode);
+            
+           /* $html_translation='<label data-languages="'.$languageCode.'" class="label_language hidden" data-system-name="'.$key.'" >'.htmlentities($translation).'</label>
+                                <input type="text" value="'.htmlentities($translation).'" data-languages="'.$languageCode.'" class="text_language form-control"  data-system-name="'.$key.'" />';*/
+
+        }
+
+//Log::info(json_encode($html_translation));
+        return $html_translation;
+    }
+
 
     public static function add_system_name($system_name, $en_word){
 

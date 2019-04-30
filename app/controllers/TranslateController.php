@@ -17,32 +17,34 @@ class TranslateController extends \BaseController {
     public function search_ajax_datagrid() {
 
         $data = Input::all();
-        if(isset($data["Language"]))
-        {
-            $langid = $data["Language"];
-        } else {$langid = Translation::$default_lang_ISOcode; }
 
         $all_langs = DB::table('tblLanguage')
             ->select("tblLanguage.LanguageID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
-            ->where(["tblLanguage.ISOCode"=>$langid])
-            //->orWhere(["tblLanguage.ISOCode"=>Translation::$default_lang_ISOcode])
+            ->where(["tblLanguage.ISOCode"=>$data["Language"]])
+            ->orWhere(["tblLanguage.ISOCode"=>Translation::$default_lang_ISOcode])
             ->get();
-            
 
         foreach($all_langs as $val){
+            if($val->ISOCode==Translation::$default_lang_ISOcode){
+                $arr_english=json_decode($val->Translation, true);
+            }else{
                 $arr_translation=json_decode($val->Translation, true);
+            }
         }
 
         $arr_return=array();
 
-        foreach($arr_translation as $key=>$val){
+        foreach($arr_english as $key=>$val){
             $row=array();
             $row[]=$key;
             $row[]=$val;
             $translation="";
-            
+            if($data["Language"]==Translation::$default_lang_ISOcode){
+                $translation=$val;
+            }else if(isset($arr_translation[$key])){
                 $translation=$arr_translation[$key];
+            }
 
             $html_translation='<label data-languages="'.$data["Language"].'" class="label_language hidden" data-system-name="'.$key.'" >'.htmlentities($translation).'</label>
                                 <input type="text" value="'.htmlentities($translation).'" data-languages="'.$data["Language"].'" class="text_language form-control"  data-system-name="'.$key.'" />';
@@ -88,24 +90,23 @@ class TranslateController extends \BaseController {
 
     public function exports($languageCode,$type) {
 
-        $data_langs = Translation::get_language_labels($languageCode);
+        $data_langs = Translation::get_language_labels_export($languageCode);
         //Log::info($data_langs->Language);
         //return false;
-        $translation_data = json_decode($data_langs->Translation, true);
-        Log::info(json_encode($translation_data));
+        /*$translation_data = json_decode($data_langs->Translation, true);
         $json_file=array();
         foreach($translation_data as $key=>$value){
-            $json_file[]=array("System Name"=>$key, "Translation"=> $value, "ISO Code" => $data_langs->ISOCode);
-        }
+            $json_file[]=array("SystemName"=>$key, "Translation"=> $value,"ISOCode" => $data_langs->ISOCode);
+        }*/
 
         if($type=='csv'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$data_langs->Language.'.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$languageCode.'.csv';
             $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_csv($json_file);
+            $NeonExcel->download_csv($data_langs);
         }elseif($type=='xlsx'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$data_langs->Language.'.xls';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$languageCode.'.xls';
             $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_excel($json_file);
+            $NeonExcel->download_excel($data_langs);
         }
     }
 
