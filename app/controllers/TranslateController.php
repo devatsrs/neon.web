@@ -90,23 +90,23 @@ class TranslateController extends \BaseController {
 
     public function exports($languageCode,$type) {
 
-        $data_langs = Translation::get_language_labels($languageCode);
+        $data_langs = Translation::get_language_labels_export($languageCode);
         //Log::info($data_langs->Language);
         //return false;
-        $translation_data = json_decode($data_langs->Translation, true);
+        /*$translation_data = json_decode($data_langs->Translation, true);
         $json_file=array();
         foreach($translation_data as $key=>$value){
-            $json_file[]=array("System Name"=>$key, "Translation"=> $value,"Language" => $data_langs->Language, "ISO Code" => $data_langs->ISOCode);
-        }
+            $json_file[]=array("SystemName"=>$key, "Translation"=> $value,"ISOCode" => $data_langs->ISOCode);
+        }*/
 
         if($type=='csv'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$data_langs->Language.'.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$languageCode.'.csv';
             $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_csv($json_file);
+            $NeonExcel->download_csv($data_langs);
         }elseif($type=='xlsx'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$data_langs->Language.'.xls';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$languageCode.'.xls';
             $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_excel($json_file);
+            $NeonExcel->download_excel($data_langs);
         }
     }
 

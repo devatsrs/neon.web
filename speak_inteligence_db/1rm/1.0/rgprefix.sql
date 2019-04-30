@@ -15,7 +15,7 @@ use speakintelligentRM;
 -- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTableWithPrefix
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTableWithPrefix`;
 DELIMITER //
-CREATE PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
+CREATE  PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
@@ -29,6 +29,10 @@ CREATE PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 	IN `p_IsMerge` INT,
 	IN `p_TakePrice` INT,
 	IN `p_MergeInto` INT
+
+
+
+
 
 
 
@@ -1354,8 +1358,9 @@ GenerateRateTable:BEGIN
 					RateCurrency,
 					ConnectionFeeCurrency
                 FROM tmp_Vendorrates_stage3_ vRate
-                LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
-                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate;
+			    	 LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null)   OR (vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate) )
+                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and ( (rule_mgn2.MinRate is null AND  rule_mgn2.MaxRate is null)   OR (vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate) );
+
 
 
 
@@ -1419,8 +1424,8 @@ GenerateRateTable:BEGIN
       					END
 
                     )  vRate
-                LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
-                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate;
+			       LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null)   OR (vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate) )
+                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and ( (rule_mgn2.MinRate is null AND  rule_mgn2.MaxRate is null)   OR (vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate) );
 
 
 
