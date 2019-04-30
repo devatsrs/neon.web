@@ -94,6 +94,14 @@
                 </div>
             </div>
         @endif
+        @if (isset($vendorList) && count($vendorList) > 0)
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">Vendor</label>
+                    {{Form::select('vendors', $vendorList, (isset($commandconfigval->vendors)?$commandconfigval->vendors:'') ,array("id"=>"vendors" ,"class"=>"select2","data-placeholder"=>"Select Vendor"))}}
+                </div>
+            </div>
+        @endif
         @if (isset($gateway) && count($gateway) > 0)
             <div class="col-md-6">
                 <div class="form-group">

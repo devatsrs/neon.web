@@ -143,7 +143,7 @@ class CronJobController extends \BaseController {
             }
             $hour_limit = 24;
             $day_limit = 32;
-            if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'sippyratefilestatus' || $CronJobCommand->Command == 'updatepbxcustomerrate'){
+            if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'sippyratefilestatus' || $CronJobCommand->Command == 'updatepbxcustomerrate' || $CronJobCommand->Command == 'updatepbxvendorrate'){
                 $CompanyGateway = CompanyGateway::getCompanyGatewayIdList();
             } else if($CronJobCommand->GatewayID > 0){
                 $CompanyGateway = CompanyGateway::getGatewayIDList($CronJobCommand->GatewayID);
@@ -158,6 +158,11 @@ class CronJobController extends \BaseController {
                     ->lists('RateTableName', 'RateTableId');
                 if(!empty($rateTableList)){
                     $rateTableList = array(""=> "Select")+$rateTableList;
+                }
+            }else if($CronJobCommand->Command == 'updatepbxvendorrate'){
+                $vendorList = Account::getOnlyVendorIDList();
+                if(!empty($vendorList)){
+                    $vendorList = array(""=> "Select")+$vendorList;
                 }
             }else if($CronJobCommand->Command == 'rategenerator'){
                 $day_limit= 2;
@@ -190,7 +195,7 @@ class CronJobController extends \BaseController {
 
             $commandconfig = json_decode($commandconfig,true);
 
-            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors','StartDateMessage', 'rateTableList'));
+            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors','StartDateMessage', 'rateTableList', 'vendorList'));
         }
         return '';
     }
