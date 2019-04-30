@@ -173,7 +173,7 @@
         </form>
     </div>
 </div>
-<div class="panel panel-primary hide" data-collapsed="0" id="Outpayment-components">
+<div class="panel panel-primary" data-collapsed="0" id="Outpayment-components">
     <div class="panel-heading">
         <div class="panel-title">
             Out Payment
