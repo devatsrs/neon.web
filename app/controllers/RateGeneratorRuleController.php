@@ -51,6 +51,7 @@ class RateGeneratorRuleController extends \BaseController {
             $rategenerator_margins = RateRuleMargin::where([
                 "RateRuleID" => $RateRuleID
             ])->select(array(
+                'Type',
                 'MinRate',
                 'MaxRate',
                 'AddMargin',
@@ -205,8 +206,8 @@ class RateGeneratorRuleController extends \BaseController {
             $data ['MaxRate'] = doubleval($data ['MaxRate']);
             $data ['FixedValue'] = doubleval($data ['FixedValue']);
             $rules = array(
-                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId,
-                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId,
+                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId.',Type,'.$data["Type"],
+                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId.',Type,'.$data["Type"],
                 'AddMargin' => 'required_without:FixedValue',
                 'FixedValue' => 'required_without:AddMargin',
                 'RateRuleId' => 'required',
@@ -280,9 +281,10 @@ class RateGeneratorRuleController extends \BaseController {
             $data ['MinRate'] = doubleval($data ['MinRate']);
             $data ['MaxRate'] = doubleval($data ['MaxRate']);
             $data ['FixedValue'] = doubleval($data ['FixedValue']);
+
             $rules = array(
-                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
-                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
+                'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId.',Type,'.$data["Type"],
+                'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId.',Type,'.$data["Type"],
                 'AddMargin' => 'required_without:FixedValue',
                 'FixedValue' => 'required_without:AddMargin',
                 'RateRuleId' => 'required',
