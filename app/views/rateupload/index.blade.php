@@ -355,8 +355,8 @@
             bVisiblePreferenceBlock = true;
         @endif
 
-        var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
-        var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
+        var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode','Type'];
+        var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode','Type'];
         var all_occupied_fields     = [];
         var relational_columns      = {
             EndDate                 : ['EndDate'],
@@ -368,7 +368,8 @@
             OriginationCountryCode  : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
             OriginationCode         : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
             OriginationDescription  : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
-            CountryCode             : ['CountryCode']
+            CountryCode             : ['CountryCode'],
+            Type                    : ['Type']
         };
         var columns_text            = {
             EndDate                 : 'End Date',
@@ -380,7 +381,8 @@
             OriginationCountryCode  : 'Origination Country Code',
             OriginationCode         : 'Origination Code',
             OriginationDescription  : 'Origination Description',
-            CountryCode             : 'Destination Country Code'
+            CountryCode             : 'Destination Country Code',
+            Type                    : 'Destination Type'
         };
         var columnsMultiSelect;
         var fileData;
@@ -890,13 +892,13 @@
                     var Timezone        = $('#reviewrates-new-search select[name="Timezone"]').val();
                     var RoutingCategory = $('#reviewrates-new-search select[name="RoutingCategory"]').val();
                     var RateUploadType  = $("input[name=RateUploadType]:checked").val();
-                    var VendorID        = $("select[name=Vendor]:checked").val();
-                    var CustomerID      = $("select[name=Customer]:checked").val();
-                    var RateTableID     = $("select[name=RateTable]:checked").val();
+                    var VendorID        = $("select[name=Vendor]").val();
+                    var CustomerID      = $("select[name=Customer]").val();
+                    var RateTableID     = $("select[name=Ratetable]").val();
 
                     $.ajax({
                         url: '{{URL::to('rate_upload/updateTempReviewRates')}}',
-                        data: 'Action=New&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-intervals').serialize(),
+                        data: 'Action=New&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&OriginationCode='+OriginationCode+'&OriginationDescription='+OriginationDescription+'&RoutingCategory='+RoutingCategory+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-intervals').serialize(),
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
                         },
@@ -961,6 +963,7 @@
 
                 var ProcessID = $('#ProcessID').val();
                 var TrunkID   = $('#Trunk').val();
+                var TempRateIDs = '';
 
                 if($('#selectallbutton-deleted').is(':checked')){
                     criteria = 1;
@@ -991,13 +994,13 @@
                     var Timezone        = $('#reviewrates-deleted-search select[name="Timezone"]').val();
                     var RoutingCategory = $('#reviewrates-deleted-search select[name="RoutingCategory"]').val();
                     var RateUploadType  = $("input[name=RateUploadType]:checked").val();
-                    var VendorID        = $("select[name=Vendor]:checked").val();
-                    var CustomerID      = $("select[name=Customer]:checked").val();
-                    var RateTableID     = $("select[name=RateTable]:checked").val();
+                    var VendorID        = $("select[name=Vendor]").val();
+                    var CustomerID      = $("select[name=Customer]").val();
+                    var RateTableID     = $("select[name=Ratetable]").val();
 
                     $.ajax({
                         url: '{{URL::to('rate_upload/updateTempReviewRates')}}',
-                        data: 'Action=Deleted&TrunkID='+TrunkID+'&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
+                        data: 'Action=Deleted&TrunkID='+TrunkID+'&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&OriginationCode='+OriginationCode+'&OriginationDescription='+OriginationDescription+'&RoutingCategory='+RoutingCategory+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
                         },
@@ -1173,7 +1176,7 @@
                     var self = $('#add-template-form [name="'+el.name+'"]');
                     var label = 'Map From File';
                     rebuildSelectComposite(self, data.columns, label);
-                } else if (el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[OriginationDialCodeSeparator]' && el.name != 'selection[FromCurrency]'){
+                } else if (el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[OriginationDialCodeSeparator]' && el.name != 'selection[FromCurrency]' && el.name.indexOf('Interval1Index') == -1 && el.name.indexOf('IntervalNIndex') == -1 && el.name.indexOf('MinimumDurationIndex') == -1){
                     var self = $('#add-template-form [name="'+el.name+'"]');
                     rebuildSelect2(self,data.columns,'Skip loading');
                 }
@@ -1405,6 +1408,7 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
+                            { "bSortable": false},//13 MinimumDuration
                             {
                                 "bVisible" : bVisiblePreferenceBlock,
                                 "bSortable": false
@@ -1559,6 +1563,7 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
+                            { "bSortable": false},//13 MinimumDuration
                             {
                                 "bVisible" : bVisiblePreferenceBlock,
                                 "bSortable": false
@@ -1666,6 +1671,7 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
+                            { "bSortable": false},//13 MinimumDuration
                             {
                                 "bVisible" : bVisiblePreferenceBlock,
                                 "bSortable": false
@@ -1778,6 +1784,7 @@
                             { "bSortable": true },//10 ConnectionFee
                             { "bSortable": false},//11 Interval1
                             { "bSortable": false},//12 IntervalN
+                            { "bSortable": false},//13 MinimumDuration
                             {
                                 "bVisible" : bVisiblePreferenceBlock,
                                 "bSortable": false
@@ -2107,6 +2114,7 @@
                             <th>Connection Fee(Opt.)</th>
                             <th>Interval1(Opt.)</th>
                             <th>IntervalN(Opt.)</th>
+                            <th>MinimumDuration(Opt.)</th>
                             <th>Blocked(Opt.)</th>
                             <th>Preference(Opt.)</th>
                         </tr>
@@ -2123,6 +2131,7 @@
                             <td>1</td>
                             <td>1</td>
                             <td>0</td>
+                            <td>0</td>
                             <td>5</td>
                         </tr>
                         <tr>
@@ -2135,6 +2144,7 @@
                             <td>0.05</td>
                             <td>1</td>
                             <td>1</td>
+                            <td>0</td>
                             <td>1</td>
                             <td>2</td>
                         </tr>
@@ -2148,6 +2158,7 @@
                             <td>0.05</td>
                             <td>1</td>
                             <td>1</td>
+                            <td>0</td>
                             <td>1</td>
                             <td>1</td>
                         </tr>
@@ -2267,6 +2278,7 @@
                                             <th width="15%" >Connection Fee</th>
                                             <th width="15%" >Interval 1</th>
                                             <th width="15%" >Interval N</th>
+                                            <th width="15%" >Minimum Duration</th>
                                             <th width="15%" >Preference</th>
                                             <th width="15%" >Blocked</th>
                                             <th width="15%" >Routing Category</th>
@@ -2351,6 +2363,7 @@
                                             <th width="15%" >Connection Fee</th>
                                             <th width="15%" >Interval 1</th>
                                             <th width="15%" >Interval N</th>
+                                            <th width="15%" >Minimum Duration</th>
                                             <th width="15%" >Preference</th>
                                             <th width="15%" >Blocked</th>
                                             <th width="15%" >Routing Category</th>
@@ -2435,6 +2448,7 @@
                                             <th width="15%" >Connection Fee</th>
                                             <th width="15%" >Interval 1</th>
                                             <th width="15%" >Interval N</th>
+                                            <th width="15%" >Minimum Duration</th>
                                             <th width="15%" >Preference</th>
                                             <th width="15%" >Blocked</th>
                                             <th width="15%" >Routing Category</th>
@@ -2519,6 +2533,7 @@
                                             <th width="15%" >Connection Fee</th>
                                             <th width="15%" >Interval 1</th>
                                             <th width="15%" >Interval N</th>
+                                            <th width="15%" >Minimum Duration</th>
                                             <th width="15%" >Preference</th>
                                             <th width="15%" >Blocked</th>
                                             <th width="15%" >Routing Category</th>

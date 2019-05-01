@@ -1259,7 +1259,9 @@ class AccountsController extends \BaseController {
             $data['BillingPostCode'] = $data['PostCode'];
             $data['BillingCountry']  = $data['Country'];
         }
-        $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
+        if (isset($data['TaxRateID']) && !empty($data['TaxRateID'])) {
+            $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
+        }
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -1902,7 +1904,23 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function update_credit(){
         $data = Input::all();
         $postdata= $data;
-
+        
+        $rules=array();$messages=array();
+        if(!empty($postdata['counttr'])){
+            $thList = $postdata['counttr'];
+            for ($k = 0; $k < $thList; $k++) {
+                $rules['BalanceThresholdnew-' . ($k)] = 'required';
+                $messages['BalanceThresholdnew-' . ($k).'.required'] = "Balance Threshold Value for the Row " . ($k+1 ) . " required";
+                
+                $rules['email-' . ($k)] = 'required';
+                $messages['email-' . ($k).'.required'] = "Balance Threshold Email Value for the Row " . ($k+1 ) . " required";
+            }
+        }
+        $validator = Validator::make($data, $rules,$messages);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+//        
         //Update Account Thread HOld
         try{
             AccountBalanceThreshold::where('AccountID', $postdata['AccountID'])->delete();
@@ -2125,11 +2143,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblCLIRateTable.RateTableID')
             ->leftJoin('tblRateTable as termination','termination.RateTableId','=','tblCLIRateTable.TerminationRateTableID')
+            ->leftJoin('tblRateTable as specialRT','specialRT.RateTableId','=','tblCLIRateTable.SpecialRateTableID')
+            ->leftJoin('tblRateTable as specialTerminationRT','specialTerminationRT.RateTableId','=','tblCLIRateTable.SpecialTerminationRateTableID')
             ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
             ->leftJoin('tblCountry','tblCountry.CountryID','=','tblCLIRateTable.CountryID')
-            ->select(['CLIRateTableID', 'CLI', 'rt.RateTableName as AccessRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.AccessDiscountPlanID ) as AccessDiscountPlan"), 'termination.RateTableName as TerminationRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.TerminationDiscountPlanID ) as TerminationDiscountPlan"), 'tblCLIRateTable.ContractID', 'tblCLIRateTable.NoType',
-                'tblCountry.Country as Country', 'tblCLIRateTable.Prefix', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
-                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID'])
+            ->select(['CLIRateTableID', 'CLI', 'rt.RateTableName as AccessRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.AccessDiscountPlanID ) as AccessDiscountPlan"), 'termination.RateTableName as TerminationRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.TerminationDiscountPlanID ) as TerminationDiscountPlan"), 'specialRT.RateTableName as SpecialRateTable', 'specialTerminationRT.RateTableName as SpecialTerminationRateTable', 'tblCLIRateTable.ContractID', 'tblCLIRateTable.NoType',
+                'tblCountry.Country as Country', 'tblCLIRateTable.PrefixWithoutCountry', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
+                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID','tblCLIRateTable.SpecialRateTableID','tblCLIRateTable.SpecialTerminationRateTableID','tblCLIRateTable.Prefix'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountServiceID",$data['AccountServiceID'])
             ->where("tblCLIRateTable.AccountID",$id);
@@ -2164,16 +2184,16 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function packagetable_ajax_datagrid($id){
 
-
         $data = Input::all();
         $account = Account::find($data['AccountID']);
         $CompanyID = $account->CompanyId;
         Log::info("packagetable_ajax_datagrid" . print_r($data,true));
         $rate_tables = AccountServicePackage::
-        leftJoin('tblRateTable as rt','rt.RateTableId','=','tblAccountServicePackage.RateTableID')->
-            leftJoin('tblPackage as package','package.PackageId','=','tblAccountServicePackage.PackageId')
-            ->select(['AccountServicePackageID', 'package.Name','rt.RateTableName',DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblAccountServicePackage.PackageDiscountPlanID ) as PackageDiscountPlan"),'tblAccountServicePackage.ContractID', 'tblAccountServicePackage.PackageStartDate', 'tblAccountServicePackage.PackageEndDate', 'tblAccountServicePackage.Status',
-                'tblAccountServicePackage.PackageId','tblAccountServicePackage.RateTableID','tblAccountServicePackage.PackageDiscountPlanID'])
+        leftJoin('tblRateTable as rt','rt.RateTableId','=','tblAccountServicePackage.RateTableID')
+            ->leftJoin('tblRateTable as specialPackageRT','specialPackageRT.RateTableId','=','tblAccountServicePackage.SpecialPackageRateTableID')
+            ->leftJoin('tblPackage as package','package.PackageId','=','tblAccountServicePackage.PackageId')
+            ->select(['AccountServicePackageID', 'package.Name','rt.RateTableName',DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblAccountServicePackage.PackageDiscountPlanID ) as PackageDiscountPlan"), 'specialPackageRT.RateTableName as SpecialRateTableName','tblAccountServicePackage.ContractID', 'tblAccountServicePackage.PackageStartDate', 'tblAccountServicePackage.PackageEndDate', 'tblAccountServicePackage.Status',
+                'tblAccountServicePackage.PackageId','tblAccountServicePackage.RateTableID','tblAccountServicePackage.PackageDiscountPlanID','tblAccountServicePackage.SpecialPackageRateTableID'])
             ->where("tblAccountServicePackage.CompanyID",$CompanyID)
             ->where("package.CompanyID",$CompanyID)
             ->where("tblAccountServicePackage.AccountServiceID",$data['AccountServiceID'])
@@ -2211,13 +2231,23 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $message = '';
 
         Log::info("clitable_store " . print_r($data,true));
-        $rules['CLI'] = 'required';
-        $rules['NumberStartDate'] = 'required';
-        $rules['NumberEndDate'] = 'required';
+        $rules['CLI']                    = 'required';
+        $rules['NumberStartDate']        = 'required';
+        $rules['NumberEndDate']          = 'required';
+        $rules['RateTableID']            = 'required'; // Default Access Rate Table
+        $rules['TerminationRateTableID'] = 'required'; // Default Termination Rate Table
+        $rules['CountryID']              = 'required'; // Country
+        $rules['NoType']                 = 'required'; // Type
+        $rules['PrefixWithoutCountry']   = 'required'; // Prefix
 
 
         $validator = Validator::make($data, $rules, [
-            'CLI.required' => "Number is required.",
+            'CLI.required'                    => "The number is required.",
+            'RateTableID.required'            => "The default access rate table is required.",
+            'TerminationRateTableID.required' => "The default termination rate table is required.",
+            'CountryID.required'              => "The country is required.",
+            'NoType.required'                 => "The type is required.",
+            'PrefixWithoutCountry.required'   => "The prefix is required.",
         ]);
 
         if ($validator->fails()) {
@@ -2238,43 +2268,80 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CompanyID' =>  $CompanyID,
             'AccountID' =>  $data['AccountID'],
             'AccountServiceID' =>  $data['AccountServiceID'],
+            'CLI'=>  $data['CLI'],
             'Status'    =>  1
-        ])->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
-            ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+        ])->whereBetween('NumberStartDate', array($data['NumberStartDate'], $data['NumberEndDate']));
 
-            if($check->count() > 0){
-                $message = 'Number '. $data['CLI'] . ' already exist between start date '.
-                    $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
-                return Response::json(array("status" => "error", "message" => $message));
-            } else {
-                $rate_tables['CLI'] = $data['CLI'];
-                $rate_tables['RateTableID'] = $data['RateTableID'];
-                $rate_tables['AccessDiscountPlanID'] = !empty($data['AccessDiscountPlanID']) ? $data['AccessDiscountPlanID'] : 0;
-                $rate_tables['TerminationRateTableID'] = !empty($data['TerminationRateTableID']) ? $data['TerminationRateTableID'] : 0;
-                $rate_tables['TerminationDiscountPlanID'] = !empty($data['TerminationDiscountPlanID']) ? $data['TerminationDiscountPlanID'] : 0;
-                $rate_tables['CountryID'] = !empty($data['CountryID']) ? $data['CountryID'] : 0;
-                $rate_tables['NumberStartDate'] = !empty($data['NumberStartDate']) ? $data['NumberStartDate'] : '';
-                $rate_tables['NumberEndDate'] = !empty($data['NumberEndDate']) ? $data['NumberEndDate'] : '';
-                $rate_tables['NoType'] = !empty($data['NoType']) ? $data['NoType'] : '';
-                $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
-                $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
-                $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
-                $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
-                $rate_tables['AccountID'] = $data['AccountID'];
-                $rate_tables['CompanyID'] = $CompanyID;
+        //  whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
+        //    ->whereRaw("'" .$data['NumberStartDate']. "'" . " <= NumberEndDate");
+
+        $check1 = CLIRateTable::where([
+            'CompanyID' =>  $CompanyID,
+            'AccountID' =>  $data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'CLI'=>  $data['CLI'],
+            'Status'    =>  1
+        ])->whereBetween('NumberEndDate', array($data['NumberStartDate'], $data['NumberEndDate']));
+
+        //whereRaw("'" . $data['NumberEndDate'] . "'" .  " >= NumberStartDate")
+        //  ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+
+        $check2 = CLIRateTable::where([
+            'CompanyID' =>  $CompanyID,
+            'AccountID' =>  $data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'CLI'=>  $data['CLI'],
+            'Status'    =>  1
+        ])->where('NumberEndDate','>=',$data['NumberStartDate'])->where('NumberStartDate','<=',$data['NumberStartDate']);
+
+        if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
+            $message = 'Number '. $data['CLI'] . ' already exist between start date '.
+                $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
+            return Response::json(array("status" => "error", "message" => $message));
+        } else {
+            $rate_tables['CLI'] = $data['CLI'];
+            $rate_tables['RateTableID'] = $data['RateTableID'];
+            $rate_tables['SpecialRateTableID'] = !empty($data['SpecialRateTableID']) ? $data['SpecialRateTableID'] : 0;
+            $rate_tables['AccessDiscountPlanID'] = !empty($data['AccessDiscountPlanID']) ? $data['AccessDiscountPlanID'] : 0;
+            $rate_tables['TerminationRateTableID'] = !empty($data['TerminationRateTableID']) ? $data['TerminationRateTableID'] : 0;
+            $rate_tables['SpecialTerminationRateTableID'] = !empty($data['SpecialTerminationRateTableID']) ?
+                $data['SpecialTerminationRateTableID'] : 0;
+            $rate_tables['TerminationDiscountPlanID'] = !empty($data['TerminationDiscountPlanID']) ? $data['TerminationDiscountPlanID'] : 0;
+            $rate_tables['CountryID'] = !empty($data['CountryID']) ? $data['CountryID'] : 0;
+            $rate_tables['NumberStartDate'] = !empty($data['NumberStartDate']) ? $data['NumberStartDate'] : '';
+            $rate_tables['NumberEndDate'] = !empty($data['NumberEndDate']) ? $data['NumberEndDate'] : '';
+            $rate_tables['NoType'] = !empty($data['NoType']) ? $data['NoType'] : '';
+            $rate_tables['PrefixWithoutCountry'] = !empty($data['PrefixWithoutCountry'])?$data['PrefixWithoutCountry']:'';
+            $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
+            $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
+            $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
+            $rate_tables['AccountID'] = $data['AccountID'];
+            $rate_tables['CompanyID'] = $CompanyID;
 
 
-                $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
-                if(!empty($data['ServiceID'])) {
-                    $rate_tables['ServiceID'] = $data['ServiceID'];
-                }
-                if(!empty($data['AccountServiceID'])) {
-                    $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
-                }
-                $insertArr[] = $rate_tables;
+            $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
+            if(!empty($data['ServiceID'])) {
+                $rate_tables['ServiceID'] = $data['ServiceID'];
+            }
+            if(!empty($data['AccountServiceID'])) {
+                $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
             }
 
+            $rate_tables['Prefix'] = $rate_tables['PrefixWithoutCountry'];
+            if (!empty($rate_tables['CountryID']) && !empty($rate_tables['PrefixWithoutCountry'])) {
+                $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
+                if (substr($rate_tables['PrefixWithoutCountry'], 0, 1) == "0") {
+                    $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], 1, strlen($rate_tables['PrefixWithoutCountry']));
+                } else {
+                    $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry'];
+                }
+                $rate_tables['Prefix'] = $ProductCountryPrefix;
+            }
+            $insertArr[] = $rate_tables;
+        }
 
+
+        //dd($insertArr);
         if(!empty($message)){
             $message = 'Following CLI already exists.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
@@ -2292,13 +2359,15 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $date = date('Y-m-d H:i:s');
         $CreatedBy = User::get_user_full_name();
 
-        $rules['PackageID'] = 'required';
-        $rules['PackageStartDate'] = 'required';
-        $rules['PackageEndDate'] = 'required';
+        $rules['PackageID']          = 'required';
+        $rules['PackageRateTableID'] = 'required';
+        $rules['PackageStartDate']   = 'required';
+        $rules['PackageEndDate']     = 'required';
 
 
         $validator = Validator::make($data, $rules, [
-            'PackageID.required' => "PackageID is required.",
+            'PackageID.required' => "Package is required.",
+            'PackageRateTableID.required' => "Default package rate table is required.",
         ]);
 
         if ($validator->fails()) {
@@ -2315,15 +2384,32 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CompanyID'=>$CompanyID,
             'AccountID'=>$data['AccountID'],
             'AccountServiceID' =>  $data['AccountServiceID'],
+            'PackageId'=>  $data['PackageID'],
             'Status'=>1
-        ])->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
-            ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
+        ])->whereBetween('PackageStartDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+        $check1 = AccountServicePackage::where([
+            'CompanyID'=>$CompanyID,
+            'AccountID'=>$data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'PackageId'=>  $data['PackageID'],
+            'Status'=>1
+        ])->whereBetween('PackageEndDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+        $check2 = AccountServicePackage::where([
+            'CompanyID'=>$CompanyID,
+            'AccountID'=>$data['AccountID'],
+            'AccountServiceID' =>  $data['AccountServiceID'],
+            'PackageId'=>  $data['PackageID'],
+            'Status'=>1
+        ])->where('PackageEndDate','>=',$data['PackageStartDate'])->where('PackageStartDate','<=',$data['PackageStartDate']);
+        //->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
+        //   ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
 
-        if($check->count() > 0){
+        if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
             $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
         } else {
             $rate_tables['PackageID'] = $data['PackageID'];
             $rate_tables['RateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
+            $rate_tables['SpecialPackageRateTableID'] = !empty($data['SpecialPackageRateTableID']) ? $data['SpecialPackageRateTableID'] : 0;
             $rate_tables['PackageDiscountPlanID'] = !empty($data['AccountPackageDiscountPlanID']) ? $data['AccountPackageDiscountPlanID'] : 0;
             $rate_tables['PackageStartDate'] = !empty($data['PackageStartDate']) ? $data['PackageStartDate'] : '';
             $rate_tables['PackageEndDate'] = !empty($data['PackageEndDate']) ? $data['PackageEndDate'] : '';
@@ -2406,7 +2492,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
 
-         if (!empty($data['CLIRateTableIDs'])) {
+        if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
             //CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->delete();
             CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->delete();
@@ -2435,13 +2521,22 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $account = Account::find($data['AccountID']);
         $CompanyID = $account->CompanyId;
         $rules['CLI'] = 'required';
-        $rules['NumberStartDate'] = 'required';
-        $rules['NumberEndDate'] = 'required';
+        $rules['NumberStartDate']        = 'required';
+        $rules['NumberEndDate']          = 'required';
+        $rules['RateTableID']            = 'required'; // Default Access Rate Table
+        $rules['TerminationRateTableID'] = 'required'; // Default Termination Rate Table
+        $rules['CountryID']              = 'required'; // Country
+        $rules['NoType']                 = 'required'; // Type
+        $rules['PrefixWithoutCountry']   = 'required'; // Prefix
         Log::info("clitable_store " . print_r($data,true));
 
         $validator = Validator::make($data, $rules, [
-            'CLI.required' => "Number is required.",
-
+            'CLI.required'                    => "The number is required.",
+            'RateTableID.required'            => "The default access rate table is required.",
+            'TerminationRateTableID.required' => "The default termination rate table is required.",
+            'CountryID.required'              => "The country is required.",
+            'NoType.required'                 => "The type is required.",
+            'PrefixWithoutCountry.required'   => "The prefix is required.",
         ]);
 
         if ($validator->fails()) {
@@ -2449,8 +2544,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
         if (strtotime($data['NumberEndDate']) <= strtotime($data['NumberStartDate'])) {
-                return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
-       }
+            return  Response::json(array("status" => "failed", "message" => "End Date should be greater then start date"));
+        }
 
         $cli = $data['CLI'];
 
@@ -2467,14 +2562,16 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
         $rate_tables['CLI'] = $cli;
         $rate_tables['RateTableID'] = $data['RateTableID'];
+        $rate_tables['SpecialRateTableID'] = !empty($data['SpecialRateTableID']) ? $data['SpecialRateTableID'] : 0;
         $rate_tables['AccessDiscountPlanID'] = !empty($data['AccessDiscountPlanID']) ? $data['AccessDiscountPlanID'] : 0;
         $rate_tables['TerminationRateTableID'] = !empty($data['TerminationRateTableID']) ? $data['TerminationRateTableID'] : 0;
+        $rate_tables['SpecialTerminationRateTableID'] = !empty($data['SpecialTerminationRateTableID']) ? $data['SpecialTerminationRateTableID'] : 0;
         $rate_tables['TerminationDiscountPlanID'] = !empty($data['TerminationDiscountPlanID']) ? $data['TerminationDiscountPlanID'] : 0;
         $rate_tables['CountryID'] = !empty($data['CountryID']) ? $data['CountryID'] : 0;
         $rate_tables['NumberStartDate'] = !empty($data['NumberStartDate']) ? $data['NumberStartDate'] : '';
         $rate_tables['NumberEndDate'] = !empty($data['NumberEndDate']) ? $data['NumberEndDate'] : '';
         $rate_tables['NoType'] = !empty($data['NoType']) ? $data['NoType'] : '';
-        $rate_tables['Prefix'] = !empty($data['Prefix'])?$data['Prefix']:'';
+        $rate_tables['PrefixWithoutCountry'] = !empty($data['PrefixWithoutCountry'])?$data['PrefixWithoutCountry']:'';
         $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
         $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
         $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
@@ -2489,11 +2586,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($data['AccountServiceID'])) {
             $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
         }
-       // $UpdateData[] = $rate_tables;
+        // $UpdateData[] = $rate_tables;
 
 
 
-         if (!empty($data['CLIRateTableID'])) {
+        if (!empty($data['CLIRateTableID'])) {
             $oldCLI = CLIRateTable::findOrFail($data['CLIRateTableID']);
 
             // if this cli already exist in table
@@ -2503,17 +2600,50 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     'CompanyID' =>  $CompanyID,
                     'AccountID' =>  $data['AccountID'],
                     'AccountServiceID' =>  $data['AccountServiceID'],
+                    'CLI'=>  $data['CLI'],
                     'Status'    =>  1
-                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])
-                    ->whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
-                    ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+                ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->whereBetween('NumberStartDate', array($data['NumberStartDate'], $data['NumberEndDate']));
 
-             if($check->count() > 0){
+            //  whereRaw("'" . $data['NumberStartDate'] . "'" .  " >= NumberStartDate")
+            //    ->whereRaw("'" .$data['NumberStartDate']. "'" . " <= NumberEndDate");
+
+            $check1 = CLIRateTable::where([
+                'CompanyID' =>  $CompanyID,
+                'AccountID' =>  $data['AccountID'],
+                'AccountServiceID' =>  $data['AccountServiceID'],
+                'CLI'=>  $data['CLI'],
+                'Status'    =>  1
+            ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->whereBetween('NumberEndDate', array($data['NumberStartDate'], $data['NumberEndDate']));
+
+            //whereRaw("'" . $data['NumberEndDate'] . "'" .  " >= NumberStartDate")
+            //  ->whereRaw("'" .$data['NumberEndDate']. "'" . " <= NumberEndDate");
+
+            $check2 = CLIRateTable::where([
+                'CompanyID' =>  $CompanyID,
+                'AccountID' =>  $data['AccountID'],
+                'AccountServiceID' =>  $data['AccountServiceID'],
+                'CLI'=>  $data['CLI'],
+                'Status'    =>  1
+            ])->where("CLIRateTableID", "!=", $data['CLIRateTableID'])->where('NumberEndDate','>=',$data['NumberStartDate'])->where('NumberStartDate','<=',$data['NumberStartDate']);
+
+
+
+            if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
                 $message = 'Number '. $data['CLI'] . ' already exist between start date '.
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
 
+            $rate_tables['Prefix'] = $rate_tables['PrefixWithoutCountry'];
+            if (!empty($rate_tables['CountryID']) && !empty($rate_tables['PrefixWithoutCountry'])) {
+                $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
+                if (substr($rate_tables['PrefixWithoutCountry'], 0, 1) == "0") {
+                    $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], 1, strlen($rate_tables['PrefixWithoutCountry']));
+                } else {
+                    $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry'];
+                }
+                $rate_tables['Prefix'] = $ProductCountryPrefix;
+            }
             $oldCLI->update($rate_tables);
         }
         return Response::json(array("status" => "success", "message" => "Number Updated Successfully"));
@@ -2524,16 +2654,17 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $account = Account::find($data['AccountID']);
         $CompanyID = $account->CompanyId;
 
-        $rules['PackageID'] = 'required';
-        $rules['PackageStartDate'] = 'required';
-        $rules['PackageEndDate'] = 'required';
+        $rules['PackageID']          = 'required';
+        $rules['PackageRateTableID'] = 'required';
+        $rules['PackageStartDate']   = 'required';
+        $rules['PackageEndDate']     = 'required';
+
         $date = date('Y-m-d H:i:s');
         $CreatedBy = User::get_user_full_name();
 
-
         $validator = Validator::make($data, $rules, [
             'PackageID.required' => "Package is required.",
-
+            'PackageRateTableID.required' => "Default Package Rate Table is required.",
         ]);
 
         if ($validator->fails()) {
@@ -2544,6 +2675,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
         $rate_tables['PackageID'] = $data['PackageID'];
         $rate_tables['RateTableID'] = !empty($data['PackageRateTableID']) ? $data['PackageRateTableID'] : 0;
+        $rate_tables['SpecialPackageRateTableID'] = !empty($data['SpecialPackageRateTableID']) ? $data['SpecialPackageRateTableID'] : 0;
         $rate_tables['PackageDiscountPlanID'] = !empty($data['AccountPackageDiscountPlanID']) ? $data['AccountPackageDiscountPlanID'] : 0;
         $rate_tables['PackageStartDate'] = !empty($data['PackageStartDate']) ? $data['PackageStartDate'] : '';
         $rate_tables['PackageEndDate'] = !empty($data['PackageEndDate']) ? $data['PackageEndDate'] : '';
@@ -2577,15 +2709,30 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $check = false;
             if($rate_tables['Status'] == 1 || $data['PackageID'] != $oldAccountServicePackage->PackageId)
                 $check = AccountServicePackage::where([
-                    'CompanyID' =>  $CompanyID,
-                    'AccountID' =>  $data['AccountID'],
+                    'CompanyID'=>$CompanyID,
+                    'AccountID'=>$data['AccountID'],
                     'AccountServiceID' =>  $data['AccountServiceID'],
-                    'Status'    =>  1
-                ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])
-                    ->whereRaw("'" . $data['PackageStartDate'] . "'" .  " >= PackageStartDate")
-                    ->whereRaw("'" .$data['PackageEndDate']. "'" . " <= PackageEndDate");
+                    'PackageId'=>  $data['PackageID'],
+                    'Status'=>1
+                ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])->whereBetween('PackageStartDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+            $check1 = AccountServicePackage::where([
+                'CompanyID'=>$CompanyID,
+                'AccountID'=>$data['AccountID'],
+                'AccountServiceID' =>  $data['AccountServiceID'],
+                'PackageId'=>  $data['PackageID'],
+                'Status'=>1
+            ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])->whereBetween('PackageEndDate', array($data['PackageStartDate'], $data['PackageEndDate']));
+            $check2 = AccountServicePackage::where([
+                'CompanyID'=>$CompanyID,
+                'AccountID'=>$data['AccountID'],
+                'AccountServiceID' =>  $data['AccountServiceID'],
+                'PackageId'=>  $data['PackageID'],
+                'Status'=>1
+            ])->where("AccountServicePackageID", "!=", $data['AccountServicePackageID'])->where('PackageEndDate','>=',$data['PackageStartDate'])->where('PackageStartDate','<=',$data['PackageStartDate']);
 
-            if($check->count() > 0){
+
+
+            if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
                 $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }

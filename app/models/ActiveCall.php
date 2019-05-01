@@ -291,7 +291,8 @@ class ActiveCall extends \Eloquent {
 
         $CLI=$ActiveCall->CLI;
         $CLD=$ActiveCall->CLD;
-        $CityTariff = '';
+        $City = '';
+        $Tariff = '';
         $NoType = '';
         $OutPaymentVendorID = 0;
 
@@ -307,16 +308,14 @@ class ActiveCall extends \Eloquent {
         $ConnectTime = date('Y-m-d',strtotime($ConnectTime));
         $CLIRateTable = CLIRateTable::where(['AccountID'=>$AccountID,'CLI'=>$CLD,'Status'=>1])->where('NumberStartDate','<=',$ConnectTime)->where('NumberEndDate','>=',$ConnectTime)->first();
         $AreaPrefix = '';
+        $SpecialInboundRateTableID = 0;
+        $SpecialOutBoundRateTableID = 0;
         if(!empty($CLIRateTable) && count($CLIRateTable)>0){
             $AccountServiceID = empty($CLIRateTable->AccountServiceID)?0:$CLIRateTable->AccountServiceID;
             //Access RateTable = Inbound Rate Table
             $CLIRateTableID = empty($CLIRateTable->RateTableID)?0:$CLIRateTable->RateTableID;
             $City = empty($CLIRateTable->City)?'':$CLIRateTable->City;
             $Tariff = empty($CLIRateTable->Tariff)?'':$CLIRateTable->Tariff;
-            $CityTariff = $City.$Tariff;
-            if(empty($City) && empty($Tariff)){
-                $CityTariff='';
-            }
             //$AccountServicePackageID =  empty($CLIRateTable->PackageID)?0:$CLIRateTable->PackageID;
             //$PackageRateTableID =  empty($CLIRateTable->PackageRateTableID)?0:$CLIRateTable->PackageRateTableID;
             $AreaPrefix = empty($CLIRateTable->Prefix)?'':$CLIRateTable->Prefix;
@@ -324,6 +323,8 @@ class ActiveCall extends \Eloquent {
             $OutPaymentVendorID = empty($CLIRateTable->VendorID)?'':$CLIRateTable->VendorID;
             //TerminationRateTableID = outbound rate table id
             $OutBoundRateTableID = empty($CLIRateTable->TerminationRateTableID)?0:$CLIRateTable->TerminationRateTableID;
+            $SpecialInboundRateTableID = empty($CLIRateTable->SpecialRateTableID)?0:$CLIRateTable->SpecialRateTableID;
+            $SpecialOutBoundRateTableID = empty($CLIRateTable->SpecialTerminationRateTableID)?0:$CLIRateTable->SpecialTerminationRateTableID;
         }
 
         //log::info('Account Service ID '.$AccountServiceID);
@@ -360,6 +361,7 @@ class ActiveCall extends \Eloquent {
         } else {
             $TimezonesID = Timezones::getTimeZoneByConnectTime($ActiveCall->ConnectTime);
         }
+        $SpecialTimezonesID = $TimezonesID;
 
         $CallType = $ActiveCall->CallType;
         $PackageTimezonesID = 0;
@@ -368,7 +370,17 @@ class ActiveCall extends \Eloquent {
         if(!empty($AccountServicePackage)) {
             $AccountServicePackageID = $AccountServicePackage->PackageId;
             $PackageRateTableID = $AccountServicePackage->RateTableID;
-            if ($AccountServicePackageID > 0 && $PackageRateTableID > 0) {
+            $SpecialPackageRateTableID = empty($AccountServicePackage->SpecialPackageRateTableID) ? 0 : $AccountServicePackage->SpecialPackageRateTableID;
+            $SpecialPackage = 0;
+            if ($SpecialPackageRateTableID > 0){
+                $RateTablePKGRateID = ActiveCall::getRateTablePKGRateID($CompanyID, $SpecialPackageRateTableID, $TimezonesID, $AccountServicePackageID);
+                if (!empty($RateTablePKGRateID)) {
+                    $PackageTimezonesID = DB::table('tblRateTablePKGRate')->where(['RateTablePKGRateID' => $RateTablePKGRateID])->pluck('TimezonesID');
+                    $SpecialPackage = 1;
+                }
+            }
+
+            if($SpecialPackage == 0) {
                 $RateTablePKGRateID = ActiveCall::getRateTablePKGRateID($CompanyID, $PackageRateTableID, $TimezonesID, $AccountServicePackageID);
                 if (!empty($RateTablePKGRateID)) {
                     $PackageTimezonesID = DB::table('tblRateTablePKGRate')->where(['RateTablePKGRateID' => $RateTablePKGRateID])->pluck('TimezonesID');
@@ -387,7 +399,7 @@ class ActiveCall extends \Eloquent {
         if($CallType=='Outbound'){
 
             //$OutBoundRateTableID =  AccountTariff::where(['AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountTariff::OUTBOUND])->pluck('RateTableID');
-            if(empty($OutBoundRateTableID)){
+            if(empty($OutBoundRateTableID) && empty($SpecialOutBoundRateTableID)){
                 $Response['Status'] = 'Failed';
                 $Response['Message'] = 'Outbound Rate Table not found';
                 return $Response;
@@ -398,21 +410,42 @@ class ActiveCall extends \Eloquent {
                 $TimezonesID = 1;
             }
 
+            if($SpecialOutBoundRateTableID > 0){
+                $SpecialRateTableRateCount = RateTableRate::where(['RateTableId'=>$SpecialOutBoundRateTableID,'TimezonesID'=>$SpecialTimezonesID])->count();
+                if($SpecialRateTableRateCount==0){
+                    $SpecialTimezonesID = 1;
+                }
+            }
+
             /**
              * find Prefix for cli
             */
 
-
-            $Result = DB::connection('sqlsrv')->select('CALL  prc_FindApiOutBoundPrefix( ' . $CompanyID . "," . $OutBoundRateTableID ."," . $TimezonesID .",".$CLI.",'".$CLD."')");
-            //log::info('CALL  prc_FindApiOutBoundPrefix( ' . $CompanyID . "," . $OutBoundRateTableID ."," . $TimezonesID .",".$CLI.",'".$CLD."')");
-            if(count($Result) >0){
-                $OutBoundRateTableRateID = $Result[0]->RateTableRateID;
-                $CLIPrefix = $Result[0]->OriginationCode;
-                $CLDPrefix = $Result[0]->DestincationCode;
-            }else{
-                $Response['Status'] = 'Failed';
-                $Response['Message'] = 'Outbound Rate not found';
-                return $Response;
+            $OutBoundSpecial = 0;
+            if($SpecialOutBoundRateTableID > 0 ){
+                $Result = DB::connection('sqlsrv')->select('CALL  prc_FindApiOutBoundPrefix( ' . $CompanyID . "," . $SpecialOutBoundRateTableID ."," . $SpecialTimezonesID .",".$CLI.",'".$CLD."')");
+                //log::info('CALL  prc_FindApiOutBoundPrefix( ' . $CompanyID . "," . $OutBoundRateTableID ."," . $TimezonesID .",".$CLI.",'".$CLD."')");
+                if(count($Result) >0){
+                    $OutBoundSpecial = 1;
+                    $OutBoundRateTableRateID = $Result[0]->RateTableRateID;
+                    $CLIPrefix = $Result[0]->OriginationCode;
+                    $CLDPrefix = $Result[0]->DestincationCode;
+                    $OutBoundRateTableID = $SpecialOutBoundRateTableID;
+                    $TimezonesID = $SpecialTimezonesID;
+                }
+            }
+            if($OutBoundSpecial==0){
+                $Result = DB::connection('sqlsrv')->select('CALL  prc_FindApiOutBoundPrefix( ' . $CompanyID . "," . $OutBoundRateTableID ."," . $TimezonesID .",".$CLI.",'".$CLD."')");
+                //log::info('CALL  prc_FindApiOutBoundPrefix( ' . $CompanyID . "," . $OutBoundRateTableID ."," . $TimezonesID .",".$CLI.",'".$CLD."')");
+                if(count($Result) >0){
+                    $OutBoundRateTableRateID = $Result[0]->RateTableRateID;
+                    $CLIPrefix = $Result[0]->OriginationCode;
+                    $CLDPrefix = $Result[0]->DestincationCode;
+                }else{
+                    $Response['Status'] = 'Failed';
+                    $Response['Message'] = 'Outbound Rate not found';
+                    return $Response;
+                }
             }
 
             $UpdateData = array();
@@ -434,7 +467,8 @@ class ActiveCall extends \Eloquent {
             $UpdateData['AccountServicePackageID'] = $AccountServicePackageID;
             $UpdateData['TaxRateIDs'] = $TaxRateIDs;
             $UpdateData['PackageTimezonesID'] = $PackageTimezonesID;
-            $UpdateData['CityTariff'] = $CityTariff;
+            $UpdateData['City'] = $City;
+            $UpdateData['Tariff'] = $Tariff;
             $UpdateData['NoType'] = $NoType;
             $UpdateData['MinimumCallCharge'] = $MinimumCallCharge;
             $UpdateData['OutPaymentVendorID'] = $OutPaymentVendorID;
@@ -448,17 +482,10 @@ class ActiveCall extends \Eloquent {
                 $Response['Message'] = 'InBound Rate not found';
                 return $Response;
             }
-            if(empty($CLIRateTableID)) {
+            if(empty($CLIRateTableID) && empty($SpecialInboundRateTableID)) {
                 $Response['Status'] = 'Failed';
                 $Response['Message'] = 'Inbound Rate Table not found';
                 return $Response;
-                /*
-                $InboundRateTableID = AccountTariff::where(['AccountID' => $AccountID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::INBOUND])->pluck('RateTableID');
-                if(empty($InboundRateTableID)){
-                    $Response['Status'] = 'Failed';
-                    $Response['Message'] = 'Inbound Rate Table not found';
-                    return $Response;
-                }*/
             }else{
                 $InboundRateTableID = $CLIRateTableID;
             }
@@ -468,22 +495,43 @@ class ActiveCall extends \Eloquent {
                 $TimezonesID = 1;
             }
 
+            if($SpecialInboundRateTableID > 0){
+                $SpecialRateTableRateCount = RateTableRate::where(['RateTableId'=>$SpecialInboundRateTableID,'TimezonesID'=>$SpecialTimezonesID])->count();
+                if($SpecialRateTableRateCount==0){
+                    $SpecialTimezonesID = 1;
+                }
+            }
 
             /**
              * find Prefix for cli
              */
 
+            $RateTableDIDRateID = 0;
             $OriginType = empty($ActiveCall->OriginType) ? '' : str_replace('-','',$ActiveCall->OriginType);
             $OriginProvider = empty($ActiveCall->OriginProvider) ? '' : str_replace('-','',$ActiveCall->OriginProvider);
-            $Result = DB::connection('sqlsrv')->select('CALL  prc_FindApiInBoundPrefix( ' . $CompanyID . "," . $InboundRateTableID ."," . $TimezonesID .",".$CLI.",'".$CLD."','".$CityTariff."','".$OriginType."','".$OriginProvider."','".$AreaPrefix."')");
-            if(count($Result) >0){
-                $RateTableDIDRateID = $Result[0]->RateTableDIDRateID;
-                $CLIPrefix = $Result[0]->OriginationCode;
-                $CLDPrefix = $Result[0]->DestincationCode;
-            }else{
-                $Response['Status'] = 'Failed';
-                $Response['Message'] = 'InBound Rate not found';
-                return $Response;
+            $InBoundSpecial = 0;
+            if($SpecialInboundRateTableID > 0){
+                $Result = DB::connection('sqlsrv')->select('CALL  prc_FindApiInBoundPrefix( ' . $CompanyID . "," . $SpecialInboundRateTableID ."," . $SpecialTimezonesID .",'".$CLI."','".$CLD."','".$City."','".$Tariff."','".$OriginType."','".$OriginProvider."','".$AreaPrefix."','".$NoType."')");
+                //log::info(" start Call prc_FindApiInBoundPrefix( " . $CompanyID . "," . $SpecialInboundRateTableID ."," . $SpecialTimezonesID .",'".$CLI."','".$CLD."','".$City."','".$Tariff."','".$OriginType."','".$OriginProvider."','".$AreaPrefix."','".$NoType."')");
+                if(count($Result) >0){
+                    $InBoundSpecial = 1;
+                    $RateTableDIDRateID = $Result[0]->RateTableDIDRateID;
+                    $CLIPrefix = $Result[0]->OriginationCode;
+                    $CLDPrefix = $Result[0]->DestincationCode;
+                }
+            }
+            if($InBoundSpecial==0){
+                $Result = DB::connection('sqlsrv')->select('CALL  prc_FindApiInBoundPrefix( ' . $CompanyID . "," . $InboundRateTableID ."," . $TimezonesID .",'".$CLI."','".$CLD."','".$City."','".$Tariff."','".$OriginType."','".$OriginProvider."','".$AreaPrefix."','".$NoType."')");
+                //log::info(" start Call prc_FindApiInBoundPrefix( " . $CompanyID . "," . $InboundRateTableID ."," . $TimezonesID .",'".$CLI."','".$CLD."','".$City."','".$Tariff."','".$OriginType."','".$OriginProvider."','".$AreaPrefix."','".$NoType."')");
+                if(count($Result) >0){
+                    $RateTableDIDRateID = $Result[0]->RateTableDIDRateID;
+                    $CLIPrefix = $Result[0]->OriginationCode;
+                    $CLDPrefix = $Result[0]->DestincationCode;
+                }else{
+                    $Response['Status'] = 'Failed';
+                    $Response['Message'] = 'InBound Rate not found';
+                    return $Response;
+                }
             }
 
             $RateTableDIDRate = RateTableDIDRate::find($RateTableDIDRateID);
@@ -509,7 +557,8 @@ class ActiveCall extends \Eloquent {
             $UpdateData['AccountServicePackageID'] = $AccountServicePackageID;
             $UpdateData['TaxRateIDs'] = $TaxRateIDs;
             $UpdateData['PackageTimezonesID'] = $PackageTimezonesID;
-            $UpdateData['CityTariff'] = $CityTariff;
+            $UpdateData['City'] = $City;
+            $UpdateData['Tariff'] = $Tariff;
             $UpdateData['NoType'] = $NoType;
             $UpdateData['MinimumCallCharge'] = $MinimumCallCharge;
             $UpdateData['OutPaymentVendorID'] = $OutPaymentVendorID;
@@ -580,7 +629,8 @@ class ActiveCall extends \Eloquent {
         $detaildata['OriginProvider'] = $ActiveCall->OriginProvider;
         $detaildata['TimezonesID'] = $ActiveCall->TimezonesID;
         $detaildata['PackageTimezonesID'] = $ActiveCall->PackageTimezonesID;
-        $detaildata['CityTariff'] = $ActiveCall->CityTariff;
+        $detaildata['City'] = $ActiveCall->City;
+        $detaildata['Tariff'] = $ActiveCall->Tariff;
         $detaildata['NoType'] = $ActiveCall->NoType;
 
         $is_inbound=0;

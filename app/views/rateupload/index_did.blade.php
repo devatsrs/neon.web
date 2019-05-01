@@ -371,9 +371,9 @@
         var all_available_timezone_fields    = ['CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber'];
         var all_occupied_timezone_fields     = [];
         var all_occupied_timezone_fields2    = [];
-        var dual_mapping_columns_all         = ['Code','OriginationCode','AccessType','CountryCode','City','Tariff'];
+        var dual_mapping_columns_all         = ['Code','AccessType','CountryCode','City','Tariff'];
         var dual_mapping_columns_static      = ['Code','AccessType','City','Tariff','CountryCode'];
-        var dual_mapping_columns_dynamic     = ['OriginationCode'];
+        var dual_mapping_columns_dynamic     = [];
         var relational_columns_timezone      = {
             CostPerCall                 : [],
             CostPerMinute               : [],
@@ -910,6 +910,7 @@
 
                 var ProcessID = $('#ProcessID').val();
                 var TrunkID   = $('#Trunk').val();
+                var TempRateIDs = '';
 
                 if($('#selectallbutton-deleted').is(':checked')){
                     criteria = 1;
@@ -934,6 +935,9 @@
 
                     var OriginationCode = $('#reviewrates-deleted-search input[name="OriginationCode"]').val();
                     var Code            = $('#reviewrates-deleted-search input[name="Code"]').val();
+                    var City            = $('#reviewrates-deleted-search select[name="City"]').val();
+                    var Tariff          = $('#reviewrates-deleted-search select[name="Tariff"]').val();
+                    var AccessType      = $('#reviewrates-deleted-search select[name="AccessType"]').val();
                     var Timezone        = $('#reviewrates-deleted-search select[name="Timezone"]').val();
                     var RateUploadType  = $("input[name=RateUploadType]:checked").val();
                     var VendorID        = $("select[name=Vendor]").val();
@@ -942,7 +946,7 @@
 
                     $.ajax({
                         url: '{{URL::to('rate_upload/updateTempReviewRates')}}',
-                        data: 'Action=Deleted&TrunkID='+TrunkID+'&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&OriginationCode='+OriginationCode+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
+                        data: 'Action=Deleted&TrunkID='+TrunkID+'&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&OriginationCode='+OriginationCode+'&Code='+Code+'&City='+City+'&Tariff='+Tariff+'&AccessType='+AccessType+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
                         },

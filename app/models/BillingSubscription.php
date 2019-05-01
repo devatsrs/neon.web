@@ -17,6 +17,8 @@ class BillingSubscription extends \Eloquent {
 
 
     public static $AppliedTo = array(self::Customer=>"Customer",self::Reseller=>"Reseller", self::Vendor=>"Vendor");
+    public static $AppliedToForPartner = array(self::Customer=>"Customer");
+    public static $AppliedToForAdmin = array(self::Reseller=>"Partner");
     public static $ALLAppliedTo = array(''=>'Select',self::Customer=>"Customer",self::Reseller=>"Reseller");
 
 

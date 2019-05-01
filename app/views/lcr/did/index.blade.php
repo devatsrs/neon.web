@@ -16,7 +16,7 @@
                             <button type="button" class="btn btn-primary dropdown-toggle pull-right didbutton" data-toggle="dropdown" aria-expanded="false" style="width:100%">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_DID)}} <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; width:100% ">
                                 <li> <a  href="{{URL::to('lcr')}}"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_VOICECALL)}}</a></li>
-                               <li> <a  href="javascript:;" class="packageoption"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_PACKAGE)}}</a></li>
+                                <li> <a  href="javascript:;" class="packageoption"  style="width:100%;background-color:#398439;color:#fff">{{RateType::getRateTypeTitleBySlug(RateType::SLUG_PACKAGE)}}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -135,7 +135,7 @@
         </tr>--}}
 
         <tr>
-            <th id="dt_Name">Access Type</th>
+            <th id="dt_AccessType">Access Type</th>
             <th id="dt_Country">Country</th>
             <th id="dt_Prefix">Prefix</th>
             <th id="dt_City">City</th>
@@ -157,8 +157,8 @@
     </table>
 
     <script type="text/javascript">
-        
-        
+
+
         var $searchFilter = {};
         var data_table;
 
@@ -169,67 +169,118 @@
 
             @if($lcrType == "Package")
             $('#lcr_type').val('Y');
-            $('.didbutton').html(packbtnval+' <span class="caret"></span>');
-            $('#dt_Country').addClass("hidden");
-            $('#dt_Prefix').addClass("hidden");
-            $('#dt_City').addClass("hidden");
-            $('#dt_Tariff').addClass("hidden");
-            $('#dt_Name').html("Package Name");
+            var packbtnval = "Package";
+            // $('.didbutton').html(packbtnval+' <span class="caret"></span>');
             $('.packageoption').html(accbtnval);
             $('.packagediv').show();
             $('.productdiv').hide();
             $('.productcategory').hide();
             $('#Origination').hide();
             $('#OriginationPercentage').hide();
-            @endif
+            if (packbtnval == "Package") {
+                $('.didbutton').html("Package" + ' <span class="caret"></span>');
+                $('.packageoption').html("Access");
+            }else {
+                $('.didbutton').html("Access" + ' <span class="caret"></span>');
+                $('.packageoption').html("Package");
+            }
+                    @endif
 
-            @if($lcrType == "Access")
-             $('#lcr_type').val('N');
-            $('#dt_Country').removeClass("hidden");
-            $('#dt_Prefix').removeClass("hidden");
-            $('#dt_City').removeClass("hidden");
-            $('#dt_Tariff').removeClass("hidden");
-            $('#dt_Name').html("Access Type");
-            $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+                    @if($lcrType == "Access")
+            var packbtnval = "Access";
+            // alert(packbtnval);
+            //var packbtnval = $('.didbutton').html();
+            $('#lcr_type').val('N');
+            // $('.didbutton').html(accbtnval+' <span class="caret"></span>');
             $('.packageoption').html(packbtnval);
             $('.packagediv').hide();
             $('.productdiv').show();
             $('.productcategory').show();
             $('#Origination').show();
             $('#OriginationPercentage').show();
+            if (packbtnval == "Package") {
+                $('.didbutton').html("Package" + ' <span class="caret"></span>');
+                $('.packageoption').html("Access");
+            }else {
+                $('.didbutton').html("Access" + ' <span class="caret"></span>');
+                $('.packageoption').html("Package");
+            }
             @endif
 
-           // alert(accbtnval);
-            $('.packageoption').click(function(){
-                if($('.packageoption').text()=='Package'){
+            $('.didbutton').click(function(){
+                //  alert("Access Called");
+                var packbtnval = $('.didbutton').html();
+                if(packbtnval=='Package'){
+                    var accbtnval=$('.didbutton').text();
+                    var packbtnval=$('.packageoption').text();
+                    $('#lcr_type').val('Y');
 
-                   $('#lcr_type').val('Y');
-                   $('.didbutton').html(packbtnval+' <span class="caret"></span>');
-                   $('.packageoption').html(accbtnval);
-                   $('.packagediv').show();
-                   $('.productdiv').hide();
-                   $('.productcategory').hide();
+                    // $('.packageoption').html(accbtnval);
+                    $('.packagediv').show();
+                    $('.productdiv').hide();
+                    $('.productcategory').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
-
-
-                }else{
-
+                    $('.didbutton').html(packbtnval+' <span class="caret"></span>');
+                    //  $('.packageoption').html(accbtnval);
+                }else {
+                    var accbtnval = $('.didbutton').text();
+                    var packbtnval = $('.packageoption').text();
                     $('#lcr_type').val('N');
-                   $('.didbutton').html(accbtnval+' <span class="caret"></span>');
-                    $('.packageoption').html(packbtnval); 
+                    //$('.packageoption').html(packbtnval);
                     $('.packagediv').hide();
-                   $('.productdiv').show();
-                   $('.productcategory').show();
+                    $('.productdiv').show();
+                    $('.productcategory').show();
                     $('#Origination').show();
                     $('#OriginationPercentage').show();
-
                 }
-                
+                //  $('.didbutton').html(accbtnval+' <span class="caret"></span>');
+                //  $('.packageoption').html(packbtnval);
             });
-            
-                
-            $('#filter-button-toggle').show();
+
+            // alert(accbtnval);
+            $('.packageoption').click(function(){
+                // alert("Package Called");
+                // var packbtnval = $('.didbutton').html();
+                var packbtnval =$('.packageoption').html();
+                if(packbtnval=='Package'){
+                    var accbtnval=$('.didbutton').text();
+                    var packbtnval=$('.packageoption').text();
+                    $('#lcr_type').val('Y');
+
+                    // $('.packageoption').html(accbtnval);
+                    $('.packagediv').show();
+                    $('.productdiv').hide();
+                    $('.productcategory').hide();
+                    $('#Origination').hide();
+                    $('#OriginationPercentage').hide();
+                    if (packbtnval == "Package") {
+                        $('.didbutton').html("Package" + ' <span class="caret"></span>');
+                        $('.packageoption').html("Access");
+                    }else {
+                        $('.didbutton').html("Access" + ' <span class="caret"></span>');
+                        $('.packageoption').html("Package");
+                    }
+                    //  $('.packageoption').html(accbtnval);
+                } else {
+                    var accbtnval = $('.didbutton').text();
+                    var packbtnval = $('.packageoption').text();
+                    $('#lcr_type').val('N');
+                    //$('.packageoption').html(packbtnval);
+                    $('.packagediv').hide();
+                    $('.productdiv').show();
+                    $('.productcategory').show();
+                    $('#Origination').show();
+                    $('#OriginationPercentage').show();
+                    if (packbtnval == "Package") {
+                        $('.didbutton').html("Package" + ' <span class="caret"></span>');
+                        $('.packageoption').html("Access");
+                    }else {
+                        $('.didbutton').html("Access" + ' <span class="caret"></span>');
+                        $('.packageoption').html("Package");
+                    }
+                }
+            });
 
             //var data_table;
             if('{{$LCRPosition}}'=='5'){
@@ -272,7 +323,7 @@
                 $searchFilter.OriginationPercentage       = $("#did-search-form input[name='OriginationPercentage']").val();
                 $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
-                
+
                 $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
                 $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
                 $searchFilter.lcrType = '';
@@ -282,117 +333,112 @@
                     $searchFilter.lcrType = "Access";
                 }
 
+                var packbtnval = $searchFilter.lcrType;
+                if (packbtnval == "Package") {
+                    $('.didbutton').html("Package" + ' <span class="caret"></span>');
+                    $('.packageoption').html("Access");
+                }else {
+                    $('.didbutton').html("Access" + ' <span class="caret"></span>');
+                    $('.packageoption').html("Package");
+                }
+                // alert($searchFilter.lcrType);
 
-               // alert($searchFilter.lcrType);
-                
                 var aoColumnDefs, aoColumnDefs;
-                if($searchFilter.lcrType=='Package') {
+                if($searchFilter.lcrType == "Package" && $searchFilter.LCRPosition=='5'){
+                    $('#dt_AccessType').html("Package Name");
+                    $('#dt_Country').html("Position 1");
+                    $('#dt_Prefix').html("Position 2");
+                    $('#dt_City').html("Position 3");
+                    $('#dt_Tariff').html("Position 4");
+                    $('#dt_company1').html("Position 5");
                     setTimeout(function(){
                         $('#dt_company6').addClass("hidden");
                         $('#dt_company7').addClass("hidden");
                         $('#dt_company8').addClass("hidden");
                         $('#dt_company9').addClass("hidden");
                         $('#dt_company10').addClass("hidden");
-
-
-
                     },10);
                     aoColumns = [
                         { "bSortable": false}, //1 Access Type
-                        { "bSortable": false,"bVisible" : false}, //2 Country
-                        { "bSortable": false,"bVisible" : false}, //3 Prefix
-                        { "bSortable": false,"bVisible" : false}, //4 City
-                        { "bSortable": false,"bVisible" : false}, //5 Tariff
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if($searchFilter.lcrType=='Package') {
-                                    if (full[1] != null) {
-                                        var array = full[1].split(';');
-                                        var html = "<table>";
-                                        html += "<tr><td>" + array[0] + "</td></tr>";
-                                        html += "<tr><td>" + array[1] + "</td></tr>";
-                                        html += "<tr><td>" + array[2] + "</td></tr>";
-                                        html += "</table>";
+                                if (full[1] != null) {
+                                    var array = full[1].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
 
-                                        return html;
-                                    }
-                                    return full[1];
+                                    return html;
                                 }
                                 return full[1];
                             }
-                        }, //6 Position 1
+                        }, //2 Country
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if($searchFilter.lcrType=='Package') {
-                                    if (full[2] != null) {
-                                        var array = full[2].split(';');
-                                        var html1 = "<table>";
-                                        html1 += "<tr><td>" + array[0] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[1] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[2] + "</td></tr>";
-                                        html1 += "</table>";
+                                if (full[2] != null) {
+                                    var array = full[2].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
 
-                                        return html1;
-                                    }
-                                    return full[2];
+                                    return html;
                                 }
                                 return full[2];
                             }
-                        }, //7 Position 2
+                        }, //3 Prefix
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if($searchFilter.lcrType=='Package') {
-                                    if (full[3] != null) {
-                                        var array = full[3].split(';');
-                                        var html1 = "<table>";
-                                        html1 += "<tr><td>" + array[0] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[1] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[2] + "</td></tr>";
-                                        html1 += "</table>";
+                                if (full[3] != null) {
+                                    var array = full[3].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
 
-                                        return html1;
-                                    }
-                                    return full[3];
+                                    return html;
                                 }
                                 return full[3];
                             }
-                        }, //8 Position 3
+                        }, //4 City
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if($searchFilter.lcrType=='Package') {
-                                    if (full[4] != null) {
-                                        var array = full[4].split(';');
-                                        var html1 = "<table>";
-                                        html1 += "<tr><td>" + array[0] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[1] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[2] + "</td></tr>";
-                                        html1 += "</table>";
+                                if (full[4] != null) {
+                                    var array = full[4].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
 
-                                        return html1;
-                                    }
-                                    return full[4];
+                                    return html;
                                 }
                                 return full[4];
                             }
-                        }, //9 Position 4
+                        }, //5 Tariff
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if($searchFilter.lcrType=='Package') {
-                                    if (full[5] != null) {
-                                        var array = full[5].split(';');
-                                        var html1 = "<table>";
-                                        html1 += "<tr><td>" + array[0] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[1] + "</td></tr>";
-                                        html1 += "<tr><td>" + array[2] + "</td></tr>";
-                                        html1 += "</table>";
+                                if (full[5] != null) {
+                                    var array = full[5].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
 
-                                        return html1;
-                                    }
-                                    return full[5];
+                                    return html;
                                 }
                                 return full[5];
                             }
-                        }, //10 Position 5
+                        }, //6 Position 1
+                        { "bSortable": false,"bVisible" : false}, //7 Position 2
+                        { "bSortable": false,"bVisible" : false}, //8 Position 3
+                        { "bSortable": false,"bVisible" : false}, //9 Position 4
+                        { "bSortable": false,"bVisible" : false}, //10 Position 5
                         /* { "bSortable": false}, //11 Position 6
                          { "bVisible": false},  //12 Position 7
                          { "bVisible": false},  //13 Position 8
@@ -414,7 +460,204 @@
                         {    "sClass": "rate4_class", "aTargets": [ 8 ] },
                         {    "sClass": "rate5_class", "aTargets": [ 9 ] }
                     ];
-                } else if($searchFilter.LCRPosition=='5'){
+                }else if ($searchFilter.lcrType == "Package" && $searchFilter.LCRPosition=='10') {
+                    $('#dt_AccessType').html("Package Name");
+                    $('#dt_Country').html("Position 1");
+                    $('#dt_Prefix').html("Position 2");
+                    $('#dt_City').html("Position 3");
+                    $('#dt_Tariff').html("Position 4");
+                    $('#dt_company1').html("Position 5");
+                    setTimeout(function(){
+                        $('#dt_company6').removeClass("hidden");
+                        $('#dt_company7').addClass("hidden");
+                        $('#dt_company8').addClass("hidden");
+                        $('#dt_company9').addClass("hidden");
+                        $('#dt_company10').addClass("hidden");
+                    },10);
+                    aoColumns = [
+                        { "bSortable": false}, //1 Access Type
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[1] != null) {
+                                    var array = full[1].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[1];
+                            }
+                        }, //2 Country
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[2] != null) {
+                                    var array = full[2].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[2];
+                            }
+                        }, //3 Prefix
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[3] != null) {
+                                    var array = full[3].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[3];
+                            }
+                        }, //4 City
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[4] != null) {
+                                    var array = full[4].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[4];
+                            }
+                        }, //5 Tariff
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[5] != null) {
+                                    var array = full[5].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[5];
+                            }
+                        }, //6 Position 1
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[6] != null) {
+                                    var array = full[6].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[6];
+                            }
+                        }, //7 Position 2
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[7] != null) {
+                                    var array = full[7].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[7];
+                            }
+                        }, //8 Position 3
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[8] != null) {
+                                    var array = full[8].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[8];
+                            }
+                        }, //9 Position 4
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[9] != null) {
+                                    var array = full[9].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[9];
+                            }
+                        }, //10 Position 5
+                        { "bSortable": false,
+                            mRender: function (id, type, full) {
+                                if (full[10] != null) {
+                                    var array = full[10].split(';');
+                                    var html = "<table>";
+                                    html += "<tr><td>" + array[0] + "</td></tr>";
+                                    html += "<tr><td>" + array[1] + "</td></tr>";
+                                    html += "<tr><td>" + array[2] + "</td></tr>";
+                                    html += "</table>";
+
+                                    return html;
+                                }
+                                return full[10];
+                            }
+                        }, //11 Position 6
+                        /* { "bVisible": false},  //12 Position 7
+                         { "bVisible": false},  //13 Position 8
+                         { "bVisible": false},  //14 Position 9
+                         { "bVisible": false},  //15 Company 10*/
+
+
+                    ];
+
+                    aoColumnDefs = [
+                        {    "sClass": "destination", "aTargets": [ 0 ] },
+                        {    "sClass": "destination", "aTargets": [ 1 ] },
+                        {    "sClass": "destination", "aTargets": [ 2 ] },
+                        {    "sClass": "destination", "aTargets": [ 3 ] },
+                        {    "sClass": "destination", "aTargets": [ 4 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 5 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 6 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 7 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 8 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 9 ] }
+                    ];
+                }  else  if($searchFilter.LCRPosition=='5'){
+
+                    $('#dt_AccessType').html("Access Type");
+                    $('#dt_Country').html("Country");
+                    $('#dt_Prefix').html("Prefix");
+                    $('#dt_City').html("City");
+                    $('#dt_Tariff').html("Tariff");
+                    $('#dt_company1').html("Position 1");
+                    $('#dt_company2').html("Position 2");
+                    $('#dt_company3').html("Position 3");
+                    $('#dt_company4').html("Position 4");
+                    $('#dt_company5').html("Position 5");
 
                     setTimeout(function(){
                         $('#dt_company6').addClass("hidden");
@@ -434,11 +677,11 @@
                         { "bSortable": false}, //8 Position 3
                         { "bSortable": false}, //9 Position 4
                         { "bSortable": false}, //10 Position 5
-                       /* { "bSortable": false}, //11 Position 6
-                        { "bVisible": false},  //12 Position 7
-                        { "bVisible": false},  //13 Position 8
-                        { "bVisible": false},  //14 Position 9
-                        { "bVisible": false},  //15 Company 10*/
+                        /* { "bSortable": false}, //11 Position 6
+                         { "bVisible": false},  //12 Position 7
+                         { "bVisible": false},  //13 Position 8
+                         { "bVisible": false},  //14 Position 9
+                         { "bVisible": false},  //15 Company 10*/
 
 
                     ];
@@ -455,11 +698,15 @@
                         {    "sClass": "rate4_class", "aTargets": [ 8 ] },
                         {    "sClass": "rate5_class", "aTargets": [ 9 ] }
                     ];
-                }else{
+                } else {
+
+                    $('#dt_company6').html("Position 6");
+                    $('#dt_company7').html("Position 7");
+                    $('#dt_company8').html("Position 8");
+                    $('#dt_company9').html("Position 9");
+                    $('#dt_company10').html("Position 10");
+
                     setTimeout(function(){
-
-
-
                         $('#dt_company6').removeClass("hidden");
                         $('#dt_company7').removeClass("hidden");
                         $('#dt_company8').removeClass("hidden");
@@ -478,10 +725,10 @@
                         { "bSortable": false}, //9 Position 4
                         { "bSortable": false}, //10 Position 5
                         { "bSortable": false}, //11 Position 6
-                        { "bVisible": false},  //12 Position 7
-                        { "bVisible": false},  //13 Position 8
-                        { "bVisible": false},  //14 Position 9
-                        { "bVisible": false},  //15 Company 10
+                        { "bSortable": false},  //12 Position 7
+                        { "bSortable": false},  //13 Position 8
+                        { "bSortable": false},  //14 Position 9
+                        { "bSortable": false},  //15 Company 10
 
 
 
@@ -530,10 +777,10 @@
                 }
                 if($('#lcr_type').val()=='Y'){
                 }else{
-                if(typeof $searchFilter.DIDCategoryID  == 'undefined' || $searchFilter.DIDCategoryID == '' ){
-                    toastr.error("Please Select a Category", "Error", toastr_opts);
-                    return false;
-                }
+                    if(typeof $searchFilter.DIDCategoryID  == 'undefined' || $searchFilter.DIDCategoryID == '' ){
+                        toastr.error("Please Select a Category", "Error", toastr_opts);
+                        return false;
+                    }
                 }
 
                 data_table = $("#table").dataTable({
@@ -614,29 +861,18 @@
                     },
                     "fnDrawCallback": function (results) {
 
-                        $('.btn').button('reset');
+                       // $('.btn').button('reset');
 
                         if (typeof results != 'undefined') {
 
                             try {
 
-                                if($searchFilter.lcrType=='Package') {
-                                    $('#dt_Name').html("Package Name");
-
-                                }else {
-                                    $('#dt_Name').html("Access Type");
-
-                                }
-
-                                if($searchFilter.lcrType!='Package') {
-                                    $('#dt_company1').html("");
-                                    $('#dt_company2').html("");
-                                    $('#dt_company3').html("");
-                                    $('#dt_company4').html("");
-                                    $('#dt_company5').html("");
-                                }
                                 //Clear All Fields on Refresh
-
+                                $('#dt_company1').html("");
+                                $('#dt_company2').html("");
+                                $('#dt_company3').html("");
+                                $('#dt_company4').html("");
+                                $('#dt_company5').html("");
                                 $('#dt_company6').html("");
                                 $('#dt_company7').html("");
                                 $('#dt_company8').html("");
@@ -646,37 +882,35 @@
 
                                 // console.log(data_table.oApi.aoColumns);
                                 //data_table.Columns[0].ColumnName = "newColumnName";
-                                if($searchFilter.lcrType!='Package') {
-                                    if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
-                                        $('#dt_company1').html(results.jqXHR.responseJSON.sColumns[5]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
-                                        $('#dt_company2').html(results.jqXHR.responseJSON.sColumns[6]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
-                                        $('#dt_company3').html(results.jqXHR.responseJSON.sColumns[7]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
-                                        $('#dt_company4').html(results.jqXHR.responseJSON.sColumns[8]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
-                                        $('#dt_company5').html(results.jqXHR.responseJSON.sColumns[9]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
-                                        $('#dt_company6').html(results.jqXHR.responseJSON.sColumns[10]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[11] != 'undefined') {
-                                        $('#dt_company7').html(results.jqXHR.responseJSON.sColumns[11]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[12] != 'undefined') {
-                                        $('#dt_company8').html(results.jqXHR.responseJSON.sColumns[12]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[13] != 'undefined') {
-                                        $('#dt_company9').html(results.jqXHR.responseJSON.sColumns[13]);
-                                    }
-                                    if (typeof results.jqXHR.responseJSON.sColumns[14] != 'undefined') {
-                                        $('#dt_company10').html(results.jqXHR.responseJSON.sColumns[14]);
-                                    }
+                                if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
+                                    $('#dt_company1').html(results.jqXHR.responseJSON.sColumns[5]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
+                                    $('#dt_company2').html(results.jqXHR.responseJSON.sColumns[6]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
+                                    $('#dt_company3').html(results.jqXHR.responseJSON.sColumns[7]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
+                                    $('#dt_company4').html(results.jqXHR.responseJSON.sColumns[8]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
+                                    $('#dt_company5').html(results.jqXHR.responseJSON.sColumns[9]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
+                                    $('#dt_company6').html(results.jqXHR.responseJSON.sColumns[10]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[11] != 'undefined') {
+                                    $('#dt_company7').html(results.jqXHR.responseJSON.sColumns[11]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[12] != 'undefined') {
+                                    $('#dt_company8').html(results.jqXHR.responseJSON.sColumns[12]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[13] != 'undefined') {
+                                    $('#dt_company9').html(results.jqXHR.responseJSON.sColumns[13]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[14] != 'undefined') {
+                                    $('#dt_company10').html(results.jqXHR.responseJSON.sColumns[14]);
                                 }
                             }
                             catch(err) {

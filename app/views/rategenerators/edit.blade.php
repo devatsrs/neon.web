@@ -34,7 +34,7 @@
                 <button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>
                 <ul class="dropdown-menu dropdown-green" role="menu">
                     <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/create" class="generate_rate create" >Create New Rate Table</a></li>
-                    <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/update" class="generate_rate update" data-trunk="{{$rategenerators->TrunkID}}" data-codedeck="{{$rategenerators->CodeDeckId}}" data-currency="{{$rategenerators->CurrencyID}}" data-type="{{$rategenerators->SelectType}}">Update Existing Rate Table</a></li>
+                    <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/update" class="generate_rate update" data-trunk="{{$rategenerators->TrunkID}}" data-codedeck="{{$rategenerators->CodeDeckId}}" data-currency="{{$rategenerators->CurrencyID}}" data-type="{{$rategenerators->SelectType}}" data-AppliedTo="{{$rategenerators->AppliedTo}}">Update Existing Rate Table</a></li>
                 </ul>
             </div>
         @endif
@@ -108,7 +108,7 @@
                             </div>
                         </div>
 
-                        @if($rategenerator->SelectType == 1  || $rategenerator->SelectType == 3)
+                        @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)  || $rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                             <div class="form-group NonDID-Div">
                                 <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
                                 <div class="col-sm-4">
@@ -150,7 +150,39 @@
                         </div>
                         {{--<input type="hidden" name="GroupBy" value="Code">--}}
 
-                        @if($rategenerator->SelectType == 1)
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">
+                                Applied To
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This option is for Rate Tables created from this Rate Generator." data-original-title="Applied To">?</span>
+                            </label>
+                            <div class="col-sm-4">
+                                <?php
+                                $AppliedToCustomer = $rategenerators->AppliedTo == RateTable::APPLIED_TO_CUSTOMER ? true : false;
+                                $AppliedToReseller = $rategenerators->AppliedTo == RateTable::APPLIED_TO_RESELLER ? true : false;
+                                ?>
+                                @if(is_reseller())
+                                    <label class="radio-inline">
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, $AppliedToCustomer,array("class"=>""))}}
+                                        Customer
+                                    </label>
+                                @else
+                                    <label class="radio-inline">
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, $AppliedToReseller,array("class"=>""))}}
+                                        Partner
+                                    </label>
+                                @endif 
+                                
+                                
+                            </div>
+                            <div class="ResellerBox" style="display: none;">
+                                <label class="col-sm-2 control-label">Partner</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('Reseller', $ResellerDD, $rategenerators->Reseller,array("class"=>"form-control select2"))}}
+                                </div>
+                            </div>
+                        </div>
+
+                        @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))
                             <div class="form-group NonDID-Div">
                                 <label for="field-1" class="col-sm-2 control-label">CodeDeck*</label>
                                 <div class="col-sm-4">
@@ -191,9 +223,9 @@
                             </div>
                         @endif
 
-                        @if($rategenerator->SelectType == 2 || $rategenerator->SelectType == 3)
+                        @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
 
-                            @if($rategenerator->SelectType == 2)
+                            @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                                 <div class="form-group DID-Div">
                                     <label for="field-1" class="col-sm-2 control-label">Country*</label>
                                     <div class="col-sm-4">
@@ -215,7 +247,7 @@
                                     </div>
                                 </div>
                             @endif
-                            @if($rategenerator->SelectType == 2)
+                            @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                                 <div class="form-group" id="DIDCategoryDiv">
                                     <label for="field-1" class="col-sm-2 control-label">Tariff*</label>
                                     <div class="col-sm-4">
@@ -269,7 +301,7 @@
                                 </div>
                             </div>
                         @endif
-                        @if($rategenerator->SelectType == 3)
+                        @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                             <div class="form-group Package-Div" >
                                 <label for="field-1" class="col-sm-2 control-label">Package*</label>
                                 <div class="col-sm-4">
@@ -369,9 +401,9 @@
                                             {{ Form::select('Package-'.$a, $Package, $Component->Package, array("class"=>"select2")) }}
                                         </td>
                                         <td id="testValues">
-                                            @if($rategenerators->SelectType == 2)
+                                            @if($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                                             {{ Form::select('Component-'.$a.'[]', DiscountPlan::$RateTableDIDRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
-                                            @elseif($rategenerators->SelectType == 3)
+                                            @elseif($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                                             {{ Form::select('Component-'.$a.'[]', DiscountPlan::$RateTablePKGRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
                                             @endif
 
@@ -402,9 +434,9 @@
 
                                         </td>
                                         <td>
-                                            @if($rategenerators->SelectType == 2)
+                                            @if($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                                             {{ Form::select('MergeTo-'.$a,DiscountPlan::$RateTableDIDRate_Components,  $MergeToArray1 , array("class"=>"select2" , "id"=>"MergeTo-".$a)) }}
-                                            @elseif($rategenerators->SelectType == 3)
+                                            @elseif($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                                             {{ Form::select('MergeTo-'.$a, DiscountPlan::$RateTablePKGRate_Components,  $MergeToArray1 , array("class"=>"select2" , "id"=>"MergeTo-".$a)) }}
                                             @endif
                                         </td>
@@ -447,7 +479,7 @@
                         </div>
                     </div>
                 </div>
-                @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
+                @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)  || $rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                     <div class="panel panel-primary" data-collapsed="0" id="Calculated-Rate">
                         <div class="panel-heading">
                             <div class="panel-title">
@@ -506,9 +538,9 @@
                                                 {{ Form::select('Package1-'.$a, $Package, $calculatedRate->Package, array("class"=>"select2")) }}
                                             </td>
                                             <td>
-                                                @if($rategenerators->SelectType == 2)
+                                                @if($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                                                 {{ Form::select('RateComponent-'.$a.'[]',DiscountPlan::$RateTableDIDRate_Components, explode("," ,$calculatedRate->Component), array("class"=>"select2 selected-RComponents" ,'multiple', "id"=>"RateComponent-".$a)) }}
-                                                @elseif($rategenerators->SelectType == 3)
+                                                @elseif($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                                                 {{ Form::select('RateComponent-'.$a.'[]', DiscountPlan::$RateTablePKGRate_Components, explode("," ,$calculatedRate->Component), array("class"=>"select2 selected-RComponents" ,'multiple', "id"=>"RateComponent-".$a)) }}
                                                 @endif
                                             </td>
@@ -587,12 +619,12 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                 <tr>
-                                    @if($rategenerator->SelectType == 3)
+                                    @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                                         <th width="15%">Package</th>
                                     @endif
-                                    @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
+                                    @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)  || $rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                                         <th width="25%">Component</th>
-                                        @if($rategenerator->SelectType == 2)
+                                        @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                                             <th width="15%">Origination</th>
                                         @endif
                                         <th width="15%">Time of Day</th>
@@ -608,19 +640,19 @@
                                 <tbody id="sortable">
                                 @foreach($rategenerator_rules as $rategenerator_rule)
                                     <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
-                                        @if($rategenerator->SelectType == 3)
+                                        @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                                             <td>
                                                 @if(@$rategenerator_rule->Package != '') {{Package::getServiceNameByID($rategenerator_rule->Package)}} @else ALL @endif
                                             </td>    
                                         @endif
-                                        @if($rategenerator->SelectType == 2  || $rategenerator->SelectType == 3)
+                                        @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)  || $rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                                             <td>
-                                                @if($rategenerator->SelectType == 3)
+                                                @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                                                     {{ @DiscountPlan::$RateTablePKGRate_Components[$rategenerator_rule->Component] }}
-                                                @elseif($rategenerator->SelectType == 2)
+                                                @elseif($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                                                     {{ @ DiscountPlan::$RateTableDIDRate_Components[$rategenerator_rule->Component] }}
                                                 @endif
-                                                @if($rategenerator->SelectType == 2)
+                                                @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                                                     <br>
                                                     Country: @if(@$rategenerator_rule->Country != ''){{@$rategenerator_rule->Country->Country}}@else ALL @endif
                                                     <br>
@@ -633,7 +665,7 @@
                                                         Tariff: @if(@$rategenerator_rule->Tariff != ''){{@$rategenerator_rule->Tariff}} @else ALL @endif    
                                                 @endif                                               
                                             </td>
-                                            @if($rategenerator->SelectType == 2)
+                                            @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                                             <td>
                                                 {{$rategenerator_rule->OriginationDescription }}
                                             </td>
@@ -1165,6 +1197,7 @@
                 var codeDeckId = $(this).attr("data-codedeck");
                 var CurrencyID = $(this).attr("data-currency");
                 var Type = $(this).attr("data-type");
+                var AppliedTo = $(this).attr("data-AppliedTo");
                 $.ajax({
                     url: baseurl + "/rategenerators/ajax_load_rate_table_dropdown",
                     type: 'GET',
@@ -1178,7 +1211,7 @@
 
                     },
                     // Form data
-                    data: "TrunkID="+trunkID+'&CodeDeckId='+codeDeckId+'&CurrencyID='+CurrencyID+'&Type='+Type,
+                    data: "TrunkID="+trunkID+'&CodeDeckId='+codeDeckId+'&CurrencyID='+CurrencyID+'&Type='+Type+'&AppliedTo='+AppliedTo,
                     cache: false,
                     contentType: false,
                     processData: false
@@ -1465,6 +1498,20 @@
                     $(".NonDID-Div").show();
                 }
             });
+
+            $('#rategenerator-from input[name="AppliedTo"]').change(function() {
+                var AppliedTo = $('#rategenerator-from input[name="AppliedTo"]:checked').val();
+
+                if(AppliedTo == {{ RateTable::APPLIED_TO_RESELLER }}) {
+                    $('#rategenerator-from select[name="Reseller"]').select2("val","{{$rategenerators->Reseller}}");
+                    $('.ResellerBox').show();
+                } else {
+                    $('.ResellerBox').hide();
+                    $('#rategenerator-from select[name="Reseller"]').select2("val","0");
+                }
+            });
+            $('#rategenerator-from input[name="AppliedTo"]').trigger('change');
+
         });
 
 

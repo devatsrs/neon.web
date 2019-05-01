@@ -84,7 +84,7 @@
                     </div>
                 @endif
 
-                <div class="form-group">
+                <div class="form-group filter_naa">
                     <label for="field-1" class="control-label">Group By</label>
                     <select class="select2" name="GroupBy" id="GroupBy">
                         <option value="GroupByCode">Code</option>
@@ -183,6 +183,7 @@
             <th width="10%">Orig. Description</th>
             <th width="4%" id="Code-Header">Dest. Code</th>
             <th width="10%">Dest. Description</th>
+            <th width="3%">Min. Duration</th>
             <th width="3%">Interval 1/N</th>
             <th width="3%" style="display: none;">Interval N</th>
             <th width="5%">Connection Fee</th>
@@ -210,7 +211,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','TimezoneTitle','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate','RateCurrency','ConnectionFeeCurrency','RateCurrencySymbol','ConnectionFeeCurrencySymbol','TimezonesID'];
+        var list_fields  = ['ID','TimezoneTitle','OriginationCode','OriginationDescription','Code','Description','MinimumDuration','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate','RateCurrency','ConnectionFeeCurrency','RateCurrencySymbol','ConnectionFeeCurrencySymbol','TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -352,6 +353,7 @@
             currentDate = date.getFullYear() + '-' +   (month<10 ? '0' : '') + month + '-' +     (day<10 ? '0' : '') + day;
             $("#bulk-edit-rate-table-form")[0].reset();
             $("#bulk-edit-rate-table-form").find("input[name='RateID']").val(RateIDs.join(","));
+            $("#bulk-edit-rate-table-form").find("input[name='MinimumDuration']").val(0);
             $("#bulk-edit-rate-table-form").find("input[name='Interval1']").val(1);
             $("#bulk-edit-rate-table-form").find("input[name='IntervalN']").val(1);
             $("#bulk-edit-rate-table-form").find("input[name='EffectiveDate']").val(currentDate);
@@ -690,21 +692,21 @@
                                 var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[23] == {{RateTable::RATE_STATUS_REJECTED}}) {
+                                if (full[24] == {{RateTable::RATE_STATUS_REJECTED}}) {
                                     html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
-                                } else if (full[23] == {{RateTable::RATE_STATUS_APPROVED}}) {
+                                } else if (full[24] == {{RateTable::RATE_STATUS_APPROVED}}) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
-                                } else if (full[23] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                } else if (full[24] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                     html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
-                                } else if (full[23] == {{RateTable::RATE_STATUS_DELETE}}) {
+                                } else if (full[24] == {{RateTable::RATE_STATUS_DELETE}}) {
                                     html += '<i class="fa fa-trash" title="Awaiting Approval Delete" style="color: red; "></i>';
                                 }
                                 @endif
 
                                 @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                                if (full[22] == 0) {
+                                if (full[23] == 0) {
                                     html += '<i class="entypo-lock-open" title="Unblocked" style="color: green; "></i>';
-                                } else if (full[22] == 1) {
+                                } else if (full[23] == 1) {
                                     html += '<i class="entypo-lock" title="Blocked" style="color: red; "></i>';
                                 }
                                 @endif
@@ -733,73 +735,74 @@
                             }
                         }, //4 Destination Code
                         {}, //5 Destination description
+                        {}, //6 Min. Duration
                         {
                             mRender: function(id, type, full) {
-                                return full[6] + '/' + full[7]; // interval1/intervalN
+                                return full[7] + '/' + full[8]; // interval1/intervalN
                             }
-                        }, //6 interval 1
+                        }, //7 interval 1
                         {
                             "bVisible" : false
-                        }, //7 interval n
+                        }, //8 interval n
                         {
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[29] + col; else return '';  //ConnectionFeeCurrency+ConnectionFee
+                                if(col != null && col != '') return full[30] + col; else return '';  //ConnectionFeeCurrency+ConnectionFee
                             }
-                        }, //8 ConnectionFee
+                        }, //9 ConnectionFee
                         {
                             "bVisible" : bVisible
-                        }, //9 PreviousRate
+                        }, //10 PreviousRate
                         {
                             mRender: function(col, type, full) {
-                                var rate_html = full[28] + col; //RateCurrency+Rate
-                                if(col > full[9])
+                                var rate_html = full[29] + col; //RateCurrency+Rate
+                                if(col > full[10])
                                     rate_html = rate_html+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
-                                else if(col < full[9])
+                                else if(col < full[10])
                                     rate_html = rate_html+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
                                 return rate_html;
                             }
-                        }, //10 Rate
+                        }, //11 Rate
                         {
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[28] + col; else return '';  //RateCurrency+RateN
+                                if(col != null && col != '') return full[29] + col; else return '';  //RateCurrency+RateN
                             }
-                        }, //11 RateN
-                        {}, //12 Effective Date
+                        }, //12 RateN
+                        {}, //13 Effective Date
                         {"bVisible" : false}, //13 End Date
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[14] = full[14] != null ? full[14] : '';
                                 full[15] = full[15] != null ? full[15] : '';
-                                if(full[14] != '' && full[15] != '')
-                                    return full[15] + '<br/>' + full[14]; // modified by/modified date
+                                full[16] = full[16] != null ? full[16] : '';
+                                if(full[15] != '' && full[16] != '')
+                                    return full[16] + '<br/>' + full[15]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //15/14 modified by/modified date
+                        }, //16/15 modified by/modified date
                         {
                             "bVisible" : bVisibleApprovedStatus,
                             mRender: function(id, type, full) {
-                                full[24] = full[24] != null ? full[24] : '';
                                 full[25] = full[25] != null ? full[25] : '';
-                                if(full[24] != '' && full[25] != '')
-                                    return full[24] + '<br/>' + full[25]; // approved Status Changed by/date
+                                full[26] = full[26] != null ? full[26] : '';
+                                if(full[25] != '' && full[26] != '')
+                                    return full[25] + '<br/>' + full[26]; // approved Status Changed by/date
                                 else
                                     return '';
                             }
-                        }, //24/25 Approved Status Changed By/Approved Date
+                        }, //25/26 Approved Status Changed By/Approved Date
                         {
                             "bVisible" : bVisibleRoutingCategory,
                             mRender: function(id, type, full) {
-                                return full[20]
+                                return full[21]
                             }
-                        }, //19 RoutingCategoryName
+                        }, //20 RoutingCategoryName
                         {
                             "bVisible" : bVisiblePreferenceBlock,
                             mRender: function(id, type, full) {
-                                return full[21]
+                                return full[22]
                             }
-                        }, //20 Preference
+                        }, //21 Preference
                         {
                             "bSortable" : false,
                             "bVisible" : bVisible,
@@ -813,12 +816,12 @@
 
                                 $('#actionheader').attr('width','10%');
                                 clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
-                                clerRate_ = clerRate_.replace('{id}', full[16]);
+                                clerRate_ = clerRate_.replace('{id}', full[17]);
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
                                     // if awaiting approval rates then show Edit button else hide it
-                                    if(full[23] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                    if(full[24] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                         action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
                                     }
                                 }
@@ -829,7 +832,7 @@
                                     action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
                                 }
 
-                                if (full[16] != null && full[16] != 0) {
+                                if (full[17] != null && full[17] != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
                                         action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
@@ -1084,7 +1087,7 @@
                     if(view == 1) {
                         header += "<th>Dest. Code</th>";
                     }
-                    header += "<th>Dest. Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified By/Date</th>";
+                    header += "<th>Dest. Description</th><th>Min. Duration</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified By/Date</th>";
 
                     @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         header += "<th>Status Changed By/Date</th><th>Status</th>";
@@ -1113,6 +1116,7 @@
                                 html += "<td>" + data['Code'] + "</td>";
                             }
                             html += "<td>" + data['Description'] + "</td>";
+                            html += "<td>" + data['MinimumDuration'] + "</td>";
                             html += "<td>" + data['Interval1'] + "</td>";
                             html += "<td>" + data['IntervalN'] + "</td>";
                             html += "<td>" + (data['ConnectionFee'] != null?data['ConnectionFee']:'') + "</td>";
@@ -1206,8 +1210,6 @@
                                 {{ Form::select('ConnectionFeeCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Rate1</label>
@@ -1224,8 +1226,12 @@
                                 <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
+                        <div class="col-md-6 clear">
+                            <div class="form-group">
+                                <label class="control-label">Min. Duration</label>
+                                <input type="text" name="MinimumDuration" class="form-control" value="" />
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Interval 1</label>
@@ -1238,8 +1244,6 @@
                                 <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                             @if($ROUTING_PROFILE == 1)
                             <div class="col-md-6">
@@ -1283,6 +1287,7 @@
                     <input type="hidden" name="updateOriginationRateID" value="on">
                     <input type="hidden" name="updateRate" value="on">
                     <input type="hidden" name="updateRateN" value="on">
+                    <input type="hidden" name="updateMinimumDuration" value="on">
                     <input type="hidden" name="updateInterval1" value="on">
                     <input type="hidden" name="updateIntervalN" value="on">
                     <input type="hidden" name="updateConnectionFee" value="on">
@@ -1356,8 +1361,6 @@
                                 {{ Form::select('ConnectionFeeCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateRate" class="" />
@@ -1377,8 +1380,13 @@
                                 <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
+                        <div class="col-md-6 clear">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateMinimumDuration" class="" />
+                                <label class="control-label">Min. Duration</label>
+                                <input type="text" name="MinimumDuration" class="form-control" value="" />
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateInterval1" class="" />
@@ -1394,9 +1402,6 @@
                                 <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
-
-                    </div>
-                    <div class="row">
 
                         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                             @if($ROUTING_PROFILE == 1)
@@ -1519,6 +1524,12 @@
                             </div>
                         </div>
                         <div class="col-md-6 clear">
+                            <div class="form-group">
+                                <label class="control-label">Min. Duration</label>
+                                <input type="text" name="MinimumDuration" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />

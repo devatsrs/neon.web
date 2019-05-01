@@ -2,6 +2,7 @@
 $data=array();
 if(empty($CompanyID)){$CompanyID=User::get_companyID();}
 $emailTemplates = EmailTemplate::getTemplateArray($data,$CompanyID);
+$invoiceTemplates = EmailTemplate::getInvoiceTemplateArray();
 
 //$CompanyID = User::get_companyID();
 $taxrates = TaxRate::getTaxRateDropdownIDList($CompanyID);
@@ -94,11 +95,11 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                         <button type="button" class="btn btn-default">+</button>
                                     </div>
                                 </div>
-                                <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
+                                <!--<label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
                                 <div class="col-sm-4">
                                     {{Form::SelectControl('invoice_template',1,( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),'','','1',$CompanyID)}}
-                                            <!--{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 select2Add small"))}}-->
-                                </div>
+                                            <!--{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 select2Add small"))}}
+                                </div>-->
                             </div>
                             <div class="form-group">
                                 @if($pbxaccountblock_count>0)
@@ -183,7 +184,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                                     <th width="5%" ><button type="button" id="payment-add-row" class="btn btn-primary btn-xs ">+</button></th>
                                                     <th width="30%" >Days<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Send reminder based on due dates. ex. send reminder before one day of due date(-1),send reminder after two day of due date(2)" data-original-title="Due Days">?</span></th>
                                                     <th width="30%" >Account Age<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="System will not send reminder if account age is less then specified no of Days" data-original-title="Account Age">?</span></th>
-                                                    <!--<th width="30%" >Template </th>-->
+                                                    <th width="30%" >Template </th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -207,10 +208,9 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                                                 </div>
 
                                                             </td>
-                                                            <!--<td>
-                                                                {{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, $InvoiceReminders->TemplateID[$InvoiceReminder] ,array("class"=>"select2 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
-                                                            </td>-->
-                                                            <input type="hidden" name="InvoiceReminder[TemplateID][]" value="0">
+                                                            <td>
+                                                                {{Form::select('InvoiceReminder[TemplateID][]', $invoiceTemplates, $InvoiceReminders->TemplateID[$InvoiceReminder] ,array("class"=>"select2 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
+                                                            </td>
                                                         </tr>
                                                     @endforeach
                                                 @endif
@@ -576,10 +576,10 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
             }
         });
     }
-    var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select22 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}';
+    var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $invoiceTemplates, '' ,array("class"=>"select22 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}';
     var add_row_html_payment = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
     add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
-    /*add_row_html_payment += '<td>'+template_dp_html+'</td><tr>';*/
+    add_row_html_payment += '<td>'+template_dp_html+'</td><tr>';
     add_row_html_payment += '<td><input type="hidden" name="InvoiceReminder[TemplateID][]" value="0"></td><tr>';
     $('#rowContainer').append(add_row_html_payment);
     var target = '';

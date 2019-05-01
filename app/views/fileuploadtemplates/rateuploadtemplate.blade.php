@@ -5,7 +5,7 @@
 <div class="tab-content" style="overflow: hidden;margin-top: 15px;">
     <div class="tab-pane active" id="tab1">
         <div class="form-group box_dialcode">
-            <label for="field-1" class="col-sm-2 control-label">Match Origination Codes with</label>
+            <label class="col-sm-2 control-label">Match Origination Codes with</label>
             <div class="col-sm-4">
                 {{Form::select('selection[Join1O]', $columns,(isset($attrselection->Join1O)?$attrselection->Join1O:''),array("class"=>"select2 small","id"=>"Join1O"))}}
             </div>
@@ -15,26 +15,32 @@
             </div>
         </div>
         <div class="form-group ">
-            <label for="field-1" class="col-sm-2 control-label">Destination Code* </label>
+            <label class="col-sm-2 control-label">Destination Code* </label>
             <div class="col-sm-2">
                 {{Form::select('selection[Code]', $columns,(isset($attrselection->Code)?$attrselection->Code:''),array("class"=>"select2 small"))}}
             </div>
             <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
                 {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection->DialCodeSeparator)?$attrselection->DialCodeSeparator:''),array("class"=>"select2 small dialcodeseperator"))}}
             </div>
-            <label for="field-1" class="col-sm-2 control-label">Destination Description*</label>
+            <label class="col-sm-2 control-label">Destination Description*</label>
             <div class="col-sm-4">
                 {{Form::select('selection[Description]', $columns,(isset($attrselection->Description)?$attrselection->Description:''),array("class"=>"select2 small"))}}
             </div>
         </div>
-        <div class="form-group duo">
-            <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
             <div class="col-sm-4">
                 {{Form::select('selection[EffectiveDate]', $columns,(isset($attrselection->EffectiveDate)?$attrselection->EffectiveDate:''),array("class"=>"select2 small"))}}
             </div>
             <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span></label>
             <div class="col-sm-4">
                 {{Form::select('selection[DateFormat]',Company::$date_format ,(isset($attrselection->DateFormat)?$attrselection->DateFormat:''),array("class"=>"select2 small"))}}
+            </div>
+        </div>
+        <div class="form-group solo">
+            <label class="col-sm-2 control-label">Intervals Seperator <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Separator for Min. Duration , Interval 1 and Interval N" data-original-title="Intervals Separator">?</span></label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" name="selection[IntervalSeperator]" value="{{(!empty($attrselection->IntervalSeperator)?$attrselection->IntervalSeperator:'')}}" />
             </div>
         </div>
 
@@ -48,6 +54,10 @@
                     $RateNColumn           = 'RateN'.$id;
                     $Interval1Column       = 'Interval1'.$id;
                     $IntervalNColumn       = 'IntervalN'.$id;
+                    $MinimumDurationColumn = 'MinimumDuration'.$id;
+                    $Interval1IndexColumn  = 'Interval1Index'.$id;
+                    $IntervalNIndexColumn  = 'IntervalNIndex'.$id;
+                    $MinimumDurationIndexColumn = 'MinimumDurationIndex'.$id;
                     $PreferenceColumn      = 'Preference'.$id;
                     $ConnectionFeeColumn   = 'ConnectionFee'.$id;
                     $BlockedColumn         = 'Blocked'.$id;
@@ -83,26 +93,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">Interval1</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection['.$Interval1Column.']', $columns,(isset($attrselection->$Interval1Column)?$attrselection->$Interval1Column:''),array("class"=>"select2 small"))}}
-                            </div>
-                            <label class="col-sm-2 control-label">IntervalN</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection['.$IntervalNColumn.']', $columns,(isset($attrselection->$IntervalNColumn)?$attrselection->$IntervalNColumn:''),array("class"=>"select2 small"))}}
-                            </div>
-                        </div>
-                        <div class="form-group vendor_selection_box">
-                            <label class="col-sm-2 control-label">Preference</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection['.$PreferenceColumn.']', $columns,(isset($attrselection->$PreferenceColumn)?$attrselection->$PreferenceColumn:''),array("class"=>"select2 small"))}}
-                            </div>
-                            <label for="field-1" class="col-sm-2 control-label">Blocked <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0 - Unblock , 1 - Block" data-original-title="Blocked">?</span></label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection['.$BlockedColumn.']', $columns,(isset($attrselection->$BlockedColumn)?$attrselection->$BlockedColumn:''),array("class"=>"select2 small"))}}
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="col-sm-2 control-label">Connection Fee</label>
                             <div class="col-sm-2">
                                 {{Form::select('selection['.$ConnectionFeeColumn.']', $columns,(isset($attrselection->$ConnectionFeeColumn)?$attrselection->$ConnectionFeeColumn:''),array("class"=>"select2 small"))}}
@@ -110,6 +100,41 @@
                             <div class="col-sm-2">
                                 {{Form::select('selection['.$ConnectionFeeCurrencyColumn.']', $component_currencies,(isset($attrselection->$ConnectionFeeCurrencyColumn)?$attrselection->$ConnectionFeeCurrencyColumn:''),array("class"=>"select2 CurrencyDD small"))}}
                             </div>
+                            <label class="col-sm-2 control-label">Minimum Duration</label>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$MinimumDurationColumn.']', $columns,(isset($attrselection->$MinimumDurationColumn)?$attrselection->$MinimumDurationColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$MinimumDurationIndexColumn.']', $IntervalIndexes,(isset($attrselection->$MinimumDurationIndexColumn)?$attrselection->$MinimumDurationIndexColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Interval1</label>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$Interval1Column.']', $columns,(isset($attrselection->$Interval1Column)?$attrselection->$Interval1Column:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$Interval1IndexColumn.']', $IntervalIndexes,(isset($attrselection->$Interval1IndexColumn)?$attrselection->$Interval1IndexColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <label class="col-sm-2 control-label">IntervalN</label>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$IntervalNColumn.']', $columns,(isset($attrselection->$IntervalNColumn)?$attrselection->$IntervalNColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$IntervalNIndexColumn.']', $IntervalIndexes,(isset($attrselection->$IntervalNIndexColumn)?$attrselection->$IntervalNIndexColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group vendor_selection_box">
+                            <label class="col-sm-2 control-label">Preference</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection['.$PreferenceColumn.']', $columns,(isset($attrselection->$PreferenceColumn)?$attrselection->$PreferenceColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <label class="col-sm-2 control-label">Blocked <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0 - Unblock , 1 - Block" data-original-title="Blocked">?</span></label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection['.$BlockedColumn.']', $columns,(isset($attrselection->$BlockedColumn)?$attrselection->$BlockedColumn:''),array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group vendor_selection_box">
                             <label class="col-sm-2 control-label vendor_selection_routing_box">Routing Category</label>
                             <div class="col-sm-4 vendor_selection_routing_box">
                                 {{Form::select('selection['.$RoutingCategory.']', $columns,(isset($attrselection->$RoutingCategory)?$attrselection->$RoutingCategory:''),array("class"=>"select2 small"))}}
@@ -124,7 +149,7 @@
     </div>
     <div class="tab-pane" id="tab2">
         <div class="form-group">
-            <label for="field-1" class="col-sm-2 control-label">Match Origination Codes with</label>
+            <label class="col-sm-2 control-label">Match Origination Codes with</label>
             <div class="col-sm-4">
                 {{Form::select('selection2[Join2O]', $columns,(isset($attrselection2->Join2O)?$attrselection2->Join2O:''),array("class"=>"select2 small","id"=>"Join2O"))}}
             </div>
@@ -170,7 +195,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
+            <label class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
             <div class="col-sm-4">
                 {{Form::select('selection2[EffectiveDate]', $columns,(isset($attrselection2->EffectiveDate)?$attrselection2->EffectiveDate:''),array("class"=>"select2 small"))}}
             </div>
@@ -244,12 +269,18 @@
         </div>
     </div>
     <div class="control-CountryCode">
-        <label for="field-1" class="col-sm-2 control-label control-CountryCode-controls">
+        <label class="col-sm-2 control-label control-CountryCode-controls">
             Destination Country Code
             <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Destination Country Code only requires when you have seperate columns for Destination Country Codes and Destination City Codes in your rate file." data-original-title="Country Code">?</span>
         </label>
         <div class="col-sm-4 control-CountryCode-controls">
             {{Form::select('selection[CountryCode]', $columns,(isset($attrselection->CountryCode)?$attrselection->CountryCode:''),array("class"=>" small"))}}
+        </div>
+    </div>
+    <div class="control-Type">
+        <label class="col-sm-2 control-label control-Type-controls">Destination Type</label>
+        <div class="col-sm-4 control-Type-controls">
+            {{Form::select('selection[Type]', $columns,(isset($attrselection->Type)?$attrselection->Type:''),array("class"=>" small"))}}
         </div>
     </div>
 </div>

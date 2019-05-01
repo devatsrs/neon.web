@@ -1,0 +1,261 @@
+#ec2-3-18-102-62.us-east-2.compute.amazonaws.com        --srs_ec2_test1
+#ec2-3-17-27-15.us-east-2.compute.amazonaws.com         --srs_ec2_test2
+
+# --------------- do in both server  start
+sudo -i
+yum install wget
+wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+sudo yum localinstall mysql57-community-release-el7-11.noarch.rpm
+sudo yum -y install mysql mysql-server mysql-libs mysql-server
+
+sudo service mysqld start
+sudo grep 'temporary password' /var/log/mysqld.log
+
+mysql -u root -p
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'gbXb):kyz2yt1';
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
+
+SHOW VARIABLES LIKE 'validate_password%';
+SET GLOBAL validate_password_length=4;
+SET GLOBAL validate_password_mixed_case_count=0;
+SET GLOBAL validate_password_number_count=0;
+SET GLOBAL validate_password_special_char_count=0;
+SET GLOBAL validate_password_policy=LOW;
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;
+
+CREATE USER 'neon-user'@'%' IDENTIFIED BY 'neon-user';
+GRANT ALL PRIVILEGES ON *.* TO 'neon-user'@'%' IDENTIFIED BY 'neon-user' WITH GRANT OPTION;
+
+update mysql .cnf
+----------------------------
+validate_password_length = 4
+validate_password_mixed_case_count = 0
+validate_password_number_count = 0
+validate_password_special_char_count = 0
+validate_password_policy = LOW
+
+# --------------- do in both server  over
+
+# --------------- server 1 start
+-----------------------
+vi /etc/my.cnf
+#under [mysqld]
+# ------------------------ FOR REPLICATION
+server-id=1
+log-bin=mysql-bin
+# --------------------------------
+
+#restart
+service mysqld restart
+
+#setup auto login to user
+vi .my.cnf
+[client]
+user=neon-user
+password=neon-user
+
+#mysql add replication user
+mysql
+GRANT REPLICATION SLAVE ON *.* TO 'replica'@'%' IDENTIFIED BY 'replica';
+FLUSH PRIVILEGES;
+quit;
+
+#export mysql database as we created db user;
+mysqldump mysql > mysql.sql
+scp mysql.sql ec2-3-19-56-246.us-east-2.compute.amazonaws.com:/root
+
+# --------------- server 1 over
+
+# --------------- server 2 start
+#run on server 2: create user to allow access
+adduser neonuser
+passwd neonuser
+usermod -a -G wheel neonuser
+
+
+vi /etc/sudoers.d/neonuser
+#neonuser
+neonuser ALL = NOPASSWD: ALL
+
+#allow password authentication
+vim /etc/ssh/sshd_config
+PasswordAuthentication yes
+
+
+
+#restart sshd service
+systemctl restart sshd.service
+
+# for replicatin
+vi /etc/my.cnf
+#under [mysqld]
+server-id=2
+
+
+#restart
+systemctl restart mysqld.service
+
+# --------------- server 2 end
+
+# --------------- server 1 start
+#copy file from server 1 to server 2
+scp mysql.sql neonuser@ec2-3-19-56-246.us-east-2.compute.amazonaws.com:/home/neonuser
+
+mysql> flush tables with read lock;
+
+mysql> show master status \G;
+*************************** 1. row ***************************
+             File: mysql-bin.000002
+         Position: 154
+     Binlog_Do_DB:
+ Binlog_Ignore_DB:
+Executed_Gtid_Set:
+1 row in set (0.00 sec)
+
+#install tools
+yum install net-tools
+yum install bind-utils
+
+# --------------- server 1 end
+# --------------- server 2 start
+#import mysql.sql
+mysql mysql < /home/neonuser/mysql.sql
+
+mysql
+change master to
+master_host='ec2-3-18-102-62.us-east-2.compute.amazonaws.com',
+master_user='replica',
+master_password='replica',
+master_log_file='mysql-bin.000002',
+master_log_pos=154;
+
+## Makes sure server 2 ip is allowed at server 1 for prt 3306
+start slave;
+
+show processlist;
+
+
+mysql> show processlist;
+####### --> Waiting for master to send event
++----+-------------+-----------+------+---------+------+--------------------------------------------------------+------------------+
+| Id | User        | Host      | db   | Command | Time | State                                                  | Info             |
++----+-------------+-----------+------+---------+------+--------------------------------------------------------+------------------+
+|  4 | system user |           | NULL | Connect |  375 | Waiting for master to send event                       | NULL             |
+|  5 | system user |           | NULL | Connect |   15 | Slave has read all relay log; waiting for more updates | NULL             |
+|  6 | neon-user   | localhost | NULL | Query   |    0 | starting                                               | show processlist |
++----+-------------+-----------+------+---------+------+--------------------------------------------------------+------------------+
+3 rows in set (0.00 sec)
+
+show slave status \G;
+
+mysql> show slave status \G;
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: ec2-3-18-102-62.us-east-2.compute.amazonaws.com
+                  Master_User: replica
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000002
+          Read_Master_Log_Pos: 154
+               Relay_Log_File: ip-172-31-38-37-relay-bin.000002
+                Relay_Log_Pos: 320
+        Relay_Master_Log_File: mysql-bin.000002
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 154
+              Relay_Log_Space: 537
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 1
+                  Master_UUID: 0b2abc15-5a04-11e9-a2ca-0af661a20c80
+             Master_Info_File: /var/lib/mysql/master.info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind:
+      Last_IO_Error_Timestamp:
+     Last_SQL_Error_Timestamp:
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Master_TLS_Version:
+1 row in set (0.00 sec)
+
+
+
+
+# --------------- server 2 end
+
+# --------------- server 1 start
+
+#run following command to see if server 2 is accessing server 1 or not.
+netstat -natp | egrep -i established.*mysql
+tcp6       0      0 172.31.37.122:3306      172.31.38.37:50142      ESTABLISHED 3091/mysqld
+
+# CHECK hosts
+[root@ip-172-31-37-122 ~]# host 172.31.38.37
+37.38.31.172.in-addr.arpa domain name pointer ip-172-31-38-37.us-east-2.compute.internal.
+
+
+[root@ip-172-31-37-122 ~]# mysql -e "SHOW PROCESSLIST;"
++----+-----------+--------------------------------------------------+------+-------------+------+---------------------------------------------------------------+------------------+
+| Id | User      | Host                                             | db   | Command     | Time | State                                                         | Info             |
++----+-----------+--------------------------------------------------+------+-------------+------+---------------------------------------------------------------+------------------+
+|  5 | replica   | ip-172-31-38-37.us-east-2.compute.internal:50142 | NULL | Binlog Dump |  872 | Master has sent all binlog to slave; waiting for more updates | NULL             |
+|  6 | neon-user | localhost                                        | NULL | Query       |    0 | starting                                                      | SHOW PROCESSLIST |
++----+-----------+--------------------------------------------------+------+-------------+------+---------------------------------------------------------------+------------------+
+[root@ip-172-31-37-122 ~]#
+
+[root@ip-172-31-37-122 ~]# mysql -e "UNLOCK TABLES;"
+
+# --------------- server 1 end
+
+# --------------- server 2 START
+vi /etc/my.cnf
+log-bin=mysql-bin
+
+systemctl restart mysqld.service
+
+mysql> show master status \G;
+*************************** 1. row ***************************
+             File: mysql-bin.000001
+         Position: 154
+     Binlog_Do_DB:
+ Binlog_Ignore_DB:
+Executed_Gtid_Set:
+1 row in set (0.00 sec)
+
+ERROR:
+No query specified
+
+# --------------- server 2 END

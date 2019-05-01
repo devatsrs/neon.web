@@ -2,43 +2,66 @@
 
 class EmailTemplateController extends \BaseController {
 
-    public function ajax_datagrid() {
-
-        $companyID = User::get_companyID();
-        $data = Input::all(); 
-        //$select = ["TemplateName","Subject","Type","CreatedBy","updated_at","Status","TemplateID","StaticType"];
-		$select = ["TemplateName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType","Type","StatusDisabled"];
-        $template = EmailTemplate::select($select);
-        $template->where(["CompanyID" => $companyID, "LanguageID" => $data["templateLanguage"]]);
-		
-		
-		if(isset($data['search']) && !empty($data['search'])){
-			$template->Where(function ($template) use ($data) {
-                $template->orWhere('TemplateName','like','%'.$data['search'].'%')
-                      ->orWhere('Subject','like','%'.$data['search'].'%');
-            });		
+    public function ajax_datagrid($exporttype) {
+        $data = Input::all();
+        $CompanyID = $data['CompanyID'];
+        $data['is_reseller']=0;
+        $data['is_IsGlobal'] = 0;
+       
+        $Count = Reseller::IsResellerByCompanyID($CompanyID);
+        $p_resellerComapyId='';
+        if($Count>0){
+            $data['is_reseller']=1;
+        }else{
+            $data['CompanyID'] = 0;
+            if (isset($data['partner']) && $data['partner'] > 0) {
+                $data['CompanyID'] = $data['partner'];
+            }elseif($data['partner']=='-1'){
+                $data['is_IsGlobal'] = 1;
+            }
         }
 
+        if($data['iDisplayLength'] == 'NaN'){
+            $data['iDisplayLength'] = '50';
+        }
+        
+        $Name = empty($data['search']) ? '' : $data['search'];
+        $Type = 0;
+        $userID = 0;
+        $Status = 0;
+        $StaticType = 0;
         if(isset($data['type'])&& $data['type']>0){
-            $template->Where(['Type'=>$data['type']]);
+            $Type=$data['type'];
         }
         if($data['template_privacy']==1){
-            $template->Where('userID','=',User::get_userID());
-        }else{
-            $template->whereNull('userID');
-        } 
-		if($data['Status']!='false'){ 
-			$template->Where('Status',1);
-		}else{ 
-			$template->Where('Status',0);
-		}
-		if(isset($data['system_templates']) && $data['system_templates']!='false'){
-			$template->Where('StaticType',1);
-		}
-        /*if(trim($data['TemplateName']) != '') {
-            $template->where('TemplateName', 'like','%'.trim($data['TemplateName']).'%');
-        }*/
-        return Datatables::of($template)->make();
+            $userID =User::get_userID();
+        }
+        if($data['Status']!='false'){
+            $Status=1;
+        }
+        if(isset($data['system_templates']) && $data['system_templates']!='false'){
+            $StaticType=1;
+        }
+        $columns = ["TemplateName","ResellerName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType"];
+        $data['iDisplayStart'] +=1;
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_getEmailTemplate(" . $data['CompanyID']  . ",'" . $Name . "',".$data['is_reseller'].",'".$data['SystemType']."'," . $data['is_IsGlobal'] . ",'" . $data["templateLanguage"] . "'," . $Type . "," . $userID . "," . $Status . "," . $StaticType . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+            if($exporttype=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) .'/Templates.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($exporttype=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) .'/Templates.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+        $query .=',0)';
+       
+        return DataTableSql::of($query)->make();
     }
     /**
      * Display a listing of the resource.
@@ -47,12 +70,15 @@ class EmailTemplateController extends \BaseController {
      * @return Response
      */
     public function index() {
+        $CompanyID = User::get_companyID();
         $privacy 		= 	EmailTemplate::$privacy;
         $type 			= 	EmailTemplate::$Type;
 		$TemplateType 	=   json_encode(EmailTemplate::$TemplateType);
-		$emailfrom	 	=	TicketGroups::GetGroupsFrom();
+		$emailfrom	 	=	TicketGroups::GetGroupsFrom($CompanyID);
 		$email_from		=	array_merge(array(""=>"Select"),$emailfrom);
-        return View::make('emailtemplate.index',compact('privacy','type',"TemplateType","email_from"));
+        $reseller_owners = Reseller::getDropdownIDListAll();
+        
+        return View::make('emailtemplate.index',compact('privacy','type',"TemplateType","email_from","reseller_owners","CompanyID"));
     }
 
 
@@ -64,12 +90,25 @@ class EmailTemplateController extends \BaseController {
      */
     public function store() {
 
-        $data = Input::all(); 
+        $data = Input::all();
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['CreatedBy'] = User::get_user_full_name();
+
+        $data['IsGlobal'] =0;
+        if(!empty($data['ResellerOwner'])){
+            if($data['ResellerOwner']=='-1'){
+                $data['IsGlobal'] =1;
+            }else{
+                $data['CompanyID'] = $data['ResellerOwner'];
+            }
+        }
+        unset($data['ResellerOwner']);
+
+
+
         $rules = [
-            "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,NULL,TemplateID,CompanyID,".$companyID,
+            "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,NULL,TemplateID,CompanyID,".$data['CompanyID'].",IsGlobal,".$data['IsGlobal'],
             "Subject" => "required",
             "TemplateBody"=>"required",
             "LanguageID"=>"required"
@@ -91,17 +130,17 @@ class EmailTemplateController extends \BaseController {
          $data['EmailFrom'] =  isset($data['email_from'])?$data['email_from']:"";
          unset($data['email_from']);
 
-
         if(!empty($data['SystemType'])){
-            if(EmailTemplate::where([ "LanguageID"=>$data['LanguageID'], "SystemType"=>$data['SystemType'], "CompanyID"=>$companyID])->count()){
+            if(EmailTemplate::where([ "LanguageID"=>$data['LanguageID'], "SystemType"=>$data['SystemType'], "CompanyID"=>$data['CompanyID'],"IsGlobal"=>$data['IsGlobal']])->count()){
                 return Response::json(array("status" => "failed", "message" => "Template already exists."));
             }
-
-            $emailTemplate = EmailTemplate::getSystemEmailTemplate($companyID, $data['SystemType'], Translation::$default_lang_id)->toArray();
-            $data=array_merge($emailTemplate, $data);
-
-            $data["Type"]=$emailTemplate["Type"];
-            unset($data['created_at'], $data['ModifiedBy'], $data['updated_at']);
+            $emailTemplate = EmailTemplate::where(['SystemType'=>$data['SystemType'],'LanguageID'=>Translation::$default_lang_id])->first();
+            if(!empty($emailTemplate)){
+                $data['StatusDisabled'] = $emailTemplate->StatusDisabled;
+                $data['TicketTemplate'] = $emailTemplate->TicketTemplate;
+                $data['StaticType'] = $emailTemplate->StaticType;
+                $data['Type'] = $emailTemplate->Type;
+            }
         }
 
         if ($obj = EmailTemplate::create($data)) {
@@ -142,6 +181,21 @@ class EmailTemplateController extends \BaseController {
 		$instance['TicketTemplate'] = $template->TicketTemplate;
 		$instance['LanguageID'] = (!empty($template->LanguageID))?$template->LanguageID:Translation::$default_lang_id;
         $instance['SystemType'] = $template->SystemType;
+        $PartnerID = '';
+        $CompanyID = $template->CompanyID;
+        $Count = Reseller::IsResellerByCompanyID($CompanyID);
+        if($Count>0){
+            $PartnerID = $CompanyID;
+        }else{
+            if($template->IsGlobal==1){
+                $PartnerID = -1;
+            }
+        }
+        $instance['IsReseller'] = 0;
+        if(is_reseller()){
+            $instance['IsReseller'] = 1;
+        }
+        $instance['ResellerOwner'] = $PartnerID;
         return $instance;
     }
 
@@ -155,7 +209,7 @@ class EmailTemplateController extends \BaseController {
     public function update($id) {
         $data = Input::all();   
         $crmteplate = EmailTemplate::findOrfail($id);
-        $companyID = User::get_companyID();
+        $companyID = $crmteplate->CompanyID;
         $data['CompanyID'] = $companyID;
         $data['ModifiedBy'] = User::get_user_full_name();
        if($crmteplate->StaticType ==1 && $crmteplate->TicketTemplate ==0) {
@@ -163,7 +217,7 @@ class EmailTemplateController extends \BaseController {
             "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,$id,TemplateID,CompanyID,".$companyID,
             "Subject" => "required",
             "TemplateBody"=>"required",
-			"email_from"=>"required",
+			//"email_from"=>"required",
             "LanguageID"=>"required"
         ];
 		}else{

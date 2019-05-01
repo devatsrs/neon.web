@@ -403,7 +403,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('email_template/{id}/delete', 'EmailTemplateController@delete');
 	Route::any('email_template/store', 'EmailTemplateController@store');
 	Route::any('email_template/storetemplate', 'EmailTemplateController@storetemplate');
-	Route::any('email_template/ajax_datagrid', 'EmailTemplateController@ajax_datagrid');
+	Route::any('email_template/ajax_datagrid/{type}', 'EmailTemplateController@ajax_datagrid');
 	Route::any('email_template/exports/{type}', 'EmailTemplateController@exports');
 	Route::any('email_template/{id}/changestatus', 'EmailTemplateController@ChangeStatus');
 	Route::any('email_template/{id}/ajax_templateList', 'EmailTemplateController@ajax_templateList');
@@ -1445,6 +1445,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/translate/{languageCode}/exports/{type}', 'TranslateController@exports');
 	Route::any('translate/new_system_name', 'TranslateController@new_system_name');
 	Route::any('translate/refresh_label', 'TranslateController@refresh_label');
+	Route::any('/translations/upload', 'TranslateController@upload');
+	Route::any('translation/download_sample_excel_file', 'TranslateController@download_sample_excel_file');
 
 	//Retention
 	Route::any('/retention', "RetentionController@index");
@@ -1630,6 +1632,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('reseller/view/{id}', 'ResellerController@view');
 	Route::any('reseller/bulkcopydata', 'ResellerController@bulkcopydata');
 	Route::any('reseller/getdomainurl/{id}', 'ResellerController@getdomainurl');
+	Route::any('/reseller/getdata/{id}','ResellerController@getdataofreseller');
 
 	//Reseller
 	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));

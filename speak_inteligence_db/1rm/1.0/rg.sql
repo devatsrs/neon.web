@@ -15,7 +15,7 @@ use speakintelligentRM;
 -- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTable
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTable`;
 DELIMITER //
-CREATE PROCEDURE `prc_WSGenerateRateTable`(
+CREATE  PROCEDURE `prc_WSGenerateRateTable`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
@@ -29,18 +29,6 @@ CREATE PROCEDURE `prc_WSGenerateRateTable`(
 	IN `p_IsMerge` INT,
 	IN `p_TakePrice` INT,
 	IN `p_MergeInto` INT
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -63,6 +51,8 @@ GenerateRateTable:BEGIN
 		DECLARE v_pointer_ INT ;
 		DECLARE v_rowCount_ INT ;
 		DECLARE v_percentageRate INT ;
+		DECLARE v_AppliedTo INT ;
+		DECLARE v_Reseller INT ;
 
 		DECLARE v_LessThenRate  DECIMAL(18, 6);
 		DECLARE v_ChargeRate  DECIMAL(18, 6);
@@ -479,10 +469,12 @@ GenerateRateTable:BEGIN
 			tblRateGenerator.RateGeneratorName,
 			IF( LessThenRate = '' OR LessThenRate is null 		,0, LessThenRate   ),
 			IF( ChargeRate  = '' OR ChargeRate is null			,0, ChargeRate     ),
-			IF( percentageRate = '' OR percentageRate is null	,0, percentageRate )
+			IF( percentageRate = '' OR percentageRate is null	,0, percentageRate ),
+			IFNULL(AppliedTo,''),
+			IFNULL(Reseller,'')
 
 
-			INTO v_Use_Preference_, v_RatePosition_, v_CompanyId_, v_codedeckid_, v_trunk_, v_Average_, v_RateGeneratorName_,v_LessThenRate,v_ChargeRate,v_percentageRate
+			INTO v_Use_Preference_, v_RatePosition_, v_CompanyId_, v_codedeckid_, v_trunk_, v_Average_, v_RateGeneratorName_,v_LessThenRate,v_ChargeRate,v_percentageRate, v_AppliedTo, v_Reseller
 		FROM tblRateGenerator
 		WHERE RateGeneratorId = p_RateGeneratorId;
 
@@ -563,7 +555,7 @@ GenerateRateTable:BEGIN
 					ON tblAccount.AccountId = tblVendorConnection.AccountId
 						 AND  tblVendorConnection.TrunkID = v_trunk_
 						 AND tblVendorConnection.Active = 1
-						 AND tblVendorConnection.RateTypeID = 1  -- Voice
+						 AND tblVendorConnection.RateTypeID = 1
 				inner join tblRateTable on  tblRateTable.RateTableId = tblVendorConnection.RateTableID
 			WHERE tblRateRule.RateGeneratorId = p_RateGeneratorId;
 
@@ -594,8 +586,8 @@ GenerateRateTable:BEGIN
 						    ( rr.DestinationType = '' OR ( tblRate.`Type` = DestinationType ))
 									AND
 						    ( rr.DestinationCountryID = '' OR (tblRate.`CountryID` = DestinationCountryID ))
-								--	AND
-								--	( rr.description = '' OR ( rr.description != '' AND tblRate.Description LIKE (REPLACE(rr.description,'*', '%%')) ) )
+
+
 				 where  tblRate.CodeDeckId = v_codedeckid_
 				 Order by tblRate.code
 				) as f
@@ -616,8 +608,8 @@ GenerateRateTable:BEGIN
 								AND
 						( rr.OriginationCountryID = '' OR (tblRate.`CountryID` = OriginationCountryID ))
 
-						-- OR
-					--   ( rr.OriginationDescription != '' AND tblRate.Description LIKE (REPLACE(rr.OriginationDescription,'*', '%%')) )
+
+
 
 			Order by tblRate.code ;
 
@@ -727,7 +719,7 @@ GenerateRateTable:BEGIN
 											 AND ( tblRateTableRate.EndDate IS NULL OR (tblRateTableRate.EndDate > DATE(p_EffectiveDate)) )
 									 )
 								 )
-								-- AND tcode2 is not null
+
 								 AND ( tblRateTableRate.EndDate IS NULL OR tblRateTableRate.EndDate > now() )
 								 AND tblAccount.IsVendor = 1
 								 AND tblAccount.Status = 1
@@ -735,8 +727,8 @@ GenerateRateTable:BEGIN
 								 AND vt.TrunkID = v_trunk_
 								 AND FIND_IN_SET(tblRateTableRate.TimezonesID,p_TimezonesID) != 0
 								 AND tblRateTableRate.Blocked = 0
-								-- AND blockCode.RateId IS NULL
-								-- AND blockCountry.CountryId IS NULL
+
+
 								 AND ( @IncludeAccountIds = NULL
 											 OR ( @IncludeAccountIds IS NOT NULL
 														AND FIND_IN_SET(vt.AccountId,@IncludeAccountIds) > 0
@@ -840,7 +832,7 @@ GenerateRateTable:BEGIN
 											 AND ( tblRateTableRate.EndDate IS NULL OR (tblRateTableRate.EndDate > DATE(p_EffectiveDate)) )
 									 )
 								 )
-								-- AND tcode2 is not null
+
 
 								 AND ( tblRateTableRate.EndDate IS NULL OR tblRateTableRate.EndDate > now() )
 								 AND tblAccount.IsVendor = 1
@@ -1071,8 +1063,8 @@ GenerateRateTable:BEGIN
 																	( rr.OriginationCountryID = '' OR (r2.`CountryID` = rr.OriginationCountryID ))
 
 
-																	 -- AND
-																	 -- (rr.OriginationDescription = '' OR (rr.OriginationDescription != '' AND tmpvr.OriginationDescription LIKE (REPLACE(rr.OriginationDescription,'*', '%%')) ) )
+
+
 																 )
 																 AND
 																(
@@ -1083,8 +1075,8 @@ GenerateRateTable:BEGIN
 																		AND
 																		( rr.DestinationCountryID = '' OR (r.`CountryID` = rr.DestinationCountryID ))
 
-																	-- AND
-																	 -- ( rr.description = ''  OR (rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) ))
+
+
 																 )
 																left JOIN tmp_Raterules_dup rr2 ON rr2.Order > rr.Order and
 																(
@@ -1096,8 +1088,8 @@ GenerateRateTable:BEGIN
 																		( rr2.OriginationCountryID = '' OR (r2.`CountryID` = rr2.OriginationCountryID ))
 
 
-																	-- AND
-																	-- ( rr2.OriginationDescription = '' OR (rr2.OriginationDescription != '' AND tmpvr.OriginationDescription LIKE (REPLACE(rr2.OriginationDescription,'*', '%%')) ) )
+
+
 																 )
 																 AND
 																(
@@ -1108,8 +1100,8 @@ GenerateRateTable:BEGIN
 																	AND
 																	( rr2.DestinationCountryID = '' OR (r.`CountryID` = rr2.DestinationCountryID ))
 
-																	 -- AND
-																	-- ( rr2.description = ''  OR (rr2.description != '' AND tmpvr.Description LIKE (REPLACE(rr2.description,'*', '%%')) ))
+
+
 																 )
 						inner JOIN tblRateRuleSource rrs ON  rrs.RateRuleId = rr.rateruleid  and rrs.AccountId = tmpvr.AccountId
 						where rr2.code is null;
@@ -1180,6 +1172,8 @@ GenerateRateTable:BEGIN
 							from (
 										 select distinct tmpvr.*
 										 from tmp_VendorRate_  tmpvr
+										Inner join  tblRate r   on r.CodeDeckId = v_codedeckid_ AND r.Code = tmpvr.Code
+										left join  tblRate r2   on r2.CodeDeckId = v_codedeckid_ AND r2.Code = tmpvr.OriginationCode
 										inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
 										 (
 											 ( rr.OriginationCode = ''  OR ( rr.OriginationCode != '' AND tmpvr.OriginationCode  LIKE (REPLACE(rr.OriginationCode,'*', '%%')) ) )
@@ -1189,8 +1183,8 @@ GenerateRateTable:BEGIN
 											( rr.OriginationCountryID = '' OR (r2.`CountryID` = rr.OriginationCountryID ))
 
 
-											 -- AND
-											 -- (rr.OriginationDescription = '' OR (rr.OriginationDescription != '' AND tmpvr.OriginationDescription LIKE (REPLACE(rr.OriginationDescription,'*', '%%')) ) )
+
+
 										 )
 										 AND
 										(
@@ -1201,8 +1195,8 @@ GenerateRateTable:BEGIN
 												AND
 												( rr.DestinationCountryID = '' OR (r.`CountryID` = rr.DestinationCountryID ))
 
-											-- AND
-											 -- ( rr.description = ''  OR (rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) ))
+
+
 										 )
 										left JOIN tmp_Raterules_dup rr2 ON rr2.Order > rr.Order and
 										(
@@ -1214,8 +1208,8 @@ GenerateRateTable:BEGIN
 												( rr2.OriginationCountryID = '' OR (r2.`CountryID` = rr2.OriginationCountryID ))
 
 
-											-- AND
-											-- ( rr2.OriginationDescription = '' OR (rr2.OriginationDescription != '' AND tmpvr.OriginationDescription LIKE (REPLACE(rr2.OriginationDescription,'*', '%%')) ) )
+
+
 										 )
 										 AND
 										(
@@ -1226,8 +1220,8 @@ GenerateRateTable:BEGIN
 											AND
 											( rr2.DestinationCountryID = '' OR (r.`CountryID` = rr2.DestinationCountryID ))
 
-											 -- AND
-											-- ( rr2.description = ''  OR (rr2.description != '' AND tmpvr.Description LIKE (REPLACE(rr2.description,'*', '%%')) ))
+
+
 										 )
 										 inner JOIN tblRateRuleSource rrs ON  rrs.RateRuleId = rr.rateruleid  and rrs.AccountId = tmpvr.AccountId
 
@@ -1310,6 +1304,8 @@ GenerateRateTable:BEGIN
 							from (
 										 select distinct tmpvr.*
 										 from tmp_VendorRate_  tmpvr
+										Inner join  tblRate r   on r.CodeDeckId = v_codedeckid_ AND r.Code = tmpvr.Code
+										left join  tblRate r2   on r2.CodeDeckId = v_codedeckid_ AND r2.Code = tmpvr.OriginationCode
 										inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
 
 										 (
@@ -1320,8 +1316,8 @@ GenerateRateTable:BEGIN
 											( rr.OriginationCountryID = '' OR (r2.`CountryID` = rr.OriginationCountryID ))
 
 
-											 -- AND
-											 -- (rr.OriginationDescription = '' OR (rr.OriginationDescription != '' AND tmpvr.OriginationDescription LIKE (REPLACE(rr.OriginationDescription,'*', '%%')) ) )
+
+
 										 )
 										 AND
 										(
@@ -1332,8 +1328,8 @@ GenerateRateTable:BEGIN
 												AND
 												( rr.DestinationCountryID = '' OR (r.`CountryID` = rr.DestinationCountryID ))
 
-											-- AND
-											 -- ( rr.description = ''  OR (rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) ))
+
+
 										 )
 										left JOIN tmp_Raterules_dup rr2 ON rr2.Order > rr.Order and
 										(
@@ -1345,8 +1341,8 @@ GenerateRateTable:BEGIN
 												( rr2.OriginationCountryID = '' OR (r2.`CountryID` = rr2.OriginationCountryID ))
 
 
-											-- AND
-											-- ( rr2.OriginationDescription = '' OR (rr2.OriginationDescription != '' AND tmpvr.OriginationDescription LIKE (REPLACE(rr2.OriginationDescription,'*', '%%')) ) )
+
+
 										 )
 										 AND
 										(
@@ -1357,8 +1353,8 @@ GenerateRateTable:BEGIN
 											AND
 											( rr2.DestinationCountryID = '' OR (r.`CountryID` = rr2.DestinationCountryID ))
 
-											 -- AND
-											-- ( rr2.description = ''  OR (rr2.description != '' AND tmpvr.Description LIKE (REPLACE(rr2.description,'*', '%%')) ))
+
+
 										 )
 											 inner JOIN tblRateRuleSource rrs ON  rrs.RateRuleId = rr.rateruleid  and rrs.AccountId = tmpvr.AccountId
 										 where rr2.code is null
@@ -1479,11 +1475,8 @@ GenerateRateTable:BEGIN
 						ConnectionFeeCurrency
 
                 FROM tmp_Vendorrates_stage3_ vRate
-                LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
-                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate;
-
-
-
+           		 LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null)   OR (vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate) )
+                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and ( (rule_mgn2.MinRate is null AND  rule_mgn2.MaxRate is null)   OR (vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate) );
 
 			ELSE
 
@@ -1549,8 +1542,9 @@ GenerateRateTable:BEGIN
       					END
 
                 )  vRate
-                LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
-                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate;
+                LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and ( (rule_mgn1.MinRate is null AND  rule_mgn1.MaxRate is null)   OR (vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate) )
+                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and ( (rule_mgn2.MinRate is null AND  rule_mgn2.MaxRate is null)   OR (vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate) );
+
 
 			END IF;
 
@@ -1585,7 +1579,8 @@ GenerateRateTable:BEGIN
 				inner JOIN tmp_Rates2_ vd on  vd.OriginationDescription = vr.OriginationDescription and  vd.Description = vr.Description and vd.OriginationCode != vr.OriginationCode and vd.Code != vr.Code
 				where vd.Rate is not null;
 
-		END IF;*/
+		END IF;
+		*/
 
 
 		IF v_LessThenRate > 0 AND v_ChargeRate > 0 THEN
@@ -1642,9 +1637,9 @@ GenerateRateTable:BEGIN
 		END IF;
 
 
-		-- testing
-	--	select * from tmp_Rates_;
-	--	LEAVE GenerateRateTable;
+
+
+
 
 
 		START TRANSACTION;
@@ -1657,14 +1652,14 @@ GenerateRateTable:BEGIN
 		IF p_RateTableId = -1
 		THEN
 
-			INSERT INTO tblRateTable (CompanyId, RateTableName, RateGeneratorID, TrunkID, CodeDeckId,CurrencyID)
-			VALUES (v_CompanyId_, p_rateTableName, p_RateGeneratorId, v_trunk_, v_codedeckid_,v_CurrencyID_);
+			INSERT INTO tblRateTable (CompanyId, RateTableName, RateGeneratorID, TrunkID, CodeDeckId,CurrencyID,AppliedTo,Reseller)
+			VALUES (v_CompanyId_, p_rateTableName, p_RateGeneratorId, v_trunk_, v_codedeckid_,v_CurrencyID_,v_AppliedTo,v_Reseller);
 
 			SET p_RateTableId = LAST_INSERT_ID();
 
 			IF (@v_RateApprovalProcess_ = 1 ) THEN
 
-							-- when approval process is on , mark all new records unapproved
+
 
 
 							INSERT INTO tblRateTableRate (OriginationRateID,RateID,
@@ -1709,7 +1704,7 @@ GenerateRateTable:BEGIN
 
 
 			ELSE
-				-- when approval process is off , mark all new records approved
+
 
 
 				INSERT INTO tblRateTableRate (OriginationRateID,RateID,
@@ -1762,7 +1757,7 @@ GenerateRateTable:BEGIN
 
 				IF (@v_RateApprovalProcess_ = 1 ) THEN
 
-							-- when approval process is on.
+
 
 							insert into  tblRateTableRateAA (
 													OriginationRateID,
@@ -1880,7 +1875,7 @@ GenerateRateTable:BEGIN
 
 			IF (@v_RateApprovalProcess_ = 1 ) THEN
 
-				-- when approval process is on.
+
 
 
 
@@ -1950,8 +1945,8 @@ GenerateRateTable:BEGIN
 
 
 								rtr.EffectiveDate = p_EffectiveDate
-							-- SET
-							--	rtr.EndDate = NOW()
+
+
 							WHERE
 								(
 									(p_GroupBy != 'Desc'  AND rate.code = tblRate.Code )
@@ -1971,7 +1966,7 @@ GenerateRateTable:BEGIN
 
 			ELSE
 
-				-- end all rates where rates are changed
+
 
 				UPDATE
 					tblRateTableRate
@@ -2006,7 +2001,7 @@ GenerateRateTable:BEGIN
 
 
 			IF (@v_RateApprovalProcess_ = 1 ) THEN
-			-- when approval process is on.
+
 
 
 					INSERT INTO tblRateTableRateAA (
@@ -2071,7 +2066,7 @@ GenerateRateTable:BEGIN
 
 
 
-					-- End All rates exists in tblRateTableRate but not exists in 	tmp_Rates_
+
 
 						insert into  tblRateTableRateAA (
 													OriginationRateID,
@@ -2133,8 +2128,8 @@ GenerateRateTable:BEGIN
 						tblRate ON rtr.RateId  = tblRate.RateId
 					LEFT JOIN
 						tmp_Rates_ rate ON rate.Code=tblRate.Code
-					-- SET
-					-- rtr.EndDate = NOW()
+
+
 
 					WHERE
 						rate.Code is null AND rtr.RateTableId = p_RateTableId AND rtr.TimezonesID = v_TimezonesID AND rtr.EffectiveDate = rate.EffectiveDate AND tblRate.CodeDeckId = v_codedeckid_;
@@ -2222,37 +2217,7 @@ GenerateRateTable:BEGIN
 
 
 
-					/*
-					already done same query above.
 
-					UPDATE
-						tblRateTableRate
-					INNER JOIN
-						tblRate ON tblRate.RateId = tblRateTableRate.RateId
-							AND tblRateTableRate.RateTableId = p_RateTableId
-
-					INNER JOIN
-						tmp_Rates_ as rate ON
-
-
-						tblRateTableRate.EffectiveDate = p_EffectiveDate
-
-					SET
-						tblRateTableRate.EndDate = NOW()
-					WHERE
-						(
-							(p_GroupBy != 'Desc'  AND rate.code = tblRate.Code )
-
-							OR
-							(p_GroupBy = 'Desc' AND rate.description = tblRate.description )
-						)
-						AND
-						tblRateTableRate.RateTableId = p_RateTableId AND
-						tblRateTableRate.TimezonesID = v_TimezonesID AND
-						tblRate.CodeDeckId = v_codedeckid_ AND
-						rate.rate != tblRateTableRate.Rate;
-
-					*/
 
 					CALL prc_ArchiveOldRateTableRate(p_RateTableId,v_TimezonesID,CONCAT(p_ModifiedBy,'|RateGenerator'));
 
@@ -2264,7 +2229,7 @@ GenerateRateTable:BEGIN
 
 
 		IF (@v_RateApprovalProcess_ = 1 ) THEN
-		-- when approval process is on.
+
 
 				DROP TEMPORARY TABLE IF EXISTS tmp_ALL_RateTableRate_;
 				CREATE TEMPORARY TABLE IF NOT EXISTS tmp_ALL_RateTableRate_ AS (SELECT * FROM tblRateTableRateAA WHERE RateTableID=p_RateTableId AND TimezonesID=v_TimezonesID);

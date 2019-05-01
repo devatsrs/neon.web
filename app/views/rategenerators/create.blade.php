@@ -152,6 +152,31 @@
                                 {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), null , array("class"=>"select2")) }}
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">
+                                Applied To
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This option is for Rate Tables created from this Rate Generator." data-original-title="Applied To">?</span>
+                            </label>
+                            <div class="col-sm-4">
+                                    @if(is_reseller())
+                                        <label class="radio-inline">
+                                                {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, true,array("class"=>""))}}
+                                                Customer
+                                        </label>
+                                    @else
+                                        <label class="radio-inline">
+                                                {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, true,array("class"=>""))}}
+                                                Partner
+                                        </label>
+                                    @endif 
+                            </div>
+                            <div class="ResellerBox" style="display: none;">
+                                <label class="col-sm-2 control-label">Partner</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group NonDID-Div">
                             <label class="col-sm-2 control-label IsMerge">Merge Into</label>
                             <div class="col-sm-4 IsMerge">
@@ -661,6 +686,18 @@
                 }
 
             });
+
+            $('#rategenerator-from input[name="AppliedTo"]').change(function() {
+                var AppliedTo = $('#rategenerator-from input[name="AppliedTo"]:checked').val();
+
+                if(AppliedTo == {{ RateTable::APPLIED_TO_RESELLER }}) {
+                    $('.ResellerBox').show();
+                } else {
+                    $('.ResellerBox').hide();
+                    $('#rategenerator-from select[name="Reseller"]').select2("val","0");
+                }
+            });
+            $('#rategenerator-from input[name="AppliedTo"]').trigger('change');
 
         });
 

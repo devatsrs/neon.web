@@ -286,6 +286,10 @@
                     AccountHolderName       = $(this).prev("div.hiddenRowData").find("input[name='AccountHolderName']").val();
                     MandateCode             = $(this).prev("div.hiddenRowData").find("input[name='MandateCode']").val();
 
+                    var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
+                    $("#add-bank-form").find('input[name="PaymentGatewayID"]').val(pgid);
+                    $("#add-bank-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
+                    $("#add-bank-form").find('input[name="CompanyID"]').val('{{$account->CompanyId}}');
                     $("#add-bank-form").find('[name="AccountPaymentProfileID"]').val(AccountPaymentProfileID);
                     $("#add-bank-form").find('[name="Title"]').val(Title);
                     $("#add-bank-form").find('[name="BankAccount"]').val(BankAccount);
@@ -300,6 +304,7 @@
 
             function ajax_Add_update(fullurl){
                 var data = new FormData($('#add-bank-form')[0]);
+
                 //show_loading_bar(0);
                 $.ajax({
                     url:fullurl, //Server script to process data

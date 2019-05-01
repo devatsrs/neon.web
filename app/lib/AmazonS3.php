@@ -51,6 +51,8 @@ class AmazonS3 {
         'DIGITAL_SIGNATURE_KEY'=>'DigitalSignature',
         'BULK_DISPUTE_MAIL_ATTACHEMENT'=>'bulkdisputemailattachment',
         'PRODUCT_ATTACHMENTS'=>'ProductAttachment',
+        'PARTNER_LOGO' =>  'PartnerLogos',
+        'TRANSLATION_IMPORT' => 'TranslationsImport',
     );
 
     // Instantiate an S3 client

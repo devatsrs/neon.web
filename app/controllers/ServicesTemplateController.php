@@ -709,6 +709,7 @@ class ServicesTemplateController extends BaseController {
     public function exports($type){
             $companyID = User::get_companyID();
             $data = Input::all();
+            //dd($data);
 
             //$data['ServiceStatus']=$data['ServiceStatus']=='true'?1:0;
 
@@ -725,7 +726,7 @@ class ServicesTemplateController extends BaseController {
         $exportSelectedTemplate = ServiceTemplate::
         Join('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
             //->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
-            ->select(['tblServiceTemplate.Name','tblService.ServiceName','tblServiceTemplate.country','tblServiceTemplate.prefixName','tblServiceTemplate.accessType','tblServiceTemplate.city_tariff'])
+            ->select(['tblServiceTemplate.Name','tblService.ServiceName','tblServiceTemplate.country','tblServiceTemplate.prefixName','tblServiceTemplate.accessType','tblServiceTemplate.City','tblServiceTemplate.Tariff'])
             ->orderBy("tblServiceTemplate.Name", "ASC");
 
         if($data['ServiceName'] != ''){
@@ -744,14 +745,16 @@ class ServicesTemplateController extends BaseController {
         if($data['Prefix'] != ''){
             $exportSelectedTemplate->where(["tblServiceTemplate.prefixName"=>$data['Prefix']]);
         }
-        if($data['CityTariff'] != ''){
-            $exportSelectedTemplate->where(["tblServiceTemplate.city_tariff"=>$data['CityTariff']]);
+        if($data['City'] != ''){
+            $exportSelectedTemplate->where(["tblServiceTemplate.City"=>$data['City']]);
+        }
+        if($data['Tariff'] != ''){
+            $exportSelectedTemplate->where(["tblServiceTemplate.Tariff"=>$data['Tariff']]);
         }
 
         Log::info('$exportSelectedTemplate query.' . $exportSelectedTemplate->toSql());
         $exportSelectedTemplate = $exportSelectedTemplate->get();
         //Log::info('$exportSelectedTemplate count.' . count($exportSelectedTemplate));
-
 
         $services = json_decode(json_encode($exportSelectedTemplate),true);
             if($type=='csv'){

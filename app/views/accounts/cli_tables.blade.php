@@ -95,10 +95,12 @@
             <tr>
                 <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
                 <th width="12%">Number</th>
-                <th width="15%">Access Rate Table</th>
+                <th width="15%">Default Access Rate Table</th>
                 <th width="15%">Access Discount Plan</th>
-                <th width="15%">Termination Rate Table</th>
+                <th width="15%">Default Termination Rate Table</th>
                 <th width="15%">Termination Discount Plan</th>
+                <th width="15%">Special Access Rate Table</th>
+                <th width="15%">Special Termination Rate Table</th>
                 <th width="15%">Contract ID</th>
                 <th width="8%">Type</th>
                 <th width="8%">Country</th>
@@ -154,7 +156,7 @@
         accessURL += "&Country=" +"0";
         //accessURL += "&City=" +City;
         //accessURL += "&Tariff=" +Tariff;
-        
+
         location.href = accessURL;
         /* var TerminationRateTable = $this.prevAll("div.hiddenRowData").find("input[name='TerminationRateTableID']").val();
          var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
@@ -174,46 +176,81 @@
         var Country = $this.prevAll("div.hiddenRowData").find("input[name='CountryID']").val();
         var City = $this.prevAll("div.hiddenRowData").find("input[name='City']").val();
         var Tariff = $this.prevAll("div.hiddenRowData").find("input[name='Tariff']").val();
+        var Prefix = $this.prevAll("div.hiddenRowData").find("input[name='Prefix']").val();
         var accessURL = baseurl + "/rate_tables/" + AccessRateTable + "/view?AccessType=" + Type;
         accessURL += "&Country=" +Country;
         accessURL += "&City=" +City;
         accessURL += "&Tariff=" +Tariff;
-       // location.href = accessURL;
+        // location.href = accessURL;
         var TerminationRateTable = $this.prevAll("div.hiddenRowData").find("input[name='TerminationRateTableID']").val();
         var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
 
 
-        getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff);
+        getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff, Prefix);
     });
 
-    function getArchiveRateTableDIDRates12($clickedButton,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff) {
-       data_table_clitable = $("#table-clitable").DataTable();
-       // alert($("#table-clitable").DataTable().rows().count());
+    $('table tbody').on('click', '.special-Access-clitable', function (ev) {
+        var $this = $(this);
+        var SpecialRateTableID   = $this.prevAll("div.hiddenRowData").find("input[name='SpecialRateTableID']").val();
+        if (SpecialRateTableID == 0) {
+            alert("Please add Access rate table against the Number");
+            return;
+        }
+        var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
+        var Country = $this.prevAll("div.hiddenRowData").find("input[name='CountryID']").val();
+        var City = $this.prevAll("div.hiddenRowData").find("input[name='City']").val();
+        var Tariff = $this.prevAll("div.hiddenRowData").find("input[name='Tariff']").val();
+        var Prefix = $this.prevAll("div.hiddenRowData").find("input[name='Prefix']").val();
+
+
+        getArchiveRateTableDIDRates12($this,SpecialRateTableID,'',Type,Country,City,Tariff,Prefix);
+    });
+
+    $('table tbody').on('click', '.special-Termination-clitable', function (ev) {
+
+        var $this   = $(this);
+        var SpecialTerminationRateTableID = $this.prevAll("div.hiddenRowData").find("input[name='SpecialTerminationRateTableID']").val();
+        if (SpecialTerminationRateTableID == 0) {
+            alert("Please add special termination rate table against the Number");
+            return;
+        }
+        var Type = $this.prevAll("div.hiddenRowData").find("input[name='Type']").val();
+        var Country = $this.prevAll("div.hiddenRowData").find("input[name='CountryID']").val();
+        var City = $this.prevAll("div.hiddenRowData").find("input[name='City']").val();
+        var Tariff = $this.prevAll("div.hiddenRowData").find("input[name='Tariff']").val();
+        var accessURL = baseurl + "/rate_tables/" + SpecialTerminationRateTableID + "/view?AccessType=" + Type;
+        accessURL += "&Country=" +"0";
+
+        location.href = accessURL;
+    });
+
+    function getArchiveRateTableDIDRates12($clickedButton,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff, Prefix) {
+        data_table_clitable = $("#table-clitable").DataTable();
+        // alert($("#table-clitable").DataTable().rows().count());
         var tr = $clickedButton.closest('tr');
+        var checkIfSame = $clickedButton.find('i').hasClass('entypo-plus-squared');
         // alert('Called 1' + data_table_clitable + "1" + tr.id);
         //alert(data_table_clitable.rows().count());
         var row = data_table_clitable.row(tr);
-        if (row.child.isShown()) {
+        tr.find('.details-control i').toggleClass('entypo-minus-squared entypo-plus-squared');
+        tr.find('.special-Access-clitable i, .history-clitable i').removeClass('entypo-plus-squared entypo-minus-squared');
+        row.child.hide();
+        tr.removeClass('shown');
 
-            tr.find('.details-control i').toggleClass('entypo-minus-squared entypo-plus-squared');
-            $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
-            row.child.hide();
-            tr.removeClass('shown');
-        } else {
-
+        if(!checkIfSame)
             $.ajax({
                 url: baseurl + "/rate_tables/search_ajax_datagrid_rates_account_service",
                 type: 'POST',
                 data: "AccessRateTable=" + AccessRateTable + "&TerminationRateTable=" + TerminationRateTable
-                + "&Type=" + Type + "&Country=" + Country + "&City=" + City+ "&Tariff=" + Tariff,
+                + "&Type=" + Type + "&Country=" + Country + "&City=" + City+ "&Tariff=" + Tariff + "&Prefix=" +Prefix,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
 
                     if (response.status == 'success') {
                         ArchiveRates = response.data;
-                       // alert(ArchiveRates);
-                        $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                        // alert(ArchiveRates);
+                        $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
                         tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
                         var header = "<thead><tr><th>Origination</th><th>Time of Day</th>";
@@ -225,8 +262,8 @@
                         table.append(header);
                         var tbody = $("<tbody></tbody>");
                         ArchiveRates.forEach(function (data) {
-                           // alert(data);
-                           // alert(data['Rate']);
+                            // alert(data);
+                            // alert(data['Rate']);
                             var html = "";
                             html += "<tr class='no-selection'>";
 
@@ -250,7 +287,7 @@
                             html += "</tr>";
                             table.append(html);
 
-                        })
+                        });
                         table.append(tbody);
                         row.child(table).show();
                         row.child().addClass('no-selection child-row');
@@ -261,16 +298,15 @@
                         toastr.error(response.message, "Error", toastr_opts);
                     }
 
-                 }
+                }
             });
 
-    }
     }
 
     jQuery(document).ready(function ($) {
         var cli_list_fields = ["CLIRateTableID", "CLI", "AccessRateTable", 'AccessDicountPlan', 'TerminationRateTable',
-            'TerminationDiscountPlan','ContractID', 'Type','Country', 'Prefix', 'City','Tariff','NumberStartDate','NumberEndDate', 'Status',
-            'RateTableID','AccessDiscountPlanID','TerminationRateTableID','TerminationDiscountPlanID','CountryID'];
+            'TerminationDiscountPlan','SpecialRateTable','SpecialTerminationRateTable','ContractID', 'Type','Country', 'PrefixWithoutCountry', 'City','Tariff','NumberStartDate','NumberEndDate', 'Status',
+            'RateTableID','AccessDiscountPlanID','TerminationRateTableID','TerminationDiscountPlanID','CountryID','SpecialRateTableID','SpecialTerminationRateTableID','Prefix'];
         public_vars.$body = $("body");
         var $searchcli = {};
         var data_table_clitable;
@@ -281,7 +317,7 @@
 
 
 
-                $("#clitable_submit").click(function (e) {
+        $("#clitable_submit").click(function (e) {
             e.preventDefault();
             $searchcli.CLIName = $("#clitable_filter").find('[name="CLIName"]').val();
             $searchcli.NumberContractID = $("#clitable_filter").find('[name="NumberContractID"]').val();
@@ -293,8 +329,8 @@
             if((typeof $searchcli.NumberEndDate  != 'undefined' && $searchcli.NumberEndDate != '')
                     && (typeof $searchcli.NumberStartDate  != 'undefined' && $searchcli.NumberStartDate != '')
                     && ($searchcli.NumberEndDate  <  $searchcli.NumberStartDate)){
-                        toastr.error("End Date for Number must be greater then start date", "Error", toastr_opts);
-                        return false;
+                toastr.error("End Date for Number must be greater then start date", "Error", toastr_opts);
+                return false;
             }
             data_table_clitable = $("#table-clitable").dataTable({
                 "bDestroy": true,
@@ -323,21 +359,21 @@
                                 "value": $searchcli.NumberContractID
                             },
                             {
-                            "name": "NumberStartDate",
+                                "name": "NumberStartDate",
                                 "value": $searchcli.NumberStartDate
                             },
                             {
-                            "name": "NumberEndDate",
-                                    "value": $searchcli.NumberEndDate
+                                "name": "NumberEndDate",
+                                "value": $searchcli.NumberEndDate
                             },
-                         {
-                            "name": "CLIName",
-                                    "value": $searchcli.CLIName
-                         },
-                        {
-                                    "name": "CLIStatus",
-                                    "value": $searchcli.CLIStatus
-                        }
+                            {
+                                "name": "CLIName",
+                                "value": $searchcli.CLIName
+                            },
+                            {
+                                "name": "CLIStatus",
+                                "value": $searchcli.CLIStatus
+                            }
                     );
 
                     data_table_extra_params.length = 0;
@@ -403,6 +439,8 @@
                     {"bSortable": true},
                     {"bSortable": true},
                     {"bSortable": true},
+                    {"bSortable": true},
+                    {"bSortable": true},
                     {"bSortable": true},    // 5 Type
                     {"bSortable": true},    // 6 Prefix
                     {"bSortable": true},    // 7 City Tariff
@@ -415,7 +453,7 @@
                             console.log(full);
                             var action , edit_ , show_ , delete_;
                             //console.log(id);
-                            if(full[14] == 1){
+                            if(full[16] == 1){
                                 action='<i class="entypo-check" style="font-size:22px;color:green"></i>';
                             }else{
                                 action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
@@ -434,8 +472,16 @@
 
                             action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>&nbsp;';
                             action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>&nbsp;'
-                            action += '<a title="Access Table" href="javascript:;" class="history-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
-                            action += '<a title="Termination Table" href="javascript:;" class="history-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a></td></tr></table>&nbsp;';
+                            action += '<a title="Access Table" data-original-title="Access Table" href="javascript:;" class="history-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                            action += '<a title="Termination Table" data-original-title="Termination Table" href="javascript:;" class="history-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a></td></tr></table>&nbsp;';
+                            //Check if Special Access Rate Table exist
+                            if(full[22] != undefined && full[22] != '' && full[22] != 0) {
+                                action += '<a title="Special Access Table" data-original-title="Special Access Table" href="javascript:;" class="special-Access-clitable btn btn-success btn-sm1"><i class="fa fa-eye" data-toggle="tooltip"></i></a>&nbsp;';
+                            }
+                            //Check if Special Termination Rate Table exist
+                            if(full[23] != undefined && full[23] != '' && full[23] != 0) {
+                                action += '<a title="Special Termination Table" data-original-title="Special Termination Table" href="javascript:;" class="special-Termination-clitable btn btn-success btn-sm1" data-toggle="tooltip"><i class="fa fa-eye"></i></a></td></tr></table>&nbsp;';
+                            }
                             return action;
                         }
                     }
@@ -489,15 +535,17 @@
             $('#modal-clitable h4').html('Add Number');
             $("#clitable-form .edit_show [name=CLI]").val("");
             $("#clitable-form [name=RateTableID]").select2().select2('val', "");
+            $("#clitable-form [name=SpecialRateTableID]").select2().select2('val', "");
             $("#clitable-form [name=NumberStartDate]").val("");
             $("#clitable-form [name=NumberEndDate]").val("");
             $("#clitable-form [name=ContractID]").val("");
             $("#clitable-form [name=City]").select2().select2('val', "");
             $("#clitable-form [name=Tariff]").select2().select2('val', "");
-            $("#clitable-form [name=Prefix]").select2().select2('val', "");
+            $("#clitable-form [name=PrefixWithoutCountry]").select2().select2('val', "");
             $("#clitable-form [name=NoType]").select2().select2('val', "");
             $("#clitable-form [name=Status]").prop("checked", 1 == 1).trigger("change");
             $("#clitable-form [name=TerminationRateTableID]").select2().select2('val', "");
+            $("#clitable-form [name=SpecialTerminationRateTableID]").select2().select2('val', "");
             $("#clitable-form [name=AccessDiscountPlanID]").select2().select2('val', "");
             $("#clitable-form [name=TerminationDiscountPlanID]").select2().select2('val', "");
             $("#clitable-form [name=CountryID]").select2().select2('val', "");
@@ -517,27 +565,31 @@
             $('#clitable-form').trigger("reset");
             $('#modal-clitable h4').html('Edit Number RateTable');
 
-           /* var cli_list_fields = ["CLIRateTableID", "CLI", "AccessRateTable", 'AccessDicountPlan', 'TerminationRateTable',
-                'TerminationDiscountPlan','ContractID', 'Type','Country', 'Prefix', 'City','Tariff','NumberStartDate','NumberEndDate', 'Status',
-                'RateTableID','AccessDiscountPlanID','TerminationRateTableID','TerminationDiscountPlanID','CountryID'];*/
+            /* var cli_list_fields = ["CLIRateTableID", "CLI", "AccessRateTable", 'AccessDicountPlan', 'TerminationRateTable',
+             'TerminationDiscountPlan','ContractID', 'Type','Country', 'Prefix', 'City','Tariff','NumberStartDate','NumberEndDate', 'Status',
+             'RateTableID','AccessDiscountPlanID','TerminationRateTableID','TerminationDiscountPlanID','CountryID'];*/
             var CLI = fields.find("[name='CLI']").val();
             var RateTableID = fields.find("[name='RateTableID']").val();
+            var SpecialRateTableID = fields.find("[name='SpecialRateTableID']").val();
             var City = fields.find("[name='City']").val();
             var Tariff = fields.find("[name='Tariff']").val();
-            var Prefix = fields.find("[name='Prefix']").val();
+            var PrefixWithoutCountry = fields.find("[name='PrefixWithoutCountry']").val();
             var NoType = fields.find("[name='Type']").val();
             var Status = fields.find("[name='Status']").val();
             var NumberStartDate = fields.find("[name='NumberStartDate']").val();
             var NumberEndDate = fields.find("[name='NumberEndDate']").val();
             var ContractID = fields.find("[name='ContractID']").val();
             var TerminationRateTableID = fields.find("[name='TerminationRateTableID']").val();
+            var SpecialTerminationRateTableID = fields.find("[name='SpecialTerminationRateTableID']").val();
             var AccessDiscountPlanID = fields.find("[name='AccessDiscountPlanID']").val();
             var TerminationDiscountPlanID = fields.find("[name='TerminationDiscountPlanID']").val();
             var CountryID = fields.find("[name='CountryID']").val();
             var CLIRateTableID = fields.find("[name='CLIRateTableID']").val();
 
             RateTableID = RateTableID == 0 ? '' : RateTableID;
+            SpecialRateTableID = SpecialRateTableID == 0 ? '' : SpecialRateTableID;
             TerminationRateTableID = TerminationRateTableID == 0 ? '' : TerminationRateTableID;
+            SpecialTerminationRateTableID = SpecialTerminationRateTableID == 0 ? '' : SpecialTerminationRateTableID;
             AccessDiscountPlanID = AccessDiscountPlanID == 0 ? '' : AccessDiscountPlanID;
             TerminationDiscountPlanID = TerminationDiscountPlanID == 0 ? '' : TerminationDiscountPlanID;
             CountryID = CountryID == 0 ? '' : CountryID;
@@ -547,15 +599,17 @@
             $('#clitable-form .edit_show').show().find(".cli-field").attr("name", "CLI");
             $("#clitable-form .edit_show [name=CLI]").val(CLI);
             $("#clitable-form [name=RateTableID]").select2().select2('val', RateTableID);
+            $("#clitable-form [name=SpecialRateTableID]").select2().select2('val', SpecialRateTableID);
             $("#clitable-form [name=NumberStartDate]").val(NumberStartDate);
             $("#clitable-form [name=NumberEndDate]").val(NumberEndDate);
             $("#clitable-form [name=ContractID]").val(ContractID);
             $("#clitable-form [name=City]").select2().select2('val', City);
             $("#clitable-form [name=Tariff]").select2().select2('val', Tariff);
-            $("#clitable-form [name=Prefix]").select2().select2('val', Prefix);
+            $("#clitable-form [name=PrefixWithoutCountry]").select2().select2('val', PrefixWithoutCountry);
             $("#clitable-form [name=NoType]").select2().select2('val', NoType);
             $("#clitable-form [name=Status]").prop("checked", Status == 1).trigger("change");
             $("#clitable-form [name=TerminationRateTableID]").select2().select2('val', TerminationRateTableID);
+            $("#clitable-form [name=SpecialTerminationRateTableID]").select2().select2('val', SpecialTerminationRateTableID);
             $("#clitable-form [name=AccessDiscountPlanID]").select2().select2('val', AccessDiscountPlanID);
             $("#clitable-form [name=TerminationDiscountPlanID]").select2().select2('val', TerminationDiscountPlanID);
             $("#clitable-form [name=CountryID]").select2().select2('val', CountryID);
@@ -608,9 +662,9 @@
                 //Options to tell jQuery not to process data or worry about content-type.
                 cache: false
             });
-           // alert($('.dataTables_scrollBody thead tr').css());
-           // $('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
-           // data_table_clitable.initComplete('','');
+            // alert($('.dataTables_scrollBody thead tr').css());
+            // $('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
+            // data_table_clitable.initComplete('','');
         }
         $("#clitable-form").submit(function (e) {
             e.preventDefault();
@@ -658,6 +712,7 @@
             $('#clitable-form').trigger("reset");
             $('#modal-clitable h4').html('Update Number');
             $("#clitable-form [name=RateTableID]").select2().select2('val', "");
+            $("#clitable-form [name=SpecialRateTableID]").select2().select2('val', "");
             $("#clitable-form [name=PackageID]").select2().select2('val', "");
             $("#clitable-form [name=PackageRateTableID]").select2().select2('val', "");
             $('#clitable-form').find('input[name=CLIRateTableIDs]').val(CLIRateTableIDs);
@@ -697,12 +752,12 @@
             success: function (response) {
                 $("#delete-clidate").button('reset');
                 $(".btn").button('reset');
-               // alert(response.status);
-               // alert(data_table_clitable);
+                // alert(response.status);
+                // alert(data_table_clitable);
                 if (response.status == 'success') {
                     $('#confirm-modal').modal('hide');
                     //if (typeof data_table_clitable != 'undefined') {
-                        data_table_clitable.fnFilter('', 0);
+                    data_table_clitable.fnFilter('', 0);
                     //}
                     $('.selectall').prop("checked", false);
                     toastr.success(response.message, 'Success', toastr_opts);
@@ -755,7 +810,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">Access RateTable</label>
+                                    <label for="field-225" class="control-label">Default Access RateTable*</label>
                                     {{ Form::select('RateTableID', $rate_table , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
@@ -771,7 +826,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">Termination Rate Table</label>
+                                    <label for="field-225" class="control-label">Default Termination Rate Table*</label>
                                     {{ Form::select('TerminationRateTableID', $termination_rate_table , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
@@ -787,7 +842,23 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-225" class="control-label">Country</label>
+                                    <label for="field-225" class="control-label">Special Access RateTable</label>
+                                    {{ Form::select('SpecialRateTableID', $rate_table , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-225" class="control-label">Special Termination Rate Table</label>
+                                    {{ Form::select('SpecialTerminationRateTableID', $termination_rate_table , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-225" class="control-label">Country*</label>
                                     {{ Form::select('CountryID', $countries , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
@@ -795,7 +866,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-2315" class="control-label">Type</label>
+                                    <label for="field-2315" class="control-label">Type*</label>
                                     {{ Form::select('NoType', $AccessType , '' , array("class"=>"select2")) }}
 
                                 </div>
@@ -804,8 +875,8 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-115" class="control-label">Prefix</label>
-                                    {{ Form::select('Prefix', $Prefix , '' , array("class"=>"select2")) }}
+                                    <label for="field-115" class="control-label">Prefix*</label>
+                                    {{ Form::select('PrefixWithoutCountry', $Prefix , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>

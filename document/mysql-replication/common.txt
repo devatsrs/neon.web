@@ -1,0 +1,80 @@
+Public IP         Private IP         Instance
+-----------------------------------------------------
+#PUBLIC_IP1     172.31.37.122   --srs_ec2_test1
+#PUBLIC_IP2     172.31.38.37    --srs_ec2_test2
+
+Run following steps in parallel on both instances.
+
+Index
+
+1. Setup new ssh user
+2. Install net tools
+3. Mysql Installation
+4. Replication User Setup
+
+---------------------------------------- 1. Setup new ssh user ----------------------------------------
+adduser neonuser
+passwd neonuser
+usermod -a -G wheel neonuser
+
+
+vi /etc/sudoers.d/neonuser
+#neonuser
+neonuser ALL = NOPASSWD: ALL
+
+
+
+#allow password authentication
+vi /etc/ssh/sshd_config
+PasswordAuthentication yes
+
+
+#restart sshd service
+systemctl restart sshd.service
+
+---------------------------------------- 2. Install net tools ----------------------------------------
+
+yum install net-tools
+yum install bind-utils
+
+---------------------------------------- 3. Mysql Installation ----------------------------------------
+
+sudo -i
+yum install wget
+wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+sudo yum localinstall mysql57-community-release-el7-11.noarch.rpm
+sudo yum -y install mysql mysql-server mysql-libs mysql-server
+
+sudo service mysqld start
+sudo grep 'temporary password' /var/log/mysqld.log
+
+mysql -u root -p
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'gbXb):kyz2yt1';
+
+SHOW VARIABLES LIKE 'validate_password%';
+SET GLOBAL validate_password_length=4;
+SET GLOBAL validate_password_mixed_case_count=0;
+SET GLOBAL validate_password_number_count=0;
+SET GLOBAL validate_password_special_char_count=0;
+SET GLOBAL validate_password_policy=LOW;
+
+CREATE USER 'neon-user'@'%' IDENTIFIED BY 'neon-user-password';
+GRANT ALL PRIVILEGES ON *.* TO 'neon-user'@'%' IDENTIFIED BY 'neon-user-password' WITH GRANT OPTION;
+
+#setup auto login to user
+sudo -i
+cat >  .my.cnf
+[client]
+user=neon-user
+password=neon-user-password
+ctrl+c
+
+---------------------------------------- 4. Replication User Setup ----------------------------------------
+
+#mysql add replication user
+mysql
+GRANT REPLICATION SLAVE ON *.* TO 'replica'@'%' IDENTIFIED BY 'replica-password';
+FLUSH PRIVILEGES;
+quit;
+
