@@ -53,6 +53,10 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 
 INSERT INTO `tblJobType` (`Code`, `Title`, `CreatedDate`, `CreatedBy`) VALUES ('SVRP', 'Sippy Vendor Rate Push', '2019-02-13 18:20:26', 'RateManagementSystem');
 
+/*add margin for rate rule*/
+ALTER TABLE `tblRateRuleMargin`
+	ADD COLUMN `Type` INT(11) NULL DEFAULT NULL AFTER `FixedValue`;
+
 DROP PROCEDURE IF EXISTS `prc_WSGenerateVendorSippySheetWithPrefix`;
 DELIMITER //
 CREATE PROCEDURE `prc_WSGenerateVendorSippySheetWithPrefix`(
