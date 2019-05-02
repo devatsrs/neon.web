@@ -300,6 +300,12 @@
                                     <input type="number" min="0" class="form-control" value="{{$rategenerators->OriginationPercentage}}" id="OriginationPercentage" name="OriginationPercentage"/>
                                 </div>
                             </div>
+                            <div class="form-group DID-Div">
+                                <label for="field-1" class="control-label col-sm-2">No Of Services Contracted</label>
+                                <div class="col-sm-4">
+                                    {{Form::number('NoOfServicesContracted',$rategenerators->NoOfServicesContracted ,array("class"=>"form-control","min" => "0"))}}
+                                </div>
+                            </div>
                         @endif
                         @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                             <div class="form-group Package-Div" >
