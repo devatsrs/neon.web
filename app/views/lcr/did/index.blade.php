@@ -327,7 +327,7 @@
                 $searchFilter.OriginationPercentage       = $("#did-search-form input[name='OriginationPercentage']").val();
                 $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
-                $searchFilter.ServicesContracted         = $("#did-search-form input[name='ServicesContracted']").val();
+                $searchFilter.ServicesContracted         = $("#did-search-form input[name='NoOfServicesContracted']").val();
                 $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
                 $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
                 $searchFilter.lcrType = '';
@@ -813,7 +813,7 @@
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
                                 {"name": "PackageID", "value": $searchFilter.PackageID},
-                                {"name": "ServicesContracted", "value": $searchFilter.ServicesContracted}
+                                {"name": "NoOfServicesContracted", "value": $searchFilter.ServicesContracted}
                                 
 
                         );
@@ -838,7 +838,7 @@
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
                                 {"name": "PackageID", "value": $searchFilter.PackageID},
-                                {"name": "ServicesContracted", "value": $searchFilter.ServicesContracted},
+                                {"name": "NoOfServicesContracted", "value": $searchFilter.ServicesContracted},
 
                                 {"name":"Export","value":1}
                         );
