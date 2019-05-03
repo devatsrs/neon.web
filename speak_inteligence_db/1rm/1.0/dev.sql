@@ -34,11 +34,15 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 	IN `p_OriginationPercentage` INT,
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
+	IN `p_ServicesContracted` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_SortOrder` VARCHAR(50),
-
 	IN `p_isExport` INT
+
+
+
+
 
 
 
@@ -135,7 +139,6 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 			City varchar(50),
 			Tariff varchar(50),
 			EffectiveDate DATE,
-
 			Code varchar(100),
 			OriginationCode  varchar(100),
 			VendorID int,
@@ -152,6 +155,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 			CollectionCostAmount double(18,4),
 			CollectionCostPercentage double(18,4),
 			RegistrationCostPerNumber double(18,4),
+
 			Total1 double(18,4),
 			Total double(18,4)
 		);
@@ -168,8 +172,6 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 			City varchar(50),
 			Tariff varchar(50),
 			EffectiveDate DATE,
-
-
 			Code varchar(100),
 			OriginationCode  varchar(100),
 			VendorID int,
@@ -186,6 +188,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 			CollectionCostAmount double(18,4),
 			CollectionCostPercentage double(18,4),
 			RegistrationCostPerNumber double(18,4),
+
 			Total1 double(18,4),
 			Total double(18,4)
 		);
@@ -308,6 +311,12 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 			minutes int
 		);
 
+		DROP TEMPORARY TABLE IF EXISTS tmp_ServicesContracted;
+		CREATE TEMPORARY TABLE tmp_ServicesContracted (
+			VendorID int,
+			ServicesContracted int
+		);
+
 
 		SET @p_Calls	 							 = p_Calls;
 		SET @p_Minutes	 							 = p_Minutes;
@@ -319,7 +328,10 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 		SET @p_EndDate		= p_EndDate;
 
 
+
 		SET @p_Position = p_Position;
+		SET @p_ServicesContracted = p_ServicesContracted;
+
 		SET @v_CallerRate = 1;
 
 		SET @p_DIDCategoryID  		= p_DIDCategoryID;
@@ -329,6 +341,30 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 		SET @p_City = p_City;
 		SET @p_Tariff = p_Tariff;
 		SET @p_Prefix = TRIM(LEADING '0' FROM p_Prefix);
+
+
+
+		IF @p_ServicesContracted = 0 THEN
+
+			insert into tmp_ServicesContracted (VendorID,ServicesContracted)
+				select VendorID,count(CLI) as ServicesContracted
+				from  tblCLIRateTable
+				where
+					CompanyID  = p_companyid
+					AND VendorID > 0
+					AND Status = 1
+					AND NumberEndDate >= current_date()
+
+				group by VendorID;
+
+		ELSE
+
+			insert into tmp_ServicesContracted (VendorID,ServicesContracted)
+				select null,@p_ServicesContracted;
+
+
+
+		END IF ;
 
 
 		IF @p_Calls = 0 AND @p_Minutes = 0 THEN
@@ -494,6 +530,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 			CollectionCostAmount,
 			CollectionCostPercentage,
 			RegistrationCostPerNumber,
+
 			Total1,
 			Total
 		)
@@ -513,28 +550,58 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 				a.AccountName,
 
 
-				@MonthlyCost := CASE WHEN ( MonthlyCostCurrency is not null)
-					THEN
+				@MonthlyCost :=
+				(
+					(
+						CASE WHEN ( MonthlyCostCurrency is not null)
+							THEN
 
-						CASE WHEN  @p_CurrencyID = MonthlyCostCurrency THEN
+								CASE WHEN  @p_CurrencyID = MonthlyCostCurrency THEN
+									drtr.MonthlyCost
+								ELSE
+									(
+
+										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = p_companyid  )
+										* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = p_companyid ))
+									)
+								END
+
+						WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
 							drtr.MonthlyCost
 						ELSE
 							(
 
-								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = p_companyid  )
-								* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = p_companyid ))
+								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = p_companyid )
+								* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = p_companyid ))
 							)
-						END
+						END * @p_months
+					)
 
-												WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
-													drtr.MonthlyCost
-												ELSE
-													(
+					+
+					-- @TrunkCostPerService :=
+					IFNULL(
+							(
+								(
+									CASE WHEN ( vtc.CurrencyID is not null)
+										THEN
+											CASE WHEN  @v_CurrencyID_ = vtc.CurrencyID THEN
+												vtc.Cost
+											ELSE
+												(
 
-														(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = p_companyid )
-														* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = p_companyid ))
-													)
-												END * @p_months as MonthlyCost,
+													(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = p_companyid)
+													* (vtc.Cost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = vtc.CurrencyID and  CompanyID = p_companyid ))
+												)
+
+											END
+									ELSE
+										0
+									END
+								) / (select ServicesContracted from  tmp_ServicesContracted sc where sc.VendorID is null or sc.VendorID  = a.AccountID )
+							),0)
+
+				)
+								as MonthlyCost,
 
 				@CostPerCall := CASE WHEN ( CostPerCallCurrency is not null)
 					THEN
@@ -795,6 +862,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 
 
 
+
 				@Total1 := (
 
 					(	IFNULL(@MonthlyCost,0) 				)				+
@@ -821,6 +889,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 				inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId
 				inner join tblVendorConnection vc on vc.RateTableID = rt.RateTableId and ((vc.DIDCategoryID IS NOT NULL AND rt.DIDCategoryID IS NOT NULL) AND vc.DIDCategoryID = rt.DIDCategoryID) and vc.CompanyID = rt.CompanyId  and vc.Active=1
 				inner join tblAccount a on vc.AccountId = a.AccountID and rt.CompanyId = a.CompanyId
+				left join tblVendorTrunkCost vtc on vtc.AccountID = a.AccountID
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 				inner join tblCountry c on c.CountryID = r.CountryID
@@ -878,6 +947,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 			CollectionCostAmount,
 			CollectionCostPercentage,
 			RegistrationCostPerNumber,
+
 			Total1,
 			Total
 		)
@@ -893,30 +963,59 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 				r2.Code as OriginationCode,
 				a.AccountID,
 				a.AccountName,
+				@MonthlyCost :=
+				(
+					(
+						CASE WHEN ( MonthlyCostCurrency is not null)
+							THEN
 
+								CASE WHEN  @p_CurrencyID = MonthlyCostCurrency THEN
+									drtr.MonthlyCost
+								ELSE
+									(
 
-				@MonthlyCost := CASE WHEN ( MonthlyCostCurrency is not null)
-					THEN
+										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = p_companyid  )
+										* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = p_companyid ))
+									)
+								END
 
-						CASE WHEN  @p_CurrencyID = MonthlyCostCurrency THEN
+						WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
 							drtr.MonthlyCost
 						ELSE
 							(
 
 								(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = p_companyid )
-								* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = p_companyid ))
+								* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = p_companyid ))
 							)
-						END
+						END * @p_months
+					)
 
-												WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
-													drtr.MonthlyCost
-												ELSE
-													(
+					+
+					-- @TrunkCostPerService :=
+					IFNULL(
+							(
+								(
+									CASE WHEN ( vtc.CurrencyID is not null)
+										THEN
+											CASE WHEN  @v_CurrencyID_ = vtc.CurrencyID THEN
+												vtc.Cost
+											ELSE
+												(
 
-														(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = p_companyid )
-														* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = p_companyid ))
-													)
-												END  * @p_months  as MonthlyCost,
+													(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = p_companyid)
+													* (vtc.Cost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = vtc.CurrencyID and  CompanyID = p_companyid ))
+												)
+
+											END
+									ELSE
+										0
+									END
+								) / (select ServicesContracted from  tmp_ServicesContracted sc where sc.VendorID is null or sc.VendorID  = a.AccountID )
+							),0)
+
+				)
+								as MonthlyCost,
+
 
 				@CostPerCall := CASE WHEN ( CostPerCallCurrency is not null)
 					THEN
@@ -1174,11 +1273,6 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 																				)
 																			END as RegistrationCostPerNumber,
 
-
-
-
-
-
 				@Total1 := (
 					(	IFNULL(@MonthlyCost,0) 				)				+
 					(IFNULL(@CostPerMinute,0) * IFNULL(tom.minutes,0))	+
@@ -1204,6 +1298,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 				inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId
 				inner join tblVendorConnection vc on vc.RateTableID = rt.RateTableId and vc.DIDCategoryID = rt.DIDCategoryID and vc.CompanyID = rt.CompanyId and vc.Active=1
 				inner join tblAccount a on vc.AccountId = a.AccountID and rt.CompanyId = a.CompanyId
+				left join tblVendorTrunkCost vtc on vtc.AccountID = a.AccountID
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				inner join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 				inner join tblCountry c on c.CountryID = r.CountryID
@@ -1440,9 +1535,11 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 
 			SET @stm_query = CONCAT("SELECT AccessType ,Country ,Code,City ,Tariff,  ", @stm_columns," FROM tmp_final_table_output GROUP BY Code, AccessType ,Country ,City ,Tariff      ORDER BY Code, AccessType ,Country ,City ,Tariff  ;");
 
+
 			PREPARE stm_query FROM @stm_query;
 			EXECUTE stm_query;
 			DEALLOCATE PREPARE stm_query;
+
 
 		END IF;
 
