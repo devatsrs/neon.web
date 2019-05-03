@@ -334,21 +334,34 @@ class VendorRatesController extends \BaseController
 
 
     public function trunk_cost_ajax_datagrid($AccountID, $export = false) {
-
         $TrunkCostHistory = VendorTrunkCostLog::join('tblCurrency','tblCurrency.CurrencyId','=','tblVendorTrunkCostLog.CurrencyID')
             ->select(['tblVendorTrunkCostLog.Cost', 'tblCurrency.Code', 'tblVendorTrunkCostLog.created_at', 'tblVendorTrunkCostLog.created_by'])
             ->where(['tblVendorTrunkCostLog.AccountID' => $AccountID])
             ->orderBy('tblVendorTrunkCostLog.created_at', 'desc');
 
         if($export != false){
+            $output = $TrunkCostHistory->get()->toArray();
+            $data = [];
+            $replaceArr = ['created_at' => 'Modified At', 'created_by' => 'Modified By'];
+            if($output != false)
+                foreach($output as $i => $val){
+                    foreach($val as $col => $item)
+                        if(isset($replaceArr[$col])) {
+                            $data[$i][$replaceArr[$col]] = $item;
+                        } else {
+                            $data[$i][$col] = $item;
+                        }
+                }
+
+
             if($export=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Trunk Cost.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_csv($TrunkCostHistory->get()->toArray());
+                $NeonExcel->download_csv($data);
             }elseif($export=='xlsx'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Trunk Cost.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_excel($TrunkCostHistory->get()->toArray());
+                $NeonExcel->download_excel($data);
             }
         }
 

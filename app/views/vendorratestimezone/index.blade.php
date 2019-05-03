@@ -77,7 +77,7 @@
                 </a>
             </li>
         @endif
-        @if(User::checkCategoryPermission('VendorRates','Download'))
+        {{--@if(User::checkCategoryPermission('VendorRates','Download'))
             <li>
                 <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >
                     <span class="hidden-xs">Vendor Rate Download</span>
@@ -91,7 +91,7 @@
                     <span class="hidden-xs">Vendor Rate History</span>
                 </a>
             </li>
-        @endif
+        @endif--}}
         @if(User::checkCategoryPermission('Timezones','Add'))
             <li class="active">
                 <a href="{{ URL::to('/timezones/vendor_rates/'.$id) }}" >

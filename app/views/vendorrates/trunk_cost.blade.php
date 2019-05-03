@@ -40,7 +40,7 @@
                 </a>
             </li>
         @endif
-        @if(User::checkCategoryPermission('VendorRates','Download'))
+        {{--@if(User::checkCategoryPermission('VendorRates','Download'))
             <li>
                 <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >
                     <span class="hidden-xs">Vendor Rate Download</span>
@@ -53,7 +53,7 @@
                     <span class="hidden-xs">Vendor Rate History</span>
                 </a>
             </li>
-        @endif
+        @endif--}}
         @if(User::checkCategoryPermission('Timezones','Add'))
             <li>
                 <a href="{{ URL::to('/timezones/vendor_rates/'.$id) }}" >
@@ -80,12 +80,12 @@
 
                     <div class="panel-body">
                         <div class="form-group">
-                            <label for="field-1" class="col-sm-2 control-label">Trunk Cost</label>
+                            <label for="field-1" class="col-sm-2 control-label">Trunk Cost*</label>
                             <div class="col-sm-3">
-                                <input type="text" name="Cost" class="form-control" placeholder="" value="{{ !empty($VendorTrunkCost) ? $VendorTrunkCost->Cost : '' }}" />
+                                <input type="number" name="Cost" class="form-control" placeholder="" value="{{ !empty($VendorTrunkCost) ? $VendorTrunkCost->Cost : '0' }}" />
                             </div>
 
-                            <label for="field-1" class="col-sm-2 control-label">Currency</label>
+                            <label for="field-1" class="col-sm-2 control-label">Currency*</label>
                             <div class="col-sm-3">
                                 {{ Form::select('CurrencyID', Currency::getCurrencyDropdownIDList(), !empty($VendorTrunkCost) ? $VendorTrunkCost->CurrencyID : $Account->CurrencyId, array("class"=>"select2")) }}
                             </div>
@@ -109,8 +109,8 @@
         <tr>
             <th>Trunk Cost</th>
             <th>Currency</th>
-            <th>Created At</th>
-            <th>Created By</th>
+            <th>Modified At</th>
+            <th>Modified By</th>
         </tr>
         </thead>
         <tbody>
