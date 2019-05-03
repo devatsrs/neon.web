@@ -34,7 +34,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 	IN `p_OriginationPercentage` INT,
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
-	IN `p_ServicesContracted` INT,
+	IN `p_NoOfServicesContracted` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_SortOrder` VARCHAR(50),
@@ -311,10 +311,10 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 			minutes int
 		);
 
-		DROP TEMPORARY TABLE IF EXISTS tmp_ServicesContracted;
-		CREATE TEMPORARY TABLE tmp_ServicesContracted (
+		DROP TEMPORARY TABLE IF EXISTS tmp_NoOfServicesContracted;
+		CREATE TEMPORARY TABLE tmp_NoOfServicesContracted (
 			VendorID int,
-			ServicesContracted int
+			NoOfServicesContracted int
 		);
 
 
@@ -330,7 +330,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 
 
 		SET @p_Position = p_Position;
-		SET @p_ServicesContracted = p_ServicesContracted;
+		SET @p_NoOfServicesContracted = p_NoOfServicesContracted;
 
 		SET @v_CallerRate = 1;
 
@@ -344,10 +344,10 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 
 
 
-		IF @p_ServicesContracted = 0 THEN
+		IF @p_NoOfServicesContracted = 0 THEN
 
-			insert into tmp_ServicesContracted (VendorID,ServicesContracted)
-				select VendorID,count(CLI) as ServicesContracted
+			insert into tmp_NoOfServicesContracted (VendorID,NoOfServicesContracted)
+				select VendorID,count(CLI) as NoOfServicesContracted
 				from  tblCLIRateTable
 				where
 					CompanyID  = p_companyid
@@ -359,8 +359,8 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 
 		ELSE
 
-			insert into tmp_ServicesContracted (VendorID,ServicesContracted)
-				select null,@p_ServicesContracted;
+			insert into tmp_NoOfServicesContracted (VendorID,NoOfServicesContracted)
+				select null,@p_NoOfServicesContracted;
 
 
 
@@ -597,7 +597,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 									ELSE
 										0
 									END
-								) / (select ServicesContracted from  tmp_ServicesContracted sc where sc.VendorID is null or sc.VendorID  = a.AccountID )
+								) / (select NoOfServicesContracted from  tmp_NoOfServicesContracted sc where sc.VendorID is null or sc.VendorID  = a.AccountID )
 							),0)
 
 				)
@@ -1010,7 +1010,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 									ELSE
 										0
 									END
-								) / (select ServicesContracted from  tmp_ServicesContracted sc where sc.VendorID is null or sc.VendorID  = a.AccountID )
+								) / (select NoOfServicesContracted from  tmp_NoOfServicesContracted sc where sc.VendorID is null or sc.VendorID  = a.AccountID )
 							),0)
 
 				)
