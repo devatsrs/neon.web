@@ -261,6 +261,12 @@
                                 <input type="number" min="0" class="form-control" id="OriginationPercentage" name="OriginationPercentage"/>
                             </div>
                         </div>
+                        <div class="form-group DID-Div">
+                            <label for="field-1" class="control-label col-sm-2">No Of Services Contracted</label>
+                            <div class="col-sm-4">
+                                {{Form::number('NoOfServicesContracted','0' ,array("class"=>"form-control","min" => "0"))}}
+                            </div>
+                        </div>
                        
                     </div>
                     <div class="form-group Package-Div" style="display:none;">
@@ -270,7 +276,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
                     <div class="panel-heading">
                         <div class="panel-title">

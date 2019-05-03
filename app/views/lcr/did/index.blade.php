@@ -97,6 +97,10 @@
                     {{Form::text('DateTo', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Date To" , "data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="control-label">No Of Services Contracted</label>
+                    {{Form::number('ServicesContracted','0' ,array("class"=>"form-control","min" => "0"))}}
+                </div>
+                <div class="form-group">
                     <br/>
                     <input type="hidden" name="lcr_type" id="lcr_type" value="" >
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
@@ -323,7 +327,7 @@
                 $searchFilter.OriginationPercentage       = $("#did-search-form input[name='OriginationPercentage']").val();
                 $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
-
+                $searchFilter.ServicesContracted         = $("#did-search-form input[name='ServicesContracted']").val();
                 $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
                 $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
                 $searchFilter.lcrType = '';
@@ -808,7 +812,9 @@
                                 {"name": "DateTo", "value": $searchFilter.DateTo},
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
-                                {"name": "PackageID", "value": $searchFilter.PackageID}
+                                {"name": "PackageID", "value": $searchFilter.PackageID},
+                                {"name": "ServicesContracted", "value": $searchFilter.ServicesContracted}
+                                
 
                         );
                         data_table_extra_params.length = 0;
@@ -832,6 +838,7 @@
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
                                 {"name": "PackageID", "value": $searchFilter.PackageID},
+                                {"name": "ServicesContracted", "value": $searchFilter.ServicesContracted},
 
                                 {"name":"Export","value":1}
                         );

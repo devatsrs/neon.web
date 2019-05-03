@@ -416,6 +416,9 @@ class RateGeneratorsController extends \BaseController {
             if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
                  unset($data['PackageID']);
             }
+            if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE) || $SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
+                unset($data['NoOfServicesContracted']);
+            }
 
             if(isset($data['CountryID']) && $data['CountryID'] == ''){
                 $data['CountryID'] = null;
