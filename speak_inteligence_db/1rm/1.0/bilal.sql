@@ -26,3 +26,27 @@ ADD COLUMN `SpecialTerminationRateTableID` INT(11) NULL DEFAULT NULL AFTER `Spec
 
 ALTER TABLE `tblAccountServicePackage`
 ADD COLUMN `SpecialPackageRateTableID` INT(11) NULL DEFAULT NULL AFTER `ServiceID`;
+
+
+CREATE TABLE `tblVendorTrunkCost` (
+	`VendorTrunkCostID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`Cost` DECIMAL(18,6) NULL DEFAULT '0.000000',
+	`CurrencyID` INT(11) NULL DEFAULT '0',
+	`AccountID` INT(11) NULL DEFAULT '0',
+	`created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`VendorTrunkCostID`)
+)
+	COLLATE='utf8_unicode_ci'
+;
+
+CREATE TABLE `tblVendorTrunkCostLog` (
+	`VendorTrunkCostLogID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`Cost` DECIMAL(18,6) NULL DEFAULT '0.000000',
+	`CurrencyID` INT(11) NULL DEFAULT '0',
+	`AccountID` INT(11) NULL DEFAULT '0',
+	`created_by` VARCHAR(100) NULL DEFAULT NULL,
+	`created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`VendorTrunkCostLogID`)
+)
+	COLLATE='utf8_unicode_ci'
+;

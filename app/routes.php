@@ -508,6 +508,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/{id}/process_download', array('as' => 'vendor_rates_process_download', 'uses' => 'VendorRatesController@process_download'));
 	Route::any('/vendor_rates/{id}/history', 'VendorRatesController@history');
 	Route::any('/vendor_rates/{id}/history_ajax_datagrid', 'VendorRatesController@history_ajax_datagrid');
+
+	// Vendor Trunk Cost
+	Route::any('/vendor_rates/{id}/trunk_cost', 'VendorRatesController@trunk_cost');
+	Route::any('/vendor_rates/{id}/trunk_cost_ajax_datagrid/{export?}', 'VendorRatesController@trunk_cost_ajax_datagrid');
+	Route::any('/vendor_rates/{id}/trunk_cost_update', 'VendorRatesController@trunk_cost_update');
+
 	Route::any('/vendor_rates/{id}/history/{hid}/view', 'VendorRatesController@show_history')->where('hid', '(.[09]*)+');
 	Route::any('/vendor_rates/{id}/history_exports/{type}', 'VendorRatesController@history_exports');
 	Route::any('/vendor_rates/{id}/search_ajax_datagrid', 'VendorRatesController@search_ajax_datagrid');

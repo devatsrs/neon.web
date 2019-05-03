@@ -325,6 +325,68 @@ class VendorRatesController extends \BaseController
                 });
             })->download('xls');*/
     }
+
+    public function trunk_cost($id){
+        $Account = Account::find($id);
+        $VendorTrunkCost = VendorTrunkCost::where('AccountID', $id)->first();
+        return View::make('vendorrates.trunk_cost', compact('id','Account','VendorTrunkCost'));
+    }
+
+
+    public function trunk_cost_ajax_datagrid($AccountID, $export = false) {
+
+        $TrunkCostHistory = VendorTrunkCostLog::join('tblCurrency','tblCurrency.CurrencyId','=','tblVendorTrunkCostLog.CurrencyID')
+            ->select(['tblVendorTrunkCostLog.Cost', 'tblCurrency.Code', 'tblVendorTrunkCostLog.created_at', 'tblVendorTrunkCostLog.created_by'])
+            ->where(['tblVendorTrunkCostLog.AccountID' => $AccountID])
+            ->orderBy('tblVendorTrunkCostLog.created_at', 'desc');
+
+        if($export != false){
+            if($export=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Trunk Cost.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($TrunkCostHistory->get()->toArray());
+            }elseif($export=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Trunk Cost.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($TrunkCostHistory->get()->toArray());
+            }
+        }
+
+        return Datatables::of($TrunkCostHistory)->make();
+    }
+
+    public function trunk_cost_update($AccountID) {
+        $data = Input::all();
+        $response = ['status' => 'failed', 'message' => 'Invalid request.'];
+
+        $rules = array('Cost' => 'required|numeric', 'CurrencyID' => 'required');
+        $validator = Validator::make($data, $rules, [
+            'CurrencyID.required' => 'Currency is required.'
+        ]);
+
+        if($validator->fails())
+            return json_validator_response($validator);
+
+        $Account = Account::find($AccountID);
+        if($Account != false){
+            $vendorTrunkCost             = VendorTrunkCost::firstOrNew(array('AccountID' => $AccountID));
+            $vendorTrunkCost->Cost       = $data['Cost'];
+            $vendorTrunkCost->CurrencyID = $data['CurrencyID'];
+            $vendorTrunkCost->save();
+
+            VendorTrunkCostLog::insert([
+                'Cost'          => $data['Cost'],
+                'CurrencyID'    => $data['CurrencyID'],
+                'AccountID'     => $AccountID,
+                'created_by'    => User::get_user_full_name(),
+            ]);
+
+            $response = ['status' => 'success', 'message' => 'Trunk Cost has been successfully saved.'];
+        }
+
+        return Response::json($response);
+    }
+
     public function exports($id,$type) {
             $data = Input::all();
             $data['iDisplayStart'] +=1;
