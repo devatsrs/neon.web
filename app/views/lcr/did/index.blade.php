@@ -72,6 +72,10 @@
                     <label class="control-label">Minutes</label>
                     <input type="number" min="0" name="Minutes" class="form-control" id="field-15" placeholder="" />
                 </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">No Of Services</label>
+                    {{Form::number('NoOfServicesContracted','' ,array("class"=>"form-control","min" => "0"))}}
+                </div>
                 <div class="form-group" id="Timezone">
                     <label class="control-label">Time Of Day</label>
                     {{ Form::select('Timezone', $Timezones, '', array("class"=>"select2")) }}
@@ -95,10 +99,6 @@
                 <div class="form-group">
                     <label for="field-1" class="control-label">Date To</label>
                     {{Form::text('DateTo', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Date To" , "data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
-                </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">No Of Services Contracted</label>
-                    {{Form::number('ServicesContracted','0' ,array("class"=>"form-control","min" => "0"))}}
                 </div>
                 <div class="form-group">
                     <br/>
