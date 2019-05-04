@@ -162,6 +162,8 @@ class RateGeneratorsController extends \BaseController {
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)){
             $rules['RatePosition']='required|numeric';
             $rules['Category']='required';
+            $rules['NoOfServicesContracted']='numeric';
+
         }
 
         if(isset($data['AppliedTo']) && $data['AppliedTo'] == RateTable::APPLIED_TO_RESELLER){
@@ -172,7 +174,8 @@ class RateGeneratorsController extends \BaseController {
             'Timezones.required' => 'Please select at least 1 Timezone',
             'ProductID.required' => 'Please select product.',
             'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.',
-            'Reseller.required' => 'The partner field is required'
+            'Reseller.required' => 'The partner field is required',
+            'NoOfServicesContracted.numeric' => 'The number of services contracted must be a number'
         );
 
         if(!empty($data['IsMerge'])) {
@@ -693,6 +696,7 @@ class RateGeneratorsController extends \BaseController {
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)){
             $rules['RatePosition']='required|numeric';
             $rules['Category']='required';
+            $rules['NoOfServicesContracted']='numeric';
         }
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)){
             $rules['RatePosition']='required|numeric';
@@ -708,7 +712,8 @@ class RateGeneratorsController extends \BaseController {
             'Timezones.required' => 'Please select at least 1 Timezone',
             'ProductID.required' => 'Please select product.',
             'TimezonesPercentage.numeric' => 'Please enter valid numeric value of Time Of Day Percentage.',
-            'Reseller.required' => 'The partner field is required'
+            'Reseller.required' => 'The partner field is required',
+            'NoOfServicesContracted.numeric' => 'The number of services contracted must be a number'
         );
 
         if(!empty($data['IsMerge'])) {

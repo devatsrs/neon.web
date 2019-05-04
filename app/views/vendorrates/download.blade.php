@@ -44,6 +44,13 @@
     </a>
 </li>
 @endif
+@if(User::checkCategoryPermission('VendorRates','TrunkCost'))
+    <li>
+        <a href="{{ URL::to('/vendor_rates/'.$id.'/trunk_cost') }}" >
+            <span class="hidden-xs">Trunk Cost</span>
+        </a>
+    </li>
+@endif
 <li class="active">
     <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >
         <span class="hidden-xs">Vendor Rate Download</span>

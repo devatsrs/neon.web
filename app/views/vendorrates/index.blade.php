@@ -27,6 +27,14 @@
         <span class="hidden-xs">Vendor Rate</span>
     </a>
 </li>
+
+@if(User::checkCategoryPermission('VendorRates','TrunkCost'))
+<li>
+    <a href="{{ URL::to('vendor_rates/'.$id.'/trunk_cost') }}" >
+        <span class="hidden-xs">Trunk Cost</span>
+    </a>
+</li>
+@endif
 {{--@if(User::checkCategoryPermission('VendorRates','Upload'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/upload') }}" >
