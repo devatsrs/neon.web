@@ -584,12 +584,12 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 								(
 									CASE WHEN ( vtc.CurrencyID is not null)
 										THEN
-											CASE WHEN  @v_CurrencyID_ = vtc.CurrencyID THEN
+											CASE WHEN  @p_CurrencyID = vtc.CurrencyID THEN
 												vtc.Cost
 											ELSE
 												(
 
-													(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = p_companyid)
+													(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = p_companyid)
 													* (vtc.Cost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = vtc.CurrencyID and  CompanyID = p_companyid ))
 												)
 
@@ -997,12 +997,12 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 								(
 									CASE WHEN ( vtc.CurrencyID is not null)
 										THEN
-											CASE WHEN  @v_CurrencyID_ = vtc.CurrencyID THEN
+											CASE WHEN  @p_CurrencyID = vtc.CurrencyID THEN
 												vtc.Cost
 											ELSE
 												(
 
-													(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = p_companyid)
+													(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @p_CurrencyID  and  CompanyID = p_companyid)
 													* (vtc.Cost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = vtc.CurrencyID and  CompanyID = p_companyid ))
 												)
 
