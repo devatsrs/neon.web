@@ -1311,7 +1311,7 @@ GenerateRateTable:BEGIN
                 FROM tmp_Vendorrates_stage3_ vRate
                  LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ AND rule_mgn1.`Type` = 1 and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
                 LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ AND rule_mgn2.`Type` = 1 and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate
-                LEFT join tblRateRuleMargin rule_mgn3 on  rule_mgn3.RateRuleId = v_rateRuleId_ AND rule_mgn3.`Type` = 2 and vRate.ConnectionFee Between rule_mgn3.MinRate and rule_mgn3.MaxRate;
+                LEFT join tblRateRuleMargin rule_mgn3 on  rule_mgn3.RateRuleId = v_rateRuleId_ AND rule_mgn3.`Type` = 2 and IFNULL(vRate.ConnectionFee,0) Between rule_mgn3.MinRate and rule_mgn3.MaxRate;
 
 				-- Type = 1 Rate
 				-- Type = 2 ConnectionFee
@@ -1378,7 +1378,7 @@ GenerateRateTable:BEGIN
                 )  vRate
                  LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ AND rule_mgn1.`Type` = 1 and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
                 LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ AND rule_mgn2.`Type` = 1 and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate
-                LEFT join tblRateRuleMargin rule_mgn3 on  rule_mgn3.RateRuleId = v_rateRuleId_ AND rule_mgn3.`Type` = 2 and vRate.ConnectionFee Between rule_mgn3.MinRate and rule_mgn3.MaxRate;
+                LEFT join tblRateRuleMargin rule_mgn3 on  rule_mgn3.RateRuleId = v_rateRuleId_ AND rule_mgn3.`Type` = 2 and  IFNULL(vRate.ConnectionFee,0) Between rule_mgn3.MinRate and rule_mgn3.MaxRate;
 
                 -- Type = 1 Rate
 					-- Type = 2 ConnectionFee
@@ -2661,7 +2661,7 @@ GenerateRateTable:BEGIN
                 FROM tmp_Vendorrates_stage3_ vRate
                 LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ AND rule_mgn1.`Type` = 1 and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
                 LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ AND rule_mgn2.`Type` = 1 and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate
-                LEFT join tblRateRuleMargin rule_mgn3 on  rule_mgn3.RateRuleId = v_rateRuleId_ AND rule_mgn3.`Type` = 2 and vRate.ConnectionFee Between rule_mgn3.MinRate and rule_mgn3.MaxRate;
+                LEFT join tblRateRuleMargin rule_mgn3 on  rule_mgn3.RateRuleId = v_rateRuleId_ AND rule_mgn3.`Type` = 2 and IFNULL(vRate.ConnectionFee,0) Between rule_mgn3.MinRate and rule_mgn3.MaxRate;
 
 				-- Type = 1 Rate
 				-- Type = 2 ConnectionFee
@@ -2729,7 +2729,7 @@ GenerateRateTable:BEGIN
                     )  vRate
                 LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ AND rule_mgn1.`Type` = 1 and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
                 LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ AND rule_mgn2.`Type` = 1 and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate
-                LEFT join tblRateRuleMargin rule_mgn3 on  rule_mgn3.RateRuleId = v_rateRuleId_ AND rule_mgn3.`Type` = 2 and vRate.ConnectionFee Between rule_mgn3.MinRate and rule_mgn3.MaxRate;
+                LEFT join tblRateRuleMargin rule_mgn3 on  rule_mgn3.RateRuleId = v_rateRuleId_ AND rule_mgn3.`Type` = 2 and IFNULL(vRate.ConnectionFee,0) Between rule_mgn3.MinRate and rule_mgn3.MaxRate;
 
 				-- Type = 1 Rate
 				-- Type = 2 ConnectionFee
