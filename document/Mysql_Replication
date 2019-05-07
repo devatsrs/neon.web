@@ -1,5 +1,31 @@
-#ec2-3-18-102-62.us-east-2.compute.amazonaws.com        --srs_ec2_test1
-#ec2-3-17-27-15.us-east-2.compute.amazonaws.com         --srs_ec2_test2
+Public IP         Private IP         Instance
+-----------------------------------------------------
+#18.221.89.45     172.31.37.122   --srs_ec2_test1
+#3.16.100.194     172.31.38.37    --srs_ec2_test2
+
+#SSH -----------
+#run on server 2: create user to allow access
+adduser neonuser
+passwd neonuser
+usermod -a -G wheel neonuser
+
+
+vi /etc/sudoers.d/neonuser
+#neonuser
+neonuser ALL = NOPASSWD: ALL
+
+#allow password authentication
+vim /etc/ssh/sshd_config
+PasswordAuthentication yes
+
+#restart sshd service
+systemctl restart sshd.service
+
+------------------------------------------------
+#install tools -----------
+yum install net-tools
+yum install bind-utils
+
 
 # --------------- do in both server  start
 sudo -i
@@ -14,7 +40,7 @@ sudo grep 'temporary password' /var/log/mysqld.log
 mysql -u root -p
 
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'gbXb):kyz2yt1';
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
+ALTER USER 'root'@'%' IDENTIFIED BY 'root';
 
 SHOW VARIABLES LIKE 'validate_password%';
 SET GLOBAL validate_password_length=4;
@@ -64,29 +90,13 @@ quit;
 
 #export mysql database as we created db user;
 mysqldump mysql > mysql.sql
-scp mysql.sql ec2-3-19-56-246.us-east-2.compute.amazonaws.com:/root
+scp mysql.sql neonuser@172.31.38.37:/home/neonuser
+password: neonuser
+
 
 # --------------- server 1 over
 
 # --------------- server 2 start
-#run on server 2: create user to allow access
-adduser neonuser
-passwd neonuser
-usermod -a -G wheel neonuser
-
-
-vi /etc/sudoers.d/neonuser
-#neonuser
-neonuser ALL = NOPASSWD: ALL
-
-#allow password authentication
-vim /etc/ssh/sshd_config
-PasswordAuthentication yes
-
-
-
-#restart sshd service
-systemctl restart sshd.service
 
 # for replicatin
 vi /etc/my.cnf
@@ -101,22 +111,19 @@ systemctl restart mysqld.service
 
 # --------------- server 1 start
 #copy file from server 1 to server 2
-scp mysql.sql neonuser@ec2-3-19-56-246.us-east-2.compute.amazonaws.com:/home/neonuser
+scp mysql.sql neonuser@172.31.38.37:/home/neonuser
 
 mysql> flush tables with read lock;
 
 mysql> show master status \G;
 *************************** 1. row ***************************
-             File: mysql-bin.000002
+             File: mysql-bin.000007
          Position: 154
      Binlog_Do_DB:
  Binlog_Ignore_DB:
 Executed_Gtid_Set:
 1 row in set (0.00 sec)
 
-#install tools
-yum install net-tools
-yum install bind-utils
 
 # --------------- server 1 end
 # --------------- server 2 start
@@ -125,19 +132,16 @@ mysql mysql < /home/neonuser/mysql.sql
 
 mysql
 change master to
-master_host='ec2-3-18-102-62.us-east-2.compute.amazonaws.com',
+master_host='172.31.37.122',
 master_user='replica',
 master_password='replica',
-master_log_file='mysql-bin.000002',
+master_log_file='mysql-bin.000007',
 master_log_pos=154;
 
 ## Makes sure server 2 ip is allowed at server 1 for prt 3306
 start slave;
 
 show processlist;
-
-
-mysql> show processlist;
 ####### --> Waiting for master to send event
 +----+-------------+-----------+------+---------+------+--------------------------------------------------------+------------------+
 | Id | User        | Host      | db   | Command | Time | State                                                  | Info             |
@@ -148,20 +152,18 @@ mysql> show processlist;
 +----+-------------+-----------+------+---------+------+--------------------------------------------------------+------------------+
 3 rows in set (0.00 sec)
 
-show slave status \G;
-
 mysql> show slave status \G;
 *************************** 1. row ***************************
                Slave_IO_State: Waiting for master to send event
-                  Master_Host: ec2-3-18-102-62.us-east-2.compute.amazonaws.com
+                  Master_Host: 172.31.37.122
                   Master_User: replica
                   Master_Port: 3306
                 Connect_Retry: 60
-              Master_Log_File: mysql-bin.000002
+              Master_Log_File: mysql-bin.000007
           Read_Master_Log_Pos: 154
                Relay_Log_File: ip-172-31-38-37-relay-bin.000002
                 Relay_Log_Pos: 320
-        Relay_Master_Log_File: mysql-bin.000002
+        Relay_Master_Log_File: mysql-bin.000007
              Slave_IO_Running: Yes
             Slave_SQL_Running: Yes
               Replicate_Do_DB:
@@ -212,15 +214,13 @@ Master_SSL_Verify_Server_Cert: No
 1 row in set (0.00 sec)
 
 
-
-
 # --------------- server 2 end
 
 # --------------- server 1 start
 
 #run following command to see if server 2 is accessing server 1 or not.
 netstat -natp | egrep -i established.*mysql
-tcp6       0      0 172.31.37.122:3306      172.31.38.37:50142      ESTABLISHED 3091/mysqld
+tcp6       0      0 172.31.37.122:3306      172.31.38.37:50236      ESTABLISHED 3072/mysqld
 
 # CHECK hosts
 [root@ip-172-31-37-122 ~]# host 172.31.38.37
@@ -248,14 +248,40 @@ systemctl restart mysqld.service
 
 mysql> show master status \G;
 *************************** 1. row ***************************
-             File: mysql-bin.000001
-         Position: 154
+             File: mysql-bin.000008
+         Position: 1076031
      Binlog_Do_DB:
  Binlog_Ignore_DB:
 Executed_Gtid_Set:
 1 row in set (0.00 sec)
 
+
 ERROR:
 No query specified
 
 # --------------- server 2 END
+# --------------- server 1 START
+
+change master to
+master_host='172.31.38.37',
+master_user='replica',
+master_password='replica',
+master_log_file='mysql-bin.000008',
+master_log_pos=1076031;
+
+start slave;
+
+show processlist;
+mysql> show slave status \G;
+
+mysql> show master status;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000007 |      154 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+1 row in set (0.01 sec)
+
+# --------------- server 2 START
+#check master_log_file  mysql-bin.000007 and pos  154
+mysql> show slave status \G;
