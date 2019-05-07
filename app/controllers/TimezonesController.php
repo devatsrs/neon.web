@@ -320,7 +320,7 @@ class TimezonesController extends BaseController {
                 return json_validator_response($validator);
             }
 
-            if($data["FromTime"] >= $data["ToTime"] && !empty($data["FromTime"]) && !empty($data["ToTime"])){
+            if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
                 return  Response::json(array("status" => "failed", "message" => "To time always greater than from time"));
             }
 
@@ -403,10 +403,10 @@ class TimezonesController extends BaseController {
                         return json_validator_response($validator);
                     }
 
-                    if($data["FromTime"] >= $data["ToTime"] && !empty($data["FromTime"]) && !empty($data["ToTime"])){
+                    if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
                         return  Response::json(array("status" => "failed", "message" => "To time always greater than from time"));
                     }
-                    
+
                     if($data['Country'] == ''){
                         $data['Country'] = null;
                     }
