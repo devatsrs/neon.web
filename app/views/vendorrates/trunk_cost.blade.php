@@ -82,7 +82,7 @@
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Trunk Cost*</label>
                             <div class="col-sm-3">
-                                <input type="number" name="Cost" class="form-control" placeholder="" value="{{ !empty($VendorTrunkCost) ? $VendorTrunkCost->Cost : '0' }}" />
+                                <input type="number" min="0" name="Cost" class="form-control" placeholder="" value="{{ !empty($VendorTrunkCost) ? $VendorTrunkCost->Cost : '0' }}" />
                             </div>
 
                             <label for="field-1" class="col-sm-2 control-label">Currency*</label>
