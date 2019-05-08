@@ -1655,7 +1655,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/timezones/changeSelectedStatus/{type}','TimezonesController@changeSelectedStatus');
 	Route::any('/timezones/store','TimezonesController@store');
 	Route::any('/timezones/update/{id}','TimezonesController@update');
-	Route::controller('timezones','TimezonesController');
+	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
+	Route::controller('timezones', 'TimezonesController');
 	
 	//Vendor Timezone
 	// Route::any('/timezones/vendor_rates/{id}/delete/{type}','TimezonesController@delete');
