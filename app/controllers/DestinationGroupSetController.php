@@ -100,7 +100,7 @@ class DestinationGroupSetController extends \BaseController {
             $CompanyID = User::get_companyID();
 
             $rules['Name'] = 'required|unique:tblDestinationGroupSet,Name,' . $id . ',DestinationGroupSetID,CompanyID,' . $CompanyID;
-            $rules['CodedeckID'] = 'required';
+           // $rules['CodedeckID'] = 'required';
             $validator = Validator::make($post_data, $rules);
             if ($validator->fails()) {
                 return Response::json($validator->errors(),true);
