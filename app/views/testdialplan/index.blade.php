@@ -25,7 +25,7 @@
                 </div>
                 <div class="form-group S">
                     <label class="control-label" for="field-1">Country</label>
-                    {{Form::select('countryList', $countryList ,'',array("class"=>"select2 small form-control1"))}}
+                    {{Form::select('countryList', $countryList ,'',array("class"=>"select2"))}}
                 </div>
                 <div class="form-group">
                     <label class="control-label" for="field-1">Date and Time</label>
