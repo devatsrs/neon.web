@@ -154,6 +154,21 @@ class DestinationGroupController extends \BaseController {
         return $response;
     }
 
+    public function export_datagrid(){
+        $getdata = Input::all();
+        $response = DestinationGroup::DataGrid($getdata);
+        $getdata["Export"] = 1;
+
+            $excel_data = $response;
+            $excel_data = json_decode(json_encode($excel_data), true);
+            Excel::create('Destination Group Set', function ($excel) use ($excel_data) {
+                $excel->sheet('Destination Group Set', function ($sheet) use ($excel_data) {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+
+    }
+
     public function appcodes()
     {
         $inputdata = Input::all();

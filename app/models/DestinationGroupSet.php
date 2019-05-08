@@ -108,7 +108,8 @@ class DestinationGroupSet extends \Eloquent
             if (isset($post_data['Export']) && $post_data['Export'] == 1) {
                 $query = $query . ',1)';
                 Log::info($query);
-                $result = DB::select($query);
+                 $result = DB::select($query);
+                return $result;
 
             } else {
                 $query .= ',0)';
