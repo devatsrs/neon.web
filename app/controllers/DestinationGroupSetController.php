@@ -137,7 +137,8 @@ class DestinationGroupSetController extends \BaseController {
         $terminationtype = DestinationGroupSet::getTerminationTypes();
         $typename  = DestinationGroupSet::getTypeNameByID($id);
         $AccessTypes = DestinationGroupSet::getAccessTypes();
-        $CityTariffs = DestinationGroupSet::getCityTarrifs();
+        $City               = ServiceTemplate::getCityDD($CompanyID);
+        $Tariff             =ServiceTemplate::getTariffDD($CompanyID);
         $Packages = DestinationGroupSet::getPackages();
         $Prefix = DestinationGroupSet::getAccessPrefixNames();
         $CityTariffFilter  = ServiceTemplate::getTariffDD($CompanyID);
@@ -146,7 +147,7 @@ class DestinationGroupSetController extends \BaseController {
         //$codes = DB::select("call prc_getDestinationCode(6,0,'0','','0','','1','50')");
         $discountplanapplied = DiscountPlan::isDiscountPlanApplied('DestinationGroupSet',$id,0);
         if($typename == 'Access'){
-        	return View::make('destinationgroup.access', compact('DestinationGroupSetID','countries','name','discountplanapplied','typename','terminationtype', 'AccessTypes','CityTariffs','Packages','Prefix','CityTariffFilter'));
+        	return View::make('destinationgroup.access', compact('Tariff','DestinationGroupSetID','countries','name','discountplanapplied','typename','terminationtype', 'AccessTypes','City','Packages','Prefix','CityTariffFilter'));
 
         }  elseif($typename == 'Package'){
         return View::make('destinationgroup.package', compact('DestinationGroupSetID','countries','name','discountplanapplied','typename','terminationtype', 'AccessTypes','CityTariffs','Packages','Prefix','CityTariffFilter'));

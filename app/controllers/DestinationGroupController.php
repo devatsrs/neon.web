@@ -247,7 +247,8 @@ class DestinationGroupController extends \BaseController {
             if(isset($postdata['CountryID'])){$insertdata['CountryName'] = $postdata['CountryID'];}
             if(isset($postdata['Type'])){$insertdata['Type'] = $postdata['Type'];}
             if(isset($postdata['Prefix'])){$insertdata['Prefix'] = $postdata['Prefix'];}
-            if(isset($postdata['CityTariff'])){$insertdata['CityTariff'] = $postdata['CityTariff'];}
+            if(isset($postdata['City'])){$insertdata['City'] = $postdata['City'];}
+            if(isset($postdata['Tariff'])){$insertdata['Tariff'] = $postdata['Tariff'];}
             if(isset($postdata['PackageID'])){$insertdata['PackageID'] = $postdata['PackageID'];}
             $insertdata['CreatedBy'] = User::get_user_full_name();
             $insertdata['created_at'] = date("Y-m-d H:i:s");
@@ -471,10 +472,15 @@ class DestinationGroupController extends \BaseController {
                     $updatedata['Prefix'] = $postdata['Prefix'];
                     $Prefix= $postdata['Prefix'];
                 }
-                if(isset($postdata['CityTariff'])) {
-                    $updatedata['CityTariff'] = $postdata['CityTariff'];
-                    $CityTariff= $postdata['CityTariff'];
+                if(isset($postdata['City'])) {
+                    $updatedata['City'] = $postdata['City'];
+                    $City= $postdata['City'];
                 }
+              if(isset($postdata['Tariff'])) {
+                  $updatedata['Tariff'] = $postdata['Tariff'];
+                  $Tariff= $postdata['Tariff'];
+              }
+
                 if(isset($postdata['PackageID'])) {
                     $updatedata['PackageID'] = $postdata['PackageID'];
                     $PackageID= $postdata['PackageID'];
