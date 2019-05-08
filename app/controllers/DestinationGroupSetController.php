@@ -143,6 +143,8 @@ class DestinationGroupSetController extends \BaseController {
         $Prefix = DestinationGroupSet::getAccessPrefixNames();
         $CityTariffFilter  = ServiceTemplate::getTariffDD($CompanyID);
 
+        $City = array('' => 'All') + $City;
+        $Tariff = array('' => 'All') + $Tariff;
         $CityTariffFilter = array('' => 'All') + $CityTariffFilter;    
         //$codes = DB::select("call prc_getDestinationCode(6,0,'0','','0','','1','50')");
         $discountplanapplied = DiscountPlan::isDiscountPlanApplied('DestinationGroupSet',$id,0);
