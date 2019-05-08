@@ -87,6 +87,7 @@
             var view_url = baseurl + "/destination_group_set/show/{id}";
             var delete_url = baseurl + "/destination_group_set/delete/{id}";
             var datagrid_url = baseurl + "/destination_group_set/ajax_datagrid";
+            var datagrid_Export_url = baseurl + "/destination_group_set/export_datagrid";
             $("#filter_submit").click(function(e) {
                 e.preventDefault();
 
@@ -152,7 +153,7 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "Export Data",
-                                "sUrl": datagrid_url,
+                                "sUrl": datagrid_Export_url,
                                 sButtonClass: "save-collection"
                             }
                         ]

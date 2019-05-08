@@ -51,7 +51,7 @@
                         
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">City</label>
-                                   {{ Form::select('City', $CityTariffs , '' , array("class"=>"select2")) }}
+                                   {{ Form::select('City', $City , '' , array("class"=>"select2")) }}
                                 </div>
 
                                 <div class="form-group">
@@ -117,7 +117,8 @@
             <th width="10%">Country</th>
             <th width="10%">Type</th>
             <th width="10%">Prefix</th>
-            <th width="10%">City/Tariff</th>
+            <th width="10%">City</th>
+            <th width="10%">Tariff</th>
             <th width="10%">Created By</th>
             <th width="10%">Created</th>
             <th width="30%">Action</th>
@@ -143,6 +144,7 @@
         var view_url = baseurl + "/destination_group/show/{id}";
         var delete_url = baseurl + "/destination_group/delete/{id}";
         var datagrid_url = baseurl + "/destination_group/ajax_datagrid";
+        var datagrid_export_url = baseurl + "/destination_group/export_datagrid";
         var datagrid_extra_url = baseurl + "/destination_group_code/ajax_datagrid";
         var checked='';
 
@@ -150,7 +152,7 @@
 
             $('#filter-button-toggle').show();
 var nm = 'king';
-            var list_fields  = ["Name","CountryID","Type","Prefix","CityTariff","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID"];
+            var list_fields  = ["Name","CountryID","Type","Prefix","City","Tariff","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID"];
             //public_vars.$body = $("body");
             var $search = {};
 
@@ -202,7 +204,8 @@ var nm = 'king';
                         {  "bSortable": true },  // country
                         {  "bSortable": true },  // type
                         {  "bSortable": true }, //prefix
-                        {  "bSortable": true },  //citytariff
+                        {  "bSortable": true },  //city
+                        {  "bSortable": true },  //Tariff
                         {  "bSortable": true }, //created by
                         {  "bSortable": true },  //created at
                         {  "bSortable": false,
@@ -232,7 +235,7 @@ var nm = 'king';
                             {
                                 "sExtends": "download",
                                 "sButtonText": "Export Data",
-                                "sUrl": datagrid_url,
+                                "sUrl": datagrid_export_url,
                                 sButtonClass: "save-collection"
                             }
                         ]
@@ -299,11 +302,20 @@ var nm = 'king';
                         $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
                     } 
 
-                    else if(list_fields[i] == 'CityTariff')
+                    else if(list_fields[i] == 'City')
                     {   
                         var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
                         $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
-                    } 
+                    } else if(list_fields[i] == 'Tariff')
+                    {
+                        var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                    }
+                    else if(list_fields[i] == 'Prefix')
+                    {
+                        var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                    }
                     else if(list_fields[i] == 'PackageID')
                     {   
                         var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
@@ -458,11 +470,19 @@ $("#newdata").hide();
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">CityTariff</label>
-                                   {{ Form::select('CityTariff', $CityTariffs , '' , array("class"=>"select2")) }}
+                                    <label for="field-5" class="control-label">City</label>
+                                   {{ Form::select('City', $City , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="field-5" class="control-label">Tariff</label>
+                                            {{ Form::select('Tariff', $Tariff , '' , array("class"=>"select2")) }}
+                                        </div>
+                                    </div>
+                                </div>
 
                         @elseif($typename == 'Package')
                         

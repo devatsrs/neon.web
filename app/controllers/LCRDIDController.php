@@ -8,7 +8,6 @@ class LCRDIDController extends \BaseController {
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
-        //dd($data);
         $fileName = !empty($data['lcr_type']) && $data['lcr_type'] == 'Y'?"Package":"DID_LCR";
         Log::info('LCRDIDController:search_ajax_datagrid' . print_r($data, true));
         $data['ComponentAction']=empty($data['ComponentAction'])?'':$data['ComponentAction'];
@@ -34,7 +33,7 @@ class LCRDIDController extends \BaseController {
         //$data['ProductID'] = 1; // 1 for local testing , 27825 for staging testing else "Geo number Argentina; Prefix:011"
         if($data['lcr_type']=='Y'){
 
-            $query = "call prc_GetPACKAGELCR(".$companyID.", '".$data['PackageID']."', '".$data['Currency']."' , '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+            $query = "call prc_GetPACKAGELCR(".$companyID.", '".$data['PackageID']."', '".$data['Currency']."' , '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['DateFrom']."','".$data['DateTo']."','".$data['NoOfServicesContracted']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
@@ -58,7 +57,7 @@ class LCRDIDController extends \BaseController {
                 }
                 $query .=',0)';
         }else{
-                $query = "call prc_GetDIDLCR(".$companyID.", '".$data['CountryID']."', '".$data['AccessType']."', '".$data['City']."','".$data['Tariff']."' ,'".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."'";
+                $query = "call prc_GetDIDLCR(".$companyID.", '".$data['CountryID']."', '".$data['AccessType']."', '".$data['City']."','".$data['Tariff']."' ,'".$data['Prefix']."' ,'".$data['Currency']."' , ".$data['DIDCategoryID'].", '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['Origination']."','".$data['OriginationPercentage']."','".$data['DateFrom']."','".$data['DateTo']."','".$data['NoOfServicesContracted']."' ,".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');

@@ -353,6 +353,9 @@ class TimezonesController extends BaseController {
                 "DaysOfMonth"   => "required_without_all:DaysOfWeek,FromTime,Months",
                 "Months"        => "required_without_all:DaysOfWeek,DaysOfMonth,FromTime"
             );
+
+            
+
             $AtLeast = "At least 1 field is required from below fields<br/>From Time & To Time, Days Of Week, Days Of Month, Months";
             $message = array(
                 "FromTime.required_without_all"     => $AtLeast,
@@ -366,6 +369,11 @@ class TimezonesController extends BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+
+            if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
+                return  Response::json(array("status" => "failed", "message" => "To time always greater than from time"));
+            }
+
             if($data['Country'] == ''){
                 $data['Country'] = null;
             }
@@ -444,6 +452,11 @@ class TimezonesController extends BaseController {
                     if ($validator->fails()) {
                         return json_validator_response($validator);
                     }
+
+                    if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
+                        return  Response::json(array("status" => "failed", "message" => "To time always greater than from time"));
+                    }
+
                     if($data['Country'] == ''){
                         $data['Country'] = null;
                     }
