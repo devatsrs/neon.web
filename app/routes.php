@@ -1461,6 +1461,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Destination Group Set
 	Route::any('/destination_group_set','DestinationGroupSetController@index');
 	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupSetController@ajax_datagrid');
+	Route::any('/destination_group_set/export_datagrid','DestinationGroupSetController@export_datagrid');
 	Route::any('/destination_group_set/store','DestinationGroupSetController@store');
 	Route::any('/destination_group_set/update/{id}','DestinationGroupSetController@update');
 	Route::any('/destination_group_set/delete/{id}','DestinationGroupSetController@delete');

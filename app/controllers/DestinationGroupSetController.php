@@ -23,6 +23,22 @@ class DestinationGroupSetController extends \BaseController {
         }
         return $response;
     }
+    public function export_datagrid(){
+        $getdata = Input::all();
+        $getdata["Export"] = 1;
+        \Illuminate\Support\Facades\Log::info("export_datagrid" .  print_r($getdata,true));
+        $response =  DestinationGroupSet::DataGrid($getdata);
+        if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
+            $excel_data = $response->data;
+            $excel_data = json_decode(json_encode($excel_data),true);
+            Excel::create('Destination Group', function ($excel) use ($excel_data) {
+                $excel->sheet('Destination Group', function ($sheet) use ($excel_data) {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+        }
+        return $response;
+    }
     public function store(){
         $post_data = Input::all();
         $CompanyID = User::get_companyID();
