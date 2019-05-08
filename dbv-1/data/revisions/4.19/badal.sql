@@ -57,6 +57,10 @@ INSERT INTO `tblJobType` (`Code`, `Title`, `CreatedDate`, `CreatedBy`) VALUES ('
 ALTER TABLE `tblRateRuleMargin`
 	ADD COLUMN `Type` INT(11) NULL DEFAULT NULL AFTER `FixedValue`;
 
+
+/*Added Quickbook journal post type*/
+INSERT INTO `tblJobType` (`Code`, `Title`, `CreatedDate`, `CreatedBy`) VALUES ('QJP', 'QuickBook Journal Post', '2016-09-29 22:43:01', 'RateManagementSystem');
+
 DROP PROCEDURE IF EXISTS `prc_WSGenerateVendorSippySheetWithPrefix`;
 DELIMITER //
 CREATE PROCEDURE `prc_WSGenerateVendorSippySheetWithPrefix`(
