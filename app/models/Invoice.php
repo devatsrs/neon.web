@@ -37,7 +37,8 @@ class Invoice extends \Eloquent {
                                             '{NominalCode}'=>'Nominal Code',
                                             '{Email}'=>'Email',
                                             '{Phone}'=>'Phone',
-                                            '{AccountBalance}'=>'Account Balance');
+                                            '{AccountBalance}'=>'Account Balance',
+                                            '{AccountOwner}'=>'Account Owner');
 
     public static function multiLang_init(){
         Invoice::$invoice_type_customer = array(''=>cus_lang("DROPDOWN_OPTION_SELECT") ,self::INVOICE_OUT => cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_RECEIVED"),self::INVOICE_IN=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_SENT"),'All'=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_BOTH"));
@@ -285,6 +286,7 @@ class Invoice extends \Eloquent {
         $replace_array['Phone'] = $Account->Phone;
         $replace_array['Fax'] = $Account->Fax;
         $replace_array['Website'] = $Account->Website;
+        $replace_array['AccountOwner'] = User::get_owner_by_id($Account->Owner);
         $replace_array['Currency'] = Currency::getCurrencySymbol($Account->CurrencyId);
         $replace_array['CompanyName'] = Company::getName($Account->CompanyId);
         $replace_array['CompanyVAT'] = Company::getCompanyField($Account->CompanyId,"VAT");
@@ -320,7 +322,10 @@ class Invoice extends \Eloquent {
             '{CompanyName}',
             '{CompanyVAT}',
             '{CompanyAddress}',
-            '{AccountBalance}'
+            '{AccountBalance}',
+            '{AccountOwner}'
+
+            
         ];
 
         foreach($extra as $item){
