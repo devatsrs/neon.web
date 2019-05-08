@@ -1655,17 +1655,16 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/timezones/changeSelectedStatus/{type}','TimezonesController@changeSelectedStatus');
 	Route::any('/timezones/store','TimezonesController@store');
 	Route::any('/timezones/update/{id}','TimezonesController@update');
-
-
+	Route::controller('timezones','TimezonesController');
 	
 	//Vendor Timezone
 	// Route::any('/timezones/vendor_rates/{id}/delete/{type}','TimezonesController@delete');
-	Route::any('/timezones/vendor_rates/search_ajax_datagrid/{type}/{id}','TimezonesController@search_ajax_datagrid_Vendor');
-	Route::any('/timezones/vendor_rates/changeSelectedStatus/{type}','TimezonesController@vendor_changeSelectedStatus');
-	Route::any('/timezones/vendor_rates/store','TimezonesController@vendor_store');
-	Route::any('/timezones/vendor_rates/update/{id}','TimezonesController@vendor_update');
-	Route::any('/timezones/vendor_rates/{id}/delete/{type}','TimezonesController@vendor_delete');
-	Route::any('/timezones/vendor_rates/{id}', 'TimezonesController@vednorIndex');
+	Route::any('/timezones_vendor/vendor_rates/search_ajax_datagrid/{type}/{id}','TimezoneVendorController@search_ajax_datagrid');
+	Route::any('/timezones_vendor/vendor_rates/changeSelectedStatus/{type}','TimezoneVendorController@vendor_changeSelectedStatus');
+	Route::any('/timezones_vendor/vendor_rates/store','TimezoneVendorController@store');
+	Route::any('/timezones_vendor/vendor_rates/update/{id}','TimezoneVendorController@update');
+	Route::any('/timezones_vendor/vendor_rates/{id}/delete/{type}','TimezoneVendorController@destroy');
+	Route::any('/timezones_vendor/vendor_rates/{id}', 'TimezoneVendorController@Index');
 	//Route::any('/timezones/vendor_rates/changeSelectedStatus/{type}','TimezonesController@vendor_changeSelectedStatus');
 
 
