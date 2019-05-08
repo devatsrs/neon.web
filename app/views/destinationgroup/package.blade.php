@@ -135,6 +135,7 @@
         var view_url = baseurl + "/destination_group/show/{id}";
         var delete_url = baseurl + "/destination_group/delete/{id}";
         var datagrid_url = baseurl + "/destination_group/ajax_datagrid";
+        var datagrid_export_url = baseurl + "/destination_group/export_datagrid";
         var datagrid_extra_url = baseurl + "/destination_group_code/ajax_datagrid";
         var checked='';
 
@@ -219,7 +220,7 @@ var nm = 'king';
                             {
                                 "sExtends": "download",
                                 "sButtonText": "Export Data",
-                                "sUrl": datagrid_url,
+                                "sUrl": datagrid_export_url,
                                 sButtonClass: "save-collection"
                             }
                         ]
