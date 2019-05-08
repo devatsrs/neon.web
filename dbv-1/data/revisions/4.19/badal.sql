@@ -57,9 +57,30 @@ INSERT INTO `tblJobType` (`Code`, `Title`, `CreatedDate`, `CreatedBy`) VALUES ('
 ALTER TABLE `tblRateRuleMargin`
 	ADD COLUMN `Type` INT(11) NULL DEFAULT NULL AFTER `FixedValue`;
 
-
 /*Added Quickbook journal post type*/
 INSERT INTO `tblJobType` (`Code`, `Title`, `CreatedDate`, `CreatedBy`) VALUES ('QJP', 'QuickBook Journal Post', '2016-09-29 22:43:01', 'RateManagementSystem');
+
+/*table for vendor rate push in sippy*/
+CREATE TABLE `tblSippyDestinationSet` (
+	`SippyDestinationSetID` INT(11) NOT NULL AUTO_INCREMENT,
+	`CompanyGatewayID` INT(11) NOT NULL DEFAULT '0',
+	`AccountID` INT(11) NOT NULL DEFAULT '0',
+	`TrunkID` INT(11) NOT NULL DEFAULT '0',
+	`AccountName` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`i_vendor` INT(11) NOT NULL DEFAULT '0',
+	`i_connection` INT(11) NOT NULL DEFAULT '0',
+	`i_destination_set` INT(11) NOT NULL DEFAULT '0',
+	`destination_set_name` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`code_rule` TEXT NOT NULL COLLATE 'utf8_unicode_ci',
+	`created_at` DATETIME NULL DEFAULT NULL,
+	`created_by` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`updated_at` DATETIME NULL DEFAULT NULL,
+	`updated_by` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	PRIMARY KEY (`SippyDestinationSetID`)
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB
+;
 
 DROP PROCEDURE IF EXISTS `prc_WSGenerateVendorSippySheetWithPrefix`;
 DELIMITER //
