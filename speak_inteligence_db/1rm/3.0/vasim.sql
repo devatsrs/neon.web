@@ -3585,6 +3585,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
    CREATE TEMPORARY TABLE tmp_RateTableRate_ (
 		ID INT,
+		DestinationType VARCHAR(50),
 		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
 		OriginationDescription VARCHAR(200),
@@ -3624,6 +3625,7 @@ BEGIN
     INSERT INTO tmp_RateTableRate_
     SELECT
 		RateTableRateID AS ID,
+		tblRate.Type AS DestinationType,
 		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
 		OriginationRate.Description AS OriginationDescription,
@@ -3716,6 +3718,12 @@ BEGIN
 		THEN
        	SELECT * FROM tmp_RateTableRate_
 					ORDER BY
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN DestinationType
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeASC') THEN DestinationType
+                END ASC,
 					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
                 END DESC,
@@ -3837,9 +3845,15 @@ BEGIN
         	FROM tmp_RateTableRate_;
 
 		ELSE
-			SELECT group_concat(ID) AS ID,MAX(TimezoneTitle) AS TimezoneTitle,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,MAX(Description),MinimumDuration,Interval1,IntervalN,ConnectionFee,MAX(PreviousRate),Rate,MAX(RateN),EffectiveDate,MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate, MAX(RateCurrency) AS RateCurrency, MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency, MAX(RateCurrencySymbol) AS RateCurrencySymbol, MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol,TimezonesID FROM tmp_RateTableRate_
+			SELECT group_concat(ID) AS ID, MAX(DestinationType) AS DestinationType,MAX(TimezoneTitle) AS TimezoneTitle,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,MAX(Description),MinimumDuration,Interval1,IntervalN,ConnectionFee,MAX(PreviousRate),Rate,MAX(RateN),EffectiveDate,MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate, MAX(RateCurrency) AS RateCurrency, MAX(ConnectionFeeCurrency) AS ConnectionFeeCurrency, MAX(RateCurrencySymbol) AS RateCurrencySymbol, MAX(ConnectionFeeCurrencySymbol) AS ConnectionFeeCurrencySymbol,TimezonesID FROM tmp_RateTableRate_
 					GROUP BY Description, OriginationDescription, MinimumDuration, Interval1, IntervalN, ConnectionFee, Rate, EffectiveDate, ApprovedStatus, TimezonesID
 					ORDER BY
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN DestinationType
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeASC') THEN DestinationType
+                END ASC,
 					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
                 END DESC,
@@ -3971,6 +3985,7 @@ BEGIN
 
 		SET @stm1 = "
 			SELECT
+        		DestinationType AS `Dest. Type`,
         		TimezoneTitle AS `Time of Day`,
 				OriginationCode AS `Orig. Code`,
 				OriginationDescription AS `Orig. Description`,
@@ -4055,6 +4070,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
 	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
 		ID INT,
+		DestinationType VARCHAR(50),
 		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
 		OriginationDescription VARCHAR(200),
@@ -4094,6 +4110,7 @@ BEGIN
 	INSERT INTO tmp_RateTableRate_
 	SELECT
 		RateTableRateAAID AS ID,
+		tblRate.Type AS DestinationType,
 		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
 		OriginationRate.Description AS OriginationDescription,
@@ -4167,6 +4184,12 @@ BEGIN
 
 		SELECT * FROM tmp_RateTableRate_
 		ORDER BY
+			CASE
+	     		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN DestinationType
+	     	END DESC,
+	     	CASE
+	        	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeASC') THEN DestinationType
+	     	END ASC,
 			CASE
             WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
          END DESC,
@@ -4297,6 +4320,7 @@ BEGIN
 
 		SET @stm1 = "
 			SELECT
+        		DestinationType AS `Dest. Type`,
         		TimezoneTitle AS `Time of Day`,
 				OriginationCode AS `Orig. Code`,
 				OriginationDescription AS `Orig. Description`,
@@ -4590,6 +4614,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
 	CREATE TEMPORARY TABLE tmp_RateTableRate_ (
 		RateTableRateID INT,
+		DestinationType VARCHAR(50),
 		TimezoneTitle VARCHAR(50),
 		OriginationCode VARCHAR(50),
 		OriginationDescription VARCHAR(200),
@@ -4626,6 +4651,7 @@ BEGIN
 	INSERT INTO tmp_RateTableRate_
 	SELECT
 		vra.RateTableRateID,
+		r.Type AS DestinationType,
 		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
 		OriginationRate.Description AS OriginationDescription,
@@ -4701,6 +4727,7 @@ BEGIN
 		THEN
 			SELECT
 				RateTableRateID AS ID,
+				DestinationType,
         		TimezoneTitle,
 				OriginationCode,
 				OriginationDescription,
@@ -4735,6 +4762,12 @@ BEGIN
 			FROM
 				tmp_RateTableRate_
 			ORDER BY
+				CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN DestinationType
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeASC') THEN DestinationType
+            END ASC,
 				CASE
                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
             END DESC,
@@ -4856,6 +4889,7 @@ BEGIN
 
 			SELECT
 				group_concat(RateTableRateID) AS ID,
+				MAX(DestinationType) AS DestinationType,
 				MAX(TimezoneTitle) AS TimezoneTitle,
 				group_concat(OriginationCode) AS OriginationCode,
 				OriginationDescription,
@@ -4892,6 +4926,12 @@ BEGIN
 			GROUP BY
 				Description, OriginationDescription, MinimumDuration, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus, TimezonesID
 			ORDER BY
+				CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN DestinationType
+            END DESC,
+            CASE
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeASC') THEN DestinationType
+            END ASC,
 				CASE
                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
             END DESC,
@@ -5020,6 +5060,7 @@ BEGIN
 
 		SET @stm1 = "
 			SELECT
+        		DestinationType AS `Dest. Type`,
         		TimezoneTitle AS `Time of Day`,
 				OriginationCode AS `Orig. Code`,
 				OriginationDescription AS `Orig. Description`,

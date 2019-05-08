@@ -171,12 +171,36 @@ class TimezonesController extends BaseController {
         $data = Input::all();
         $Timezone = Timezones::find($id);
         if ($id != 1 && !empty($Timezone)) {
-            $RateTableRate  = RateTableRate::where(['TimezonesID'=>$id]);
-            $VendorRate     = VendorRate::where(['TimezonesID'=>$id]);
-            $CustomerRate   = CustomerRate::where(['TimezonesID'=>$id]);
+            $RateTableRate              = RateTableRate::where(['TimezonesID'=>$id]);
+            $RateTableDIDRate           = RateTableDIDRate::where(['TimezonesID'=>$id]);
+            $RateTablePKGRate           = RateTablePKGRate::where(['TimezonesID'=>$id]);
+            $RateTableRateAA            = RateTableRateAA::where(['TimezonesID'=>$id]);
+            $RateTableDIDRateAA         = RateTableDIDRateAA::where(['TimezonesID'=>$id]);
+            $RateTablePKGRateAA         = RateTablePKGRateAA::where(['TimezonesID'=>$id]);
+            $VendorRate                 = VendorRate::where(['TimezonesID'=>$id]);
+            $CustomerRate               = CustomerRate::where(['TimezonesID'=>$id]);
+            $RateTableRateArchive       = RateTableRateArchive::where(['TimezonesID'=>$id]);
+            $RateTableDIDRateArchive    = RateTableDIDRateArchive::where(['TimezonesID'=>$id]);
+            $RateTablePKGRateArchive    = RateTablePKGRateArchive::where(['TimezonesID'=>$id]);
+            $VendorRateArchive          = VendorRateArchive::where(['TimezonesID'=>$id]);
+            $CustomerRateArchive        = CustomerRateArchive::where(['TimezonesID'=>$id]);
 
             // if no rates against any ratetable, customer or vendor then delete timezone straight
-            if($RateTableRate->count() == 0 && $VendorRate->count() == 0 && $CustomerRate->count() == 0) {
+            if(
+                $RateTableRate->count() == 0 &&
+                $RateTableDIDRate->count() == 0 &&
+                $RateTablePKGRate->count() == 0 &&
+                $RateTableRateAA->count() == 0 &&
+                $RateTableDIDRateAA->count() == 0 &&
+                $RateTablePKGRateAA->count() == 0 &&
+                $VendorRate->count() == 0 &&
+                $CustomerRate->count() == 0 &&
+                $RateTableRateArchive->count() == 0 &&
+                $RateTableDIDRateArchive->count() == 0 &&
+                $RateTablePKGRateArchive->count() == 0 &&
+                $VendorRateArchive->count() == 0 &&
+                $CustomerRateArchive->count() == 0
+            ) {
                 if($Timezone->delete()) {
                     return Response::json(array("status" => "success", "message" => "Timezone Deleted Successfully"));
                 } else {
@@ -189,8 +213,18 @@ class TimezonesController extends BaseController {
                     try {
                         DB::beginTransaction();
                         $RateTableRate->delete();
+                        $RateTableDIDRate->delete();
+                        $RateTablePKGRate->delete();
+                        $RateTableRateAA->delete();
+                        $RateTableDIDRateAA->delete();
+                        $RateTablePKGRateAA->delete();
                         $VendorRate->delete();
                         $CustomerRate->delete();
+                        $RateTableRateArchive->delete();
+                        $RateTableDIDRateArchive->delete();
+                        $RateTablePKGRateArchive->delete();
+                        $VendorRateArchive->delete();
+                        $CustomerRateArchive->delete();
 
                         if($Timezone->delete()) {
                             DB::commit();
@@ -205,24 +239,40 @@ class TimezonesController extends BaseController {
                 } else { // send confirmation to user that all rates will be delete against ratetables/customer/vendors
                     $RateTables = $Vendors = $Customers = $message = $msg = '';
                     $TimezoneName = $Timezone->Title;
-                    if($RateTableRate->count() > 0) {
-                        $RateTableIds   = $RateTableRate->distinct()->get()->lists('RateTableId');
+                    if($RateTableRate->count() > 0 || $RateTableDIDRate->count() > 0 || $RateTablePKGRate->count() > 0 || $RateTableRateAA->count() > 0 || $RateTableDIDRateAA->count() > 0 || $RateTablePKGRateAA->count() > 0 || $RateTableRateArchive->count() > 0 || $RateTableDIDRateArchive->count() > 0 || $RateTablePKGRateArchive->count() > 0) {
+                        $RTId1  = $RateTableRate->distinct()->get()->lists('RateTableId');
+                        $RTId2  = $RateTableDIDRate->distinct()->get()->lists('RateTableId');
+                        $RTId3  = $RateTablePKGRate->distinct()->get()->lists('RateTableId');
+                        $RTId4  = $RateTableRateAA->distinct()->get()->lists('RateTableId');
+                        $RTId5  = $RateTableDIDRateAA->distinct()->get()->lists('RateTableId');
+                        $RTId6  = $RateTablePKGRateAA->distinct()->get()->lists('RateTableId');
+                        $RTId7  = $RateTableRateArchive->distinct()->get()->lists('RateTableId');
+                        $RTId8  = $RateTableDIDRateArchive->distinct()->get()->lists('RateTableId');
+                        $RTId9  = $RateTablePKGRateArchive->distinct()->get()->lists('RateTableId');
+                        $RateTableIds   = array_unique(array_merge($RTId1,$RTId2,$RTId3,$RTId4,$RTId5,$RTId6,$RTId7,$RTId8,$RTId9));
+
                         $RateTables     = RateTable::whereIn('RateTableId',$RateTableIds)->get()->lists('RateTableName');
                         $RateTables     = implode(',',$RateTables);
 
                         $message       .= "\"".$RateTables."\" RateTables has rates under ".$TimezoneName." Timezone\n";
                         $msg           .= 'RateTables/';
                     }
-                    if($VendorRate->count() > 0) {
-                        $VendorIds      = $VendorRate->distinct()->get()->lists('AccountId');
+                    if($VendorRate->count() > 0 || $VendorRateArchive->count() > 0) {
+                        $VId1      = $VendorRate->distinct()->get()->lists('AccountId');
+                        $VId2      = $VendorRateArchive->distinct()->get()->lists('AccountId');
+                        $VendorIds      = array_unique(array_merge($VId1,$VId2));
+
                         $Vendors        = Account::whereIn('AccountId',$VendorIds)->get()->lists('AccountName');
                         $Vendors        = implode(',',$Vendors);
 
                         $message       .= "\"".$Vendors."\" Vendors has rates under ".$TimezoneName." Timezone\n";
                         $msg           .= 'Vendors/';
                     }
-                    if($CustomerRate->count() > 0) {
-                        $CustomerIds    = $CustomerRate->distinct()->get()->lists('CustomerID');
+                    if($CustomerRate->count() > 0 || $CustomerRateArchive->count() > 0) {
+                        $CId1           = $CustomerRate->distinct()->get()->lists('CustomerID');
+                        $CId2           = $CustomerRate->distinct()->get()->lists('CustomerID');
+                        $CustomerIds    = array_unique(array_merge($CId1,$CId2));
+
                         $Customers      = Account::whereIn('AccountId',$CustomerIds)->get()->lists('AccountName');
                         $Customers      = implode(',',$Customers);
 

@@ -65,7 +65,7 @@ class RateTablesController extends \BaseController {
         $TypeVoiceCall  = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
         $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
 
-        $columns_voicecall  = array('RateTableRateID', 'TimezoneTitle', 'OriginationCode', 'OriginationDescription', 'Code', 'Description', 'MinimumDuration', 'Interval1', 'IntervalN', 'ConnectionFee', 'PreviousRate', 'Rate', 'RateN', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy', 'RoutingCategoryName', 'Preference');
+        $columns_voicecall  = array('RateTableRateID', 'DestinationType', 'TimezoneTitle', 'OriginationCode', 'OriginationDescription', 'Code', 'Description', 'MinimumDuration', 'Interval1', 'IntervalN', 'ConnectionFee', 'PreviousRate', 'Rate', 'RateN', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy', 'RoutingCategoryName', 'Preference');
         $columns_did        = array('RateTableRateID', 'AccessType', 'Country', 'OriginationCode', 'Code', 'City', 'Tariff', 'TimezoneTitle', 'OneOffCost', 'MonthlyCost', 'CostPerCall', 'CostPerMinute', 'SurchargePerCall', 'SurchargePerMinute', 'OutpaymentPerCall', 'OutpaymentPerMinute', 'Surcharges', 'Chargeback', 'CollectionCostAmount', 'CollectionCostPercentage', 'RegistrationCostPerNumber', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
         $columns_pkg        = array('RateTableRateID', 'TimezoneTitle', 'Code', 'OneOffCost', 'MonthlyCost', 'PackageCostPerMinute', 'RecordingCostPerMinute', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
 
@@ -849,11 +849,11 @@ class RateTablesController extends \BaseController {
         $RateTableName = str_replace( '\/','-',$RateTableName);
 
         if($type=='csv'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rate Table Rates.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($rate_table_rates);
         }elseif($type=='xlsx'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xls';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rate Table Rates.xls';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($rate_table_rates);
         }
