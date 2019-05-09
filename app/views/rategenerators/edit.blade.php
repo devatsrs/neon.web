@@ -219,7 +219,12 @@
 
                                             @if(count($rategenerator_rule['RateRuleMargin']))
                                             @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
-                                                {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} {{$materulemargin->FixedValue}} <br>
+                                                    @if($materulemargin->Type == 1)
+                                                        <?php $tmptype = 'Rate'; ?>
+                                                    @else
+                                                        <?php $tmptype = 'Connection Fee'; ?>
+                                                    @endif
+                                                   {{$tmptype}} | {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} {{$materulemargin->FixedValue}} <br>
 
                                                 @endforeach
                                             @endif

@@ -2643,14 +2643,15 @@ class InvoicesController extends \BaseController {
         //$data['type'] = 'journal';
         if($data['type'] == 'journal'){
             $msgtype = 'Journal';
+            $jobType = JobType::where(["Code" => 'QJP'])->first(["JobTypeID", "Title"]);
         }
         else{
             $msgtype = 'Invoice';
+            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
         }
         $CompanyID = User::get_companyID();
         $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
-            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
             $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
             $jobdata["CompanyID"] = $CompanyID;
             $jobdata["JobTypeID"] = $jobType->JobTypeID ;
@@ -3672,6 +3673,7 @@ class InvoicesController extends \BaseController {
 
 
         $PaymentResponse =array();
+        /*
         if(isset($data["Success"])){
             $PaymentResponse['PaymentMethod'] = $data["PaymentMethod"];
             $PaymentResponse['transaction_notes'] = 'SagePay transaction_id '.$data["Transaction"];
@@ -3684,6 +3686,28 @@ class InvoicesController extends \BaseController {
             $PaymentResponse['transaction_notes'] = 'SagePay transaction_id '.$data['tx'];
             $PaymentResponse['Amount'] = floatval($data["amt"]);
             $PaymentResponse['Transaction'] = $data["tx"];
+            $PaymentResponse['Response'] = '';
+            $PaymentResponse['status'] = 'success';
+        }*/
+        if(isset($data["TransactionAccepted"]) && strtolower($data["TransactionAccepted"]) == "true"  ){
+            /** Example response
+             * (
+            [TransactionAccepted] => true
+            [CardHolderIpAddr] => 154.117.133.170
+            [RequestTrace] => 23793.64966948
+            [Reference] => 1:20190327173838
+            [Extra1] =>
+            [Extra2] => m10=1
+            [Extra3] =>
+            [Amount] => 345.57
+            [Method] => 1
+            [m10] => 1
+            )
+             */
+            $PaymentResponse['PaymentMethod'] = 'SagePay';
+            $PaymentResponse['transaction_notes'] = 'SagePay transaction_id '.$data["RequestTrace"];
+            $PaymentResponse['Amount'] = floatval($data["Amount"]);
+            $PaymentResponse['Transaction'] = $data["RequestTrace"];
             $PaymentResponse['Response'] = '';
             $PaymentResponse['status'] = 'success';
         }
