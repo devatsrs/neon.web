@@ -111,7 +111,7 @@ public static function getCountryName($id)
         $post_data = $postdata;
         
         try {
-
+            Log::info("Post Data" . print_r($post_data,true) );
             $rules['iDisplayStart'] = 'required|Min:1';
             $rules['DestinationGroupSetID'] = 'required';
             $rules['iDisplayLength'] = 'required';

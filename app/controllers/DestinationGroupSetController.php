@@ -119,7 +119,7 @@ class DestinationGroupSetController extends \BaseController {
            // $rules['CodedeckID'] = 'required';
             $validator = Validator::make($post_data, $rules);
              if ($validator->fails()) {
-                 
+
                  return json_validator_response($validator);
              }
             try {
