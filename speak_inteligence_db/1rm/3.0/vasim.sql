@@ -6350,3 +6350,117 @@ ThisSP:BEGIN
 
 END//
 DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSMapCountryRateTableDIDRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSMapCountryRateTableDIDRate`(
+	IN `p_ProcessID` TEXT,
+	IN `p_CountryMapping` INT,
+	IN `p_OriginationCountryMapping` INT
+)
+ThisSP:BEGIN
+
+	DECLARE v_Country_Error_ INT DEFAULT 0;
+	DECLARE v_OCountry_Error_ INT DEFAULT 0;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+	CREATE TEMPORARY TABLE tmp_JobLog_ (
+		Message longtext
+	);
+
+	IF p_CountryMapping = 1
+	THEN
+		SELECT
+			COUNT(*) INTO v_Country_Error_
+		FROM
+			tblTempRateTableDIDRate temp
+		LEFT JOIN
+			tblCountry c ON (c.Country=temp.CountryCode OR FIND_IN_SET(temp.CountryCode,c.Keywords) != 0)
+		WHERE
+			temp.ProcessID = p_ProcessID AND
+			temp.CountryCode IS NOT NULL AND
+			temp.CountryCode != '' AND
+			c.CountryID IS NULL;
+
+		IF v_Country_Error_ = 0
+		THEN
+			UPDATE
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON (c.Country=temp.CountryCode OR FIND_IN_SET(temp.CountryCode,c.Keywords) != 0)
+			SET
+				temp.CountryCode = c.Prefix
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.CountryCode IS NOT NULL AND
+				temp.CountryCode != '' AND
+				c.CountryID IS NOT NULL;
+		ELSE
+			INSERT INTO tmp_JobLog_ (Message)
+			SELECT DISTINCT
+				CONCAT(temp.CountryCode , ' Country NOT FOUND IN DATABASE')
+			FROM
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON (c.Country=temp.CountryCode OR FIND_IN_SET(temp.CountryCode,c.Keywords) != 0)
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.CountryCode IS NOT NULL AND
+				temp.CountryCode != '' AND
+				c.CountryID IS NULL;
+		END IF;
+	END IF;
+
+	IF p_OriginationCountryMapping = 1
+	THEN
+		SELECT
+			COUNT(*) INTO v_OCountry_Error_
+		FROM
+			tblTempRateTableDIDRate temp
+		LEFT JOIN
+			tblCountry c ON (c.Country=temp.OriginationCountryCode OR FIND_IN_SET(temp.OriginationCountryCode,c.Keywords) != 0)
+		WHERE
+			temp.ProcessID = p_ProcessID AND
+			temp.OriginationCountryCode IS NOT NULL AND
+			temp.OriginationCountryCode != '' AND
+			c.CountryID IS NULL;
+
+		IF v_Country_Error_ = 0
+		THEN
+			UPDATE
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON (c.Country=temp.OriginationCountryCode OR FIND_IN_SET(temp.OriginationCountryCode,c.Keywords) != 0)
+			SET
+				temp.OriginationCountryCode = c.Prefix
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.OriginationCountryCode IS NOT NULL AND
+				temp.OriginationCountryCode != '' AND
+				c.CountryID IS NULL;
+		ELSE
+			INSERT INTO tmp_JobLog_ (Message)
+			SELECT DISTINCT
+				CONCAT(temp.OriginationCountryCode , ' Origination Country NOT FOUND IN DATABASE')
+			FROM
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON (c.Country=temp.OriginationCountryCode OR FIND_IN_SET(temp.OriginationCountryCode,c.Keywords) != 0)
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.OriginationCountryCode IS NOT NULL AND
+				temp.OriginationCountryCode != '' AND
+				c.CountryID IS NOT NULL;
+		END IF;
+	END IF;
+
+	SELECT * FROM tmp_JobLog_;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
