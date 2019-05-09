@@ -708,6 +708,13 @@ class Invoice extends \Eloquent {
 
     }
 
+    public static function getStatusDropDownPurchaseInvoice(){
+
+        return [
+            Invoice::AWAITING   => 'Awaiting',
+            Invoice::PAID       => 'Paid'
+        ];
+    }
     /**
      * IIF File Format For Journal Export
      * !TRNS	TRNSID	TRNSTYPE	DATE	ACCNT	CLASS	AMOUNT	DOCNUM	MEMO
