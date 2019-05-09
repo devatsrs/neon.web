@@ -285,6 +285,18 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
         return Auth::user()->EmailAddress;
     }
+    public static function get_owner_by_id($owner){
+        if(!empty($owner) && is_numeric($owner)){
+            $user = User::select('FirstName','LastName')->where('UserID',$owner)->first();
+            $OwnerName = $user->FirstName . ' ' . $user->LastName;
+        }else{
+            $OwnerName = '';
+        }      
+    
+      
+       return $OwnerName;
+       
+    }
 
 
     public static function checkMinRights($user_role){

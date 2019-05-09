@@ -2643,14 +2643,15 @@ class InvoicesController extends \BaseController {
         //$data['type'] = 'journal';
         if($data['type'] == 'journal'){
             $msgtype = 'Journal';
+            $jobType = JobType::where(["Code" => 'QJP'])->first(["JobTypeID", "Title"]);
         }
         else{
             $msgtype = 'Invoice';
+            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
         }
         $CompanyID = User::get_companyID();
         $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
-            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
             $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
             $jobdata["CompanyID"] = $CompanyID;
             $jobdata["JobTypeID"] = $jobType->JobTypeID ;

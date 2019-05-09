@@ -12,6 +12,12 @@
                 <div class="row">
                     <div class="col-md-2">
                         <div class="form-group">
+                            <label for="field-4" class="control-label">Type</label>
+                            {{Form::select('Type',array( "1"=>"Rate","2"=>"Connection Fee"),'' , array("class"=>"select2 small","id"=>'Type'))}}
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
                             <label for="field-4" class="control-label">Min Rate</label>
                             <input type="text" name="MinRate" class="form-control" id="field-5" placeholder="">
                         </div>
@@ -56,6 +62,7 @@
                 <table class="table table-bordered datatable" id="table-rate-generator-margin">
                     <thead>
                     <tr>
+                        <th>Type</th>
                         <th>Min Rate</th>
                         <th>Max Rate</th>
                         <th>Margin</th>
@@ -82,12 +89,17 @@
             AddMargin = $(this).prev("div.hiddenRowData").find("input[name='AddMargin']").val();
             FixedValue = $(this).prev("div.hiddenRowData").find("input[name='FixedValue']").val();
             RateRuleMarginId = $(this).prev("div.hiddenRowData").find("input[name='RateRuleMarginId']").val();
+            Type = $(this).prev("div.hiddenRowData").find("input[name='Type']").val();
+
 
             $("#edit-margin-form").find("input[name='MinRate']").val(MinRate);
             $("#edit-margin-form").find("input[name='MaxRate']").val(MaxRate);
             $("#edit-margin-form").find("input[name='AddMargin']").val(AddMargin);
             $("#edit-margin-form").find("input[name='RateRuleMarginId']").val(RateRuleMarginId);
             $("#edit-margin-form").find("input[name='FixedValue']").val(FixedValue);
+            //alert($("#edit-margin-form select[name='Type']").find(":selected").val());
+            $("#edit-margin-form select[name='Type'] ").select2().select2('val',Type);
+
 
             jQuery('#modal-RateGenerator').modal('show', {backdrop: 'static'});
         });
@@ -115,6 +127,12 @@
                     <div class="modal-body">
 
                         <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-4" class="control-label">Type</label>
+                                    {{Form::select('Type',array( "1"=>"Rate","2"=>"Connection Fee"),'' , array("class"=>"select2 small","id"=>'Type'))}}
+                                </div>
+                            </div>
                             <div class="col-md-6">
 
                                 <div class="form-group">
@@ -171,7 +189,7 @@
 
         jQuery(document).ready(function ($) {
 
-            var list_fields  = ['MinRate', 'MaxRate', 'AddMargin', 'FixedValue', 'RateRuleMarginId'];
+            var list_fields  = ['Type','MinRate', 'MaxRate', 'AddMargin', 'FixedValue', 'RateRuleMarginId'];
 
             data_table = $("#table-rate-generator-margin").dataTable({
 
@@ -189,6 +207,14 @@
                 "oTableTools": {},
                 "aoColumns":
                         [
+                            { "bSortable": false,
+                                mRender: function ( id, type, full ) {
+                                    if(id == 1)
+                                        return 'Rate';
+                                    else
+                                        return 'Connection Fee';
+                                }
+                            },
                             { "bSortable": false },
                             { "bSortable": false },
                             { "bSortable": false },
