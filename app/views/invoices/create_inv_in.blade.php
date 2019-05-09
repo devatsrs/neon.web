@@ -48,10 +48,13 @@
           <div class="clearfix margin-bottom "></div>
           <label for="field-1" class="col-sm-3 control-label">Invoice #</label>
           <div class="col-sm-9"> {{Form::text('InvoiceNumber','',array("Placeholder"=>"", "class"=>"form-control"))}} </div>
+            <div class="clearfix margin-bottom "></div>
+            <label for="field-1" class="col-sm-3 control-label">Status</label>
+            <div class="col-sm-9">{{Form::select('InvoiceStatus',Invoice::getStatusDropDownPurchaseInvoice(),'',array("class"=>"select2"))}} </div>
           <div class="clearfix margin-bottom "></div>
            <label for="field-1" class="col-sm-3 control-label">Description</label>
           <div class="col-sm-9"> {{Form::textarea('Description','',array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
-          <div class="clearfix margin-bottom "></div>
+
         </div>
         
         <div class="col-sm-6">
@@ -76,7 +79,7 @@
             </div>
              <label class="col-sm-2 control-label" for="field-1">Reconcile</label>
             <div class="col-sm-6">
-              <table class="reconcile_table table table-bordered datatable  hidden">
+              <table class="reconcile_table table table-bordered datatable hidden">
                 <thead>
                 <th></th>
                   <th>Total</th>
@@ -148,8 +151,6 @@
                   <th width="10%">Unit Price</th>
                   <th width="10%">Quantity</th>
                   <th width="10%" >Discount</th>
-                  <th width="15%">Tax 1</th>
-                  <th width="15%">Tax 2</th>
                   <th class="hidden" width="10%">Total Tax</th>
                   <th width="10%">Line Total</th>
                 </tr>
@@ -273,8 +274,8 @@ var invoice_tax_html = '<td><button title="Delete Tax" type="button" class="btn 
 var add_row_html = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{addslashes(Form::SelectControl('item_and_Subscription',0,'',0,'InvoiceDetail[ProductID][]',0))}}</td><td>{{Form::textarea('InvoiceDetail[Description][]','',array("class"=>"form-control invoice_estimate_textarea autogrow descriptions","rows"=>1))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty"))}}</td>'
 add_row_html += '<td class="text-center hidden">{{Form::text('InvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
 add_row_html += '<td class="text-center">{{Form::text('InvoiceDetail[DiscountAmount][]',0,array("class"=>"form-control DiscountAmount","data-min"=>"1", "data-mask"=>"fdecimal"))}} {{Form::Select("InvoiceDetail[DiscountType][]",array("Percentage"=>"%","Flat"=>"Flat"),'%',array("class"=>"select22 small DiscountType"))}}</td>';
-add_row_html += '<td>{{addslashes(Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID"]))}}</td>';
-add_row_html += '<td>{{addslashes(Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID2][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID2"]))}}</td>';
+/*add_row_html += '<td>{{addslashes(Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID"]))}}</td>';
+add_row_html += '<td>{{addslashes(Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID2][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID2"]))}}</td>';*/
 	 
      add_row_html += '<td class="hidden">{{Form::text('InvoiceDetail[TaxAmount][]',"0",array("class"=>"form-control  TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>';
      add_row_html += '<td>{{Form::text('InvoiceDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}';
