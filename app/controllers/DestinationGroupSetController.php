@@ -118,9 +118,10 @@ class DestinationGroupSetController extends \BaseController {
             $rules['Name'] = 'required|unique:tblDestinationGroupSet,Name,' . $id . ',DestinationGroupSetID,CompanyID,' . $CompanyID;
            // $rules['CodedeckID'] = 'required';
             $validator = Validator::make($post_data, $rules);
-            if ($validator->fails()) {
-                return Response::json($validator->errors(),true);
-            }
+             if ($validator->fails()) {
+                 
+                 return json_validator_response($validator);
+             }
             try {
                 try {
                     $DestinationGroupSet = DestinationGroupSet::findOrFail($id);
