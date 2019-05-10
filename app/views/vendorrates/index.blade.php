@@ -173,6 +173,7 @@
         <th width="5%">Rate1 ({{$CurrencySymbol}})</th>
         <th width="5%">RateN ({{$CurrencySymbol}})</th>
         <th width="8%">Effective Date</th>
+        <th width="8%">Rate Prefix</th>
         <th width="8%">End Date</th>
         <th width="8%">Modified Date</th>
         <th width="8%">Modified By</th>
@@ -187,7 +188,7 @@
 <script type="text/javascript">
     var $searchFilter = {};
     var checked='';
-    var list_fields  = ['VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','RateN','EffectiveDate','EndDate','updated_at','updated_by'];
+    var list_fields  = ['VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','RateN','EffectiveDate','RatePrefix','EndDate','updated_at','updated_by'];
     var Code, Description, Country,Trunk,Effective,update_new_url;
 
 jQuery(document).ready(function($) {
@@ -509,10 +510,11 @@ jQuery(document).ready(function($) {
                         {}, //6 Rate
                         {}, //7 RateN
                         {}, //8 EffectiveDate
-                        {}, //9 EndDate
-                        {}, //10 updated at
-                        {}, //11 updated by
-                        {// 12 Action
+                        {}, //9 RatePrefix
+                        {}, //10 EndDate
+                        {}, //11 updated at
+                        {}, //12 updated by
+                        {// 13 Action
                             mRender: function(id, type, full) {
 
                                 var action, edit_, delete_,VendorRateID;
@@ -544,7 +546,7 @@ jQuery(document).ready(function($) {
                                 }
                                 return action;
                             }
-                        }, // 11 Action
+                        }, // 14 Action
                     ],
             "oTableTools":
             {
