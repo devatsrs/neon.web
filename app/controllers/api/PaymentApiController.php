@@ -367,6 +367,8 @@ class PaymentApiController extends ApiController {
 				$PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentMethod);
 				Log::info("$PaymentGatewayID = ".$PaymentGatewayID);
 				$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+				// If customer is reseller then get parent company id
+				$CompanyID = getParentCompanyIdIfReseller($CompanyID);
 				$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
 				$CustomerProfile = AccountPaymentProfile::getActiveProfile($Account->AccountID, $PaymentGatewayID);
 				if (!empty($CustomerProfile)){
