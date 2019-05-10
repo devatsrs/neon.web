@@ -1461,6 +1461,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Destination Group Set
 	Route::any('/destination_group_set','DestinationGroupSetController@index');
 	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupSetController@ajax_datagrid');
+	Route::any('/destination_group_set/export_datagrid','DestinationGroupSetController@export_datagrid');
 	Route::any('/destination_group_set/store','DestinationGroupSetController@store');
 	Route::any('/destination_group_set/update/{id}','DestinationGroupSetController@update');
 	Route::any('/destination_group_set/delete/{id}','DestinationGroupSetController@delete');
@@ -1468,6 +1469,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	//Destination Group
 	Route::any('/destination_group/ajax_datagrid','DestinationGroupController@group_ajax_datagrid');
+	Route::any('/destination_group/export_datagrid','DestinationGroupController@export_datagrid');
 	Route::any('/destination_group/store','DestinationGroupController@group_store');
 	Route::any('/destination_group/update/{id}','DestinationGroupController@group_update');
 	Route::any('/destination_group/update_name/{id}','DestinationGroupController@update_name');
@@ -1653,17 +1655,17 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/timezones/changeSelectedStatus/{type}','TimezonesController@changeSelectedStatus');
 	Route::any('/timezones/store','TimezonesController@store');
 	Route::any('/timezones/update/{id}','TimezonesController@update');
-
-
+	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
+	Route::controller('timezones', 'TimezonesController');
 	
 	//Vendor Timezone
 	// Route::any('/timezones/vendor_rates/{id}/delete/{type}','TimezonesController@delete');
-	Route::any('/timezones/vendor_rates/search_ajax_datagrid/{type}/{id}','TimezonesController@search_ajax_datagrid_Vendor');
-	Route::any('/timezones/vendor_rates/changeSelectedStatus/{type}','TimezonesController@vendor_changeSelectedStatus');
-	Route::any('/timezones/vendor_rates/store','TimezonesController@vendor_store');
-	Route::any('/timezones/vendor_rates/update/{id}','TimezonesController@vendor_update');
-	Route::any('/timezones/vendor_rates/{id}/delete/{type}','TimezonesController@vendor_delete');
-	Route::any('/timezones/vendor_rates/{id}', 'TimezonesController@vednorIndex');
+	Route::any('/timezones_vendor/vendor_rates/search_ajax_datagrid/{type}/{id}','TimezoneVendorController@search_ajax_datagrid');
+	Route::any('/timezones_vendor/vendor_rates/changeSelectedStatus/{type}','TimezoneVendorController@vendor_changeSelectedStatus');
+	Route::any('/timezones_vendor/vendor_rates/store','TimezoneVendorController@store');
+	Route::any('/timezones_vendor/vendor_rates/update/{id}','TimezoneVendorController@update');
+	Route::any('/timezones_vendor/vendor_rates/{id}/delete/{type}','TimezoneVendorController@destroy');
+	Route::any('/timezones_vendor/vendor_rates/{id}', 'TimezoneVendorController@Index');
 	//Route::any('/timezones/vendor_rates/changeSelectedStatus/{type}','TimezonesController@vendor_changeSelectedStatus');
 
 

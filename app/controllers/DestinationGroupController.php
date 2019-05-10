@@ -154,6 +154,21 @@ class DestinationGroupController extends \BaseController {
         return $response;
     }
 
+    public function export_datagrid(){
+        $getdata = Input::all();
+        $response = DestinationGroup::DataGrid($getdata);
+        $getdata["Export"] = 1;
+
+            $excel_data = $response;
+            $excel_data = json_decode(json_encode($excel_data), true);
+            Excel::create('Destination Group Set', function ($excel) use ($excel_data) {
+                $excel->sheet('Destination Group Set', function ($sheet) use ($excel_data) {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+
+    }
+
     public function appcodes()
     {
         $inputdata = Input::all();
@@ -237,7 +252,7 @@ class DestinationGroupController extends \BaseController {
         $validator = Validator::make($postdata, $rules);
         if ($validator->fails()) {
            // return json_validator_response($validator);
-        return Response::json(['status' => 'fail', 'message' => $validator->errors()]);
+            return json_validator_response($validator);
         }
         try {
             $insertdata = array();
@@ -247,7 +262,8 @@ class DestinationGroupController extends \BaseController {
             if(isset($postdata['CountryID'])){$insertdata['CountryName'] = $postdata['CountryID'];}
             if(isset($postdata['Type'])){$insertdata['Type'] = $postdata['Type'];}
             if(isset($postdata['Prefix'])){$insertdata['Prefix'] = $postdata['Prefix'];}
-            if(isset($postdata['CityTariff'])){$insertdata['CityTariff'] = $postdata['CityTariff'];}
+            if(isset($postdata['City'])){$insertdata['City'] = $postdata['City'];}
+            if(isset($postdata['Tariff'])){$insertdata['Tariff'] = $postdata['Tariff'];}
             if(isset($postdata['PackageID'])){$insertdata['PackageID'] = $postdata['PackageID'];}
             $insertdata['CreatedBy'] = User::get_user_full_name();
             $insertdata['created_at'] = date("Y-m-d H:i:s");
@@ -337,13 +353,13 @@ class DestinationGroupController extends \BaseController {
                             Log::error($err);
                         }
                         Log::info('Destination Group is in Use');
-                        return Response::json(['status' => 'fail','message' =>'Destination Group is in Use, You cant delete this Destination Group.']);
+                        return Response::json(['status' => 'failed','message' =>'Destination Group is in Use, You cant delete this Destination Group.']);
                     }
                 } else {
-                    return Response::json(['status' => 'fail','message' =>'Destination Group is in Use, You cant delete this Destination Group.']);
+                    return Response::json(['status' => 'failed','message' =>'Destination Group is in Use, You cant delete this Destination Group.']);
                 }
             } else {
-                return Response::json(['status' => 'fail','message' =>"Provide Valid Integer Value"]);
+                return Response::json(['status' => 'failed','message' =>"Provide Valid Integer Value"]);
             }
         } catch (\Exception $e) {
             Log::info($e);
@@ -367,7 +383,7 @@ class DestinationGroupController extends \BaseController {
             $rules['DestinationGroupID'] = 'required';
             $validator = Validator::make($postdata, $rules);
             if ($validator->fails()) {
-                return Response::json(['status' => 'fail','message' => $validator->errors()]);
+                return json_validator_response($validator);
             }
             try {
                 try {
@@ -432,7 +448,7 @@ class DestinationGroupController extends \BaseController {
             $rules['DestinationGroupID'] = 'required';
             $validator = Validator::make($postdata, $rules);
             if ($validator->fails()) {
-                return Response::json(['status' => 'fail','message' => $validator->errors()]);
+                return json_validator_response($validator);
             }
         
           try {
@@ -471,10 +487,15 @@ class DestinationGroupController extends \BaseController {
                     $updatedata['Prefix'] = $postdata['Prefix'];
                     $Prefix= $postdata['Prefix'];
                 }
-                if(isset($postdata['CityTariff'])) {
-                    $updatedata['CityTariff'] = $postdata['CityTariff'];
-                    $CityTariff= $postdata['CityTariff'];
+                if(isset($postdata['City'])) {
+                    $updatedata['City'] = $postdata['City'];
+                    $City= $postdata['City'];
                 }
+              if(isset($postdata['Tariff'])) {
+                  $updatedata['Tariff'] = $postdata['Tariff'];
+                  $Tariff= $postdata['Tariff'];
+              }
+
                 if(isset($postdata['PackageID'])) {
                     $updatedata['PackageID'] = $postdata['PackageID'];
                     $PackageID= $postdata['PackageID'];

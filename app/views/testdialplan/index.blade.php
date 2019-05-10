@@ -23,8 +23,11 @@
                     <label class="control-label" for="field-1">Routing Profile</label>
                     {{Form::select('routingprofile', [null=>'All Available Routing Profiles'] + $routingprofile + ['DefaultLCR'=>'Default LCR'], (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
                 </div>
-                
-                <div class="form-group" style="display:none;">
+                <div class="form-group S">
+                    <label class="control-label" for="field-1">Country</label>
+                    {{Form::select('countryList', $countryList ,'',array("class"=>"select2"))}}
+                </div>
+                <div class="form-group">
                     <label class="control-label" for="field-1">Date and Time</label>
                     <div class="row">
                         <div class="col-sm-6">
@@ -183,7 +186,10 @@ $('#filter-button-toggle').show();
                 $('#table-4').show();
                 $searchFilter.DestinationCode = $("#testdialplan_form [name='DestinationCode']").val();
                 $searchFilter.routingprofile = $("#testdialplan_form select[name='routingprofile']").val();
-                
+                $searchFilter.countryList = $("#testdialplan_form select[name='countryList']").val();
+                $searchFilter.StartDate = $("#testdialplan_form [name='StartDate']").val();
+                $searchFilter.StartHour = $("#testdialplan_form [name='StartHour']").val();
+
                 
                 data_table = $("#table-4").dataTable({
                     "bDestroy": true,
@@ -195,9 +201,11 @@ $('#filter-button-toggle').show();
                     "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[1, 'asc']],
                     "fnServerParams": function (aoData) {
-                        aoData.push({"name": "DestinationCode", "value": $searchFilter.DestinationCode}, {"name": "routingprofile","value": $searchFilter.routingprofile});
+                        aoData.push({"name": "DestinationCode", "value": $searchFilter.DestinationCode}, {"name": "routingprofile","value": $searchFilter.routingprofile},{"name": "countryList", "value": $searchFilter.countryList},
+                                {"name": "StartDate", "value": $searchFilter.StartDate},{"name": "StartHour", "value": $searchFilter.StartHour});
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({"name": "DestinationCode","value": $searchFilter.DestinationCode}, {"name": "routingprofile", "value": $searchFilter.routingprofile});
+                        data_table_extra_params.push({"name": "DestinationCode","value": $searchFilter.DestinationCode}, {"name": "routingprofile", "value": $searchFilter.routingprofile},{"name": "countryList", "value": $searchFilter.countryList},
+                                {"name": "StartDate", "value": $searchFilter.StartDate},{"name": "StartHour", "value": $searchFilter.StartHour});
                     },
                     "aoColumns": [
                         {"bSortable": false, mRender: function (id, type, full) { return id;}},

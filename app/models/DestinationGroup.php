@@ -111,7 +111,7 @@ public static function getCountryName($id)
         $post_data = $postdata;
         
         try {
-
+           // Log::info("Post Data" . print_r($post_data,true) );
             $rules['iDisplayStart'] = 'required|Min:1';
             $rules['DestinationGroupSetID'] = 'required';
             $rules['iDisplayLength'] = 'required';
@@ -133,7 +133,7 @@ public static function getCountryName($id)
                 $Description = $post_data['Description'];
             }
             if (isset($post_data['CountryID'])) {
-                $CountryID = (int)$post_data['CountryID'];
+                $CountryID = $post_data['CountryID'];
             }
             if (isset($post_data['Selected'])) {
                 $Selected = $post_data['Selected'] == 'true'?1:0;
