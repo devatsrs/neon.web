@@ -720,7 +720,7 @@
                         {
                             mRender: function(id, type, full) {
                                 if(view==1) {
-                                    return full[2];
+                                    return full[3];
                                 }else
                                     return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
                             },
