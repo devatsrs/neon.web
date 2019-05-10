@@ -22,7 +22,7 @@ class DestinationGroupSet extends \Eloquent
 
     public static function  getRateTypeIDList(){
         $row = RateType::where('Active', 1)->orderBy('Title','asc')->lists('Title','RateTypeID');
-        $row = array(""=> "All") + $row;
+        $row = array(""=> "Select") + $row;
         return $row;
 
     }

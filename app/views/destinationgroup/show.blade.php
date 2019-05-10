@@ -277,7 +277,8 @@
                 $("#showmodal_new").hide();
                 $("#showmodal").show();
                 $('#modal-form-data').attr("action",edit_url);
-                $('#modal-list .panel-title').html('Edit Product Group');
+                $('#modal-list h4').html('Edit Product Group');
+
                 var cur_obj = $(this).prev("div.hiddenRowData");
 
                 for(var i = 0 ; i< list_fields.length; i++){
