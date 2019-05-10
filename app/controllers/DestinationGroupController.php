@@ -252,7 +252,7 @@ class DestinationGroupController extends \BaseController {
         $validator = Validator::make($postdata, $rules);
         if ($validator->fails()) {
            // return json_validator_response($validator);
-        return Response::json(['status' => 'fail', 'message' => $validator->errors()]);
+            return json_validator_response($validator);
         }
         try {
             $insertdata = array();
@@ -353,13 +353,13 @@ class DestinationGroupController extends \BaseController {
                             Log::error($err);
                         }
                         Log::info('Destination Group is in Use');
-                        return Response::json(['status' => 'fail','message' =>'Destination Group is in Use, You cant delete this Destination Group.']);
+                        return Response::json(['status' => 'failed','message' =>'Destination Group is in Use, You cant delete this Destination Group.']);
                     }
                 } else {
-                    return Response::json(['status' => 'fail','message' =>'Destination Group is in Use, You cant delete this Destination Group.']);
+                    return Response::json(['status' => 'failed','message' =>'Destination Group is in Use, You cant delete this Destination Group.']);
                 }
             } else {
-                return Response::json(['status' => 'fail','message' =>"Provide Valid Integer Value"]);
+                return Response::json(['status' => 'failed','message' =>"Provide Valid Integer Value"]);
             }
         } catch (\Exception $e) {
             Log::info($e);
@@ -383,7 +383,7 @@ class DestinationGroupController extends \BaseController {
             $rules['DestinationGroupID'] = 'required';
             $validator = Validator::make($postdata, $rules);
             if ($validator->fails()) {
-                return Response::json(['status' => 'fail','message' => $validator->errors()]);
+                return json_validator_response($validator);
             }
             try {
                 try {
@@ -448,7 +448,7 @@ class DestinationGroupController extends \BaseController {
             $rules['DestinationGroupID'] = 'required';
             $validator = Validator::make($postdata, $rules);
             if ($validator->fails()) {
-                return Response::json(['status' => 'fail','message' => $validator->errors()]);
+                return json_validator_response($validator);
             }
         
           try {
