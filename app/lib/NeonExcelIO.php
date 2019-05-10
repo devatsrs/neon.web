@@ -733,6 +733,7 @@ class NeonExcelIO
 
         $reader = ReaderFactory::create(Type::XLSX); // for XLSX files
         $reader->setShouldFormatDates(true);
+        $reader->setShouldPreserveEmptyRows(true);
         $reader->open($filepath);
 
         $i=0;$all_rows=[];$sheet_index=0;

@@ -372,7 +372,7 @@ class VendorRatesController extends \BaseController
         $data = Input::all();
         $response = ['status' => 'failed', 'message' => 'Invalid request.'];
 
-        $rules = array('Cost' => 'required|numeric', 'CurrencyID' => 'required');
+        $rules = array('Cost' => 'required|numeric|min:0', 'CurrencyID' => 'required');
         $validator = Validator::make($data, $rules, [
             'CurrencyID.required' => 'Currency is required.'
         ]);

@@ -37,7 +37,7 @@
                 {{Form::select('selection[DateFormat]',Company::$date_format ,(isset($attrselection->DateFormat)?$attrselection->DateFormat:''),array("class"=>"select2 small"))}}
             </div>
         </div>
-        <div class="form-group solo">
+        <div class="form-group managable solo">
             <label class="col-sm-2 control-label">Intervals Seperator <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Separator for Min. Duration , Interval 1 and Interval N" data-original-title="Intervals Separator">?</span></label>
             <div class="col-sm-4">
                 <input type="text" class="form-control" name="selection[IntervalSeperator]" value="{{(!empty($attrselection->IntervalSeperator)?$attrselection->IntervalSeperator:'')}}" />

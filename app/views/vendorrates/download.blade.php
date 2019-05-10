@@ -87,7 +87,7 @@
 @include('vendorrates.upload_rates_button')
     @if(User::checkCategoryPermission('Timezones','Add'))
         <li>
-            <a href="{{ URL::to('/timezones/vendor_rates/'.$id) }}" >
+            <a href="{{ URL::to('/timezones_vendor/vendor_rates/'.$id) }}" >
                 <span class="hidden-xs">Time Of Day</span>
             </a>
         </li>

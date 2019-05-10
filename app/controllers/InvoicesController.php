@@ -535,6 +535,7 @@ public function store_inv_in(){
             'EndDate' => 'required',
             'GrandTotalInvoice'=>'required|numeric',
             'InvoiceNumber'=>'required|unique:tblInvoice,InvoiceNumber',
+            'InvoiceStatus' => 'required',
         );
         $verifier = App::make('validation.presence');
         $verifier->setConnection('sqlsrv2');
@@ -554,8 +555,9 @@ public function store_inv_in(){
             $InvoiceData["CompanyID"] = $companyID;
             $InvoiceData["AccountID"] = intval($data["AccountID"]);
             $InvoiceData["Address"] = $country;
-            $InvoiceData["Description"] = $data["Description"];
-         
+            $InvoiceData["InvoiceStatus"] = $data["InvoiceStatus"];
+            $InvoiceData["Description"]   = $data["Description"];
+
             $InvoiceData["IssueDate"] = date('Y-m-d H:i:s',strtotime($data["IssueDate"]));
             //$InvoiceData["StartDate"] = $data["StartDate"];
             //$InvoiceData["EndDate"] = $data["EndDate"];
@@ -1064,6 +1066,16 @@ public function store_inv_in(){
     public function updateIn($id){
         $data = Input::all();
 
+        $validator = Validator::make($data, ['InvoiceStatus' => 'required']);
+
+        $verifier = App::make('validation.presence');
+        $verifier->setConnection('sqlsrv2');
+        $validator->setPresenceVerifier($verifier);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
         if(!empty($data) && $id > 0){
             $Invoice = Invoice::find($id);
             $companyID = User::get_companyID();
@@ -1075,6 +1087,7 @@ public function store_inv_in(){
             $InvoiceData["CompanyID"] = $companyID;
             $InvoiceData["AccountID"] = $data["AccountID"];
             $InvoiceData["Address"] = $data["Address"];
+            $InvoiceData["InvoiceStatus"] = $data["InvoiceStatus"];
             $InvoiceData["InvoiceNumber"] = $data["InvoiceNumber"];
             $InvoiceData["IssueDate"] = date("Y-m-d H:i:s",strtotime($data["IssueDate"]));
             $InvoiceData["SubTotal"] = str_replace(",","",$data["SubTotal"]);
