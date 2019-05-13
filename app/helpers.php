@@ -491,6 +491,7 @@ function is_amazon($CompanyID = 0){
     $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
     $AWS_REGION = getenv("AWS_REGION");*/
 
+    $CompanyID          =   getParentCompanyIdIfReseller($CompanyID);
 	$AmazonData			=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug,$CompanyID);
     $AMAZONS3_KEY  		= 	isset($AmazonData->AmazonKey)?$AmazonData->AmazonKey:'';
     $AMAZONS3_SECRET 	= 	isset($AmazonData->AmazonSecret)?$AmazonData->AmazonSecret:'';
@@ -501,8 +502,17 @@ function is_amazon($CompanyID = 0){
     }
     return true;
 }
+function getParentCompanyIdIfReseller($CompanyID){
+
+    // If Reseller then get Parent Company ID
+    $isReseller = Reseller::IsResellerByCompanyID($CompanyID);
+    if($isReseller != false && $isReseller > 0)
+        $CompanyID = Reseller::getCompanyIDByChildCompanyID($CompanyID);
+    return $CompanyID;
+}
 
 function is_authorize($CompanyID){
+    $CompanyID = getParentCompanyIdIfReseller($CompanyID);
 	return				SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug,$CompanyID);
 	
 	/*$AuthorizeDbData 	= 	IntegrationConfiguration::where(array('CompanyId'=>User::get_companyID(),"IntegrationID"=>9))->first();
@@ -524,6 +534,7 @@ function is_authorize($CompanyID){
 
 function is_paypal($CompanyID){
 
+    $CompanyID = getParentCompanyIdIfReseller($CompanyID);
     $paypal = new PaypalIpn($CompanyID);
     if($paypal->status){
         return true;
@@ -533,6 +544,7 @@ function is_paypal($CompanyID){
 
 function is_pelecard($CompanyID){
 
+    $CompanyID = getParentCompanyIdIfReseller($CompanyID);
     $pelecard = new PeleCard($CompanyID);
     if($pelecard->status){
         return true;
@@ -542,7 +554,8 @@ function is_pelecard($CompanyID){
 
 function is_ingenico($CompanyID){
 
-    $ingenico = new Ingenico($CompanyID);
+    $CompanyID = getParentCompanyIdIfReseller($CompanyID);
+    $ingenico  = new Ingenico($CompanyID);
     if($ingenico->status){
         return true;
     }
@@ -551,6 +564,7 @@ function is_ingenico($CompanyID){
 
 function is_wiretransfer($CompanyID){
 
+    $CompanyID = getParentCompanyIdIfReseller($CompanyID);
     $wiretransfer = new WireTransfer($CompanyID);
     if($wiretransfer->status){
         return true;
@@ -560,6 +574,7 @@ function is_wiretransfer($CompanyID){
 
 function is_directdebit($CompanyID){
 
+    $CompanyID = getParentCompanyIdIfReseller($CompanyID);
     $directdebit = new DirectDebit($CompanyID);
     if($directdebit->status){
         return true;
@@ -569,6 +584,7 @@ function is_directdebit($CompanyID){
 
 function is_sagepay($CompanyID){
 
+    $CompanyID = getParentCompanyIdIfReseller($CompanyID);
     $sagepay = new SagePay($CompanyID);
     if($sagepay->status){
         return true;

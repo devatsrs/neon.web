@@ -2790,10 +2790,12 @@ public function store_inv_in(){
             if(!empty($json_data->CardID))
                 {
                     $card = $json_data->CardID;
-                    
                 } 
                 if(!empty($json_data->PaymentProfileID)) {
                     $card = $json_data->PaymentProfileID;
+                }
+                if(!empty($json_data->CardToken)) {
+                    $card = $json_data->CardToken;
                 }
                 return $card;
         }
