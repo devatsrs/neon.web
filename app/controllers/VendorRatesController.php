@@ -21,7 +21,7 @@ class VendorRatesController extends \BaseController
         $data['Code'] = $data['Code'] != ''?"'".$data['Code']."'":'null';
         $data['Description'] = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $columns = array('VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','RateN','EffectiveDate','EndDate','updated_at','updated_by','VendorRateID');
+        $columns = array('VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','RateN','EffectiveDate','RatePrefix','EndDate','updated_at','updated_by','VendorRateID');
 
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
@@ -330,12 +330,16 @@ class VendorRatesController extends \BaseController
             $data['Code'] = $data['Code'] != ''?"'".$data['Code']."'":'null';
             $data['Description'] = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-            $columns = array('VendorRateID','Code','Description','Rate','EffectiveDate','updated_at','updated_by','VendorRateID');
+            //$columns = array('VendorRateID','Code','Description','Rate','EffectiveDate','RatePrefix','updated_at','updated_by','VendorRateID');
+            $columns = array('VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','RateN','EffectiveDate','RatePrefix','EndDate','updated_at','updated_by','VendorRateID');
             $sort_column = $columns[$data['iSortCol_0']];
             $companyID = User::get_companyID();
 
-            $query = "call prc_GetVendorRates (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1)";
-
+        if(!empty($data['DiscontinuedRates'])) {
+            $query = "call prc_getDiscontinuedVendorRateGrid (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Timezones'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',1)";
+        } else {
+            $query = "call prc_GetVendorRates (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Timezones'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . ",'" . $data['Effective'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',1)";
+        }
             DB::setFetchMode( PDO::FETCH_ASSOC );
             $vendor_rates  = DB::select($query);
             DB::setFetchMode( Config::get('database.fetch'));

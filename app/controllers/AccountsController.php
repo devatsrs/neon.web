@@ -1363,12 +1363,38 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $SOA_Amount = AccountBalanceLog::getPrepaidAccountBalance($id);
         }
 
-        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType'));
+        if(!empty($id)){
+            $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $id))->get();
+        }
+
+        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType','AccountBalanceThreshold'));
     }
 
     public function update_credit(){
         $data = Input::all();
         $postdata= $data;
+        //Update Account Thread HOld
+        $rules=array();$messages=array();
+        if(!empty($postdata['counttr'])){
+            $thList = $postdata['counttr'];
+            for ($k = 0; $k < $thList; $k++) {
+                $rules['BalanceThresholdnew-' . ($k)] = 'required';
+                $messages['BalanceThresholdnew-' . ($k).'.required'] = "Balance Threshold Value for the Row " . ($k+1 ) . " required";
+
+                $rules['email-' . ($k)] = 'required';
+                $messages['email-' . ($k).'.required'] = "Balance Threshold Email Value for the Row " . ($k+1 ) . " required";
+            }
+        }
+        $validator = Validator::make($data, $rules,$messages);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        try{
+            AccountBalanceThreshold::where('AccountID', $postdata['AccountID'])->delete();
+            AccountBalanceThreshold::saveAccountBalanceThreshold($postdata['AccountID'],$postdata);
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
         $response =  NeonAPI::request('account/update_creditinfo',$postdata,true,false,false);
         return json_response_api($response);
     }
