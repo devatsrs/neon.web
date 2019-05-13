@@ -39,6 +39,8 @@
             $NameFormat = GatewayConfig::$SippySQL_NameFormat;
         }else if($GatewayName == 'VoipMS'){
             $NameFormat = GatewayConfig::$VoipMS_NameFormat;
+        }else if($GatewayName == 'ClarityPBX'){
+            $NameFormat = GatewayConfig::$ClarityPBX_NameFormat;
         }
     ?>
 

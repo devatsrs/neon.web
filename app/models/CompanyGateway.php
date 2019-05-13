@@ -464,6 +464,21 @@ class CompanyGateway extends \Eloquent {
                 log::info('--VoipMS CRONJOB START--');
 
                 CompanyGateway::createSummaryCronJobs(0,$CompanyID);
+            } elseif (isset($GatewayName) && $GatewayName == 'ClarityPBX') {
+                log::info($GatewayName);
+                log::info('--ClarityPBX CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('claritypbxaccountusage',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('CLARITY_PBX_CRONJOB',$CompanyID);
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--ClarityPBX CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(0,$CompanyID);
             }
         }else{
             log::info('--Other CRONJOB START--');
