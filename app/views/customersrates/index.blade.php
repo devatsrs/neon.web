@@ -234,6 +234,7 @@
                     <th width="5%">Rate1 ({{$CurrencySymbol}})</th>
                     <th width="5%">RateN ({{$CurrencySymbol}})</th>
                     <th width="8%">Effective Date</th>
+                    <th width="8%">Rate Prefix</th>
                     <th width="8%" class="hidden">End Date</th>
                     <th width="8%">Modified Date</th>
                     <th width="8%">Modified By</th>
@@ -251,7 +252,7 @@
             var checked='';
             var update_new_url;
             var first_call = true;
-            var list_fields  = ['RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlanName','Rate','RateN','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId','TrunkID','RateTableRateId'];
+            var list_fields  = ['RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlanName','Rate','RateN','EffectiveDate','RatePrefix','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId','TrunkID','RateTableRateId'];
             var routinejson ='{{json_encode($routine)}}';
                     jQuery(document).ready(function($) {
                         checkrouting($("#customer-rate-table-search select[name='Trunk']").val());
@@ -313,10 +314,11 @@
                                             {}, //7Rate
                                             {}, //8RateN
                                             {}, //9Effective Date
-                                            {"bVisible": false}, //10End Date
-                                            {}, //11LastModifiedDate
-                                            {}, //12LastModifiedBy
-                                            {// 13 CustomerRateId
+                                            {}, //10 Rate Prefix
+                                            {"bVisible": false}, //11End Date
+                                            {}, //12LastModifiedDate
+                                            {}, //13LastModifiedBy
+                                            {// 14 CustomerRateId
                                                 mRender: function(id, type, full) {
                                                     var action, edit_, delete_;
                                                     edit_ = "{{ URL::to('/customers_rates/{id}/edit')}}";
