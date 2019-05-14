@@ -73,6 +73,8 @@ class PaymentProfileCustomerController extends \BaseController {
             $CompanyID = $data['CompanyID'];
             $PaymentGatewayID=$data['PaymentGatewayID'];
             $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            // If customer is reseller then get parent company id
+            $CompanyID = getParentCompanyIdIfReseller($CompanyID);
             $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
             $Response = $PaymentIntegration->doValidation($data);
             if($Response['status']=='failed'){
@@ -96,6 +98,8 @@ class PaymentProfileCustomerController extends \BaseController {
             $CompanyID = $data['CompanyID'];
             $PaymentGatewayID=$data['PaymentGatewayID'];
             $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            // If customer is reseller then get parent company id
+            $CompanyID = getParentCompanyIdIfReseller($CompanyID);
             $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
             $Response = $PaymentIntegration->doValidation($data);
             if($Response['status']=='failed'){

@@ -224,7 +224,7 @@ class Ingenico {
 
             if($resp != false){
                 if(@$resp['PAYID'] != 0 && (@$resp['STATUS'] == "5" || @$resp['STATUS'] == "9")){
-                    $Notes      = 'Stripe transaction_id ' . $resp['PAYID'];
+                    $Notes      = 'Ingenico transaction_id ' . $resp['PAYID'];
                     $Status     = TransactionLog::SUCCESS;
                     $response['transaction_id'] = $resp['PAYID'];
                     $response['status']         = 'success';
