@@ -348,12 +348,15 @@ class InvoicesController extends \BaseController {
                 $i=0;
                 foreach($InvoiceDetailData as $idata)
                 {
-                    if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                    if(isset($idata["DiscountAmount"]))
                     {
-                        $InvoiceDetailData[$i]["DiscountAmount"] = "";
-                        $InvoiceDetailData[$i]["DiscountType"] = null;
+                        if($idata["DiscountAmount"] == 0)
+                        {
+                            $InvoiceDetailData[$i]["DiscountAmount"] = "";
+                            $InvoiceDetailData[$i]["DiscountType"] = null;
+                        }
+                        $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
                     }
-                    $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
                     $i++;
                 }
 
@@ -633,12 +636,15 @@ class InvoicesController extends \BaseController {
                         $i=0;
                         foreach($InvoiceDetailData as $idata)
                         {
-                            if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                            if(isset($idata["DiscountAmount"]))
                             {
-                                $InvoiceDetailData[$i]["DiscountAmount"] = "";
-                                $InvoiceDetailData[$i]["DiscountType"] = null;
+                                if($idata["DiscountAmount"] == 0)
+                                {
+                                    $InvoiceDetailData[$i]["DiscountAmount"] = "";
+                                    $InvoiceDetailData[$i]["DiscountType"] = null;
+                                }
+                                $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
                             }
-                            $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
                             $i++;
                         }
 
