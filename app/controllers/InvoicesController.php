@@ -2649,22 +2649,23 @@ class InvoicesController extends \BaseController {
         //$data['type'] = 'journal';
         if($data['type'] == 'journal'){
             $msgtype = 'Journal';
-            $jobType = JobType::where(["Code" => 'QJP'])->first(["JobTypeID", "Title"]);
+            $jobdata["Title"] =  'QuickBook Journal Post';
+            $jobdata["Description"] = 'QuickBook Journal Post';
         }
         else{
             $msgtype = 'Invoice';
-            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
+            $jobdata["Title"] =  $jobType->Title;
+            $jobdata["Description"] = $jobType->Title ;
         }
         $CompanyID = User::get_companyID();
         $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
             $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
+            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
             $jobdata["CompanyID"] = $CompanyID;
             $jobdata["JobTypeID"] = $jobType->JobTypeID ;
             $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
             $jobdata["JobLoggedUserID"] = User::get_userID();
-            $jobdata["Title"] =  $jobType->Title;
-            $jobdata["Description"] = $jobType->Title ;
             $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
             $jobdata["created_at"] = date('Y-m-d H:i:s');
