@@ -1271,7 +1271,9 @@ class RateUploadController extends \BaseController {
                                 } else {
                                     $tempdata['OriginationDescription'] = "";
                                 }
-                            } else if(!empty($tempdata['OriginationCode'])) { // for did and pkg OriginationDescription is not required. so, OriginationDescription = OriginationCode
+                            } else if(!empty($tempdata['OriginationCountryCode'])) { // for did and pkg OriginationDescription is not required. so, OriginationDescription = OriginationCountryCode
+                                 $tempdata['OriginationDescription'] = $tempdata['OriginationCountryCode'];
+                            } else if(!empty($tempdata['OriginationCode'])) { // for did and pkg OriginationDescription is not required. so, if OriginationCountryCode is lank then OriginationDescription = OriginationCode
                                  $tempdata['OriginationDescription'] = $tempdata['OriginationCode'];
                             }
 
@@ -1286,7 +1288,9 @@ class RateUploadController extends \BaseController {
                                 } else {
                                     $error[] = 'Description is blank at line no:' . $lineno;
                                 }
-                            } else if(!empty($tempdata['Code'])) { // for did and pkg Description is not required. so, Description = Code
+                            } else if(!empty($tempdata['CountryCode'])) { // for did and pkg Description is not required. so, Description = CountryCode
+                                $tempdata['Description'] = $tempdata['CountryCode'];
+                            } else if(!empty($tempdata['Code'])) { // for did and pkg Description is not required. so, if CountryCode is blank then Description = Code
                                 $tempdata['Description'] = $tempdata['Code'];
                             }
 
