@@ -24,6 +24,7 @@ class GatewayConfig extends \Eloquent {
     public static $CallType = array('OUT'=>'Outbound','INOUT'=>'Inbond+Outbound');
     public static $M2_NameFormat = array('NAME'=>'Account Name','IP'=>'IP');
     public static $VoipMS_NameFormat = array('NAMENUB'=>'Account Name - Account Number','NUBNAME'=>'Account Number - Account Name','NAME'=>'Account Name','NUB'=>'Account Number');
+    public static $ClarityPBX_NameFormat = array('NAME'=>'Account Name');
 
     public static function getConfigTitle($GatewayConfigID){
         return GatewayConfig::where(array('GatewayConfigID'=>$GatewayConfigID))->pluck('Title');
