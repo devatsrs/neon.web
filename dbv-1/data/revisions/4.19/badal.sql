@@ -57,9 +57,6 @@ INSERT INTO `tblJobType` (`Code`, `Title`, `CreatedDate`, `CreatedBy`) VALUES ('
 ALTER TABLE `tblRateRuleMargin`
 	ADD COLUMN `Type` INT(11) NULL DEFAULT NULL AFTER `FixedValue`;
 
-/*Added Quickbook journal post type*/
-INSERT INTO `tblJobType` (`Code`, `Title`, `CreatedDate`, `CreatedBy`) VALUES ('QJP', 'QuickBook Journal Post', '2016-09-29 22:43:01', 'RateManagementSystem');
-
 /*table for vendor rate push in sippy*/
 CREATE TABLE `tblSippyDestinationSet` (
 	`SippyDestinationSetID` INT(11) NOT NULL AUTO_INCREMENT,
