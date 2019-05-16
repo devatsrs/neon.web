@@ -12,9 +12,9 @@ class ClarityPBX {
                 self::$config[$configkey] = $configval;
             }
         }
-        if(count(self::$config) && isset(self::$config['dbserver_read']) && isset(self::$config['username']) && isset(self::$config['password'])){
+        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             //extract(self::$config);
-            Config::set('database.connections.pgsql.host',self::$config['dbserver_read']);
+            Config::set('database.connections.pgsql.host',self::$config['dbserver']);
             Config::set('database.connections.pgsql.database',self::$dbname);
             Config::set('database.connections.pgsql.username',self::$config['username']);
             Config::set('database.connections.pgsql.password',self::$config['password']);
@@ -23,7 +23,7 @@ class ClarityPBX {
 
     public static function testConnection(){
         $response = array();
-        if(count(self::$config) && isset(self::$config['dbserver_read']) && isset(self::$config['username']) && isset(self::$config['password'])){
+        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             try{
                 if(DB::connection('pgsql')->getDatabaseName()){
                     $response['result'] = 'OK';
@@ -39,7 +39,7 @@ class ClarityPBX {
     //get data from gateway and insert in temp table
     public static function getAccountsDetail($addparams=array()){
         $response = array();
-        if(count(self::$config) && isset(self::$config['dbserver_read']) && isset(self::$config['username']) && isset(self::$config['password'])){
+        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             try{
                 $query = "select * from customer ";
                 $results = DB::connection('pgsql')->select($query);
@@ -97,7 +97,7 @@ class ClarityPBX {
     //get data from gateway and insert in temp table
     public static function getVendorsDetail($addparams=array()){
         $response = array();
-        if(count(self::$config) && isset(self::$config['dbserver_read']) && isset(self::$config['username']) && isset(self::$config['password'])){
+        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             try{
                 $query = "select * from vendor ";
                 $results = DB::connection('pgsql')->select($query);
