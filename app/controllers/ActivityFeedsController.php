@@ -27,7 +27,7 @@ class ActivityFeedsController extends \BaseController {
 		}
 		$ExcelFile = json_decode(json_encode($ActivityFeeds),true);
 		if(isset($data['Export']) && $data['Export'] == 1){
-			$file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ActivityFeed.csv';
+			$file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ActivityFeed.xls';
 			$NeonExcel = new NeonExcelIO($file_path);
 			$NeonExcel->download_excel($ExcelFile);
 		}
