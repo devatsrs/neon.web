@@ -29,7 +29,7 @@ class ActivityFeedsController extends \BaseController {
 		if(isset($data['Export']) && $data['Export'] == 1){
 			$file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ActivityFeed.csv';
 			$NeonExcel = new NeonExcelIO($file_path);
-			$NeonExcel->download_csv($ExcelFile);
+			$NeonExcel->download_excel($ExcelFile);
 		}
         return Datatables::of($ActivityFeeds)->make();
 	}
