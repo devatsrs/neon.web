@@ -15,6 +15,10 @@ class AccountApprovalController extends \BaseController {
     public function index()
     {
         $countries = Country::getCountryDropdownIDList();
+        $data = array();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $accountapprovalActilead = UserActivity::UserActivitySaved($data,'View','Accountapproval');
         return View::make('accountapproval.index', compact('countries'));
 
     }
@@ -45,6 +49,10 @@ class AccountApprovalController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $accountapprovalActilead = UserActivity::UserActivitySaved($data,'Add','Accountapproval');
+
         $today = date('Y-m-d');
         if (Input::hasFile('DocumentFiles')) {
             $upload_path = CompanyConfiguration::get('ACC_DOC_PATH');
@@ -130,6 +138,11 @@ class AccountApprovalController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+
+            //https://codedesk.atlassian.net/browse/NEON-1591
+            //Audit Trails of user activity
+            $accountapprovalActilead = UserActivity::UserActivitySaved($data,'Edit','Accountapproval');
+
             $today = date('Y-m-d');
             if (Input::hasFile('DocumentFiles')) {
                 $upload_path = CompanyConfiguration::get('ACC_DOC_PATH');
@@ -174,11 +187,16 @@ class AccountApprovalController extends \BaseController {
      */
     public function delete($id)
     {
+        $data = array();
+        $data['id'] = $id;
         if( intval($id) > 0){
             if(!AccountApproval::checkForeignKeyById($id)) {
                 try {
                     $result = AccountApproval::find($id)->delete();
                     if ($result) {
+                        //https://codedesk.atlassian.net/browse/NEON-1591
+                        //Audit Trails of user activity
+                        $accountapprovalActilead = UserActivity::UserActivitySaved($data,'Delete','Accountapproval');
                         return Response::json(array("status" => "success", "message" => "Document Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Document."));

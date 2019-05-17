@@ -3,6 +3,9 @@
 class NotificationController extends \BaseController {
     public function ajax_datagrid($type){
         $data = Input::all();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $NotificationActilead = UserActivity::UserActivitySaved($data,'View','Notification');
         $companyID = User::get_companyID();
         $select = ["NotificationType", "EmailAddresses","Status", "created_at" ,"CreatedBy","NotificationID"];
         $Notification = Notification::where(['CompanyID'=>$companyID]);
@@ -67,7 +70,8 @@ class NotificationController extends \BaseController {
 	 */
 	public function store()
 	{
-		$data = Input::all();
+        $data = Input::all();
+        
         $data["CreatedBy"] = User::get_user_full_name();
         $data['CompanyID'] = User::get_companyID();
         $data['Status'] = isset($data['Status'])?1:0;
@@ -79,6 +83,9 @@ class NotificationController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $NotificationActilead = UserActivity::UserActivitySaved($data,'Add','Notification');
         unset($data['NotificationID']);
         if ($Notification = Notification::create($data)) {
             return Response::json(array("status" => "success", "message" => "Notification Successfully Created",'redirect'=>URL::to('/notification/edit/' . $Notification->NotificationID)));
@@ -103,6 +110,10 @@ class NotificationController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+            
+            //https://codedesk.atlassian.net/browse/NEON-1591
+            //Audit Trails of user activity
+            $NotificationActilead = UserActivity::UserActivitySaved($data,'Edit','Notification');
             unset($data['NotificationID']);
             unset($data['NotificationType']);
             if ($Notification->update($data)) {
@@ -116,11 +127,16 @@ class NotificationController extends \BaseController {
 
 	public function delete($NotificationID)
 	{
+        $data = array();
+        $data['id'] = $NotificationID;
         if( intval($NotificationID) > 0){
             try{
                 $Notification = Notification::find($NotificationID);
                 $result = $Notification->delete();
                 if ($result) {
+                    //https://codedesk.atlassian.net/browse/NEON-1591
+                    //Audit Trails of user activity
+                    $NotificationActilead = UserActivity::UserActivitySaved($data,'Delete','Notification');
                     return Response::json(array("status" => "success", "message" => "Notification Successfully Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Notification."));
@@ -133,16 +149,34 @@ class NotificationController extends \BaseController {
     public function qos_store(){
         $postdata = Input::all();
         $response =  NeonAPI::request('qos_alert/store',$postdata,true,false,false);
+        if($response->status == 'success'){
+            //https://codedesk.atlassian.net/browse/NEON-1591
+            //Audit Trails of user activity
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Alert');
+        }
+        
         return json_response_api($response);
     }
     public function qos_delete($id){
+        $data = array();
+        $data['id'] = $id;
         $response =  NeonAPI::request('qos_alert/delete/'.$id,array(),'delete',false,false);
+        if($response->status == 'success'){
+            //https://codedesk.atlassian.net/browse/NEON-1591
+            //Audit Trails of user activity
+            $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Alert');
+        }
         return json_response_api($response);
     }
 
     public function qos_update($id){
         $postdata = Input::all();
         $response =  NeonAPI::request('qos_alert/update/'.$id,$postdata,'put',false,false);
+        if($response->status == 'success'){
+            //https://codedesk.atlassian.net/browse/NEON-1591
+            //Audit Trails of user activity
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','Alert');
+        }
         return json_response_api($response);
     }
     public function qos_ajax_datagrid(){

@@ -11,6 +11,10 @@ class CompaniesController extends \BaseController {
 	 * @return Response
 	 */
 	public function edit(){
+        $data = array();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $CompanyActilead = UserActivity::UserActivitySaved($data,'View','Company');
         $LicenceApiResponse = Company::ValidateLicenceKey();
         $company_id = User::get_companyID();
         $company = Company::find($company_id);
@@ -79,6 +83,9 @@ class CompaniesController extends \BaseController {
 	public function update()
 	{
         $data = Input::all();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $CompanyActilead = UserActivity::UserActivitySaved($data,'Edit','Company');
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;

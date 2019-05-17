@@ -1494,6 +1494,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/bulk_change_status', 'AccountServiceController@bulk_change_status');
 	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
 
+	//Activity Feeds
+	Route::any('activity', 'ActivityFeedsController@index');
+	Route::any('activity/ajax_datagrid', 'ActivityFeedsController@ajax_datagrid');
+	Route::any('activity/get_details/{id}', 'ActivityFeedsController@get_details');
+
+	
+	
+
 	//noticeboard
 	Route::any('/noticeboard', 'NoticeBoardController@index');
 	Route::any('/get_mor_updates', 'NoticeBoardController@get_mor_updates');
