@@ -72,6 +72,9 @@ class TicketsController extends \BaseController {
 	  public function ajex_result() {
 	
 	    $data 						= 	Input::all();
+            //https://codedesk.atlassian.net/browse/NEON-1591
+                //Audit Trails of user activity
+                $UserActilead = UserActivity::UserActivitySaved($data,'View','Ticket');
 		$data['currentpages']		=	$data['currentpage'];
 		if($data['clicktype']=='next'){
 			$data['iDisplayStart']  	= 	($data['currentpage']+1)*$data['per_page'];
@@ -324,7 +327,11 @@ class TicketsController extends \BaseController {
 	  
 	  function Store(){		  
 		$postdata 			= 	Input::all();  
-
+                
+                //https://codedesk.atlassian.net/browse/NEON-1591
+                //Audit Trails of user activity
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Tickets');
+                
 		if(!isset($postdata['Ticket'])){
 			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
 		}
@@ -675,6 +682,9 @@ class TicketsController extends \BaseController {
 	
 	function SendMail(){		   
 		$postdata 			= 	Input::all();  
+                //https://codedesk.atlassian.net/browse/NEON-1591
+                //Audit Trails of user activity
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','SendMail');
 		if(!isset($postdata['Ticket'])){
 			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
 		}

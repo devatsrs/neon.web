@@ -10,6 +10,9 @@ class AccountsController extends \BaseController {
 
     public function ajax_datagrid($type) {
         $data = Input::all();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Account');
         $CompanyID = User::get_companyID();
         $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         if(is_reseller()){
@@ -187,6 +190,11 @@ class AccountsController extends \BaseController {
     public function store() {
             $ServiceID = 0;
             $data = Input::all();
+            
+            //https://codedesk.atlassian.net/browse/NEON-1591
+            //Audit Trails of user activity
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Account');
+        
             $companyID = User::get_companyID();
             $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
             if($ResellerOwner>0){
@@ -626,6 +634,10 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $ServiceID = 0;
         $data = Input::all();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Account');
+        
         $companyID = User::get_companyID();
         $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
         if($ResellerOwner>0){
