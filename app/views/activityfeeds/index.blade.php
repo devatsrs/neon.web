@@ -89,6 +89,7 @@
             //public_vars.$body = $("body");
             var $search = {};
             var datagrid_url = baseurl + "/activity/ajax_datagrid";
+            var export_url = baseurl + "/activity/exports";
 
             $("#filter_submit").click(function(e) {
                 e.preventDefault();
@@ -195,7 +196,7 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "Export Data",
-                                "sUrl": datagrid_url,
+                                "sUrl": export_url,
                                 sButtonClass: "save-collection"
                             }
                         ]
