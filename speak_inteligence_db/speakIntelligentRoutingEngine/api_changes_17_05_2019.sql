@@ -1045,7 +1045,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_startApiCallRecording`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_startApiCallRecording`(
+CREATE PROCEDURE `prc_startApiCallRecording`(
 	IN `p_AccountID` INT,
 	IN `p_AccountNo` VARCHAR(200),
 	IN `p_AccountDynamicField` VARCHAR(200),
