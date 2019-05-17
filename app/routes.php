@@ -1498,6 +1498,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('activity', 'ActivityFeedsController@index');
 	Route::any('activity/ajax_datagrid', 'ActivityFeedsController@ajax_datagrid');
 	Route::any('activity/get_details/{id}', 'ActivityFeedsController@get_details');
+	Route::any('activity/exports', 'ActivityFeedsController@exports');
 
 	
 	
