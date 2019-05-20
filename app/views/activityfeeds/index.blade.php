@@ -125,7 +125,7 @@
                     "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                    "aaSorting": [[1, 'asc']],
+                    "aaSorting": [[1, 'desc']],
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "Actions", "value": $search.Action},
@@ -151,10 +151,12 @@
                         {  "bSortable": true, 
                         mRender: function (id, type, full) {
                             process = full[4];
-                            if(process == null){
+                            if(process == '' || process == null){
                                 process = "";
+                            }else{
+                                process =  '('+ full[4] +')';
                             }
-                            action = full[2] + ' ('+ process +')' + ' ' +full[3] ; 
+                            action = full[2] + process + ' ' +full[3] ; 
                             return action;
                         }
                         }, 

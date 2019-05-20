@@ -46,18 +46,22 @@ class UserActivity extends \Eloquent {
             $TypeName  = @$data['system_name'];
         }else if(($Who=='Dynamiclink') && $action!='View' && $action!='Export'){
             $TypeName  = @$data['Title'];
+        }else if(($Who=='Trunks') && $action!='View' && $action!='Export'){
+            $TypeName  = @$data['Trunk'];
+        }else if(($Who=='Codedecks') && $action!='View' && $action!='Export'){
+            $TypeName  = @$data['CodedeckName'];
         }   
         
         
         
          
         
-       
-        $data_array['TypeName']    = $TypeName;
+        $dataActionValue            = array_filter($data, function($value) { return $value !== ''; });
+        $data_array['TypeName']     = $TypeName;
         $data_array['CompanyId']    = $companyID;
         $data_array['created_by']   =  $created_by;
         $data_array["created_at"]   = date('Y-m-d H:i:s');
-        $ActionValueJSON            = json_encode($data);
+        $ActionValueJSON            = json_encode($dataActionValue);
         $data_array["ActionValue"]  = $ActionValueJSON;
         $data_array["Action"]       = $action;
         $data_array["Type"]          = $Who;
