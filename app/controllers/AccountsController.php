@@ -2337,6 +2337,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 }
                 $rate_tables['Prefix'] = $ProductCountryPrefix;
             }
+            $query = 'call prc_getRateTableVendor (' . $rate_tables['RateTableID'] .",'" .
+                $rate_tables['NoType'] . "','" . $rate_tables['City']. "','" . $rate_tables['Tariff']. "','" . $rate_tables['CountryID'] . "','" . '0' .
+                "','" . $rate_tables['Prefix'] . "'" . ')';
+            $results = DB::select($query);
+            Log::info("clitable_store prc" . $query);
+            $VendorID = '';
+            foreach($results as $result){
+                $VendorID = $result->VendorID;
+            }
+            if (!empty($VendorID)) {
+                $rate_tables['VendorID'] = $VendorID;
+            }
+            Log::info("clitable_store prc" . $rate_tables['VendorID']);
             $insertArr[] = $rate_tables;
         }
 
@@ -2346,6 +2359,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $message = 'Following CLI already exists.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
         }else{
+
             CLIRateTable::insert($insertArr);
             return Response::json(array("status" => "success", "message" => "Number Successfully Added"));
         }
@@ -2428,6 +2442,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             if(!empty($data['AccountServiceID'])) {
                 $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
             }
+            $query = 'call prc_getRateTableVendor (' . $rate_tables['RateTableID'] .",'" .
+                '' . "','" . ''. "','" . ''. "','" . '0' . "','" . $rate_tables['PackageID'] .
+                "','" . '' . "'" . ')';
+            $results = DB::select($query);
+            Log::info("package_store prc" . $query);
+            $VendorID = '';
+            foreach($results as $result){
+                $VendorID = $result->VendorID;
+            }
+            if (!empty($VendorID)) {
+                $rate_tables['VendorID'] = $VendorID;
+            }
+
             $insertArr[] = $rate_tables;
         }
 
@@ -2644,6 +2671,20 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 }
                 $rate_tables['Prefix'] = $ProductCountryPrefix;
             }
+            $query = 'call prc_getRateTableVendor (' . $rate_tables['RateTableID'] .",'" .
+                $rate_tables['NoType'] . "','" . $rate_tables['City']. "','" . $rate_tables['Tariff']. "','" . $rate_tables['CountryID'] . "','" . '0' .
+                "','" . $rate_tables['Prefix'] . "'" . ')';
+           $results = DB::select($query);
+            Log::info("clitable_update " . $query);
+            $VendorID = '';
+            foreach($results as $result){
+                $VendorID = $result->VendorID;
+            }
+            if (!empty($VendorID)) {
+                $rate_tables['VendorID'] = $VendorID;
+            }
+
+
             $oldCLI->update($rate_tables);
         }
         return Response::json(array("status" => "success", "message" => "Number Updated Successfully"));
@@ -2736,6 +2777,20 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
+
+            $query = 'call prc_getRateTableVendor (' . $rate_tables['RateTableID'] .",'" .
+                '' . "','" . ''. "','" . ''. "','" . '0' . "','" . $rate_tables['PackageID'] .
+                "','" . '' . "'" . ')';
+            $results = DB::select($query);
+            Log::info("package_update prc" . $query);
+            $VendorID = '';
+            foreach($results as $result){
+                $VendorID = $result->VendorID;
+            }
+            if (!empty($VendorID)) {
+                $rate_tables['VendorID'] = $VendorID;
+            }
+
 
             $oldAccountServicePackage->update($rate_tables);
         }
