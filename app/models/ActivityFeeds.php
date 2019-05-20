@@ -6,4 +6,10 @@ class ActivityFeeds extends \Eloquent {
     protected $primaryKey = "UserActivityID";
     protected $guarded = array('UserActivityID');
 
+
+    public static function getActionsByName(){
+        $actions = ActivityFeeds::select('Action')->lists('Action','Action');
+        return $actions;
+    }
+
 }

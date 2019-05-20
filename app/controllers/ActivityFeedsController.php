@@ -18,6 +18,9 @@ class ActivityFeedsController extends \BaseController {
 		if(isset($data['User']) && !empty($data['User'])){
 			$ActivityFeeds->where('created_by', $data['User']);
 		}
+		if(isset($data['Actions']) && !empty($data['Actions'])){
+			$ActivityFeeds->where('Action', $data['Actions']);
+		}
 		if(isset($data['DateFrom']) && !empty($data['DateFrom']) && isset($data['DateTo']) && !empty($data['DateTo'])){
 			$start_date = $data['DateFrom'];
 			$end_date = $data['DateTo'];
@@ -35,7 +38,8 @@ class ActivityFeedsController extends \BaseController {
 	public function index()
 	{
 		$users = array('' => 'All') + User::getUserIDListByName(0);
-		return View::make('activityfeeds.index',compact('users'));
+		$actions = array('' => 'All') + ActivityFeeds::getActionsByName();
+		return View::make('activityfeeds.index',compact('users','actions'));
 	}
 
 	public function get_details($id){

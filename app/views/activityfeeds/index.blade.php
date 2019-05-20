@@ -12,7 +12,12 @@
                 <div class="form-group">
                     <label for="field-1" class="control-label">User</label>
                     {{Form::select('User', $users, '' ,array( "class"=>"select2"))}}
-                </div>    
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Action</label>
+                    {{Form::select('Actions', $actions, '' ,array( "class"=>"select2"))}}
+                </div>  
+                   
                 <div class="form-group">
                     <label class="control-label">Date From</label>
                     <input type="text" data-date-format="yyyy-mm-dd" class="form-control datepicker" id="DateFrom" name="DateFrom">
