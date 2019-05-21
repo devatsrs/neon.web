@@ -90,7 +90,7 @@ class Currency extends \Eloquent {
         } else if($FileCurrency == $CompanyCurrency) {
             $ConversionRate = CurrencyConversion::where('CurrencyID',$AccountCurrency)->pluck('Value');
             if($ConversionRate){
-                $NewRate = ($Rate / $ConversionRate);
+                $NewRate = ($Rate * $ConversionRate);
             }else{
                 $NewRate = 0;
             }
@@ -99,7 +99,7 @@ class Currency extends \Eloquent {
             $FCConversionRate = CurrencyConversion::where('CurrencyID',$FileCurrency)->pluck('Value');
 
             if($ACConversionRate && $FCConversionRate) {
-                $NewRate = ($FCConversionRate) * ($Rate / $ACConversionRate);
+                $NewRate = ($ACConversionRate) * ($Rate / $FCConversionRate);
             }else{
                 $NewRate = 0;
             }
