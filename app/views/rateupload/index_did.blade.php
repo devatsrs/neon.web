@@ -493,6 +493,16 @@
                     $('select[name="selection2[DialCodeSeparator]"]').select2("val","");
                 }
             });
+            $('.countrycodeseperator').on('change', function() {
+                var name = $(this).attr('name');
+                var val  = $(this).val();
+
+                if(name == 'selection[DialCodeSeparator]') {
+                    $('select[name="selection[CountryCodeSeparator]"]').select2("val","");
+                } else if(name == 'selection2[CountryCodeSeparator]') {
+                    $('select[name="selection[DialCodeSeparator]"]').select2("val","");
+                }
+            });
             $('#form-upload select[name=Ratetable]').on('change', function() {
                 var id = $(this).val();
                 var link = '{{URL::to('rate_upload/[id]/ratetable')}}';
@@ -1129,7 +1139,7 @@
                 body.append(tr);
             });
             $("#mapping #tab1 select").each(function(i, el){
-                if(el.name !='selection[DateFormat]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[OriginationDialCodeSeparator]' && el.name != 'selection[FromCurrency]'){
+                if(el.name !='selection[DateFormat]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[OriginationDialCodeSeparator]' && el.name != 'selection[FromCurrency]' && el.name != 'selection[CountryCodeSeparator]'){
                     var this_column = el.name.replace('selection[', '').replace(']', '');
                     // if not component currency field then
                     if (searchKeyByValue(this_column, currency_static_columns_timezone) === false && dual_mapping_columns_static.indexOf(this_column) == -1) {
