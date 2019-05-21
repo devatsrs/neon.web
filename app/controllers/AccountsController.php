@@ -2349,7 +2349,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             if (!empty($VendorID)) {
                 $rate_tables['VendorID'] = $VendorID;
             }
-            Log::info("clitable_store prc" . $rate_tables['VendorID']);
+            Log::info("clitable_store prc" . $VendorID);
             $insertArr[] = $rate_tables;
         }
 
