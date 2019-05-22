@@ -1366,6 +1366,8 @@
                             $("#add-new-reseller-form [name='Email']").val('');
                             $("#add-new-reseller-form [name='Status']").val('');
                             $("#add-new-reseller-form [name='ResellerID']").val('');
+                            $("#add-new-reseller-form [name='DomainUrl']").val('');
+                            $("#add-new-reseller-form [name='picture']").val('');
                             $("#add-new-reseller-form [name='TermsAndCondition']").summernote('code','');
                             $("#add-new-reseller-form [name='FooterTerm']").summernote('code','');
                             $("#add-new-reseller-form [name='invoiceTo']").val('');
