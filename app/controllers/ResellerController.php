@@ -523,9 +523,10 @@ class ResellerController extends BaseController {
 
     public function getdataofreseller($id){
         //$reseller = Reseller::where('AccountID',$id)->first();
-        $reseller = Reseller::Join('tblCompany', function($join) {
-            $join->on('tblReseller.ChildCompanyID','=','tblCompany.CompanyID');
-            })->select('tblReseller.*','tblCompany.*')->where('tblReseller.AccountID',$id)->first();
+        $reseller = Reseller::join('tblCompany','tblReseller.ChildCompanyID','=','tblCompany.CompanyID')
+            ->join('tblCompanyConfiguration','tblCompanyConfiguration.CompanyID','=','tblReseller.ChildCompanyID')
+            ->select('tblReseller.*','tblCompany.*','tblCompanyConfiguration.Value as DomainUrl')->where('tblReseller.AccountID',$id)
+            ->where('tblCompanyConfiguration.Key','WEB_URL')->first();
         
         if(!empty($reseller)){
             return Response::json($reseller);

@@ -143,12 +143,23 @@ class NeonExcelIO
         }
         if($this->file_type == self::$EXCEL){
             //return $this->readExcel($this->file,$limit);
-            return $this->readExcel2($this->file,$limit);
+            try {
+                return $this->readExcel2($this->file,$limit);
+            } catch(Exception $e) {
+                Log::info($e->getMessage());
+                // when ReadorFactory can not read some files we will need to use PHPExcel to read that file
+                return $this->readExcel($this->file,$limit);
+            }
         }
-		
 		if($this->file_type == self::$EXCELs){
             //return $this->readExcel($this->file,$limit);
-            return $this->readExcel2($this->file,$limit);
+            try {
+                return $this->readExcel2($this->file,$limit);
+            } catch(Exception $e) {
+                Log::info($e->getMessage());
+                // when ReadorFactory can not read some files we will need to use PHPExcel to read that file
+                return $this->readExcel($this->file,$limit);
+            }
         }
     }
 
@@ -787,19 +798,26 @@ class NeonExcelIO
         $ext = strtolower(pathinfo($filepath, PATHINFO_EXTENSION));
 
         if($ext == 'csv') {
+            PHPHExcelPortion:
             // We will only use this for csv as this is too slow
             $objPHPExcelReader = PHPExcel_IOFactory::load($filepath);
             $sheets = $objPHPExcelReader->getSheetNames();
         } else {
             // we use this is because this is too much faster tha above code
             // but this is not working with csv so, we need to use above code when csv file is uploaded
-            $reader = ReaderFactory::create(Type::XLSX);
-            $reader->open($filepath);
-            $sheets = [];
-            foreach ($reader->getSheetIterator() as $sheet) {
-                $sheets[] = $sheet->getName();
+            try {
+                $reader = ReaderFactory::create(Type::XLSX);
+                $reader->open($filepath);
+                $sheets = [];
+                foreach ($reader->getSheetIterator() as $sheet) {
+                    $sheets[] = $sheet->getName();
+                }
+                $reader->close();
+            } catch(Exception $e) {
+                Log::info($e->getMessage());
+                // when ReadorFactory can not read some files we will need to use PHPExcel to read that file
+                goto PHPHExcelPortion;
             }
-            $reader->close();
         }
 
         $time_end = round(microtime(true) * 1000);

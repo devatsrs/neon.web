@@ -34,11 +34,15 @@
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">Prefix* </label>
-            <div class="col-sm-2">
+            <div class="col-sm-4">
                 {{Form::select('selection[Code]', $Codes,(isset($attrselection->Code)?$attrselection->Code:''),array("class"=>"DualMapping select2 small"))}}
             </div>
+            <label class="col-sm-2 control-label">Seperators </label>
+            <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split country and prefix" data-original-title="Country-Prefix Separator">
+                {{Form::select('selection[CountryCodeSeparator]',Company::$countrycode_separator,(isset($attrselection->CountryCodeSeparator)?$attrselection->CountryCodeSeparator:''),array("class"=>"select2 small countrycodeseperator"))}}
+            </div>
             <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
-                {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection->DialCodeSeparator)?$attrselection->DialCodeSeparator:''),array("class"=>"select2 small dialcodeseperator"))}}
+                {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection->DialCodeSeparator)?$attrselection->DialCodeSeparator:''),array("class"=>"select2 small dialcodeseperator countrycodeseperator"))}}
             </div>
         </div>
         <div class="form-group">
