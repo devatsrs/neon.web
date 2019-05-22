@@ -1349,6 +1349,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if (!empty($response)) {
             if (!empty($response->PermanentCredit)) {
                 $PermanentCredit = $response->PermanentCredit;
+                $PermanentCredit = str_replace(',','',$PermanentCredit);
             }
             if (!empty($response->TemporaryCredit)) {
                 $TemporaryCredit = $response->TemporaryCredit;
@@ -1366,6 +1367,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             }
             //$BalanceAmount = $SOA_Amount + ($UnbilledAmount - $VendorUnbilledAmount);
             $BalanceAmount = AccountBalance::getNewAccountExposure($CompanyID, $id);
+            $BalanceAmount = str_replace(',','',$BalanceAmount);
             if (!empty($response->EmailToCustomer)) {
                 $EmailToCustomer = $response->EmailToCustomer;
             }
@@ -1374,6 +1376,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
             $SOA_Amount = AccountBalanceLog::getPrepaidAccountBalance($id);
         }
+        $SOA_Amount = str_replace(',','',$SOA_Amount);
 
         if(!empty($id)){
             $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $id))->get();
