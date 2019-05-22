@@ -1401,7 +1401,7 @@
                             EmailFrom = response.EmailFrom;
                             Port = response.Port;
                             IsSSL = response.IsSSL;
-                            DomainUrl = response.WEB_URL;
+                            DomainUrl = response.DomainUrl;
                             //AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
 
                             //getDomainUrl($(this).attr('data-id'));
