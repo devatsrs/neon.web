@@ -72,6 +72,9 @@ class TicketsController extends \BaseController {
 	  public function ajex_result() {
 	
 	    $data 						= 	Input::all();
+            //https://codedesk.atlassian.net/browse/NEON-1591
+                //Audit Trails of user activity
+                $UserActilead = UserActivity::UserActivitySaved($data,'View','Ticket');
 		$data['currentpages']		=	$data['currentpage'];
 		if($data['clicktype']=='next'){
 			$data['iDisplayStart']  	= 	($data['currentpage']+1)*$data['per_page'];
@@ -324,7 +327,11 @@ class TicketsController extends \BaseController {
 	  
 	  function Store(){		  
 		$postdata 			= 	Input::all();  
-
+                
+                //https://codedesk.atlassian.net/browse/NEON-1591
+                //Audit Trails of user activity
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Tickets');
+                
 		if(!isset($postdata['Ticket'])){
 			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
 		}
@@ -636,9 +643,10 @@ class TicketsController extends \BaseController {
 	
 	function CloseTicket($ticketID)
 	{
-		$data 				= 		Input::all();
-		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,$data,true,true); 
-		return json_response_api($response);    		
+            $data 				= 		Input::all();
+            $UserActilead = UserActivity::UserActivitySaved($data,'CloseTicket','Ticket');
+            $response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,$data,true,true); 
+            return json_response_api($response);    		
 	}
 	
 	function ComposeEmail(){		 
@@ -675,6 +683,9 @@ class TicketsController extends \BaseController {
 	
 	function SendMail(){		   
 		$postdata 			= 	Input::all();  
+                //https://codedesk.atlassian.net/browse/NEON-1591
+                //Audit Trails of user activity
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','SendMail');
 		if(!isset($postdata['Ticket'])){
 			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
 		}
@@ -741,12 +752,14 @@ class TicketsController extends \BaseController {
 
     function BulkAction(){
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'BulkAction','Ticket');
         $response  		    =  	  NeonAPI::request('tickets/bulkactions',$data,true,true);
         return json_response_api($response);
     }
 
     function BulkDelete(){
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'BulkDelete','Ticket');
         $response  		    =  	  NeonAPI::request('tickets/bulkdelete',$data,true,true);
         return json_response_api($response);
     }
@@ -759,7 +772,7 @@ class TicketsController extends \BaseController {
 	function BulkPickup()
 	{
 		$data = Input::all();
-
+                $UserActilead = UserActivity::UserActivitySaved($data,'BulkPickup','Ticket');
 		if(!empty($data["SelectedIDs"]))
 		{
 			$Userid = User::get_userID();

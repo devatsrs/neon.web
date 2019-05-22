@@ -27,6 +27,10 @@ class ResellerController extends BaseController {
            $resellers->where(["tblReseller.AccountID" => $data['AccountID']]);
         }
        
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Reseller');
+        
        return Datatables::of($resellers)->make();
     }
 
@@ -42,7 +46,11 @@ class ResellerController extends BaseController {
 
     public function store() {
         $data = Input::all();
-
+        
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'Add','Reseller');
+                
         $items = empty($data['reseller-item']) ? '' : array_filter($data['reseller-item']);
         $subscriptions = empty($data['reseller-subscription']) ? '' : array_filter($data['reseller-subscription']);
         //$trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
@@ -129,7 +137,7 @@ class ResellerController extends BaseController {
                 $CompanyData['created_by'] = $CreatedBy;
 
                 DB::beginTransaction();
-
+                
                 if ($ChildCompany = Company::create($CompanyData)) {
                     $ChildCompanyID = $ChildCompany->CompanyID;
 
@@ -172,6 +180,11 @@ class ResellerController extends BaseController {
 
     public function update($id) {
         $data = Input::all();
+        
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'Update','Reseller');
+        
         $Reseller = Reseller::find($id);
         $data['CompanyID'] = User::get_companyID();
         $data['Status'] = isset($data['Status']) ? 1 : 0;
@@ -276,6 +289,9 @@ class ResellerController extends BaseController {
     }
 
     public function delete($id){
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Reseller');
         return Response::json(array("status" => "failed", "message" => "Reseller is in Use, You can not delete this Reseller."));
         if(Reseller::checkForeignKeyById($id)){
             try{

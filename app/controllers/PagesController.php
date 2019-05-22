@@ -10,6 +10,10 @@ class PagesController extends \BaseController {
 	 */
 	public function about()
 	{
+		$data = array();
+		//https://codedesk.atlassian.net/browse/NEON-1591
+		//Audit Trails of user activity
+		$UserActilead = UserActivity::UserActivitySaved($data,'View','About');
 		return View::make('pages.about', compact(''));
 	}
 

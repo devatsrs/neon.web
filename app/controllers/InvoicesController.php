@@ -348,12 +348,15 @@ class InvoicesController extends \BaseController {
                 $i=0;
                 foreach($InvoiceDetailData as $idata)
                 {
-                    if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                    if(isset($idata["DiscountAmount"]))
                     {
-                        $InvoiceDetailData[$i]["DiscountAmount"] = "";
-                        $InvoiceDetailData[$i]["DiscountType"] = null;
+                        if($idata["DiscountAmount"] == 0)
+                        {
+                            $InvoiceDetailData[$i]["DiscountAmount"] = "";
+                            $InvoiceDetailData[$i]["DiscountType"] = null;
+                        }
+                        $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
                     }
-                    $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
                     $i++;
                 }
 
@@ -633,12 +636,15 @@ class InvoicesController extends \BaseController {
                         $i=0;
                         foreach($InvoiceDetailData as $idata)
                         {
-                            if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                            if(isset($idata["DiscountAmount"]))
                             {
-                                $InvoiceDetailData[$i]["DiscountAmount"] = "";
-                                $InvoiceDetailData[$i]["DiscountType"] = null;
+                                if($idata["DiscountAmount"] == 0)
+                                {
+                                    $InvoiceDetailData[$i]["DiscountAmount"] = "";
+                                    $InvoiceDetailData[$i]["DiscountType"] = null;
+                                }
+                                $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
                             }
-                            $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
                             $i++;
                         }
 
@@ -2643,21 +2649,23 @@ class InvoicesController extends \BaseController {
         //$data['type'] = 'journal';
         if($data['type'] == 'journal'){
             $msgtype = 'Journal';
+            $jobdata["Title"] =  'QuickBook Journal Post';
+            $jobdata["Description"] = 'QuickBook Journal Post';
         }
         else{
             $msgtype = 'Invoice';
+            $jobdata["Title"] =  $jobType->Title;
+            $jobdata["Description"] = $jobType->Title ;
         }
         $CompanyID = User::get_companyID();
         $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
-            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
             $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
+            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
             $jobdata["CompanyID"] = $CompanyID;
             $jobdata["JobTypeID"] = $jobType->JobTypeID ;
             $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
             $jobdata["JobLoggedUserID"] = User::get_userID();
-            $jobdata["Title"] =  $jobType->Title;
-            $jobdata["Description"] = $jobType->Title ;
             $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
             $jobdata["created_at"] = date('Y-m-d H:i:s');

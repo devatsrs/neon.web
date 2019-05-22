@@ -5,7 +5,8 @@ class EmailTemplateController extends \BaseController {
     public function ajax_datagrid() {
 
         $companyID = User::get_companyID();
-        $data = Input::all(); 
+        $data = Input::all();
+        $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'View','Email_Template'); 
         //$select = ["TemplateName","Subject","Type","CreatedBy","updated_at","Status","TemplateID","StaticType"];
 		$select = ["TemplateName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType","Type","StatusDisabled"];
         $template = EmailTemplate::select($select);
@@ -102,7 +103,10 @@ class EmailTemplateController extends \BaseController {
             unset($data['created_at'], $data['ModifiedBy'], $data['updated_at']);
         }
 
+        
+
         if ($obj = EmailTemplate::create($data)) {
+            $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Add','Email_Template');
             return Response::json(array("status" => "success", "message" => "Template Successfully Created","newcreated"=>$obj));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Template."));
@@ -190,6 +194,7 @@ class EmailTemplateController extends \BaseController {
 		 unset($data['Email_template_privacy']); 
 		$data['Status'] = isset($data['Status'])?1:0;
         if ($crmteplate->update($data)) {
+            $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Edit','Email_Template');
             return Response::json(array("status" => "success", "message" => "Template Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating template."));
@@ -198,11 +203,13 @@ class EmailTemplateController extends \BaseController {
 
     public function delete($id)
     {
+        $data['id'] = $id;
         if( intval($id) > 0){
             if(!EmailTemplate::checkForeignKeyById($id)) {
                 try {
                     $result = EmailTemplate::find($id)->delete();
                     if ($result) {
+                        $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Delete','Email_Template');
                         return Response::json(array("status" => "success", "message" => "Template Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting template."));
@@ -222,6 +229,7 @@ class EmailTemplateController extends \BaseController {
     {
         $companyID = User::get_companyID();
         $data = Input::all();
+        $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Export','Email_Template');
         $select = ["TemplateName","Subject","CreatedBy","updated_at"];
         $template = EmailTemplate::select($select)->where(["CompanyID" => $companyID])->get();
         $excel_data = json_decode(json_encode($template),true);
@@ -246,7 +254,8 @@ class EmailTemplateController extends \BaseController {
 				$statusdb = 1;
 			}
 			 
-			EmailTemplate::find($id)->update(array("Status"=>$statusdb));
+            EmailTemplate::find($id)->update(array("Status"=>$statusdb));
+            $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Edit','Email_Template');
 			return Response::json(array("status" => "success", "message" => "Template status successfully updated"));
 		}catch (Exception $ex) {
             return Response::json(array("status" => "failed", "message" => "template is in Use, You cant delete this template."));

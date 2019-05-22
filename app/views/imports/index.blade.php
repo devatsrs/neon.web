@@ -133,6 +133,7 @@
                 <input type="hidden" name="TemplateType" id="TemplateType" value="{{FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Account)}}" />
                 <span id="gateway_filter"></span>
                 <span id="get_account"></span>
+                <span id="get_vendor"></span>
                 <span id="get_accounts_sippy"></span>
                 <span id="get_vendors_sippy"></span>
                 <span class="gatewayloading">Retrieving Accounts ... </span>
@@ -396,21 +397,53 @@
             <button type="button" id="uploadaccount"  class="btn btn-primary "><i class="entypo-download"></i><span>Import</span></button>
         </p>
         <div class="clear"></div>
-        <div class="row">
-            <div class="col-md-12">
-                <table class="table table-bordered datatable" id="table-5">
-                    <thead>
-                    <tr>
-                        <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                        <th width="15%" >Account Name</th>
-                        <th width="15%" >First Name</th>
-                        <th width="15%" >Last Name</th>
-                        <th width="15%" >Email</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+        <div class="panel-heading" style="padding: 0;">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#customertab-default" data-toggle="tab">Customers</a></li>
+                <li><a href="#vendortab-default" data-toggle="tab">Vendors</a></li>
+            </ul>
+        </div>
+        <div class="panel-body" style="padding: 0;">
+            <div class="tab-content" style="margin: 0;">
+                <div class="tab-pane fade in active" id="customertab-default">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-bordered datatable" id="table-5">
+                                <thead>
+                                <tr>
+                                    <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+                                    <th width="15%" >Account Name</th>
+                                    <th width="15%" >First Name</th>
+                                    <th width="15%" >Last Name</th>
+                                    <th width="15%" >Email</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="vendortab-default">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-bordered datatable" id="table-6">
+                                <thead>
+                                <tr>
+                                    <th width="5%"><input type="checkbox" id="selectall1" name="checkbox[]" class="" /></th>
+                                    <th width="15%" >Account Name</th>
+                                    <th width="15%" >First Name</th>
+                                    <th width="15%" >Last Name</th>
+                                    <th width="15%" >Email</th>
+                                    <th width="15%" >New Account Name</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -477,7 +510,7 @@
                         $("#rootwizard-2").find("input[name='importway']").val(importfrom);
                         $('#gatewayimport').hide();
                         $('#csvimport').show();
-                    }else if(importfrom=='PBX' || importfrom=='Porta' || importfrom=='MOR' || importfrom =='CallShop' || importfrom =='Streamco' || importfrom =='FusionPBX' || importfrom =='M2' || importfrom =='SippySFTP' || importfrom =='VoipNow' || importfrom =='VoipMS'){
+                    }else if(importfrom=='PBX' || importfrom=='Porta' || importfrom=='MOR' || importfrom =='CallShop' || importfrom =='Streamco' || importfrom =='FusionPBX' || importfrom =='M2' || importfrom =='SippySFTP' || importfrom =='VoipNow' || importfrom =='VoipMS' || importfrom =='ClarityPBX'){
                         $('#st3').remove();
                         $("#st2 h5.test").html('Select Accounts');
                         $("#st3 h5.test").html('Import Accounts');
@@ -801,6 +834,11 @@
                             $('#table_templates').remove();
                             $('#neon-account-name').remove();
                             $('#get_account').trigger('click');
+
+                            if(response.Gateway == 'ClarityPBX') {
+                                $('#get_vendor').trigger('click');
+                            }
+
                             $('#uploadaccount').show();
                         }
 
@@ -828,9 +866,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid});
+                    aoData.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid},{"name":"accounttype","value":1});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid},{"name":"Export","value":1});
+                    data_table_extra_params.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid},{"name":"accounttype","value":1},{"name":"Export","value":1});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -921,6 +959,113 @@
                 }
             });
             $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+        });
+
+        $("#get_vendor").click(function(e) {
+            e.preventDefault();
+            var CGatewayID=$("#gatewayimport input[name='CompanyGatewayID']").val();
+            var cprocessid=$("#gatewayimport input[name='importprocessid']").val();
+            data_table = $("#table-6").dataTable({
+                "bProcessing":true,
+                "bDestroy": true,
+                "bServerSide":true,
+                "sAjaxSource": baseurl + "/import/account/ajax_get_missing_gatewayaccounts",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox1.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+                "fnServerParams": function(aoData) {
+                    aoData.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid},{"name":"accounttype","value":2});
+                    data_table_extra_params.length = 0;
+                    data_table_extra_params.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid},{"name":"accounttype","value":2},{"name":"Export","value":1});
+                },
+                "sPaginationType": "bootstrap",
+                "aaSorting"   : [[1, 'asc']],
+                "oTableTools":
+                {
+                    "aButtons": [
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "Export Data",
+                            "sUrl": baseurl + "/import/account/ajax_get_missing_gatewayaccounts",
+                            sButtonClass: "save-collection"
+                        }
+                    ]
+                },
+                "aoColumns":
+                        [
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                }
+                            }, //0Checkbox
+                            { "bSortable": true },//account name
+                            { "bSortable": true },//first name
+                            { "bSortable": true },// last name
+                            { "bSortable": true }  /* email,
+                         { mRender: function(id, type, full) {
+                         action = '<div class = "hiddenRowData" >';
+                         for(var i = 0 ; i< list_fields.length; i++){
+                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i]?full[i]:'')+ '" / >';
+                         }
+                         action += '</div>';
+                         action += ' <button class="btn clear delete_cdr btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i ntypo-cancel"></i>Clear CDR</button>';
+                         return action;
+                         }*/
+                        ],
+                "fnDrawCallback": function() {
+                    $(".dataTables_wrapper select").select2({
+                        minimumResultsForSearch: -1
+                    });
+                    $('#table-6 tbody').off('click');
+                    $('#table-6 tbody').on('click', 'tr', function() {
+                        if (checked =='') {
+                            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                $(this).toggleClass('selected');
+                                if ($(this).hasClass('selected')) {
+                                    $(this).find('.rowcheckbox').prop("checked", true);
+                                } else {
+                                    $(this).find('.rowcheckbox').prop("checked", false);
+                                }
+                            }
+                        }
+                    });
+                    $("#selectall1").click(function(ev) {
+                        var is_checked = $(this).is(':checked');
+                        $('#table-6 tbody tr').each(function(i, el) {
+                            if($(this).find('.rowcheckbox').hasClass('rowcheckbox')){
+                                if (is_checked) {
+                                    $(this).find('.rowcheckbox').prop("checked", true);
+                                    $(this).addClass('selected');
+                                } else {
+                                    $(this).find('.rowcheckbox').prop("checked", false);
+                                    $(this).removeClass('selected');
+                                }
+                            }
+                        });
+                    });
+                    $('#selectallbutton1').click(function(ev) {
+                        if($(this).is(':checked')){
+                            checked = 'checked=checked disabled';
+                            $("#selectall1").prop("checked", true).prop('disabled', true);
+                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                                $('#table-6 tbody tr').each(function(i, el) {
+                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                    $(this).addClass('selected');
+                                });
+                            }
+                        }else{
+                            checked = '';
+                            $("#selectall1").prop("checked", false).prop('disabled', false);
+                            if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                                $('#table-6 tbody tr').each(function(i, el) {
+                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                    $(this).removeClass('selected');
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+            $("#selectcheckbox1").append('<input type="checkbox" id="selectallbutton1" name="checkboxselect[]" class="" title="Select All Found Records" />');
         });
 
         $("#get_accounts_sippy").click(function(e) {
@@ -1137,16 +1282,21 @@
             var AccountIDs = [];
             var gatewayid = $("#rootwizard-2 input[name='CompanyGatewayID']").val();
             var importprocessid = $("#rootwizard-2 input[name='importprocessid']").val();
-            if($('#selectallbutton').is(':checked')){
+            if($('#selectallbutton').is(':checked') && $('#selectallbutton1').is(':checked')){
                 //criteria = JSON.stringify($searchFilter);
                 criteria = 1;
             }else{
-                var i = 0;
                 $('#table-5 tr .rowcheckbox:checked').each(function(i, el) {
                     //console.log($(this).val());
                     AccountID = $(this).val();
                     if(typeof AccountID != 'undefined' && AccountID != null && AccountID != 'null'){
-                        AccountIDs[i++] = AccountID;
+                        AccountIDs.push(AccountID);
+                    }
+                });
+                $('#table-6 tr .rowcheckbox:checked').each(function() {
+                    AccountID = $(this).val();
+                    if(typeof AccountID != 'undefined' && AccountID != null && AccountID != 'null'){
+                        AccountIDs.push(AccountID);
                     }
                 });
             }
@@ -1205,19 +1355,18 @@
                     }
                 });
             }else{
-                var i = 0;
                 $('#table-5 tr .rowcheckbox:checked').each(function() {
                     //console.log($(this).val());
                     AccountID = $(this).val();
                     if(typeof AccountID != 'undefined' && AccountID != null && AccountID != 'null'){
-                        AccountIDs[i++] = AccountID;
+                        AccountIDs.push(AccountID);
                         NeonAccountNames[AccountID] = $('input[name='+AccountID+']').val();
                     }
                 });
                 $('#table-6 tr .rowcheckbox:checked').each(function() {
                     AccountID = $(this).val();
                     if(typeof AccountID != 'undefined' && AccountID != null && AccountID != 'null'){
-                        AccountIDs[i++] = AccountID;
+                        AccountIDs.push(AccountID);
                         NeonAccountNames[AccountID] = $('input[name='+AccountID+']').val();
                     }
                 });
