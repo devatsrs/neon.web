@@ -8,7 +8,8 @@ class TicketImportRulesController extends \BaseController {
 
 	 public function ajax_datagrid($type='') { 
 	
-		$data 		= 	Input::all();  
+		$data 		= 	Input::all(); 
+                $UserActilead = UserActivity::UserActivitySaved($data,'View','Import Rules');
 		if($type)
 		{
 			$data['Export']		=	1; 
@@ -50,6 +51,7 @@ class TicketImportRulesController extends \BaseController {
 	function store(){
 		
 		$postdata 				= 		Input::all();  	
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Import Rules');
         $response 				= 		NeonAPI::request('tickets/importrules/store',$postdata,true,false,false);
 		
         if(!empty($response) && $response->status == 'success'){
@@ -103,11 +105,14 @@ class TicketImportRulesController extends \BaseController {
 	function update($id)
 	{
 		$postdata 				= 		Input::all();
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','Import Rules');
         $response 				= 		NeonAPI::request('tickets/importrules/update/'.$id,$postdata,true,false,false); 
         return json_response_api($response);
 	}
 	
-	public function delete($id) {		
+	public function delete($id) {	
+                $postdata['id']=$id;
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Delete','Import Rules');
 		$response 		= 		NeonAPI::request('tickets/importrules/delete/'.$id,array(),true,false,false); 
 		return json_response_api($response);
     }

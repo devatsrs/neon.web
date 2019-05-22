@@ -643,9 +643,10 @@ class TicketsController extends \BaseController {
 	
 	function CloseTicket($ticketID)
 	{
-		$data 				= 		Input::all();
-		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,$data,true,true); 
-		return json_response_api($response);    		
+            $data 				= 		Input::all();
+            $UserActilead = UserActivity::UserActivitySaved($data,'CloseTicket','Ticket');
+            $response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,$data,true,true); 
+            return json_response_api($response);    		
 	}
 	
 	function ComposeEmail(){		 
@@ -751,12 +752,14 @@ class TicketsController extends \BaseController {
 
     function BulkAction(){
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'BulkAction','Ticket');
         $response  		    =  	  NeonAPI::request('tickets/bulkactions',$data,true,true);
         return json_response_api($response);
     }
 
     function BulkDelete(){
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'BulkDelete','Ticket');
         $response  		    =  	  NeonAPI::request('tickets/bulkdelete',$data,true,true);
         return json_response_api($response);
     }
@@ -769,7 +772,7 @@ class TicketsController extends \BaseController {
 	function BulkPickup()
 	{
 		$data = Input::all();
-
+                $UserActilead = UserActivity::UserActivitySaved($data,'BulkPickup','Ticket');
 		if(!empty($data["SelectedIDs"]))
 		{
 			$Userid = User::get_userID();
