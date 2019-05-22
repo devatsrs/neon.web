@@ -1401,6 +1401,7 @@
                             EmailFrom = response.EmailFrom;
                             Port = response.Port;
                             IsSSL = response.IsSSL;
+                            DomainUrl = response.WEB_URL;
                             //AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
 
                             //getDomainUrl($(this).attr('data-id'));
@@ -1417,6 +1418,7 @@
                             $("#add-new-reseller-form [name='Email']").val(Email);
                             $("#add-new-reseller-form [name='Status']").val(Status);
                             $("#add-new-reseller-form [name='invoiceTo']").val(InvoiceTo);
+                            $("#add-new-reseller-form [name='DomainUrl']").val(DomainUrl);
                             $("#add-new-reseller-form [name='TermsAndCondition']").summernote('code',Terms);
                             $("#add-new-reseller-form [name='FooterTerm']").summernote('code',Footer);
                             $('#InvoiceTemplateHeader').val(invoiceFrom);
