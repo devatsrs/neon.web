@@ -15,9 +15,11 @@ class IntegrationController extends \BaseController
      */
     public function index()
 	{
+		$data = array();
 		$companyID  			= 	User::get_companyID();
 		$GatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration();
 		$Gateway 				= 	Gateway::getGatWayList();
+		$IntegrationActilead = UserActivity::UserActivitySaved($data,'View','Integration');
 		if(is_reseller()){
 			$categories 			= 	Integration::where(["Slug"=>SiteIntegration::$PaymentSlug])
 													->orWhere(["Slug"=>SiteIntegration::$AccountingSlug])

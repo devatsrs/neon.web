@@ -11,6 +11,10 @@ class ThemesController extends \BaseController {
         $columns 					 =  	['ThemeID','DomainUrl','Title','Favicon','Logo','ThemeStatus'];   
         $sort_column 				 =  	$columns[$data['iSortCol_0']];		
 		$Themes 					 = 		Themes::where(["CompanyID" => $companyID])->select($columns);
+
+		//https://codedesk.atlassian.net/browse/NEON-1591
+		//Audit Trails of user activity
+		$UserActilead = UserActivity::UserActivitySaved($data,'View','Themes');
 		
 		 if(trim($data['searchText']) != '')
 		 {			 

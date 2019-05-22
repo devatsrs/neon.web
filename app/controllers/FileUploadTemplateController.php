@@ -6,6 +6,10 @@ class FileUploadTemplateController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
 
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UploadtemplateActilead = UserActivity::UserActivitySaved($data,'View','Uploadtemplate');
+
         $data['iDisplayStart'] +=1;
         $data['Title']  = $data['Title']!= '' ? "'".$data['Title']."'" : 'null';
         $data['Type']   = $data['Type'] != '' ? $data['Type'] : 'null';

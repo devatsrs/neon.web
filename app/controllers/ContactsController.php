@@ -19,7 +19,11 @@ class ContactsController extends \BaseController {
             $contacts = Contact::leftjoin('tblAccount', 'tblAccount.AccountID', '=', 'tblContact.Owner')
                 ->select([DB::raw("  concat(IFNULL(tblContact.FirstName,''),' ' ,IFNULL(tblContact.LastName,''))  AS FullName "), "tblAccount.AccountName","tblContact.Phone", "tblContact.Email", "tblContact.ContactID"])->where(["tblContact.CompanyID" => $companyID]);
         }
-
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $data=array();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Contact');
+        
         return Datatables::of($contacts)->make();
     }
 
@@ -68,7 +72,10 @@ class ContactsController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'Add','Contact');
+        //----------------------------------------------------------------------
         if ($contact = Contact::create($data)) {
             return Response::json(array("status" => "success", "message" => "Contact Successfully Created",'LastID'=>$contact->ContactID));
         } else {
@@ -128,6 +135,10 @@ class ContactsController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Contact');
+        //----------------------------------------------------------------------
         if ($lead->update($data)) {
             return Response::json(array("status" => "success", "message" => "Contact Successfully Updated"));
         } else {
@@ -221,6 +232,12 @@ class ContactsController extends \BaseController {
      */
     public function destroy($id) {
         //$contact = Contact::find($id);
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $companyID 				= 	User::get_companyID();
+        $data['id']=$id;
+        $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Contact');
+        //----------------------------------------------------------------------
         if (Contact::destroy($id)) {
             return Response::json(array("status" => "success", "message" => "Contact Successfully Deleted"));
         } else {

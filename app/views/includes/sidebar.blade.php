@@ -351,7 +351,10 @@
         @endif
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
-    	@endif
+        @endif
+        @if( User::checkCategoryPermission('ActivityFeed','View'))
+        <li> <a href="{{URL::to('/activity')}}">  <span>Activity Feed</span> </a> </li>
+    	  @endif
           @if( User::checkCategoryPermission('NoticeBoardPost','View'))
             <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li>
           @endif

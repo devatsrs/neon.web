@@ -17,6 +17,7 @@ class TranslateController extends \BaseController {
     public function search_ajax_datagrid() {
 
         $data = Input::all();
+        $TranslationActilead = UserActivity::UserActivitySaved($data,'View','Translation');
         $all_langs = DB::table('tblLanguage')
             ->select("tblLanguage.LanguageID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
@@ -82,6 +83,7 @@ class TranslateController extends \BaseController {
     function process_singleDelete(){
         $request = Input::all();
         Translation::delete_label($request["language"], $request["system_name"]);
+        $TranslationActilead = UserActivity::UserActivitySaved($request,'Delete','Translation');
 
         return json_encode(["status" => "success", "message" => "Deleted - ".$request["system_name"]]);
     }
@@ -111,6 +113,7 @@ class TranslateController extends \BaseController {
         $request = Input::all();
 
         if(Translation::add_system_name($request["system_name"], $request["en_word"])){
+            $TranslationActilead = UserActivity::UserActivitySaved($request,'Add','Translation');
             return json_encode(["status" => "success", "message" => "Add Successfully"]);
         }else{
             return json_encode(["status" => "fail", "message" => "System Name already exist."]);
