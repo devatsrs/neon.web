@@ -1358,6 +1358,7 @@
                         console.log(response.Email);
                         $(this).button('reset');
                         if (response.status == 'failed') {
+                            
                             $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',PartnerID);
                             $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',false);
                             $("#add-new-reseller-form [name='ResellerName']").val('');            
@@ -1414,6 +1415,7 @@
                                 $('#add-new-reseller-form [name="Status"]').prop('checked',false);
                             }*/
 
+                            $("#add-new-reseller-form [name='picture']").val('');
                             $("#add-new-reseller-form [name='ResellerName']").val(ResellerName);            
                             $("#add-new-reseller-form [name='FirstName']").val(FirstName);
                             $("#add-new-reseller-form [name='LastName']").val(LastName);
