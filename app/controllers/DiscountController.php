@@ -4,8 +4,10 @@ class DiscountController extends \BaseController {
 
 
     public function index() {
+        $data = array();
         $currencies = Currency::getCurrencyDropdownIDList();
         $DestinationGroupSets = DestinationGroupSet::getDropdownIDList();
+        $discount_planActilead = UserActivity::UserActivitySaved($data,'View','Discount Plan');
         return View::make('discountplan.index', compact('currencies','DestinationGroupSets'));
     }
 
@@ -13,8 +15,10 @@ class DiscountController extends \BaseController {
         $getdata = Input::all();
         $response =  NeonAPI::request('discountplan/datagrid',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
+            
             $excel_data = $response->data;
             $excel_data = json_decode(json_encode($excel_data), true);
+            $discount_planActilead = UserActivity::UserActivitySaved($excel_data,'Export','Discount Plan');
             Excel::create('Discount Plan', function ($excel) use ($excel_data) {
                 $excel->sheet('Discount Plan', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
@@ -25,19 +29,30 @@ class DiscountController extends \BaseController {
     }
 
     public function store(){
+      
         $postdata = Input::all();
         $response =  NeonAPI::request('discountplan/store',$postdata,true,false,false);
+        if(!$response->failed){
+            $discount_planActilead = UserActivity::UserActivitySaved($postdata,'Add','Discount Plan'); 
+        }
         return json_response_api($response);
     }
 
     public function delete($id){
+        $data['id'] = $id;
         $response =  NeonAPI::request('discountplan/delete/'.$id,array(),'delete',false,false);
+        if(!$response->failed){
+            $discount_planActilead = UserActivity::UserActivitySaved($data,'Delete','Discount Plan'); 
+        }
         return json_response_api($response);
     }
 
     public function update($id){
         $postdata = Input::all();
         $response =  NeonAPI::request('discountplan/update/'.$id,$postdata,'put',false,false);
+        if(!$response->failed){
+            $discount_planActilead = UserActivity::UserActivitySaved($postdata,'Edit','Discount Plan'); 
+        }
         return json_response_api($response);
     }
 

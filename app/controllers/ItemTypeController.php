@@ -48,11 +48,13 @@ class ItemTypeController extends \BaseController {
 
     public function index()
     {
+        $data = array();
         $id=0;
         $Type =  Product::DYNAMIC_TYPE;
         $companyID = User::get_companyID();
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $DynamicFields = $this->getDynamicFields($companyID,$Type);
+        $itemtypesActilead = UserActivity::UserActivitySaved($data,'View','Item Types');
         return View::make('products.itemtypes.index', compact('id','gateway','DynamicFields'));
     }
 
@@ -94,6 +96,7 @@ class ItemTypeController extends \BaseController {
         }
 
         if ($itemtype = ItemType::create($data)) {
+            $itemtypesActilead = UserActivity::UserActivitySaved($data,'Add','Item Types');
             return Response::json(array("status" => "success", "message" => "Item Type Successfully Created",'newcreated'=>$itemtype));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Item Type."));
@@ -136,6 +139,7 @@ class ItemTypeController extends \BaseController {
             }
 
             if ($itemtype->update($data)) {
+                $itemtypesActilead = UserActivity::UserActivitySaved($data,'Edit','Item Types');
                 return Response::json(array("status" => "success", "message" => "Item Type Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Item Type."));
@@ -153,6 +157,7 @@ class ItemTypeController extends \BaseController {
 	 * @return Response
 	 */
     public function delete($id) {
+        $data['id'] = $id;
         if( intval($id) > 0){
             if(!ItemType::checkForeignKeyById($id)) {
                 try {
@@ -161,6 +166,7 @@ class ItemTypeController extends \BaseController {
 
                     $result = ItemType::find($id)->delete();
                     if ($result) {
+                        $itemtypesActilead = UserActivity::UserActivitySaved($data,'Delete','Item Types');
                         return Response::json(array("status" => "success", "message" => "Item Type Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Item Type."));
@@ -247,6 +253,7 @@ class ItemTypeController extends \BaseController {
                     $grid['FileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
                     $grid['FileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
                 }
+                $itemtypesActilead = UserActivity::UserActivitySaved($data,'Upload','Item Types');
                 return Response::json(array("status" => "success", "message" => "file uploaded", "data" => $grid));
             }
         } catch (Exception $e) {

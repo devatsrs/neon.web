@@ -110,10 +110,12 @@ class AccountStatementController extends \BaseController
      */
     public function index()
     {
+        $data = array();
         $id = 0;
         $companyID = User::get_companyID();
         $accounts = Account::getAccountIDList();
         $CompanyName = Company::getName();
+        $account_statementActilead = UserActivity::UserActivitySaved($data,'View','Account Statement');
         return View::make('accountstatement.index', compact('accounts', 'CompanyName'));
     }
 

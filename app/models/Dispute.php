@@ -168,6 +168,7 @@ class Dispute extends \Eloquent {
 
 			}
 			if(Dispute::find($data["DisputeID"])->update($disputeData) ) {
+				$disputesActilead = UserActivity::UserActivitySaved($data,'Edit','Disputes');
 				return Response::json(array("status" => "success", "message" => "Dispute updated successfully."));
 
 			} else {
@@ -179,7 +180,8 @@ class Dispute extends \Eloquent {
 		}else if(Dispute::insert($disputeData) ) {
             if(isset($data['sendEmail']) && $data['sendEmail']==1){
                 $status = Dispute::sendDisputeEmailCustomer($disputeData);
-            }
+			}
+			$disputesActilead = UserActivity::UserActivitySaved($data,'Add','Disputes');
 			return Response::json(array("status" => "success", "message" => "Dispute inserted successfully.".(isset($status['message'])?' and '.$status['message']:'')));
 
 		} else {

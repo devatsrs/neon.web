@@ -61,6 +61,7 @@ class EstimatesController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
 			
             $excel_data = json_decode(json_encode($excel_data),true);
+            $EstimatesActilead = UserActivity::UserActivitySaved($excel_data,'Export','Estimates');
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Estimate.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
@@ -617,6 +618,7 @@ class EstimatesController extends \BaseController {
                             }
 
                             DB::connection('sqlsrv2')->commit();
+                            $EstimatesActilead = UserActivity::UserActivitySaved($EstimateData,'Edit','Estimates');
                             return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated", 'LastID' => $Estimate->EstimateID));
                         }
                         else
@@ -858,6 +860,7 @@ class EstimatesController extends \BaseController {
 
     public function delete($id)
     {
+        $data['id'] = $id;
         if( $id > 0)
 		{
             try
@@ -868,6 +871,7 @@ class EstimatesController extends \BaseController {
                 EstimateLog::where(["EstimateID"=>$id])->delete();
                 Estimate::find($id)->delete();
                 DB::connection('sqlsrv2')->commit();
+                $EstimatesActilead = UserActivity::UserActivitySaved($data,'Delete','Estimates');
                 return Response::json(array("status" => "success", "message" => "Estimate Successfully Deleted"));
 
             }
@@ -896,6 +900,7 @@ class EstimatesController extends \BaseController {
                 EstimateLog::whereIn("EstimateID",$EstimateIDs)->delete();
 				Estimate::whereIn('EstimateID',$EstimateIDs)->delete();
                 DB::connection('sqlsrv2')->commit();
+                $EstimatesActilead = UserActivity::UserActivitySaved($data,'Bulk Delete','Estimates');
                 return Response::json(array("status" => "success", "message" => "Estimate(s) Successfully Deleted"));
             }
 			catch (Exception $e)
@@ -926,7 +931,7 @@ class EstimatesController extends \BaseController {
     }
     public function estimate_preview($id)
 	{
-
+        $data['estimate_view_id'] = $id;
         $Estimate = Estimate::find($id);
         if(!empty($Estimate))
 		{
@@ -938,6 +943,7 @@ class EstimatesController extends \BaseController {
             $estimate_status 	= 	 Estimate::get_estimate_status();
             $EstimateStatus =   $estimate_status[$Estimate->EstimateStatus];
             $EstimateComments =   EstimateLog::get_comments_count($id);
+            $EstimatesActilead = UserActivity::UserActivitySaved($data,'View','Estimates');
             return View::make('estimates.estimates_preview', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','EstimateStatus','EstimateComments'));
         }
     }
@@ -1139,6 +1145,7 @@ class EstimatesController extends \BaseController {
     }
     public function send($id)
 	{
+
         if($id)
 		{
             set_time_limit(600); // 10 min time limit.
@@ -1294,6 +1301,7 @@ class EstimatesController extends \BaseController {
             
 			if($StaffStatus['status']==0)
 			{
+                $EstimatesActilead = UserActivity::UserActivitySaved($data,'Send','Estimates');
                 $status['message'] .= ', Enable to send email to staff : ' . $StaffStatus['message'];
             }
 

@@ -65,12 +65,14 @@ class DisputeController extends \BaseController {
 	public function index()
 	{
 		Invoice::multiLang_init();
+		$data = array();
 		$id=0;
 		$currency = Currency::getCurrencyDropdownList();
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList());
 		$accounts = Account::getAccountIDList();
 		$InvoiceTypes =  array(''=>'Select' , Invoice::INVOICE_OUT=>"Sent",Invoice::INVOICE_IN=>"Received");
 		$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
+		$disputesActilead = UserActivity::UserActivitySaved($data,'View','Disputes');
 		$bulk_type = 'disputes';
 		return View::make('disputes.index', compact('id','currency','status','accounts','currency_ids','InvoiceTypes','emailTemplates','bulk_type'));
 
@@ -83,7 +85,7 @@ class DisputeController extends \BaseController {
 	 * @return Response
 	 */
 	public function create(){
-
+		
 		$data = Input::all();
 		$data['sendEmail']=0;
 		$data['DisputeAttachment']=1;
@@ -175,6 +177,7 @@ class DisputeController extends \BaseController {
 		$Dispute->Status = $data["Status"];
 
 		if ($Dispute->update()) {
+			$disputesActilead = UserActivity::UserActivitySaved($data,'Edit','Disputes');
 			return Response::json(array("status" => "success", "message" => "Dispute Status Successfully Updated"));
 		} else {
 			return Response::json(array("status" => "failed", "message" => "Failed Updating Dispute Status."));
@@ -476,12 +479,14 @@ class DisputeController extends \BaseController {
 	}
 
 	public function delete($id) {
+		$data['id'] = $id;
 		if( intval($id) > 0){
 			try {
 				$Dispute=Dispute::find($id);
 				AmazonS3::delete($Dispute->Attachment);
 				$result = $Dispute->delete();
 				if ($result) {
+					$disputesActilead = UserActivity::UserActivitySaved($data,'Delete','Disputes');
 					return Response::json(array("status" => "success", "message" => "Dispute Successfully Deleted"));
 				} else {
 					return Response::json(array("status" => "failed", "message" => "Problem Deleting Dispute."));

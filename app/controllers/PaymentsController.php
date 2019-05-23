@@ -128,14 +128,16 @@ class PaymentsController extends \BaseController {
      * @return Response
      */
     public function index()
-    {
+    {   
+        $data = array();
         $id=0;
 		$companyID = User::get_companyID();
         $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
         $currency = Currency::getCurrencyDropdownList(); 
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList()); 		
         $accounts = Account::getAccountIDList();
-		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $PaymentsActilead = UserActivity::UserActivitySaved($data,'View','Payments');
         return View::make('payments.index', compact('id','currency','accounts','PaymentUploadTemplates','currency_ids','DefaultCurrencyID'));
 	}
 
@@ -147,6 +149,7 @@ class PaymentsController extends \BaseController {
 	 */
     public function create()
     {
+       
         $isvalid = Payment::validate();
         $sendemail = 1;
         $message = '';
@@ -287,6 +290,8 @@ class PaymentsController extends \BaseController {
                     }
                     $message = isset($status['message']) ? ' and ' . $status['message'] : '';
                 }
+                $payment_data = array();
+                $PaymentsActilead = UserActivity::UserActivitySaved($payment_data,'Add','Payments');
                 return Response::json(array("status" => "success", "message" => "Payment Successfully Created ". $message ));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Payment."));
@@ -492,7 +497,7 @@ class PaymentsController extends \BaseController {
                         }
                     }
                 }
-
+                $PaymentsActilead = UserActivity::UserActivitySaved($data,'Recall','Payments');
                 return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
@@ -610,6 +615,7 @@ class PaymentsController extends \BaseController {
                     $grid['PaymentUploadTemplate'] = json_decode(json_encode($PaymentUploadTemplate), true);
                     $grid['PaymentUploadTemplate']['Options'] = json_decode($PaymentUploadTemplate->Options, true);
                 }
+                $PaymentsActilead = UserActivity::UserActivitySaved($data,'Upload','Payments');
                 return Response::json(array("status" => "success", "data" => $grid));
             }
         }catch(Exception $ex) {

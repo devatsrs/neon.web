@@ -48,7 +48,9 @@ class ServicesController extends BaseController {
     }
 
     public function index() {
-            return View::make('service.index', compact(''));
+        $data = array();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Services');
+        return View::make('service.index', compact(''));
 
     }
 
@@ -69,6 +71,7 @@ class ServicesController extends BaseController {
                 return json_validator_response($validator);
             }
             if($Service = Service::create($data)){
+                $UserActilead = UserActivity::UserActivitySaved($data,'Add','Services');
                 return  Response::json(array("status" => "success", "message" => "Service Successfully Created",'LastID'=>$Service->ServiceID,'newcreated'=>$Service));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
@@ -95,7 +98,8 @@ class ServicesController extends BaseController {
             return json_validator_response($validator);
         }
         if($Service->update($data)){
-              return  Response::json(array("status" => "success", "message" => "Service Successfully Updated"));
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Services');
+            return  Response::json(array("status" => "success", "message" => "Service Successfully Updated"));
         } else {
             return  Response::json(array("status" => "failed", "message" => "Problem Updating Service."));
         }
@@ -103,10 +107,12 @@ class ServicesController extends BaseController {
     }
 
     public function delete($id){
+        $data['id'] = $id;
         if(Service::checkForeignKeyById($id)){
             try{
                 $result = Service::where(array('ServiceID'=>$id))->delete();
                 if ($result) {
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Services');
                     return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
@@ -135,7 +141,8 @@ class ServicesController extends BaseController {
                 $query->where("tblService.Status","=",0);
             }
             $services = $query->get();
-
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Services');
             $services = json_decode(json_encode($services),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Services.csv';
