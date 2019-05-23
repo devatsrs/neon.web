@@ -74,10 +74,12 @@ class UserActivity extends \Eloquent {
             $TypeName  = @$data['EstimateNumber'];
         }     
         
-        
+        if(!empty($options)){
+            $TypeName=$options;
+        }
         
         $dataActionValue            = array_filter($data, function($value) { return $value !== ''; });
-        $data_array['TypeName']     = $TypeName;
+        $data_array['TypeName']     = $options;
         $data_array['CompanyId']    = $companyID;
         $data_array['created_by']   =  $created_by;
         $data_array["created_at"]   = date('Y-m-d H:i:s');
