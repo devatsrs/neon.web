@@ -279,7 +279,7 @@
           <div class="col-md-6">
             <div class="form-group">
               <label for="field-1" class="control-label">* Password:</label>
-                <input type="password"  class="form-control" name="FreshdeskPassword" value="" /> <!--isset($FreshdeskData->FreshdeskPassword)?$FreshdeskData->FreshdeskPassword:''-->
+                <input type="password"  class="form-control" name="FreshdeskPassword" value="{{isset($FreshdeskData->FreshdeskPassword)?$FreshdeskData->FreshdeskPassword:""}}" /> <!--isset($FreshdeskData->FreshdeskPassword)?$FreshdeskData->FreshdeskPassword:''-->
             </div>
           </div>
           <div class="col-md-6">
@@ -597,7 +597,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="field-1" class="control-label">* Password:</label>
-                        <input type="password"  class="form-control" name="password" value="" />
+                        <input type="password"  class="form-control" name="password" value="{{isset($PeleCardData->password)?$PeleCardData->password:''}}" />
                     </div>
                 </div>
             </div>
@@ -712,7 +712,7 @@
           <div class="col-md-6">
             <div class="form-group">
               <label for="field-1" class="control-label">* Password:</label>
-              <input type="password"  class="form-control" name="MandrilPassword" value="" /> <!-- isset($ManrdilData->MandrilPassword)?$ManrdilData->MandrilPassword:"" -->
+              <input type="password"  class="form-control" name="MandrilPassword" value="{{isset($ManrdilData->MandrilPassword)?$ManrdilData->MandrilPassword:""}}" /> <!-- isset($ManrdilData->MandrilPassword)?$ManrdilData->MandrilPassword:"" -->
             </div>
           </div>
         </div>
@@ -829,7 +829,7 @@
           <div class="col-md-6">
             <div class="form-group">
               <label for="field-1" class="control-label">* Password:</label>
-              <input type="password"  class="form-control" id="EmailTrackingPassword" name="EmailTrackingPassword" value="" /> <!--isset($EmailTrackingData->EmailTrackingPassword)?$EmailTrackingData->EmailTrackingPassword:'' -->
+              <input type="password"  class="form-control" id="EmailTrackingPassword" name="EmailTrackingPassword" value="{{isset($EmailTrackingData->EmailTrackingPassword)?$EmailTrackingData->EmailTrackingPassword:""}}" /> <!--isset($EmailTrackingData->EmailTrackingPassword)?$EmailTrackingData->EmailTrackingPassword:'' -->
             </div>
           </div>    
           <div class="col-md-6">
@@ -869,7 +869,7 @@
             <div class="col-md-6">
             <div class="form-group">
               <label for="field-1" class="control-label">* Password:</label>
-              <input type="password"  class="form-control" name="OutlookCalendarPassword" value="" /> <!-- isset($outlookcalendarData->OutlookCalendarPassword)?$outlookcalendarData->OutlookCalendarPassword:'' -->
+              <input type="password"  class="form-control" name="OutlookCalendarPassword" value="{{isset($outlookcalendarData->OutlookCalendarPassword)?$outlookcalendarData->OutlookCalendarPassword:''}}" /> <!-- isset($outlookcalendarData->OutlookCalendarPassword)?$outlookcalendarData->OutlookCalendarPassword:'' -->
             </div>
           </div>
             <div class="col-md-6">
@@ -918,7 +918,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-4 control-label">* Password:</label>
                                 <div class="col-sm-8">
-                                    <input type="password"  class="form-control" name="QuickBookPassqord" value="" /> <!-- isset($QuickBookData['QuickBookPassqord'])?$QuickBookData['QuickBookPassqord']:"" -->
+                                    <input type="password"  class="form-control" name="QuickBookPassqord" value="{{isset($QuickBookData['QuickBookPassqord'])?$QuickBookData['QuickBookPassqord']:''}}" /> <!-- isset($QuickBookData['QuickBookPassqord'])?$QuickBookData['QuickBookPassqord']:"" -->
                                 </div>
                             </div>
                         </div>
@@ -1305,7 +1305,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-4 control-label">* Password:</label>
                                 <div class="col-sm-8">
-                                    <input type="password"  class="form-control" name="ExactPassword" value="" />
+                                    <input type="password"  class="form-control" name="ExactPassword" value="{{isset($ExactData['ExactPassword'])?$ExactData['ExactPassword']:''}}" />
                                 </div>
                             </div>
                         </div>
