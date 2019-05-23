@@ -381,7 +381,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Password</label>
                         <div class="col-sm-4">
-                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="" />
+                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="{{$company->SMTPPassword}}" />
                         </div>
                     </div>
                     <div class="form-group">
