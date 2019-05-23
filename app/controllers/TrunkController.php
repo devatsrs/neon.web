@@ -24,7 +24,9 @@ class TrunkController extends BaseController {
     }
 
     public function index() {
-            return View::make('trunk.list', compact(''));
+        $data = array();
+        $TrunksActilead = UserActivity::UserActivitySaved($data,'View','Trunks');
+        return View::make('trunk.list', compact(''));
 
     }
 
@@ -54,6 +56,7 @@ class TrunkController extends BaseController {
             }
             if($trunk = Trunk::create($data)){
                 Cache::forget("trunks_defaults");
+                $TrunksActilead = UserActivity::UserActivitySaved($data,'Add','Trunks');
                 return  Response::json(array("status" => "success", "message" => "Trunk Successfully Created",'LastID'=>$trunk->TrunkID,'newcreated'=>$trunk));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Creating Trunk."));
@@ -93,6 +96,7 @@ class TrunkController extends BaseController {
         }
         if($trunk->update($data)){
                 Cache::forget("trunks_defaults");
+                $TrunksActilead = UserActivity::UserActivitySaved($data,'Edit','Trunks');
               return  Response::json(array("status" => "success", "message" => "Trunk Successfully Updated"));
         } else {
             return  Response::json(array("status" => "failed", "message" => "Problem Updating Trunk."));

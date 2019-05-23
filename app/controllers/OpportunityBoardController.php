@@ -22,17 +22,21 @@ class OpportunityBoardController extends \BaseController {
 
 
     public function index(){
+        $data = array();
+        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'View','Opportunity Boards');
         return View::make('opportunityboards.index', compact(''));
     }
 
 
     public function configure($id){
+        $data['Configure_id'] = $id;
         $TaskBoard = CRMBoard::getTaskBoard();
         $Board = CRMBoard::find($id);
         $urlto = 'opportunityboards';
         if(isset($TaskBoard[0]->BoardID) && $TaskBoard[0]->BoardID==$id){
             $urlto = 'task';
         }
+        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'View','Opportunity Boards');
         return View::make('opportunityboards.configure', compact('id','Board','urlto'));
     }
 
@@ -78,6 +82,7 @@ class OpportunityBoardController extends \BaseController {
         $data = Input::all();
         unset($data["BoardID"]);
         $response = NeonAPI::request('opportunityboard/add_board',$data);
+        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'Add','Opportunity Boards');
         return json_response_api($response);
     }
 
@@ -92,6 +97,7 @@ class OpportunityBoardController extends \BaseController {
     public function update($id){
             $data = Input::all();
             $response = NeonAPI::request('opportunityboard/'.$id.'/update_board',$data);
+            $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'Edit','Opportunity Boards');
             return json_response_api($response);
     }
 }

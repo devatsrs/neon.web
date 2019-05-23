@@ -4,7 +4,8 @@ class VOSActiveCallController extends \BaseController {
 
     public function index()
     {
-
+        $data = array();
+        $VOSActiveCallsActilead = UserActivity::UserActivitySaved($data,'View','VOS Active Calls');
         return View::make('VOSActiveCall.index');
     }
 
@@ -95,6 +96,7 @@ class VOSActiveCallController extends \BaseController {
                         }
 
                         DB::connection('sqlsrvcdr')->commit();
+                        $VOSActiveCallsActilead = UserActivity::UserActivitySaved($data,'Import','VOS Active Calls');
                         return Response::json(['status'=>'success','message'=>"Successfully imported ".count($ActiveCallData)]);
                     }else{
                         return Response::json(['status'=>'failed','message'=>"No Records Found."]);

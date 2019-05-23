@@ -25,9 +25,11 @@ class CurrencyConversionController extends \BaseController {
 
 	public function index()
 	{
+        $data = array();
         $CompanyID = User::get_companyID();
         $CurrencyId = Company::getCompanyField($CompanyID,'CurrencyId');
         $code = Currency::getCurrency($CurrencyId);
+        $CurrencyConversionActilead = UserActivity::UserActivitySaved($data,'View','Currency Conversion');
         //$currencylist = Currency::getCurrencyDropdownIDList();
         $currencylists = Currency::select('Code','CurrencyID','Description')
                         //->where("CompanyId",$CompanyID)
@@ -111,6 +113,7 @@ class CurrencyConversionController extends \BaseController {
             }
         }
         if($success=='success'){
+            $CurrencyConversionActilead = UserActivity::UserActivitySaved($data,'Add','Currency Conversion');
             return Response::json(array("status" => "success", "message" => "Exchange Rate Successfully Created"));
         }else{
             return Response::json(array("status" => "failed", "message" => "Problem Creating Exchange Rate."));
@@ -173,6 +176,7 @@ class CurrencyConversionController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Please select a Different Currency in From and To."));
             }
             if ($CurrencyConversion->update($data)) {
+                $CurrencyConversionActilead = UserActivity::UserActivitySaved($data,'Edit','Currency Conversion');
                 return Response::json(array("status" => "success", "message" => "Exchange Rate Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Exchange Rate."));

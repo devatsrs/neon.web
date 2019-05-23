@@ -5,6 +5,7 @@ class RateTablesMultiAccController extends \BaseController {
     public function ajax_datagrid($type) {
 
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Apply Rate Table');
         $SourceCustomers = empty($data['SourceCustomers']) ? '' : $data['SourceCustomers'];
         if ($SourceCustomers == 'null') {
             $SourceCustomers = '';
@@ -106,6 +107,7 @@ class RateTablesMultiAccController extends \BaseController {
                 DataTableSql::of($query)->make();
                 \Illuminate\Support\Facades\Log::info($query);
                 try{
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Bulk','Apply Rate Table');
                     return json_encode(["status" => "success", "message" => "Rate Table Apply successfully"]);
                 }catch ( Exception $ex ){
                     $message =  "Oops Somethings Wrong !";
@@ -134,6 +136,7 @@ class RateTablesMultiAccController extends \BaseController {
                     DataTableSql::of($query)->make();
                     log::info($query);
                     try{
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Bulk','Apply Rate Table');
                         return json_encode(["status" => "success", "message" => "Successfully Apply Inbound & Outbound RateTable to Customer"]);
                     }catch ( Exception $ex ){
                         $message =  "Oops Somethings Wrong !";
@@ -157,6 +160,7 @@ class RateTablesMultiAccController extends \BaseController {
 
     public static function getRateTableAndAccountByCurrency(){
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Apply Rate Table');
         $ratetable = RateTable::getRateTableList(["CurrencyID"=>$data["id"]]);
         $data["ratetablelist"] =  $ratetable;
 

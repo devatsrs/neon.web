@@ -50,14 +50,36 @@ class UserActivity extends \Eloquent {
             $TypeName  = @$data['Trunk'];
         }else if(($Who=='Codedecks') && $action!='View' && $action!='Export'){
             $TypeName  = @$data['CodedeckName'];
-        }   
+        }else if(($Who=='DialStrings') && $action!='View' && $action!='Export'){
+            $TypeName  = @$data['Name'];
+        }else if(($Who=='DialStringsCode') && $action!='View' && $action!='Export' && $action!='Search'){
+            $TypeName  = @$data['DialString'];
+        }else if(($Who=='Currency') && $action!='View' && $action!='Export' && $action!='Search'){
+            $TypeName  = @$data['Code'];
+        }else if(($Who=='Currency Conversion') && $action!='View' && $action!='Export' && $action!='Search'){
+            $TypeName  = 'Currency Conversion';
+        }else if(($Who=='Timezones') && $action!='View' && $action!='Export' && $action!='Search'){
+            $TypeName  = @$data['Title'];
+        }else if(($Who=='VOS Active Calls') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
+            $TypeName  = @$data['Title'];
+        }else if(($Who=='Task') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
+            $TypeName  = @$data['Subject'];
+        }else if(($Who=='Opportunity') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search' && $action!='Sort'){
+            $TypeName  = @$data['OpportunityName'];
+        }else if(($Who=='Opportunity Boards') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
+            $TypeName  = @$data['BoardName'];
+        }else if(($Who=='Opportunity Board Column') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
+            $TypeName  = @$data['BoardColumnName'];
+        }else if(($Who=='Estimates') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
+            $TypeName  = @$data['EstimateNumber'];
+        }     
         
-        
-        
-         
+        if(!empty($options)){
+            $TypeName=$options;
+        }
         
         $dataActionValue            = array_filter($data, function($value) { return $value !== ''; });
-        $data_array['TypeName']     = $TypeName;
+        $data_array['TypeName']     = $options;
         $data_array['CompanyId']    = $companyID;
         $data_array['created_by']   =  $created_by;
         $data_array["created_at"]   = date('Y-m-d H:i:s');

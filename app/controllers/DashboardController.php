@@ -214,10 +214,11 @@ class DashboardController extends BaseController {
 		if(!empty($CompanyCrmDashboardSetting))
 		{
 			$CrmAllowedReports			=	explode(",",$CompanyCrmDashboardSetting);
-		}
-		
-		
-		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus',"CrmAllowedReports"));	
+        }
+        $data = array();
+        $CrmDashboardActilead = UserActivity::UserActivitySaved($data,'View','Crm Dashboard');
+
+		return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus',"CrmAllowedReports"));	
 	}
 
     public function TicketDashboard(){
@@ -258,6 +259,7 @@ class DashboardController extends BaseController {
 		  if($response->status=='failed'){
 			return json_response_api($response,false,true);
 		}else{
+            $SalesbyOpportunityActilead = UserActivity::UserActivitySaved($data,'Search','Sales by Opportunity');
 			return $response->data;
 		}
 	}
@@ -290,6 +292,7 @@ class DashboardController extends BaseController {
 		  if($response->status=='failed'){
 			return json_response_api($response,false,true);
 		}else{
+            $ForecastActilead = UserActivity::UserActivitySaved($data,'Search','Forecast');
 			return $response->data;
 		}
 	}
