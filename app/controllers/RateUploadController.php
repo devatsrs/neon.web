@@ -597,12 +597,13 @@ class RateUploadController extends \BaseController {
         $data               = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);
         $CompanyID          = User::get_companyID();
         $ProcessID          = (string) GUID::generate();
-        $batch_insert_limit = 250;
+        $batch_insert_limit = 1000;
         $counter            = 0;
         $p_Blocked          = 0;
         $p_preference       = 0;
         $DialStringId       = 0;
         $dialcode_separator = 'null';
+        $countrycode_separator = 'null';
 
         $id = '';
         if($data['RateUploadType'] == RateUpload::vendor) {
@@ -931,6 +932,10 @@ class RateUploadController extends \BaseController {
                 }
             }
 
+            if(!empty($attrselection->CountryCodeSeparator)){
+                $countrycode_separator = $attrselection->CountryCodeSeparator;
+            }
+
             if (isset($attrselection->FromCurrency) && !empty($attrselection->FromCurrency)) {
                 $CurrencyConversion = 1;
                 $CurrencyID = $attrselection->FromCurrency;
@@ -1210,19 +1215,57 @@ class RateUploadController extends \BaseController {
                                 }
                             }
 
-                            if (!empty($attrselection->CountryCode) || !empty($attrselection2->CountryCode)) {
-                                if (!empty($attrselection->CountryCode)) {
-                                    $selection_CountryCode = $attrselection->CountryCode;
-                                } else if (!empty($attrselection2->CountryCode)) {
-                                    $selection_CountryCode = $attrselection2->CountryCode;
+                            // for DID only if CountryCode Separator selected then need to separate code column and take first value as country and second as prefix/code
+                            if($countrycode_separator != 'null') {
+
+                                if (!empty($attrselection->Code)) {
+                                    if (isset($temp_row[$attrselection->Code]) && trim($temp_row[$attrselection->Code]) != '') {
+                                        $separatedvalue = explode($countrycode_separator,trim($temp_row[$attrselection->Code]));
+                                        if(count($separatedvalue) > 1) {
+                                            $tempdata['CountryCode'] = $separatedvalue[0];
+                                            $tempdata['Code'] = $separatedvalue[1];
+                                        } else {
+                                            $error[] = 'Improper Prefix value at line no:' . $lineno;
+                                        }
+                                    } else {
+                                        $error[] = $CodeText.' is blank at line no:' . $lineno;
+                                    }
                                 }
 
-                                if (array_key_exists($selection_CountryCode, $CountryPrefix)) {// if Country selected from Neon Database
-                                    $tempdata['CountryCode'] = $selection_CountryCode;
-                                } else if (!empty($temp_row[$selection_CountryCode])) {// if Country selected from file
-                                    $tempdata['CountryCode'] = trim($temp_row[$selection_CountryCode]);
-                                } else {
-                                    $tempdata['CountryCode'] = '';
+                            } else { // for termination and also for did without CountryCode separator
+
+                                if (!empty($attrselection->CountryCode) || !empty($attrselection2->CountryCode)) {
+                                    if (!empty($attrselection->CountryCode)) {
+                                        $selection_CountryCode = $attrselection->CountryCode;
+                                    } else if (!empty($attrselection2->CountryCode)) {
+                                        $selection_CountryCode = $attrselection2->CountryCode;
+                                    }
+
+                                    if (array_key_exists($selection_CountryCode, $CountryPrefix)) {// if Country selected from Neon Database
+                                        $tempdata['CountryCode'] = $selection_CountryCode;
+                                    } else if (!empty($temp_row[$selection_CountryCode])) {// if Country selected from file
+                                        $tempdata['CountryCode'] = trim($temp_row[$selection_CountryCode]);
+                                    } else {
+                                        $tempdata['CountryCode'] = '';
+                                    }
+                                }
+
+                                if (!empty($attrselection->Code) || !empty($attrselection2->Code)) {
+                                    if (!empty($attrselection->Code)) {
+                                        $selection_Code = $attrselection->Code;
+                                    } else if (!empty($attrselection2->Code)) {
+                                        $selection_Code = $attrselection2->Code;
+                                    }
+
+                                    if (array_key_exists($selection_Code, $Codes)) {// if OriginationCode selected from Neon Database
+                                        $tempdata['Code'] = $selection_Code;
+                                    } else if (isset($temp_row[$selection_Code]) && trim($temp_row[$selection_Code]) != '') {// if Code selected from file
+                                        $tempdata['Code'] = trim($temp_row[$selection_Code]);
+                                    } else if (!empty($tempdata['CountryCode'])) {
+                                        $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with country code later ie 91 - 1 -> 911
+                                    } else {
+                                        $error[] = $CodeText.' is blank at line no:' . $lineno;
+                                    }
                                 }
                             }
 
@@ -1239,24 +1282,6 @@ class RateUploadController extends \BaseController {
                                     $tempdata['OriginationCode'] = trim($temp_row[$selection_Code_Origination]);
                                 } else {
                                     $tempdata['OriginationCode'] = '';
-                                }
-                            }
-
-                            if (!empty($attrselection->Code) || !empty($attrselection2->Code)) {
-                                if (!empty($attrselection->Code)) {
-                                    $selection_Code = $attrselection->Code;
-                                } else if (!empty($attrselection2->Code)) {
-                                    $selection_Code = $attrselection2->Code;
-                                }
-
-                                if (array_key_exists($selection_Code, $Codes)) {// if OriginationCode selected from Neon Database
-                                    $tempdata['Code'] = $selection_Code;
-                                } else if (isset($temp_row[$selection_Code]) && trim($temp_row[$selection_Code]) != '') {// if Code selected from file
-                                    $tempdata['Code'] = trim($temp_row[$selection_Code]);
-                                } else if (!empty($tempdata['CountryCode'])) {
-                                    $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with country code later ie 91 - 1 -> 911
-                                } else {
-                                    $error[] = $CodeText.' is blank at line no:' . $lineno;
                                 }
                             }
 
@@ -1370,91 +1395,91 @@ class RateUploadController extends \BaseController {
                                     $tempdata['AccessType'] = '';
                                 }
 
-                                if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn])) {
+                                if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn]) && trim($temp_row[$attrselection->$OneOffCostColumn]) != '') {
                                     $tempdata['OneOffCost'] = trim($temp_row[$attrselection->$OneOffCostColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['OneOffCost'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$MonthlyCostColumn) && isset($temp_row[$attrselection->$MonthlyCostColumn])) {
+                                if (!empty($attrselection->$MonthlyCostColumn) && isset($temp_row[$attrselection->$MonthlyCostColumn]) && trim($temp_row[$attrselection->$MonthlyCostColumn]) != '') {
                                     $tempdata['MonthlyCost'] = trim($temp_row[$attrselection->$MonthlyCostColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['MonthlyCost'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$CostPerCallColumn) && isset($temp_row[$attrselection->$CostPerCallColumn])) {
+                                if (!empty($attrselection->$CostPerCallColumn) && isset($temp_row[$attrselection->$CostPerCallColumn]) && trim($temp_row[$attrselection->$CostPerCallColumn]) != '') {
                                     $tempdata['CostPerCall'] = trim($temp_row[$attrselection->$CostPerCallColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['CostPerCall'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$CostPerMinuteColumn) && isset($temp_row[$attrselection->$CostPerMinuteColumn])) {
+                                if (!empty($attrselection->$CostPerMinuteColumn) && isset($temp_row[$attrselection->$CostPerMinuteColumn]) && trim($temp_row[$attrselection->$CostPerMinuteColumn]) != '') {
                                     $tempdata['CostPerMinute'] = trim($temp_row[$attrselection->$CostPerMinuteColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['CostPerMinute'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$SurchargePerCallColumn) && isset($temp_row[$attrselection->$SurchargePerCallColumn])) {
+                                if (!empty($attrselection->$SurchargePerCallColumn) && isset($temp_row[$attrselection->$SurchargePerCallColumn]) && trim($temp_row[$attrselection->$SurchargePerCallColumn]) != '') {
                                     $tempdata['SurchargePerCall'] = trim($temp_row[$attrselection->$SurchargePerCallColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['SurchargePerCall'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$SurchargePerMinuteColumn) && isset($temp_row[$attrselection->$SurchargePerMinuteColumn])) {
+                                if (!empty($attrselection->$SurchargePerMinuteColumn) && isset($temp_row[$attrselection->$SurchargePerMinuteColumn]) && trim($temp_row[$attrselection->$SurchargePerMinuteColumn]) != '') {
                                     $tempdata['SurchargePerMinute'] = trim($temp_row[$attrselection->$SurchargePerMinuteColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['SurchargePerMinute'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$OutpaymentPerCallColumn) && isset($temp_row[$attrselection->$OutpaymentPerCallColumn])) {
+                                if (!empty($attrselection->$OutpaymentPerCallColumn) && isset($temp_row[$attrselection->$OutpaymentPerCallColumn]) && trim($temp_row[$attrselection->$OutpaymentPerCallColumn]) != '') {
                                     $tempdata['OutpaymentPerCall'] = trim($temp_row[$attrselection->$OutpaymentPerCallColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['OutpaymentPerCall'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$OutpaymentPerMinuteColumn) && isset($temp_row[$attrselection->$OutpaymentPerMinuteColumn])) {
+                                if (!empty($attrselection->$OutpaymentPerMinuteColumn) && isset($temp_row[$attrselection->$OutpaymentPerMinuteColumn]) && trim($temp_row[$attrselection->$OutpaymentPerMinuteColumn]) != '') {
                                     $tempdata['OutpaymentPerMinute'] = trim($temp_row[$attrselection->$OutpaymentPerMinuteColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['OutpaymentPerMinute'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$SurchargesColumn) && isset($temp_row[$attrselection->$SurchargesColumn])) {
+                                if (!empty($attrselection->$SurchargesColumn) && isset($temp_row[$attrselection->$SurchargesColumn]) && trim($temp_row[$attrselection->$SurchargesColumn]) != '') {
                                     $tempdata['Surcharges'] = trim($temp_row[$attrselection->$SurchargesColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['Surcharges'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$ChargebackColumn) && isset($temp_row[$attrselection->$ChargebackColumn])) {
+                                if (!empty($attrselection->$ChargebackColumn) && isset($temp_row[$attrselection->$ChargebackColumn]) && trim($temp_row[$attrselection->$ChargebackColumn]) != '') {
                                     $tempdata['Chargeback'] = trim($temp_row[$attrselection->$ChargebackColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['Chargeback'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$CollectionCostAmountColumn) && isset($temp_row[$attrselection->$CollectionCostAmountColumn])) {
+                                if (!empty($attrselection->$CollectionCostAmountColumn) && isset($temp_row[$attrselection->$CollectionCostAmountColumn]) && trim($temp_row[$attrselection->$CollectionCostAmountColumn]) != '') {
                                     $tempdata['CollectionCostAmount'] = trim($temp_row[$attrselection->$CollectionCostAmountColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['CollectionCostAmount'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$CollectionCostPercentageColumn) && isset($temp_row[$attrselection->$CollectionCostPercentageColumn])) {
+                                if (!empty($attrselection->$CollectionCostPercentageColumn) && isset($temp_row[$attrselection->$CollectionCostPercentageColumn]) && trim($temp_row[$attrselection->$CollectionCostPercentageColumn]) != '') {
                                     $tempdata['CollectionCostPercentage'] = trim($temp_row[$attrselection->$CollectionCostPercentageColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['CollectionCostPercentage'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$RegistrationCostPerNumberColumn) && isset($temp_row[$attrselection->$RegistrationCostPerNumberColumn])) {
+                                if (!empty($attrselection->$RegistrationCostPerNumberColumn) && isset($temp_row[$attrselection->$RegistrationCostPerNumberColumn]) && trim($temp_row[$attrselection->$RegistrationCostPerNumberColumn]) != '') {
                                     $tempdata['RegistrationCostPerNumber'] = trim($temp_row[$attrselection->$RegistrationCostPerNumberColumn]);
                                     $CostComponentsMapped++;
                                 } else {
@@ -1639,14 +1664,14 @@ class RateUploadController extends \BaseController {
                                 $CostComponents[] = 'PackageCostPerMinute';
                                 $CostComponents[] = 'RecordingCostPerMinute';
 
-                                if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn])) {
+                                if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn]) && trim($temp_row[$attrselection->$OneOffCostColumn]) != '') {
                                     $tempdata['OneOffCost'] = trim($temp_row[$attrselection->$OneOffCostColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['OneOffCost'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$MonthlyCostColumn) && isset($temp_row[$attrselection->$MonthlyCostColumn])) {
+                                if (!empty($attrselection->$MonthlyCostColumn) && isset($temp_row[$attrselection->$MonthlyCostColumn]) && trim($temp_row[$attrselection->$MonthlyCostColumn]) != '') {
                                     $temp_row[$attrselection->$MonthlyCostColumn] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->$MonthlyCostColumn]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
                                     $tempdata['MonthlyCost'] = trim($temp_row[$attrselection->$MonthlyCostColumn]);
                                     $CostComponentsMapped++;
@@ -1654,14 +1679,14 @@ class RateUploadController extends \BaseController {
                                     $tempdata['MonthlyCost'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$PackageCostPerMinuteColumn) && isset($temp_row[$attrselection->$PackageCostPerMinuteColumn])) {
+                                if (!empty($attrselection->$PackageCostPerMinuteColumn) && isset($temp_row[$attrselection->$PackageCostPerMinuteColumn]) && trim($temp_row[$attrselection->$PackageCostPerMinuteColumn]) != '') {
                                     $tempdata['PackageCostPerMinute'] = trim($temp_row[$attrselection->$PackageCostPerMinuteColumn]);
                                     $CostComponentsMapped++;
                                 } else {
                                     $tempdata['PackageCostPerMinute'] = NULL;
                                 }
 
-                                if (!empty($attrselection->$RecordingCostPerMinuteColumn) && isset($temp_row[$attrselection->$RecordingCostPerMinuteColumn])) {
+                                if (!empty($attrselection->$RecordingCostPerMinuteColumn) && isset($temp_row[$attrselection->$RecordingCostPerMinuteColumn]) && trim($temp_row[$attrselection->$RecordingCostPerMinuteColumn]) != '') {
                                     $tempdata['RecordingCostPerMinute'] = trim($temp_row[$attrselection->$RecordingCostPerMinuteColumn]);
                                     $CostComponentsMapped++;
                                 } else {

@@ -74,6 +74,7 @@ class Company extends \Eloquent {
                                         'F-d-y'=>'mmmm-dd-yy (DECEMBER-31-15)',
                                         'y-F-d'=>'yy-mmmm-dd (15-DECEMBER-31)',
                                       );
+    public static $countrycode_separator = array(''=>'-- No Separator --','-'=>'Dash(-)',' '=>'Space',';'=>'SemiColon(;)',','=>'Comma(,)','|'=>'Pipe(|)');
     public static $dialcode_separator = array(''=>'-- No Separator --',' '=>'Space',';'=>'SemiColon(;)',','=>'Comma(,)','|'=>'Pipe(|)');
 
     public static function getName($companyID=0){
