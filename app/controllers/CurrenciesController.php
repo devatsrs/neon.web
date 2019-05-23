@@ -14,7 +14,9 @@ class CurrenciesController extends \BaseController {
 
 	public function index()
 	{
+        $data = array();
         $PageRefresh=1;
+        $CurrencyActilead = UserActivity::UserActivitySaved($data,'View','Currency');
         return View::make('currencies.index', compact('PageRefresh'));
 
     }
@@ -46,6 +48,7 @@ class CurrenciesController extends \BaseController {
 
         if ($currency = Currency::create($data)) {
             Currency::clearCache();
+            $CurrencyActilead = UserActivity::UserActivitySaved($data,'Add','Currency');
             return Response::json(array("status" => "success", "message" => "Currency Successfully Created",'LastID'=>$currency->CurrencyId,'newcreated'=>$currency));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Currency."));
@@ -106,6 +109,7 @@ class CurrenciesController extends \BaseController {
             unset($data['PageRefresh']);
             if ($Currency->update($data)) {
                 Currency::clearCache();
+                $CurrencyActilead = UserActivity::UserActivitySaved($data,'Edit','Currency');
                 return Response::json(array("status" => "success", "message" => "Currency Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Currency."));
@@ -124,6 +128,7 @@ class CurrenciesController extends \BaseController {
 	 */
 	public function delete($id)
 	{
+        $data['id'] = $id;
         if( intval($id) > 0){
 
             if(!Currency::checkForeignKeyById($id)){
@@ -131,6 +136,7 @@ class CurrenciesController extends \BaseController {
                     $result = Currency::find($id)->delete();
                     Currency::clearCache();
                     if ($result) {
+                        $CurrencyActilead = UserActivity::UserActivitySaved($data,'Delete','Currency');
                         return Response::json(array("status" => "success", "message" => "Currency Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Currency."));

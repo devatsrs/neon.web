@@ -94,10 +94,12 @@ class EstimatesController extends \BaseController {
      */
     public function index()
     {
+        $data = array();
         $companyID 				= 	User::get_companyID();
         $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $accounts 				= 	Account::getAccountIDList();		
-        $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());	
+        $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());
+        $EstimatesActilead = UserActivity::UserActivitySaved($data,'View','Estimates');	
         return View::make('estimates.index',compact('accounts','estimate_status_json','DefaultCurrencyID'));
     }
 
@@ -331,6 +333,7 @@ class EstimatesController extends \BaseController {
                 $EstimateLogData['created_at']= date("Y-m-d H:i:s");
                 $EstimateLogData['EstimateLogStatus']= EstimateLog::CREATED;
                 EstimateLog::insert($EstimateLogData);
+                dd($EstimateData);
 				
                 /*if(!empty($EstimateItemTaxRates)) { //product item tax
                     DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateItemTaxRates);
@@ -378,7 +381,7 @@ class EstimatesController extends \BaseController {
 
 
                     DB::connection('sqlsrv2')->commit();
-
+                    $EstimatesActilead = UserActivity::UserActivitySaved($EstimateData,'Add','Estimates');	
                     return Response::json(array("status" => "success", "message" => "Estimate Successfully Created",'LastID'=>$Estimate->EstimateID,'redirect' => URL::to('/estimate/'.$Estimate->EstimateID.'/edit')));
                 }
 				else
@@ -389,6 +392,7 @@ class EstimatesController extends \BaseController {
             }
 			catch (Exception $e)
 			{
+                Log::info('error_estimate'.' '.$e->getMessage());
                 DB::connection('sqlsrv2')->rollback();
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Estimate. \n" . $e->getMessage()));
             }

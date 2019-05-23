@@ -9,6 +9,7 @@ class TimezonesController extends BaseController {
 
     public function search_ajax_datagrid($type){
         $data = Input::all();
+        //dd($data);
 
         $data['iDisplayStart'] +=1;
         $data['Title'] = $data['Title'] != '' ? "'".$data['Title']."'" : 'null';
@@ -20,6 +21,8 @@ class TimezonesController extends BaseController {
         $query = "call prc_GetTimezones (" . $data['Title'] . "," . $data['Status'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $TimezonesActilead = UserActivity::UserActivitySaved($export_type,'Export','Timezones');
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -38,6 +41,8 @@ class TimezonesController extends BaseController {
     }
 
     public function index() {
+        $data = array();
+        $TimezonesActilead = UserActivity::UserActivitySaved($data,'View','Timezones');
         return View::make('timezones.index');
     }
 
@@ -79,6 +84,7 @@ class TimezonesController extends BaseController {
             $save['updated_at']     = date('Y-m-d H:i:s');
 
             if($Timezones = Timezones::create($save)){
+                $TimezonesActilead = UserActivity::UserActivitySaved($data,'Add','Timezones');
                 return  Response::json(array("status" => "success", "message" => "Timezone Successfully Created"));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Creating Timezone."));
@@ -129,6 +135,7 @@ class TimezonesController extends BaseController {
                     $save['updated_by'] = User::get_user_full_name();
 
                     if ($Timezones = $Timezone->update($save)) {
+                        $TimezonesActilead = UserActivity::UserActivitySaved($data,'Edit','Timezones');
                         return Response::json(array("status" => "success", "message" => "Timezone Successfully Updated"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Updating Timezone."));
@@ -157,6 +164,7 @@ class TimezonesController extends BaseController {
                     ->update(['Status'=>$status,'updated_at'=>date('Y-m-d H:i:s'),'updated_by'=>$username]);
 
             if ($update) {
+                $TimezonesActilead = UserActivity::UserActivitySaved($data,'Edit','Timezones_Status');
                 return Response::json(array("status" => "success", "message" => "Timezones Status Successfully Changed"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Changing Timezones Status."));
@@ -177,6 +185,7 @@ class TimezonesController extends BaseController {
             // if no rates against any ratetable, customer or vendor then delete timezone straight
             if($RateTableRate->count() == 0 && $VendorRate->count() == 0 && $CustomerRate->count() == 0) {
                 if($Timezone->delete()) {
+                    $TimezonesActilead = UserActivity::UserActivitySaved($data,'Delete','Timezones');
                     return Response::json(array("status" => "success", "message" => "Timezone Deleted Successfully"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem while deleting Timezone"));
@@ -193,6 +202,7 @@ class TimezonesController extends BaseController {
 
                         if($Timezone->delete()) {
                             DB::commit();
+                            $TimezonesActilead = UserActivity::UserActivitySaved($data,'Delete','Timezones');
                             return Response::json(array("status" => "success", "message" => "Timezone Deleted Successfully"));
                         } else {
                             return Response::json(array("status" => "failed", "message" => "Problem while deleting Timezone"));
