@@ -525,7 +525,7 @@ class ResellerController extends BaseController {
         //$reseller = Reseller::where('AccountID',$id)->first();
         $reseller = Reseller::join('tblCompany','tblReseller.ChildCompanyID','=','tblCompany.CompanyID')
             ->join('tblCompanyConfiguration','tblCompanyConfiguration.CompanyID','=','tblReseller.ChildCompanyID')
-            ->select('tblReseller.*','tblCompany.*','tblCompanyConfiguration.Value as DomainUrl')->where('tblReseller.AccountID',$id)
+            ->select('tblReseller.Email as ResellerEmail','tblReseller.*','tblCompany.*','tblCompanyConfiguration.Value as DomainUrl')->where('tblReseller.AccountID',$id)
             ->where('tblCompanyConfiguration.Key','WEB_URL')->first();
         
         if(!empty($reseller)){

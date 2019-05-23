@@ -72,7 +72,7 @@
                     <label class="control-label">Minutes</label>
                     <input type="number" min="0" name="Minutes" class="form-control" id="field-15" placeholder="" />
                 </div>
-                <div class="form-group">
+                <div class="form-group NoOfServicesContracted">
                     <label for="field-1" class="control-label">No Of Services</label>
                     {{Form::number('NoOfServicesContracted','' ,array("class"=>"form-control","min" => "0"))}}
                 </div>
@@ -179,6 +179,8 @@
             $('.packagediv').show();
             $('.productdiv').hide();
             $('.productcategory').hide();
+            $('.NoOfServicesContracted').hide();
+
             $('#Origination').hide();
             $('#OriginationPercentage').hide();
             if (packbtnval == "Package") {
@@ -200,6 +202,7 @@
             $('.packagediv').hide();
             $('.productdiv').show();
             $('.productcategory').show();
+            $('.NoOfServicesContracted').show();
             $('#Origination').show();
             $('#OriginationPercentage').show();
             if (packbtnval == "Package") {
@@ -223,6 +226,7 @@
                     $('.packagediv').show();
                     $('.productdiv').hide();
                     $('.productcategory').hide();
+                    $('.NoOfServicesContracted').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
                     $('.didbutton').html(packbtnval+' <span class="caret"></span>');
@@ -235,6 +239,7 @@
                     $('.packagediv').hide();
                     $('.productdiv').show();
                     $('.productcategory').show();
+                    $('.NoOfServicesContracted').show();
                     $('#Origination').show();
                     $('#OriginationPercentage').show();
                 }
@@ -256,6 +261,7 @@
                     $('.packagediv').show();
                     $('.productdiv').hide();
                     $('.productcategory').hide();
+                    $('.NoOfServicesContracted').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
                     if (packbtnval == "Package") {
@@ -274,6 +280,7 @@
                     $('.packagediv').hide();
                     $('.productdiv').show();
                     $('.productcategory').show();
+                    $('.NoOfServicesContracted').show();
                     $('#Origination').show();
                     $('#OriginationPercentage').show();
                     if (packbtnval == "Package") {

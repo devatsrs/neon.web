@@ -1358,7 +1358,7 @@
                         console.log(response.Email);
                         $(this).button('reset');
                         if (response.status == 'failed') {
-                            
+
                             $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',PartnerID);
                             $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',false);
                             $("#add-new-reseller-form [name='ResellerName']").val('');            
@@ -1392,7 +1392,7 @@
                             FirstName = response.FirstName;
                             LastName = response.LastName;
                             AllowWhiteLabel = response.AllowWhiteLabel;
-                            Email = response.Email ;
+                            Email = response.ResellerEmail ;
                             Status = response.Status;
                             InvoiceTo = response.InvoiceTo;
                             InvoiceFrom = response.Status;
