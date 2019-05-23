@@ -387,7 +387,8 @@ class ConnectionController extends \BaseController {
             $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
             $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 
-            $Result = RateTable::where(array('CompanyId'=>$CompanyID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID));
+            //$Result = RateTable::where(array('CompanyId'=>$CompanyID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID));
+            $Result = RateTable::where(array('CompanyId'=>$CompanyID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR));
             if(isset($data['categoryID'])){
                 $Result->where('Type',$DIDType);
                 if($data['categoryID'] > 0){
