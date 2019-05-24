@@ -291,7 +291,9 @@ class CustomersRatesController extends \BaseController {
         $bulk_type = 'customers_rates';
         $Timezones = Timezones::getTimezonesIDList();
 
-        return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype','bulk_type','Timezones'));
+        $VOS_RATEPREFIX_RATESHEET = CompanyConfiguration::get('VOS_RATEPREFIX_RATESHEET');
+
+        return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype','bulk_type','Timezones','VOS_RATEPREFIX_RATESHEET'));
     }
 
     public function process_download($id) {
