@@ -216,6 +216,8 @@ class InvoicesController extends \BaseController {
             $productsControllerObj = new ProductsController();
             $DynamicFields = $productsControllerObj->getDynamicFields($CompanyID,$Type);
             $itemtypes 	= 	ItemType::getItemTypeDropdownList($CompanyID);
+            $view_data['editviewid'] = $id;
+            $InvoiceActilead = UserActivity::UserActivitySaved($view_data,'View','Invoice');
 			
             return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','BillingClass','InvoiceBillingClass','DynamicFields','itemtypes'));
         }

@@ -69,7 +69,9 @@ class UserActivity extends \Eloquent {
         }else if(($Who=='Opportunity Board Column') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
             $TypeName  = @$data['BoardColumnName'];
         }else if(($Who=='Estimates') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
-            $TypeName  = @$data['EstimateNumber'];
+            unset($data['Terms']);
+            unset($data['FooterTerm']);
+            $TypeName  = @$data['Estimatenumber'];
         }else if(($Who=='Creditnotes') && $action!='View' && $action!='Export' && $action!='Search' && $action!='Send' && $action!='Bulk Send'){
             $TypeName  = @$data['CreditNotesNumber '];
         }else if(($Who=='Payments') && !in_array($action, $actionData) ){
@@ -93,6 +95,8 @@ class UserActivity extends \Eloquent {
         }else if(($Who=='Billing Class') && !in_array($action, $actionData) ){
             $TypeName  = @$data['Name'];
         }else if(($Who=='Invoice') && !in_array($action, $actionData) ){
+            unset($data['Terms']);
+            unset($data['FooterTerm']);
             $TypeName  = @$data['InvoiceNumber'];
         }     
         
@@ -101,7 +105,7 @@ class UserActivity extends \Eloquent {
         }
         
         $dataActionValue            = array_filter($data, function($value) { return $value !== ''; });
-        $data_array['TypeName']     = $options;
+        $data_array['TypeName']     = $TypeName;
         $data_array['CompanyId']    = $companyID;
         $data_array['created_by']   =  $created_by;
         $data_array["created_at"]   = date('Y-m-d H:i:s');
