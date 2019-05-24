@@ -101,7 +101,8 @@ class InvoicesController extends \BaseController {
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"",'.$userID.',"'.$data['tag'].'")');
             }
             $excel_data = json_decode(json_encode($excel_data),true);
-
+            $export_type['type'] = $type; 
+            $InvoiceActilead = UserActivity::UserActivitySaved($export_type,'Export','Invoice');
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice.csv';
                 $NeonExcel = new NeonExcelIO($file_path);

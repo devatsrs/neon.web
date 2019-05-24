@@ -58,10 +58,11 @@ class EstimatesController extends \BaseController {
 		
         if(isset($data['Export']) && $data['Export'] == 1)
 		{
+            $export_type['type'] = $type; 
+            $EstimatesActilead = UserActivity::UserActivitySaved($export_type,'Export','Estimates');
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
-			
             $excel_data = json_decode(json_encode($excel_data),true);
-            $EstimatesActilead = UserActivity::UserActivitySaved($excel_data,'Export','Estimates');
+            
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Estimate.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
