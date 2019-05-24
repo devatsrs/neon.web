@@ -230,6 +230,7 @@ class EstimatesController extends \BaseController {
 			{	
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Estimate = Estimate::create($EstimateData);
+                $EstimatesActilead = UserActivity::UserActivitySaved($EstimateData,'Add','Estimates');
                 //Store Last Estimate Number.
                 
 				if($isAutoEstimateNumber) {
@@ -335,7 +336,6 @@ class EstimatesController extends \BaseController {
                 $EstimateLogData['created_at']= date("Y-m-d H:i:s");
                 $EstimateLogData['EstimateLogStatus']= EstimateLog::CREATED;
                 EstimateLog::insert($EstimateLogData);
-                dd($EstimateData);
 				
                 /*if(!empty($EstimateItemTaxRates)) { //product item tax
                     DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateItemTaxRates);
@@ -383,7 +383,7 @@ class EstimatesController extends \BaseController {
 
 
                     DB::connection('sqlsrv2')->commit();
-                    $EstimatesActilead = UserActivity::UserActivitySaved($EstimateData,'Add','Estimates');	
+                    	
                     return Response::json(array("status" => "success", "message" => "Estimate Successfully Created",'LastID'=>$Estimate->EstimateID,'redirect' => URL::to('/estimate/'.$Estimate->EstimateID.'/edit')));
                 }
 				else
@@ -467,8 +467,9 @@ class EstimatesController extends \BaseController {
 					{
                         $Extralognote = ' Total '.$Estimate->GrandTotal.' To '.$EstimateData['GrandTotal'];
                     }
-					
+                    $EstimatesActilead = UserActivity::UserActivitySaved($EstimateData,'Edit','Estimates');
                     $Estimate->update($EstimateData);
+                   
 					
                      $EstimateDetailData = $EstimateItemTaxRates = $EstimateSubscriptionTaxRates = $EstimateAllTaxRates = array();
 					
@@ -619,7 +620,6 @@ class EstimatesController extends \BaseController {
                             }
 
                             DB::connection('sqlsrv2')->commit();
-                            $EstimatesActilead = UserActivity::UserActivitySaved($EstimateData,'Edit','Estimates');
                             return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated", 'LastID' => $Estimate->EstimateID));
                         }
                         else
