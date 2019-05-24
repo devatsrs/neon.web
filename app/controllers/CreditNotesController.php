@@ -62,9 +62,10 @@ class CreditNotesController extends \BaseController {
 
         if(isset($data['Export']) && $data['Export'] == 1)
         {
+            $export_type['type'] = $type; 
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
-
             $excel_data = json_decode(json_encode($excel_data),true);
+            $CreditnotesActilead = UserActivity::UserActivitySaved($export_type,'Export','Creditnotes');
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CreditNotes.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
@@ -131,10 +132,12 @@ class CreditNotesController extends \BaseController {
      */
     public function index()
     {
+        $data = array();
         $CompanyID = User::get_companyID();
         $accounts = Account::getAccountIDList();
         $DefaultCurrencyID    	=   Company::where("CompanyID",$CompanyID)->pluck("CurrencyId");
         $creditnotes_status_json = json_encode(CreditNotes::get_creditnotes_status());
+        $CreditnotesActilead = UserActivity::UserActivitySaved($data,'View','Creditnotes');
         return View::make('creditnotes.index',compact('accounts','creditnotes_status_json','DefaultCurrencyID','CompanyID'));
     }
 
@@ -509,6 +512,7 @@ class CreditNotesController extends \BaseController {
                     }
 
                     DB::connection('sqlsrv2')->commit();
+                    $CreditnotesActilead = UserActivity::UserActivitySaved($CreditNotesData,'Add','Creditnotes');
                     $SuccessMsg="Credit Notes Successfully Created.";
                     return Response::json(array("status" => "success", "message" => $SuccessMsg,'LastID'=>$CreditNotes->CreditNotesID,'redirect' => URL::to('/creditnotes/'.$CreditNotes->CreditNotesID.'/edit')));
                 } else {
@@ -703,6 +707,7 @@ class CreditNotesController extends \BaseController {
                             }
 
                             DB::connection('sqlsrv2')->commit();
+                            $CreditnotesActilead = UserActivity::UserActivitySaved($CreditNotesData,'Edit','Creditnotes');
                             return Response::json(array("status" => "success", "message" => "CreditNotes Successfully Updated", 'LastID' => $CreditNotes->CreditNotesID));
                         } else {
                             DB::connection('sqlsrv2')->rollback();
@@ -958,6 +963,7 @@ class CreditNotesController extends \BaseController {
 
     public function delete($id)
     {
+        $data['id'] = $id;
         if( $id > 0){
             $CreditNotesUsed = Payment::where('CreditNotesID','=',$id)->count();
             if($CreditNotesUsed == 0)
@@ -968,6 +974,7 @@ class CreditNotesController extends \BaseController {
                     CreditNotesDetail::where(["CreditNotesID"=>$id])->delete();
                     CreditNotes::find($id)->delete();
                     DB::connection('sqlsrv2')->commit();
+                    $CreditnotesActilead = UserActivity::UserActivitySaved($data,'Delete','Creditnotes');
                     return Response::json(array("status" => "success", "message" => "CreditNotes Successfully Deleted"));
 
                 }catch (Exception $e){
@@ -1175,6 +1182,8 @@ class CreditNotesController extends \BaseController {
             }else{
                 $logo = AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key);
             }
+            $data['creditnotes_preview_id'] = $id;
+            $CreditnotesActilead = UserActivity::UserActivitySaved($data,'View','Creditnotes');
             //$CreditNotesComments =   CreditNotesLog::get_comments_count($id);
             return View::make('creditnotes.creditnotes_cview', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','CreditNotesStatus'));
         }
@@ -1725,8 +1734,9 @@ class CreditNotesController extends \BaseController {
             if($StaffStatus['status']==0)
             {
                 $status['message'] .= ', Enable to send email to staff : ' . $StaffStatus['message'];
+                $CreditnotesActilead = UserActivity::UserActivitySaved($data,'Send','Creditnotes');
             }
-
+            
             return Response::json(array("status" => $status['status'], "message" => "".$status['message']));
         }
         else
@@ -1774,6 +1784,7 @@ class CreditNotesController extends \BaseController {
         $jobdata["updated_at"] = date('Y-m-d H:i:s');
         $JobID = Job::insertGetId($jobdata);
         if($JobID){
+            $CreditnotesActilead = UserActivity::UserActivitySaved($data,'Bulk Send','Creditnotes');
             return Response::json(array("status" => "success", "message" => "Bulk Credit Notes Send Job Added in queue to process.You will be notified once job is completed. "));
         }else{
             return Response::json(array("status" => "success", "message" => "Problem Creating Job Bulk CreditNotes Send."));

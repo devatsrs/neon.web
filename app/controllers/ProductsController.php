@@ -88,12 +88,14 @@ class ProductsController extends \BaseController {
 
     public function index()
     {
+        $data = array();
         $id=0;
         $Type =  Product::DYNAMIC_TYPE;
         $companyID = User::get_companyID();
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $DynamicFields = $this->getDynamicFields($companyID,$Type);
         $itemtypes 	= 	ItemType::getItemTypeDropdownList($companyID);
+        $productsActilead = UserActivity::UserActivitySaved($data,'View','Products');
         return View::make('products.index', compact('id','gateway','DynamicFields','itemtypes'));
     }
 
@@ -241,6 +243,7 @@ class ProductsController extends \BaseController {
                     }
                 }
             }
+            $productsActilead = UserActivity::UserActivitySaved($data,'Add','Products');
             return Response::json(array("status" => "success", "message" => "Product Successfully Created",'newcreated'=>$product));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Product."));
@@ -429,6 +432,7 @@ class ProductsController extends \BaseController {
                     );
                     StockHistory::create($historyData);
                 }
+                $productsActilead = UserActivity::UserActivitySaved($data,'Edit','Products');
                 return Response::json(array("status" => "success", "message" => "Product Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Product."));
@@ -480,6 +484,8 @@ class ProductsController extends \BaseController {
                         }
                         Log::info("==Delete StockHistory productId=".$id);
                         StockHistory::where('ProductID',$id)->delete();
+                        $data['id'] = $id;
+                        $productsActilead = UserActivity::UserActivitySaved($data,'Delete','Products');
                         return Response::json(array("status" => "success", "message" => "Product Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Product."));
@@ -567,6 +573,7 @@ class ProductsController extends \BaseController {
                     $grid['FileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
                     $grid['FileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
                 }
+                $productsActilead = UserActivity::UserActivitySaved($data,'Upload','Products');
                 return Response::json(array("status" => "success", "message" => "file uploaded", "data" => $grid));
             }
         } catch (Exception $e) {

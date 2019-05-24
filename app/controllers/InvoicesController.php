@@ -101,7 +101,8 @@ class InvoicesController extends \BaseController {
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"",'.$userID.',"'.$data['tag'].'")');
             }
             $excel_data = json_decode(json_encode($excel_data),true);
-
+            $export_type['type'] = $type; 
+            $InvoiceActilead = UserActivity::UserActivitySaved($export_type,'Export','Invoice');
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
@@ -149,7 +150,9 @@ class InvoicesController extends \BaseController {
         $Quickbook = new BillingAPI($CompanyID);
         $check_quickbook = $Quickbook->check_quickbook($CompanyID);
         $check_quickbook_desktop = $Quickbook->check_quickbook_desktop($CompanyID);
-		$bulk_type = 'invoices';
+        $bulk_type = 'invoices';
+        $view_data = array();
+        $InvoiceActilead = UserActivity::UserActivitySaved($view_data,'View','Invoice');
         //print_r($_COOKIE);exit;
         return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID'));
 
@@ -451,6 +454,7 @@ class InvoicesController extends \BaseController {
                             $message.="\n\r";
                         }
                     }
+                    $InvoiceActilead = UserActivity::UserActivitySaved($InvoiceData,'Add','Invoice');
                     return Response::json(array("status" => "success","warning"=>$message, "message" => $SuccessMsg,'LastID'=>$Invoice->InvoiceID,'redirect' => URL::to('/invoice/'.$Invoice->InvoiceID.'/edit')));
                 } else {
                     DB::connection('sqlsrv2')->rollback();
@@ -749,6 +753,7 @@ class InvoicesController extends \BaseController {
                                     $message.="\n";
                                 }
                             }
+                            $InvoiceActilead = UserActivity::UserActivitySaved($InvoiceData,'Edit','Invoice');
                             return Response::json(array("status" => "success","warning"=>$message, "message" => "Invoice Successfully Updated", 'LastID' => $Invoice->InvoiceID));
                         } else {
                             DB::connection('sqlsrv2')->rollback();
@@ -1004,12 +1009,14 @@ class InvoicesController extends \BaseController {
 
     public function delete($id)
     {
+        $data['id'] = $id;
         if( $id > 0){
             try{
                 DB::connection('sqlsrv2')->beginTransaction();
                 InvoiceDetail::where(["InvoiceID"=>$id])->delete();
                 Invoice::find($id)->delete();
                 DB::connection('sqlsrv2')->commit();
+                $InvoiceActilead = UserActivity::UserActivitySaved($data,'Delete','Invoice');
                 return Response::json(array("status" => "success", "message" => "Invoice Successfully Deleted"));
 
             }catch (Exception $e){
@@ -1040,6 +1047,7 @@ class InvoicesController extends \BaseController {
     }
     public function invoice_preview($id)
 	{
+        $data['invoice_view_id'] = $id;
         $Invoice = Invoice::find($id);
 		
         if(!empty($Invoice))
@@ -1110,7 +1118,7 @@ class InvoicesController extends \BaseController {
                 $sagepay_button = $SagePay->get_paynow_button($Invoice->AccountID,$Invoice->InvoiceID);
 
             }
-
+            $InvoiceActilead = UserActivity::UserActivitySaved($data,'View','Invoice');
             return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount','ShowAllPaymentMethod','PaymentMethod','InvoiceTemplate'));
         }
     }
