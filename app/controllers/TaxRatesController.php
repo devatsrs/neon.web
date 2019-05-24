@@ -12,6 +12,8 @@ class TaxRatesController extends \BaseController {
 
     public function index()
     {
+        $data = array();
+        $taxrateActilead = UserActivity::UserActivitySaved($data,'View','Taxrate');
         return View::make('taxrates.index', compact(''));
 
     }
@@ -43,6 +45,7 @@ class TaxRatesController extends \BaseController {
         unset($data['Status_name']);
         if ($taxrate = TaxRate::create($data)) {
             TaxRate::clearCache();
+            $taxrateActilead = UserActivity::UserActivitySaved($data,'Add','Taxrate');
             return Response::json(array("status" => "success", "message" => "TaxRate Successfully Created",'LastID'=>$taxrate->TaxRateId));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating TaxRate."));
@@ -104,6 +107,7 @@ class TaxRatesController extends \BaseController {
             unset($data['Status_name']);
             if ($TaxRate->update($data)) {
                 TaxRate::clearCache();
+                $taxrateActilead = UserActivity::UserActivitySaved($data,'Edit','Taxrate');
                 return Response::json(array("status" => "success", "message" => "TaxRate Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating TaxRate."));
@@ -122,6 +126,7 @@ class TaxRatesController extends \BaseController {
      */
     public function delete($id)
     {
+        $data['id'] = $id;
         if( intval($id) > 0){
 
             if(!TaxRate::checkForeignKeyById($id)){
@@ -129,6 +134,7 @@ class TaxRatesController extends \BaseController {
                     $result = TaxRate::find($id)->delete();
                     TaxRate::clearCache();
                     if ($result) {
+                        $taxrateActilead = UserActivity::UserActivitySaved($data,'Delete','Taxrate');
                         return Response::json(array("status" => "success", "message" => "TaxRate Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting TaxRate."));

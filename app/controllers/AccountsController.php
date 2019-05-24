@@ -193,7 +193,7 @@ class AccountsController extends \BaseController {
             
             //https://codedesk.atlassian.net/browse/NEON-1591
             //Audit Trails of user activity
-            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Account');
+            
         
             $companyID = User::get_companyID();
             $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
@@ -365,6 +365,7 @@ class AccountsController extends \BaseController {
 
 
                 $account->update($data);
+                $UserActilead = UserActivity::UserActivitySaved($data,'Add','Account',$data['AccountName']);
                 return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
@@ -634,9 +635,6 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $ServiceID = 0;
         $data = Input::all();
-        //https://codedesk.atlassian.net/browse/NEON-1591
-        //Audit Trails of user activity
-        $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Account');
         
         $companyID = User::get_companyID();
         $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
@@ -905,7 +903,7 @@ class AccountsController extends \BaseController {
                     }
                 }
             }
-
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Account',$data['AccountName']);
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));

@@ -49,7 +49,7 @@ class ResellerController extends BaseController {
         
         //https://codedesk.atlassian.net/browse/NEON-1591
         //Audit Trails of user activity
-        $UserActilead = UserActivity::UserActivitySaved($data,'Add','Reseller');
+        
                 
         $items = empty($data['reseller-item']) ? '' : array_filter($data['reseller-item']);
         $subscriptions = empty($data['reseller-subscription']) ? '' : array_filter($data['reseller-subscription']);
@@ -159,6 +159,7 @@ class ResellerController extends BaseController {
                         }
                         CompanyGateway::createDefaultCronJobs($ChildCompanyID);
                         DB::commit();
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Add','Reseller',$data['Email']);
                         return Response::json(array("status" => "success", "message" => "Reseller Successfully Created" ));
                     }
 
@@ -183,7 +184,7 @@ class ResellerController extends BaseController {
         
         //https://codedesk.atlassian.net/browse/NEON-1591
         //Audit Trails of user activity
-        $UserActilead = UserActivity::UserActivitySaved($data,'Update','Reseller');
+        
         
         $Reseller = Reseller::find($id);
         $data['CompanyID'] = User::get_companyID();
@@ -271,6 +272,7 @@ class ResellerController extends BaseController {
                     $ResellerDomain = CompanyConfiguration::where(['CompanyID'=>$Reseller->CompanyID,'Key'=>'WEB_URL'])->pluck('Value');
                     CompanyConfiguration::where(['Key'=>'WEB_URL','CompanyID'=>$Reseller->ChildCompanyID])->update(['Value'=>$ResellerDomain]);
                 }
+                $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Reseller',$data['Email']);
                 return  Response::json(array("status" => "success", "message" => "Reseller Successfully Updated"));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Updating Reseller."));
@@ -289,8 +291,8 @@ class ResellerController extends BaseController {
     }
 
     public function delete($id){
-        //https://codedesk.atlassian.net/browse/NEON-1591
-        //Audit Trails of user activity
+       
+        $data=array();
         $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Reseller');
         return Response::json(array("status" => "failed", "message" => "Reseller is in Use, You can not delete this Reseller."));
         if(Reseller::checkForeignKeyById($id)){

@@ -175,7 +175,8 @@ class DashboardController extends BaseController {
         $isDesktop = $agent->isDesktop();
         $newAccountCount = Account::where($where)->where('created_at','>=',$original_startdate)->count();
         $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::getValueConfigurationByKey('MONITOR_DASHBOARD',$companyID)));
-
+        $data=array();
+        $CrmDashboardActilead = UserActivity::UserActivitySaved($data,'View','Monitor');
         return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','MonitorDashboardSetting'));
 
     }

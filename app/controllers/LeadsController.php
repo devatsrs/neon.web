@@ -127,8 +127,7 @@ class LeadsController extends \BaseController {
         Lead::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,'.$data['CompanyID'].'';
         $validator = Validator::make($data, Lead::$rules);
         $data['created_by'] =  User::get_user_full_name();
-
-        $UserActilead = UserActivity::UserActivitySaved($data,'Add','Lead');
+        
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
@@ -138,7 +137,7 @@ class LeadsController extends \BaseController {
         
         
         if($lead = Lead::create($data)){
-            
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Lead',$data['FirstName'].' '.$data['LastName']);
             return  Response::json(array("status" => "success", "message" => "Lead Successfully Created",'LastID'=>$lead->AccountID,'redirect' => URL::to('/leads/'.$lead->AccountID.'/show')));
         } else {
             return  Response::json(array("status" => "failed", "message" => "Problem Creating Lead."));
@@ -309,7 +308,6 @@ class LeadsController extends \BaseController {
             'AccountName' => 'required|unique:tblAccount,AccountName,'.$lead->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'],
             'CurrencyId' =>  'required',
         );
-        $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Lead');
         
         $validator = Validator::make($data, $rules);
         
@@ -320,6 +318,7 @@ class LeadsController extends \BaseController {
         
         
         if($lead->update($data)){
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Lead',$data['FirstName'].' '.$data['LastName']);
             return  Response::json(array("status" => "success", "message" => "Lead Successfully Updated"));
         } else {
             return  Response::json(array("status" => "failed", "message" => "Problem Updating Lead."));

@@ -132,7 +132,7 @@ class TaskController extends \BaseController {
         $token    = get_random_number();
         $max_file_size = get_max_file_size();
         $data = array();
-        $TaskActilead = UserActivity::UserActivitySaved($data,'view','Task');
+        $TaskActilead = UserActivity::UserActivitySaved($data,'View','Task');
         return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags','taskStatus','response_extensions','token','max_file_size','message'));
     }
 	/**

@@ -23,6 +23,10 @@ class VendorProfilingController extends \BaseController {
         $countries = array(0=>'Select All')+$countries;
         $account_owners = User::getOwnerUsersbyRole();
         $Timezones = Timezones::getTimezonesIDList();
+        
+        $data=array();
+            $UserActilead = UserActivity::UserActivitySaved($data,'View','Vendor Profiling');
+            
         return View::make('vendorprofiling.index', compact('active_vendor','inactive_vendor','allvendorcodes','trunk_keys','trunks','countries','countriesCode','account_owners','Timezones'));
     }
 
@@ -37,11 +41,15 @@ class VendorProfilingController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         if($data['action'] == 'deactivate' && !empty($data['AccountID']) && is_array($data['AccountID'])){
+            
+            $UserActilead = UserActivity::UserActivitySaved($data,'Deactivate','Rate Analysis');
+            
             Account::whereIn('AccountID',$data['AccountID'])->update(array('IsVendor'=>'0'));
             $active_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>1])->orderBy('AccountName')->get();
             $inactive_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>0])->orderBy('AccountName')->get();
             return Response::json(array("status" => "success", "message" => "Vendor Deactivated","active_vendor"=>$active_vendor,"inactive_vendor"=>$inactive_vendor));
         }elseif($data['action'] == 'activate' && !empty($data['AccountID']) && is_array($data['AccountID'])){
+            $UserActilead = UserActivity::UserActivitySaved($data,'Activate','Rate Analysis');
             Account::whereIn('AccountID',$data['AccountID'])->update(array('IsVendor'=>1,'Status'=>1));
             $active_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>1])->orderBy('AccountName')->get();
             $inactive_vendor  = Account::select('AccountID','AccountName')->where(['CompanyID'=>$CompanyID,'IsVendor'=>0])->orderBy('AccountName')->get();
@@ -58,6 +66,7 @@ class VendorProfilingController extends \BaseController {
         $columns = array('RateID','Code');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
+         $UserActilead = UserActivity::UserActivitySaved($data,'View','Rate Analysis');
         $query = "call prc_GetVendorCodes (".$companyID.",'".$data['Trunk']."','".$data['Country']."','".$data['Code']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ,0 )";
         return DataTableSql::of($query)->make();
     }
@@ -131,6 +140,7 @@ class VendorProfilingController extends \BaseController {
                 $block=1;
                 $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . "," .$TimezonesID . ",'" . $CountryIDs . "','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.",".$criteria.")");
                 if ($results) {
+                    $UserActilead = UserActivity::UserActivitySaved($data,'block','Rate Analysis');
                     return Response::json(array("status" => "success", "message" => "Country Blocked Successfully."));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem blocking Country."));
@@ -139,6 +149,7 @@ class VendorProfilingController extends \BaseController {
             } else { // Unblock
                 $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . "," .$TimezonesID . ",'" . $CountryIDs . "','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.",".$criteria.")");
                 if ($results) {
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Unblock','Rate Analysis');
                     return Response::json(array("status" => "success", "message" => "Country Unblocked Successfully."));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Unblocking Country."));

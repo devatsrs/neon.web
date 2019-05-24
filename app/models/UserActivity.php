@@ -15,16 +15,14 @@ class UserActivity extends \Eloquent {
     
     public static  function UserActivitySaved($data,$action,$Who="",$options=""){
         $data_array=array();
-        
+        $actionData = array('View','Search','Export','Send','Bulk Send','Upload','Recall','Bulk Delete','Delete','Bulk Edit');
         $created_by=User::get_user_full_name();
         $companyID=User::get_companyID();
         $TypeName='';
         if($Who=='Reseller' && $action!='View'){
-            $TypeName    = $data['AccountID'];
+           // $TypeName    = $data['AccountID'];
         } 
-        if(($Who=='Account' || $Who=='Contact' || $Who=='Lead') && $action!='View'){
-             $TypeName  = @$data['FirstName'].' '.$data['LastName'];
-        }else if(($Who=='Tickets') && $action!='View'){
+        if(($Who=='Tickets') && $action!='View'){
              $TypeName  = @$data['Ticket']['default_subject'];
         }else if(($Who=='SendMail') && $action!='View'){
              $TypeName = @$data['Subject'];
@@ -71,7 +69,35 @@ class UserActivity extends \Eloquent {
         }else if(($Who=='Opportunity Board Column') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
             $TypeName  = @$data['BoardColumnName'];
         }else if(($Who=='Estimates') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
-            $TypeName  = @$data['EstimateNumber'];
+            unset($data['Terms']);
+            unset($data['FooterTerm']);
+            $TypeName  = @$data['Estimatenumber'];
+        }else if(($Who=='Creditnotes') && $action!='View' && $action!='Export' && $action!='Search' && $action!='Send' && $action!='Bulk Send'){
+            $TypeName  = @$data['CreditNotesNumber '];
+        }else if(($Who=='Payments') && !in_array($action, $actionData) ){
+            $TypeName  = @$data['PaymentMethod '];
+        }else if(($Who=='Disputes') && !in_array($action, $actionData) ){
+            $TypeName  = @$data['AccountID'];
+        }else if(($Who=='Services') && !in_array($action, $actionData) ){
+            $TypeName  = @$data['ServiceName'];
+        }else if(($Who=='Billing Subscription') && !in_array($action, $actionData) ){
+            $TypeName  = @$data['Name'];
+        }else if(($Who=='Discount Plan') && !in_array($action, $actionData) ){
+            $TypeName  = @$data['Name'];
+        }else if(($Who=='Products') && !in_array($action, $actionData) ){
+            $TypeName  = @$data['Name'];
+        }else if(($Who=='Item Types') && !in_array($action, $actionData) ){
+            $TypeName  = @$data['Title'];
+        }else if(($Who=='Dynamic Fields') && !in_array($action, $actionData) ){
+            $TypeName  = @$data['FieldName'];
+        }else if(($Who=='Taxrate') && !in_array($action, $actionData) ){
+            $TypeName  = @$data['Title'];
+        }else if(($Who=='Billing Class') && !in_array($action, $actionData) ){
+            $TypeName  = @$data['Name'];
+        }else if(($Who=='Invoice') && !in_array($action, $actionData) ){
+            unset($data['Terms']);
+            unset($data['FooterTerm']);
+            $TypeName  = @$data['InvoiceNumber'];
         }     
         
         if(!empty($options)){
@@ -79,7 +105,7 @@ class UserActivity extends \Eloquent {
         }
         
         $dataActionValue            = array_filter($data, function($value) { return $value !== ''; });
-        $data_array['TypeName']     = $options;
+        $data_array['TypeName']     = $TypeName;
         $data_array['CompanyId']    = $companyID;
         $data_array['created_by']   =  $created_by;
         $data_array["created_at"]   = date('Y-m-d H:i:s');

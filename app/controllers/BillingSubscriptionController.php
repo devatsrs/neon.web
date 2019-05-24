@@ -19,6 +19,8 @@ class BillingSubscriptionController extends \BaseController {
         }
         $query = "call prc_getBillingSubscription (".$CompanyID.",".$data['FilterAdvance'].",'".$data['FilterName']."','".intval($data['FilterCurrencyID'])."',".$data['FilterAppliedTo'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $billing_subscriptionActilead = UserActivity::UserActivitySaved($export_type,'Export','Billing Subscription');
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $billexports = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -42,9 +44,10 @@ class BillingSubscriptionController extends \BaseController {
     }
 
     public function index() {
-
+        $data = array();
         $currencies 			= 	Currency::getCurrencyDropdownIDList();
-		$AdvanceSubscription 	= 	json_encode(BillingSubscription::$Advance);
+        $AdvanceSubscription 	= 	json_encode(BillingSubscription::$Advance);
+        $billing_subscriptionActilead = UserActivity::UserActivitySaved($data,'View','Billing Subscription');
         return View::make('billingsubscription.index', compact('currencies','AdvanceSubscription'));
 
     }
@@ -82,6 +85,7 @@ class BillingSubscriptionController extends \BaseController {
         }
 
         if ($BillingSubscription = BillingSubscription::create($data)) {
+            $billing_subscriptionActilead = UserActivity::UserActivitySaved($data,'Add','Billing Subscription');
             return Response::json(array("status" => "success", "message" => "Subscription Successfully Created",'LastID'=>$BillingSubscription->SubscriptionID, 'newcreated'=>$BillingSubscription));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Subscription."));
@@ -123,6 +127,7 @@ class BillingSubscriptionController extends \BaseController {
             }
 
             if ($BillingSubscription->update($data)) {
+                $billing_subscriptionActilead = UserActivity::UserActivitySaved($data,'Edit','Billing Subscription');
                 return Response::json(array("status" => "success", "message" => "Subscription Successfully Updated",'LastID'=>$id));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Subscription."));
@@ -132,6 +137,7 @@ class BillingSubscriptionController extends \BaseController {
 
     public function delete($id)
     {
+        $data['id'] = $id;
         if( intval($id) > 0){
 
             if(!BillingSubscription::checkForeignKeyById($id)){
@@ -140,6 +146,7 @@ class BillingSubscriptionController extends \BaseController {
                     AmazonS3::delete($BillingSubscription->CompanyLogoAS3Key);
                     $result = $BillingSubscription->delete();
                     if ($result) {
+                        $billing_subscriptionActilead = UserActivity::UserActivitySaved($data,'Delete','Billing Subscription');
                         return Response::json(array("status" => "success", "message" => "Subscription Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Subscription."));
