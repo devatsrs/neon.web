@@ -1366,6 +1366,7 @@
                             $("#add-new-reseller-form [name='LastName']").val('');
                             $("#add-new-reseller-form [name='Email']").val('');
                             $("#add-new-reseller-form [name='Status']").val('');
+                            $("#add-new-reseller-form [name='Password']").val('');
                             $("#add-new-reseller-form [name='ResellerID']").val('');
                             $("#add-new-reseller-form [name='DomainUrl']").val('');
                             $("#add-new-reseller-form [name='picture']").val('');
@@ -1405,6 +1406,9 @@
                             Port = response.Port;
                             IsSSL = response.IsSSL;
                             DomainUrl = response.DomainUrl;
+                            Password = response.Password;
+
+
                             //AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
 
                             //getDomainUrl($(this).attr('data-id'));
@@ -1421,6 +1425,7 @@
                             $("#add-new-reseller-form [name='LastName']").val(LastName);
                             $("#add-new-reseller-form [name='Email']").val(Email);
                             $("#add-new-reseller-form [name='Status']").val(Status);
+                            $("#add-new-reseller-form [name='Password']").val(Password);
                             $("#add-new-reseller-form [name='invoiceTo']").val(InvoiceTo);
                             $("#add-new-reseller-form [name='DomainUrl']").val(DomainUrl);
                             $("#add-new-reseller-form [name='TermsAndCondition']").summernote('code',Terms);
