@@ -2557,7 +2557,7 @@ GenerateRateTable:BEGIN
 
 
 
-
+		-- leave GenerateRateTable;
 
 
 
@@ -3756,7 +3756,14 @@ GenerateRateTable:BEGIN
 
 			END WHILE;
 
-			SELECT RoundChargedAmount INTO @v_RoundChargedAmount from tblRateTable where RateTableID = @p_RateTableId  limit 1;
+
+
+		END IF;
+
+		commit;
+
+
+		SELECT RoundChargedAmount INTO @v_RoundChargedAmount from tblRateTable where RateTableID = @p_RateTableId  limit 1;
 
 
 
@@ -3815,10 +3822,6 @@ GenerateRateTable:BEGIN
 
 			END IF;
 
-
-		END IF;
-
-		commit;
 
 
 		IF (@v_RateApprovalProcess_ = 1 ) THEN
