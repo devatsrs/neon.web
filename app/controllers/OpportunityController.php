@@ -109,6 +109,7 @@ class OpportunityController extends \BaseController {
 	 */
     public function create(){
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'Add','Opportunity',$data['OpportunityName']);
         $response = NeonAPI::request('opportunity/add_opportunity',$data);
         return json_response_api($response);
     }
@@ -127,7 +128,8 @@ class OpportunityController extends \BaseController {
        
         if( $id > 0 ) {
             $data = Input::all();
-			$data['TaskBoardUrl']	=	$_SERVER['HTTP_REFERER'];	
+			$data['TaskBoardUrl']	=	$_SERVER['HTTP_REFERER'];
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Opportunity',$data['OpportunityName']);
             $response = NeonAPI::request('opportunity/'.$id.'/update_opportunity',$data);
             $OpportunityActilead = UserActivity::UserActivitySaved($data,'Edit','Opportunity');
             return json_response_api($response,false,true);

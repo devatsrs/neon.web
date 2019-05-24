@@ -20,11 +20,9 @@ class UserActivity extends \Eloquent {
         $companyID=User::get_companyID();
         $TypeName='';
         if($Who=='Reseller' && $action!='View'){
-            $TypeName    = $data['AccountID'];
+           // $TypeName    = $data['AccountID'];
         } 
-        if(($Who=='Account' || $Who=='Contact' || $Who=='Lead') && $action!='View'){
-             $TypeName  = @$data['FirstName'].' '.$data['LastName'];
-        }else if(($Who=='Tickets') && $action!='View'){
+        if(($Who=='Tickets') && $action!='View'){
              $TypeName  = @$data['Ticket']['default_subject'];
         }else if(($Who=='SendMail') && $action!='View'){
              $TypeName = @$data['Subject'];
