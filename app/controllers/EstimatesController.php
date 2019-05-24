@@ -467,9 +467,9 @@ class EstimatesController extends \BaseController {
 					{
                         $Extralognote = ' Total '.$Estimate->GrandTotal.' To '.$EstimateData['GrandTotal'];
                     }
-					
-                    $Estimate->update($EstimateData);
                     $EstimatesActilead = UserActivity::UserActivitySaved($EstimateData,'Edit','Estimates');
+                    $Estimate->update($EstimateData);
+                   
 					
                      $EstimateDetailData = $EstimateItemTaxRates = $EstimateSubscriptionTaxRates = $EstimateAllTaxRates = array();
 					
