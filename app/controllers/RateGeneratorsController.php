@@ -263,16 +263,17 @@ class RateGeneratorsController extends \BaseController {
                     $RateTableName = Input::get('RateTableName');
                     $data["rate_table_name"] = $RateTableName;
                     $data['ratetablename'] = $RateTableName;
-                    $UserActilead = UserActivity::UserActivitySaved($data,'Add','Generate Rate Table',$data['RateTableName']);
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Add','Generate Rate Table',$RateTableName);
                     $rules = array(
                         'rate_table_name' => 'required|unique:tblRateTable,RateTableName,NULL,CompanyID,CompanyID,'.$data['CompanyID'].',RateGeneratorID,'.$id,
                         'EffectiveDate'=>'required'
                     );
                 }else if($action == 'update'){
-                    $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Generate Rate Table',$data['RateTableName']);
+                    
                     $RateTableID = Input::get('RateTableID');
                     $data["RateTableId"] = $RateTableID;
                     $data['ratetablename'] = RateTable::where(["RateTableId" => $RateTableID])->pluck('RateTableName');
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Generate Rate Table',$data['ratetablename']);
                     $rules = array(
                         'RateTableId' => 'required',
                         'EffectiveDate'=>'required'
@@ -323,6 +324,8 @@ class RateGeneratorsController extends \BaseController {
     public function change_status($id, $status) {
         if ($id > 0 && ( $status == 0 || $status == 1)) {
             if (RateGenerator::find($id)->update(["Status" => $status, "ModifiedBy" => User::get_user_full_name()])) {
+                $dataArray['id']=$id;
+                $UserActilead = UserActivity::UserActivitySaved($dataArray,'Deactivate','Generate Rate Table');
                 return Response::json(array("status" => "success", "message" => "Status Successfully Changed"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Changing Status."));
