@@ -16,8 +16,14 @@ class UserActivity extends \Eloquent {
     public static  function UserActivitySaved($data,$action,$Who="",$options=""){
         $data_array=array();
         $actionData = array('View','Search','Export','Send','Bulk Send','Upload','Recall','Bulk Delete','Delete','Bulk Edit');
-        $created_by=User::get_user_full_name();
-        $companyID=User::get_companyID();
+        if($action=='Login'){
+            $created_by="";
+            $companyID="";
+        }else{
+            $created_by=User::get_user_full_name();
+            $companyID=User::get_companyID();
+        }
+        
         $TypeName='';
         if($Who=='Reseller' && $action!='View'){
            // $TypeName    = $data['AccountID'];
