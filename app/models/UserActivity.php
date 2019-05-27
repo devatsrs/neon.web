@@ -81,7 +81,7 @@ class UserActivity extends \Eloquent {
         }else if(($Who=='Creditnotes') && $action!='View' && $action!='Export' && $action!='Search' && $action!='Send' && $action!='Bulk Send'){
             unset($data['Terms']);
             unset($data['FooterTerm']);
-            $TypeName  = @$data['CreditNotesNumber '];
+            $TypeName  = @$data['CreditNotesNumber'];
         }else if(($Who=='Payments') && !in_array($action, $actionData) ){
             $TypeName  = @$data['PaymentMethod '];
         }else if(($Who=='Disputes') && !in_array($action, $actionData) ){
