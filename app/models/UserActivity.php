@@ -55,7 +55,7 @@ class UserActivity extends \Eloquent {
         $data_array['TypeName']     = $TypeName;
         $data_array['CompanyId']    = $companyID;
         $data_array['created_by']   =  $created_by;
-        $data_array["created_at"]   = date('Y-m-d H:i:s');
+        //$data_array["created_at"]   = date('Y-m-d H:i:s');
         $ActionValueJSON            = json_encode($dataActionValue);
         $data_array["ActionValue"]  = $ActionValueJSON;
         $data_array["Action"]       = $action;
