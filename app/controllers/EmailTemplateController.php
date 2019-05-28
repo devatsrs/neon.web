@@ -106,7 +106,7 @@ class EmailTemplateController extends \BaseController {
         
 
         if ($obj = EmailTemplate::create($data)) {
-            $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Add','Email_Template');
+            $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Add','Email_Template',$data['TemplateName']);
             return Response::json(array("status" => "success", "message" => "Template Successfully Created","newcreated"=>$obj));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Template."));
@@ -194,7 +194,7 @@ class EmailTemplateController extends \BaseController {
 		 unset($data['Email_template_privacy']); 
 		$data['Status'] = isset($data['Status'])?1:0;
         if ($crmteplate->update($data)) {
-            $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Edit','Email_Template');
+            $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Edit','Email_Template',$data['TemplateName']);
             return Response::json(array("status" => "success", "message" => "Template Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating template."));
@@ -229,7 +229,8 @@ class EmailTemplateController extends \BaseController {
     {
         $companyID = User::get_companyID();
         $data = Input::all();
-        $Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Export','Email_Template');
+        $export_type['type'] = $type;
+        $Email_TemplateActilead = UserActivity::UserActivitySaved($export_type,'Export','Email_Template');
         $select = ["TemplateName","Subject","CreatedBy","updated_at"];
         $template = EmailTemplate::select($select)->where(["CompanyID" => $companyID])->get();
         $excel_data = json_decode(json_encode($template),true);

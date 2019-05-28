@@ -3,8 +3,6 @@
 class NotificationController extends \BaseController {
     public function ajax_datagrid($type){
         $data = Input::all();
-        //https://codedesk.atlassian.net/browse/NEON-1591
-        //Audit Trails of user activity
         $NotificationActilead = UserActivity::UserActivitySaved($data,'View','Notification');
         $companyID = User::get_companyID();
         $select = ["NotificationType", "EmailAddresses","Status", "created_at" ,"CreatedBy","NotificationID"];
@@ -15,6 +13,8 @@ class NotificationController extends \BaseController {
         $Notification->select($select);
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $NotificationActilead = UserActivity::UserActivitySaved($export_type,'Export','Notification');
             $excel_data  = $Notification->get();
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -85,9 +85,10 @@ class NotificationController extends \BaseController {
         }
         //https://codedesk.atlassian.net/browse/NEON-1591
         //Audit Trails of user activity
-        $NotificationActilead = UserActivity::UserActivitySaved($data,'Add','Notification');
+       
         unset($data['NotificationID']);
         if ($Notification = Notification::create($data)) {
+            $NotificationActilead = UserActivity::UserActivitySaved($data,'Add','Notification',$data['NotificationType']);
             return Response::json(array("status" => "success", "message" => "Notification Successfully Created",'redirect'=>URL::to('/notification/edit/' . $Notification->NotificationID)));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Notification."));
@@ -113,7 +114,7 @@ class NotificationController extends \BaseController {
             
             //https://codedesk.atlassian.net/browse/NEON-1591
             //Audit Trails of user activity
-            $NotificationActilead = UserActivity::UserActivitySaved($data,'Edit','Notification');
+            $NotificationActilead = UserActivity::UserActivitySaved($data,'Edit','Notification',$data['NotificationID']);
             unset($data['NotificationID']);
             unset($data['NotificationType']);
             if ($Notification->update($data)) {
@@ -150,9 +151,7 @@ class NotificationController extends \BaseController {
         $postdata = Input::all();
         $response =  NeonAPI::request('qos_alert/store',$postdata,true,false,false);
         if($response->status == 'success'){
-            //https://codedesk.atlassian.net/browse/NEON-1591
-            //Audit Trails of user activity
-            $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Alert');
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Alert',$postdata['Name']);
         }
         
         return json_response_api($response);
@@ -162,8 +161,6 @@ class NotificationController extends \BaseController {
         $data['id'] = $id;
         $response =  NeonAPI::request('qos_alert/delete/'.$id,array(),'delete',false,false);
         if($response->status == 'success'){
-            //https://codedesk.atlassian.net/browse/NEON-1591
-            //Audit Trails of user activity
             $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Alert');
         }
         return json_response_api($response);
@@ -173,16 +170,16 @@ class NotificationController extends \BaseController {
         $postdata = Input::all();
         $response =  NeonAPI::request('qos_alert/update/'.$id,$postdata,'put',false,false);
         if($response->status == 'success'){
-            //https://codedesk.atlassian.net/browse/NEON-1591
-            //Audit Trails of user activity
-            $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','Alert');
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','Alert',$postdata['Name']);
         }
         return json_response_api($response);
     }
     public function qos_ajax_datagrid(){
         $getdata = Input::all();
+        $export_type['type'] = 'xls';
         $response =  NeonAPI::request('qos_alert/datagrid',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Alert');
             $excel_data = $response->data;
             $excel_data = json_decode(json_encode($excel_data), true);
             Excel::create('Alert', function ($excel) use ($excel_data) {

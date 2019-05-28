@@ -148,7 +148,7 @@ class TaskController extends \BaseController {
 
         if($response->status!='failed'){
             if(isset($data['Task_view'])){
-                $TaskActilead = UserActivity::UserActivitySaved($data,'Add','Task');
+                $TaskActilead = UserActivity::UserActivitySaved($data,'Add','Task',$data['Subject']);
                 return  json_response_api($response);
             }
             $response = $response->data;
@@ -213,7 +213,7 @@ class TaskController extends \BaseController {
                 $current_user_title = User::get_user_full_name();				
 				return View::make('accounts.show_ajax_single_update', compact('response','key','current_user_title'));  
 			}else{
-            $TaskActilead = UserActivity::UserActivitySaved($data,'Edit','Task');
+            $TaskActilead = UserActivity::UserActivitySaved($data,'Edit','Task',$data['Subject']);
             return json_response_api($response);
 			}
         }else {
@@ -243,6 +243,7 @@ class TaskController extends \BaseController {
 		if($response->status=='failed'){
 			return json_response_api($response,false,true);
 		}else{ 
+            $TaskActilead = UserActivity::UserActivitySaved($data,'Delete','Task');
 			return Response::json(array("status" => "success", "message" => "Task Successfully Deleted", "TaskID" => $id));
 		}     
     }

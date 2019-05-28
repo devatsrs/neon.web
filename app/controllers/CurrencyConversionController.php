@@ -113,7 +113,7 @@ class CurrencyConversionController extends \BaseController {
             }
         }
         if($success=='success'){
-            $CurrencyConversionActilead = UserActivity::UserActivitySaved($data,'Add','Currency Conversion');
+            $CurrencyConversionActilead = UserActivity::UserActivitySaved($data,'Add','Currency Conversion','Currency Conversion');
             return Response::json(array("status" => "success", "message" => "Exchange Rate Successfully Created"));
         }else{
             return Response::json(array("status" => "failed", "message" => "Problem Creating Exchange Rate."));
@@ -176,7 +176,7 @@ class CurrencyConversionController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Please select a Different Currency in From and To."));
             }
             if ($CurrencyConversion->update($data)) {
-                $CurrencyConversionActilead = UserActivity::UserActivitySaved($data,'Edit','Currency Conversion');
+                $CurrencyConversionActilead = UserActivity::UserActivitySaved($data,'Edit','Currency Conversion','Currency Conversion');
                 return Response::json(array("status" => "success", "message" => "Exchange Rate Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Exchange Rate."));

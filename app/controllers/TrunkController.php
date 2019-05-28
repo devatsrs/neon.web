@@ -56,7 +56,7 @@ class TrunkController extends BaseController {
             }
             if($trunk = Trunk::create($data)){
                 Cache::forget("trunks_defaults");
-                $TrunksActilead = UserActivity::UserActivitySaved($data,'Add','Trunks');
+                $TrunksActilead = UserActivity::UserActivitySaved($data,'Add','Trunks',$data['Trunk']);
                 return  Response::json(array("status" => "success", "message" => "Trunk Successfully Created",'LastID'=>$trunk->TrunkID,'newcreated'=>$trunk));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Creating Trunk."));
@@ -96,7 +96,7 @@ class TrunkController extends BaseController {
         }
         if($trunk->update($data)){
                 Cache::forget("trunks_defaults");
-                $TrunksActilead = UserActivity::UserActivitySaved($data,'Edit','Trunks');
+                $TrunksActilead = UserActivity::UserActivitySaved($data,'Edit','Trunks',$data['Trunk']);
               return  Response::json(array("status" => "success", "message" => "Trunk Successfully Updated"));
         } else {
             return  Response::json(array("status" => "failed", "message" => "Problem Updating Trunk."));
@@ -107,6 +107,8 @@ class TrunkController extends BaseController {
     public function exports($type){
             $companyID = User::get_companyID();
             $data = Input::all();
+            $export_data['type'] = $type;
+            $TrunksActilead = UserActivity::UserActivitySaved($export_data,'Export','Trunks');
             if (isset($data['sSearch_0']) && ($data['sSearch_0'] == '' || $data['sSearch_0'] == '1')) {
                 $trunks = Trunk::where(["CompanyID" => $companyID, "Status" => 1])->orderBy("TrunkID", "desc")->get(["Trunk", "RatePrefix", "AreaPrefix", "Prefix"]);
             } else {

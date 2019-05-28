@@ -15,7 +15,7 @@ class UserActivity extends \Eloquent {
     
     public static  function UserActivitySaved($data,$action,$Who="",$options=""){
         $data_array=array();
-        $actionData = array('View','Search','Export','Send','Bulk Send','Upload','Recall','Bulk Delete','Delete','Bulk Edit');
+
         if($action=='Login'){
             $created_by="";
             $companyID="";
@@ -25,58 +25,19 @@ class UserActivity extends \Eloquent {
         }
         
         $TypeName='';
-        if($Who=='Reseller' && $action!='View'){
-           // $TypeName    = $data['AccountID'];
-        } 
         if(($Who=='Tickets') && $action!='View'){
              $TypeName  = @$data['Ticket']['default_subject'];
         }else if(($Who=='SendMail') && $action!='View'){
              $TypeName = @$data['Subject'];
-        }else if(($Who=='Company') && $action!='View'){
-            $TypeName  = @$data['CompanyName'];
-        }else if(($Who=='Notification') && $action!='View'){
-            $TypeName  = @$data['NotificationType'];
-        }else if(($Who=='Alert') && $action!='View'){
-            $TypeName  = @$data['Name'];
-        }else if(($Who=='Accountapproval') && $action!='View'){
-            $TypeName  = @$data['Key'];
-        }else if(($Who=='Retention') && $action!='View' && $action!='Export'){
-            $TypeName  = @$data['TableData']['CDR'];
-        }else if(($Who=='Email_Template') && $action!='View' && $action!='Export'){
-            $TypeName  = @$data['TemplateName'];
-        }else if(($Who=='Noticeboard') && $action!='View' && $action!='Export'){
-            $TypeName  = @$data['Title'];
-        }else if(($Who=='Translation') && $action!='View' && $action!='Export'){
-            $TypeName  = @$data['system_name'];
-        }else if(($Who=='Dynamiclink') && $action!='View' && $action!='Export'){
-            $TypeName  = @$data['Title'];
-        }else if(($Who=='Trunks') && $action!='View' && $action!='Export'){
-            $TypeName  = @$data['Trunk'];
-        }else if(($Who=='Codedecks') && $action!='View' && $action!='Export'){
-            $TypeName  = @$data['CodedeckName'];
-        }else if(($Who=='DialStrings') && $action!='View' && $action!='Export'){
-            $TypeName  = @$data['Name'];
-        }else if(($Who=='DialStringsCode') && $action!='View' && $action!='Export' && $action!='Search'){
-            $TypeName  = @$data['DialString'];
-        }else if(($Who=='Currency') && $action!='View' && $action!='Export' && $action!='Search'){
-            $TypeName  = @$data['Code'];
-        }else if(($Who=='Currency Conversion') && $action!='View' && $action!='Export' && $action!='Search'){
-            $TypeName  = 'Currency Conversion';
-        }else if(($Who=='Timezones') && $action!='View' && $action!='Export' && $action!='Search'){
-            $TypeName  = @$data['Title'];
-        }else if(($Who=='VOS Active Calls') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
-            $TypeName  = @$data['Title'];
-        }else if(($Who=='Task') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
-            $TypeName  = @$data['Subject'];
-        }else if(($Who=='Estimates') && $action!='View' && $action!='Export' && $action!='Export'&& $action!='Search'){
+        }else if(($Who=='Estimates') && $action=='Add' && $action =='Edit'){
             unset($data['Terms']);
             unset($data['FooterTerm']);
             $TypeName  = @$data['Estimatenumber'];
-        }else if(($Who=='Creditnotes') && $action!='View' && $action!='Export' && $action!='Search' && $action!='Send' && $action!='Bulk Send'){
+        }else if(($Who=='Creditnotes') && $action=='Add' && $action =='Edit'){
             unset($data['Terms']);
             unset($data['FooterTerm']);
             $TypeName  = @$data['CreditNotesNumber'];
-        }else if(($Who=='Invoice') && !in_array($action, $actionData) ){
+        }else if(($Who=='Invoice') && $action=='Add' && $action =='Edit'){
             unset($data['Terms']);
             unset($data['FooterTerm']);
             $TypeName  = @$data['InvoiceNumber'];
