@@ -87,7 +87,10 @@ ALTER TABLE `tblRateTableRateAA`
 ALTER TABLE `tblRateTableRateArchive`
 	ADD COLUMN `MinimumDuration` INT(11) NULL DEFAULT NULL AFTER `IntervalN`;
 
-
+ALTER TABLE `tblCountry`
+	ADD INDEX `index_Prefix` (`Prefix`),
+	ADD INDEX `index_Country` (`Country`),
+	ADD INDEX `index_Prefix_Country` (`Prefix`, `Country`);
 
 
 
