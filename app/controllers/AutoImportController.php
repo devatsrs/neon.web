@@ -24,6 +24,7 @@ class AutoImportController extends \BaseController {
 	{
 		$CompanyID = User::get_companyID();
 		$data = Input::all();
+                $UserActilead = UserActivity::UserActivitySaved($data,'View','Auto Import');
 		$data['iDisplayStart'] +=1;
 		$columns = array('Type','Header Info','Created','JobId','Status');
 		$sort_column = $columns[$data['iSortCol_0']];

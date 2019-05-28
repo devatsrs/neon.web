@@ -5,6 +5,7 @@ class RateGeneratorsController extends \BaseController {
     public function ajax_datagrid() {
         $companyID = User::get_companyID();
         $data = Input::all(); 
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Rate Generator');
         $where = ["tblRateGenerator.CompanyID" => $companyID];
         if($data['Active']!=''){
             $where['tblRateGenerator.Status'] = $data['Active'];
@@ -48,6 +49,7 @@ class RateGeneratorsController extends \BaseController {
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $currencylist = Currency::getCurrencyDropdownIDList();
             $Timezones = Timezones::getTimezonesIDList();
+            
             return View::make('rategenerators.create', compact('trunks','codedecklist','currencylist','trunk_keys','Timezones'));
     }
 
@@ -88,6 +90,7 @@ class RateGeneratorsController extends \BaseController {
         }
 
         if ($rateg = RateGenerator::create($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Rate Generator',$data['RateGeneratorName']);
             return Response::json(array(
                         "status" => "success",
                         "message" => "RateGenerator Successfully Created",
@@ -180,6 +183,7 @@ class RateGeneratorsController extends \BaseController {
         }
         $data ['ModifiedBy'] = User::get_user_full_name();
         if ($RateGenerator->update($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Rate Generator',$data['RateGeneratorName']);
             return Response::json(array(
                         "status" => "success",
                         "message" => "RateGenerator Successfully Updated"
@@ -213,6 +217,8 @@ class RateGeneratorsController extends \BaseController {
     public function delete($id) {
         if ($id) {
             if (RateGenerator::find($id)->delete()) {
+                $data['id']=$id;
+                $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Generate Rate Table');
                 return Response::json(array("status" => "success", "message" => "Rate Generator Successfully deleted"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting Rate Generator"));
@@ -257,14 +263,17 @@ class RateGeneratorsController extends \BaseController {
                     $RateTableName = Input::get('RateTableName');
                     $data["rate_table_name"] = $RateTableName;
                     $data['ratetablename'] = $RateTableName;
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Add','Generate Rate Table',$RateTableName);
                     $rules = array(
                         'rate_table_name' => 'required|unique:tblRateTable,RateTableName,NULL,CompanyID,CompanyID,'.$data['CompanyID'].',RateGeneratorID,'.$id,
                         'EffectiveDate'=>'required'
                     );
                 }else if($action == 'update'){
+                    
                     $RateTableID = Input::get('RateTableID');
                     $data["RateTableId"] = $RateTableID;
                     $data['ratetablename'] = RateTable::where(["RateTableId" => $RateTableID])->pluck('RateTableName');
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Generate Rate Table',$data['ratetablename']);
                     $rules = array(
                         'RateTableId' => 'required',
                         'EffectiveDate'=>'required'
@@ -315,6 +324,8 @@ class RateGeneratorsController extends \BaseController {
     public function change_status($id, $status) {
         if ($id > 0 && ( $status == 0 || $status == 1)) {
             if (RateGenerator::find($id)->update(["Status" => $status, "ModifiedBy" => User::get_user_full_name()])) {
+                $dataArray['id']=$id;
+                $UserActilead = UserActivity::UserActivitySaved($dataArray,'Deactivate','Generate Rate Table');
                 return Response::json(array("status" => "success", "message" => "Status Successfully Changed"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Changing Status."));

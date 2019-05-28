@@ -10,6 +10,7 @@ class TicketsGroupController extends \BaseController {
    public function index() {          
 		$data 			 		= 	array();	
 		$EscalationTimes_json 	= 	json_encode(TicketGroups::$EscalationTimes);
+                $UserActilead = UserActivity::UserActivitySaved($data,'View','Ticket Group');
         return View::make('ticketgroups.groups', compact('data','EscalationTimes_json'));   
 	  }		
 	  
@@ -50,6 +51,7 @@ class TicketsGroupController extends \BaseController {
 		  
 		$companyID 				= 	User::get_companyID();
         $data 					= 	Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Ticket Group');
         $data['iDisplayStart'] +=	1;
         $response 				= 	NeonAPI::request('ticketgroups/get_groups',$data); 
 		
@@ -74,25 +76,25 @@ class TicketsGroupController extends \BaseController {
 	  function Store(){
 	    
 		
-		$postdata 				= 		Input::all();  		
+		$postdata 				= 		Input::all();  
 		$postdata['activate'] 	= 		URL::to('/activate_support_email');
         $response 				= 		NeonAPI::request('ticketgroups/store',$postdata,true,false,false);
 		
         if(!empty($response) && $response->status == 'success'){
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Ticket Group');
             $response->redirect =  URL::to('/ticketgroups/');
         }
         return json_response_api($response);     
 	  }
 	  
 	  function Update($id){
-	    
 		
 		$postdata 				= 		Input::all();
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','Ticket Group');
 		$postdata['activate'] 	= 		URL::to('/activate_support_email');
-        $response 				= 		NeonAPI::request('ticketgroups/update/'.$id,$postdata,'put',false,false);
-		
-        return json_response_api($response);
-	  }
+                $response 				= 		NeonAPI::request('ticketgroups/update/'.$id,$postdata,'put',false,false);
+                return json_response_api($response);
+        }
 	  
 	  function Activate_support_email(){
 	 	 $data = Input::all();
@@ -118,6 +120,7 @@ class TicketsGroupController extends \BaseController {
 	  
 	 public function delete($id)
      {
+             $UserActilead = UserActivity::UserActivitySaved($postdata,'Delete','Ticket Group');
 		$response 		= 		NeonAPI::request('ticketgroups/delete/'.$id,array(),true,false,false); 
 		return json_response_api($response);
     }

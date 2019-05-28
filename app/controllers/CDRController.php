@@ -13,6 +13,7 @@ class CDRController extends BaseController {
      * @TODO: name need to fix for upload and show
      */
     public function index() {
+        $data = array();
         $CompanyID = User::get_companyID();
         $gateway = CompanyGateway::getCompanyGatewayIdList($CompanyID);
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR));
@@ -22,6 +23,7 @@ class CDRController extends BaseController {
         $Services = Service::getDropdownIDList($CompanyID);
         $Services = array('Service'=>$Services);
         $ratetables = RateTable::getRateTableList();
+        $cdr_uploadrActilead = UserActivity::UserActivitySaved($data,'View','Cdr Upload');
         return View::make('cdrupload.upload',compact('dashboardData','account','gateway','UploadTemplate','trunks','Services','ratetables'));
     }
     public function upload(){
@@ -79,6 +81,7 @@ class CDRController extends BaseController {
                 $jobfiledata["CreatedBy"] = User::get_user_full_name();
                 $jobfiledata["updated_at"] = date('Y-m-d H:i:s');
                 $JobFileID = JobFile::insertGetId($jobfiledata);
+                $cdr_uploadrActilead = UserActivity::UserActivitySaved($data,'Export','Cdr Upload');
                 return json_encode(["status" => "success", "message" => "File Uploaded, File is added to queue for processing. You will be notified once file upload is completed. "]);
             } else {
                 return json_encode(array("status" => "failed", "message" => "Please upload excel/csv file only."));
@@ -185,6 +188,8 @@ class CDRController extends BaseController {
         $trunks = Trunk::getTrunkDropdownList($companyID);
         $trunks = $trunks + array('Other'=>'Other');
         $reseller_owners = Reseller::getDropdownIDList($companyID);
+        $data = array();
+        $cdr_uploadrActilead = UserActivity::UserActivitySaved($data,'View','Cdr');
         return View::make('cdrupload.show',compact('dashboardData','account','gateway','rate_cdr','DefaultCurrencyID','accounts','trunks','reseller_owners'));
     }
 	
@@ -593,11 +598,13 @@ class CDRController extends BaseController {
         return DataTableSql::of($query, 'sqlsrv2')->make();
     }
     public function vendorcdr_upload() {
+        $data = array();
         $companyID = User::get_companyID();
         $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDORCDR));
         $trunks = Trunk::getTrunkDropdownIDList($companyID);
         $trunks = $trunks+array(0=>'Find From VendorPrefix');
+        $VendorCdrUploadActilead = UserActivity::UserActivitySaved($data,'View','Vendor Cdr Upload');
         return View::make('cdrupload.vendorcdrupload',compact('dashboardData','account','gateway','UploadTemplate','trunks'));
     }
     public function check_vendorupload()
@@ -647,6 +654,7 @@ class CDRController extends BaseController {
                     $grid['FileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
                     $grid['FileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
                 }
+                $VendorCdrUploadActilead = UserActivity::UserActivitySaved($data,'Upload','Vendor Cdr Upload');
                 return Response::json(array("status" => "success", "message" => "file uploaded", "data" => $grid));
             }
         } catch (Exception $e) {

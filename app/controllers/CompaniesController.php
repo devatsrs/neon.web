@@ -11,6 +11,10 @@ class CompaniesController extends \BaseController {
 	 * @return Response
 	 */
 	public function edit(){
+        $data = array();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $CompanyActilead = UserActivity::UserActivitySaved($data,'View','Company');
         $LicenceApiResponse = Company::ValidateLicenceKey();
         $company_id = User::get_companyID();
         $company = Company::find($company_id);
@@ -79,6 +83,7 @@ class CompaniesController extends \BaseController {
 	public function update()
 	{
         $data = Input::all();
+    
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
@@ -239,7 +244,7 @@ class CompaniesController extends \BaseController {
                         'openssl pkcs12 -inkey '.$signaturePath.'digitalsignature.key -in '.$signaturePath.'digitalsignature.crt -export -out '.$signaturePath.'digitalsignature.pfx -password pass:Welcome100'
                     ]);
             }
-
+            $CompanyActilead = UserActivity::UserActivitySaved($data,'Edit','Company',$data['CompanyName']);
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Company."));

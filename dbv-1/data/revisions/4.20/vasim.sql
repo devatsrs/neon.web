@@ -3,8 +3,7 @@ USE `Ratemanagement3`;
 
 INSERT INTO `tblGateway` VALUES (19, 'Clarity PBX', 'ClarityPBX', 1, 'RateManagementSystem', '2019-05-09 16:59:07', NULL, '2019-05-09 16:59:07');
 
-INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (19, 'Clarity PBX Read Server', 'dbserver_read', 1, '2019-05-09 06:22:07', 'RateManagementSystem', NULL, NULL);
-INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (19, 'Clarity PBX Write Server', 'dbserver_write', 1, '2019-05-09 06:22:07', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (19, 'Clarity PBX Server', 'dbserver', 1, '2019-05-09 06:22:07', 'RateManagementSystem', NULL, NULL);
 INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (19, 'Clarity PBX Username', 'username', 1, '2019-05-09 06:22:09', 'RateManagementSystem', NULL, NULL);
 INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (19, 'Clarity PBX Password', 'password', 1, '2019-05-09 06:22:10', 'RateManagementSystem', NULL, NULL);
 INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (19, 'Authentication Rule', 'NameFormat', 1, '2019-05-09 06:22:10', 'RateManagementSystem', NULL, NULL);

@@ -25,6 +25,7 @@ class OpportunityBoardColumnController extends \BaseController {
     public function create(){
         $data = Input::all();
         $response = NeonAPI::request('opportunityboardcolumn/add_column',$data);
+        $opportunityboardcolumnActilead = UserActivity::UserActivitySaved($data,'Add','Opportunity Board Column',$data['BoardColumnName']);
         return json_response_api($response);
     }
 
@@ -40,6 +41,7 @@ class OpportunityBoardColumnController extends \BaseController {
     {
         $data = Input::all();
         $response = NeonAPI::request('opportunityboardcolumn/'.$id.'/update_column',$data);
+        $opportunityboardcolumnActilead = UserActivity::UserActivitySaved($data,'Edit','Opportunity Board Column',$data['BoardColumnName']);
         return json_response_api($response);
     }
 

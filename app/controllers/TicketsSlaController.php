@@ -12,6 +12,7 @@ class TicketsSlaController extends \BaseController {
 		{
 			$data['Export']		=	1; 
 		}
+                $UserActilead = UserActivity::UserActivitySaved($data,'View','SLA Policies');
 	    $response 	=   NeonAPI::request('tickets/sla_policies/ajax_datagrid',$data,true); 
 		 
 		if(isset($data['Export']) && $data['Export'] == 1)
@@ -65,6 +66,7 @@ class TicketsSlaController extends \BaseController {
         $response 				= 		NeonAPI::request('tickets/sla_policies/store',$postdata,true,false,false);
 		
         if(!empty($response) && $response->status == 'success'){
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','SLA Policies');
             $response->redirect =  URL::to('/tickets/sla_policies/');
         }
         return json_response_api($response);     
@@ -104,12 +106,15 @@ class TicketsSlaController extends \BaseController {
 	function update($id)
 	{
 		$postdata 				= 		Input::all();
-        $response 				= 		NeonAPI::request('tickets/sla_policies/update/'.$id,$postdata,true,false,false); 
-        return json_response_api($response);
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','SLA Policies');
+                $response 				= 		NeonAPI::request('tickets/sla_policies/update/'.$id,$postdata,true,false,false); 
+                return json_response_api($response);
 	}
 	
 	public function delete($id) {		
-		$response 		= 		NeonAPI::request('tickets/sla_policies/delete/'.$id,array(),true,false,false); 
-		return json_response_api($response);
+            $postdata['id']=$id;
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Delete','SLA Policies');
+            $response 		= 		NeonAPI::request('tickets/sla_policies/delete/'.$id,array(),true,false,false); 
+            return json_response_api($response);
     }
 }

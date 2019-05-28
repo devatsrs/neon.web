@@ -29,4 +29,10 @@ return array(
 		'version' => '',
 	),
 
+	'gocardless' => array(
+		'model'  => 'User',
+		'access' => '',
+		'version' => '',
+	),
+
 );

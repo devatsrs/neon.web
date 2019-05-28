@@ -10,6 +10,9 @@ class AccountsController extends \BaseController {
 
     public function ajax_datagrid($type) {
         $data = Input::all();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Account');
         $CompanyID = User::get_companyID();
         $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         if(is_reseller()){
@@ -146,8 +149,10 @@ class AccountsController extends \BaseController {
         $timezones = TimeZone::getTimeZoneDropdownList();
         $rate_timezones = Timezones::getTimezonesIDList();
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones'));
+        
+        $VOS_RATEPREFIX_RATESHEET = CompanyConfiguration::get('VOS_RATEPREFIX_RATESHEET');
 
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones','VOS_RATEPREFIX_RATESHEET'));
     }
 
     /**
@@ -187,6 +192,11 @@ class AccountsController extends \BaseController {
     public function store() {
             $ServiceID = 0;
             $data = Input::all();
+            
+            //https://codedesk.atlassian.net/browse/NEON-1591
+            //Audit Trails of user activity
+            
+        
             $companyID = User::get_companyID();
             $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
             if($ResellerOwner>0){
@@ -357,6 +367,7 @@ class AccountsController extends \BaseController {
 
 
                 $account->update($data);
+                $UserActilead = UserActivity::UserActivitySaved($data,'Add','Account',$data['AccountName']);
                 return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
@@ -626,6 +637,7 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $ServiceID = 0;
         $data = Input::all();
+        
         $companyID = User::get_companyID();
         $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
         if($ResellerOwner>0){
@@ -893,7 +905,7 @@ class AccountsController extends \BaseController {
                     }
                 }
             }
-
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Account',$data['AccountName']);
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
@@ -1337,6 +1349,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if (!empty($response)) {
             if (!empty($response->PermanentCredit)) {
                 $PermanentCredit = $response->PermanentCredit;
+                $PermanentCredit = str_replace(',','',$PermanentCredit);
             }
             if (!empty($response->TemporaryCredit)) {
                 $TemporaryCredit = $response->TemporaryCredit;
@@ -1354,6 +1367,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             }
             //$BalanceAmount = $SOA_Amount + ($UnbilledAmount - $VendorUnbilledAmount);
             $BalanceAmount = AccountBalance::getNewAccountExposure($CompanyID, $id);
+            $BalanceAmount = str_replace(',','',$BalanceAmount);
             if (!empty($response->EmailToCustomer)) {
                 $EmailToCustomer = $response->EmailToCustomer;
             }
@@ -1362,6 +1376,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
             $SOA_Amount = AccountBalanceLog::getPrepaidAccountBalance($id);
         }
+        $SOA_Amount = str_replace(',','',$SOA_Amount);
 
         if(!empty($id)){
             $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $id))->get();

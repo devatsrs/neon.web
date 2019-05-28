@@ -27,7 +27,10 @@ class LeadsController extends \BaseController {
         }else{
             $leads->where('tblAccount.Status', 0);
         }
-
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Lead');
+        
         if(User::is_admin() && isset($data['account_owners'])  && trim($data['account_owners']) > 0) {
             $leads->where('tblAccount.Owner', (int)$data['account_owners']);
         }
@@ -124,13 +127,17 @@ class LeadsController extends \BaseController {
         Lead::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,'.$data['CompanyID'].'';
         $validator = Validator::make($data, Lead::$rules);
         $data['created_by'] =  User::get_user_full_name();
-
-
+        
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-
+        
+        
+        
+        
+        
         if($lead = Lead::create($data)){
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Lead',$data['FirstName'].' '.$data['LastName']);
             return  Response::json(array("status" => "success", "message" => "Lead Successfully Created",'LastID'=>$lead->AccountID,'redirect' => URL::to('/leads/'.$lead->AccountID.'/show')));
         } else {
             return  Response::json(array("status" => "failed", "message" => "Problem Creating Lead."));
@@ -301,13 +308,17 @@ class LeadsController extends \BaseController {
             'AccountName' => 'required|unique:tblAccount,AccountName,'.$lead->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'],
             'CurrencyId' =>  'required',
         );
-
+        
         $validator = Validator::make($data, $rules);
-
+        
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        
+        
+        
         if($lead->update($data)){
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Lead',$data['FirstName'].' '.$data['LastName']);
             return  Response::json(array("status" => "success", "message" => "Lead Successfully Updated"));
         } else {
             return  Response::json(array("status" => "failed", "message" => "Problem Updating Lead."));

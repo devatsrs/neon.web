@@ -17,6 +17,7 @@ class TranslateController extends \BaseController {
     public function search_ajax_datagrid() {
 
         $data = Input::all();
+        $TranslationActilead = UserActivity::UserActivitySaved($data,'View','Translation');
         $all_langs = DB::table('tblLanguage')
             ->select("tblLanguage.LanguageID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
@@ -82,6 +83,7 @@ class TranslateController extends \BaseController {
     function process_singleDelete(){
         $request = Input::all();
         Translation::delete_label($request["language"], $request["system_name"]);
+        $TranslationActilead = UserActivity::UserActivitySaved($request,'Delete','Translation');
 
         return json_encode(["status" => "success", "message" => "Deleted - ".$request["system_name"]]);
     }
@@ -95,7 +97,8 @@ class TranslateController extends \BaseController {
         foreach($translation_data as $key=>$value){
             $json_file[]=array("System Name"=>$key, "Language"=> $value);
         }
-
+        $export_type['type'] = $type;
+        $TranslationActilead = UserActivity::UserActivitySaved($export_type,'Export','Translation');
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$data_langs->Language.'.csv';
             $NeonExcel = new NeonExcelIO($file_path);
@@ -111,6 +114,7 @@ class TranslateController extends \BaseController {
         $request = Input::all();
 
         if(Translation::add_system_name($request["system_name"], $request["en_word"])){
+            $TranslationActilead = UserActivity::UserActivitySaved($request,'Add','Translation',$request['system_name']);
             return json_encode(["status" => "success", "message" => "Add Successfully"]);
         }else{
             return json_encode(["status" => "fail", "message" => "System Name already exist."]);
