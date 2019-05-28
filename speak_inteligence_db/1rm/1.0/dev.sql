@@ -1485,7 +1485,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 							 @prev_Total := Total
 
 						 from tmp_table_output_1
-							 ,(SELECT  @prev_AccessType := '' ,@prev_CountryID  := '' ,@prev_City  := '' ,@prev_Tariff := '' ,@prev_Code  := ''  , @prev_VendorID  := '', @prev_Total := 0 ) t
+							 ,(SELECT  @vPosition := 0 , @prev_AccessType := '' ,@prev_CountryID  := '' ,@prev_City  := '' ,@prev_Tariff := '' ,@prev_Code  := ''  , @prev_VendorID  := '', @prev_Total := 0 ) t
 
 						 ORDER BY Code,AccessType,CountryID,City,Tariff,Total,VendorID
 					 ) tmp;
