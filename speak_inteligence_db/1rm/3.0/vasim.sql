@@ -2108,6 +2108,9 @@ ThisSP:BEGIN
 
 		IF  p_addNewCodesToCodeDeck = 1
 		THEN
+
+			CALL prc_UpdateCountryIDRateTableRate('tmp_TempRateTableRate_');
+
 			-- Destination Code
 			INSERT INTO tblRate (
 				CompanyID,
@@ -2127,7 +2130,7 @@ ThisSP:BEGIN
 				vc.Description,
 				vc.`Type`,
 				'RMService',
-				fnGetCountryIdByCodeAndCountry (vc.Code ,vc.Description) AS CountryID,
+				CountryID,
 				CodeDeckId,
 				Interval1,
 				IntervalN,
@@ -2141,12 +2144,15 @@ ThisSP:BEGIN
 					MAX(tblTempRateTableRate.CodeDeckId) AS CodeDeckId,
 					MAX(tblTempRateTableRate.Interval1) AS Interval1,
 					MAX(tblTempRateTableRate.IntervalN) AS IntervalN,
-					MAX(tblTempRateTableRate.MinimumDuration) AS MinimumDuration
+					MAX(tblTempRateTableRate.MinimumDuration) AS MinimumDuration,
+					MAX(tmp_Prefix.CountryID) AS CountryID
 				FROM tmp_TempRateTableRate_  as tblTempRateTableRate
 				LEFT JOIN tblRate
 					ON tblRate.Code = tblTempRateTableRate.Code
 					AND tblRate.CompanyID = p_companyId
 					AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
+				LEFT JOIN
+					tmp_Prefix ON tmp_Prefix.Prefix = tblTempRateTableRate.Code
 				WHERE tblRate.RateID IS NULL
 					AND tblTempRateTableRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
 				GROUP BY
@@ -2170,7 +2176,7 @@ ThisSP:BEGIN
 				vc.Code,
 				vc.Description,
 				'RMService',
-				fnGetCountryIdByCodeAndCountry (vc.Code ,vc.Description) AS CountryID,
+				CountryID,
 				CodeDeckId,
 				Interval1,
 				IntervalN,
@@ -2183,12 +2189,15 @@ ThisSP:BEGIN
 					MAX(tblTempRateTableRate.CodeDeckId) AS CodeDeckId,
 					MAX(tblTempRateTableRate.Interval1) AS Interval1,
 					MAX(tblTempRateTableRate.IntervalN) AS IntervalN,
-					MAX(tblTempRateTableRate.MinimumDuration) AS MinimumDuration
+					MAX(tblTempRateTableRate.MinimumDuration) AS MinimumDuration,
+					MAX(tmp_Prefix.CountryID) AS CountryID
 				FROM tmp_TempRateTableRate_  as tblTempRateTableRate
 				LEFT JOIN tblRate
 					ON tblRate.Code = tblTempRateTableRate.OriginationCode
 					AND tblRate.CompanyID = p_companyId
 					AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
+				LEFT JOIN
+					tmp_Prefix ON tmp_Prefix.Prefix = tblTempRateTableRate.Code
 				WHERE tblRate.RateID IS NULL
 					AND tblTempRateTableRate.OriginationCode IS NOT NULL AND tblTempRateTableRate.OriginationCode != ''
 					AND tblTempRateTableRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
@@ -2764,7 +2773,6 @@ ThisSP:BEGIN
 		INDEX tmp_RateTableRateDiscontinued_RateTableRateID (`RateTableRateID`)
 	);
 
-
 	CALL  prc_RateTableCheckDialstringAndDupliacteCode(p_companyId,p_processId,p_dialstringid,p_effectiveImmediately,p_dialcodeSeparator,p_seperatecolumn);
 
 	SELECT COUNT(*) AS COUNT INTO newstringcode from tmp_JobLog_;
@@ -2883,6 +2891,9 @@ ThisSP:BEGIN
 
 		IF  p_addNewCodesToCodeDeck = 1
 		THEN
+
+			CALL prc_UpdateCountryIDRateTableRate('tmp_TempRateTableRate_');
+
 			-- Destination Code
 			INSERT INTO tblRate (
 				CompanyID,
@@ -2902,7 +2913,7 @@ ThisSP:BEGIN
 				vc.Description,
 				vc.`Type`,
 				'RMService',
-				fnGetCountryIdByCodeAndCountry (vc.Code ,vc.Description) AS CountryID,
+				CountryID,
 				CodeDeckId,
 				Interval1,
 				IntervalN,
@@ -2916,12 +2927,15 @@ ThisSP:BEGIN
 					MAX(tblTempRateTableRate.CodeDeckId) AS CodeDeckId,
 					MAX(tblTempRateTableRate.Interval1) AS Interval1,
 					MAX(tblTempRateTableRate.IntervalN) AS IntervalN,
-					MAX(tblTempRateTableRate.MinimumDuration) AS MinimumDuration
+					MAX(tblTempRateTableRate.MinimumDuration) AS MinimumDuration,
+					MAX(tmp_Prefix.CountryID) AS CountryID
 				FROM tmp_TempRateTableRate_  as tblTempRateTableRate
 				LEFT JOIN tblRate
 					ON tblRate.Code = tblTempRateTableRate.Code
 					AND tblRate.CompanyID = p_companyId
 					AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
+				LEFT JOIN
+					tmp_Prefix ON tmp_Prefix.Prefix = tblTempRateTableRate.Code
 				WHERE tblRate.RateID IS NULL
 					AND tblTempRateTableRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
 				GROUP BY
@@ -2945,7 +2959,7 @@ ThisSP:BEGIN
 				vc.Code,
 				vc.Description,
 				'RMService',
-				fnGetCountryIdByCodeAndCountry (vc.Code ,vc.Description) AS CountryID,
+				CountryID,
 				CodeDeckId,
 				Interval1,
 				IntervalN,
@@ -2958,12 +2972,15 @@ ThisSP:BEGIN
 					MAX(tblTempRateTableRate.CodeDeckId) AS CodeDeckId,
 					MAX(tblTempRateTableRate.Interval1) AS Interval1,
 					MAX(tblTempRateTableRate.IntervalN) AS IntervalN,
-					MAX(tblTempRateTableRate.MinimumDuration) AS MinimumDuration
+					MAX(tblTempRateTableRate.MinimumDuration) AS MinimumDuration,
+					MAX(tmp_Prefix.CountryID) AS CountryID
 				FROM tmp_TempRateTableRate_  as tblTempRateTableRate
 				LEFT JOIN tblRate
 					ON tblRate.Code = tblTempRateTableRate.OriginationCode
 					AND tblRate.CompanyID = p_companyId
 					AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
+				LEFT JOIN
+					tmp_Prefix ON tmp_Prefix.Prefix = tblTempRateTableRate.Code
 				WHERE tblRate.RateID IS NULL
 					AND tblTempRateTableRate.OriginationCode IS NOT NULL AND tblTempRateTableRate.OriginationCode != ''
 					AND tblTempRateTableRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
@@ -6462,5 +6479,171 @@ ThisSP:BEGIN
 	SELECT * FROM tmp_JobLog_;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_UpdateCountryIDRateTableRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_UpdateCountryIDRateTableRate`(
+	IN `p_table_name` TEXT
+)
+BEGIN
+
+	DECLARE v_countryId int;
+	DECLARE v_countryCount int;
+	DECLARE v_rowCount_ INT;
+	DECLARE i INTEGER;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_Prefix;
+	CREATE TEMPORARY TABLE tmp_Prefix (
+		ID INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		Prefix varchar(500) ,
+		CountryID int,
+		INDEX `index_Prefix` (`Prefix`)
+	);
+
+	SET @stm = CONCAT("DROP TEMPORARY TABLE IF EXISTS ",p_table_name,"_2_");
+
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	SET @stm = CONCAT("CREATE TEMPORARY TABLE IF NOT EXISTS ",p_table_name,"_2_ AS (SELECT * FROM ",p_table_name,")");
+
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	SET @stm = CONCAT("
+		INSERT INTO tmp_Prefix
+		(
+			Prefix,
+			CountryID
+		)
+		SELECT
+			DISTINCT
+			tblTempRateTableRate.Code,
+			tblCountry.CountryID
+		FROM
+			",p_table_name," AS tblTempRateTableRate
+		LEFT JOIN
+			tblCountry ON tblTempRateTableRate.Code LIKE CONCAT(tblCountry.Prefix, '%')
+		LEFT OUTER JOIN
+		(
+			SELECT Prefix FROM tblCountry GROUP BY Prefix HAVING COUNT(*) > 1
+		) d ON tblCountry.Prefix = d.Prefix
+		WHERE
+			(tblTempRateTableRate.Code LIKE CONCAT(tblCountry.Prefix, '%') AND d.Prefix IS NULL)
+			OR (
+				tblTempRateTableRate.Code LIKE CONCAT(tblCountry.Prefix, '%') AND
+				d.Prefix IS NOT NULL AND
+				tblTempRateTableRate.Description LIKE CONCAT('%', tblCountry.Country, '%')
+			)
+
+		UNION
+
+		SELECT
+			DISTINCT
+			tblTempRateTableRate.OriginationCode,
+			tblCountry.CountryID
+		FROM
+			",p_table_name,"_2_ AS tblTempRateTableRate
+		LEFT JOIN
+			tblCountry ON tblTempRateTableRate.OriginationCode LIKE CONCAT(tblCountry.Prefix, '%')
+		LEFT OUTER JOIN
+		(
+			SELECT Prefix FROM tblCountry GROUP BY Prefix HAVING COUNT(*) > 1
+		) d ON tblCountry.Prefix = d.Prefix
+		WHERE
+			(tblTempRateTableRate.OriginationCode LIKE CONCAT(tblCountry.Prefix, '%') AND d.Prefix IS NULL)
+			OR (
+				tblTempRateTableRate.OriginationCode LIKE CONCAT(tblCountry.Prefix, '%') AND
+				d.Prefix IS NOT NULL AND
+				tblTempRateTableRate.OriginationDescription LIKE CONCAT('%', tblCountry.Country, '%')
+			)
+	");
+
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+
+	DROP TEMPORARY TABLE IF EXISTS `tmp_CountryKeywords`;
+	CREATE TEMPORARY TABLE `tmp_CountryKeywords` (
+		`Prefix`varchar(500) NULL DEFAULT NULL,
+		`Keywords` Text NULL DEFAULT NULL,
+		`CountryID` int NULL DEFAULT NULL
+	);
+
+
+	SET i = 1;
+	REPEAT
+		INSERT INTO tmp_CountryKeywords ( Prefix,Keywords,CountryID)
+      SELECT
+			Prefix,FnStringSplit(Keywords,',' , i) as Keywords, CountryID
+		FROM
+			tblCountry
+      WHERE
+			FnStringSplit(Keywords, ',' , i) IS NOT NULL;
+
+		SET i = i + 1;
+		UNTIL ROW_COUNT() = 0
+	END REPEAT;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_CountryKeywords_2;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CountryKeywords_2 AS (SELECT * FROM tmp_CountryKeywords);
+
+	SET @stm = CONCAT("
+		INSERT IGNORE INTO tmp_Prefix
+		(
+			Prefix,
+			CountryID
+		)
+		SELECT
+			DISTINCT
+			tblTempRateTableRate.Code,
+			tmp_CountryKeywords.CountryID
+		FROM
+			",p_table_name," AS tblTempRateTableRate
+		LEFT JOIN
+			tmp_CountryKeywords ON tblTempRateTableRate.Code LIKE CONCAT(tmp_CountryKeywords.Prefix, '%')
+		WHERE
+			tblTempRateTableRate.Code LIKE CONCAT(tmp_CountryKeywords.Prefix, '%') AND
+			tblTempRateTableRate.Description LIKE CONCAT('%', tmp_CountryKeywords.Keywords, '%')
+
+		UNION
+
+		SELECT
+			DISTINCT
+			tblTempRateTableRate.OriginationCode,
+			tmp_CountryKeywords.CountryID
+		FROM
+			",p_table_name,"_2_ AS tblTempRateTableRate
+		LEFT JOIN
+			tmp_CountryKeywords_2 AS tmp_CountryKeywords ON tblTempRateTableRate.OriginationCode LIKE CONCAT(tmp_CountryKeywords.Prefix, '%')
+		WHERE
+			tblTempRateTableRate.OriginationCode LIKE CONCAT(tmp_CountryKeywords.Prefix, '%') AND
+			tblTempRateTableRate.OriginationDescription LIKE CONCAT('%', tmp_CountryKeywords.Keywords, '%')
+	");
+
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_Prefix_2;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Prefix_2 AS (SELECT * FROM tmp_Prefix);
+
+	DELETE
+		n1
+	FROM
+		tmp_Prefix n1
+	LEFT JOIN
+		tmp_Prefix_2 n2 ON n1.Prefix = n2.Prefix AND n1.CountryID = n2.CountryID
+	WHERE
+		n1.ID < n2.ID;
+
 END//
 DELIMITER ;
