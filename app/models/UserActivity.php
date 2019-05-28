@@ -19,6 +19,7 @@ class UserActivity extends \Eloquent {
         if($action=='Login'){
             $created_by="";
             $companyID="";
+            unset($data['password']);
         }else{
             $created_by=User::get_user_full_name();
             $companyID=User::get_companyID();
