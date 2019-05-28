@@ -14,6 +14,7 @@ class DisputeController extends \BaseController {
 
 		$data 							 = 		Input::all();
 		$CompanyID 						 = 		User::get_companyID();
+		$disputesActilead                =      UserActivity::UserActivitySaved($data,'View','Disputes');
 		$data['iDisplayStart'] 			+=		1;
 		$data['InvoiceType'] 			 = 		$data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
 		$data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:'NULL';
@@ -45,6 +46,8 @@ class DisputeController extends \BaseController {
 		$query = "call prc_getDisputes (".$CompanyID.",".intval($data['InvoiceType']).",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['p_disputestart'].",".$data['p_disputeend'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
 		if(isset($data['Export']) && $data['Export'] == 1) {
+			$export_type['type'] = $type;
+			$disputesActilead = UserActivity::UserActivitySaved($export_type,'Export','Disputes');
 			$excel_data  = DB::connection('sqlsrv2')->select($query.',1,"'.$data['tag'].'")');
 			$excel_data = json_decode(json_encode($excel_data),true);
 			if($type=='csv'){
@@ -65,14 +68,13 @@ class DisputeController extends \BaseController {
 	public function index()
 	{
 		Invoice::multiLang_init();
-		$data = array();
 		$id=0;
 		$currency = Currency::getCurrencyDropdownList();
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList());
 		$accounts = Account::getAccountIDList();
 		$InvoiceTypes =  array(''=>'Select' , Invoice::INVOICE_OUT=>"Sent",Invoice::INVOICE_IN=>"Received");
 		$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
-		$disputesActilead = UserActivity::UserActivitySaved($data,'View','Disputes');
+		
 		$bulk_type = 'disputes';
 		return View::make('disputes.index', compact('id','currency','status','accounts','currency_ids','InvoiceTypes','emailTemplates','bulk_type'));
 
@@ -177,7 +179,7 @@ class DisputeController extends \BaseController {
 		$Dispute->Status = $data["Status"];
 
 		if ($Dispute->update()) {
-			$disputesActilead = UserActivity::UserActivitySaved($data,'Edit','Disputes');
+			$disputesActilead = UserActivity::UserActivitySaved($data,'Edit','Disputes',$data['DisputeID']);
 			return Response::json(array("status" => "success", "message" => "Dispute Status Successfully Updated"));
 		} else {
 			return Response::json(array("status" => "failed", "message" => "Failed Updating Dispute Status."));

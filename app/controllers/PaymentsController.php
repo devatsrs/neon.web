@@ -64,6 +64,7 @@ class PaymentsController extends \BaseController {
 	{
         $data 							 = 		Input::all();
         $CompanyID 						 = 		User::get_companyID();
+        $PaymentsActilead                =      UserActivity::UserActivitySaved($data,'View','Payments');
         $data['iDisplayStart'] 			+=		1;
         $data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:0;
         $data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
@@ -77,7 +78,7 @@ class PaymentsController extends \BaseController {
 		$data['p_paymentstart']			 =		'null';		
 		$data['p_paymentend']			 =		'null';
 		$data['CurrencyID'] 			 = 		empty($data['CurrencyID'])?'0':$data['CurrencyID'];
-        $data['tag'] 			 = 		empty($data['tag'])?'':$data['tag'];
+        $data['tag'] 			         = 		empty($data['tag'])?'':$data['tag'];
 		 
 		if($data['p_paymentstartdate']!='' && $data['p_paymentstartdate']!='null' && $data['p_paymentstartTime']!='')
 		{
@@ -106,6 +107,8 @@ class PaymentsController extends \BaseController {
 
         $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Payments');
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1,'.$userID.',"'.$data['tag'].'")');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -129,7 +132,6 @@ class PaymentsController extends \BaseController {
      */
     public function index()
     {   
-        $data = array();
         $id=0;
 		$companyID = User::get_companyID();
         $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
@@ -137,7 +139,6 @@ class PaymentsController extends \BaseController {
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList()); 		
         $accounts = Account::getAccountIDList();
         $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-        $PaymentsActilead = UserActivity::UserActivitySaved($data,'View','Payments');
         return View::make('payments.index', compact('id','currency','accounts','PaymentUploadTemplates','currency_ids','DefaultCurrencyID'));
 	}
 

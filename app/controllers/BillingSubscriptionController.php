@@ -8,6 +8,7 @@ class BillingSubscriptionController extends \BaseController {
         $data = Input::all();                
         //$FdilterAdvance = $data['FilterAdvance']== 'true'?1:0;
         $CompanyID = User::get_companyID();
+        $billing_subscriptionActilead = UserActivity::UserActivitySaved($data,'View','Billing Subscription');
         $data['iDisplayStart'] +=1;
         $columns = array("Name", "AnnuallyFee", "QuarterlyFee", "MonthlyFee", "WeeklyFee", "DailyFee", "Advance");
         $sort_column = $columns[$data['iSortCol_0']];
@@ -44,10 +45,8 @@ class BillingSubscriptionController extends \BaseController {
     }
 
     public function index() {
-        $data = array();
         $currencies 			= 	Currency::getCurrencyDropdownIDList();
         $AdvanceSubscription 	= 	json_encode(BillingSubscription::$Advance);
-        $billing_subscriptionActilead = UserActivity::UserActivitySaved($data,'View','Billing Subscription');
         return View::make('billingsubscription.index', compact('currencies','AdvanceSubscription'));
 
     }
@@ -85,7 +84,7 @@ class BillingSubscriptionController extends \BaseController {
         }
 
         if ($BillingSubscription = BillingSubscription::create($data)) {
-            $billing_subscriptionActilead = UserActivity::UserActivitySaved($data,'Add','Billing Subscription');
+            $billing_subscriptionActilead = UserActivity::UserActivitySaved($data,'Add','Billing Subscription',$data['Name']);
             return Response::json(array("status" => "success", "message" => "Subscription Successfully Created",'LastID'=>$BillingSubscription->SubscriptionID, 'newcreated'=>$BillingSubscription));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Subscription."));
@@ -127,7 +126,7 @@ class BillingSubscriptionController extends \BaseController {
             }
 
             if ($BillingSubscription->update($data)) {
-                $billing_subscriptionActilead = UserActivity::UserActivitySaved($data,'Edit','Billing Subscription');
+                $billing_subscriptionActilead = UserActivity::UserActivitySaved($data,'Edit','Billing Subscription',$data['Name']);
                 return Response::json(array("status" => "success", "message" => "Subscription Successfully Updated",'LastID'=>$id));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Subscription."));

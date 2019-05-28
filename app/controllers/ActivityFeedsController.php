@@ -35,17 +35,15 @@ class ActivityFeedsController extends \BaseController {
 
 	public function index()
 	{
-		$data = array();
 		$users = array('' => 'All') + User::getUserIDListByName(0);
-		$ActivityActilead = UserActivity::UserActivitySaved($data,'View','Activity');
 		return View::make('activityfeeds.index',compact('users'));
 	}
 
 	public function get_details($id){
+	
 		$activity = ActivityFeeds::where('UserActivityID',$id)->first();
 		$actionvalue = $activity->ActionValue;
 		$actionvalue = json_decode($actionvalue,true);
-
 		if(!empty($actionvalue)){
             return Response::json($actionvalue);
         }else{

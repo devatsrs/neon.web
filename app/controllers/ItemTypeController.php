@@ -14,6 +14,7 @@ class ItemTypeController extends \BaseController {
     public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
+        $itemtypesActilead = UserActivity::UserActivitySaved($data,'View','Item Types');
         $data['iDisplayStart'] +=1;
         $columns = ['ItemTypeID','title','updated_at','Active'];
         $sort_column = $columns[$data['iSortCol_0']];
@@ -21,6 +22,8 @@ class ItemTypeController extends \BaseController {
         $query = "call prc_getItemTypes (".$CompanyID.", '".$data['title']."','".$data['Active']."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Item Types');
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -48,13 +51,11 @@ class ItemTypeController extends \BaseController {
 
     public function index()
     {
-        $data = array();
         $id=0;
         $Type =  Product::DYNAMIC_TYPE;
         $companyID = User::get_companyID();
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $DynamicFields = $this->getDynamicFields($companyID,$Type);
-        $itemtypesActilead = UserActivity::UserActivitySaved($data,'View','Item Types');
         return View::make('products.itemtypes.index', compact('id','gateway','DynamicFields'));
     }
 
@@ -96,7 +97,7 @@ class ItemTypeController extends \BaseController {
         }
 
         if ($itemtype = ItemType::create($data)) {
-            $itemtypesActilead = UserActivity::UserActivitySaved($data,'Add','Item Types');
+            $itemtypesActilead = UserActivity::UserActivitySaved($data,'Add','Item Types',$data['Title']);
             return Response::json(array("status" => "success", "message" => "Item Type Successfully Created",'newcreated'=>$itemtype));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Item Type."));
@@ -139,7 +140,7 @@ class ItemTypeController extends \BaseController {
             }
 
             if ($itemtype->update($data)) {
-                $itemtypesActilead = UserActivity::UserActivitySaved($data,'Edit','Item Types');
+                $itemtypesActilead = UserActivity::UserActivitySaved($data,'Edit','Item Types',$data['Title']);
                 return Response::json(array("status" => "success", "message" => "Item Type Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Item Type."));

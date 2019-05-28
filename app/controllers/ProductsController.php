@@ -13,6 +13,7 @@ class ProductsController extends \BaseController {
 
     public function ajax_datagrid($type) {
         $data = Input::all();
+        $productsActilead = UserActivity::UserActivitySaved($data,'View','Products');
         $data['SearchStock']=!empty($data['SearchStock'])?$data['SearchStock']:'';
         $data['SearchDynamicFields']=!empty($data['SearchDynamicFields'])?$data['SearchDynamicFields']:'';
         $CompanyID = User::get_companyID();
@@ -28,6 +29,8 @@ class ProductsController extends \BaseController {
         $DynamicFields = $this->getDynamicFields($CompanyID,$Type);
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Products');
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1,"'.$data['SearchStock'].'","'.$data['SearchDynamicFields'].'")');
             if($DynamicFields['totalfields'] > 0){
                 foreach ($excel_data as $key => $value) {
@@ -88,14 +91,12 @@ class ProductsController extends \BaseController {
 
     public function index()
     {
-        $data = array();
         $id=0;
         $Type =  Product::DYNAMIC_TYPE;
         $companyID = User::get_companyID();
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $DynamicFields = $this->getDynamicFields($companyID,$Type);
         $itemtypes 	= 	ItemType::getItemTypeDropdownList($companyID);
-        $productsActilead = UserActivity::UserActivitySaved($data,'View','Products');
         return View::make('products.index', compact('id','gateway','DynamicFields','itemtypes'));
     }
 
@@ -243,7 +244,7 @@ class ProductsController extends \BaseController {
                     }
                 }
             }
-            $productsActilead = UserActivity::UserActivitySaved($data,'Add','Products');
+            $productsActilead = UserActivity::UserActivitySaved($data,'Add','Products',$data['Name']);
             return Response::json(array("status" => "success", "message" => "Product Successfully Created",'newcreated'=>$product));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Product."));
@@ -432,7 +433,7 @@ class ProductsController extends \BaseController {
                     );
                     StockHistory::create($historyData);
                 }
-                $productsActilead = UserActivity::UserActivitySaved($data,'Edit','Products');
+                $productsActilead = UserActivity::UserActivitySaved($data,'Edit','Products',$data['Name']);
                 return Response::json(array("status" => "success", "message" => "Product Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Product."));
