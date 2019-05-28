@@ -29,6 +29,7 @@ class RateGeneratorsController extends \BaseController {
                 'tblRateGenerator.CurrencyID',
                 'tblRateGenerator.SelectType',
                 'tblRateGenerator.CreatedBy',
+                'tblRateGenerator.AppliedTo',
             )); // by Default Status 1
 
         if(isset($data['Search']) && !empty($data['Search'])){
