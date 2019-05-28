@@ -173,7 +173,7 @@
                             }else{
                                 process =  '('+ full[4] +')';
                             }
-                            action = full[2] + process + ' ' +full[3] ; 
+                            action = full[2] + ' ' + process + ' ' + full[3] ; 
                             return action;
                         }
                         }, 
