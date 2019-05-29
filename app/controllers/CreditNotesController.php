@@ -205,6 +205,8 @@ class CreditNotesController extends \BaseController {
 
     public function apply_creditnotes($AccountID,$id)
     {
+        $data['CreditNoteID'] = $id;
+        $data['AccountID'] = $AccountID;
         if($AccountID > 0)
         {
             $Invoices 	    =   Invoice::GetInvoiceByAccount($AccountID);
@@ -217,6 +219,7 @@ class CreditNotesController extends \BaseController {
             $CreditNotes    = 	CreditNotes::find($id);
             $CompanyID      =   $CreditNotes->CompanyID;
             $CreditNotesID  =   $CreditNotes->CreditNotesID;
+            $CreditnotesActilead = UserActivity::UserActivitySaved($data,'View','Creditnotes Apply');
 
             return View::make('creditnotes.apply_creditnotes', compact( 'AccountID','AccountName','CompanyID','CreditNotesID','Invoices','invoicenumbers','CreditNotes'));
         }
@@ -305,6 +308,7 @@ class CreditNotesController extends \BaseController {
                         if (CreditNotes::find($creditnote_id)->update($CreditNotesData)) {
                             DB::connection('sqlsrv2')->commit();
                             $redirect_url = URL::previous();
+                            $CreditnotesActilead = UserActivity::UserActivitySaved($data,'Add','Creditnotes Apply',$creditnote_id);
                             return Response::json(array("status" => "success", "message" => "Credit Note Applied", "redirect" => $redirect_url));
                         }
                     }
@@ -1024,6 +1028,8 @@ class CreditNotesController extends \BaseController {
 
                         DB::connection('sqlsrv2')->commit();
                         $redirect_url = URL::previous();
+                        $data['Action'] = 'Allocate Payment';
+                        $CreditnotesActilead = UserActivity::UserActivitySaved($data,'Edit','Creditnotes',$data['id']);
                         return Response::json(array("status" => "success", "message" => "Credit Note Payment Allocated", "redirect" => $redirect_url));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Credit Note Amount Update Failed"));
@@ -1088,6 +1094,8 @@ class CreditNotesController extends \BaseController {
                                     return Response::json(array("status" => "failed", "message" => $message, "redirect" => $redirect_url));
                                 }
                                 else{
+                                    $data['Action'] = 'Bulk Allocate Payment';
+                                    $CreditnotesActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Creditnotes');
                                     return Response::json(array("status" => "success", "message" => $message, "redirect" => $redirect_url));
                                 }
                             }
@@ -1099,6 +1107,8 @@ class CreditNotesController extends \BaseController {
                                     return Response::json(array("status" => "failed", "message" => $message, "redirect" => $redirect_url));
                                 }
                                 else{
+                                    $data['Action'] = 'Bulk Allocate Payment';
+                                    $CreditnotesActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Creditnotes');
                                     return Response::json(array("status" => "success", "message" => $message, "redirect" => $redirect_url));
                                 }
                             }
@@ -1817,7 +1827,7 @@ class CreditNotesController extends \BaseController {
                     $creditnoteslogdata['CreditNotesLogStatus'] = CreditNotesLog::UPDATED;
                     CreditNotesLog::insert($creditnoteslogdata);
                 }
-
+                $CreditnotesActilead = UserActivity::UserActivitySaved($data,'Edit','Creditnotes',$data['CreditNotesIDs']);
                 return Response::json(array("status" => "success", "message" => "CreditNotes Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating CreditNotes."));
@@ -2102,9 +2112,11 @@ class CreditNotesController extends \BaseController {
     public function creditnoteslog($id)
     {
         $creditnotes = CreditNotes::find($id);
+        $data = json_decode($creditnotes,true);
         //$InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($creditnotes->AccountID);
         $InvoiceTemplateID = CreditNotes::GetInvoiceTemplateID($creditnotes);
         $creditnotesnumber = CreditNotes::getFullCreditNotesNumber($creditnotes,$InvoiceTemplateID);
+        $CreditnotesActilead = UserActivity::UserActivitySaved($data,'View','Creditnotes Log');
         return View::make('creditnotes.creditnoteslog', compact('creditnotes','id','creditnotesnumber'));
     }
 
@@ -2121,6 +2133,9 @@ class CreditNotesController extends \BaseController {
 
         //echo $query;exit;
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['id'] = $id;
+            $export_type['type'] = $type;
+            $CreditnotesActilead = UserActivity::UserActivitySaved($export_type,'Export','Creditnotes Log');
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
 

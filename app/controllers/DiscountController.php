@@ -16,7 +16,7 @@ class DiscountController extends \BaseController {
         $discount_planActilead = UserActivity::UserActivitySaved($getdata,'View','Discount Plan');
         $response =  NeonAPI::request('discountplan/datagrid',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
-            $export_type['type'] = $type;
+            $export_type['type'] = 'xls';
             $discount_planActilead = UserActivity::UserActivitySaved($export_type,'Export','Discount Plan');
             $excel_data = $response->data;
             $excel_data = json_decode(json_encode($excel_data), true);
@@ -84,17 +84,26 @@ class DiscountController extends \BaseController {
     public function discount_store(){
         $postdata = Input::all();
         $response =  NeonAPI::request('discount/store',$postdata,true,false,false);
+        if($response->status != 'failed'){
+            $discountActilead = UserActivity::UserActivitySaved($postdata,'Add','Discount'); 
+        }
         return json_response_api($response);
     }
 
     public function discount_delete($id){
         $response =  NeonAPI::request('discount/delete/'.$id,array(),'delete',false,false);
+        if($response->status != 'failed'){
+            $discountActilead = UserActivity::UserActivitySaved($postdata,'Delete','Discount'); 
+        }
         return json_response_api($response);
     }
 
     public function discount_update($id){
         $postdata = Input::all();
         $response =  NeonAPI::request('discount/update/'.$id,$postdata,'put',false,false);
+        if($response->status != 'failed'){
+            $discountActilead = UserActivity::UserActivitySaved($postdata,'Edit','Discount'); 
+        }
         return json_response_api($response);
     }
 }
