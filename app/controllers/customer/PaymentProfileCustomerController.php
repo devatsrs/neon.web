@@ -307,26 +307,39 @@ class PaymentProfileCustomerController extends \BaseController {
             Log::info(print_r($event, true));
 
             $links=$event["links"];
-            $mandate=$links["mandate"];
-
-            $PaymentProfile = AccountPaymentProfile::where('Options', 'LIKE', '%' . $mandate . '%')->where('PaymentGatewayID', PaymentGateway::GoCardLess)->first();
-
-            Log::info(print_r($PaymentProfile, true));
 
             if ($event["resource_type"]=="mandates"){
-                if($event["action"]=="created"){
 
+                $mandate=$links["mandate"];
+                $PaymentProfile = AccountPaymentProfile::where('Options', 'LIKE', '%' . $mandate . '%')->where('PaymentGatewayID', PaymentGateway::GoCardLess)->first();
+
+                Log::info(print_r($PaymentProfile, true));
+                if($PaymentProfile != false) {
+                    if ($event["action"] == "created") {
+
+                    }
                 }
+
             } elseif ($event["resource_type"]=="payments"){
 
+                $payment     = $links["payment"];
                 $description = $event["description"];
                 Log::info($description);
-                
-                if(in_array($event["action"], ["created",'confirmed'])){
 
-                }elseif(in_array($event["action"], ["mandate_is_inactive",'retry_failed'])){
+                $transaction = TransactionLog::where([
+                    'Transaction' => $payment,
+                    'Status' => TransactionLog::SUCCESS,
+                ])->first();
+                Log::info(print_r($transaction));
 
+                if($transaction != false) {
+                    if (in_array($event["action"], ["created", 'confirmed'])) {
+
+                    } elseif (in_array($event["action"], ["mandate_is_inactive", 'retry_failed'])) {
+
+                    }
                 }
+
             }
         }
     }
