@@ -46,9 +46,9 @@ class GoCardLess {
 	public static function create_charge($data)
 	{
 		$response = array();
-		$charge = array();
+		$payment = array();
 		try{
-			$charge = self::$client->payments()->create([
+			$payment = self::$client->payments()->create([
 				"params" => [
 					"amount" 		=> ($data['amount'] * 100),
 					"currency" 		=> strtoupper($data['currency']),
@@ -65,16 +65,18 @@ class GoCardLess {
 			$response['error'] = $e->getMessage();
 		}
 
-		if(!empty($charge['paid'])){
+		if(!empty($payment) && isset($payment->status) && $payment->status != 'mandate_is_inactive'){
+			$response['response_code'] = 1;
 			$response['status'] = 'Success';
-			$response['id'] = $charge['id'];
-			$response['note'] = 'Stripe transaction_id '.$charge['id'];
-			$Amount = ($charge['amount']/100);
+			$response['id'] = $payment->id;
+			$response['note'] = 'GoCardLess transaction_id '.$payment->id;
+			$Amount = ($payment->amount/100);
 			$response['amount'] = $Amount;
-			$response['response'] = $charge;
-		}else{
+			$response['response'] = $payment;
+		} else {
+			Log::info(":::error:::");
 			$response['status'] = 'fail';
-			$response['error'] = $charge['failure_message'];
+			$response['error'] = $payment->status;
 		}
 
 		return $response;
@@ -177,10 +179,11 @@ class GoCardLess {
 
 	public function createchargebycustomer($data)
 	{
+		Log::useFiles(storage_path() . '/logs/gocardless-' . '-' . date('Y-m-d') . '.log');
 		$response = array();
 		try{
 
-			$charge = self::$client->payments()->create([
+			$payment = self::$client->payments()->create([
 				"params" => [
 					"amount" 		=> ($data['amount'] * 100),
 					"currency" 		=> strtoupper($data['currency']),
@@ -190,20 +193,24 @@ class GoCardLess {
 					]
 				]
 			]);
-			Log::info(print_r($charge,true));
+			Log::info(print_r($payment,true));
 
-			if(empty($charge) && isset($charge->status) && $charge->status != 'mandate_is_inactive'){
+			if(!empty($payment) && isset($payment->status) && $payment->status != 'mandate_is_inactive'){
 				$response['response_code'] = 1;
 				$response['status'] = 'Success';
-				$response['id'] = $charge['id'];
-				$response['note'] = 'GoCardLess transaction_id '.$charge['id'];
-				$Amount = ($charge['amount']/100);
+				$response['id'] = $payment->id;
+				$response['note'] = 'GoCardLess transaction_id '.$payment->id;
+				$Amount = ($payment->amount/100);
 				$response['amount'] = $Amount;
-				$response['response'] = $charge;
-			}else{
+				$response['response'] = $payment;
+			} else {
+				Log::info(":::error:::");
 				$response['status'] = 'fail';
-				$response['error'] = $charge['failure_message'];
+				$response['error'] = $payment->status;
 			}
+
+			Log::info($payment->id);
+			Log::info(print_r($response, true));
 
 
 		} catch (Exception $e) {
@@ -396,11 +403,11 @@ class GoCardLess {
 
 		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
 		$profileData = array();
-		$profileData['currency'] = strtolower($CurrencyCode);
-		$profileData['amount'] = $data['outstanginamount'];
+		$profileData['currency'] 	= strtolower($CurrencyCode);
+		$profileData['amount'] 		= $data['outstanginamount'];
 		$profileData['description'] = $data['InvoiceNumber'].' (Invoice) Payment';
-		$profileData['customerid'] = $GoCardLessObj->CustomerID;
-		$profileData['mandateid'] = $GoCardLessObj->MandateID;
+		$profileData['customerid'] 	= $GoCardLessObj->CustomerID;
+		$profileData['mandateid'] 	= $GoCardLessObj->MandateID;
 
 		$transactionResponse = array();
 
@@ -414,7 +421,7 @@ class GoCardLess {
 			$Status = TransactionLog::FAILED;
 			$Notes = empty($transaction['error']) ? '' : $transaction['error'];
 		}
-		$transactionResponse['transaction_notes'] =$Notes;
+		$transactionResponse['transaction_notes'] = $Notes;
 		if(!empty($transaction['response_code'])) {
 			$transactionResponse['response_code'] = $transaction['response_code'];
 		}
@@ -423,7 +430,8 @@ class GoCardLess {
 		if(!empty($transaction['id'])) {
 			$transactionResponse['transaction_id'] = $transaction['id'];
 		}
-		$transactionResponse['Response'] = $transaction;
+			$transactionResponse['Response'] = $transaction;
+			$transactionResponse['PaymentStatus'] = 'Pending Approval';
 
 		$transactiondata = array();
 		$transactiondata['CompanyID'] = $account->CompanyId;

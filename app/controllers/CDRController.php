@@ -549,6 +549,7 @@ class CDRController extends BaseController {
                     $grid['FileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
                     $grid['FileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
                 }
+                $VendorCdrUploadActilead = UserActivity::UserActivitySaved($data,'Upload','Cdr Upload');
                 return Response::json(array("status" => "success", "message" => "file uploaded", "data" => $grid));
             }
         } catch (Exception $e) {
@@ -739,6 +740,7 @@ class CDRController extends BaseController {
             $jobfiledata["CreatedBy"] = User::get_user_full_name();
             $jobfiledata["updated_at"] = date('Y-m-d H:i:s');
             $JobFileID = JobFile::insertGetId($jobfiledata);
+            $VendorCdrUploadActilead = UserActivity::UserActivitySaved($data,'Upload','Vendor Cdr Upload');
             return Response::json(array("status" => "success", "message" => "File Uploaded, File is added to queue for processing. You will be notified once file upload is completed."));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Template."));
