@@ -41,8 +41,6 @@ class PaymentProfileCustomerController extends \BaseController {
 
     public function paynow($AccountID)
     {
-
-
         $PaymentGatewayID = '';
         $Account = Account::find($AccountID);
         $PaymentMethod = '';
@@ -75,6 +73,7 @@ class PaymentProfileCustomerController extends \BaseController {
             $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
             $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
             $Response = $PaymentIntegration->doValidation($data);
+
             if($Response['status']=='failed'){
                 return  Response::json(array("status" => "failed", "message" => $Response['message']));
             }elseif($Response['status']=='success'){
@@ -295,6 +294,40 @@ class PaymentProfileCustomerController extends \BaseController {
 
         }else{
             return Response::json(array("status" => "failed", "message" => $SageResponse['error']));
+        }
+    }
+
+    public function GoCardLess_Webhook(){
+        $raw_payload = file_get_contents('php://input');
+        $headers = getallheaders();
+        $payload = json_decode($raw_payload, true);
+
+        foreach ($payload["events"] as $event) {
+
+            Log::info(print_r($event, true));
+
+            $links=$event["links"];
+            $mandate=$links["mandate"];
+
+            $PaymentProfile = AccountPaymentProfile::where('Options', 'LIKE', '%' . $mandate . '%')->where('PaymentGatewayID', PaymentGateway::GoCardLess)->first();
+
+            Log::info(print_r($PaymentProfile, true));
+
+            if ($event["resource_type"]=="mandates"){
+                if($event["action"]=="created"){
+
+                }
+            } elseif ($event["resource_type"]=="payments"){
+
+                $description = $event["description"];
+                Log::info($description);
+                
+                if(in_array($event["action"], ["created",'confirmed'])){
+
+                }elseif(in_array($event["action"], ["mandate_is_inactive",'retry_failed'])){
+
+                }
+            }
         }
     }
 }

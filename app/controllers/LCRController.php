@@ -7,6 +7,7 @@ class LCRController extends \BaseController {
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','LCR');
         $AccountIDs = empty($data['Accounts'])?'':$data['Accounts'];
         if($AccountIDs=='null'){
             $AccountIDs='';

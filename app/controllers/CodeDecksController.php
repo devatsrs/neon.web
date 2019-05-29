@@ -13,8 +13,7 @@ class CodeDecksController extends \BaseController {
         $companyID = User::get_companyID();
 //       $userID = User::get_userID();
         $data = Input::all();
-
-
+        $CodedecksActilead = UserActivity::UserActivitySaved($data,'View','Codedecks');
         $data['ft_country']=$data['ft_country']!= ''?$data['ft_country']:'0';
         $data['ft_code'] = $data['ft_code'] != ''?"'".$data['ft_code']."'":'null';
         $data['ft_description'] = $data['ft_description'] != ''?"'".$data['ft_description']."'":'null';
@@ -39,9 +38,11 @@ class CodeDecksController extends \BaseController {
      * @return Response
      */
     public function index() {
-
-            return View::make('codedecks.basecodedeck');
-            $companyID = User::get_companyID();
+        $data = array();
+        $companyID = User::get_companyID();
+        $CodedecksActilead = UserActivity::UserActivitySaved($data,'View','Codedecks');
+        return View::make('codedecks.basecodedeck');
+       
     }
 
     /**
@@ -76,6 +77,7 @@ class CodeDecksController extends \BaseController {
         }
 
         if ($codedesk = CodeDeck::create($data)) {
+            $BasecodedecksActilead = UserActivity::UserActivitySaved($data,'Add','Basecodedeck',$data['Code']);
             return Response::json(array("status" => "success", "message" => "Code Decks Successfully Created",'LastID'=>$codedesk->RateID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Code Decks."));
@@ -130,6 +132,7 @@ class CodeDecksController extends \BaseController {
             return json_validator_response($validator);
         }
         if ($codedeck->update($data)) {
+            $BasecodedecksActilead = UserActivity::UserActivitySaved($data,'Edit','Basecodedeck',$data['Code']);
             return Response::json(array("status" => "success", "message" => "Code Decks Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Code Decks."));
@@ -421,6 +424,7 @@ class CodeDecksController extends \BaseController {
             $data['CreatedBy'] = User::get_user_full_name();
 
             if ($codedesk = BaseCodeDeck::create($data)) {
+                $CodedecksActilead = UserActivity::UserActivitySaved($data,'Add','Codedecks',$data['CodedeckName']);
                 return Response::json(array("status" => "success", "message" => "Code Decks Successfully Created",'LastID'=>$codedesk->CodeDeckId));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Code Decks."));
@@ -428,8 +432,12 @@ class CodeDecksController extends \BaseController {
 
     }
     public function basecodedeck($id){
+           
             $countries = $this->countries;
             $CodeDeckName = BaseCodeDeck::getCodeDeckName($id);
+            $data['id'] = $id;
+            $data['Name'] = $CodeDeckName;
+            $CodedecksActilead = UserActivity::UserActivitySaved($data,'View','Codedecks');
             return View::make('codedecks.index', compact('countries','id','codedecklist','CodeDeckName'));
 
     }
@@ -455,6 +463,7 @@ class CodeDecksController extends \BaseController {
             $data['ModifiedBy'] = User::get_user_full_name();
 
             if ($codedeck->update($data)) {
+                $CodedecksActilead = UserActivity::UserActivitySaved($data,'Edit','Codedecks',$data['CodedeckName']);
                 return Response::json(array("status" => "success", "message" => "Code Decks Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Code Decks."));
@@ -462,12 +471,14 @@ class CodeDecksController extends \BaseController {
 
     }
     public function base_delete($id){
+        $data['id'] = $id;
         if( intval($id) > 0){
 
             if(!BaseCodeDeck::checkForeignKeyById($id)){
                 try{
                     $result = BaseCodeDeck::find($id)->delete();
                     if ($result) {
+                        $CodedecksActilead = UserActivity::UserActivitySaved($data,'Delete','Codedecks');
                         return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting CodeDeck."));
@@ -481,9 +492,10 @@ class CodeDecksController extends \BaseController {
         }
     }
     public function base_exports($type) {
+            $data['export_type'] = $type; 
             $CompanyID = User::get_companyID();
             $codedecks = BaseCodeDeck::where(["CompanyId" => $CompanyID])->get(["CodeDeckName","updated_at","ModifiedBy"]);
-
+            $CodedecksActilead = UserActivity::UserActivitySaved($data,'Export','Codedecks');
             $excel_data = json_decode(json_encode($codedecks),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Code Decks.csv';
@@ -502,9 +514,11 @@ class CodeDecksController extends \BaseController {
     }
 
     public function setdefault($id){
+        $data['set_default'] = $id;
         $CompanyID = User::get_companyID();
         BaseCodeDeck::where(["CompanyId" => $CompanyID])->update(array('DefaultCodedeck'=>0));
         if (BaseCodeDeck::where(["CodeDeckId" => $id])->update(array('DefaultCodedeck'=>1))) {
+            $CodedecksActilead = UserActivity::UserActivitySaved($data,'Edit','Codedecks');
             return Response::json(array("status" => "success", "message" => "Code Decks Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Code Decks."));

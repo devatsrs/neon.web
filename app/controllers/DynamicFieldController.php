@@ -14,12 +14,15 @@ class DynamicFieldController extends \BaseController {
     public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Dynamic Fields');
         $data['iDisplayStart'] +=1;
         $columns = ['DynamicFieldsID','title','FieldName','FieldDomType','created_at','Status','FieldDescription','FieldOrder','FieldSlug','Type','ItemTypeID','Minimum','Maximum','DefaultValue','SelectVal'];
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_getDynamicTypes (".$CompanyID.", '".$data['FieldName']."','".$data['FieldDomType']."','".$data['Active']."','product','".$data['ItemTypeID']."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Dynamic Fields');
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -102,6 +105,7 @@ class DynamicFieldController extends \BaseController {
         }
 
         if ($dynamicfield = DynamicFields::create($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Dynamic Fields',$data['FieldName']);
             return Response::json(array("status" => "success", "message" => "Dynamic Field Successfully Created",'newcreated'=>$dynamicfield));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Dynamic Field."));
@@ -157,6 +161,7 @@ class DynamicFieldController extends \BaseController {
             }
 
             if ($dynamicfield->update($data)) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Dynamic Fields',$data['FieldName']);
                 return Response::json(array("status" => "success", "message" => "Dynamic Field Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Dynamic Field."));
@@ -174,11 +179,13 @@ class DynamicFieldController extends \BaseController {
 	 * @return Response
 	 */
     public function delete($id) {
+        $data['id'] = $id;
         if( intval($id) > 0){
             if(!DynamicFields::checkForeignKeyById($id)) {
                 try {
                     $result = DynamicFields::find($id)->delete();
                     if ($result) {
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Dynamic Fields');
                         return Response::json(array("status" => "success", "message" => "Dynamic Field Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Dynamic Field."));
@@ -280,6 +287,7 @@ class DynamicFieldController extends \BaseController {
 
             $query = "call prc_UpdateDynamicFieldStatus (".$CompanyID.",'".$UserName."','product','".$data['FieldName']."','".$data['FieldDomType']."','".$data['ItemTypeID']."',".$data['Active'].",".$data['status_set'].")";
             $result = DB::connection('sqlsrv')->select($query);
+            $DynamicFieldsActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Dynamic Fields');
             return Response::json(array("status" => "success", "message" => "Dynamic Field Status Updated"));
         }
 
@@ -289,6 +297,7 @@ class DynamicFieldController extends \BaseController {
                     DynamicFields::whereIn('DynamicFieldsID',$data['SelectedIDs'])->where('Status','!=',$data['status_set'])->update(["Status"=>intval($data['status_set'])]);
 //                    Product::find($SelectedID)->where('Active','!=',$data['status_set'])->update(["Active"=>intval($data['status_set']),'ModifiedBy'=>$UserName,'updated_at'=>date('Y-m-d H:i:s')]);
 //                }
+                $DynamicFieldsActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Dynamic Fields');
                 return Response::json(array("status" => "success", "message" => "Dynamic Field Status Updated"));
             }else{
                 return Response::json(array("status" => "failed", "message" => "No Dynamic Field selected"));
@@ -312,6 +321,7 @@ class DynamicFieldController extends \BaseController {
                                 AND tblDynamicFields.CompanyID = ".$CompanyID."
                                 AND tblDynamicFields.Type= 'product'");
                         //$result = DynamicFields::whereIn('DynamicFieldsID',$data['SelectedIDs'])->delete();
+                        $DynamicFieldsActilead = UserActivity::UserActivitySaved($data,'Bulk Delete','Dynamic Fields');
                         return Response::json(array("status" => "success", "message" => "Dynamic Field Deleted Successfully."));
 
                     }else{
@@ -331,7 +341,7 @@ class DynamicFieldController extends \BaseController {
 
                     $query = "call prc_DeleteDynamicFieldStatus (".$CompanyID.",'".$UserName."','product','".$data['FieldName']."','".$data['FieldDomType']."','".$data['ItemTypeID']."',".$data['Active'].")";
                     $result = DB::connection('sqlsrv')->select($query);
-
+                    $DynamicFieldsActilead = UserActivity::UserActivitySaved($data,'Bulk Delete','Dynamic Fields');
                     return Response::json(array("status" => "success", "message" => "Dynamic Fields which Are Not In Use Are Deleted Successfully."));
                 }
 
@@ -352,11 +362,13 @@ class DynamicFieldController extends \BaseController {
     }
 
     public function ViewByType($ItemTypeID){
+        $data['view_id'] = $ItemTypeID;
         $Type =  Product::DYNAMIC_TYPE;
         $companyID = User::get_companyID();
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $DynamicFields = $this->getDynamicFieldsByItemType($companyID,$Type,$ItemTypeID);
         $itemtypes 	= 	ItemType::getItemTypeDropdownList($companyID);
+        $DynamicFieldsActilead = UserActivity::UserActivitySaved($data,'View','Dynamic Fields');
         return View::make('products.dynamicfields.index', compact('id','gateway','DynamicFields','itemtypes','ItemTypeID'));
     }
 

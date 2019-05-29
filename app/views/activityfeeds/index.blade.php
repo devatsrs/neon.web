@@ -15,9 +15,21 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Action</label>
-                    {{Form::select('Actions', $actions, '' ,array( "class"=>"select2"))}}
-                </div>  
-                   
+                    <select name="Actions" id="Actions" class="select2">
+                        <option value="" selected>All</option>
+                        <option value="View">View</option>
+                        <option value="Add">Add</option>
+                        <option value="Edit">Edit</option>
+                        <option value="Delete">Delete</option>
+                        <option value="Export">Export</option>
+                        <option value="Search">Search</option>
+                        <option value="Upload">Upload</option>
+                        <option value="Send">Send</option>
+                        <option value="Recall">Recall</option>
+                        <option value="Bulk Edit">Bulk Edit</option>
+                        <option value="Bulk Delete">Bulk Delete</option>
+                    </select>
+                </div>   
                 <div class="form-group">
                     <label class="control-label">Date From</label>
                     <input type="text" data-date-format="yyyy-mm-dd" class="form-control datepicker" id="DateFrom" name="DateFrom">
@@ -161,7 +173,7 @@
                             }else{
                                 process =  '('+ full[4] +')';
                             }
-                            action = full[2] + process + ' ' +full[3] ; 
+                            action = full[2] + ' ' + process + ' ' + full[3] ; 
                             return action;
                         }
                         }, 

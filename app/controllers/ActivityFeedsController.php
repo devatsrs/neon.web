@@ -11,8 +11,6 @@ class ActivityFeedsController extends \BaseController {
 	public function ajax_datagrid() {
 		$data = Input::all();
 
-		$Email_TemplateActilead = UserActivity::UserActivitySaved($data,'View','Activity');
-
 		$ActivityFeeds = ActivityFeeds::select('created_by','created_at','Type','Action','TypeName','ActionValue','UserActivityID');
 		
 		if(isset($data['User']) && !empty($data['User'])){
@@ -38,15 +36,14 @@ class ActivityFeedsController extends \BaseController {
 	public function index()
 	{
 		$users = array('' => 'All') + User::getUserIDListByName(0);
-		$actions = array('' => 'All') + ActivityFeeds::getActionsByName();
-		return View::make('activityfeeds.index',compact('users','actions'));
+		return View::make('activityfeeds.index',compact('users'));
 	}
 
 	public function get_details($id){
+	
 		$activity = ActivityFeeds::where('UserActivityID',$id)->first();
 		$actionvalue = $activity->ActionValue;
 		$actionvalue = json_decode($actionvalue,true);
-
 		if(!empty($actionvalue)){
             return Response::json($actionvalue);
         }else{
@@ -57,7 +54,7 @@ class ActivityFeedsController extends \BaseController {
 	public function exports(){
 		$data = Input::all();
 		$Email_TemplateActilead = UserActivity::UserActivitySaved($data,'Export','Activity');
-		$ActivityFeeds = ActivityFeeds::select('created_by','created_at','Type','Action','TypeName','ActionValue','UserActivityID');
+		$ActivityFeeds = ActivityFeeds::select('UserActivityID','created_by','created_at','Type','Action','TypeName','ActionValue');
 		
 		if(isset($data['User']) && !empty($data['User'])){
 			$ActivityFeeds->where('created_by', $data['User']);

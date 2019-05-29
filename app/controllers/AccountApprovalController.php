@@ -51,7 +51,7 @@ class AccountApprovalController extends \BaseController {
         }
         //https://codedesk.atlassian.net/browse/NEON-1591
         //Audit Trails of user activity
-        $accountapprovalActilead = UserActivity::UserActivitySaved($data,'Add','Accountapproval');
+       
 
         $today = date('Y-m-d');
         if (Input::hasFile('DocumentFiles')) {
@@ -79,6 +79,7 @@ class AccountApprovalController extends \BaseController {
         $data['created_at'] =  $today;
 
         if (AccountApproval::create($data)) {
+            $accountapprovalActilead = UserActivity::UserActivitySaved($data,'Add','Accountapproval',$data['Key']);
             return Response::json(array("status" => "success", "message" => "Document Successfully Created"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Document."));
@@ -141,7 +142,6 @@ class AccountApprovalController extends \BaseController {
 
             //https://codedesk.atlassian.net/browse/NEON-1591
             //Audit Trails of user activity
-            $accountapprovalActilead = UserActivity::UserActivitySaved($data,'Edit','Accountapproval');
 
             $today = date('Y-m-d');
             if (Input::hasFile('DocumentFiles')) {
@@ -169,6 +169,7 @@ class AccountApprovalController extends \BaseController {
             $data['CreatedBy'] = User::get_user_full_name();
             $data['created_at'] =  $today;
             if ($AccountApproval->update($data)) {
+                $accountapprovalActilead = UserActivity::UserActivitySaved($data,'Edit','Accountapproval',$data['Key']);
                 return Response::json(array("status" => "success", "message" => "Document Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Document."));

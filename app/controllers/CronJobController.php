@@ -55,6 +55,7 @@ class CronJobController extends \BaseController {
             $isvalid['data']['PID']='';
             if ($CronJobID = CronJob::insertGetId($isvalid['data'])) {
                 CronJob::upadteNextTimeRun($CronJobID);
+                $cronjob_monitorActilead = UserActivity::UserActivitySaved($isvalid,'Add','Cronjob');
                 return Response::json(array("status" => "success", "message" => "Cron Job Successfully Created"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));
@@ -85,6 +86,7 @@ class CronJobController extends \BaseController {
                 }
                 if ($CronJob->update($isvalid['data'])) {
                     CronJob::upadteNextTimeRun($id);
+                    $cronjob_monitorActilead = UserActivity::UserActivitySaved($isvalid,'Edit','Cronjob');
                     return Response::json(array("status" => "success", "message" => "Cron Job Successfully Updated"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));
@@ -106,12 +108,14 @@ class CronJobController extends \BaseController {
 	 */
     public function delete($id)
     {
+        $data['id'] = $id;
         if( intval($id) > 0){
            /* if(!CronJob::checkForeignKeyById($id)) {*/
                 try {
                     $result = CronJob::find($id)->delete();
 					CronJobLog::where("CronJobID",$id)->delete();
                    	 if ($result) {
+                        $cronjob_monitorActilead = UserActivity::UserActivitySaved($data,'Delete','Cronjob');
                         return Response::json(array("status" => "success", "message" => "Cron Job Successfully Deleted"));
                    	 } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Cron Job."));
@@ -278,10 +282,11 @@ class CronJobController extends \BaseController {
      * @return mixed
      */
     public function cronjob_monitor(){
-
+        $data = array();
         $commands = CronJobCommand::getCommands();
         $Process = new Process();
         $crontab_status = $Process->check_crontab_status();
+        $cronjob_monitorActilead = UserActivity::UserActivitySaved($data,'View','Cronjob Monitor');
         return View::make('cronjob.cronjob_monitor', compact('commands','crontab_status'));
 
     }

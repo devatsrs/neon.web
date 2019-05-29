@@ -4,12 +4,16 @@ class DestinationGroupController extends \BaseController {
 
 
     public function index() {
+        $data = array();
         $CodedeckList = BaseCodeDeck::getCodedeckIDList();
+        $DestinationGroupActilead = UserActivity::UserActivitySaved($data,'View','DestinationGroup');
+
         return View::make('destinationgroup.index', compact('CodedeckList'));
     }
 
     public function ajax_datagrid(){
         $getdata = Input::all();
+        $DestinationGroupActilead = UserActivity::UserActivitySaved($getdata,'Search','DestinationGroup');
         $response =  NeonAPI::request('destinationgroupset/datagrid',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
                 $excel_data = $response->data;

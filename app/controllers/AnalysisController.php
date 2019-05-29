@@ -8,6 +8,7 @@ class AnalysisController extends BaseController {
     }
 
     public function index(){
+        $data = array();
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
@@ -30,6 +31,7 @@ class AnalysisController extends BaseController {
         $timezones = TimeZone::getTimeZoneDropdownList();
         $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::getValueConfigurationByKey('MONITOR_DASHBOARD',$companyID)));
         $reseller_owners = Reseller::getDropdownIDList($companyID);
+        $AnalysisActilead = UserActivity::UserActivitySaved($data,'View','Analysis');
         return View::make('analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','MonitorDashboardSetting','account_owners','reseller_owners'));
     }
     /* all tab report */
@@ -270,6 +272,7 @@ class AnalysisController extends BaseController {
     }
 
     public function getAnalysisManager(){
+        $data = array();
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID", $companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
@@ -292,6 +295,7 @@ class AnalysisController extends BaseController {
         $currency = Currency::getCurrencyDropdownIDList($companyID);
         $timezones = TimeZone::getTimeZoneDropdownList();
         $MonitorDashboardSetting = array_filter(explode(',', CompanyConfiguration::getValueConfigurationByKey('MONITOR_DASHBOARD',$companyID)));
+        $analysis_managerActilead = UserActivity::UserActivitySaved($data,'View','Analysis Manager');
 
         return View::make('analysis.accountmanagerindex', compact('gateway', 'UserID', 'Country', 'account', 'DefaultCurrencyID', 'original_startdate', 'original_enddate', 'isAdmin', 'trunks', 'currency', 'timezones', 'MonitorDashboardSetting', 'users'));
 
@@ -313,6 +317,8 @@ class AnalysisController extends BaseController {
         }
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Analysis Leads');
             $excel_data  = $account->get();
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -346,6 +352,8 @@ class AnalysisController extends BaseController {
         }
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Analysis Account');
             $excel_data  = $account->get();
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -372,6 +380,8 @@ class AnalysisController extends BaseController {
         $query = "call prc_getAccountManager (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $data['UserID'] . "'," . $data['Admin'] . ",'" . $data['RevenueListType'] . "','".$sort_column."','".$data['sSortDir_0']."'";
 
         if (isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Analysis Revenue');
             $excel_data = DB::connection('neon_report')->select($query . ',1)');
             $excel_data = json_decode(json_encode($excel_data), true);
             if ($type == 'csv') {

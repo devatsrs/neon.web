@@ -135,6 +135,7 @@ class HomeController extends BaseController {
                 if (GlobalAdmin::is_global_user($data)) {
                     $redirect_to = URL::to("/global_user_select_company");
                     Session::set("global_admin", 1 );
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Login','Login');
                     echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                     return;
                 }
@@ -165,6 +166,7 @@ class HomeController extends BaseController {
                 if(isset($data['redirect_to'])){
                     $redirect_to = $data['redirect_to'];
                 }
+                 $UserActilead = UserActivity::UserActivitySaved($data,'Login','Login');
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                 return;
             } else {
@@ -178,6 +180,8 @@ class HomeController extends BaseController {
 	
     public function dologout() {
 		NeonAPI::logout();
+                $Request=array();
+        $UserActilead = UserActivity::UserActivitySaved($Request,'Logout','Logout');
         Session::flush();
         Auth::logout();
         return Redirect::to('/login')->with('message', 'Your are now logged out!');
@@ -292,7 +296,7 @@ class HomeController extends BaseController {
                     Session::set("reseller", 1);
                     $redirect_to = URL::to("/reseller/profile");
                 }
-
+                $UserActilead = UserActivity::UserActivitySaved($data,'Login','Select Company');
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                 return;
             } else {
