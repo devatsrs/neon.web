@@ -503,6 +503,15 @@ function is_paypal($CompanyID){
     return false;
 }
 
+function is_GoCardLess($CompanyID){
+
+    $gocardless = new GoCardLess($CompanyID);
+    if($gocardless->status){
+        return true;
+    }
+    return false;
+}
+
 function is_pelecard($CompanyID){
 
     $pelecard = new PeleCard($CompanyID);

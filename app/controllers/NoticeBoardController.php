@@ -38,7 +38,7 @@ class NoticeBoardController extends BaseController{
         if($data['NoticeBoardPostID'] && NoticeBoardPost::where('NoticeBoardPostID',$data['NoticeBoardPostID'])->count()){
             $NoticeBoardPost = NoticeBoardPost::find($data['NoticeBoardPostID']);
             if($NoticeBoardPost->update($data)){
-                $NoticeboardActilead = UserActivity::UserActivitySaved($data,'Edit','Noticeboard');
+                $NoticeboardActilead = UserActivity::UserActivitySaved($data,'Edit','Noticeboard',$data['Title']);
                 $message = 'Post Successfully Updated';
                 $status = 'success';
             }else{
@@ -47,7 +47,7 @@ class NoticeBoardController extends BaseController{
             }
         }else{
             if($NoticeBoardPost = NoticeBoardPost::create($data)){
-                $NoticeboardActilead = UserActivity::UserActivitySaved($data,'Add','Noticeboard');
+                $NoticeboardActilead = UserActivity::UserActivitySaved($data,'Add','Noticeboard',$data['Title']);
                 $message = 'Post Successfully Created';
                 $status = 'success';
                 $html = View::make('noticeboard.single', compact('NoticeBoardPost'))->render();

@@ -769,6 +769,10 @@
                                 <label for="minimal-radio-6-11">Stripe ACH</label>
                             </li>
                             <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-6-133" name="PaymentMethod" value="GoCardLess" @if( $account->PaymentMethod == 'GoCardLess' ) checked="" @endif />
+                                <label for="minimal-radio-6-133">GoCardLess</label>
+                            </li>
+                            <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-13-11" name="PaymentMethod" value="FastPay" @if( $account->PaymentMethod == 'FastPay' ) checked="" @endif />
                                 <label for="minimal-radio-13-11">Fast Pay</label>
                             </li>

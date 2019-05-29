@@ -74,9 +74,10 @@ class ContactsController extends \BaseController {
         }
         //https://codedesk.atlassian.net/browse/NEON-1591
         //Audit Trails of user activity
-        $UserActilead = UserActivity::UserActivitySaved($data,'Add','Contact');
+        
         //----------------------------------------------------------------------
         if ($contact = Contact::create($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Contact',$data['FirstName'].' '.$data['LastName']);
             return Response::json(array("status" => "success", "message" => "Contact Successfully Created",'LastID'=>$contact->ContactID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Contact."));
@@ -135,11 +136,9 @@ class ContactsController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-        //https://codedesk.atlassian.net/browse/NEON-1591
-        //Audit Trails of user activity
-        $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Contact');
-        //----------------------------------------------------------------------
+       
         if ($lead->update($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Contact',$data['FirstName'].' '.$data['LastName']);
             return Response::json(array("status" => "success", "message" => "Contact Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Contact."));

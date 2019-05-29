@@ -39,12 +39,15 @@ class ApiController extends Controller {
         if (! $validate ) {
             return Response::json(["status"=>"failed", "message"=>"Not authorized. Please Login"]);
         }
+        $UserActilead = UserActivity::UserActivitySaved($Request,'Login','Login');
         return Response::json(["status"=>"Success", "message"=>"Login Success","data"=>$validate]);
     }
 
     public function logout(){
         Session::flush();
         Auth::logout();
+        $Request=array();
+        $UserActilead = UserActivity::UserActivitySaved($Request,'Logout','Logout');
         return Response::json(["status"=>"Success", "message"=>"Logout Success"]);
     }
 

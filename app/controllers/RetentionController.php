@@ -43,7 +43,7 @@ class RetentionController extends \BaseController {
         
         //https://codedesk.atlassian.net/browse/NEON-1591
         //Audit Trails of user activity
-        $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Retention');
+        $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Retention',$data['TableData']['CDR']);
 
         return Response::json(array("status" => "success", "message" => "Retention Successfully Saved"));
 	}

@@ -53,6 +53,7 @@ class HomeResellerController extends BaseController {
                 if(isset($data['redirect_to'])){
                     $redirect_to = $data['redirect_to'];
                 }
+                $UserActilead = UserActivity::UserActivitySaved($data,'Login','Login');
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                 return;
             }else{
@@ -65,7 +66,8 @@ class HomeResellerController extends BaseController {
     }
 
     public function dologout() {
-
+        $Request=array();
+        $UserActilead = UserActivity::UserActivitySaved($Request,'Logout','Logout');
         Session::flush();
         Auth::logout();
         return Redirect::to('reseller/login')->with('message', 'Your are now logged out!');

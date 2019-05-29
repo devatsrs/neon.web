@@ -3,8 +3,9 @@
 class VOSAccountIPController extends \BaseController {
 
     public function index(){
+        $data = array();
         $CompanyID = User::get_companyID();
-
+        $AccountIPActilead = UserActivity::UserActivitySaved($data,'View','AccountIP');
         return View::make('vosaccountip.index', compact('CompanyID'));
     }
 
@@ -23,6 +24,8 @@ class VOSAccountIPController extends \BaseController {
 
         $query = "call prc_getVOSAccountIP(".$CompanyID.",'".$data['AccountName']."','".$data['RemoteIps']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $AccountIPActilead = UserActivity::UserActivitySaved($export_type,'Export','AccountIP');
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
