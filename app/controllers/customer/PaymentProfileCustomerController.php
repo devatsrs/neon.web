@@ -328,47 +328,34 @@ class PaymentProfileCustomerController extends \BaseController {
                 }
 
             } elseif ($event["resource_type"] == "payments") {
-                $payment = $links["payment"];
-                Log::info("PaymentID: " . $payment);
-                $transaction = TransactionLog::where([
-                    'Transaction' => $payment,
-                    'Status' => TransactionLog::SUCCESS,
-                ])->first();
+                $PaymentID = $links["payment"];
+                Log::info("PaymentID: " . $PaymentID);
+                $payment = Payment::where([
+                    'PaymentMethod' => 'Bank Transfer',
+                    'Status' => 'Pending Approval',
+                ])->where('Notes','LIKE', '%'.$PaymentID)->first();
 
-                Log::info(print_r($transaction, true));
+                Log::info(print_r($payment, true));
 
-                if ($transaction != false) {
-                    $InvoiceID = $transaction->InvoiceID;
+                if ($payment != false) {
 
-                    Log::info("InvoiceID" . $InvoiceID);
+                    $InvoiceID = $payment->InvoiceID;
+                    $Invoice = Invoice::find($InvoiceID);
 
-                    $Invoice = Invoice::where([
-                        'InvoiceID' => $InvoiceID,
-                        'InvoiceStatus' => Invoice::AWAITING
-                    ])->first();
-
+                    Log::info("InvoiceID: " . $InvoiceID);
                     Log::info(print_r($Invoice, true));
-
 
                     if ($Invoice != false) {
                         if (in_array($event["action"], ["created", 'confirmed'])) {
 
-                            $Invoice->update([
-                                'InvoiceStatus' => Invoice::PAID
-                            ]);
-
-                            Payment::where([
-                                "InvoiceNo" => $Invoice->FullInvoiceNumber,
-                                "Status" => 'Pending Approval',
-                                "PaymentMethod" => 'BANK TRANSFER',
-                            ])->update(['Status' => 'Approved']);
+                            $payment->update(['Status' => 'Approved']);
+                            $Invoice->update(['InvoiceStatus' => Invoice::PAID]);
+                            Log::info("Payment Approved!");
 
                         } elseif (in_array($event["action"], ["mandate_is_inactive", 'retry_failed'])) {
-                            Payment::where([
-                                "InvoiceNo" => $Invoice->FullInvoiceNumber,
-                                "Status" => 'Pending Approval',
-                                "PaymentMethod" => 'BANK TRANSFER',
-                            ])->update(['Status' => 'Rejected']);
+
+                            $payment->update(['Status' => 'Rejected']);
+                            Log::info("Payment Rejected!");
                         }
                     }
 
