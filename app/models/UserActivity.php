@@ -15,17 +15,21 @@ class UserActivity extends \Eloquent {
     
     public static  function UserActivitySaved($data,$action,$Who="",$options=""){
         $data_array=array();
+        $TypeName='';
 
-        if($action=='Login'){
-            $created_by="";
-            $companyID="";
-            unset($data['password']);
-        }else{
+        try{
             $created_by=User::get_user_full_name();
             $companyID=User::get_companyID();
+        }catch (Exception $ex){
+            $created_by="Other";
+            $companyID="";
+            if($action=='Login'){
+                $created_by=$data['email'];
+                unset($data['password']);
+            }
         }
         
-        $TypeName='';
+       
         if(($Who=='Tickets') && $action!='View'){
              $TypeName  = @$data['Ticket']['default_subject'];
         }else if(($Who=='SendMail') && $action!='View'){
