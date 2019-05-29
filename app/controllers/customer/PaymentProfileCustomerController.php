@@ -310,7 +310,7 @@ class PaymentProfileCustomerController extends \BaseController {
 
             if ($event["resource_type"]=="mandates"){
 
-                $mandate=$links["mandate"];
+                $mandate = $links["mandate"];
                 $PaymentProfile = AccountPaymentProfile::where('Options', 'LIKE', '%' . $mandate . '%')->where('PaymentGatewayID', PaymentGateway::GoCardLess)->first();
 
                 Log::info(print_r($PaymentProfile, true));
@@ -321,11 +321,7 @@ class PaymentProfileCustomerController extends \BaseController {
                 }
 
             } elseif ($event["resource_type"]=="payments"){
-
                 $payment     = $links["payment"];
-                $description = $event["description"];
-                Log::info($description);
-
                 $transaction = TransactionLog::where([
                     'Transaction' => $payment,
                     'Status' => TransactionLog::SUCCESS,
