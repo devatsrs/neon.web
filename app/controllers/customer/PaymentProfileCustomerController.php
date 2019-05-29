@@ -302,6 +302,11 @@ class PaymentProfileCustomerController extends \BaseController {
         Log::useFiles(storage_path() . '/logs/gocardless-' . '-' . date('Y-m-d') . '.log');
         $raw_payload = file_get_contents('php://input');
         $headers = getallheaders();
+        $signature_header = $headers["Webhook-Signature"];
+
+        $computed_signature = hash_hmac("sha256", $raw_payload, $signature_header);
+        Log::info("Signature: " .$computed_signature);
+
         $payload = json_decode($raw_payload, true);
 
         foreach ($payload["events"] as $event) {
@@ -313,17 +318,25 @@ class PaymentProfileCustomerController extends \BaseController {
             if ($event["resource_type"] == "mandates") {
 
                 $mandate = $links["mandate"];
-                Log::info("Mandate: " . $mandate);
+                Log::info("MandateID: " . $mandate);
                 $PaymentProfile = AccountPaymentProfile::where('Options', 'LIKE', '%"MandateID":"' . $mandate . '"%')->where('PaymentGatewayID', PaymentGateway::GoCardLess)->first();
 
-                Log::info(print_r($PaymentProfile, true));
+                //Log::info(print_r($PaymentProfile, true));
                 if ($PaymentProfile != false) {
-                    if (in_array($event["action"], ["created", 'confirmed'])) {
-                        $Options = json_decode($PaymentProfile->Options, true);
-                        $Options['VerifyStatus'] = "verified";
+                    $Options = json_decode($PaymentProfile->Options, true);
+                    if (in_array($event["action"], ['confirmed','active'])) {
 
+                        $Options['VerifyStatus'] = "verified";
                         $PaymentProfile->update(array('Options' => json_encode($Options)));
                         Log::info("verified");
+                    } elseif(in_array($event["action"], ["cancelled", 'expired'])) {
+
+                        $Options['VerifyStatus'] = "";
+                        $PaymentProfile->update(array('Options' => json_encode($Options)));
+                    } elseif(in_array($event["action"], ["replaced"]) && isset($links['new_mandate'])) {
+
+                        $Options['MandateID'] = $links['new_mandate'];
+                        $PaymentProfile->update(array('Options' => json_encode($Options)));
                     }
                 }
 
@@ -335,7 +348,7 @@ class PaymentProfileCustomerController extends \BaseController {
                     'Status' => 'Pending Approval',
                 ])->where('Notes','LIKE', '%'.$PaymentID)->first();
 
-                Log::info(print_r($payment, true));
+                //Log::info(print_r($payment, true));
 
                 if ($payment != false) {
 
@@ -343,16 +356,16 @@ class PaymentProfileCustomerController extends \BaseController {
                     $Invoice = Invoice::find($InvoiceID);
 
                     Log::info("InvoiceID: " . $InvoiceID);
-                    Log::info(print_r($Invoice, true));
+                    //Log::info(print_r($Invoice, true));
 
                     if ($Invoice != false) {
-                        if (in_array($event["action"], ["created", 'confirmed'])) {
+                        if (in_array($event["action"], ['confirmed'])) {
 
                             $payment->update(['Status' => 'Approved']);
                             $Invoice->update(['InvoiceStatus' => Invoice::PAID]);
                             Log::info("Payment Approved!");
 
-                        } elseif (in_array($event["action"], ["mandate_is_inactive", 'retry_failed'])) {
+                        } elseif (in_array($event["action"], ["mandate_is_inactive", 'retry_failed', 'failed','cancelled','charged_back'])) {
 
                             $payment->update(['Status' => 'Rejected']);
                             Log::info("Payment Rejected!");

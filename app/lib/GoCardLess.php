@@ -22,7 +22,6 @@ class GoCardLess {
 			$this->gocardless_access_key = $is_goCardLess->AccessKey;
 			$this->isLive = $is_goCardLess->isLive;
 
-
 			self::$client = new GoCardlessPro\Client([
 				'access_token' => $this->gocardless_access_key,
 				'environment'  => $this->isLive != 1 ? GoCardlessPro\Environment::SANDBOX : GoCardlessPro\Environment::LIVE
@@ -74,7 +73,6 @@ class GoCardLess {
 			$response['amount'] = $Amount;
 			$response['response'] = $payment;
 		} else {
-			Log::info(":::error:::");
 			$response['status'] = 'fail';
 			$response['error'] = $payment->status;
 		}
@@ -107,7 +105,7 @@ class GoCardLess {
 				]
 			]);
 
-			Log::info(print_r($customer, true));
+			//Log::info(print_r($customer, true));
 
 			$bankAccount = [];
 			if(isset($customer->id)) {
@@ -125,7 +123,7 @@ class GoCardLess {
 
 			} else
 				return ['status' => 'fail', 'error' => 'Something went wrong while creating customer.'];
-			Log::info(print_r($bankAccount, true));
+			//Log::info(print_r($bankAccount, true));
 
 			$mandate = [];
 			if(!empty($bankAccount) && isset($bankAccount->id)) {
@@ -138,7 +136,7 @@ class GoCardLess {
 
 			} else
 				return ['status' => 'fail', 'error' => 'Something went wrong while adding bank account.'];
-			Log::info(print_r($mandate, true));
+			//Log::info(print_r($mandate, true));
 
 			if(!empty($mandate) && isset($mandate->id)){
 				return [
@@ -167,7 +165,7 @@ class GoCardLess {
 				$response['status'] = 'fail';
 				$response['error'] = cus_lang("PAYMENT_MSG_PROBLEM_DELETING_PAYMENT_METHOD_PROFILE");
 			}
-			Log::info(print_r($mandate, true));
+			//Log::info(print_r($mandate, true));
 		}catch (Exception $e) {
 			Log::error($e);
 			//return ["return_var"=>$e->getMessage()];
@@ -193,7 +191,7 @@ class GoCardLess {
 					]
 				]
 			]);
-			Log::info(print_r($payment,true));
+			//Log::info(print_r($payment,true));
 
 			if(!empty($payment) && isset($payment->status) && $payment->status != 'mandate_is_inactive'){
 				$response['response_code'] = 1;
@@ -204,13 +202,12 @@ class GoCardLess {
 				$response['amount'] = $Amount;
 				$response['response'] = $payment;
 			} else {
-				Log::info(":::error:::");
 				$response['status'] = 'fail';
 				$response['error'] = $payment->status;
 			}
 
-			Log::info($payment->id);
-			Log::info(print_r($response, true));
+			//Log::info($payment->id);
+			//Log::info(print_r($response, true));
 
 
 		} catch (Exception $e) {
