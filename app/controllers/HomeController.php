@@ -112,6 +112,7 @@ class HomeController extends BaseController {
                                     $message->to($user->EmailAddress, $user->Firstname . ' ' . $user->Lastname)->subject('Forgot Password!');
                                 });*/
                 if ($result['status'] == 1) {
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Forgot','Password');
                     echo json_encode(array("status" => "success", "message" => "Please check your email, reset password link will expire in 24 hours"));
                 } else {
                     echo json_encode(array("status" => "failed", "message" => "Email sending failed, Please try again later"));
@@ -259,6 +260,7 @@ class HomeController extends BaseController {
             });
             $failures  = Mail::failures();
             if (count($failures)==0) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Registration','User');
                 return Response::json(array("status" => "success", "message" => "Please check your email, reset password link will expire in 24 hours"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Email sending failed, Please try again later"));
@@ -296,7 +298,7 @@ class HomeController extends BaseController {
                     Session::set("reseller", 1);
                     $redirect_to = URL::to("/reseller/profile");
                 }
-                $UserActilead = UserActivity::UserActivitySaved($data,'Login','Select Company');
+                $UserActilead = UserActivity::UserActivitySaved($data,'User','Select Company');
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                 return;
             } else {
@@ -356,6 +358,7 @@ class HomeController extends BaseController {
                 $data['CompanyName'] = $CompanyName;
                 $result = sendMail('emails.auth.reset_password',$data);
                 if ($result['status'] == 1) {
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Reset','Password');
                     echo json_encode(array("status" => "success", "message" => "Please check your email, Your password is reset"));
                 } else {
                     echo json_encode(array("status" => "failed", "message" => "Email sending failed, Please try again later"));
@@ -389,6 +392,7 @@ class HomeController extends BaseController {
             try { 
                 $data['file'] = $attachment;
                 $returnArray = UploadFile::UploadFileLocal($data);
+                $UserActilead = UserActivity::UserActivitySaved($data,'File','Upload');
                 return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
             } catch (Exception $ex) {
                 return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
@@ -401,6 +405,7 @@ class HomeController extends BaseController {
         $data    =  Input::all();  
         try {
             UploadFile::DeleteUploadFileLocal($data);
+            $UserActilead = UserActivity::UserActivitySaved($data,'Delete','File');
             return Response::json(array("status" => "success", "message" => 'Attachments delete successfully'));
         } catch (Exception $ex) {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
