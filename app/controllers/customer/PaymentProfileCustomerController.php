@@ -23,21 +23,21 @@ class PaymentProfileCustomerController extends \BaseController {
 
         return Datatables::of($carddetail)->make();
     }
-	/**
-	 * Display a listing of the resource.
-	 * GET /payments
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
+    /**
+     * Display a listing of the resource.
+     * GET /payments
+     *
+     * @return Response
+     */
+    public function index()
+    {
         Payment::multiLang_init();
         $currentmonth = date("n");
         $currentyear = date("Y");
         $CustomerID = Customer::get_accountID();
         $account = Account::find($CustomerID);
         return View::make('customer.paymentprofile.index',compact('currentmonth','currentyear','account'));
-	}
+    }
 
     public function paynow($AccountID)
     {
@@ -51,12 +51,12 @@ class PaymentProfileCustomerController extends \BaseController {
         return View::make('customer.paymentprofile.paynow',compact('AccountID','PaymentGatewayID','PaymentMethod'));
     }
 
-	/**
-	 * Show the form for creating a new resource.
-	 * GET /payments/create
-	 *
-	 * @return Response
-	 */
+    /**
+     * Show the form for creating a new resource.
+     * GET /payments/create
+     *
+     * @return Response
+     */
     public function create()
     {
         $data = Input::all();
@@ -86,12 +86,12 @@ class PaymentProfileCustomerController extends \BaseController {
     public function update(){
 
         $data = Input::all();
-		$CompanyID = Customer::get_companyID();
-		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug,$CompanyID);
-		if(!$isAuthorizedNet){
-			return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PAYMENT_METHOD_NOT_INTEGRATED')));
-		}
-		
+        $CompanyID = Customer::get_companyID();
+        $isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug,$CompanyID);
+        if(!$isAuthorizedNet){
+            return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PAYMENT_METHOD_NOT_INTEGRATED')));
+        }
+
         $AuthorizeNet = new AuthorizeNet();
         $ProfileID = "";
         $PaymentProfile = AccountPaymentProfile::find($data['cardID']);
@@ -297,7 +297,8 @@ class PaymentProfileCustomerController extends \BaseController {
         }
     }
 
-    public function GoCardLess_Webhook(){
+    public function GoCardLess_Webhook()
+    {
         Log::useFiles(storage_path() . '/logs/gocardless-' . '-' . date('Y-m-d') . '.log');
         $raw_payload = file_get_contents('php://input');
         $headers = getallheaders();
@@ -307,16 +308,16 @@ class PaymentProfileCustomerController extends \BaseController {
 
             Log::info(print_r($event, true));
 
-            $links=$event["links"];
+            $links = $event["links"];
 
-            if ($event["resource_type"]=="mandates"){
+            if ($event["resource_type"] == "mandates") {
 
                 $mandate = $links["mandate"];
                 Log::info("Mandate: " . $mandate);
                 $PaymentProfile = AccountPaymentProfile::where('Options', 'LIKE', '%"MandateID":"' . $mandate . '"%')->where('PaymentGatewayID', PaymentGateway::GoCardLess)->first();
 
                 Log::info(print_r($PaymentProfile, true));
-                if($PaymentProfile != false) {
+                if ($PaymentProfile != false) {
                     if (in_array($event["action"], ["created", 'confirmed'])) {
                         $Options = json_decode($PaymentProfile->Options, true);
                         $Options['VerifyStatus'] = "verified";
@@ -326,54 +327,52 @@ class PaymentProfileCustomerController extends \BaseController {
                     }
                 }
 
-            } elseif ($event["resource_type"]=="payments"){
-                $payment     = $links["payment"];
-                Log::info("PaymentID: ". $payment);
+            } elseif ($event["resource_type"] == "payments") {
+                $payment = $links["payment"];
+                Log::info("PaymentID: " . $payment);
                 $transaction = TransactionLog::where([
-                    'Transaction'   => $payment,
-                    'Status'        => TransactionLog::SUCCESS,
+                    'Transaction' => $payment,
+                    'Status' => TransactionLog::SUCCESS,
                 ])->first();
 
                 Log::info(print_r($transaction, true));
 
-                if($transaction != false) {
+                if ($transaction != false) {
                     $InvoiceID = $transaction->InvoiceID;
-                    if (in_array($event["action"], ["created", 'confirmed'])) {
 
-                        $Invoice = Invoice::where([
-                            'InvoiceID'     => $InvoiceID,
-                            'InvoiceStatus' => Invoice::AWAITING
-                        ])->first();
+                    Log::info("InvoiceID" . $InvoiceID);
 
-                        if($Invoice != false) {
+                    $Invoice = Invoice::where([
+                        'InvoiceID' => $InvoiceID,
+                        'InvoiceStatus' => Invoice::AWAITING
+                    ])->first();
+
+                    Log::info(print_r($Invoice, true));
+
+
+                    if ($Invoice != false) {
+                        if (in_array($event["action"], ["created", 'confirmed'])) {
+
                             $Invoice->update([
                                 'InvoiceStatus' => Invoice::PAID
                             ]);
 
                             Payment::where([
-                                "InvoiceNo"      => $Invoice->FullInvoiceNumber,
-                                "Status"         => 'Pending Approval',
-                                "PaymentMethod"  => 'BANK TRANSFER',
+                                "InvoiceNo" => $Invoice->FullInvoiceNumber,
+                                "Status" => 'Pending Approval',
+                                "PaymentMethod" => 'BANK TRANSFER',
                             ])->update(['Status' => 'Approved']);
-                        }
 
-                    } elseif (in_array($event["action"], ["mandate_is_inactive", 'retry_failed'])) {
-
-                        $Invoice = Invoice::where([
-                            'InvoiceID'     => $InvoiceID,
-                            'InvoiceStatus' => Invoice::AWAITING
-                        ])->first();
-
-                        if($Invoice != false) {
+                        } elseif (in_array($event["action"], ["mandate_is_inactive", 'retry_failed'])) {
                             Payment::where([
-                                "InvoiceNo"      => $Invoice->FullInvoiceNumber,
-                                "Status"         => 'Pending Approval',
-                                "PaymentMethod"  => 'BANK TRANSFER',
+                                "InvoiceNo" => $Invoice->FullInvoiceNumber,
+                                "Status" => 'Pending Approval',
+                                "PaymentMethod" => 'BANK TRANSFER',
                             ])->update(['Status' => 'Rejected']);
                         }
                     }
-                }
 
+                }
             }
         }
     }
