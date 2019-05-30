@@ -13,7 +13,7 @@ class CodeDecksController extends \BaseController {
         $companyID = User::get_companyID();
 //       $userID = User::get_userID();
         $data = Input::all();
-        $CodedecksActilead = UserActivity::UserActivitySaved($data,'View','Codedecks');
+        $CodedecksActilead = UserActivity::UserActivitySaved($data,'Search','Base Code Decks');
         $data['ft_country']=$data['ft_country']!= ''?$data['ft_country']:'0';
         $data['ft_code'] = $data['ft_code'] != ''?"'".$data['ft_code']."'":'null';
         $data['ft_description'] = $data['ft_description'] != ''?"'".$data['ft_description']."'":'null';
@@ -443,7 +443,7 @@ class CodeDecksController extends \BaseController {
             $CodeDeckName = BaseCodeDeck::getCodeDeckName($id);
             $data['id'] = $id;
             $data['Name'] = $CodeDeckName;
-          
+            $CodedecksActilead = UserActivity::UserActivitySaved($data,'View','Base Code Decks');
             return View::make('codedecks.index', compact('countries','id','codedecklist','CodeDeckName'));
 
     }
