@@ -21,6 +21,7 @@ class VendorActiveCallController extends \BaseController {
         $data 							 = 		Input::all();
 
         $CompanyID 						 = 		User::get_companyID();
+        $UserActilead                    =       UserActivity::UserActivitySaved($data,'View','Vendor Active Calls');
         $data['iDisplayStart'] 			+=		1;
         $data['GatewayName'] 				 = 		$data['GatewayName']?$data['GatewayName']:'';
         $data['CallPrefix']				 =		$data['CallPrefix']!= ''?$data['CallPrefix']:'';
@@ -31,6 +32,8 @@ class VendorActiveCallController extends \BaseController {
 
         $query = "call prc_getVOSVendorActiveCall(".$CompanyID.",'".$data['GatewayName']."','".$data['CallPrefix']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['CompanyGatewayID']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Vendor Active Calls');
             $excel_data  = DB::connection('sqlsrvcdr')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -96,6 +99,7 @@ class VendorActiveCallController extends \BaseController {
                         }
 
                         DB::connection('sqlsrvcdr')->commit();
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Import','Vendor Active Calls');
                         return Response::json(['status'=>'success','message'=>"Successfully imported ".count($VendorActiveCall)]);
                     }else{
                         return Response::json(['status'=>'failed','message'=>"No Records Found."]);

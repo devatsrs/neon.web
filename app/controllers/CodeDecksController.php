@@ -184,6 +184,7 @@ class CodeDecksController extends \BaseController {
                         return Response::json(["status" => "failed", "message" => $result['message']]);
                     }
                     DB::commit();
+                    $BasecodedecksActilead = UserActivity::UserActivitySaved($data,'Upload','Basecodedeck');
                     return Response::json(["status" => "success", "message" => "File Uploaded, Job Added in queue to process. You will be informed once Job Done. "]);
                 } catch (Exception $ex) {
                     DB::rollback();
@@ -240,12 +241,14 @@ class CodeDecksController extends \BaseController {
     }
 
     public function delete($id){
+        $data['id'] = $id;
         if( intval($id) > 0){
 
             if(!CodeDeck::checkForeignKeyById($id)){
                 try{
                     $result = CodeDeck::find($id)->delete();
                     if ($result) {
+                        $BasecodedecksActilead = UserActivity::UserActivitySaved($data,'Delete','Basecodedeck');
                         return Response::json(array("status" => "success", "message" => "Code Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Code."));
@@ -348,6 +351,7 @@ class CodeDecksController extends \BaseController {
 
                 $result = CodeDeck::whereIn('RateID',$rateids)->where('CompanyID',$companyID)->update($updatedta);
                 if ($result) {
+                    $BasecodedecksActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Basecodedeck');
                     return Response::json(array("status" => "success", "message" => "CodeDeck Successfully Updated"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Updating CodeDeck."));
@@ -370,6 +374,7 @@ class CodeDecksController extends \BaseController {
                     //echo $query;exit;
                     $result = DB::statement($query);
                     if ($result) {
+                        $BasecodedecksActilead = UserActivity::UserActivitySaved($data,'Bulk Delete','Basecodedeck');
                         return Response::json(array("status" => "success", "message" => "Code Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Code."));
@@ -437,7 +442,7 @@ class CodeDecksController extends \BaseController {
             $CodeDeckName = BaseCodeDeck::getCodeDeckName($id);
             $data['id'] = $id;
             $data['Name'] = $CodeDeckName;
-            $CodedecksActilead = UserActivity::UserActivitySaved($data,'View','Codedecks');
+          
             return View::make('codedecks.index', compact('countries','id','codedecklist','CodeDeckName'));
 
     }

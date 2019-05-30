@@ -48,6 +48,7 @@ class EstimatesController extends \BaseController {
         $data 						 = 	Input::all();
         $data['iDisplayStart'] 		+=	1;
         $companyID 					 =  User::get_companyID();
+        $EstimatesActilead           =  UserActivity::UserActivitySaved($data,'View','Estimates');
         $columns 					 =  ['EstimateID','AccountName','EstimateNumber','EstimateID','GrandTotal','EstimateStatus','EstimateID','converted'];   
         $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
@@ -96,12 +97,10 @@ class EstimatesController extends \BaseController {
      */
     public function index()
     {
-        $data = array();
         $companyID 				= 	User::get_companyID();
         $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $accounts 				= 	Account::getAccountIDList();		
-        $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());
-        $EstimatesActilead = UserActivity::UserActivitySaved($data,'View','Estimates');	
+        $estimate_status_json 	= 	json_encode(Estimate::get_estimate_status());	
         return View::make('estimates.index',compact('accounts','estimate_status_json','DefaultCurrencyID'));
     }
 
@@ -1357,7 +1356,7 @@ class EstimatesController extends \BaseController {
 						$InvoiceTemplateID = Invoice::GetInvoiceTemplateID($Invoice);
                         InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 		}
-			
+        $EstimatesActilead = UserActivity::UserActivitySaved($data,'Edit','Estimates');	
 		return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated"));			
 	}
 
@@ -1374,6 +1373,7 @@ class EstimatesController extends \BaseController {
 		{
 			if (Estimate::where('EstimateID',$data['EstimateIDs'])->update([ 'ModifiedBy'=>$username,'EstimateStatus' => $data['EstimateStatus']]))
 			{
+                $EstimatesActilead = UserActivity::UserActivitySaved($data,'Edit','Estimates');
 				return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated"));
 			}
 			else
@@ -1441,7 +1441,7 @@ class EstimatesController extends \BaseController {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating Estimate(s)."));
 			}
 			else
-			{				
+			{	 $EstimatesActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Estimates');			
 				return Response::json(array("status" => "success", "message" => "Estimate(s) Successfully Updated"));
 			}
        

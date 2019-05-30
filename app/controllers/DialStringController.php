@@ -116,8 +116,10 @@ class DialStringController extends \BaseController {
 
     //dial string detail view
     public function dialstringcode($id){
-        $data['dialstring_id'] = $id;
+       
         $DialStringName = DialString::getDialStringName($id);
+        $data['dialstring_id'] = $id;
+        $data['DialStringName'] = $DialStringName;
         $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'View','DialStringsCode');
         return View::make('dialstring.dialstringcode', compact('id','DialStringName'));
 
@@ -301,6 +303,7 @@ class DialStringController extends \BaseController {
 
             $result = DB::statement($query);
             if ($result) {
+                $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','DialStringsCode');
                 return Response::json(array("status" => "success", "message" => "Dial Strings Updated Successfully."));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Dial Strings."));
@@ -334,6 +337,7 @@ class DialStringController extends \BaseController {
 
             $result = DB::statement($query);
             if ($result) {
+                $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Bulk Delete','DialStringsCode');
                 return Response::json(array("status" => "success", "message" => "Dial Strings Deleted Successfully."));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem deleting Dial Strings."));
@@ -345,6 +349,7 @@ class DialStringController extends \BaseController {
 
             $result = DB::statement($query);
             if ($result) {
+                $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','DialStringsCode');
                 return Response::json(array("status" => "success", "message" => "Dial Strings Updated Successfully."));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Dial Strings."));
