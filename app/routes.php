@@ -1494,6 +1494,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/bulk_change_status', 'AccountServiceController@bulk_change_status');
 	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
 
+	//Activity Feeds
+	Route::any('activity', 'ActivityFeedsController@index');
+	Route::any('activity/ajax_datagrid', 'ActivityFeedsController@ajax_datagrid');
+	Route::any('activity/get_details/{id}', 'ActivityFeedsController@get_details');
+	Route::any('activity/exports', 'ActivityFeedsController@exports');
+
+	
+	
+
 	//noticeboard
 	Route::any('/noticeboard', 'NoticeBoardController@index');
 	Route::any('/get_mor_updates', 'NoticeBoardController@get_mor_updates');
@@ -1588,7 +1597,8 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
 	Route::any('/report/export/{id}','ReportController@getdatagrid');
-	
+
+	Route::post('/gocardless_webhook_check', array("as" => "gocardless", "uses" => "PaymentProfileCustomerController@GoCardLess_Webhook"));
     /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');

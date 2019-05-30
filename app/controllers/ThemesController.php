@@ -11,6 +11,10 @@ class ThemesController extends \BaseController {
         $columns 					 =  	['ThemeID','DomainUrl','Title','Favicon','Logo','ThemeStatus'];   
         $sort_column 				 =  	$columns[$data['iSortCol_0']];		
 		$Themes 					 = 		Themes::where(["CompanyID" => $companyID])->select($columns);
+
+		//https://codedesk.atlassian.net/browse/NEON-1591
+		//Audit Trails of user activity
+		$UserActilead = UserActivity::UserActivitySaved($data,'View','Themes');
 		
 		 if(trim($data['searchText']) != '')
 		 {			 
@@ -271,7 +275,7 @@ class ThemesController extends \BaseController {
 					Translation::add_system_name("THEMES_".$domainUrl_key."_FOOTERTEXT", $themeData["FooterText"]);
 					Translation::add_system_name("THEMES_".$domainUrl_key."_LOGIN_MSG", $themeData["LoginMessage"]);
 					Translation::add_system_name("THEMES_".$domainUrl_key."_TITLE", $themeData["Title"]);
-
+					$UserActilead = UserActivity::UserActivitySaved($data,'Add','Themes',$data['Title']);
 					   return  Response::json(array("status" => "success", "message" => "Theme Successfully Created",'LastID'=>$theme->ThemeID,'redirect' => URL::to('/themes')));
 				}
 				else
@@ -440,7 +444,7 @@ class ThemesController extends \BaseController {
 					Translation::update_label(Translation::$default_lang_ISOcode, "THEMES_".$domainUrl_key."_FOOTERTEXT", $themeData["FooterText"]);
 					Translation::update_label(Translation::$default_lang_ISOcode, "THEMES_".$domainUrl_key."_LOGIN_MSG", $themeData["LoginMessage"]);
 					Translation::update_label(Translation::$default_lang_ISOcode, "THEMES_".$domainUrl_key."_TITLE", $themeData["Title"]);
-
+					$UserActilead = UserActivity::UserActivitySaved($data,'Edit','Themes',$data['Title']);
 					return Response::json(array("status" => "success", "message" => "Theme Successfully Updated", 'LastID' => $Themes->ThemeID,'redirect' => URL::to('/themes')));
 
                 }
@@ -454,6 +458,7 @@ class ThemesController extends \BaseController {
 
     public function delete($id)
     {
+		$data['id'] = $id;
         if( $id > 0)
 		{
             try
@@ -472,7 +477,7 @@ class ThemesController extends \BaseController {
 					Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_LOGIN_MSG");
 					Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_TITLE");
 				}
-
+				$UserActilead = UserActivity::UserActivitySaved($data,'Delete','Themes');
                 return Response::json(array("status" => "success", "message" => "Theme Successfully Deleted"));
             }
 			catch (Exception $e)
@@ -508,7 +513,7 @@ class ThemesController extends \BaseController {
 						Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_TITLE");
 					}
 				}
-
+				$UserActilead = UserActivity::UserActivitySaved($data,'Bulk Delete','Themes');
                 return Response::json(array("status" => "success", "message" => "Theme(s) Successfully Deleted"));
             }
 			catch (Exception $e)

@@ -8,6 +8,7 @@ class VendorAnalysisController extends BaseController {
     }
 
     public function index(){
+        $data = array();
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
@@ -28,7 +29,7 @@ class VendorAnalysisController extends BaseController {
         $trunks = Trunk::getTrunkDropdownIDList();
         $currency = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
-
+        $vendor_analysisActilead = UserActivity::UserActivitySaved($data,'View','Vendor Analysis');
         return View::make('vendoranalysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','account_owners'));
     }
     /* all tab report */

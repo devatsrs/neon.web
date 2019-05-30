@@ -56,9 +56,11 @@ class BillingClassController extends \BaseController {
     public function ajax_datagrid(){
         $getdata = Input::all();
         $response =  NeonAPI::request('billing_class/datagrid',$getdata,false,false,false);
+        $billing_classActilead = UserActivity::UserActivitySaved($getdata,'View','Billing Class','');
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
             $excel_data = $response->data;
             $excel_data = json_decode(json_encode($excel_data), true);
+            $billing_classActilead = UserActivity::UserActivitySaved($excel_data,'Export','Billing Class');
             Excel::create('Billing Class', function ($excel) use ($excel_data) {
                 $excel->sheet('Billing Class', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
@@ -73,6 +75,7 @@ class BillingClassController extends \BaseController {
         $response =  NeonAPI::request('billing_class/store',$postdata,true,false,false);
 
         if(!empty($response) && $response->status == 'success'){
+            $billing_classActilead = UserActivity::UserActivitySaved($postdata,'Add','Billing Class',$postdata['Name']);
             if($isModal==1){
                 return json_response_api($response);
             }
@@ -82,13 +85,20 @@ class BillingClassController extends \BaseController {
     }
 
     public function delete($id){
+        $data['id'] = $id;
         $response =  NeonAPI::request('billing_class/delete/'.$id,array(),'delete',false,false);
+        if(!empty($response) && $response->status == 'success'){
+            $billing_classActilead = UserActivity::UserActivitySaved($data,'Delete','Billing Class','');
+        }
         return json_response_api($response);
     }
 
     public function update($id){
         $postdata = Input::all();
         $response =  NeonAPI::request('billing_class/update/'.$id,$postdata,'put',false,false);
+        if(!empty($response) && $response->status == 'success'){
+            $billing_classActilead = UserActivity::UserActivitySaved($postdata,'Edit','Billing Class',$postdata['Name']);
+        }
         return json_response_api($response);
     }
     public function getInfo($id) {

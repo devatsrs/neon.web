@@ -55,6 +55,7 @@ class CronJobController extends \BaseController {
             $isvalid['data']['PID']='';
             if ($CronJobID = CronJob::insertGetId($isvalid['data'])) {
                 CronJob::upadteNextTimeRun($CronJobID);
+                $cronjob_monitorActilead = UserActivity::UserActivitySaved($isvalid['data'],'Add','Cronjob',$isvalid['data']['JobTitle']);
                 return Response::json(array("status" => "success", "message" => "Cron Job Successfully Created"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));
@@ -85,6 +86,7 @@ class CronJobController extends \BaseController {
                 }
                 if ($CronJob->update($isvalid['data'])) {
                     CronJob::upadteNextTimeRun($id);
+                    $cronjob_monitorActilead = UserActivity::UserActivitySaved($isvalid['data'],'Edit','Cronjob',$isvalid['data']['JobTitle']);
                     return Response::json(array("status" => "success", "message" => "Cron Job Successfully Updated"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));
@@ -106,12 +108,14 @@ class CronJobController extends \BaseController {
 	 */
     public function delete($id)
     {
+        $data['id'] = $id;
         if( intval($id) > 0){
            /* if(!CronJob::checkForeignKeyById($id)) {*/
                 try {
                     $result = CronJob::find($id)->delete();
 					CronJobLog::where("CronJobID",$id)->delete();
                    	 if ($result) {
+                        $cronjob_monitorActilead = UserActivity::UserActivitySaved($data,'Delete','Cronjob');
                         return Response::json(array("status" => "success", "message" => "Cron Job Successfully Deleted"));
                    	 } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Cron Job."));
@@ -201,6 +205,7 @@ class CronJobController extends \BaseController {
     }
 
     public function history($id){
+
         $JobTitle = CronJob::where("CronJobID",$id)->pluck("JobTitle");
         $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
         $data['EndDateDefault']  	= 	date('Y-m-d');
@@ -210,12 +215,16 @@ class CronJobController extends \BaseController {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
+        $cronjob_monitorActilead = UserActivity::UserActivitySaved($data,'View','Cronjob History',$id);
         $data['StartDate'] = !empty($data['StartTime'])?$data['StartDate'].' '.$data['StartTime']:$data['StartDate'];
         $data['EndDate'] = !empty($data['EndTime'])?$data['EndDate'].' '.$data['EndTime']:$data['EndDate'];
         $columns = array('Title','CronJobStatus','Message','created_at');
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_GetCronJobHistory (".$id.",'".$data['StartDate']."','".$data['EndDate']."','".$data['Search']."','".$data['Status']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $export_type['CronJobID'] = $id;
+            $cronjob_monitorActilead = UserActivity::UserActivitySaved($export_type,'Export','Cronjob History');
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
 
@@ -278,10 +287,11 @@ class CronJobController extends \BaseController {
      * @return mixed
      */
     public function cronjob_monitor(){
-
+        $data = array();
         $commands = CronJobCommand::getCommands();
         $Process = new Process();
         $crontab_status = $Process->check_crontab_status();
+        $cronjob_monitorActilead = UserActivity::UserActivitySaved($data,'View','Cronjob Monitor');
         return View::make('cronjob.cronjob_monitor', compact('commands','crontab_status'));
 
     }
@@ -293,7 +303,9 @@ class CronJobController extends \BaseController {
     public function trigger($CronJobID){
 
         //@TODO: what if cron job is running on another server.
-
+        $cron = CronJob::find($CronJobID);
+        $data['id'] = $CronJobID;
+        $data['Action'] = 'Cron Job is triggered';
         $CompanyID = User::get_companyID();
         $pr_name = 'call prc_getActiveCronJobCommand (';
         $query = $pr_name . $CompanyID . "," . $CronJobID . ")";
@@ -307,6 +319,7 @@ class CronJobController extends \BaseController {
         }
         if($success){
             CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => "Triggered by " . User::get_user_full_name()]);
+            $cronjob_monitorActilead = UserActivity::UserActivitySaved($data,'Edit','CronJob',$cron->JobTitle);
             return Response::json(array("status" => "success", "message" => "Cron Job is triggered." ));
         }else{
             return Response::json(array("status" => "failed", "message" => "Failed to trigger Cron Job"));
@@ -320,14 +333,18 @@ class CronJobController extends \BaseController {
      * @return mixed
      */
     public function terminate($CronJobID) {
-
+        $cron = CronJob::find($CronJobID);
+        $data['id'] = $CronJobID;
+        $data['Action'] = 'Cron Job is Terminated';
         $status = CronJob::ActiveCronJobEmailSend($CronJobID);
 
         if(is_null($status)) {
             return Response::json(array("status" => "failed", "message" => "Invalid CronJobID." ));
         } else if($status == FALSE) {
+            $cronjob_monitorActilead = UserActivity::UserActivitySaved($data,'Edit','CronJob',$cron->JobTitle);
             return Response::json(array("status" => "failed", "message" => "Cron Job Terminated but Unable to send email." ));
         } else {
+            $cronjob_monitorActilead = UserActivity::UserActivitySaved($data,'Edit','CronJob',$cron->JobTitle);
             return Response::json(array("status" => "success", "message" => "Cron Job Terminated successfully and email sent." ));
         }
 
@@ -338,16 +355,20 @@ class CronJobController extends \BaseController {
      * @return mixed
      */
     public function change_status($CronJobID,$Status=0){
-
+        $cron = CronJob::find($CronJobID);
+        $data['id'] = $CronJobID;
+       
         if($Status == 0 ){
             $Status_to = "Cron Job Disabled";
         }else {
             $Status_to = "Cron Job Enabled";
         }
+        $data['Action'] = $Status_to;
         if(empty($CronJobID)){
             return Response::json(array("status" => "failed", "message" => "Invalid CronJobID." ));
         } else if(CronJob::find($CronJobID)->update(["Status"=>$Status])){
             CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => $Status_to . " by " . User::get_user_full_name()]);
+            $cronjob_monitorActilead = UserActivity::UserActivitySaved($data,'Edit','Cronjob',$cron->JobTitle);
             return Response::json(array("status" => "success", "message" => $Status_to ));
         }else {
             return Response::json(array("status" => "failed", "message" => "Failed to Stop the Cron Job." ));

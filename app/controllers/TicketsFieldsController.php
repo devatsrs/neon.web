@@ -9,7 +9,9 @@ private $validlicense;
 	 
 	
 	function index(){
-		return View::make('ticketsfields.index', compact('data','response_extensions','final'));   
+            $data=array();
+            $UserActilead = UserActivity::UserActivitySaved($data,'View','Ticket Fields');
+            return View::make('ticketsfields.index', compact('data','response_extensions','final'));   
 	}
 	
 	function iframe(){	
@@ -215,7 +217,8 @@ private $validlicense;
 	}
 	
 	function Save_Single_Field(){
-		$postdata    =  Input::all();	
+		$postdata    =  Input::all();
+                
 		 try
 		 {		
 				DB::beginTransaction();
@@ -238,7 +241,9 @@ private $validlicense;
 				//
 							
 				if(!isset($postdata['id']) && empty($postdata['id']))
-				{		$data['FieldStaticType']				   =		Ticketfields::FIELD_TYPE_DYNAMIC;	
+				{
+                                    $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','Ticket Fields');
+                                    $data['FieldStaticType']				   =		Ticketfields::FIELD_TYPE_DYNAMIC;	
 						$data['created_at']       		   		   = 		date("Y-m-d H:i:s");
 						$data['created_by']       		   		   = 		User::get_user_full_name();			
 						$TicketFieldsID 						   = 		Ticketfields::insertGetId($data);	
@@ -267,6 +272,7 @@ private $validlicense;
 				}
 				else
 				{	
+                                        $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Ticket Fields');
 					$data['updated_at']       		   		   = 		date("Y-m-d H:i:s");
 					$data['updated_by']       		   		   = 		User::get_user_full_name();			
 					Ticketfields::find($postdata['id'])->update($data);	
@@ -369,6 +375,7 @@ private $validlicense;
 		$postdata    =  Input::all(); 
 		if(isset($postdata['main_fields_sort']) && !empty($postdata['main_fields_sort']))
 		{
+                        $UserActilead = UserActivity::UserActivitySaved($postdata,'Sorting','Ticket Fields');
 			try
 			{
 				DB::beginTransaction();

@@ -53,6 +53,7 @@ class AutoRateImportController extends \BaseController {
 		$companyID = User::get_companyID();
 		if (!empty($AutoImportInboxSettingID)){
 			if (AutoImportInboxSetting::updateInboxImportSetting($AutoImportInboxSettingID,$data)) {
+                                $UserActilead = UserActivity::UserActivitySaved($data,'Edit','AutoImport Inbox Setting');
 				return Response::json(array("status" => "success", "message" => "Import Setting Update Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating AutoImport Inbox Setting."));
@@ -61,6 +62,7 @@ class AutoRateImportController extends \BaseController {
 		}else{
 			$data["CompanyID"] = $companyID ;
 			if (AutoImportInboxSetting::insert($data)) {
+                            $UserActilead = UserActivity::UserActivitySaved($data,'Add','AutoImport Inbox Setting');
 				return Response::json(array("status" => "success", "message" => "Import Setting Update Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Insert AutoImport Setting."));
@@ -77,11 +79,14 @@ class AutoRateImportController extends \BaseController {
 	{
 		$CompanyID = User::get_companyID();
 		$data = Input::all();
+                
 		$data['iDisplayStart'] +=1;
 
 		if($data["SettingType"]==1){
+                        $UserActilead = UserActivity::UserActivitySaved($data,'View','Vendor Setting');
 			$columns = array('AccountName','Trunk','Import File Templete','Subject Match','Filename Match','Sendor Match');
 		}else{
+                        $UserActilead = UserActivity::UserActivitySaved($data,'View','RateTable Setting');
 			$columns = array('RateTable','Import File Template','Subject Match','Filename Match', 'Sender Match');
 		}
 
@@ -164,6 +169,7 @@ class AutoRateImportController extends \BaseController {
 		if (!empty($data["AutoImportSettingID"])){
 
 			if (AutoImportSetting::updateAccountImportSetting($data["AutoImportSettingID"],$data)) {
+                                $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Vendor Setting',$data['SendorEmail']);
 				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting Updated Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating AutoImport Inbox Setting."));
@@ -174,6 +180,7 @@ class AutoRateImportController extends \BaseController {
 			$companyID = User::get_companyID();
 			$data["CompanyID"] = $companyID ;
 			if (AutoImportSetting::insert($data)) {
+                                $UserActilead = UserActivity::UserActivitySaved($data,'Add','Vendor Setting',$data['SendorEmail']);
 				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting created Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Insert AutoImport Setting."));
@@ -222,6 +229,7 @@ class AutoRateImportController extends \BaseController {
 		if (!empty($data["AutoImportSettingID"])){
 
 			if (AutoImportSetting::updateRateTableImportSetting($data["AutoImportSettingID"],$data)) {
+                                $UserActilead = UserActivity::UserActivitySaved($data,'Edit','RateTable Setting',$data['SendorEmail']);
 				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting Updated Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating AutoImport Inbox Setting."));
@@ -232,6 +240,7 @@ class AutoRateImportController extends \BaseController {
 			$companyID = User::get_companyID();
 			$data["CompanyID"] = $companyID ;
 			if (AutoImportSetting::insert($data)) {
+                                $UserActilead = UserActivity::UserActivitySaved($data,'Add','RateTable Setting',$data['SendorEmail']);
 				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting Created Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Insert AutoImport Setting."));
@@ -247,6 +256,8 @@ class AutoRateImportController extends \BaseController {
 	public function Delete($id) {
 
 		if ($id > 0) {
+                    $data['id']=$id;
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Vendor Setting');
 			AutoImportSetting::DeleteautoimportSetting($id);
 			return Response::json(array("status" => "success", "message" => "Auto Import Setting Delete Successfully"));
 		}

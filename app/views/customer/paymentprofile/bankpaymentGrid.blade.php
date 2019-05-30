@@ -4,9 +4,12 @@
         <div class="panel-title">
             <?php
             $title = PaymentGateway::getPaymentGatewayNameBYAccount($account->AccountID);
-                if($title=='StripeACH'){
-                    $title='Stripe ACH';
-                }
+            if($title=='StripeACH'){
+                $title='Stripe ACH';
+            }
+            if($title=='GoCardLess'){
+                $title='GoCardLess';
+            }
             ?>
             {{$title}} @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TITLE')
         </div>
@@ -78,7 +81,7 @@
                             "bSortable": true, //Default
                             mRender: function (isDefault, type, full) {
                                 if(isDefault==1)
-                                   return 'Default';
+                                    return 'Default';
                                 else
                                     return ''
                             }
@@ -94,41 +97,42 @@
                             mRender: function (id, type, full) {
                                 var action='';
 
-                                    var Active_Card = "{{ URL::to('customer/PaymentMethodProfiles/{id}/card_status/active')}}";
-                                    var DeActive_Card = "{{ URL::to('customer/PaymentMethodProfiles/{id}/card_status/deactive')}}";
-                                    var set_default = "{{ URL::to('customer/PaymentMethodProfiles/{id}/set_default')}}";
-                                    var Verify = "{{ URL::to('customer/PaymentMethodProfiles/{id}/verify_bankaccount')}}";
-                                    Active_Card = Active_Card.replace('{id}', id);
-                                    DeActive_Card = DeActive_Card.replace('{id}', id);
-                                    set_default = set_default.replace('{id}', id);
+                                var Active_Card = "{{ URL::to('customer/PaymentMethodProfiles/{id}/card_status/active')}}";
+                                var DeActive_Card = "{{ URL::to('customer/PaymentMethodProfiles/{id}/card_status/deactive')}}";
+                                var set_default = "{{ URL::to('customer/PaymentMethodProfiles/{id}/set_default')}}";
+                                var Verify = "{{ URL::to('customer/PaymentMethodProfiles/{id}/verify_bankaccount')}}";
+                                Active_Card = Active_Card.replace('{id}', id);
+                                DeActive_Card = DeActive_Card.replace('{id}', id);
+                                set_default = set_default.replace('{id}', id);
 
-                                    var Options = full[6];
-                                    var verify_obj = jQuery.parseJSON(Options);
+                                var Options = full[6];
+                                var verify_obj = jQuery.parseJSON(Options);
 
-                                    action = '<div class = "hiddenRowData" >';
-                                    action += '<input type = "hidden"  name = "cardID" value = "' + id + '" / >';
-                                    action += '<input type = "hidden"  name = "Title" value = "' + full[0] + '" / >';
-                                    action += '<input type = "hidden"  name = "VerifyStatus" value = "' + verify_obj.VerifyStatus + '" / >';
-                                    action += '</div>';
+                                action = '<div class = "hiddenRowData" >';
+                                action += '<input type = "hidden"  name = "cardID" value = "' + id + '" / >';
+                                action += '<input type = "hidden"  name = "Title" value = "' + full[0] + '" / >';
+                                action += '<input type = "hidden"  name = "VerifyStatus" value = "' + verify_obj.VerifyStatus + '" / >';
+                                action += '</div>';
 
-                                    //action += ' <a class="edit-card btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                    action += ' <a data-id="'+ id +'" class="delete-bankaccount btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                //action += ' <a class="edit-card btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                action += ' <a data-id="'+ id +'" class="delete-bankaccount btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
 
-                                    if (full[1]=="1") {
-                                        action += ' <button href="' + DeActive_Card + '"  class="btn change_status btn-danger btn-sm disablecard" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_DEACTIVATE_CAPTION')</button>';
-                                    } else {
-                                        action += ' <button href="' + Active_Card + '"    class="btn change_status btn-success btn-sm activecard" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_ACTIVATE_CAPTION')</button>';
-                                    }
+                                if (full[1]=="1") {
+                                    action += ' <button href="' + DeActive_Card + '"  class="btn change_status btn-danger btn-sm disablecard" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_DEACTIVATE_CAPTION')</button>';
+                                } else {
+                                    action += ' <button href="' + Active_Card + '"    class="btn change_status btn-success btn-sm activecard" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_ACTIVATE_CAPTION')</button>';
+                                }
 
-                                    if(full[2]!=1){
-                                        action += ' <a href="' + set_default+ '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') </a> ';
-                                    }
+                                if(full[2]!=1){
+                                    action += ' <a href="' + set_default+ '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') </a> ';
+                                }
+                                @if($title != 'GoCardLess')
+                                if((verify_obj.VerifyStatus=='undefined' || verify_obj.VerifyStatus=='null' || verify_obj.VerifyStatus!='verified')){
+                                    action += ' <a href="#" data-id="'+id+'" class="set-verify btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_VERIFY') </a> ';
+                                }
+                                @endif
 
-                                    if((verify_obj.VerifyStatus=='undefined' || verify_obj.VerifyStatus=='null' || verify_obj.VerifyStatus!='verified')){
-                                        action += ' <a href="#" data-id="'+id+'" class="set-verify btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_VERIFY') </a> ';
-                                    }
-
-                                return action;
+                                        return action;
                             }
                         }
                     ],
@@ -223,10 +227,10 @@
                     ev.preventDefault();
                     var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
                     $("#add-bankaccount-form")[0].reset();
-                    $("#add-bankaccount-form").find('input[name="cardID"]').val('');                    
+                    $("#add-bankaccount-form").find('input[name="cardID"]').val('');
                     $("#add-bankaccount-form").find('input[name="PaymentGatewayID"]').val(pgid);
-					$("#add-bankaccount-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
-					$("#add-bankaccount-form").find('input[name="CompanyID"]').val('{{$account->CompanyId}}');
+                    $("#add-bankaccount-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
+                    $("#add-bankaccount-form").find('input[name="CompanyID"]').val('{{$account->CompanyId}}');
                     $('#add-modal-bankaccount').modal('show');
                 });
 
@@ -245,7 +249,7 @@
                 $('table tbody').on('click','.edit-bankaccount',function(ev){
                     ev.preventDefault();
                     ev.stopPropagation();
-                    $("#add-bankaccount-form")[0].reset();                    
+                    $("#add-bankaccount-form")[0].reset();
                     cardID = $(this).prev("div.hiddenRowData").find("input[name='cardID']").val();
                     Title = $(this).prev("div.hiddenRowData").find("input[name='Title']").val();
                     $("#add-bankaccount-form").find('[name="cardID"]').val(cardID);
@@ -367,7 +371,7 @@
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_NAME')</label>
                                     <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                 </div>
-                            </div>                            
+                            </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_NUMBER')</label>
@@ -378,7 +382,7 @@
                                     <input type="hidden" name="PaymentGatewayID" />
                                 </div>
                             </div>
-							<div class="col-md-12">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_ROUTING_NUMBER')</label>
                                     <input type="text" name="RoutingNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
@@ -389,7 +393,7 @@
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_TYPE')</label>
                                     {{ Form::select('AccountHolderType',Payment::$account_holder_type,'', array("class"=>"select2 small")) }}
                                 </div>
-                            </div>                            
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

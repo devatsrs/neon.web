@@ -14,6 +14,7 @@ class DisputeController extends \BaseController {
 
 		$data 							 = 		Input::all();
 		$CompanyID 						 = 		User::get_companyID();
+		$disputesActilead                =      UserActivity::UserActivitySaved($data,'View','Disputes');
 		$data['iDisplayStart'] 			+=		1;
 		$data['InvoiceType'] 			 = 		$data['InvoiceType'] == 'All'?'':$data['InvoiceType'];
 		$data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:'NULL';
@@ -45,6 +46,8 @@ class DisputeController extends \BaseController {
 		$query = "call prc_getDisputes (".$CompanyID.",".intval($data['InvoiceType']).",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['p_disputestart'].",".$data['p_disputeend'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
 		if(isset($data['Export']) && $data['Export'] == 1) {
+			$export_type['type'] = $type;
+			$disputesActilead = UserActivity::UserActivitySaved($export_type,'Export','Disputes');
 			$excel_data  = DB::connection('sqlsrv2')->select($query.',1,"'.$data['tag'].'")');
 			$excel_data = json_decode(json_encode($excel_data),true);
 			if($type=='csv'){
@@ -71,6 +74,7 @@ class DisputeController extends \BaseController {
 		$accounts = Account::getAccountIDList();
 		$InvoiceTypes =  array(''=>'Select' , Invoice::INVOICE_OUT=>"Sent",Invoice::INVOICE_IN=>"Received");
 		$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
+		
 		$bulk_type = 'disputes';
 		return View::make('disputes.index', compact('id','currency','status','accounts','currency_ids','InvoiceTypes','emailTemplates','bulk_type'));
 
@@ -83,7 +87,7 @@ class DisputeController extends \BaseController {
 	 * @return Response
 	 */
 	public function create(){
-
+		
 		$data = Input::all();
 		$data['sendEmail']=0;
 		$data['DisputeAttachment']=1;
@@ -175,6 +179,8 @@ class DisputeController extends \BaseController {
 		$Dispute->Status = $data["Status"];
 
 		if ($Dispute->update()) {
+			$data['Action'] = 'Dispute Status Changed';
+			$disputesActilead = UserActivity::UserActivitySaved($data,'Edit','Disputes',$data['DisputeID']);
 			return Response::json(array("status" => "success", "message" => "Dispute Status Successfully Updated"));
 		} else {
 			return Response::json(array("status" => "failed", "message" => "Failed Updating Dispute Status."));
@@ -297,6 +303,7 @@ class DisputeController extends \BaseController {
 		$jobdata["updated_at"] = date('Y-m-d H:i:s');
 		$JobID = Job::insertGetId($jobdata);
 		if($JobID){
+			$disputesActilead = UserActivity::UserActivitySaved($data,'Bulk Send','Disputes');
 			return Response::json(array("status" => "success", "message" => "Bulk Dispute Send Job Added in queue to process.You will be notified once job is completed. "));
 		}else{
 			return Response::json(array("status" => "success", "message" => "Problem Creating Job Bulk Dispute Send."));
@@ -476,12 +483,14 @@ class DisputeController extends \BaseController {
 	}
 
 	public function delete($id) {
+		$data['id'] = $id;
 		if( intval($id) > 0){
 			try {
 				$Dispute=Dispute::find($id);
 				AmazonS3::delete($Dispute->Attachment);
 				$result = $Dispute->delete();
 				if ($result) {
+					$disputesActilead = UserActivity::UserActivitySaved($data,'Delete','Disputes');
 					return Response::json(array("status" => "success", "message" => "Dispute Successfully Deleted"));
 				} else {
 					return Response::json(array("status" => "failed", "message" => "Problem Deleting Dispute."));

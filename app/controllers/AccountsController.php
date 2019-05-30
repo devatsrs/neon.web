@@ -10,6 +10,9 @@ class AccountsController extends \BaseController {
 
     public function ajax_datagrid($type) {
         $data = Input::all();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Account');
         $CompanyID = User::get_companyID();
         $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         if(is_reseller()){
@@ -77,7 +80,7 @@ class AccountsController extends \BaseController {
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
             ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
-
+        $UserActilead = UserActivity::UserActivitySaved($data,'Payment Profiles','Account');
         return Datatables::of($carddetail)->make();
     }
 
@@ -96,12 +99,16 @@ class AccountsController extends \BaseController {
         $columns = array('ColumnName','OldValue','NewValue','created_at','created_by');
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_GetAccountLogs (".$CompanyID.",".$userID.",".$AccountID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."')";
-
+        
+        $UserActilead = UserActivity::UserActivitySaved($data,'Logs','Account');
+        
         return DataTableSql::of($query)->make();
     }
 
     public function ajax_template($id){
         $user = User::get_currentUser();
+        $data['id']=$id;
+        $UserActilead = UserActivity::UserActivitySaved($data,'Email Template','Account');
         return array('EmailFooter'=>($user->EmailFooter?$user->EmailFooter:''),'EmailTemplate'=>EmailTemplate::findOrfail($id));
     }
 
@@ -116,6 +123,8 @@ class AccountsController extends \BaseController {
         if($privacy == 1){
             $filter ['UserID'] =  User::get_userID();
         }
+        $data['privacy']=$privacy;$data['type']=$type;
+        $UserActilead = UserActivity::UserActivitySaved($data,'Get Email Template','Account');
         return EmailTemplate::getTemplateArray($filter);
     }
 
@@ -146,8 +155,10 @@ class AccountsController extends \BaseController {
         $timezones = TimeZone::getTimeZoneDropdownList();
         $rate_timezones = Timezones::getTimezonesIDList();
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones'));
-
+        
+        $VOS_RATEPREFIX_RATESHEET = CompanyConfiguration::get('VOS_RATEPREFIX_RATESHEET');
+        
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones','VOS_RATEPREFIX_RATESHEET'));
     }
 
     /**
@@ -175,6 +186,8 @@ class AccountsController extends \BaseController {
             }
             $dynamicfields = Account::getDynamicfields('account',0);
             $reseller_owners = Reseller::getDropdownIDList($company_id);
+            $data=array();
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Resource');
             return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners'));
     }
 
@@ -187,6 +200,11 @@ class AccountsController extends \BaseController {
     public function store() {
             $ServiceID = 0;
             $data = Input::all();
+            
+            //https://codedesk.atlassian.net/browse/NEON-1591
+            //Audit Trails of user activity
+            
+        
             $companyID = User::get_companyID();
             $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
             if($ResellerOwner>0){
@@ -357,6 +375,7 @@ class AccountsController extends \BaseController {
 
 
                 $account->update($data);
+                $UserActilead = UserActivity::UserActivitySaved($data,'Add','Account',$data['AccountName']);
                 return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
@@ -494,7 +513,7 @@ class AccountsController extends \BaseController {
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug,$companyID); //freshdesk
 			$SystemTickets				=   Tickets::CheckTicketLicense();			
-			 
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Show','Account');
 	        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets','FromEmails')); 	
 		}
 
@@ -502,6 +521,8 @@ class AccountsController extends \BaseController {
     public function log($id) {
         $account = Account::find($id);
         $accounts = Account::getAccountIDList();
+        $data['id']=$id;
+        $UserActilead = UserActivity::UserActivitySaved($data,'View Log','Account');
         return View::make('accounts.accounts_audit_logs', compact('account','accounts'));
     }
 
@@ -538,6 +559,8 @@ class AccountsController extends \BaseController {
 					
 			$key 					= 	$data['scrol'];
 			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+                        
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Time Line','Account',$current_user_title);
 			return View::make('accounts.show_ajax', compact('response','current_user_title','key'));
 	}
 	
@@ -550,7 +573,8 @@ class AccountsController extends \BaseController {
 		 $response 		= 	 NeonAPI::request('account/GetConversations',$data,true,true);  
 		  if($response['status']=='failed'){
 			return json_response_api($response,false,true);
-		}else{			
+		}else{		
+                    $UserActilead = UserActivity::UserActivitySaved($data,'conversation','Account');
 			return View::make('accounts.conversations', compact("response","data"));
 		}
 	}
@@ -613,6 +637,8 @@ class AccountsController extends \BaseController {
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
+        $data['id']=$id;
+        $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Account');
         return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller'));
     }
 
@@ -626,6 +652,7 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $ServiceID = 0;
         $data = Input::all();
+        
         $companyID = User::get_companyID();
         $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
         if($ResellerOwner>0){
@@ -893,7 +920,7 @@ class AccountsController extends \BaseController {
                     }
                 }
             }
-
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Account',$data['AccountName']);
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
@@ -922,7 +949,7 @@ class AccountsController extends \BaseController {
 			$response = $response->data;
 			$response->type = Task::Note;
 		}
-				
+		$UserActilead = UserActivity::UserActivitySaved($data,'Add Note','Account');		
 		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
 		return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));      
 	}
@@ -936,6 +963,7 @@ class AccountsController extends \BaseController {
 		if($response_note['status']=='failed'){
 			return json_response_api($response_note,false,true);
 		}else{
+                    $UserActilead = UserActivity::UserActivitySaved($data,'View Note','Account');	
 			return json_encode($response_note['data']);
 		}
 	}
@@ -1337,6 +1365,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if (!empty($response)) {
             if (!empty($response->PermanentCredit)) {
                 $PermanentCredit = $response->PermanentCredit;
+                $PermanentCredit = str_replace(',','',$PermanentCredit);
             }
             if (!empty($response->TemporaryCredit)) {
                 $TemporaryCredit = $response->TemporaryCredit;
@@ -1354,6 +1383,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             }
             //$BalanceAmount = $SOA_Amount + ($UnbilledAmount - $VendorUnbilledAmount);
             $BalanceAmount = AccountBalance::getNewAccountExposure($CompanyID, $id);
+            $BalanceAmount = str_replace(',','',$BalanceAmount);
             if (!empty($response->EmailToCustomer)) {
                 $EmailToCustomer = $response->EmailToCustomer;
             }
@@ -1362,6 +1392,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
             $SOA_Amount = AccountBalanceLog::getPrepaidAccountBalance($id);
         }
+        $SOA_Amount = str_replace(',','',$SOA_Amount);
 
         if(!empty($id)){
             $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $id))->get();

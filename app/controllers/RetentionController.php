@@ -12,6 +12,10 @@ class RetentionController extends \BaseController {
         if(!empty($FileRetenion1)){
             $FileRetenion =  json_decode($FileRetenion1);
         }
+        $data = array();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Retention');
         return View::make('Retention.index', compact('DataRetenion','FileRetenion'));
 
     }
@@ -36,6 +40,10 @@ class RetentionController extends \BaseController {
 
         CompanySetting::setKeyVal('DataRetention',$RetenionData);
         CompanySetting::setKeyVal('FileRetention',$RetenionFileData);
+        
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Retention',$data['TableData']['CDR']);
 
         return Response::json(array("status" => "success", "message" => "Retention Successfully Saved"));
 	}

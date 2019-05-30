@@ -31,7 +31,7 @@ class RateGeneratorRuleController extends \BaseController {
             ])->where(["Status" => 1, "IsVendor" => 1, "AccountType" => 1, "CompanyID" => $companyID /*'CodeDeckId'=>$rategenerator->CodeDeckId*/])->get();
 
 
-
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Rate Generator Rule',$Code);
             //margin
             $rategenerator_margins = RateRuleMargin::where([
                 "RateRuleID" => $RateRuleID
@@ -70,10 +70,12 @@ class RateGeneratorRuleController extends \BaseController {
             $last_max_order =  RateRule::where(["RateGeneratorId" => $id])->max('Order');
 
             $data = Input::all();
+            
             $data['Order'] = $last_max_order+1;
            // print_R($data);exit;
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateGeneratorId'] = $id;
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Rate Generator Rule',$data['Code']);
             $rules = array(
                 'Code' => 'required_without_all:Description|unique:tblRateRule,Code,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
                 'Description' => 'required_without_all:Code|unique:tblRateRule,Code,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
@@ -101,7 +103,7 @@ class RateGeneratorRuleController extends \BaseController {
             $rategenerator_rules = RateRule::find($RateRuleID); // RateRule::where([ "RateRuleID" => $RateRuleID])->get();
 
             $data = Input::all();
-
+            
             $data ['ModifiedBy'] = User::get_user_full_name();
             $rules = array(
                 'Code' => 'required_without_all:Description|unique:tblRateRule,Code,' . $RateRuleID . ',RateRuleID,RateGeneratorId,'.$id,
@@ -116,6 +118,7 @@ class RateGeneratorRuleController extends \BaseController {
             }
 
             if ($rategenerator_rules->update($data)) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Rate Generator Rule');
                 return Response::json(array(
                     "status" => "success",
                     "message" => "RateGenerator Rule Destination Successfully Updated"
@@ -170,6 +173,7 @@ class RateGeneratorRuleController extends \BaseController {
                         RateRuleSource::insert($row);
                     }
                     DB::commit();
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Edit Source','Rate Generator Rule');
                     return Response::json(array(
                         "status" => "success",
                         "message" => "RateGenerator Rule Source Successfully Updated"
@@ -182,6 +186,7 @@ class RateGeneratorRuleController extends \BaseController {
                     ));
                 }
             } else {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Edit Source','Rate Generator Rule');
                 return Response::json(array(
                     "status" => "success",
                     "message" => "RateGenerator Rule Source Removed Successfully Updated"
@@ -261,6 +266,7 @@ class RateGeneratorRuleController extends \BaseController {
             }
 
             if ($rategenerator_rule_margin->update($data)) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Edit Margin','Rate Generator Rule',$data ['MinRate']);
                 return Response::json(array(
                     "status" => "success",
                     "message" => "RateGenerator Rule Margin Successfully Updated"
@@ -338,6 +344,7 @@ class RateGeneratorRuleController extends \BaseController {
             }
 
             if (RateRuleMargin::insert($data)) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Add Margin','Rate Generator Rule',$data['MinRate']);
                 return Response::json(array(
                     "status" => "success",
                     "message" => "RateGenerator Rule Margin Successfully Inserted"
@@ -359,6 +366,8 @@ class RateGeneratorRuleController extends \BaseController {
                 "RateRuleMarginId" => $RateRuleMarginId,
                 "RateRuleId" => $RateRuleId
             ])->delete()) {
+                $data['RateRuleMarginId']=$RateRuleMarginId;
+                $UserActilead = UserActivity::UserActivitySaved($data,'Delete Rule Margin','Rate Generator Rule');
                 return Response::json(array(
                     "status" => "success",
                     "message" => "RateGenerator Rule Margin Successfully Deleted"
@@ -376,6 +385,7 @@ class RateGeneratorRuleController extends \BaseController {
     public function delete_rule($id, $RateRuleID) {
         if ($id > 0 && $RateRuleID > 0) {
             if (RateRule::find($RateRuleID)->delete()) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Delete Rule','Rate Generator Rule');
                 // return Redirect::back()->with('success_message', "RateGenerator Rule Successfully Deleted");
                 return json_encode([
                     "status" => "success",
@@ -404,7 +414,7 @@ class RateGeneratorRuleController extends \BaseController {
 
             if(isset($NewRateRuleObj[0]->RateRuleID)  ) {
                 $RateRuleID = $NewRateRuleObj[0]->RateRuleID;
-
+                $UserActilead = UserActivity::UserActivitySaved(array($RateRuleID,$CreatedBy),'Clone Rule','Rate Generator Rule');
                 return json_encode([
                     "status" => "success",
                     "message" => "RateGenerator Rule Successfully Cloned",

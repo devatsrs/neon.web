@@ -64,6 +64,7 @@ class PaymentsController extends \BaseController {
 	{
         $data 							 = 		Input::all();
         $CompanyID 						 = 		User::get_companyID();
+        $PaymentsActilead                =      UserActivity::UserActivitySaved($data,'View','Payments');
         $data['iDisplayStart'] 			+=		1;
         $data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:0;
         $data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
@@ -77,7 +78,7 @@ class PaymentsController extends \BaseController {
 		$data['p_paymentstart']			 =		'null';		
 		$data['p_paymentend']			 =		'null';
 		$data['CurrencyID'] 			 = 		empty($data['CurrencyID'])?'0':$data['CurrencyID'];
-        $data['tag'] 			 = 		empty($data['tag'])?'':$data['tag'];
+        $data['tag'] 			         = 		empty($data['tag'])?'':$data['tag'];
 		 
 		if($data['p_paymentstartdate']!='' && $data['p_paymentstartdate']!='null' && $data['p_paymentstartTime']!='')
 		{
@@ -106,6 +107,8 @@ class PaymentsController extends \BaseController {
 
         $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Payments');
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1,'.$userID.',"'.$data['tag'].'")');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -128,14 +131,14 @@ class PaymentsController extends \BaseController {
      * @return Response
      */
     public function index()
-    {
+    {   
         $id=0;
 		$companyID = User::get_companyID();
         $PaymentUploadTemplates = PaymentUploadTemplate::getTemplateIDList();
         $currency = Currency::getCurrencyDropdownList(); 
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList()); 		
         $accounts = Account::getAccountIDList();
-		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         return View::make('payments.index', compact('id','currency','accounts','PaymentUploadTemplates','currency_ids','DefaultCurrencyID'));
 	}
 
@@ -147,6 +150,7 @@ class PaymentsController extends \BaseController {
 	 */
     public function create()
     {
+       
         $isvalid = Payment::validate();
         $sendemail = 1;
         $message = '';
@@ -287,6 +291,8 @@ class PaymentsController extends \BaseController {
                     }
                     $message = isset($status['message']) ? ' and ' . $status['message'] : '';
                 }
+                $payment_data = array();
+                $PaymentsActilead = UserActivity::UserActivitySaved($payment_data,'Add','Payments');
                 return Response::json(array("status" => "success", "message" => "Payment Successfully Created ". $message ));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Payment."));
@@ -374,6 +380,7 @@ class PaymentsController extends \BaseController {
      */
     public function recall($id) {
         $data = Input::all();
+        $ids = $data['PaymentIDs'];
         $rules['RecallReasoan'] = 'required';
         $validator = Validator::make($data, $rules);
         $data['RecallBy'] =  User::get_user_full_name();
@@ -492,7 +499,8 @@ class PaymentsController extends \BaseController {
                         }
                     }
                 }
-
+                $data['PaymentIDs'] = $ids;
+                $PaymentsActilead = UserActivity::UserActivitySaved($data,'Recall','Payments');
                 return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
@@ -610,6 +618,7 @@ class PaymentsController extends \BaseController {
                     $grid['PaymentUploadTemplate'] = json_decode(json_encode($PaymentUploadTemplate), true);
                     $grid['PaymentUploadTemplate']['Options'] = json_decode($PaymentUploadTemplate->Options, true);
                 }
+                $PaymentsActilead = UserActivity::UserActivitySaved($data,'Upload','Payments');
                 return Response::json(array("status" => "success", "data" => $grid));
             }
         }catch(Exception $ex) {
