@@ -75,8 +75,9 @@ class TranslateController extends \BaseController {
         $request = Input::all();
         $language = $request["language"];
         $listLabels = $request["listLabels"];
-
         Translation::multi_update_labels($language, $listLabels);
+        unset($request['listLabels']);
+        $TranslationActilead = UserActivity::UserActivitySaved($request,'Bulk Edit','Translation');
         return json_encode(["status" => "success", "message" => ""]);
     }
 
@@ -97,7 +98,8 @@ class TranslateController extends \BaseController {
         foreach($translation_data as $key=>$value){
             $json_file[]=array("System Name"=>$key, "Language"=> $value);
         }
-
+        $export_type['type'] = $type;
+        $TranslationActilead = UserActivity::UserActivitySaved($export_type,'Export','Translation');
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$data_langs->Language.'.csv';
             $NeonExcel = new NeonExcelIO($file_path);
@@ -113,7 +115,7 @@ class TranslateController extends \BaseController {
         $request = Input::all();
 
         if(Translation::add_system_name($request["system_name"], $request["en_word"])){
-            $TranslationActilead = UserActivity::UserActivitySaved($request,'Add','Translation');
+            $TranslationActilead = UserActivity::UserActivitySaved($request,'Add','Translation',$request['system_name']);
             return json_encode(["status" => "success", "message" => "Add Successfully"]);
         }else{
             return json_encode(["status" => "fail", "message" => "System Name already exist."]);

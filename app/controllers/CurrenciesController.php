@@ -48,7 +48,7 @@ class CurrenciesController extends \BaseController {
 
         if ($currency = Currency::create($data)) {
             Currency::clearCache();
-            $CurrencyActilead = UserActivity::UserActivitySaved($data,'Add','Currency');
+            $CurrencyActilead = UserActivity::UserActivitySaved($data,'Add','Currency',$data['Code']);
             return Response::json(array("status" => "success", "message" => "Currency Successfully Created",'LastID'=>$currency->CurrencyId,'newcreated'=>$currency));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Currency."));
@@ -109,7 +109,7 @@ class CurrenciesController extends \BaseController {
             unset($data['PageRefresh']);
             if ($Currency->update($data)) {
                 Currency::clearCache();
-                $CurrencyActilead = UserActivity::UserActivitySaved($data,'Edit','Currency');
+                $CurrencyActilead = UserActivity::UserActivitySaved($data,'Edit','Currency',$data['Code']);
                 return Response::json(array("status" => "success", "message" => "Currency Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Currency."));
@@ -152,6 +152,8 @@ class CurrenciesController extends \BaseController {
 
     public function exports($type){
         $CompanyID = User::get_companyID();
+        $export_type['type'] = $type;
+        $CurrencyActilead = UserActivity::UserActivitySaved($export_type,'Export','Currency');
         $currencies = Currency::where(["CompanyID" => $CompanyID])->get(['Code','Symbol', 'Description']);
         $currencies = json_decode(json_encode($currencies),true);
         if($type=='csv'){

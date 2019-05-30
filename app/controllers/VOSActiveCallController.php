@@ -4,8 +4,6 @@ class VOSActiveCallController extends \BaseController {
 
     public function index()
     {
-        $data = array();
-        $VOSActiveCallsActilead = UserActivity::UserActivitySaved($data,'View','VOS Active Calls');
         return View::make('VOSActiveCall.index');
     }
 
@@ -14,6 +12,7 @@ class VOSActiveCallController extends \BaseController {
         $data 							 = 		Input::all();
 
         $CompanyID 						 = 		User::get_companyID();
+        $VOSActiveCallsActilead          =      UserActivity::UserActivitySaved($data,'View','VOS Active Calls');
         $data['iDisplayStart'] 			+=		1;
         $data['CLI']				     =		$data['CLI']!= ''?$data['CLI']:'';
         $data['CLD']				     =		$data['CLD']!= ''?$data['CLD']:'';
@@ -26,6 +25,8 @@ class VOSActiveCallController extends \BaseController {
 
         $query = "call prc_getVOSActiveCalls(".$CompanyID.",'".$data['CLI']."','".$data['CLD']."','".$data['MappingGateway']."','".$data['RoutingGateway']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+			$VOSActiveCallsActilead = UserActivity::UserActivitySaved($export_type,'Export','VOS Active Calls');
             $excel_data  = DB::connection('sqlsrvcdr')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){

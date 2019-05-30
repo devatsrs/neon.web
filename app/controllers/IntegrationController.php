@@ -286,6 +286,54 @@ class IntegrationController extends \BaseController
 				return Response::json(array("status" => "success", "message" => "Stripe ACH Settings Successfully Updated"));
 			}
 
+
+			if($data['secondcategory']=='GoCardLess')
+			{
+				$rules = array(
+					'AccessKey'	 		=> 'required',
+					'EndPointSecret'	=> 'required',
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] = isset($data['Status'])?1:0;
+				$data['isLive'] = isset($data['isLive'])?1:0;
+				/*
+				if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+				}*/
+
+				$GoCardLessData = array(
+					"AccessKey"			=> $data['AccessKey'],
+					"EndPointSecret"	=> $data['EndPointSecret'],
+					"isLive"			=> $data['isLive'],
+				);
+
+				$GoCardLessDbData = IntegrationConfiguration::where(array(
+					'CompanyId'		=> $companyID,
+					"IntegrationID"	=> $data['secondcategoryid']
+				))->first();
+
+				if(count($GoCardLessDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($GoCardLessData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$GoCardLessDbData->IntegrationConfigurationID))->update($SaveData);
+
+					return Response::json(array("status" => "success", "message" => "GoCardLess Settings Successfully Updated"));
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($GoCardLessData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "GoCardLess Settings Successfully Saved"));
+			}
+
 			if($data['secondcategory']=='SagePay')
 			{
 				$rules = array(

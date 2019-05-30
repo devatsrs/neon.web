@@ -22,6 +22,7 @@ class SiteIntegration{
  static    $QuickBookDesktopSlug=	'quickbookdesktop';
  static    $StripeSlug			=	'stripe';
  static    $StripeACHSlug		=	'stripeach';
+ static    $GoCardLessSlug		=	'gocardless';
  static    $SagePaySlug			=	'sagepay';
  static    $SagePayDirectDebitSlug=	'sagepaydirectdebit';
  static    $FideliPaySlug =	'fidelipay';

@@ -83,9 +83,7 @@ class CompaniesController extends \BaseController {
 	public function update()
 	{
         $data = Input::all();
-        //https://codedesk.atlassian.net/browse/NEON-1591
-        //Audit Trails of user activity
-        $CompanyActilead = UserActivity::UserActivitySaved($data,'Edit','Company');
+    
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
@@ -246,7 +244,7 @@ class CompaniesController extends \BaseController {
                         'openssl pkcs12 -inkey '.$signaturePath.'digitalsignature.key -in '.$signaturePath.'digitalsignature.crt -export -out '.$signaturePath.'digitalsignature.pfx -password pass:Welcome100'
                     ]);
             }
-
+            $CompanyActilead = UserActivity::UserActivitySaved($data,'Edit','Company',$data['CompanyName']);
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Company."));

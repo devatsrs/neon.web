@@ -15,6 +15,7 @@ class ServicesController extends BaseController {
        $data = Input::all();
 
        $companyID = User::get_companyID();
+       $UserActilead = UserActivity::UserActivitySaved($data,'View','Services');
        $data['ServiceStatus'] = $data['ServiceStatus']== 'true'?1:0;
 
        $services = Service::leftJoin('tblCompanyGateway','tblService.CompanyGatewayID','=','tblCompanyGateway.CompanyGatewayID')
@@ -48,10 +49,7 @@ class ServicesController extends BaseController {
     }
 
     public function index() {
-        $data = array();
-        $UserActilead = UserActivity::UserActivitySaved($data,'View','Services');
         return View::make('service.index', compact(''));
-
     }
 
     public function store() {
@@ -71,7 +69,7 @@ class ServicesController extends BaseController {
                 return json_validator_response($validator);
             }
             if($Service = Service::create($data)){
-                $UserActilead = UserActivity::UserActivitySaved($data,'Add','Services');
+                $UserActilead = UserActivity::UserActivitySaved($data,'Add','Services',$data['ServiceName']);
                 return  Response::json(array("status" => "success", "message" => "Service Successfully Created",'LastID'=>$Service->ServiceID,'newcreated'=>$Service));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
@@ -98,7 +96,7 @@ class ServicesController extends BaseController {
             return json_validator_response($validator);
         }
         if($Service->update($data)){
-            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Services');
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Services',$data['ServiceName']);
             return  Response::json(array("status" => "success", "message" => "Service Successfully Updated"));
         } else {
             return  Response::json(array("status" => "failed", "message" => "Problem Updating Service."));

@@ -501,6 +501,7 @@ class ImportsController extends \BaseController {
                     $grid['AccountFileUploadTemplate'] = json_decode(json_encode($AccountFileUploadTemplate), true);
                     $grid['AccountFileUploadTemplate']['Options'] = json_decode($AccountFileUploadTemplate->Options, true);
                 }
+                $UserActilead = UserActivity::UserActivitySaved($data,'Import Leads','Lead');
                 return Response::json(array("status" => "success", "data" => $grid));
             }
         }catch(Exception $ex) {
@@ -593,6 +594,7 @@ class ImportsController extends \BaseController {
             }
             DB::commit();
             @unlink($temp_path . $file_name);
+            $UserActilead = UserActivity::UserActivitySaved($data,'Mapping Template','Lead');
             return json_encode(["status" => "success", "message" => "File Uploaded, File is added to queue for processing. You will be notified once file upload is completed. "]);
         } catch (Exception $ex) {
             DB::rollback();

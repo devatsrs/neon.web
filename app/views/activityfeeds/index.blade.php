@@ -173,7 +173,7 @@
                             }else{
                                 process =  '('+ full[4] +')';
                             }
-                            action = full[2] + process + ' ' +full[3] ; 
+                            action = full[2] + ' ' + process + ' ' + full[3] ; 
                             return action;
                         }
                         }, 
@@ -293,8 +293,9 @@
                         str = str.toLowerCase().replace(/\b[a-z]/g, function(letter) {
                             return letter.toUpperCase();
                         });
-                        $('#table-list2').append('<tr><th>'+ str +'</th><td>'+ value +'</td></tr>');
-                        
+                        if(typeof value !='object'){
+                            $('#table-list2').append('<tr><th>'+ str +'</th><td>'+ value +'</td></tr>');
+                        }
                     })
                     $('#details-modal').modal('show');
                   }else{

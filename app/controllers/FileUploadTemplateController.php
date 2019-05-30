@@ -6,9 +6,7 @@ class FileUploadTemplateController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
 
-        //https://codedesk.atlassian.net/browse/NEON-1591
-        //Audit Trails of user activity
-        $UploadtemplateActilead = UserActivity::UserActivitySaved($data,'View','Uploadtemplate');
+        $UploadtemplateActilead = UserActivity::UserActivitySaved($data,'Search','Upload Template');
 
         $data['iDisplayStart'] +=1;
         $data['Title']  = $data['Title']!= '' ? "'".$data['Title']."'" : 'null';
@@ -21,6 +19,8 @@ class FileUploadTemplateController extends \BaseController {
         $query = "call prc_GetFileUploadTemplates (" . $CompanyID . "," . $data['Title'] . "," . $data['Type'] . "," . ( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UploadtemplateActilead = UserActivity::UserActivitySaved($export_type,'Export','Upload Template');
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -46,7 +46,9 @@ class FileUploadTemplateController extends \BaseController {
      * @return Response
      */
     public function index() {
+        $data = array();
         $fileUploadTemplates = FileUploadTemplateType::getTemplateTypeIDList();
+        $UploadtemplateActilead = UserActivity::UserActivitySaved($data,'View','Upload Template');
         return View::make('fileuploadtemplates.index', compact('account_owners','fileUploadTemplates'));
     }
 
@@ -121,7 +123,8 @@ class FileUploadTemplateController extends \BaseController {
         $heading = 'New Template';
         $templateID = '';
         $Types = FileUploadTemplateType::getTemplateTypeIDList();
-
+        $view = array();
+        $UploadtemplateActilead = UserActivity::UserActivitySaved($view,'View','Upload Template Create');
         return View::make('fileuploadtemplates.create',compact('columns','rows','message','csvoption','attrselection','file_name','templateID','heading','TemplateName','dialstring','currencies','attrskiprows','Types','TemplateType','DynamicFields','trunks','Services','ratetables'));
     }
 
@@ -248,13 +251,13 @@ class FileUploadTemplateController extends \BaseController {
      */
     public function store() {
         $data = Input::all();
-
         if(!empty($data['TemplateType'])) {
             $response = FileUploadTemplate::createOrUpdateFileUploadTemplate($data);
 
             if(is_object($response)) { //validator error
                 return $response;
             } else if ($response['status'] == "success") {
+                $UploadtemplateActilead = UserActivity::UserActivitySaved($data,'Add','Upload Template',$data['TemplateName']);
                 return Response::json(array("status" => $response['status'], "message" => $response['message'], 'redirect' => URL::to('/uploadtemplate/')));
             } else {
                 return Response::json(array("status" => $response['status'], "message" => $response['message']));
@@ -279,6 +282,7 @@ class FileUploadTemplateController extends \BaseController {
             if(is_object($response)) { //validator error
                 return $response;
             } else if ($response['status'] == "success") {
+                $UploadtemplateActilead = UserActivity::UserActivitySaved($data,'Edit','Upload Template',$data['TemplateName']);
                 return Response::json(array("status" => $response['status'], "message" => $response['message'], 'redirect' => URL::to('/uploadtemplate/')));
             } else {
                 return Response::json(array("status" => $response['status'], "message" => $response['message']));
@@ -296,10 +300,12 @@ class FileUploadTemplateController extends \BaseController {
      * @return Response
      */
     public function delete($id) {
+        $data['id'] = $id;
         if( intval($id) > 0){
             try {
                 $result = FileUploadTemplate::find($id)->delete();
                 if ($result) {
+                    $UploadtemplateActilead = UserActivity::UserActivitySaved($data,'Delete','Upload Template');
                     return Response::json(array("status" => "success", "message" => "Template Successfully Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Template."));

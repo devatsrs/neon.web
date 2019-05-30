@@ -54,7 +54,7 @@ class DialStringController extends \BaseController {
         $data['CreatedBy'] = User::get_user_full_name();
 
         if ($dialstring = DialString::create($data)) {
-            $DialStringsActilead = UserActivity::UserActivitySaved($data,'Add','DialStrings');
+            $DialStringsActilead = UserActivity::UserActivitySaved($data,'Add','DialStrings',$data['Name']);
             return Response::json(array("status" => "success", "message" => "Dial String Successfully Created",'LastID'=>$dialstring->DialStringID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Dial String."));
@@ -79,7 +79,7 @@ class DialStringController extends \BaseController {
         $data['ModifiedBy'] = User::get_user_full_name();
 
         if ($dialstring->update($data)) {
-            $DialStringsActilead = UserActivity::UserActivitySaved($data,'Edit','DialStrings');
+            $DialStringsActilead = UserActivity::UserActivitySaved($data,'Edit','DialStrings',$data['Name']);
             return Response::json(array("status" => "success", "message" => "Dial String Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Dial String."));
@@ -116,8 +116,10 @@ class DialStringController extends \BaseController {
 
     //dial string detail view
     public function dialstringcode($id){
-        $data['dialstring_id'] = $id;
+       
         $DialStringName = DialString::getDialStringName($id);
+        $data['dialstring_id'] = $id;
+        $data['DialStringName'] = $DialStringName;
         $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'View','DialStringsCode');
         return View::make('dialstring.dialstringcode', compact('id','DialStringName'));
 
@@ -179,7 +181,7 @@ class DialStringController extends \BaseController {
         $data['created_by'] = User::get_user_full_name();
 
         if ($DialStringCode = DialStringCode::create($data)) {
-            $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Add','DialStringsCode');
+            $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Add','DialStringsCode',$data['DialString']);
             return Response::json(array("status" => "success", "message" => "Dial String Successfully Created",'LastID'=>$DialStringCode->DialStringCodeID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Dial String."));
@@ -210,7 +212,7 @@ class DialStringController extends \BaseController {
         $data['updated_by'] = User::get_user_full_name();
 
         if ($DialStringCode->update($data)) {
-            $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Edit','DialStringsCode');
+            $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Edit','DialStringsCode',$data['DialString']);
             return Response::json(array("status" => "success", "message" => "Dial Strings Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Dial Strings."));
@@ -220,10 +222,12 @@ class DialStringController extends \BaseController {
 
     //delete single Dial String
     public function deletecode($id){
+        $data['id'] = $id;
         if( intval($id) > 0){
             try{
                 $result = DialStringCode::find($id)->delete();
                 if ($result) {
+                    $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Delete','DialStringsCode');
                     return Response::json(array("status" => "success", "message" => "Dial String Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Dial String."));
@@ -299,6 +303,7 @@ class DialStringController extends \BaseController {
 
             $result = DB::statement($query);
             if ($result) {
+                $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','DialStringsCode');
                 return Response::json(array("status" => "success", "message" => "Dial Strings Updated Successfully."));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Dial Strings."));
@@ -332,6 +337,7 @@ class DialStringController extends \BaseController {
 
             $result = DB::statement($query);
             if ($result) {
+                $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Bulk Delete','DialStringsCode');
                 return Response::json(array("status" => "success", "message" => "Dial Strings Deleted Successfully."));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem deleting Dial Strings."));
@@ -343,6 +349,7 @@ class DialStringController extends \BaseController {
 
             $result = DB::statement($query);
             if ($result) {
+                $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','DialStringsCode');
                 return Response::json(array("status" => "success", "message" => "Dial Strings Updated Successfully."));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Dial Strings."));

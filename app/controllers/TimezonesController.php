@@ -9,8 +9,7 @@ class TimezonesController extends BaseController {
 
     public function search_ajax_datagrid($type){
         $data = Input::all();
-        //dd($data);
-
+        $TimezonesActilead = UserActivity::UserActivitySaved($data,'View','Timezones');
         $data['iDisplayStart'] +=1;
         $data['Title'] = $data['Title'] != '' ? "'".$data['Title']."'" : 'null';
         $data['Status'] = !empty($data['Status']) ? 1 : 0;
@@ -42,7 +41,7 @@ class TimezonesController extends BaseController {
 
     public function index() {
         $data = array();
-        $TimezonesActilead = UserActivity::UserActivitySaved($data,'View','Timezones');
+      
         return View::make('timezones.index');
     }
 
@@ -84,7 +83,7 @@ class TimezonesController extends BaseController {
             $save['updated_at']     = date('Y-m-d H:i:s');
 
             if($Timezones = Timezones::create($save)){
-                $TimezonesActilead = UserActivity::UserActivitySaved($data,'Add','Timezones');
+                $TimezonesActilead = UserActivity::UserActivitySaved($data,'Add','Timezones',$data['Title']);
                 return  Response::json(array("status" => "success", "message" => "Timezone Successfully Created"));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Creating Timezone."));
@@ -135,7 +134,7 @@ class TimezonesController extends BaseController {
                     $save['updated_by'] = User::get_user_full_name();
 
                     if ($Timezones = $Timezone->update($save)) {
-                        $TimezonesActilead = UserActivity::UserActivitySaved($data,'Edit','Timezones');
+                        $TimezonesActilead = UserActivity::UserActivitySaved($data,'Edit','Timezones',$data['Title']);
                         return Response::json(array("status" => "success", "message" => "Timezone Successfully Updated"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Updating Timezone."));
@@ -153,6 +152,7 @@ class TimezonesController extends BaseController {
 
     public function changeSelectedStatus($type) {
         $data = Input::all();
+
         if(!empty($data['TimezonesIDs']) && !empty($type)){
             $ids        = explode(',',$data['TimezonesIDs']);
             $status     = $type == 'Active' ? 1 : 0;
@@ -164,7 +164,8 @@ class TimezonesController extends BaseController {
                     ->update(['Status'=>$status,'updated_at'=>date('Y-m-d H:i:s'),'updated_by'=>$username]);
 
             if ($update) {
-                $TimezonesActilead = UserActivity::UserActivitySaved($data,'Edit','Timezones_Status');
+                $data['status'] = $type;
+                $TimezonesActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Timezones');
                 return Response::json(array("status" => "success", "message" => "Timezones Status Successfully Changed"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Changing Timezones Status."));

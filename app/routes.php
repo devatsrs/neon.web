@@ -1597,7 +1597,8 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
 	Route::any('/report/export/{id}','ReportController@getdatagrid');
-	
+
+	Route::post('/gocardless_webhook_check', array("as" => "gocardless", "uses" => "PaymentProfileCustomerController@GoCardLess_Webhook"));
     /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');

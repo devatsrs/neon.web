@@ -24,7 +24,8 @@ class DynamiclinkController extends \BaseController {
         $query = "call prc_getDynamiclinks (".$CompanyID.", '".$data['Title']."','".$data['CurrencyID']."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $DynamiclinkdActilead = UserActivity::UserActivitySaved($data,'Export','Dynamiclink');
+            $export_data['type'] = $type;
+            $DynamiclinkdActilead = UserActivity::UserActivitySaved($export_data,'Export','Dynamiclink');
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -92,7 +93,7 @@ class DynamiclinkController extends \BaseController {
         }
 
         if ($dynamicfield = Dynamiclink::create($data)) {
-            $DynamiclinkdActilead = UserActivity::UserActivitySaved($data,'Add','Dynamiclink');
+            $DynamiclinkdActilead = UserActivity::UserActivitySaved($data,'Add','Dynamiclink',$data['Title']);
             return Response::json(array("status" => "success", "message" => "Dynamic Link Successfully Created"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Dynamic Link."));
@@ -136,7 +137,7 @@ class DynamiclinkController extends \BaseController {
             }
             
             if ($dynamiclink->update($data)) {
-                $DynamiclinkdActilead = UserActivity::UserActivitySaved($data,'Edit','Dynamiclink');
+                $DynamiclinkdActilead = UserActivity::UserActivitySaved($data,'Edit','Dynamiclink',$data['Title']);
                 return Response::json(array("status" => "success", "message" => "Dynamic Link Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Dynamic Link."));

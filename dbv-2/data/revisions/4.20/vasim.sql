@@ -1,5 +1,17 @@
 USE `RMBilling3`;
 
+CREATE TABLE IF NOT EXISTS `tblClarityPBXPayment` (
+  `ClarityPBXPaymentID` int(11) NOT NULL AUTO_INCREMENT,
+  `PaymentID` int(11) NOT NULL,
+  `CompanyID` int(11) NOT NULL,
+  `AccountID` int(11) NOT NULL,
+  `Amount` decimal(18,8) NOT NULL,
+  `Recall` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ClarityPBXPaymentID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
 
 
 DROP PROCEDURE IF EXISTS `prc_updateTempCDRTimeZones`;
@@ -171,5 +183,78 @@ ThisSP:BEGIN
 			
 	END IF;
 	
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getClarityPBXExportPayment`;
+DELIMITER //
+CREATE PROCEDURE `prc_getClarityPBXExportPayment`(
+	IN `p_CompanyID` INT,
+	IN `p_start_date` DATETIME,
+	IN `p_Recall` INT
+)
+BEGIN
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	IF p_Recall=0
+	THEN
+
+		SELECT
+			ac.AccountID,
+			ac.AccountName,
+			tblPayment.PaymentID,
+			tblPayment.CompanyID,
+			tblPayment.Amount,
+			tblPayment.Recall
+		FROM
+			tblPayment
+		INNER JOIN
+			NeonRMDev.tblAccount AS ac ON ac.AccountID=tblPayment.AccountID
+		LEFT JOIN
+			tblClarityPBXPayment AS CPP ON CPP.PaymentID = tblPayment.PaymentID
+		WHERE
+			CPP.PaymentID IS NULL
+			AND PaymentType='Payment In'
+			AND ac.CompanyId = p_CompanyID
+			AND tblPayment.Status='Approved'
+			AND tblPayment.Recall=p_Recall
+			AND tblPayment.PaymentDate>p_start_date;
+
+	END IF;
+
+	IF p_Recall=1
+	THEN
+
+		SELECT
+			ac.AccountID,
+			ac.AccountName,
+			tblPayment.PaymentID,
+			tblPayment.CompanyID,
+			tblPayment.Amount,
+			tblPayment.Recall
+		FROM
+			tblPayment
+		INNER JOIN
+			NeonRMDev.tblAccount AS ac ON ac.AccountID=tblPayment.AccountID
+		LEFT JOIN
+			tblClarityPBXPayment AS CPP ON CPP.PaymentID = tblPayment.PaymentID AND CPP.Recall = tblPayment.Recall AND CPP.Recall = p_Recall
+		LEFT JOIN
+			tblClarityPBXPayment AS CPP2 ON CPP2.PaymentID = tblPayment.PaymentID AND CPP2.Recall = 0
+		WHERE
+			CPP.PaymentID IS NULL
+			AND CPP2.PaymentID IS NOT NULL
+			AND PaymentType='Payment In'
+			AND ac.CompanyId = p_CompanyID
+			AND tblPayment.Status='Approved'
+			AND tblPayment.Recall=p_Recall
+			AND tblPayment.PaymentDate>p_start_date;
+
+	END IF;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;

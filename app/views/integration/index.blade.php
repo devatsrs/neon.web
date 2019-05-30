@@ -456,6 +456,46 @@
                         </div>
                     </div>
                     <!-- stripe ach end -->
+                    <!-- go card less start -->
+                    <?php
+                    $GoCardLessDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$GoCardLessSlug);
+                    $GoCardLessData   = isset($GoCardLessDbData->Settings)?json_decode($GoCardLessDbData->Settings):"";
+                    ?>
+                    <div class="subcategorycontent" id="subcategorycontent{{$GoCardLessDbData->Slug}}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label">* Access Key:</label>
+                                    <input type="text"  class="form-control" name="AccessKey" value="{{isset($GoCardLessData->AccessKey)?$GoCardLessData->AccessKey:''}}" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label">* EndPoint Secret:</label>
+                                    <input type="text"  class="form-control" name="EndPointSecret" value="{{isset($GoCardLessData->EndPointSecret)?$GoCardLessData->EndPointSecret:''}}" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label">* Live:</label>
+                                    <div id="GoCardLessLiveDiv">
+                                        <input id="isLive" class="subcatstatus" Divid="GoCardLessLiveDiv" name="isLive" type="checkbox" value="1" <?php if(isset($GoCardLessData->isLive) && $GoCardLessData->isLive==1){ ?>   checked="checked"<?php } ?> >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Active:</label>
+                                    <div id="gocardlessStatusDiv">
+                                        <input id="GoCardLessStatus" class="subcatstatus" Divid="gocardlessStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($GoCardLessDbData->Status) && $GoCardLessDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- go card less end -->
                     <!-- SagePay start -->
                     <?php
                     $SagePayDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$SagePaySlug);

@@ -15,6 +15,7 @@ class OpportunityBoardController extends \BaseController {
     public function ajax_datagrid(){
         $companyID = User::get_companyID();
         $data = Input::all();
+        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'View','Opportunity Boards');
         $data['iDisplayStart'] +=1;
         $response = NeonAPI::request('opportunityboard/get_boards',$data,false);
         return json_response_api($response,true,true,true);
@@ -22,8 +23,7 @@ class OpportunityBoardController extends \BaseController {
 
 
     public function index(){
-        $data = array();
-        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'View','Opportunity Boards');
+      
         return View::make('opportunityboards.index', compact(''));
     }
 
@@ -36,7 +36,7 @@ class OpportunityBoardController extends \BaseController {
         if(isset($TaskBoard[0]->BoardID) && $TaskBoard[0]->BoardID==$id){
             $urlto = 'task';
         }
-        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'View','Opportunity Boards');
+        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'View','Configure Board');
         return View::make('opportunityboards.configure', compact('id','Board','urlto'));
     }
 
@@ -82,7 +82,7 @@ class OpportunityBoardController extends \BaseController {
         $data = Input::all();
         unset($data["BoardID"]);
         $response = NeonAPI::request('opportunityboard/add_board',$data);
-        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'Add','Opportunity Boards');
+        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'Add','Opportunity Boards',$data['BoardName']);
         return json_response_api($response);
     }
 
@@ -97,7 +97,7 @@ class OpportunityBoardController extends \BaseController {
     public function update($id){
             $data = Input::all();
             $response = NeonAPI::request('opportunityboard/'.$id.'/update_board',$data);
-            $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'Edit','Opportunity Boards');
+            $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'Edit','Opportunity Boards',$data['BoardName']);
             return json_response_api($response);
     }
 }
