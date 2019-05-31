@@ -987,8 +987,9 @@ class AccountsController extends \BaseController {
 			$response = $response->data;
 			$response->type = Task::Note;
 		}
-			
+		 	
 		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+                $UserActilead = UserActivity::UserActivitySaved($data,'Edit Note','Account',$current_user_title);	
 		return View::make('accounts.show_ajax_single_update', compact('response','current_user_title','key'));   
 	}
 
@@ -1005,7 +1006,8 @@ class AccountsController extends \BaseController {
 		if($response->status=='failed'){
 			return json_response_api($response,false,true);
 		}else{ 
-			return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
+                    $UserActilead = UserActivity::UserActivitySaved($postdata,'Delete Note','Account');
+                    return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
 		}     
     }
 
@@ -1036,6 +1038,7 @@ class AccountsController extends \BaseController {
                 if(AccountApprovalList::isVerfiable($id)){
                     $refrsh = 1;
                 }
+                $UserActilead = UserActivity::UserActivitySaved($data,'File Uploaded','Account');
                 return json_encode(["status" => "success",'refresh'=>$refrsh, "message" => "File Uploaded Successfully",'LastID'=>$AccountApprovalListID,'Filename'=>$filename]);
 
             } else {
@@ -1049,6 +1052,8 @@ class AccountsController extends \BaseController {
     public function  download_doc($id){
         $FileName = AccountApprovalList::where(["AccountApprovalListID"=>$id])->pluck('FileName');
         $FilePath =  AmazonS3::preSignedUrl($FileName);
+        $data['filename']=$FileName;
+        $UserActilead = UserActivity::UserActivitySaved($data,'download Doc','Account');
         if(file_exists($FilePath)){
             download_file($FilePath);
         }elseif(is_amazon() == true){
@@ -1059,6 +1064,8 @@ class AccountsController extends \BaseController {
     public function  download_doc_file($id){
         $DocumentFile = AccountApproval::where(["AccountApprovalID"=>$id])->pluck('DocumentFile');
         $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
+        $data['filename']=$DocumentFile;
+        $UserActilead = UserActivity::UserActivitySaved($data,'download Doc','Account');
         if(file_exists($FilePath)){
             download_file($FilePath);
         }elseif(is_amazon() == true){
@@ -1071,6 +1078,8 @@ class AccountsController extends \BaseController {
         $filename = $AccountApprovalList->FileName;
         if($AccountApprovalList->delete()){
             AmazonS3::delete($filename);
+            $data['filename']=$filename;
+            $UserActilead = UserActivity::UserActivitySaved($data,'Delete Doc','Account');
             echo json_encode(array("status" => "success", "message" => "Document deleted successfully"));
         }else{
             echo json_encode(array("status" => "failed", "message" => "Problem Deleting Document"));
@@ -1115,7 +1124,7 @@ class AccountsController extends \BaseController {
                     });
                 })->download('xls');*/
             }
-
+            $UserActilead = UserActivity::UserActivitySaved($data,'View Sheet','Account');
             return DataTableSql::of($query)->make();
     }
 
@@ -1256,6 +1265,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 unset($data['Format']);
                 unset($data['isMerge']);
             }
+            $UserActilead = UserActivity::UserActivitySaved($data,'Bulk Mail','Account');
             return bulk_mail($type, $data);
     }
 
@@ -1323,6 +1333,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $SelectedIDs = $data['SelectedIDs'];
             unset($data['SelectedIDs']);
             if (Account::whereIn('AccountID', explode(',', $SelectedIDs))->update($data)) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Bulk Tags','Account');
                 return Response::json(array("status" => "success", "message" => "Account Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
@@ -1342,6 +1353,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 return Response::json(array("status" => "failed", "message" => "Invalid Account"));
             }
             if (Account::find($AccountID)->update($update)) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Update Inbound Rate Table','Account');
                 return Response::json(array("status" => "success", "message" => "Inbound Rate Table Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Inbound Rate Table."));
@@ -1397,7 +1409,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($id)){
             $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $id))->get();
         }
-
+        $UserActilead = UserActivity::UserActivitySaved($data,'Get Credit','Account');
         return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType','AccountBalanceThreshold'));
     }
 
@@ -1423,6 +1435,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         try{
             AccountBalanceThreshold::where('AccountID', $postdata['AccountID'])->delete();
             AccountBalanceThreshold::saveAccountBalanceThreshold($postdata['AccountID'],$postdata);
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit Credit','Account');
         } catch (Exception $ex) {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
@@ -1444,6 +1457,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $NeonExcel->download_excel($excel_data);
             }
         }
+        $UserActilead = UserActivity::UserActivitySaved($getdata,'View Credit','Account');
         return json_response_api($response,true,true,true);
     }
     //////////////////////
@@ -1454,6 +1468,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             try { 
                 $data['file'] = $attachment;
                 $returnArray = UploadFile::UploadFileLocal($data);
+                 $UserActilead = UserActivity::UserActivitySaved($data,'Upload File','Account');
                 return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
             } catch (Exception $ex) {
                 return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
@@ -1466,6 +1481,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data    =  Input::all();
         try {
             UploadFile::DeleteUploadFileLocal($data);
+            $UserActilead = UserActivity::UserActivitySaved($data,'Delete Upload File','Account');
             return Response::json(array("status" => "success", "message" => 'Attachments delete successfully'));
         } catch (Exception $ex) {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
@@ -1480,12 +1496,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		if($data['parent_type']==Task::Note)
 		{
 			$data_send  	=  	array("NoteID" => $data['parent_id']);
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Delete Note','Account');
 			$result 		=  	NeonAPI::request('account/delete_note',$data_send);
 		}
 		
 		if($data['parent_type']==Task::Mail)
 		{
 			$data_send  	=  array("AccountEmailLogID" => $data['parent_id']);
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Delete Email','Account');
 			$result 		=  NeonAPI::request('account/delete_email',$data_send);
 			
 		}
@@ -1527,7 +1545,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 			$data['low_balance'] = $data['low_balance']== 'true'?1:0;
 
 		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."','".$data['status_set']."')";
-		 
+                        $UserActilead = UserActivity::UserActivitySaved($data,$type_status.' Bulk','Account');
 		 	$result  			= 	DB::select($query);	
 			return Response::json(array("status" => "success", "message" => "Account Status Updated"));				
 		}
@@ -1536,7 +1554,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 			if(isset($data['SelectedIDs']) && count($data['SelectedIDs'])>0){
 				foreach($data['SelectedIDs'] as $SelectedIDs){
 					Account::find($SelectedIDs)->update(["Status"=>intval($data['status_set'])]);
-				}	
+				}
+                                $UserActilead = UserActivity::UserActivitySaved($data,$type_status.'','Account');
 				return Response::json(array("status" => "success", "message" => "Account Status Updated"));		
 			}else{
 				return Response::json(array("status" => "failed", "message" => "No account selected"));
@@ -1549,12 +1568,15 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function expense($id){
         $CurrencySymbol = Account::getCurrency($id);
+        $data['id']=$id;
+        $UserActilead = UserActivity::UserActivitySaved($data,'Expense','Account');
         return View::make('accounts.expense',compact('id','CurrencySymbol'));
     }
     public function expense_chart(){
         $data = Input::all();
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $companyID = User::get_companyID();
+        $UserActilead = UserActivity::UserActivitySaved($data,'Expense Chart','Account');
         $response = Account::getActivityChartRepose($companyID,$data['AccountID']);
         return $response;
     }
@@ -1576,7 +1598,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $query = "call prc_getVendorUnbilledReport (?,?,?,?,?)";
             $VendorUnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$VendorLastInvoiceDate,$today,1));
         }
-
+        $UserActilead = UserActivity::UserActivitySaved($data,'Unbilled Report','Account');
         return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol','VendorUnbilledResult','account'));
     }
 
@@ -1592,6 +1614,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
         $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?)";
         $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1));
+        
+        $UserActilead = UserActivity::UserActivitySaved($data,'Prepaid Unbilled Report','Account');
+        
         return View::make('accounts.prepaid_unbilled_table', compact('UnbilledResult','CurrencySymbol','account'));
     }
 
@@ -1625,6 +1650,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --javascript-delay 5000 "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             Log::info (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --javascript-delay 5000"'.$local_htmlfile.'" "'.$local_file.'"',$output);
         }
+        $data['id']=$id;
+        $UserActilead = UserActivity::UserActivitySaved($data,'Activity PDF Download','Account');
+        
         Log::info($output);
         @unlink($local_htmlfile);
         $save_path = $destination_dir . $file_name;
@@ -1646,6 +1674,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($data['ServiceID'])){
             $rate_tables->where('tblCLIRateTable.ServiceID','=',$data['ServiceID']);
         }
+        
+        $UserActilead = UserActivity::UserActivitySaved($data,'CLI Table','Account');
         /*
         else{
             $rate_tables->where('tblCLIRateTable.ServiceID','=',0);
@@ -1689,6 +1719,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $message = 'Following CLI already exists.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
         }else{
+            $UserActilead = UserActivity::UserActivitySaved($data,'CLI Add','Account');
             return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));
         }
 
@@ -1746,7 +1777,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             //CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->delete();
             CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->delete();
         }
-
+        $UserActilead = UserActivity::UserActivitySaved($data,'CLI Delete','Account');
         return Response::json(array("status" => "success", "message" => "CLI Deleted Successfully"));
     }
 
@@ -1771,6 +1802,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
            // $query->where(array('ServiceID' => $ServiceID));
             $query->update(array('RateTableID' => $data['RateTableID']));
         }
+        $UserActilead = UserActivity::UserActivitySaved($data,'CLI Edit','Account');
         return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
     }
 	
@@ -2075,11 +2107,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 				DB::commit();				
             }
-			 return Response::json(array("status" => "success", "message" => "Accounts Updated Successfully"));
+            $UserActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Account');
+            return Response::json(array("status" => "success", "message" => "Accounts Updated Successfully"));
         }catch (Exception $e) {
             Log::error($e);
             DB::rollback();
-			return Response::json(array("status" => "error", "message" => $e->getMessage()));
+            return Response::json(array("status" => "error", "message" => $e->getMessage()));
         }
     }
 
@@ -2113,7 +2146,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         foreach($excel_datas as $exceldata){
             $selectedIDs.= $exceldata['AccountID'].',';
         }
-
+        $UserActilead = UserActivity::UserActivitySaved($data,'Accounts Criteria','Account');
         return $selectedIDs;
 
     }
@@ -2128,6 +2161,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if($NextBillingDate!=''){
             $NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
         }
+        $UserActilead = UserActivity::UserActivitySaved($data,'Next Billing Date','Account');
         return Response::json(array("status" => "success", "NextBillingDate" => $NextBillingDate,"NextChargedDate" => $NextChargedDate));
     }
 }
