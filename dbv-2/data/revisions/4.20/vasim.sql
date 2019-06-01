@@ -212,7 +212,7 @@ BEGIN
 		FROM
 			tblPayment
 		INNER JOIN
-			NeonRMDev.tblAccount AS ac ON ac.AccountID=tblPayment.AccountID
+			Ratemanagement3.tblAccount AS ac ON ac.AccountID=tblPayment.AccountID
 		LEFT JOIN
 			tblClarityPBXPayment AS CPP ON CPP.PaymentID = tblPayment.PaymentID
 		WHERE
@@ -238,7 +238,7 @@ BEGIN
 		FROM
 			tblPayment
 		INNER JOIN
-			NeonRMDev.tblAccount AS ac ON ac.AccountID=tblPayment.AccountID
+			Ratemanagement3.tblAccount AS ac ON ac.AccountID=tblPayment.AccountID
 		LEFT JOIN
 			tblClarityPBXPayment AS CPP ON CPP.PaymentID = tblPayment.PaymentID AND CPP.Recall = tblPayment.Recall AND CPP.Recall = p_Recall
 		LEFT JOIN
