@@ -297,6 +297,25 @@ class PaymentProfileCustomerController extends \BaseController {
         }
     }
 
+    public function GoCardLess_Confirmation()
+    {
+        $data = Input::all();
+        if(isset($data['redirect_flow_id']) && Session::has($data['redirect_flow_id'])){
+
+            $data = Session::get($data['redirect_flow_id']);
+            $CustomerID          = $data['AccountID'];
+            $CompanyID           = $data['CompanyID'];
+            $PaymentGatewayID    = $data['PaymentGatewayID'];
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            $PaymentIntegration  = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
+            $output = $PaymentIntegration->doVerify($data);
+            $msgType = $output['status'] == 'success' ? 'info_message': 'error';
+            Session::forget($data['redirect_flow_id']);
+            return Redirect::to("accounts/$CustomerID/edit")->with([$msgType => $output['message']]);
+        }
+    }
+
+
     public function GoCardLess_Webhook()
     {
         Log::useFiles(storage_path() . '/logs/gocardless-' . '-' . date('Y-m-d') . '.log');
@@ -324,7 +343,7 @@ class PaymentProfileCustomerController extends \BaseController {
                 //Log::info(print_r($PaymentProfile, true));
                 if ($PaymentProfile != false) {
                     $Options = json_decode($PaymentProfile->Options, true);
-                    if (in_array($event["action"], ['confirmed','active'])) {
+                    if (in_array($event["action"], ['confirmed','active','created'])) {
 
                         $Options['VerifyStatus'] = "verified";
                         $PaymentProfile->update(array('Options' => json_encode($Options)));

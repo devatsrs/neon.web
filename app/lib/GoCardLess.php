@@ -96,7 +96,7 @@ class GoCardLess {
 		 */
 
 		try{
-			$customer = self::$client->customers()->create([
+			/*$customer = self::$client->customers()->create([
 				"params" => [
 					"email" => $data['email'],
 					"given_name" => $data['firstname'],
@@ -147,11 +147,35 @@ class GoCardLess {
 				];
 
 			} else
-				return ['status' => 'fail', 'error' => 'Something went wrong while creating mandate.'];
+				return ['status' => 'fail', 'error' => 'Something went wrong while creating mandate.'];*/
+
+			$sessionToken = md5(date("Y-m-d H:i:s") . rand(10,10000));
+			$redirectFlow = self::$client->redirectFlows()->create([
+				"params" => [
+					"description" => "Bank Details",
+					"session_token" => $sessionToken,
+					"success_redirect_url" => url('/gocardless_confirmation'),
+					// Optionally, prefill customer details on the payment page
+					"prefilled_customer" => [
+						"email" 		=> $data['email'],
+						"given_name" 	=> $data['firstname'],
+						"family_name" 	=> $data['surname'],
+						"country_code" 	=> strtoupper($data['country'])
+					]
+				]
+			]);
+
+			return [
+				'status' 		=> 'success',
+				'RedirectURL' 	=> $redirectFlow->redirect_url,
+				'RedirectID' 	=> $redirectFlow->id,
+				'SessionToken' 	=> $sessionToken,
+				'message' 		=> 'Redirecting to GoCardLess Page.'
+			];
 
 		} catch (Exception $e) {
 			Log::error($e);
-			return ['status' => 'fail', 'error' => $e->getMessage()];
+			return ['status' => 'failed', 'error' => $e->getMessage()];
 		}
 	}
 
@@ -223,25 +247,6 @@ class GoCardLess {
 
 	public function doValidation($data){
 		$ValidationResponse = array();
-		$rules = array(
-			'AccountNumber' => 'required|digits_between:6,19',
-			'RoutingNumber' => 'required',
-			'AccountHolderType' => 'required',
-			'AccountHolderName' => 'required',
-			//'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
-		);
-
-		$validator = Validator::make($data, $rules);
-		if ($validator->fails()) {
-			$errors = "";
-			foreach ($validator->messages()->all() as $error){
-				$errors .= $error."<br>";
-			}
-
-			$ValidationResponse['status'] = 'failed';
-			$ValidationResponse['message'] = $errors;
-			return $ValidationResponse;
-		}
 		$CustomerID = $data['AccountID'];
 		$account = Account::find($CustomerID);
 		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
@@ -280,7 +285,7 @@ class GoCardLess {
 		$data['currency'] = strtolower($CurrencyCode);
 		$data['country'] = strtolower($CountryCode);
 
-		$isDefault = 1;
+		/*$isDefault = 1;
 
 		$count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
 			->where(['CompanyID' => $CompanyID])
@@ -290,15 +295,11 @@ class GoCardLess {
 
 		if($count>0){
 			$isDefault = 0;
-		}
+		}*/
 
 		$email = empty($account->BillingEmail)?'':$account->BillingEmail;
 		$accountname = empty($account->AccountName)?'':$account->AccountName;
 
-		$profileData['account_holder_name'] = $data['AccountHolderName'];
-		$profileData['account_number'] 		= $data['AccountNumber'];
-		$profileData['routing_number'] 		= $data['RoutingNumber'];
-		$profileData['account_holder_type'] = $data['AccountHolderType'];
 		$profileData['country'] 			= $data['country'];
 		$profileData['currency'] 			= $data['currency'];
 		$profileData['email'] 				= $email;
@@ -309,17 +310,29 @@ class GoCardLess {
 		$GoCardLessResponse = $this->create_customer($profileData);
 
 		if ($GoCardLessResponse["status"] == "success") {
-			$option = array(
-				'CustomerID' 	=> $GoCardLessResponse['CustomerID'],
-				'BankAccountID' => $GoCardLessResponse['BankAccountID'],
-				'MandateID' 	=> $GoCardLessResponse['MandateID'],
+
+
+			Session::set($GoCardLessResponse['RedirectID'], [
+				'Title' 			=> $data['Title'],
+				'AccountID' 		=> $CustomerID,
+				'CompanyID' 		=> $CompanyID,
+				'PaymentGatewayID' 	=> $PaymentGatewayID,
+				'RedirectID' 		=> $GoCardLessResponse['RedirectID'],
+				'SessionToken' 		=> $GoCardLessResponse['SessionToken'],
+			]);
+
+			/*
+			 * $option = array(
+				'MandateID' 	=> '',
+				'CustomerID' 	=> '',
+				'BankAccountID' => '',
 				'VerifyStatus' 	=> '',
 			);
 
 			$CardDetail = array(
 				'Title' 	  => $data['Title'],
 				'Options' 	  => json_encode($option),
-				'Status' 	  => 1,
+				'Status' 	  => 0,
 				'isDefault'   => $isDefault,
 				'created_by'  => Customer::get_accountName(),
 				'CompanyID'   => $CompanyID,
@@ -330,7 +343,8 @@ class GoCardLess {
 				return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_CREATED")));
 			} else {
 				return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_SAVING_PAYMENT_METHOD_PROFILE")));
-			}
+			}*/
+			return Response::json($GoCardLessResponse);
 		}else{
 			return Response::json(array("status" => "failed", "message" => $GoCardLessResponse['error']));
 		}
@@ -371,6 +385,56 @@ class GoCardLess {
 
 	}
 
+	public function doVerify($data){
+		try{
+
+			$redirectFlow = self::$client->redirectFlows()->complete(
+				$data['RedirectID'], //The redirect flow ID from above.
+				["params" => ["session_token" => $data['SessionToken']]]
+			);
+
+			Log::info(print_r($redirectFlow, true));
+			$isDefault = 1;
+
+			$count = AccountPaymentProfile::where(['AccountID' => $data['AccountID']])
+				->where(['CompanyID' => $data['CompanyID']])
+				->where(['PaymentGatewayID' => $data['PaymentGatewayID']])
+				->where(['isDefault' => 1])
+				->count();
+
+			if ($count > 0) {
+				$isDefault = 0;
+			}
+
+			$option = array(
+				'MandateID' 	=> $redirectFlow->links->mandate,
+				'CustomerID' 	=> $redirectFlow->links->customer,
+				'BankAccountID' => $redirectFlow->links->customer_bank_account,
+				'VerifyStatus' 	=> '',
+			);
+
+			$PaymentDetail = array(
+				'Title' 			=> $data['Title'],
+				'Options' 			=> json_encode($option),
+				'Status' 			=> 1,
+				'isDefault' 		=> $isDefault,
+				'created_by' 		=> Customer::get_accountName(),
+				'CompanyID' 		=> $data['CompanyID'],
+				'AccountID' 		=> $data['AccountID'],
+				'PaymentGatewayID' 	=> $data['PaymentGatewayID']
+			);
+
+			if (AccountPaymentProfile::create($PaymentDetail)) {
+				return array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_CREATED"));
+			} else {
+				return array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_SAVING_PAYMENT_METHOD_PROFILE"));
+			}
+
+		} catch (Exception $e) {
+			Log::error($e);
+			return array("status" => "failed", "message" => $e->getMessage());
+		}
+	}
 
 	public function paymentValidateWithProfile($data){
 		$Response = array();
@@ -427,8 +491,8 @@ class GoCardLess {
 		if(!empty($transaction['id'])) {
 			$transactionResponse['transaction_id'] = $transaction['id'];
 		}
-			$transactionResponse['Response'] = $transaction;
-			$transactionResponse['PaymentStatus'] = 'Pending Approval';
+		$transactionResponse['Response'] = $transaction;
+		$transactionResponse['PaymentStatus'] = 'Pending Approval';
 
 		$transactiondata = array();
 		$transactiondata['CompanyID'] = $account->CompanyId;
