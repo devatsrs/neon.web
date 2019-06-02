@@ -302,7 +302,8 @@ class PaymentProfileCustomerController extends \BaseController {
         $data = Input::all();
         if(isset($data['redirect_flow_id']) && Session::has($data['redirect_flow_id'])){
 
-            $data = Session::get($data['redirect_flow_id']);
+            $RedirectFlowID = $data['redirect_flow_id'];
+            $data                = Session::get($RedirectFlowID);
             $CustomerID          = $data['AccountID'];
             $CompanyID           = $data['CompanyID'];
             $PaymentGatewayID    = $data['PaymentGatewayID'];
@@ -310,7 +311,7 @@ class PaymentProfileCustomerController extends \BaseController {
             $PaymentIntegration  = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
             $output = $PaymentIntegration->doVerify($data);
             $msgType = $output['status'] == 'success' ? 'info_message': 'error';
-            Session::forget($data['redirect_flow_id']);
+            Session::forget($RedirectFlowID);
             return Redirect::to("accounts/$CustomerID/edit")->with([$msgType => $output['message']]);
         }
     }
