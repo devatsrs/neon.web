@@ -207,7 +207,7 @@ class AccountServiceController extends \BaseController {
     // get all account service
     public function ajax_datagrid($id){
         $data = Input::all();
-        Log::info("Account ajax_datagrid " .  print_r($data,true));
+        //Log::info("Account ajax_datagrid " .  print_r($data,true));
         $id=$data['account_id'];
         $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $ServiceActive = 0;
@@ -705,7 +705,7 @@ class AccountServiceController extends \BaseController {
 
     public function exports($id,$type){
         $data = Input::all();
-        Log::info("Account ajax_datagrid " .  print_r($data,true));
+        //Log::info("Account ajax_datagrid " .  print_r($data,true));
         $id=$data['account_id'];
         $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $ServiceActive = 0;
