@@ -29,7 +29,7 @@ class DestinationGroupController extends \BaseController {
         $postdata = Input::all();
         $response =  NeonAPI::request('destinationgroupset/store',$postdata,true,false,false);
         if($response->status == 'success'){
-            $DestinationGroupActilead = UserActivity::UserActivitySaved($getdata,'Add','Destination Group Set',$postdata['Name']);
+            $DestinationGroupActilead = UserActivity::UserActivitySaved($postdata,'Add','Destination Group Set',$postdata['Name']);
         }
         return json_response_api($response);
     }
@@ -45,7 +45,7 @@ class DestinationGroupController extends \BaseController {
         $postdata = Input::all();
         $response =  NeonAPI::request('destinationgroupset/update/'.$id,$postdata,'put',false,false);
         if($response->status == 'success'){
-            $DestinationGroupActilead = UserActivity::UserActivitySaved($getdata,'Edit','Destination Group Set',$postdata['Name']);
+            $DestinationGroupActilead = UserActivity::UserActivitySaved($postdata,'Edit','Destination Group Set',$postdata['Name']);
         }
         return json_response_api($response);
     }
