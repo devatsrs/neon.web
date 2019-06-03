@@ -171,7 +171,8 @@ class RateTable extends \Eloquent
     public static function getDIDTariffDropDownList($CompanyID,$Type,$CurrencyID,$AppiedTo){
         $row=array();
 
-        $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>$Type,'AppliedTo'=>$AppiedTo,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
+        //$row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>$Type,'AppliedTo'=>$AppiedTo,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
+        $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>$Type,'AppliedTo'=>$AppiedTo))->lists('RateTableName', 'RateTableId');
 
         if(!empty($row)){
             $row = array(""=> "Select")+$row;

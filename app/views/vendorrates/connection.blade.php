@@ -741,6 +741,7 @@
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").select2("val",cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }else if(list_fields[i] == 'Password'){
                                 //remain blank
+                                $("#edit-vendor-rate-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }else{
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }

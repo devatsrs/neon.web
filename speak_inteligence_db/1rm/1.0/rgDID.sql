@@ -2557,7 +2557,7 @@ GenerateRateTable:BEGIN
 
 
 
-
+		-- leave GenerateRateTable;
 
 
 
@@ -3756,7 +3756,14 @@ GenerateRateTable:BEGIN
 
 			END WHILE;
 
-			SELECT RoundChargedAmount INTO @v_RoundChargedAmount from tblRateTable where RateTableID = @p_RateTableId  limit 1;
+
+
+		END IF;
+
+		commit;
+
+
+		SELECT RoundChargedAmount INTO @v_RoundChargedAmount from tblRateTable where RateTableID = @p_RateTableId  limit 1;
 
 
 
@@ -3816,10 +3823,6 @@ GenerateRateTable:BEGIN
 			END IF;
 
 
-		END IF;
-
-		commit;
-
 
 		IF (@v_RateApprovalProcess_ = 1 ) THEN
 
@@ -3832,7 +3835,15 @@ GenerateRateTable:BEGIN
 
 		END IF;
 
-		INSERT INTO tmp_JobLog_ (Message) VALUES (@p_RateTableId);
+		IF(@p_RateTableId > 0 ) THEN
+
+			INSERT INTO tmp_JobLog_ (Message) VALUES (@p_RateTableId);
+
+		ELSE
+
+			INSERT INTO tmp_JobLog_ (Message) VALUES ('No data found');
+
+		END IF;
 
 		SELECT * FROM tmp_JobLog_;
 

@@ -29,6 +29,7 @@ class RateGeneratorsController extends \BaseController {
                 'tblRateGenerator.CurrencyID',
                 'tblRateGenerator.SelectType',
                 'tblRateGenerator.CreatedBy',
+                'tblRateGenerator.AppliedTo',
             )); // by Default Status 1
 
         if(isset($data['Search']) && !empty($data['Search'])){
@@ -1279,7 +1280,7 @@ class RateGeneratorsController extends \BaseController {
             $rate_table = RateTable::getRateTableCache($filterdata);
         } elseif(@$data['Type'] == RateGenerator::DID) {
             $filterdata['Type']       = intval($data['Type']);
-            $filterdata['CodeDeckId'] = intval($data['CodeDeckId']);
+            //$filterdata['CodeDeckId'] = intval($data['CodeDeckId']);
             $filterdata['AppliedTo']  = intval($data['AppliedTo']);
             //$filterdata['NotVendor']  = true;
             $rate_table = RateTable::getRateTableCache($filterdata);

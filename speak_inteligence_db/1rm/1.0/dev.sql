@@ -497,6 +497,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 		SET @v_period3 =      IF(MONTH((SELECT @p_StartDate)) = MONTH((SELECT @p_EndDate)), (SELECT @v_days), DAY((SELECT @p_EndDate))) / DAY(LAST_DAY((SELECT @p_EndDate)));
 		SET @p_months =     (SELECT @v_period1) + (SELECT @v_period2) + (SELECT @v_period3);
 
+		SET @p_months = ROUND(@p_months,2);
 
 
 		insert into tmp_timezone_minutes_2 (TimezonesID, minutes) select TimezonesID, minutes from tmp_timezone_minutes;
@@ -1485,7 +1486,7 @@ CREATE PROCEDURE `prc_GetDIDLCR`(
 							 @prev_Total := Total
 
 						 from tmp_table_output_1
-							 ,(SELECT  @prev_AccessType := '' ,@prev_CountryID  := '' ,@prev_City  := '' ,@prev_Tariff := '' ,@prev_Code  := ''  , @prev_VendorID  := '', @prev_Total := 0 ) t
+							 ,(SELECT  @vPosition := 0 , @prev_AccessType := '' ,@prev_CountryID  := '' ,@prev_City  := '' ,@prev_Tariff := '' ,@prev_Code  := ''  , @prev_VendorID  := '', @prev_Total := 0 ) t
 
 						 ORDER BY Code,AccessType,CountryID,City,Tariff,Total,VendorID
 					 ) tmp;
