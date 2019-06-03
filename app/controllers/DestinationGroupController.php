@@ -111,7 +111,7 @@ class DestinationGroupController extends \BaseController {
         }
         $response =  NeonAPI::request('destinationgroup/store',$postdata,true,false,false);
         if($response->status == 'success'){
-            $DestinationGroupActilead = UserActivity::UserActivitySaved($getdata,'Add','Destination Group',$postdata['Name']);
+            $DestinationGroupActilead = UserActivity::UserActivitySaved($postdata,'Add','Destination Group',$postdata['Name']);
         }
         return json_response_api($response);
     }
@@ -136,13 +136,16 @@ class DestinationGroupController extends \BaseController {
         }
         $response =  NeonAPI::request('destinationgroup/update/'.$id,$postdata,'put',false,false);
         if($response->status == 'success'){
-            $DestinationGroupActilead = UserActivity::UserActivitySaved($getdata,'Edit','Destination Group',$postdata['Name']);
+            $DestinationGroupActilead = UserActivity::UserActivitySaved($postdata,'Edit','Destination Group',$postdata['Name']);
         }
         return json_response_api($response);
     }
     public function update_name($id){
         $postdata = Input::all();
         $response =  NeonAPI::request('destinationgroup/update_name/'.$id,$postdata,'put',false,false);
+        if($response->status == 'success'){
+            $DestinationGroupActilead = UserActivity::UserActivitySaved($postdata,'Edit','Destination Group',$postdata['Name']);
+        }
         return json_response_api($response);
     }
 }
