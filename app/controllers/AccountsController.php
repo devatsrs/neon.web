@@ -2152,7 +2152,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $account = Account::find($data['AccountID']);
         $CompanyID = $account->CompanyId;
-        Log::info("clitable_ajax_datagrid_query " . print_r($data,true));
+        //Log::info("clitable_ajax_datagrid_query " . print_r($data,true));
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblCLIRateTable.RateTableID')
             ->leftJoin('tblRateTable as termination','termination.RateTableId','=','tblCLIRateTable.TerminationRateTableID')
@@ -2200,7 +2200,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $account = Account::find($data['AccountID']);
         $CompanyID = $account->CompanyId;
-        Log::info("packagetable_ajax_datagrid" . print_r($data,true));
+        //Log::info("packagetable_ajax_datagrid" . print_r($data,true));
         $rate_tables = AccountServicePackage::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblAccountServicePackage.RateTableID')
             ->leftJoin('tblRateTable as specialPackageRT','specialPackageRT.RateTableId','=','tblAccountServicePackage.SpecialPackageRateTableID')
@@ -2243,7 +2243,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = $account->CompanyId;
         $message = '';
 
-        Log::info("clitable_store " . print_r($data,true));
+       // Log::info("clitable_store " . print_r($data,true));
         $rules['CLI']                    = 'required';
         $rules['NumberStartDate']        = 'required';
         $rules['NumberEndDate']          = 'required';
@@ -2530,7 +2530,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return Response::json(array("status" => "check","check"=>1));
         }
 
-        Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
+       // Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
 
         if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
@@ -2543,7 +2543,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function packagetable_delete($AccountServicePackageID){
         $data = Input::all();
-        Log::info("packagetable_delete " . print_r($data,true) . '' . $AccountServicePackageID);
+       // Log::info("packagetable_delete " . print_r($data,true) . '' . $AccountServicePackageID);
         $CompanyID = User::get_companyID();
         if ($AccountServicePackageID > 0) {
             $data['AccountServicePackageIDs'] = $AccountServicePackageID + ",";
@@ -2568,7 +2568,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['CountryID']              = 'required'; // Country
         $rules['NoType']                 = 'required'; // Type
         $rules['PrefixWithoutCountry']   = 'required'; // Prefix
-        Log::info("clitable_store " . print_r($data,true));
+        // Log::info("clitable_store " . print_r($data,true));
 
         $validator = Validator::make($data, $rules, [
             'CLI.required'                    => "The number is required.",
