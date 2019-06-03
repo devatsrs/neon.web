@@ -158,7 +158,7 @@
                                 <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                             </div>
                         </div>
-                        <div class="form-group" id="AffiliateDiv">
+                        <div class="form-group" id="AffiliateDiv hidden">
                             <label class="col-md-2 control-label">Affiliate</label>
                             <div class="col-md-4">
                                 <div class="make-switch switch-small" id="desablecustomer">
