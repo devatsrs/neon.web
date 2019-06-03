@@ -121,7 +121,7 @@
                             <input type="text" name="Employee" class="form-control" placeholder="" value="{{Input::old('Employee')}}" />
                         </div>
                     </div>
-                    <div class="form-group" id="AffiliateDiv hidden">
+                    <div class="form-group hidden" id="AffiliateDiv">
                         <label class="col-md-2 control-label">Affiliate</label>
                         <div class="col-md-4">
                             <div class="make-switch switch-small" id="desablecustomer">
