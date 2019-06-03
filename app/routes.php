@@ -753,6 +753,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/search_ajax_datagrid_rates_account_service', 'RateTablesController@search_ajax_datagrid_rates_account_service');
 	Route::any('/rate_tables/{id}/search_ajax_datagrid_archive_rates', 'RateTablesController@search_ajax_datagrid_archive_rates'); // get archive rates for vendor rates grid
 	Route::any('/rate_tables', array('as' => 'customer_rates', 'uses' => 'RateTablesController@index'));
+	Route::any('/rate_tables/commercial', 'RateTablesController@index');
 	Route::any('/rate_tables/{id}/search_ajax_datagrid', array('as' => 'customer_rates_search', 'uses' => 'RateTablesController@search_ajax_datagrid'));
 	Route::any('/rate_tables/ajax_datagrid', 'RateTablesController@ajax_datagrid');
 	Route::any('/rate_tables/{id}/edit_ajax_datagrid', 'RateTablesController@edit_ajax_datagrid');
@@ -760,6 +761,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/edit/{id}', 'RateTablesController@edit');
 	Route::any('/rate_tables/{id}/delete', 'RateTablesController@delete');
 	Route::any('/rate_tables/{id}/view', 'RateTablesController@view');
+	Route::any('/rate_tables/{id}/view/commercial', 'RateTablesController@view');
 	Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
 	Route::any('/rate_tables/{id}/clear_rate', 'RateTablesController@clear_rate');
 	Route::any('/rate_tables/{id}/clear_did_rate', 'RateTablesController@clear_did_rate');

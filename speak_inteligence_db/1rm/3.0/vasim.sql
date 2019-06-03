@@ -4038,7 +4038,7 @@ BEGIN
 	   	-- rate approval process is on and rate table is vendor rate table
 			IF(v_RateApprovalProcess_ = 1 && v_AppliedTo_ <> 2)
 			THEN
-	   		SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus AS `Approved Status`");
+	   		SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus");
 	   	END IF;
 
 	   END IF;
@@ -4358,7 +4358,7 @@ BEGIN
 		IF p_isExport = 11
 		THEN
 			SET @stm2 = ", PreviousRate AS `Previous Rate`, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
-			SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus AS `Approved Status`");
+			SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus");
 		END IF;
 
 		SET @stm = CONCAT(@stm1,@stm2,' FROM tmp_RateTableRate_;');
