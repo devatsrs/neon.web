@@ -20,6 +20,8 @@ class DashboardCustomerController extends BaseController {
         if(!empty($BillingDashboardWidgets)) {
             $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
         }
+        $data['CustomerID']=$CustomerID;
+        $TaskActilead = UserActivity::UserActivitySaved($data,'View Customer','Account');
         return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json','monthfilter','BillingDashboardWidgets'));
     }
     public function invoice_expense_chart(){
@@ -35,6 +37,8 @@ class DashboardCustomerController extends BaseController {
         $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."','".$data['Startdate']."','".$data['Enddate']."','".$data['ListType']."')";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
         $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
+       
+        $TaskActilead = UserActivity::UserActivitySaved($data,'Invoice Expense Chart','Account');
         return View::make('customer.billingdashboard.invoice_expense_chart', compact('InvoiceExpense','CurrencySymbol'));
 
     }
@@ -89,7 +93,7 @@ class DashboardCustomerController extends BaseController {
 
                 $AccountBalance = AccountBalance::getAccountBalance($CustomerID);
                 $InvoiceExpenseResult[0]->Account_Balance = number_format($AccountBalance,$InvoiceExpenseResult[0]->Round);
-
+                $TaskActilead = UserActivity::UserActivitySaved($data,'Invoice Expense Total','Account');
                 return Response::json(array("data" => $InvoiceExpenseResult[0], 'CurrencyCode' => $CurrencyCode, 'CurrencySymbol' => $CurrencySymbol));
             }else {
                 return view_response_api($response);
@@ -116,6 +120,7 @@ class DashboardCustomerController extends BaseController {
         $query = "call prc_getDashboardTotalOutStanding ('". $companyID  . "',  '". $CurrencyID  . "',".$CustomerID.")";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
+            $TaskActilead = UserActivity::UserActivitySaved($data,'Invoice Expense Total Widget','Account');
             $InvoiceExpenseResult[0]->TotalOutstanding=AccountBalance::getAccountOutstandingBalance($CustomerID,$TotalOutstanding);
             return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
         }
@@ -134,7 +139,7 @@ class DashboardCustomerController extends BaseController {
         $AccountManager = $User->FirstName.' '.$User->LastName;
         $AccountManagerEmail = $User->EmailAddress;
         $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::getValueConfigurationByKey('CUSTOMER_MONITOR_DASHBOARD',$companyID)));
-
+        $TaskActilead = UserActivity::UserActivitySaved($data,'customer Dashboard','Account');
         return View::make('customer.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','AccountManager','AccountManagerEmail','MonitorDashboardSetting'));
 
     }
@@ -183,6 +188,8 @@ class DashboardCustomerController extends BaseController {
 
 
         $extends = !empty($id)?'layout.main':'layout.customer.main';
+        $data['AccountID']=$AccountID;
+        $TaskActilead = UserActivity::UserActivitySaved($data,'customer Daily Report','Account');
         return View::make('customer.daily_report', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate','AccountID','extends'));
 
     }
@@ -234,7 +241,7 @@ class DashboardCustomerController extends BaseController {
 		$today_total = 0;
 
         $row_count = 0;
-
+        $TaskActilead = UserActivity::UserActivitySaved($data,'customer Daily Report','Account');
         return Datatables::of($response['datatable'])
             ->edit_column('Payments', function($data){ return number_format($data->Payments,get_round_decimal_places(),'.',''); })
             ->edit_column('Consumption', function($data){ return number_format($data->Consumption,get_round_decimal_places(),'.',''); })
@@ -253,7 +260,7 @@ class DashboardCustomerController extends BaseController {
         $CompanyGatewayID = CompanyGateway::getCompanyGatewayID($GatewayID);
         $mor = new MOR($CompanyGatewayID);
         $response = $mor->getMovementReportTotal(array('username'=>$account_number,'StartDate'=>$data['StartDate'],'EndDate'=>$data['EndDate']));
-
+        $TaskActilead = UserActivity::UserActivitySaved($data,'customer Daily Report','Account');
         return json_encode($response,JSON_NUMERIC_CHECK);
     }
 
@@ -265,6 +272,7 @@ class DashboardCustomerController extends BaseController {
         $GatewayID = Gateway::getGatewayID('MOR');
         $CompanyGatewayID = CompanyGateway::getCompanyGatewayID($GatewayID);
         $mor = new MOR($CompanyGatewayID);
+        $TaskActilead = UserActivity::UserActivitySaved($data,'customer Rates','Account');
         return View::make('customer.rates', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate'));
     }
 
@@ -294,6 +302,8 @@ class DashboardCustomerController extends BaseController {
 
         $query = "call prc_GetCustomerRate (".$CompanyID.",".$CustomerID.",".$data['Trunk'].",NULL,".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
+        $TaskActilead = UserActivity::UserActivitySaved($data,'customer Rates','Account');
+        
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',2)');
             $excel_data = json_decode(json_encode($excel_data),true);

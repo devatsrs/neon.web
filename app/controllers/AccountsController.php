@@ -1409,7 +1409,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($id)){
             $AccountBalanceThreshold = AccountBalanceThreshold::where(array('AccountID' => $id))->get();
         }
-        $UserActilead = UserActivity::UserActivitySaved($data,'Get Credit','Account');
+        //$UserActilead = UserActivity::UserActivitySaved($data,'Get Credit','Account');
         return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType','AccountBalanceThreshold'));
     }
 
@@ -1457,7 +1457,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $NeonExcel->download_excel($excel_data);
             }
         }
-        $UserActilead = UserActivity::UserActivitySaved($getdata,'View Credit','Account');
+        $UserActilead = UserActivity::UserActivitySaved($getdata,'Account Credits','Account');
         return json_response_api($response,true,true,true);
     }
     //////////////////////
@@ -1567,16 +1567,17 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 	}
 
     public function expense($id){
+        
         $CurrencySymbol = Account::getCurrency($id);
-        $data['id']=$id;
-        $UserActilead = UserActivity::UserActivitySaved($data,'Expense','Account');
+        //$data['id']=$id;
+       // $UserActilead = UserActivity::UserActivitySaved($data,'activity','Account');
         return View::make('accounts.expense',compact('id','CurrencySymbol'));
     }
     public function expense_chart(){
         $data = Input::all();
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $companyID = User::get_companyID();
-        $UserActilead = UserActivity::UserActivitySaved($data,'Expense Chart','Account');
+        $UserActilead = UserActivity::UserActivitySaved($data,'Activity Chart','Account');
         $response = Account::getActivityChartRepose($companyID,$data['AccountID']);
         return $response;
     }
