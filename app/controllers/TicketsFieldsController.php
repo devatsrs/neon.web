@@ -242,7 +242,7 @@ private $validlicense;
 							
 				if(!isset($postdata['id']) && empty($postdata['id']))
 				{
-                                    $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','Ticket Fields');
+                                    $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Ticket Fields');
                                     $data['FieldStaticType']				   =		Ticketfields::FIELD_TYPE_DYNAMIC;	
 						$data['created_at']       		   		   = 		date("Y-m-d H:i:s");
 						$data['created_by']       		   		   = 		User::get_user_full_name();			
@@ -272,7 +272,7 @@ private $validlicense;
 				}
 				else
 				{	
-                                        $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Ticket Fields');
+                                        $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','Ticket Fields');
 					$data['updated_at']       		   		   = 		date("Y-m-d H:i:s");
 					$data['updated_by']       		   		   = 		User::get_user_full_name();			
 					Ticketfields::find($postdata['id'])->update($data);	
@@ -375,7 +375,11 @@ private $validlicense;
 		$postdata    =  Input::all(); 
 		if(isset($postdata['main_fields_sort']) && !empty($postdata['main_fields_sort']))
 		{
-                        $UserActilead = UserActivity::UserActivitySaved($postdata,'Sorting','Ticket Fields');
+                    $sorting= "Sorting";
+                    if(isset($postdata['deleted_main_fields']) && !empty($postdata['deleted_main_fields'])) {
+                        $sorting='Deleted';
+                    }
+                        $UserActilead = UserActivity::UserActivitySaved($postdata,$sorting,'Ticket Fields');
 			try
 			{
 				DB::beginTransaction();
