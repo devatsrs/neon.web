@@ -244,6 +244,7 @@ class AccountsController extends \BaseController {
         $data['AccountType'] = 1;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
         $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+        $data['IsAffiliateAccount'] = isset($data['IsAffiliateAccount']) ? 1 : 0;
         $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
         $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['created_by'] = User::get_user_full_name();
@@ -310,6 +311,9 @@ class AccountsController extends \BaseController {
 
         Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
+        if ($data['IsAffiliateAccount'] == 1) {
+            Account::$rules['CommissionPercentage'] = 'required';
+        }
 
         if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
@@ -914,8 +918,9 @@ class AccountsController extends \BaseController {
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $UserCompanyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
         $Packages = Package::getDropdownIDListByCompany($companyID);
+        $AffiliateAccount = Account::getAffiliateAccount();
 
-        return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
+        return View::make('accounts.edit', compact('account','AffiliateAccount', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
             'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
@@ -987,6 +992,7 @@ class AccountsController extends \BaseController {
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
         $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
         $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
+        $data['IsAffiliateAccount'] = isset($data['IsAffiliateAccount']) ? 1 : 0;
         $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
         $data['AccountName'] = trim($data['AccountName']);
@@ -1058,6 +1064,9 @@ class AccountsController extends \BaseController {
         Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID';
 
+        if ($data['IsAffiliateAccount'] == 1) {
+            Account::$rules['CommissionPercentage'] = 'required';
+        }
         if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
             Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
@@ -1262,6 +1271,10 @@ class AccountsController extends \BaseController {
         if (isset($data['TaxRateID']) && !empty($data['TaxRateID'])) {
             $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
         }
+
+       /* if ($data['IsAffiliateAccount'] == 0) {
+            unset($data['CommissionPercentage']);
+        }*/
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -2139,7 +2152,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $account = Account::find($data['AccountID']);
         $CompanyID = $account->CompanyId;
-        Log::info("clitable_ajax_datagrid_query " . print_r($data,true));
+        //Log::info("clitable_ajax_datagrid_query " . print_r($data,true));
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblCLIRateTable.RateTableID')
             ->leftJoin('tblRateTable as termination','termination.RateTableId','=','tblCLIRateTable.TerminationRateTableID')
@@ -2187,7 +2200,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $account = Account::find($data['AccountID']);
         $CompanyID = $account->CompanyId;
-        Log::info("packagetable_ajax_datagrid" . print_r($data,true));
+        //Log::info("packagetable_ajax_datagrid" . print_r($data,true));
         $rate_tables = AccountServicePackage::
         leftJoin('tblRateTable as rt','rt.RateTableId','=','tblAccountServicePackage.RateTableID')
             ->leftJoin('tblRateTable as specialPackageRT','specialPackageRT.RateTableId','=','tblAccountServicePackage.SpecialPackageRateTableID')
@@ -2230,7 +2243,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = $account->CompanyId;
         $message = '';
 
-        Log::info("clitable_store " . print_r($data,true));
+       // Log::info("clitable_store " . print_r($data,true));
         $rules['CLI']                    = 'required';
         $rules['NumberStartDate']        = 'required';
         $rules['NumberEndDate']          = 'required';
@@ -2517,7 +2530,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return Response::json(array("status" => "check","check"=>1));
         }
 
-        Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
+       // Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
 
         if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
@@ -2530,7 +2543,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function packagetable_delete($AccountServicePackageID){
         $data = Input::all();
-        Log::info("packagetable_delete " . print_r($data,true) . '' . $AccountServicePackageID);
+       // Log::info("packagetable_delete " . print_r($data,true) . '' . $AccountServicePackageID);
         $CompanyID = User::get_companyID();
         if ($AccountServicePackageID > 0) {
             $data['AccountServicePackageIDs'] = $AccountServicePackageID + ",";
@@ -2555,7 +2568,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['CountryID']              = 'required'; // Country
         $rules['NoType']                 = 'required'; // Type
         $rules['PrefixWithoutCountry']   = 'required'; // Prefix
-        Log::info("clitable_store " . print_r($data,true));
+        // Log::info("clitable_store " . print_r($data,true));
 
         $validator = Validator::make($data, $rules, [
             'CLI.required'                    => "The number is required.",

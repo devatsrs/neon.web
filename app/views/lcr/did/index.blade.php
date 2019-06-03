@@ -168,6 +168,7 @@
 
 
         jQuery(document).ready(function($) {
+            $('#filter-button-toggle').show();
             var accbtnval=$('.didbutton').text();
             var packbtnval=$('.packageoption').text();
 
