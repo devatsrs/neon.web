@@ -54,7 +54,6 @@ class DestinationGroupController extends \BaseController {
         $DestinationGroupSetID = $id;
         $name = DestinationGroupSet::getName($id);
         $discountplanapplied = DiscountPlan::isDiscountPlanApplied('DestinationGroupSet',$id,0);
-        $DestinationGroupActilead = UserActivity::UserActivitySaved($data,'View','Destination Group Set');
         return View::make('destinationgroup.show', compact('DestinationGroupSetID','countries','name','discountplanapplied'));
     }
     public function group_show($id) {
