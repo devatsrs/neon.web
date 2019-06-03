@@ -244,6 +244,7 @@ class AccountsController extends \BaseController {
         $data['AccountType'] = 1;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
         $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+        $data['IsAffiliateAccount'] = isset($data['IsAffiliateAccount']) ? 1 : 0;
         $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
         $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['created_by'] = User::get_user_full_name();
@@ -310,6 +311,9 @@ class AccountsController extends \BaseController {
 
         Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
+        if ($data['IsAffiliateAccount'] == 1) {
+            Account::$rules['CommissionPercentage'] = 'required';
+        }
 
         if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
@@ -914,8 +918,9 @@ class AccountsController extends \BaseController {
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $UserCompanyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
         $Packages = Package::getDropdownIDListByCompany($companyID);
+        $AffiliateAccount = Account::getAffiliateAccount();
 
-        return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
+        return View::make('accounts.edit', compact('account','AffiliateAccount', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
             'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
@@ -987,6 +992,7 @@ class AccountsController extends \BaseController {
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
         $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
         $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
+        $data['IsAffiliateAccount'] = isset($data['IsAffiliateAccount']) ? 1 : 0;
         $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
         $data['AccountName'] = trim($data['AccountName']);
@@ -1058,6 +1064,9 @@ class AccountsController extends \BaseController {
         Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID';
 
+        if ($data['IsAffiliateAccount'] == 1) {
+            Account::$rules['CommissionPercentage'] = 'required';
+        }
         if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
             Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
@@ -1262,6 +1271,10 @@ class AccountsController extends \BaseController {
         if (isset($data['TaxRateID']) && !empty($data['TaxRateID'])) {
             $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
         }
+
+       /* if ($data['IsAffiliateAccount'] == 0) {
+            unset($data['CommissionPercentage']);
+        }*/
         if ($account->update($data)) {
 
             $DynamicData = array();

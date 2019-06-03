@@ -121,6 +121,27 @@
                             <input type="text" name="Employee" class="form-control" placeholder="" value="{{Input::old('Employee')}}" />
                         </div>
                     </div>
+                    <div class="form-group" id="AffiliateDiv">
+                        <label class="col-md-2 control-label">Affiliate</label>
+                        <div class="col-md-4">
+                            <div class="make-switch switch-small" id="desablecustomer">
+                                <input type="checkbox"  name="IsAffiliateAccount" @if(Input::old('IsAffiliateAccount') == 1 )checked=""@endif value="1">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-group @if(!Input::old('IsAffiliateAccount') == 1 ) hidden @endif" id="AffiliateDetailDiv">
+
+
+                        <label class="col-md-2 control-label">Commission Percentage</label>
+                        <div class="col-md-4">
+                            <input type="text" name="CommissionPercentage" class="form-control" id="field-1" placeholder="" value="5" />
+                        </div>
+                        <label class="col-md-2 control-label">Duration Months</label>
+                        <div class="col-md-4">
+                            <input type="text" name="DurationMonths" class="form-control" id="field-1" placeholder="" value="" />
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-md-2 control-label">Partner</label>
                         <div class="col-md-4">
@@ -559,6 +580,15 @@
         $("#save_account").click(function (ev) {
             $('#save_account').button('loading');
             $("#account-from").submit();
+        });
+
+        $('[name="IsAffiliateAccount"]').on("change",function(e){
+            if($('[name="IsAffiliateAccount"]').prop("checked") == true) {
+
+                $("#AffiliateDetailDiv").removeClass('hidden');
+            }else {
+                $("#AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
+            }
         });
 
         $('select[name="BillingCycleType"]').on( "change",function(e){

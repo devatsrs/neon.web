@@ -55,7 +55,8 @@ class Account extends \Eloquent {
         'ResellerPassword', 'Picture', 'AutorizeProfileID','tags','Autopay',
         'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing','ShowAllPaymentMethod',
         'DisplayRates',
-        'DifferentBillingAddress','BillingAddress1','BillingAddress2','BillingAddress3','BillingCity','BillingPostCode','BillingCountry','TaxRateID','PayoutMethod'
+        'DifferentBillingAddress','BillingAddress1','BillingAddress2','BillingAddress3','BillingCity','BillingPostCode','BillingCountry','TaxRateID','PayoutMethod',
+        'IsAffiliateAccount','CommissionPercentage','DurationMonths'
     );
 
     public static $messages = array(
@@ -893,6 +894,15 @@ class Account extends \Eloquent {
 
     public static function getCodeDeckId($AccountID,$TrunkID){
         return  CustomerTrunk::where(["AccountID"=>$AccountID,"TrunkID" => $TrunkID])->pluck('CodeDeckId');
+    }
+
+    public static function getAffiliateAccount()
+    {
+        $data = [];
+        $data['IsAffiliateAccount'] = 1;
+        $AffiliateAccount = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        $AffiliateAccount = array(""=> "Select")+$AffiliateAccount;
+        return  $AffiliateAccount;
     }
 
     public static function getCurrencyIDByAccount($id=0){

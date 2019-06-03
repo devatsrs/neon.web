@@ -34,6 +34,8 @@
                         <tr>
                             <td><label for="field-1" class="col-sm-1 control-label">Number</label></td>
                             <td><input type="text" name="Number" class="form-control" value="" /></td>
+                            <td><label for="field-1" class="col-sm-1 control-label">Affiliate</label></td>
+                            <td width="15%">{{ Form::select('Affiliate', $AffiliateAccount , '' , array("class"=>"select2")) }}</td>
                             <td><label for="field-1" class="col-sm-1 control-label">Package</label></td>
                             <td width="15%">{{ Form::select('PackageName', $Packages , '' , array("class"=>"select2")) }}</td>
                             <td width="5%"><label for="field-1" class="col-sm-1 control-label">OrderID</label></td>
@@ -89,6 +91,7 @@
                     <th>Number</th>
                     <th>Package</th>
                     <th>Order ID</th>
+                    <th>Affiliate</th>
                     <th width="20%">Action</th>
                 </tr>
                 </thead>
@@ -124,6 +127,7 @@
 
                     $searchService.ServiceNumber = $("#service_filter").find('[name="Number"]').val();
                     $searchService.PackageName = $("#service_filter").find('[name="PackageName"]').val();
+                    $searchService.Affiliate = $("#service_filter").find('[name="Affiliate"]').val();
                     $searchService.AccountServiceOrderID = $("#service_filter").find('[name="AccountServiceOrderID"]').val();
                     $searchService.ServiceActive = $("#service_filter").find("[name='ServiceActive']").prop("checked");
                     data_table_service = $("#table-service").dataTable({
@@ -135,6 +139,7 @@
                             aoData.push({"name": "account_id", "value": account_id},
                                     {"name": "Number", "value": $searchService.ServiceNumber},
                                     {"name": "PackageName", "value": $searchService.PackageName},
+                                    {"name": "Affiliate", "value": $searchService.Affiliate},
                                     {"name": "AccountServiceOrderID", "value": $searchService.AccountServiceOrderID},
                                     {"name": "ServiceActive", "value": $searchService.ServiceActive});
 
@@ -142,6 +147,7 @@
                             data_table_extra_params.push({"name": "account_id", "value": account_id},
                                     {"name": "Number", "value": $searchService.ServiceNumber},
                                     {"name": "PackageName", "value": $searchService.PackageName},
+                                    {"name": "Affiliate", "value": $searchService.Affiliate},
                                     {"name": "AccountServiceOrderID", "value": $searchService.AccountServiceOrderID},
                                     {"name": "ServiceActive", "value": $searchService.ServiceActive},
                                     {"name":"Export","value":1});
@@ -169,6 +175,13 @@
                                 "bSortable": false,
                                 mRender: function (id, type, full) {
                                     return full[3];
+                                }
+
+                            },  // Order ID
+                            {
+                                "bSortable": false,
+                                mRender: function (id, type, full) {
+                                    return full[5];
                                 }
 
                             },  // Order ID

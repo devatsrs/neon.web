@@ -96,6 +96,14 @@
                                 <input type="text" name="ServiceOrderID" value="{{$AccountService->ServiceOrderID}}" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
+                        <div class="form-group">
+
+                            <label for="field-1" class="col-md-2 control-label">Affiliate
+                            </label>
+                            <div class="col-md-2">
+                                {{ Form::select('AffiliateAccount', $AffiliateAccount , $AccountService->AffiliateAccount , array("class"=>"select2")) }}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
