@@ -167,7 +167,7 @@
                             </div>
 
                         </div>
-                        <div class="form-group @if(!$account->IsAffiliateAccount == 1 ) hidden @endif" id="AffiliateDetailDiv">
+                        <div class="form-group hidden @if(!$account->IsAffiliateAccount == 1 ) hidden @endif" id="AffiliateDetailDiv">
                             <label class="col-md-2 control-label">Commission Percentage</label>
                             <div class="col-md-4">
                                 <input type="text" name="CommissionPercentage" class="form-control" id="field-1" placeholder="" value="{{isset($account->CommissionPercentage) ? $account->CommissionPercentage : "5" }}" />
