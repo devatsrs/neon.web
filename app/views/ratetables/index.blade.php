@@ -107,9 +107,9 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                     <tr>
-                                        <th style="@if(empty($ResellerPage)) {{'display:none'}} @endif" >Partner</th>
+                                        <th style="@if(!empty($ResellerPage)) {{'display:none'}} @endif" >Partner</th>
                                         <th >Type</th>
-                                        <th style="@if(empty($ResellerPage)) {{'display:none'}} @endif" >Applied To</th>
+                                        <th style="@if(!empty($ResellerPage)) {{'display:none'}} @endif" >Applied To</th>
                                         <th >Name</th>
                                         <th >Currency</th>
                                         <th >Trunk</th>
