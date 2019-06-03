@@ -205,6 +205,97 @@ class DiscountController extends \BaseController
         }
     }
 
+    public function PackageDiscountPlan() {
+
+        $data       = Input::all();
+        $companyID  = User::get_companyID();
+        $PackageId = isset($data['PackageId']) ? $data['PackageId'] : "0";
+        $AccountID = isset($data['AccountID']) ? $data['AccountID'] : "0";
+        $accountInfo = Account::where(["AccountID" => $AccountID])->first();
+        $companyID = $accountInfo->CompanyId;
+        $AccountServiceID = isset($data['AccountServiceID']) ? $data['AccountServiceID'] : "0";
+        $AccountServicePackageID = isset($data['AccountServicePackageID']) ? $data['AccountServicePackageID'] : "0";
+
+        Log::info("PackageDiscountPlan Data" . print_r($data,true));
+
+        if(!empty($PackageId)) {
+            $query = 'call prc_getPackageDiscountPlan (' . $companyID .",'" .
+                $AccountID . "','" . $AccountServiceID. "','" . $PackageId. "'," . $AccountServicePackageID . ')';
+            Log::info("PackageDiscountPlan Query:" . $query);
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+
+            $response['data']       = DB::select($query);
+
+        } else {
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = [];
+        }
+
+        return json_encode($response);
+    }
+    public function TerminationDiscountPlan() {
+
+        $data       = Input::all();
+        $companyID  = User::get_companyID();
+        $TerminationDicountPlan = isset($data['TerminationDicountPlan']) ? $data['TerminationDicountPlan'] : "";
+        $AccountID = isset($data['AccountID']) ? $data['AccountID'] : "0";
+        $accountInfo = Account::where(["AccountID" => $AccountID])->first();
+        $companyID = $accountInfo->CompanyId;
+        $AccountServiceID = isset($data['AccountServiceID']) ? $data['AccountServiceID'] : "0";
+        $CLIRateTableID = isset($data['CLIRateTableID']) ? $data['CLIRateTableID'] : '0';
+
+        Log::info("TerminationDiscountPlan Data" . print_r($data,true));
+
+        if(!empty($TerminationDicountPlan)) {
+            $query = 'call prc_getTerminationDiscountPlan (' . $companyID .",'" .
+                $AccountID . "','" . $AccountServiceID. "','" . $TerminationDicountPlan. "'," . $CLIRateTableID . ')';
+            Log::info("TerminationDiscountPlan Query:" . $query);
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+
+            $response['data']       = DB::select($query);
+
+        } else {
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = [];
+        }
+
+        return json_encode($response);
+    }
+    public function AccessDiscountPlan() {
+
+        $data       = Input::all();
+        $companyID  = User::get_companyID();
+        $AccessDicountPlan = isset($data['AccessDicountPlan']) ? $data['AccessDicountPlan'] : "";
+        $AccountID = isset($data['AccountID']) ? $data['AccountID'] : "0";
+        $accountInfo = Account::where(["AccountID" => $AccountID])->first();
+        $companyID = $accountInfo->CompanyId;
+        $AccountServiceID = isset($data['AccountServiceID']) ? $data['AccountServiceID'] : "0";
+        $CLIRateTableID = isset($data['CLIRateTableID']) ? $data['CLIRateTableID'] : "0";
+
+        Log::info("AccessDiscountPlan Data" . print_r($data,true));
+
+        if(!empty($AccessDicountPlan)) {
+            $query = 'call prc_getAccessDiscountPlan (' . $companyID .",'" .
+                $AccountID . "','" . $AccountServiceID. "','" . $AccessDicountPlan. "'," . $CLIRateTableID . ')';
+            Log::info("AccessDiscountPlan Query:" . $query);
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+
+            $response['data']       = DB::select($query);
+
+        } else {
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = [];
+        }
+
+        return json_encode($response);
+    }
+
     public function delete($id)
     {
         try {
@@ -338,6 +429,29 @@ class DiscountController extends \BaseController
             })->download('xls');
         }
         return $result;
+    }
+
+    public function TerminationDiscountPlanCodes()
+    {
+        $post_data = Input::all();
+        $post_data['iDisplayStart'] += 1;
+        $CompanyID = User::get_companyID();
+        Log::info("TerminationDiscountPlanCodes " . print_r($post_data,true));
+        $AccountID = isset($post_data['AccountID']) ? $post_data['AccountID'] : "0";
+        $accountInfo = Account::where(["AccountID" => $AccountID])->first();
+        $companyID = $accountInfo->CompanyId;
+        $result = [];
+        $RateCodeID = isset($post_data['RateCodeID']) ? $post_data['RateCodeID'] : '';
+
+
+
+            $query = "call prc_getTerminationCodes(" . $CompanyID . ",'" . $post_data['AccountID'] . "','" . $post_data['AccountServiceID'] . "','" . $post_data['TerminationDiscountPlanName'] . "' ,'" . $RateCodeID . "',"
+                . (ceil($post_data['iDisplayStart'] / $post_data['iDisplayLength'])) . " ," . $post_data['iDisplayLength'].
+                ")";
+        Log::info("TerminationDiscountPlanCodes " . $query);
+                return DataTableSql::of($query)->make();
+
+
     }
 
     public function discount_store()

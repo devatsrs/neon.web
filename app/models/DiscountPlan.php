@@ -66,14 +66,17 @@ class DiscountPlan extends \Eloquent
         $ExcludedComponent = array();
         $DiscountPlanComponents = [];
         if ($DestinationGroupSetID == 1) {
-            $DiscountPlanComponents = RateTableRate::$Components;
+            $DiscountPlanComponents = DiscountPlan::$Component;
+            $AllComponents = $company->Components;
         } else if ($DestinationGroupSetID == 2) {
-            $DiscountPlanComponents = RateTableDIDRate::$Components;
+            $DiscountPlanComponents = DiscountPlan::$RateTableDIDRate_Components;
+            $AllComponents = $company->AccessComponents;
         } else if ($DestinationGroupSetID == 3) {
-            $DiscountPlanComponents = RateTablePKGRate::$Components;
+            $DiscountPlanComponents = DiscountPlan::$RateTablePKGRate_Components;
+            $AllComponents = $company->PackageComponents;
         }
-        if (!empty($company->Components)) {
-            $ExcludedComponent1 = explode(",",$company->Components);
+        if (!empty($AllComponents)) {
+            $ExcludedComponent1 = explode(",",$AllComponents);
             foreach ($DiscountPlanComponents as $index => $data) {
                 if (!in_array($index, $ExcludedComponent1)) {
                     $ExcludedComponent[$index] = $data;
