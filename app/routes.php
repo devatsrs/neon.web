@@ -1486,6 +1486,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/discount_plan/store','DiscountController@store');
 	Route::any('/discount_plan/update/{id}','DiscountController@update');
 	Route::any('/discount_plan/delete/{id}','DiscountController@delete');
+	Route::any('/discount_plan/AccessDiscountPlan','DiscountController@AccessDiscountPlan');
+	Route::any('/discount_plan/TerminationDiscountPlan','DiscountController@TerminationDiscountPlan');
+	Route::any('/discount_plan/PackageDiscountPlan','DiscountController@PackageDiscountPlan');
+	Route::any('/discount_plan/TerminationDiscountPlanCodes','DiscountController@TerminationDiscountPlanCodes');
 
 	//Discounts
 	Route::any('/discount_plan/show/{id}','DiscountController@show');
