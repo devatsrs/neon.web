@@ -2,13 +2,316 @@ ALTER TABLE `tblCompany`
 	ADD COLUMN `AccessComponents` VARCHAR(500) NULL DEFAULT NULL AFTER `Components`;
 ALTER TABLE `tblCompany`
 	ADD COLUMN `PackageComponents` VARCHAR(500) NULL AFTER `AccessComponents`;
-		
+
+ALTER TABLE `tblAccountService`
+	ADD COLUMN `AffiliateAccount` INT(11) NULL DEFAULT NULL;		
 ALTER TABLE `tblAccount`
 	ADD COLUMN `IsAffiliateAccount` TINYINT(1) NULL AFTER `TaxRateID`,
 	ADD COLUMN `CommissionPercentage` INT(11) NULL AFTER `IsAffiliateAccount`,
 	ADD COLUMN `DurationMonths` INT(11) NULL AFTER `CommissionPercentage`;
 ALTER TABLE `tblAccountServicePackage`
 	ADD COLUMN `VendorID` INT(11) NULL DEFAULT '0' AFTER `SpecialPackageRateTableID`;
+
+-- --------------------------------------------------------
+-- Host:                         127.0.0.1
+-- Server version:               5.7.24-log - MySQL Community Server (GPL)
+-- Server OS:                    Win64
+-- HeidiSQL Version:             9.5.0.5196
+-- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+
+-- Dumping structure for procedure speakintelligentRM.prc_getPackageDiscountPlan
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPackageDiscountPlan`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_AccountServiceID` INT,
+	IN `p_PackageID` INT
+
+
+,
+	IN `p_AccountServicePackageID` INT
+)
+BEGIN
+
+
+
+IF p_PackageID = 0 THEN
+
+select discountPlan.DiscountPlanID,discountPlan.Name as DiscountPlanName,
+destinationGroup.DestinationGroupID as DiscountGroupID,destinationGroup.Name as DiscountGroupName,
+destinationGroup.PackageID,(select Name from tblPackage where PackageId = destinationGroup.PackageID) as PackageName,discountSchems.Components,discount.Service,discountSchems.Discount
+from tblDiscountPlan discountPlan,tblDestinationGroup destinationGroup,tblDiscountScheme discountSchems,tblDiscount discount
+where discountPlan.DestinationGroupSetID = destinationGroup.DestinationGroupSetID
+and discountSchems.DiscountID = discount.DiscountID
+and discount.DiscountPlanID = discountPlan.DiscountPlanID
+and discountPlan.DiscountPlanID in (select PackageDiscountPlanID  from tblAccountServicePackage where CompanyID = p_CompanyID and  AccountID = p_AccountID and AccountServiceID = p_AccountServiceID and Status =1) order by discount.Service asc;
+
+
+
+ELSE
+
+select discountPlan.DiscountPlanID,discountPlan.Name as DiscountPlanName,
+destinationGroup.DestinationGroupID as DiscountGroupID,destinationGroup.Name as DiscountGroupName,
+destinationGroup.PackageID,(select Name from tblPackage where PackageId = destinationGroup.PackageID) as PackageName,discountSchems.Components,discount.Service,discountSchems.Discount
+from tblDiscountPlan discountPlan,tblDestinationGroup destinationGroup,tblDiscountScheme discountSchems,tblDiscount discount
+where discountPlan.DestinationGroupSetID = destinationGroup.DestinationGroupSetID
+and discountSchems.DiscountID = discount.DiscountID
+and discount.DiscountPlanID = discountPlan.DiscountPlanID
+and discountPlan.DiscountPlanID = (select PackageDiscountPlanID  from tblAccountServicePackage where AccountServicePackageID = p_AccountServicePackageID and CompanyID = p_CompanyID and AccountID = p_AccountID and AccountServiceID = p_AccountServiceID and  PackageId = p_PackageID and Status =1) order by discount.Service asc;
+
+
+
+
+END IF;
+
+
+
+
+
+
+END//
+DELIMITER ;
+
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
+
+
+-- --------------------------------------------------------
+-- Host:                         127.0.0.1
+-- Server version:               5.7.24-log - MySQL Community Server (GPL)
+-- Server OS:                    Win64
+-- HeidiSQL Version:             9.5.0.5196
+-- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+
+-- Dumping structure for procedure speakintelligentRM.prc_getTerminationCodes
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getTerminationCodes`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_AccountServiceID` INT,
+	IN `p_DiscountPlanName` VARCHAR(255),
+	IN `p_Code` VARCHAR(255)
+
+,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT
+)
+BEGIN
+
+DECLARE v_DiscountPlanCode INT;
+DECLARE v_DestinationGroupID INT;
+DECLARE v_OffSet_ int;
+
+SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+select DiscountPlanID into v_DiscountPlanCode from tblDiscountPlan where Name = p_DiscountPlanName;
+select DestinationGroupID into v_DestinationGroupID from tblDiscount where DiscountPlanID = v_DiscountPlanCode limit 1;
+
+SELECT  r.Code FROM tblDestinationGroup dg
+		INNER JOIN tblDestinationGroupCode dgc
+		ON dg.DestinationGroupID =  dgc.DestinationGroupID
+		INNER JOIN tblRate r 
+			ON r.RateID = dgc.RateID
+		WHERE dgc.DestinationGroupID = v_DestinationGroupID
+		and (p_Code = '' OR p_Code = r.Code)
+		and dg.CompanyID = p_CompanyID
+		order by r.Code asc LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT  count(r.Code) AS totalcount FROM tblDestinationGroup dg
+		INNER JOIN tblDestinationGroupCode dgc
+		ON dg.DestinationGroupID =  dgc.DestinationGroupID
+		INNER JOIN tblRate r 
+			ON r.RateID = dgc.RateID
+		WHERE dgc.DestinationGroupID = v_DestinationGroupID
+		and (p_Code = '' OR p_Code = r.Code)
+		and dg.CompanyID = p_CompanyID;
+
+END//
+DELIMITER ;
+
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
+
+
+-- --------------------------------------------------------
+-- Host:                         127.0.0.1
+-- Server version:               5.7.24-log - MySQL Community Server (GPL)
+-- Server OS:                    Win64
+-- HeidiSQL Version:             9.5.0.5196
+-- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+
+-- Dumping structure for procedure speakintelligentRM.prc_getTerminationDiscountPlan
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getTerminationDiscountPlan`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_AccountServiceID` INT,
+	IN `p_Number` INT
+
+
+
+
+,
+	IN `p_CLIRateTableID` INT
+)
+BEGIN
+
+
+
+IF p_Number = 0 THEN
+
+select discountPlan.DiscountPlanID,discountPlan.Name as DiscountPlanName,
+destinationGroup.DestinationGroupID as DiscountGroupID,destinationGroup.Name as DiscountGroupName,
+destinationGroup.CountryName,destinationGroup.Type,discountSchems.Components,discount.Service,discountSchems.Discount,
+(SELECT  CONCAT(SUBSTRING_INDEX(GROUP_CONCAT(r.Code ORDER BY r.Code ASC SEPARATOR ','), ',', 5),'...') FROM tblDestinationGroup dg
+		INNER JOIN tblDestinationGroupCode dgc
+		ON dg.DestinationGroupID =  dgc.DestinationGroupID
+		INNER JOIN tblRate r 
+			ON r.RateID = dgc.RateID
+		WHERE dgc.DestinationGroupID = discount.DestinationGroupID
+		and dg.CompanyID = p_CompanyID) as Code
+from tblDiscountPlan discountPlan,tblDestinationGroup destinationGroup,tblDiscountScheme discountSchems,tblDiscount discount
+where discountPlan.DestinationGroupSetID = destinationGroup.DestinationGroupSetID
+and discountSchems.DiscountID = discount.DiscountID
+and discount.DiscountPlanID = discountPlan.DiscountPlanID
+and discountPlan.DiscountPlanID in (select TerminationDiscountPlanID  from tblCLIRateTable where CompanyID = p_CompanyID and  AccountID = p_AccountID and AccountServiceID = p_AccountServiceID and Status =1) order by discount.Service asc;
+
+
+
+
+ELSE
+
+select discountPlan.DiscountPlanID,discountPlan.Name as DiscountPlanName,
+destinationGroup.DestinationGroupID as DiscountGroupID,destinationGroup.Name as DiscountGroupName,
+destinationGroup.CountryName,destinationGroup.Type,discountSchems.Components,discount.Service,discountSchems.Discount,
+(SELECT  CONCAT(SUBSTRING_INDEX(GROUP_CONCAT(r.Code ORDER BY r.Code ASC SEPARATOR ','), ',', 5),'...') FROM tblDestinationGroup dg
+		INNER JOIN tblDestinationGroupCode dgc
+		ON dg.DestinationGroupID =  dgc.DestinationGroupID
+		INNER JOIN tblRate r 
+			ON r.RateID = dgc.RateID
+		WHERE dgc.DestinationGroupID = discount.DestinationGroupID
+		and dg.CompanyID = p_CompanyID) as Code
+from tblDiscountPlan discountPlan,tblDestinationGroup destinationGroup,tblDiscountScheme discountSchems,tblDiscount discount
+where discountPlan.DestinationGroupSetID = destinationGroup.DestinationGroupSetID
+and discountSchems.DiscountID = discount.DiscountID
+and discount.DiscountPlanID = discountPlan.DiscountPlanID
+and discountPlan.DiscountPlanID = (select TerminationDiscountPlanID  from tblCLIRateTable where CLIRateTableID = p_CLIRateTableID and CompanyID = p_CompanyID and AccountID = p_AccountID and AccountServiceID = p_AccountServiceID and  CLI = p_Number and Status =1) order by discount.Service asc;
+
+
+
+END IF;
+
+
+
+
+
+
+END//
+DELIMITER ;
+
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
+
+-- --------------------------------------------------------
+-- Host:                         127.0.0.1
+-- Server version:               5.7.24-log - MySQL Community Server (GPL)
+-- Server OS:                    Win64
+-- HeidiSQL Version:             9.5.0.5196
+-- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+
+-- Dumping structure for procedure speakintelligentRM.prc_getAccessDiscountPlan
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccessDiscountPlan`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_AccountServiceID` INT,
+	IN `p_Number` INT
+
+
+
+
+
+
+,
+	IN `p_CLIRateTableID` INT
+)
+BEGIN
+
+
+
+IF p_Number = 0 THEN
+
+select discountPlan.DiscountPlanID,discountPlan.Name as DiscountPlanName,
+destinationGroup.DestinationGroupID as DiscountGroupID,destinationGroup.Name as DiscountGroupName,
+destinationGroup.CountryName,destinationGroup.Type,destinationGroup.Prefix,destinationGroup.City,
+destinationGroup.Tariff,discountSchems.Components,discount.Service,discountSchems.Discount
+from tblDiscountPlan discountPlan,tblDestinationGroup destinationGroup,tblDiscountScheme discountSchems,tblDiscount discount
+where discountPlan.DestinationGroupSetID = destinationGroup.DestinationGroupSetID
+and discountSchems.DiscountID = discount.DiscountID
+and discount.DiscountPlanID = discountPlan.DiscountPlanID
+and discountPlan.DiscountPlanID in (select AccessDiscountPlanID  from tblCLIRateTable where CompanyID = p_CompanyID and  AccountID = p_AccountID and AccountServiceID = p_AccountServiceID and Status =1) order by discount.Service asc;
+
+
+
+
+ELSE
+
+select discountPlan.DiscountPlanID,discountPlan.Name as DiscountPlanName,
+destinationGroup.DestinationGroupID as DiscountGroupID,destinationGroup.Name as DiscountGroupName,
+destinationGroup.CountryName,destinationGroup.Type,destinationGroup.Prefix,destinationGroup.City,
+destinationGroup.Tariff,discountSchems.Components,discount.Service,discountSchems.Discount
+from tblDiscountPlan discountPlan,tblDestinationGroup destinationGroup,tblDiscountScheme discountSchems,tblDiscount discount
+where discountPlan.DestinationGroupSetID = destinationGroup.DestinationGroupSetID
+and discountSchems.DiscountID = discount.DiscountID
+and discount.DiscountPlanID = discountPlan.DiscountPlanID
+and discountPlan.DiscountPlanID = (select AccessDiscountPlanID  from tblCLIRateTable where CLIRateTableID = p_CLIRateTableID and CompanyID = p_CompanyID and AccountID = p_AccountID and AccountServiceID = p_AccountServiceID and  CLI = p_Number and Status =1) order by discount.Service asc;
+
+
+
+END IF;
+
+
+
+
+
+
+END//
+DELIMITER ;
+
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
 
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
