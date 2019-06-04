@@ -1,11 +1,11 @@
-USE `speakintelligentRM`
-INSERT INTO `tblCronJobCommand` (`CronJobCommandID`, `CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (540, 1, NULL, 'API Balance Update', 'apibalanceupdate', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2019-01-09 03:35:53', 'System');
+USE `speakintelligentRM`;
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES ( 1, NULL, 'API Balance Update', 'apibalanceupdate', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2019-01-09 03:35:53', 'System');
 
-USE `speakIntelligentRoutingEngine`
+USE `speakIntelligentRoutingEngine`;
 
 DROP PROCEDURE IF EXISTS `prc_CreateAPIAccountBalance`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CreateAPIAccountBalance`()
+CREATE PROCEDURE `prc_CreateAPIAccountBalance`()
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
@@ -58,7 +58,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getAccountBalance`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccountBalance`(
+CREATE PROCEDURE `prc_getAccountBalance`(
 	IN `p_AccountID` INT,
 	IN `p_AccountNo` VARCHAR(200),
 	IN `p_AccountDynamicField` VARCHAR(200),
