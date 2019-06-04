@@ -96,7 +96,7 @@
                                 <input type="text" name="ServiceOrderID" value="{{$AccountService->ServiceOrderID}}" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group hidden">
 
                             <label for="field-1" class="col-md-2 control-label">Affiliate
                             </label>

@@ -3563,6 +3563,1326 @@ DELIMITER ;
 
 
 
+DROP PROCEDURE IF EXISTS `prc_GetRateTableDIDRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetRateTableDIDRate`(
+	IN `p_companyid` INT,
+	IN `p_RateTableId` INT,
+	IN `p_trunkID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_contryID` INT,
+	IN `p_origination_code` VARCHAR(50),
+	IN `p_code` VARCHAR(50),
+	IN `p_City` VARCHAR(50),
+	IN `p_Tariff` VARCHAR(50),
+	IN `p_AccessType` VARCHAR(50),
+	IN `p_effective` VARCHAR(50),
+	IN `p_ApprovedStatus` TINYINT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRate_;
+	CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
+		ID INT,
+		AccessType varchar(200),
+		Country VARCHAR(200),
+		OriginationCode VARCHAR(50),
+		Code VARCHAR(50),
+		City VARCHAR(50),
+		Tariff VARCHAR(50),
+		TimezoneTitle VARCHAR(50),
+		OneOffCost DECIMAL(18,6),
+		MonthlyCost DECIMAL(18,6),
+		CostPerCall DECIMAL(18,6),
+		CostPerMinute DECIMAL(18,6),
+		SurchargePerCall DECIMAL(18,6),
+		SurchargePerMinute DECIMAL(18,6),
+		OutpaymentPerCall DECIMAL(18,6),
+		OutpaymentPerMinute DECIMAL(18,6),
+		Surcharges DECIMAL(18,6),
+		Chargeback DECIMAL(18,6),
+		CollectionCostAmount DECIMAL(18,6),
+		CollectionCostPercentage DECIMAL(18,6),
+		RegistrationCostPerNumber DECIMAL(18,6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		ModifiedBy VARCHAR(50),
+		RateTableDIDRateID INT,
+		OriginationRateID INT,
+		RateID INT,
+		ApprovedStatus TINYINT,
+		ApprovedBy VARCHAR(50),
+		ApprovedDate DATETIME,
+		OneOffCostCurrency INT(11),
+		MonthlyCostCurrency INT(11),
+		CostPerCallCurrency INT(11),
+		CostPerMinuteCurrency INT(11),
+		SurchargePerCallCurrency INT(11),
+		SurchargePerMinuteCurrency INT(11),
+		OutpaymentPerCallCurrency INT(11),
+		OutpaymentPerMinuteCurrency INT(11),
+		SurchargesCurrency INT(11),
+		ChargebackCurrency INT(11),
+		CollectionCostAmountCurrency INT(11),
+		RegistrationCostPerNumberCurrency INT(11),
+		OneOffCostCurrencySymbol VARCHAR(255),
+		MonthlyCostCurrencySymbol VARCHAR(255),
+		CostPerCallCurrencySymbol VARCHAR(255),
+		CostPerMinuteCurrencySymbol VARCHAR(255),
+		SurchargePerCallCurrencySymbol VARCHAR(255),
+		SurchargePerMinuteCurrencySymbol VARCHAR(255),
+		OutpaymentPerCallCurrencySymbol VARCHAR(255),
+		OutpaymentPerMinuteCurrencySymbol VARCHAR(255),
+		SurchargesCurrencySymbol VARCHAR(255),
+		ChargebackCurrencySymbol VARCHAR(255),
+		CollectionCostAmountCurrencySymbol VARCHAR(255),
+		RegistrationCostPerNumberCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
+		INDEX tmp_RateTableDIDRate_RateID (`RateID`)
+    );
+
+
+    INSERT INTO tmp_RateTableDIDRate_
+    SELECT
+		RateTableDIDRateID AS ID,
+		AccessType,
+		tblCountry.Country,
+		OriginationRate.Code AS OriginationCode,
+		tblRate.Code,
+		City,
+		Tariff,
+		tblTimezones.Title AS TimezoneTitle,
+		OneOffCost,
+		MonthlyCost,
+		CostPerCall,
+		CostPerMinute,
+		SurchargePerCall,
+		SurchargePerMinute,
+		OutpaymentPerCall,
+		OutpaymentPerMinute,
+		Surcharges,
+		Chargeback,
+		CollectionCostAmount,
+		CollectionCostPercentage,
+		RegistrationCostPerNumber,
+		IFNULL(tblRateTableDIDRate.EffectiveDate, NOW()) as EffectiveDate,
+		tblRateTableDIDRate.EndDate,
+		tblRateTableDIDRate.updated_at,
+		tblRateTableDIDRate.ModifiedBy,
+		RateTableDIDRateID,
+		OriginationRate.RateID AS OriginationRateID,
+		tblRate.RateID,
+		tblRateTableDIDRate.ApprovedStatus,
+		tblRateTableDIDRate.ApprovedBy,
+		tblRateTableDIDRate.ApprovedDate,
+		tblOneOffCostCurrency.CurrencyID AS OneOffCostCurrency,
+		tblMonthlyCostCurrency.CurrencyID AS MonthlyCostCurrency,
+		tblCostPerCallCurrency.CurrencyID AS CostPerCallCurrency,
+		tblCostPerMinuteCurrency.CurrencyID AS CostPerMinuteCurrency,
+		tblSurchargePerCallCurrency.CurrencyID AS SurchargePerCallCurrency,
+		tblSurchargePerMinuteCurrency.CurrencyID AS SurchargePerMinuteCurrency,
+		tblOutpaymentPerCallCurrency.CurrencyID AS OutpaymentPerCallCurrency,
+		tblOutpaymentPerMinuteCurrency.CurrencyID AS OutpaymentPerMinuteCurrency,
+		tblSurchargesCurrency.CurrencyID AS SurchargesCurrency,
+		tblChargebackCurrency.CurrencyID AS ChargebackCurrency,
+		tblCollectionCostAmountCurrency.CurrencyID AS CollectionCostAmountCurrency,
+		tblRegistrationCostPerNumberCurrency.CurrencyID AS RegistrationCostPerNumberCurrency,
+		IFNULL(tblOneOffCostCurrency.Symbol,'') AS OneOffCostCurrencySymbol,
+		IFNULL(tblMonthlyCostCurrency.Symbol,'') AS MonthlyCostCurrencySymbol,
+		IFNULL(tblCostPerCallCurrency.Symbol,'') AS CostPerCallCurrencySymbol,
+		IFNULL(tblCostPerMinuteCurrency.Symbol,'') AS CostPerMinuteCurrencySymbol,
+		IFNULL(tblSurchargePerCallCurrency.Symbol,'') AS SurchargePerCallCurrencySymbol,
+		IFNULL(tblSurchargePerMinuteCurrency.Symbol,'') AS SurchargePerMinuteCurrencySymbol,
+		IFNULL(tblOutpaymentPerCallCurrency.Symbol,'') AS OutpaymentPerCallCurrencySymbol,
+		IFNULL(tblOutpaymentPerMinuteCurrency.Symbol,'') AS OutpaymentPerMinuteCurrencySymbol,
+		IFNULL(tblSurchargesCurrency.Symbol,'') AS SurchargesCurrencySymbol,
+		IFNULL(tblChargebackCurrency.Symbol,'') AS ChargebackCurrencySymbol,
+		IFNULL(tblCollectionCostAmountCurrency.Symbol,'') AS CollectionCostAmountCurrencySymbol,
+		IFNULL(tblRegistrationCostPerNumberCurrency.Symbol,'') AS RegistrationCostPerNumberCurrencySymbol,
+		tblRateTableDIDRate.TimezonesID
+    FROM tblRate
+    LEFT JOIN tblRateTableDIDRate
+        ON tblRateTableDIDRate.RateID = tblRate.RateID
+        AND tblRateTableDIDRate.RateTableId = p_RateTableId
+    INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = tblRateTableDIDRate.TimezonesID
+    LEFT JOIN tblRate AS OriginationRate
+    	  ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
+    LEFT JOIN tblCountry
+    		ON tblCountry.CountryID = tblRate.CountryID
+    LEFT JOIN tblCurrency AS tblOneOffCostCurrency
+        ON tblOneOffCostCurrency.CurrencyID = tblRateTableDIDRate.OneOffCostCurrency
+    LEFT JOIN tblCurrency AS tblMonthlyCostCurrency
+        ON tblMonthlyCostCurrency.CurrencyID = tblRateTableDIDRate.MonthlyCostCurrency
+    LEFT JOIN tblCurrency AS tblCostPerCallCurrency
+        ON tblCostPerCallCurrency.CurrencyID = tblRateTableDIDRate.CostPerCallCurrency
+    LEFT JOIN tblCurrency AS tblCostPerMinuteCurrency
+        ON tblCostPerMinuteCurrency.CurrencyID = tblRateTableDIDRate.CostPerMinuteCurrency
+    LEFT JOIN tblCurrency AS tblSurchargePerCallCurrency
+        ON tblSurchargePerCallCurrency.CurrencyID = tblRateTableDIDRate.SurchargePerCallCurrency
+    LEFT JOIN tblCurrency AS tblSurchargePerMinuteCurrency
+        ON tblSurchargePerMinuteCurrency.CurrencyID = tblRateTableDIDRate.SurchargePerMinuteCurrency
+    LEFT JOIN tblCurrency AS tblOutpaymentPerCallCurrency
+        ON tblOutpaymentPerCallCurrency.CurrencyID = tblRateTableDIDRate.OutpaymentPerCallCurrency
+    LEFT JOIN tblCurrency AS tblOutpaymentPerMinuteCurrency
+        ON tblOutpaymentPerMinuteCurrency.CurrencyID = tblRateTableDIDRate.OutpaymentPerMinuteCurrency
+    LEFT JOIN tblCurrency AS tblSurchargesCurrency
+        ON tblSurchargesCurrency.CurrencyID = tblRateTableDIDRate.SurchargesCurrency
+    LEFT JOIN tblCurrency AS tblChargebackCurrency
+        ON tblChargebackCurrency.CurrencyID = tblRateTableDIDRate.ChargebackCurrency
+    LEFT JOIN tblCurrency AS tblCollectionCostAmountCurrency
+        ON tblCollectionCostAmountCurrency.CurrencyID = tblRateTableDIDRate.CollectionCostAmountCurrency
+    LEFT JOIN tblCurrency AS tblRegistrationCostPerNumberCurrency
+        ON tblRegistrationCostPerNumberCurrency.CurrencyID = tblRateTableDIDRate.RegistrationCostPerNumberCurrency
+    INNER JOIN tblRateTable
+        ON tblRateTable.RateTableId = tblRateTableDIDRate.RateTableId
+    LEFT JOIN tblCurrency AS tblRateTableCurrency
+    	  ON tblRateTableCurrency.CurrencyId = tblRateTable.CurrencyID
+    WHERE		(tblRate.CompanyID = p_companyid)
+		AND (p_contryID is null OR tblRate.CountryID = p_contryID)
+		AND (p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
+		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%')) 
+		AND (p_City IS NULL OR tblRateTableDIDRate.City = p_City)
+		AND (p_Tariff IS NULL OR tblRateTableDIDRate.Tariff = p_Tariff)
+		AND (p_AccessType IS NULL OR tblRateTableDIDRate.AccessType = p_AccessType)
+		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
+		AND TrunkID = p_trunkID
+		AND (p_TimezonesID IS NULL OR tblRateTableDIDRate.TimezonesID = p_TimezonesID)
+		AND (
+				p_effective = 'All'
+				OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
+				OR (p_effective = 'Future' AND EffectiveDate > NOW())
+			);
+
+	  IF p_effective = 'Now'
+		THEN
+		   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableDIDRate4_ as (select * from tmp_RateTableDIDRate_);
+         DELETE n1 FROM tmp_RateTableDIDRate_ n1, tmp_RateTableDIDRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+		   AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID AND n1.City = n2.City AND n1.Tariff = n2.Tariff;
+		END IF;
+
+
+    IF p_isExport = 0
+    THEN
+
+       	SELECT * FROM tmp_RateTableDIDRate_
+					ORDER BY 
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryDESC') THEN Country
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryASC') THEN Country
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityDESC') THEN City
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityASC') THEN City
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TariffDESC') THEN Tariff
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TariffASC') THEN Tariff
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeDESC') THEN AccessType
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeASC') THEN AccessType
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostASC') THEN OneOffCost
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostDESC') THEN MonthlyCost
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostASC') THEN MonthlyCost
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerCallDESC') THEN CostPerCall
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerCallASC') THEN CostPerCall
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerMinuteDESC') THEN CostPerMinute
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerMinuteASC') THEN CostPerMinute
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerCallDESC') THEN SurchargePerCall
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerCallASC') THEN SurchargePerCall
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerMinuteDESC') THEN SurchargePerMinute
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerMinuteASC') THEN SurchargePerMinute
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerCallDESC') THEN OutpaymentPerCall
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerCallASC') THEN OutpaymentPerCall
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerMinuteDESC') THEN OutpaymentPerMinute
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerMinuteASC') THEN OutpaymentPerMinute
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargesDESC') THEN Surcharges
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargesASC') THEN Surcharges
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ChargebackDESC') THEN Chargeback
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ChargebackASC') THEN Chargeback
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostAmountDESC') THEN CollectionCostAmount
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostAmountASC') THEN CollectionCostAmount
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostPercentageDESC') THEN CollectionCostPercentage
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostPercentageASC') THEN CollectionCostPercentage
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RegistrationCostPerNumberDESC') THEN RegistrationCostPerNumber
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RegistrationCostPerNumberASC') THEN RegistrationCostPerNumber
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+                END ASC
+			LIMIT p_RowspPage OFFSET v_OffSet_;
+
+			SELECT
+            COUNT(RateID) AS totalcount
+        	FROM tmp_RateTableDIDRate_;
+
+    END IF;
+
+	 -- basic view
+    IF p_isExport = 10
+    THEN
+        SELECT
+			AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			City,
+			Tariff,
+        	TimezoneTitle AS `Time of Day`,
+			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
+			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
+			CONCAT(CostPerMinuteCurrencySymbol,CostPerMinute) AS CostPerMinute,
+			CONCAT(SurchargePerCallCurrencySymbol,SurchargePerCall) AS SurchargePerCall,
+			CONCAT(SurchargePerMinuteCurrencySymbol,SurchargePerMinute) AS SurchargePerMinute,
+			CONCAT(OutpaymentPerCallCurrencySymbol,OutpaymentPerCall) AS OutpaymentPerCall,
+			CONCAT(OutpaymentPerMinuteCurrencySymbol,OutpaymentPerMinute) AS OutpaymentPerMinute,
+			CONCAT(SurchargesCurrencySymbol,Surcharges) AS Surcharges,
+			CONCAT(ChargebackCurrencySymbol,Chargeback) AS Chargeback,
+			CONCAT(CollectionCostAmountCurrencySymbol,CollectionCostAmount) AS CollectionCostAmount,
+			CollectionCostPercentage,
+			CONCAT(RegistrationCostPerNumberCurrencySymbol,RegistrationCostPerNumber) AS RegistrationCostPerNumber,
+			EffectiveDate,
+			ApprovedStatus
+        FROM
+			tmp_RateTableDIDRate_;
+    END IF;
+
+	 -- advance view
+    IF p_isExport = 11
+    THEN
+        SELECT
+        	AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			City,
+			Tariff,
+        	TimezoneTitle AS `Time of Day`,
+			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
+			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
+			CONCAT(CostPerMinuteCurrencySymbol,CostPerMinute) AS CostPerMinute,
+			CONCAT(SurchargePerCallCurrencySymbol,SurchargePerCall) AS SurchargePerCall,
+			CONCAT(SurchargePerMinuteCurrencySymbol,SurchargePerMinute) AS SurchargePerMinute,
+			CONCAT(OutpaymentPerCallCurrencySymbol,OutpaymentPerCall) AS OutpaymentPerCall,
+			CONCAT(OutpaymentPerMinuteCurrencySymbol,OutpaymentPerMinute) AS OutpaymentPerMinute,
+			CONCAT(SurchargesCurrencySymbol,Surcharges) AS Surcharges,
+			CONCAT(ChargebackCurrencySymbol,Chargeback) AS Chargeback,
+			CONCAT(CollectionCostAmountCurrencySymbol,CollectionCostAmount) AS CollectionCostAmount,
+			CollectionCostPercentage,
+			CONCAT(RegistrationCostPerNumberCurrencySymbol,RegistrationCostPerNumber) AS RegistrationCostPerNumber,
+			EffectiveDate,
+			CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
+			CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`,
+			ApprovedStatus
+        FROM
+			tmp_RateTableDIDRate_;
+    END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_GetRateTableDIDRateAA`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetRateTableDIDRateAA`(
+	IN `p_companyid` INT,
+	IN `p_RateTableId` INT,
+	IN `p_trunkID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_contryID` INT,
+	IN `p_origination_code` VARCHAR(50),
+	IN `p_code` VARCHAR(50),
+	IN `p_City` VARCHAR(50),
+	IN `p_Tariff` VARCHAR(50),
+	IN `p_AccessType` VARCHAR(50),
+	IN `p_effective` VARCHAR(50),
+	IN `p_ApprovedStatus` TINYINT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRate_;
+	CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
+		ID INT,
+		AccessType varchar(200),
+		Country VARCHAR(200),
+		OriginationCode VARCHAR(50),
+		Code VARCHAR(50),
+		City VARCHAR(50),
+		Tariff VARCHAR(50),
+		TimezoneTitle VARCHAR(50),
+		OneOffCost DECIMAL(18,6),
+		MonthlyCost DECIMAL(18,6),
+		CostPerCall DECIMAL(18,6),
+		CostPerMinute DECIMAL(18,6),
+		SurchargePerCall DECIMAL(18,6),
+		SurchargePerMinute DECIMAL(18,6),
+		OutpaymentPerCall DECIMAL(18,6),
+		OutpaymentPerMinute DECIMAL(18,6),
+		Surcharges DECIMAL(18,6),
+		Chargeback DECIMAL(18,6),
+		CollectionCostAmount DECIMAL(18,6),
+		CollectionCostPercentage DECIMAL(18,6),
+		RegistrationCostPerNumber DECIMAL(18,6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		ModifiedBy VARCHAR(50),
+		RateTableDIDRateID INT,
+		OriginationRateID INT,
+		RateID INT,
+		ApprovedStatus TINYINT,
+		ApprovedBy VARCHAR(50),
+		ApprovedDate DATETIME,
+		OneOffCostCurrency INT(11),
+		MonthlyCostCurrency INT(11),
+		CostPerCallCurrency INT(11),
+		CostPerMinuteCurrency INT(11),
+		SurchargePerCallCurrency INT(11),
+		SurchargePerMinuteCurrency INT(11),
+		OutpaymentPerCallCurrency INT(11),
+		OutpaymentPerMinuteCurrency INT(11),
+		SurchargesCurrency INT(11),
+		ChargebackCurrency INT(11),
+		CollectionCostAmountCurrency INT(11),
+		RegistrationCostPerNumberCurrency INT(11),
+		OneOffCostCurrencySymbol VARCHAR(255),
+		MonthlyCostCurrencySymbol VARCHAR(255),
+		CostPerCallCurrencySymbol VARCHAR(255),
+		CostPerMinuteCurrencySymbol VARCHAR(255),
+		SurchargePerCallCurrencySymbol VARCHAR(255),
+		SurchargePerMinuteCurrencySymbol VARCHAR(255),
+		OutpaymentPerCallCurrencySymbol VARCHAR(255),
+		OutpaymentPerMinuteCurrencySymbol VARCHAR(255),
+		SurchargesCurrencySymbol VARCHAR(255),
+		ChargebackCurrencySymbol VARCHAR(255),
+		CollectionCostAmountCurrencySymbol VARCHAR(255),
+		RegistrationCostPerNumberCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
+		INDEX tmp_RateTableDIDRate_RateID (`RateID`)
+    );
+
+
+    INSERT INTO tmp_RateTableDIDRate_
+    SELECT
+		RateTableDIDRateAAID AS ID,
+		AccessType,
+		tblCountry.Country,
+		OriginationRate.Code AS OriginationCode,
+		tblRate.Code,
+		City,
+		Tariff,
+		tblTimezones.Title AS TimezoneTitle,
+		OneOffCost,
+		MonthlyCost,
+		CostPerCall,
+		CostPerMinute,
+		SurchargePerCall,
+		SurchargePerMinute,
+		OutpaymentPerCall,
+		OutpaymentPerMinute,
+		Surcharges,
+		Chargeback,
+		CollectionCostAmount,
+		CollectionCostPercentage,
+		RegistrationCostPerNumber,
+		IFNULL(tblRateTableDIDRate.EffectiveDate, NOW()) as EffectiveDate,
+		tblRateTableDIDRate.EndDate,
+		tblRateTableDIDRate.updated_at,
+		tblRateTableDIDRate.ModifiedBy,
+		RateTableDIDRateAAID,
+		OriginationRate.RateID AS OriginationRateID,
+		tblRate.RateID,
+		tblRateTableDIDRate.ApprovedStatus,
+		tblRateTableDIDRate.ApprovedBy,
+		tblRateTableDIDRate.ApprovedDate,
+		tblOneOffCostCurrency.CurrencyID AS OneOffCostCurrency,
+		tblMonthlyCostCurrency.CurrencyID AS MonthlyCostCurrency,
+		tblCostPerCallCurrency.CurrencyID AS CostPerCallCurrency,
+		tblCostPerMinuteCurrency.CurrencyID AS CostPerMinuteCurrency,
+		tblSurchargePerCallCurrency.CurrencyID AS SurchargePerCallCurrency,
+		tblSurchargePerMinuteCurrency.CurrencyID AS SurchargePerMinuteCurrency,
+		tblOutpaymentPerCallCurrency.CurrencyID AS OutpaymentPerCallCurrency,
+		tblOutpaymentPerMinuteCurrency.CurrencyID AS OutpaymentPerMinuteCurrency,
+		tblSurchargesCurrency.CurrencyID AS SurchargesCurrency,
+		tblChargebackCurrency.CurrencyID AS ChargebackCurrency,
+		tblCollectionCostAmountCurrency.CurrencyID AS CollectionCostAmountCurrency,
+		tblRegistrationCostPerNumberCurrency.CurrencyID AS RegistrationCostPerNumberCurrency,
+		IFNULL(tblOneOffCostCurrency.Symbol,'') AS OneOffCostCurrencySymbol,
+		IFNULL(tblMonthlyCostCurrency.Symbol,'') AS MonthlyCostCurrencySymbol,
+		IFNULL(tblCostPerCallCurrency.Symbol,'') AS CostPerCallCurrencySymbol,
+		IFNULL(tblCostPerMinuteCurrency.Symbol,'') AS CostPerMinuteCurrencySymbol,
+		IFNULL(tblSurchargePerCallCurrency.Symbol,'') AS SurchargePerCallCurrencySymbol,
+		IFNULL(tblSurchargePerMinuteCurrency.Symbol,'') AS SurchargePerMinuteCurrencySymbol,
+		IFNULL(tblOutpaymentPerCallCurrency.Symbol,'') AS OutpaymentPerCallCurrencySymbol,
+		IFNULL(tblOutpaymentPerMinuteCurrency.Symbol,'') AS OutpaymentPerMinuteCurrencySymbol,
+		IFNULL(tblSurchargesCurrency.Symbol,'') AS SurchargesCurrencySymbol,
+		IFNULL(tblChargebackCurrency.Symbol,'') AS ChargebackCurrencySymbol,
+		IFNULL(tblCollectionCostAmountCurrency.Symbol,'') AS CollectionCostAmountCurrencySymbol,
+		IFNULL(tblRegistrationCostPerNumberCurrency.Symbol,'') AS RegistrationCostPerNumberCurrencySymbol,
+		tblRateTableDIDRate.TimezonesID
+    FROM tblRate
+    LEFT JOIN tblRateTableDIDRateAA AS tblRateTableDIDRate
+        ON tblRateTableDIDRate.RateID = tblRate.RateID
+        AND tblRateTableDIDRate.RateTableId = p_RateTableId
+    INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = tblRateTableDIDRate.TimezonesID
+    LEFT JOIN tblRate AS OriginationRate
+    	  ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
+    LEFT JOIN tblCountry
+    		ON tblCountry.CountryID = tblRate.CountryID
+    LEFT JOIN tblCurrency AS tblOneOffCostCurrency
+        ON tblOneOffCostCurrency.CurrencyID = tblRateTableDIDRate.OneOffCostCurrency
+    LEFT JOIN tblCurrency AS tblMonthlyCostCurrency
+        ON tblMonthlyCostCurrency.CurrencyID = tblRateTableDIDRate.MonthlyCostCurrency
+    LEFT JOIN tblCurrency AS tblCostPerCallCurrency
+        ON tblCostPerCallCurrency.CurrencyID = tblRateTableDIDRate.CostPerCallCurrency
+    LEFT JOIN tblCurrency AS tblCostPerMinuteCurrency
+        ON tblCostPerMinuteCurrency.CurrencyID = tblRateTableDIDRate.CostPerMinuteCurrency
+    LEFT JOIN tblCurrency AS tblSurchargePerCallCurrency
+        ON tblSurchargePerCallCurrency.CurrencyID = tblRateTableDIDRate.SurchargePerCallCurrency
+    LEFT JOIN tblCurrency AS tblSurchargePerMinuteCurrency
+        ON tblSurchargePerMinuteCurrency.CurrencyID = tblRateTableDIDRate.SurchargePerMinuteCurrency
+    LEFT JOIN tblCurrency AS tblOutpaymentPerCallCurrency
+        ON tblOutpaymentPerCallCurrency.CurrencyID = tblRateTableDIDRate.OutpaymentPerCallCurrency
+    LEFT JOIN tblCurrency AS tblOutpaymentPerMinuteCurrency
+        ON tblOutpaymentPerMinuteCurrency.CurrencyID = tblRateTableDIDRate.OutpaymentPerMinuteCurrency
+    LEFT JOIN tblCurrency AS tblSurchargesCurrency
+        ON tblSurchargesCurrency.CurrencyID = tblRateTableDIDRate.SurchargesCurrency
+    LEFT JOIN tblCurrency AS tblChargebackCurrency
+        ON tblChargebackCurrency.CurrencyID = tblRateTableDIDRate.ChargebackCurrency
+    LEFT JOIN tblCurrency AS tblCollectionCostAmountCurrency
+        ON tblCollectionCostAmountCurrency.CurrencyID = tblRateTableDIDRate.CollectionCostAmountCurrency
+    LEFT JOIN tblCurrency AS tblRegistrationCostPerNumberCurrency
+        ON tblRegistrationCostPerNumberCurrency.CurrencyID = tblRateTableDIDRate.RegistrationCostPerNumberCurrency
+    INNER JOIN tblRateTable
+        ON tblRateTable.RateTableId = tblRateTableDIDRate.RateTableId
+    LEFT JOIN tblCurrency AS tblRateTableCurrency
+    	  ON tblRateTableCurrency.CurrencyId = tblRateTable.CurrencyID
+    WHERE		(tblRate.CompanyID = p_companyid)
+		AND (p_contryID is null OR tblRate.CountryID = p_contryID)
+		AND (p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%'))
+		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
+		AND (p_City IS NULL OR tblRateTableDIDRate.City = p_City)
+		AND (p_Tariff IS NULL OR tblRateTableDIDRate.Tariff = p_Tariff)
+		AND (p_AccessType IS NULL OR tblRateTableDIDRate.AccessType = p_AccessType)
+		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
+		AND TrunkID = p_trunkID
+		AND (p_TimezonesID IS NULL OR tblRateTableDIDRate.TimezonesID = p_TimezonesID)
+		AND (
+				p_effective = 'All'
+				OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
+				OR (p_effective = 'Future' AND EffectiveDate > NOW())
+			);
+
+	  IF p_effective = 'Now'
+		THEN
+		   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableDIDRate4_ as (select * from tmp_RateTableDIDRate_);
+         DELETE n1 FROM tmp_RateTableDIDRate_ n1, tmp_RateTableDIDRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+		   AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID;
+		END IF;
+
+
+    IF p_isExport = 0
+    THEN
+
+       	SELECT * FROM tmp_RateTableDIDRate_
+					ORDER BY 
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryDESC') THEN Country
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryASC') THEN Country
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityDESC') THEN City
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityASC') THEN City
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TariffDESC') THEN Tariff
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TariffASC') THEN Tariff
+                END ASC,
+	             CASE
+	                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeDESC') THEN AccessType
+	             END DESC,
+	             CASE
+	                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeASC') THEN AccessType
+	             END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostASC') THEN OneOffCost
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostDESC') THEN MonthlyCost
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostASC') THEN MonthlyCost
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerCallDESC') THEN CostPerCall
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerCallASC') THEN CostPerCall
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerMinuteDESC') THEN CostPerMinute
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerMinuteASC') THEN CostPerMinute
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerCallDESC') THEN SurchargePerCall
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerCallASC') THEN SurchargePerCall
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerMinuteDESC') THEN SurchargePerMinute
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerMinuteASC') THEN SurchargePerMinute
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerCallDESC') THEN OutpaymentPerCall
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerCallASC') THEN OutpaymentPerCall
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerMinuteDESC') THEN OutpaymentPerMinute
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerMinuteASC') THEN OutpaymentPerMinute
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargesDESC') THEN Surcharges
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargesASC') THEN Surcharges
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ChargebackDESC') THEN Chargeback
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ChargebackASC') THEN Chargeback
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostAmountDESC') THEN CollectionCostAmount
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostAmountASC') THEN CollectionCostAmount
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostPercentageDESC') THEN CollectionCostPercentage
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostPercentageASC') THEN CollectionCostPercentage
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RegistrationCostPerNumberDESC') THEN RegistrationCostPerNumber
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RegistrationCostPerNumberASC') THEN RegistrationCostPerNumber
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+                END ASC
+			LIMIT p_RowspPage OFFSET v_OffSet_;
+
+			SELECT
+            COUNT(RateID) AS totalcount
+        	FROM tmp_RateTableDIDRate_;
+
+    END IF;
+
+	 -- basic view
+    IF p_isExport = 10
+    THEN
+        SELECT
+			AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			City,
+			Tariff,
+        	TimezoneTitle AS `Time of Day`,
+			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
+			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
+			CONCAT(CostPerMinuteCurrencySymbol,CostPerMinute) AS CostPerMinute,
+			CONCAT(SurchargePerCallCurrencySymbol,SurchargePerCall) AS SurchargePerCall,
+			CONCAT(SurchargePerMinuteCurrencySymbol,SurchargePerMinute) AS SurchargePerMinute,
+			CONCAT(OutpaymentPerCallCurrencySymbol,OutpaymentPerCall) AS OutpaymentPerCall,
+			CONCAT(OutpaymentPerMinuteCurrencySymbol,OutpaymentPerMinute) AS OutpaymentPerMinute,
+			CONCAT(SurchargesCurrencySymbol,Surcharges) AS Surcharges,
+			CONCAT(ChargebackCurrencySymbol,Chargeback) AS Chargeback,
+			CONCAT(CollectionCostAmountCurrencySymbol,CollectionCostAmount) AS CollectionCostAmount,
+			CollectionCostPercentage,
+			CONCAT(RegistrationCostPerNumberCurrencySymbol,RegistrationCostPerNumber) AS RegistrationCostPerNumber,
+			EffectiveDate,
+			ApprovedStatus
+        FROM
+			tmp_RateTableDIDRate_;
+    END IF;
+
+	 -- advance view
+    IF p_isExport = 11
+    THEN
+        SELECT
+			AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			City,
+			Tariff,
+        	TimezoneTitle AS `Time of Day`,
+			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
+			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
+			CONCAT(CostPerMinuteCurrencySymbol,CostPerMinute) AS CostPerMinute,
+			CONCAT(SurchargePerCallCurrencySymbol,SurchargePerCall) AS SurchargePerCall,
+			CONCAT(SurchargePerMinuteCurrencySymbol,SurchargePerMinute) AS SurchargePerMinute,
+			CONCAT(OutpaymentPerCallCurrencySymbol,OutpaymentPerCall) AS OutpaymentPerCall,
+			CONCAT(OutpaymentPerMinuteCurrencySymbol,OutpaymentPerMinute) AS OutpaymentPerMinute,
+			CONCAT(SurchargesCurrencySymbol,Surcharges) AS Surcharges,
+			CONCAT(ChargebackCurrencySymbol,Chargeback) AS Chargeback,
+			CONCAT(CollectionCostAmountCurrencySymbol,CollectionCostAmount) AS CollectionCostAmount,
+			CollectionCostPercentage,
+			CONCAT(RegistrationCostPerNumberCurrencySymbol,RegistrationCostPerNumber) AS RegistrationCostPerNumber,
+			EffectiveDate,
+			CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
+			CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`,
+			ApprovedStatus
+        FROM
+			tmp_RateTableDIDRate_;
+    END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_GetRateTablePKGRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetRateTablePKGRate`(
+	IN `p_companyid` INT,
+	IN `p_RateTableId` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_code` VARCHAR(50),
+	IN `p_effective` VARCHAR(50),
+	IN `p_ApprovedStatus` TINYINT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTablePKGRate_;
+	CREATE TEMPORARY TABLE tmp_RateTablePKGRate_ (
+		ID INT,
+		TimezoneTitle VARCHAR(50),
+		Code VARCHAR(50),
+		OneOffCost DECIMAL(18,6),
+		MonthlyCost DECIMAL(18,6),
+		PackageCostPerMinute DECIMAL(18,6),
+		RecordingCostPerMinute DECIMAL(18,6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		ModifiedBy VARCHAR(50),
+		RateTablePKGRateID INT,
+		RateID INT,
+		ApprovedStatus TINYINT,
+		ApprovedBy VARCHAR(50),
+		ApprovedDate DATETIME,
+		OneOffCostCurrency INT(11),
+		MonthlyCostCurrency INT(11),
+		PackageCostPerMinuteCurrency INT(11),
+		RecordingCostPerMinuteCurrency INT(11),
+		OneOffCostCurrencySymbol VARCHAR(255),
+		MonthlyCostCurrencySymbol VARCHAR(255),
+		PackageCostPerMinuteCurrencySymbol VARCHAR(255),
+		RecordingCostPerMinuteCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
+		INDEX tmp_RateTablePKGRate_RateID (`RateID`)
+    );
+
+
+    INSERT INTO tmp_RateTablePKGRate_
+    SELECT
+		RateTablePKGRateID AS ID,
+		tblTimezones.Title AS TimezoneTitle,
+		tblRate.Code,
+		OneOffCost,
+		MonthlyCost,
+		PackageCostPerMinute,
+		RecordingCostPerMinute,
+		IFNULL(tblRateTablePKGRate.EffectiveDate, NOW()) as EffectiveDate,
+		tblRateTablePKGRate.EndDate,
+		tblRateTablePKGRate.updated_at,
+		tblRateTablePKGRate.ModifiedBy,
+		RateTablePKGRateID,
+		tblRate.RateID,
+		tblRateTablePKGRate.ApprovedStatus,
+		tblRateTablePKGRate.ApprovedBy,
+		tblRateTablePKGRate.ApprovedDate,
+		tblOneOffCostCurrency.CurrencyID AS OneOffCostCurrency,
+		tblMonthlyCostCurrency.CurrencyID AS MonthlyCostCurrency,
+		tblPackageCostPerMinuteCurrency.CurrencyID AS PackageCostPerMinuteCurrency,
+		tblRecordingCostPerMinuteCurrency.CurrencyID AS RecordingCostPerMinuteCurrency,
+		IFNULL(tblOneOffCostCurrency.Symbol,'') AS OneOffCostCurrencySymbol,
+		IFNULL(tblMonthlyCostCurrency.Symbol,'') AS MonthlyCostCurrencySymbol,
+		IFNULL(tblPackageCostPerMinuteCurrency.Symbol,'') AS PackageCostPerMinuteCurrencySymbol,
+		IFNULL(tblRecordingCostPerMinuteCurrency.Symbol,'') AS RecordingCostPerMinuteCurrencySymbol,
+		tblRateTablePKGRate.TimezonesID
+    FROM tblRate
+    LEFT JOIN tblRateTablePKGRate
+        ON tblRateTablePKGRate.RateID = tblRate.RateID
+        AND tblRateTablePKGRate.RateTableId = p_RateTableId
+    INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = tblRateTablePKGRate.TimezonesID
+    LEFT JOIN tblCurrency AS tblOneOffCostCurrency
+        ON tblOneOffCostCurrency.CurrencyID = tblRateTablePKGRate.OneOffCostCurrency
+    LEFT JOIN tblCurrency AS tblMonthlyCostCurrency
+        ON tblMonthlyCostCurrency.CurrencyID = tblRateTablePKGRate.MonthlyCostCurrency
+    LEFT JOIN tblCurrency AS tblPackageCostPerMinuteCurrency
+        ON tblPackageCostPerMinuteCurrency.CurrencyID = tblRateTablePKGRate.PackageCostPerMinuteCurrency
+    LEFT JOIN tblCurrency AS tblRecordingCostPerMinuteCurrency
+        ON tblRecordingCostPerMinuteCurrency.CurrencyID = tblRateTablePKGRate.RecordingCostPerMinuteCurrency
+    INNER JOIN tblRateTable
+        ON tblRateTable.RateTableId = tblRateTablePKGRate.RateTableId
+    WHERE
+		(tblRate.CompanyID = p_companyid)
+		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
+		AND (p_ApprovedStatus IS NULL OR tblRateTablePKGRate.ApprovedStatus = p_ApprovedStatus)
+		AND (p_TimezonesID IS NULL OR tblRateTablePKGRate.TimezonesID = p_TimezonesID)
+		AND (
+				p_effective = 'All'
+				OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
+				OR (p_effective = 'Future' AND EffectiveDate > NOW())
+			);
+
+	IF p_effective = 'Now'
+	THEN
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTablePKGRate4_ as (select * from tmp_RateTablePKGRate_);
+		DELETE n1 FROM tmp_RateTablePKGRate_ n1, tmp_RateTablePKGRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+			AND  n1.RateID = n2.RateID AND n1.TimezonesID = n2.TimezonesID;
+	END IF;
+
+
+    IF p_isExport = 0
+    THEN
+
+       	SELECT * FROM tmp_RateTablePKGRate_
+			ORDER BY
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostASC') THEN OneOffCost
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostDESC') THEN MonthlyCost
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostASC') THEN MonthlyCost
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PackageCostPerMinuteDESC') THEN PackageCostPerMinute
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PackageCostPerMinuteASC') THEN PackageCostPerMinute
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RecordingCostPerMinuteDESC') THEN RecordingCostPerMinute
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RecordingCostPerMinuteASC') THEN RecordingCostPerMinute
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+                END ASC
+			LIMIT p_RowspPage OFFSET v_OffSet_;
+
+			SELECT
+            COUNT(RateID) AS totalcount
+        	FROM tmp_RateTablePKGRate_;
+
+    END IF;
+
+    IF p_isExport = 1
+    THEN
+        SELECT
+        	TimezoneTitle AS `Time of Day`,
+			Code AS PackageName,
+			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
+			CONCAT(PackageCostPerMinuteCurrencySymbol,PackageCostPerMinute) AS PackageCostPerMinute,
+			CONCAT(RecordingCostPerMinuteCurrencySymbol,RecordingCostPerMinute) AS RecordingCostPerMinute,
+			EffectiveDate,
+			CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
+			CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`,
+			ApprovedStatus
+        FROM
+		  		tmp_RateTablePKGRate_;
+    END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_GetRateTablePKGRateAA`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetRateTablePKGRateAA`(
+	IN `p_companyid` INT,
+	IN `p_RateTableId` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_code` VARCHAR(50),
+	IN `p_effective` VARCHAR(50),
+	IN `p_ApprovedStatus` TINYINT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTablePKGRate_;
+	CREATE TEMPORARY TABLE tmp_RateTablePKGRate_ (
+		ID INT,
+		TimezoneTitle VARCHAR(50),
+		Code VARCHAR(50),
+		OneOffCost DECIMAL(18,6),
+		MonthlyCost DECIMAL(18,6),
+		PackageCostPerMinute DECIMAL(18,6),
+		RecordingCostPerMinute DECIMAL(18,6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		ModifiedBy VARCHAR(50),
+		RateTablePKGRateID INT,
+		RateID INT,
+		ApprovedStatus TINYINT,
+		ApprovedBy VARCHAR(50),
+		ApprovedDate DATETIME,
+		OneOffCostCurrency INT(11),
+		MonthlyCostCurrency INT(11),
+		PackageCostPerMinuteCurrency INT(11),
+		RecordingCostPerMinuteCurrency INT(11),
+		OneOffCostCurrencySymbol VARCHAR(255),
+		MonthlyCostCurrencySymbol VARCHAR(255),
+		PackageCostPerMinuteCurrencySymbol VARCHAR(255),
+		RecordingCostPerMinuteCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
+		INDEX tmp_RateTablePKGRate_RateID (`RateID`)
+    );
+
+
+    INSERT INTO tmp_RateTablePKGRate_
+    SELECT
+		RateTablePKGRateAAID AS ID,
+		tblTimezones.Title AS TimezoneTitle,
+		tblRate.Code,
+		OneOffCost,
+		MonthlyCost,
+		PackageCostPerMinute,
+		RecordingCostPerMinute,
+		IFNULL(tblRateTablePKGRate.EffectiveDate, NOW()) as EffectiveDate,
+		tblRateTablePKGRate.EndDate,
+		tblRateTablePKGRate.updated_at,
+		tblRateTablePKGRate.ModifiedBy,
+		RateTablePKGRateAAID,
+		tblRate.RateID,
+		tblRateTablePKGRate.ApprovedStatus,
+		tblRateTablePKGRate.ApprovedBy,
+		tblRateTablePKGRate.ApprovedDate,
+		tblOneOffCostCurrency.CurrencyID AS OneOffCostCurrency,
+		tblMonthlyCostCurrency.CurrencyID AS MonthlyCostCurrency,
+		tblPackageCostPerMinuteCurrency.CurrencyID AS PackageCostPerMinuteCurrency,
+		tblRecordingCostPerMinuteCurrency.CurrencyID AS RecordingCostPerMinuteCurrency,
+		IFNULL(tblOneOffCostCurrency.Symbol,'') AS OneOffCostCurrencySymbol,
+		IFNULL(tblMonthlyCostCurrency.Symbol,'') AS MonthlyCostCurrencySymbol,
+		IFNULL(tblPackageCostPerMinuteCurrency.Symbol,'') AS PackageCostPerMinuteCurrencySymbol,
+		IFNULL(tblRecordingCostPerMinuteCurrency.Symbol,'') AS RecordingCostPerMinuteCurrencySymbol,
+		tblRateTablePKGRate.TimezonesID
+    FROM tblRate
+    LEFT JOIN tblRateTablePKGRateAA AS tblRateTablePKGRate
+        ON tblRateTablePKGRate.RateID = tblRate.RateID
+        AND tblRateTablePKGRate.RateTableId = p_RateTableId
+    INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = tblRateTablePKGRate.TimezonesID
+    LEFT JOIN tblCurrency AS tblOneOffCostCurrency
+        ON tblOneOffCostCurrency.CurrencyID = tblRateTablePKGRate.OneOffCostCurrency
+    LEFT JOIN tblCurrency AS tblMonthlyCostCurrency
+        ON tblMonthlyCostCurrency.CurrencyID = tblRateTablePKGRate.MonthlyCostCurrency
+    LEFT JOIN tblCurrency AS tblPackageCostPerMinuteCurrency
+        ON tblPackageCostPerMinuteCurrency.CurrencyID = tblRateTablePKGRate.PackageCostPerMinuteCurrency
+    LEFT JOIN tblCurrency AS tblRecordingCostPerMinuteCurrency
+        ON tblRecordingCostPerMinuteCurrency.CurrencyID = tblRateTablePKGRate.RecordingCostPerMinuteCurrency
+    INNER JOIN tblRateTable
+        ON tblRateTable.RateTableId = tblRateTablePKGRate.RateTableId
+    WHERE
+		(tblRate.CompanyID = p_companyid)
+		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
+		AND (p_ApprovedStatus IS NULL OR tblRateTablePKGRate.ApprovedStatus = p_ApprovedStatus)
+		AND (p_TimezonesID IS NULL OR tblRateTablePKGRate.TimezonesID = p_TimezonesID)
+		AND (
+				p_effective = 'All'
+				OR (p_effective = 'Now' AND EffectiveDate <= NOW() )
+				OR (p_effective = 'Future' AND EffectiveDate > NOW())
+			);
+
+	IF p_effective = 'Now'
+	THEN
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTablePKGRate4_ as (select * from tmp_RateTablePKGRate_);
+		DELETE n1 FROM tmp_RateTablePKGRate_ n1, tmp_RateTablePKGRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+			AND  n1.RateID = n2.RateID;
+	END IF;
+
+
+    IF p_isExport = 0
+    THEN
+
+       	SELECT * FROM tmp_RateTablePKGRate_
+			ORDER BY
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostASC') THEN OneOffCost
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostDESC') THEN MonthlyCost
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostASC') THEN MonthlyCost
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PackageCostPerMinuteDESC') THEN PackageCostPerMinute
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PackageCostPerMinuteASC') THEN PackageCostPerMinute
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RecordingCostPerMinuteDESC') THEN RecordingCostPerMinute
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RecordingCostPerMinuteASC') THEN RecordingCostPerMinute
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+                END ASC
+			LIMIT p_RowspPage OFFSET v_OffSet_;
+
+			SELECT
+            COUNT(RateID) AS totalcount
+        	FROM tmp_RateTablePKGRate_;
+
+    END IF;
+
+    IF p_isExport = 1
+    THEN
+        SELECT
+        	TimezoneTitle AS `Time of Day`,
+			Code AS PackageName,
+			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
+			CONCAT(PackageCostPerMinuteCurrencySymbol,PackageCostPerMinute) AS PackageCostPerMinute,
+			CONCAT(RecordingCostPerMinuteCurrencySymbol,RecordingCostPerMinute) AS RecordingCostPerMinute,
+			EffectiveDate,
+			CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
+			CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`,
+			ApprovedStatus
+        FROM
+		  		tmp_RateTablePKGRate_;
+    END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
 DROP PROCEDURE IF EXISTS `prc_GetRateTableRate`;
 DELIMITER //
 CREATE PROCEDURE `prc_GetRateTableRate`(
@@ -3737,7 +5057,7 @@ BEGIN
 		IF p_view = 1
 		THEN
        	SELECT * FROM tmp_RateTableRate_
-					ORDER BY
+					ORDER BY 
 					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN DestinationType
                 END DESC,
@@ -4038,7 +5358,7 @@ BEGIN
 	   	-- rate approval process is on and rate table is vendor rate table
 			IF(v_RateApprovalProcess_ = 1 && v_AppliedTo_ <> 2)
 			THEN
-	   		SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus AS `Approved Status`");
+	   		SET @stm2 = CONCAT(@stm2,", CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`, ApprovedStatus");
 	   	END IF;
 
 	   END IF;
@@ -4203,7 +5523,7 @@ BEGIN
 	THEN
 
 		SELECT * FROM tmp_RateTableRate_
-		ORDER BY
+		ORDER BY 
 			CASE
 	     		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN DestinationType
 	     	END DESC,
@@ -4358,7 +5678,7 @@ BEGIN
 		IF p_isExport = 11
 		THEN
 			SET @stm2 = ", PreviousRate AS `Previous Rate`, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
-			SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus AS `Approved Status`");
+			SET @stm2 = CONCAT(@stm2,", CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`, ApprovedStatus");
 		END IF;
 
 		SET @stm = CONCAT(@stm1,@stm2,' FROM tmp_RateTableRate_;');
@@ -4589,6 +5909,656 @@ BEGIN
 		Preference,
 		Blocked
 	FROM tmp_RateTableRate_;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getDiscontinuedRateTableDIDRateGrid`;
+DELIMITER //
+CREATE PROCEDURE `prc_getDiscontinuedRateTableDIDRateGrid`(
+	IN `p_CompanyID` INT,
+	IN `p_RateTableID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_CountryID` INT,
+	IN `p_origination_code` VARCHAR(50),
+	IN `p_Code` VARCHAR(50),
+	IN `p_City` VARCHAR(50),
+	IN `p_Tariff` VARCHAR(50),
+	IN `p_AccessType` VARCHAR(50),
+	IN `p_ApprovedStatus` TINYINT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRate_;
+	CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
+		ID INT,
+		AccessType varchar(200),
+		Country VARCHAR(200),
+		OriginationCode VARCHAR(50),
+		Code VARCHAR(50),
+		City VARCHAR(50),
+		Tariff VARCHAR(50),
+		TimezoneTitle VARCHAR(50),
+		OneOffCost DECIMAL(18,6),
+		MonthlyCost DECIMAL(18,6),
+		CostPerCall DECIMAL(18,6),
+		CostPerMinute DECIMAL(18,6),
+		SurchargePerCall DECIMAL(18,6),
+		SurchargePerMinute DECIMAL(18,6),
+		OutpaymentPerCall DECIMAL(18,6),
+		OutpaymentPerMinute DECIMAL(18,6),
+		Surcharges DECIMAL(18,6),
+		Chargeback DECIMAL(18,6),
+		CollectionCostAmount DECIMAL(18,6),
+		CollectionCostPercentage DECIMAL(18,6),
+		RegistrationCostPerNumber DECIMAL(18,6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		updated_by VARCHAR(50),
+		RateTableDIDRateID INT,
+		OriginationRateID INT,
+		RateID INT,
+		ApprovedStatus TINYINT,
+		ApprovedBy VARCHAR(50),
+		ApprovedDate DATETIME,
+		OneOffCostCurrency INT(11),
+		MonthlyCostCurrency INT(11),
+		CostPerCallCurrency INT(11),
+		CostPerMinuteCurrency INT(11),
+		SurchargePerCallCurrency INT(11),
+		SurchargePerMinuteCurrency INT(11),
+		OutpaymentPerCallCurrency INT(11),
+		OutpaymentPerMinuteCurrency INT(11),
+		SurchargesCurrency INT(11),
+		ChargebackCurrency INT(11),
+		CollectionCostAmountCurrency INT(11),
+		RegistrationCostPerNumberCurrency INT(11),
+		OneOffCostCurrencySymbol VARCHAR(255),
+		MonthlyCostCurrencySymbol VARCHAR(255),
+		CostPerCallCurrencySymbol VARCHAR(255),
+		CostPerMinuteCurrencySymbol VARCHAR(255),
+		SurchargePerCallCurrencySymbol VARCHAR(255),
+		SurchargePerMinuteCurrencySymbol VARCHAR(255),
+		OutpaymentPerCallCurrencySymbol VARCHAR(255),
+		OutpaymentPerMinuteCurrencySymbol VARCHAR(255),
+		SurchargesCurrencySymbol VARCHAR(255),
+		ChargebackCurrencySymbol VARCHAR(255),
+		CollectionCostAmountCurrencySymbol VARCHAR(255),
+		RegistrationCostPerNumberCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
+		INDEX tmp_RateTableDIDRate_RateID (`Code`)
+	);
+
+	INSERT INTO tmp_RateTableDIDRate_
+	SELECT
+		vra.RateTableDIDRateID,
+		vra.AccessType,
+		tblCountry.Country,
+		OriginationRate.Code AS OriginationCode,
+		r.Code,
+		vra.City,
+		vra.Tariff,
+		tblTimezones.Title AS TimezoneTitle,
+		vra.OneOffCost,
+		vra.MonthlyCost,
+		vra.CostPerCall,
+		vra.CostPerMinute,
+		vra.SurchargePerCall,
+		vra.SurchargePerMinute,
+		vra.OutpaymentPerCall,
+		vra.OutpaymentPerMinute,
+		vra.Surcharges,
+		vra.Chargeback,
+		vra.CollectionCostAmount,
+		vra.CollectionCostPercentage,
+		vra.RegistrationCostPerNumber,
+		vra.EffectiveDate,
+		vra.EndDate,
+		vra.created_at AS updated_at,
+		vra.CreatedBy AS updated_by,
+		vra.RateTableDIDRateID,
+		vra.OriginationRateID,
+		vra.RateID,
+		vra.ApprovedStatus,
+		vra.ApprovedBy,
+		vra.ApprovedDate,
+		tblOneOffCostCurrency.CurrencyID AS OneOffCostCurrency,
+		tblMonthlyCostCurrency.CurrencyID AS MonthlyCostCurrency,
+		tblCostPerCallCurrency.CurrencyID AS CostPerCallCurrency,
+		tblCostPerMinuteCurrency.CurrencyID AS CostPerMinuteCurrency,
+		tblSurchargePerCallCurrency.CurrencyID AS SurchargePerCallCurrency,
+		tblSurchargePerMinuteCurrency.CurrencyID AS SurchargePerMinuteCurrency,
+		tblOutpaymentPerCallCurrency.CurrencyID AS OutpaymentPerCallCurrency,
+		tblOutpaymentPerMinuteCurrency.CurrencyID AS OutpaymentPerMinuteCurrency,
+		tblSurchargesCurrency.CurrencyID AS SurchargesCurrency,
+		tblChargebackCurrency.CurrencyID AS ChargebackCurrency,
+		tblCollectionCostAmountCurrency.CurrencyID AS CollectionCostAmountCurrency,
+		tblRegistrationCostPerNumberCurrency.CurrencyID AS RegistrationCostPerNumberCurrency,
+		IFNULL(tblOneOffCostCurrency.Symbol,'') AS OneOffCostCurrencySymbol,
+		IFNULL(tblMonthlyCostCurrency.Symbol,'') AS MonthlyCostCurrencySymbol,
+		IFNULL(tblCostPerCallCurrency.Symbol,'') AS CostPerCallCurrencySymbol,
+		IFNULL(tblCostPerMinuteCurrency.Symbol,'') AS CostPerMinuteCurrencySymbol,
+		IFNULL(tblSurchargePerCallCurrency.Symbol,'') AS SurchargePerCallCurrencySymbol,
+		IFNULL(tblSurchargePerMinuteCurrency.Symbol,'') AS SurchargePerMinuteCurrencySymbol,
+		IFNULL(tblOutpaymentPerCallCurrency.Symbol,'') AS OutpaymentPerCallCurrencySymbol,
+		IFNULL(tblOutpaymentPerMinuteCurrency.Symbol,'') AS OutpaymentPerMinuteCurrencySymbol,
+		IFNULL(tblSurchargesCurrency.Symbol,'') AS SurchargesCurrencySymbol,
+		IFNULL(tblChargebackCurrency.Symbol,'') AS ChargebackCurrencySymbol,
+		IFNULL(tblCollectionCostAmountCurrency.Symbol,'') AS CollectionCostAmountCurrencySymbol,
+		IFNULL(tblRegistrationCostPerNumberCurrency.Symbol,'') AS RegistrationCostPerNumberCurrencySymbol,
+		vra.TimezonesID
+	FROM
+		tblRateTableDIDRateArchive vra
+   INNER JOIN tblTimezones
+    	  ON tblTimezones.TimezonesID = vra.TimezonesID
+	JOIN
+		tblRate r ON r.RateID=vra.RateId
+	LEFT JOIN
+		tblCountry ON tblCountry.CountryID = r.CountryID
+   LEFT JOIN
+		tblRate AS OriginationRate ON OriginationRate.RateID = vra.OriginationRateID
+	LEFT JOIN
+		tblRateTableDIDRate vr ON vr.RateTableId = vra.RateTableId AND vr.RateId = vra.RateId AND vr.OriginationRateID = vra.OriginationRateID AND vr.TimezonesID = vra.TimezonesID
+	LEFT JOIN tblCurrency AS tblOneOffCostCurrency
+		ON tblOneOffCostCurrency.CurrencyID = vra.OneOffCostCurrency
+	LEFT JOIN tblCurrency AS tblMonthlyCostCurrency
+		ON tblMonthlyCostCurrency.CurrencyID = vra.MonthlyCostCurrency
+	LEFT JOIN tblCurrency AS tblCostPerCallCurrency
+		ON tblCostPerCallCurrency.CurrencyID = vra.CostPerCallCurrency
+	LEFT JOIN tblCurrency AS tblCostPerMinuteCurrency
+		ON tblCostPerMinuteCurrency.CurrencyID = vra.CostPerMinuteCurrency
+	LEFT JOIN tblCurrency AS tblSurchargePerCallCurrency
+		ON tblSurchargePerCallCurrency.CurrencyID = vra.SurchargePerCallCurrency
+	LEFT JOIN tblCurrency AS tblSurchargePerMinuteCurrency
+		ON tblSurchargePerMinuteCurrency.CurrencyID = vra.SurchargePerMinuteCurrency
+	LEFT JOIN tblCurrency AS tblOutpaymentPerCallCurrency
+		ON tblOutpaymentPerCallCurrency.CurrencyID = vra.OutpaymentPerCallCurrency
+	LEFT JOIN tblCurrency AS tblOutpaymentPerMinuteCurrency
+		ON tblOutpaymentPerMinuteCurrency.CurrencyID = vra.OutpaymentPerMinuteCurrency
+	LEFT JOIN tblCurrency AS tblSurchargesCurrency
+		ON tblSurchargesCurrency.CurrencyID = vra.SurchargesCurrency
+	LEFT JOIN tblCurrency AS tblChargebackCurrency
+		ON tblChargebackCurrency.CurrencyID = vra.ChargebackCurrency
+	LEFT JOIN tblCurrency AS tblCollectionCostAmountCurrency
+		ON tblCollectionCostAmountCurrency.CurrencyID = vra.CollectionCostAmountCurrency
+	LEFT JOIN tblCurrency AS tblRegistrationCostPerNumberCurrency
+		ON tblRegistrationCostPerNumberCurrency.CurrencyID = vra.RegistrationCostPerNumberCurrency
+	INNER JOIN tblRateTable
+		ON tblRateTable.RateTableId = vra.RateTableId
+	LEFT JOIN tblCurrency AS tblRateTableCurrency
+		ON tblRateTableCurrency.CurrencyId = tblRateTable.CurrencyID
+	WHERE
+		r.CompanyID = p_CompanyID AND
+		vra.RateTableId = p_RateTableID AND
+		(p_TimezonesID IS NULL OR vra.TimezonesID = p_TimezonesID) AND
+		(p_CountryID IS NULL OR r.CountryID = p_CountryID) AND
+		(p_origination_code is null OR OriginationRate.Code LIKE REPLACE(p_origination_code, '*', '%')) AND
+		(p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%')) AND
+		(p_City IS NULL OR vra.City LIKE REPLACE(p_City, '*', '%')) AND
+		(p_Tariff IS NULL OR vra.Tariff LIKE REPLACE(p_Tariff, '*', '%')) AND
+		(p_AccessType IS NULL OR vra.AccessType LIKE REPLACE(p_AccessType, '*', '%')) AND
+		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
+		vr.RateTableDIDRateID is NULL;
+
+	IF p_isExport = 0
+	THEN
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableDIDRate2_ as (select * from tmp_RateTableDIDRate_);
+		DELETE
+			n1
+		FROM
+			tmp_RateTableDIDRate_ n1, tmp_RateTableDIDRate2_ n2
+		WHERE
+			n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID AND n1.City = n2.City AND n1.Tariff = n2.Tariff AND n1.RateTableDIDRateID < n2.RateTableDIDRateID;
+
+		SELECT * FROM tmp_RateTableDIDRate_
+		ORDER BY
+				 CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryDESC') THEN Country
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryASC') THEN Country
+             END ASC,
+				 CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+             END ASC,
+				 CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+             END ASC,
+             CASE
+					  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityDESC') THEN City
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityASC') THEN City
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TariffDESC') THEN Tariff
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TariffASC') THEN Tariff
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeDESC') THEN AccessType
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccessTypeASC') THEN AccessType
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostASC') THEN OneOffCost
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostDESC') THEN MonthlyCost
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostASC') THEN MonthlyCost
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerCallDESC') THEN CostPerCall
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerCallASC') THEN CostPerCall
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerMinuteDESC') THEN CostPerMinute
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerMinuteASC') THEN CostPerMinute
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerCallDESC') THEN SurchargePerCall
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerCallASC') THEN SurchargePerCall
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerMinuteDESC') THEN SurchargePerMinute
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerMinuteASC') THEN SurchargePerMinute
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerCallDESC') THEN OutpaymentPerCall
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerCallASC') THEN OutpaymentPerCall
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerMinuteDESC') THEN OutpaymentPerMinute
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerMinuteASC') THEN OutpaymentPerMinute
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargesDESC') THEN Surcharges
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargesASC') THEN Surcharges
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ChargebackDESC') THEN Chargeback
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ChargebackASC') THEN Chargeback
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostAmountDESC') THEN CollectionCostAmount
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostAmountASC') THEN CollectionCostAmount
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostPercentageDESC') THEN CollectionCostPercentage
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostPercentageASC') THEN CollectionCostPercentage
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RegistrationCostPerNumberDESC') THEN RegistrationCostPerNumber
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RegistrationCostPerNumberASC') THEN RegistrationCostPerNumber
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN updated_by
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN updated_by
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+             END ASC
+		LIMIT
+			p_RowspPage
+		OFFSET
+			v_OffSet_;
+
+		SELECT
+			COUNT(code) AS totalcount
+		FROM tmp_RateTableDIDRate_;
+
+	END IF;
+
+	-- basic view
+	IF p_isExport = 10
+	THEN
+		SELECT
+			AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			City,
+			Tariff,
+        	TimezoneTitle AS `Time of Day`,
+			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
+			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
+			CONCAT(CostPerMinuteCurrencySymbol,CostPerMinute) AS CostPerMinute,
+			CONCAT(SurchargePerCallCurrencySymbol,SurchargePerCall) AS SurchargePerCall,
+			CONCAT(SurchargePerMinuteCurrencySymbol,SurchargePerMinute) AS SurchargePerMinute,
+			CONCAT(OutpaymentPerCallCurrencySymbol,OutpaymentPerCall) AS OutpaymentPerCall,
+			CONCAT(OutpaymentPerMinuteCurrencySymbol,OutpaymentPerMinute) AS OutpaymentPerMinute,
+			CONCAT(SurchargesCurrencySymbol,Surcharges) AS Surcharges,
+			CONCAT(ChargebackCurrencySymbol,Chargeback) AS Chargeback,
+			CONCAT(CollectionCostAmountCurrencySymbol,CollectionCostAmount) AS CollectionCostAmount,
+			CollectionCostPercentage,
+			CONCAT(RegistrationCostPerNumberCurrencySymbol,RegistrationCostPerNumber) AS RegistrationCostPerNumber,
+			ApprovedStatus
+		FROM tmp_RateTableDIDRate_;
+	END IF;
+
+	-- advance view
+	IF p_isExport = 11
+	THEN
+		SELECT
+			AccessType,
+			Country,
+			OriginationCode AS Origination,
+			Code AS Prefix,
+			City,
+			Tariff,
+        	TimezoneTitle AS `Time of Day`,
+			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
+			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
+			CONCAT(CostPerMinuteCurrencySymbol,CostPerMinute) AS CostPerMinute,
+			CONCAT(SurchargePerCallCurrencySymbol,SurchargePerCall) AS SurchargePerCall,
+			CONCAT(SurchargePerMinuteCurrencySymbol,SurchargePerMinute) AS SurchargePerMinute,
+			CONCAT(OutpaymentPerCallCurrencySymbol,OutpaymentPerCall) AS OutpaymentPerCall,
+			CONCAT(OutpaymentPerMinuteCurrencySymbol,OutpaymentPerMinute) AS OutpaymentPerMinute,
+			CONCAT(SurchargesCurrencySymbol,Surcharges) AS Surcharges,
+			CONCAT(ChargebackCurrencySymbol,Chargeback) AS Chargeback,
+			CONCAT(CollectionCostAmountCurrencySymbol,CollectionCostAmount) AS CollectionCostAmount,
+			CollectionCostPercentage,
+			CONCAT(RegistrationCostPerNumberCurrencySymbol,RegistrationCostPerNumber) AS RegistrationCostPerNumber,
+			CONCAT(updated_at,'\n',updated_by) AS `Modified Date/By`,
+			CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`,
+			ApprovedStatus
+		FROM tmp_RateTableDIDRate_;
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getDiscontinuedRateTablePKGRateGrid`;
+DELIMITER //
+CREATE PROCEDURE `prc_getDiscontinuedRateTablePKGRateGrid`(
+	IN `p_CompanyID` INT,
+	IN `p_RateTableID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_Code` VARCHAR(50),
+	IN `p_ApprovedStatus` TINYINT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTablePKGRate_;
+	CREATE TEMPORARY TABLE tmp_RateTablePKGRate_ (
+		ID INT,
+		TimezoneTitle VARCHAR(50),
+		Code VARCHAR(50),
+		OneOffCost DECIMAL(18,6),
+		MonthlyCost DECIMAL(18,6),
+		PackageCostPerMinute DECIMAL(18,6),
+		RecordingCostPerMinute DECIMAL(18,6),
+		EffectiveDate DATE,
+		EndDate DATE,
+		updated_at DATETIME,
+		ModifiedBy VARCHAR(50),
+		RateTablePKGRateID INT,
+		RateID INT,
+		ApprovedStatus TINYINT,
+		ApprovedBy VARCHAR(50),
+		ApprovedDate DATETIME,
+		OneOffCostCurrency INT(11),
+		MonthlyCostCurrency INT(11),
+		PackageCostPerMinuteCurrency INT(11),
+		RecordingCostPerMinuteCurrency INT(11),
+		OneOffCostCurrencySymbol VARCHAR(255),
+		MonthlyCostCurrencySymbol VARCHAR(255),
+		PackageCostPerMinuteCurrencySymbol VARCHAR(255),
+		RecordingCostPerMinuteCurrencySymbol VARCHAR(255),
+		TimezonesID INT(11),
+		INDEX tmp_RateTablePKGRate_RateID (`Code`)
+	);
+
+	INSERT INTO tmp_RateTablePKGRate_
+	SELECT
+		vra.RateTablePKGRateID,
+		tblTimezones.Title AS TimezoneTitle,
+		r.Code,
+		vra.OneOffCost,
+		vra.MonthlyCost,
+		vra.PackageCostPerMinute,
+		vra.RecordingCostPerMinute,
+		vra.EffectiveDate,
+		vra.EndDate,
+		vra.created_at AS updated_at,
+		vra.CreatedBy AS ModifiedBy,
+		vra.RateTablePKGRateID,
+		vra.RateID,
+		vra.ApprovedStatus,
+		vra.ApprovedBy,
+		vra.ApprovedDate,
+		tblOneOffCostCurrency.CurrencyID AS OneOffCostCurrency,
+		tblMonthlyCostCurrency.CurrencyID AS MonthlyCostCurrency,
+		tblPackageCostPerMinuteCurrency.CurrencyID AS PackageCostPerMinuteCurrency,
+		tblRecordingCostPerMinuteCurrency.CurrencyID AS RecordingCostPerMinuteCurrency,
+		IFNULL(tblOneOffCostCurrency.Symbol,'') AS OneOffCostCurrencySymbol,
+		IFNULL(tblMonthlyCostCurrency.Symbol,'') AS MonthlyCostCurrencySymbol,
+		IFNULL(tblPackageCostPerMinuteCurrency.Symbol,'') AS PackageCostPerMinuteCurrencySymbol,
+		IFNULL(tblRecordingCostPerMinuteCurrency.Symbol,'') AS RecordingCostPerMinuteCurrencySymbol,
+		vra.TimezonesID
+	FROM
+		tblRateTablePKGRateArchive vra
+	JOIN
+		tblRate r ON r.RateID=vra.RateId
+   INNER JOIN tblTimezones
+    	ON tblTimezones.TimezonesID = vra.TimezonesID
+	LEFT JOIN
+		tblRateTablePKGRate vr ON vr.RateTableId = vra.RateTableId AND vr.RateId = vra.RateId AND vr.TimezonesID = vra.TimezonesID
+	LEFT JOIN tblCurrency AS tblOneOffCostCurrency
+		ON tblOneOffCostCurrency.CurrencyID = vra.OneOffCostCurrency
+	LEFT JOIN tblCurrency AS tblMonthlyCostCurrency
+		ON tblMonthlyCostCurrency.CurrencyID = vra.MonthlyCostCurrency
+	LEFT JOIN tblCurrency AS tblPackageCostPerMinuteCurrency
+		ON tblPackageCostPerMinuteCurrency.CurrencyID = vra.PackageCostPerMinuteCurrency
+	LEFT JOIN tblCurrency AS tblRecordingCostPerMinuteCurrency
+		ON tblRecordingCostPerMinuteCurrency.CurrencyID = vra.RecordingCostPerMinuteCurrency
+	INNER JOIN tblRateTable
+		ON tblRateTable.RateTableId = vra.RateTableId
+	WHERE
+		r.CompanyID = p_CompanyID AND
+		vra.RateTableId = p_RateTableID AND
+		(p_TimezonesID IS NULL OR vra.TimezonesID = p_TimezonesID) AND
+		(p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%')) AND
+		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
+		vr.RateTablePKGRateID IS NULL;
+
+	IF p_isExport = 0
+	THEN
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTablePKGRate2_ as (select * from tmp_RateTablePKGRate_);
+		DELETE
+			n1
+		FROM
+			tmp_RateTablePKGRate_ n1, tmp_RateTablePKGRate2_ n2
+		WHERE
+			n1.RateID = n2.RateID AND n1.TimezonesID = n2.TimezonesID AND n1.RateTablePKGRateID < n2.RateTablePKGRateID;
+
+		SELECT * FROM tmp_RateTablePKGRate_
+		ORDER BY
+			CASE
+	        	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+	     	END DESC,
+	     	CASE
+	        	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+	     	END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostASC') THEN OneOffCost
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostDESC') THEN MonthlyCost
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostASC') THEN MonthlyCost
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PackageCostPerMinuteDESC') THEN PackageCostPerMinute
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PackageCostPerMinuteASC') THEN PackageCostPerMinute
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RecordingCostPerMinuteDESC') THEN RecordingCostPerMinute
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RecordingCostPerMinuteASC') THEN RecordingCostPerMinute
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
+			END ASC,
+       	CASE
+           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByDESC') THEN ModifiedBy
+       	END DESC,
+       	CASE
+           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ModifiedByASC') THEN ModifiedBy
+       	END ASC,
+       	CASE
+           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+       	END DESC,
+       	CASE
+           	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+       	END ASC
+		LIMIT
+			p_RowspPage
+		OFFSET
+			v_OffSet_;
+
+		SELECT
+			COUNT(code) AS totalcount
+		FROM tmp_RateTablePKGRate_;
+
+	END IF;
+
+	IF p_isExport = 1
+	THEN
+		SELECT
+        	TimezoneTitle AS `Time of Day`,
+			Code AS DestinationCode,
+			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
+			CONCAT(PackageCostPerMinuteCurrencySymbol,PackageCostPerMinute) AS PackageCostPerMinute,
+			CONCAT(RecordingCostPerMinuteCurrencySymbol,RecordingCostPerMinute) AS RecordingCostPerMinute,
+			EffectiveDate,
+			CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
+			CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`,
+			ApprovedStatus
+		FROM tmp_RateTablePKGRate_;
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
 
@@ -5113,7 +7083,7 @@ BEGIN
 	   	-- rate approval process is on and rate table is vendor rate table
 			IF(v_RateApprovalProcess_ = 1 && v_AppliedTo_ <> 2)
 			THEN
-	   		SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus AS `Approved Status`");
+	   		SET @stm2 = CONCAT(@stm2,", CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`, ApprovedStatus AS `Approved Status`");
 	   	END IF;
 
 	   END IF;

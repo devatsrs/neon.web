@@ -34,8 +34,8 @@
                         <tr>
                             <td><label for="field-1" class="col-sm-1 control-label">Number</label></td>
                             <td><input type="text" name="Number" class="form-control" value="" /></td>
-                            <td><label for="field-1" class="col-sm-1 control-label">Affiliate</label></td>
-                            <td width="15%">{{ Form::select('Affiliate', $AffiliateAccount , '' , array("class"=>"select2")) }}</td>
+                            <td><label for="field-1" class="col-sm-1 control-label hidden">Affiliate</label></td>
+                            <td width="15%" class="hidden">{{ Form::select('Affiliate', $AffiliateAccount , '' , array("class"=>"select2")) }}</td>
                             <td><label for="field-1" class="col-sm-1 control-label">Package</label></td>
                             <td width="15%">{{ Form::select('PackageName', $Packages , '' , array("class"=>"select2")) }}</td>
                             <td width="5%"><label for="field-1" class="col-sm-1 control-label">OrderID</label></td>
@@ -91,7 +91,7 @@
                     <th>Number</th>
                     <th>Package</th>
                     <th>Order ID</th>
-                    <th>Affiliate</th>
+                    <th class="hidden">Affiliate</th>
                     <th width="20%">Action</th>
                 </tr>
                 </thead>
@@ -178,13 +178,14 @@
                                 }
 
                             },  // Order ID
-                            {
+                            /*{
                                 "bSortable": false,
+                                "visible": false,
                                 mRender: function (id, type, full) {
                                     return full[5];
                                 }
 
-                            },  // Order ID
+                            },*/  // Order ID
 
                             //{  "bSortable": false }, // 3 Account Service ID
                             {                        // 10 Action
