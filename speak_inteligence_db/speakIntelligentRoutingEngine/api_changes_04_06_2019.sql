@@ -9,24 +9,32 @@ CREATE PROCEDURE `prc_CreateAPIAccountBalance`()
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-
-	DROP TEMPORARY TABLE IF EXISTS `temp_tblAPIAccountBalance`;
-	CREATE TEMPORARY TABLE `temp_tblAPIAccountBalance` (
+	
+	DROP TABLE IF EXISTS `temp_tblAPIAccountBalance`;
+	CREATE TABLE `temp_tblAPIAccountBalance` (
 		`AccountBalanceID` INT(11) NOT NULL AUTO_INCREMENT,		
 		`AccountID` INT(11) NOT NULL,
 		`BillingType` INT NOT NULL,
 		`BalanceAmount` DECIMAL(18,6) NOT NULL,
 		PRIMARY KEY (`AccountBalanceID`),
 		UNIQUE INDEX `AccountID` (`AccountID`)
-	)
-	;
+	);
+	
+	CREATE TABLE IF NOT EXISTS `tblAPIAccountBalance` (
+		`AccountBalanceID` INT(11) NOT NULL AUTO_INCREMENT,		
+		`AccountID` INT(11) NOT NULL,
+		`BillingType` INT NOT NULL,
+		`BalanceAmount` DECIMAL(18,6) NOT NULL,
+		PRIMARY KEY (`AccountBalanceID`),
+		UNIQUE INDEX `AccountID` (`AccountID`)
+	);
 	
 	INSERT INTO temp_tblAPIAccountBalance(AccountID,BillingType,BalanceAmount)	
 	SELECT a.AccountID,IFNULL(ab.BillingType,2) AS BillingType,0 AS BalanceAmount
 	FROM `speakintelligentRM`.`tblAccount`	a
 		LEFT JOIN `speakintelligentRM`.`tblAccountBilling` ab
 			ON ab.AccountID  = a.AccountID  AND ab.AccountServiceID = 0 	
-	where a.Status = 1 and a.AccountType =1;
+	WHERE a.Status = 1 and a.AccountType =1;
 	
 	/* postpaid */
 	UPDATE temp_tblAPIAccountBalance ta INNER JOIN `speakintelligentRM`.`tblAccountBalance` ab ON ta.AccountID = ab.AccountID
@@ -38,18 +46,11 @@ BEGIN
 	SET ta.BalanceAmount = ab.BalanceAmount
 	WHERE ta.BillingType = 1;
 	
-	DROP TABLE IF EXISTS `tblAPIAccountBalance`;
-	CREATE TABLE `tblAPIAccountBalance` (
-		`AccountBalanceID` INT(11) NOT NULL AUTO_INCREMENT,		
-		`AccountID` INT(11) NOT NULL,
-		`BillingType` INT NOT NULL,
-		`BalanceAmount` DECIMAL(18,6) NOT NULL,
-		PRIMARY KEY (`AccountBalanceID`),
-		UNIQUE INDEX `AccountID` (`AccountID`)
-	)	;
+	DROP TABLE IF EXISTS `tblAPIAccountBalance_old`;
+	RENAME TABLE tblAPIAccountBalance TO tblAPIAccountBalance_old;
+	RENAME TABLE temp_tblAPIAccountBalance TO tblAPIAccountBalance;
 	
-	INSERT INTO tblAPIAccountBalance
-	SELECT * FROM temp_tblAPIAccountBalance;
+	DROP TABLE tblAPIAccountBalance_old;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
