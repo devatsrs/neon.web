@@ -38,6 +38,14 @@
     </a>
 </li>
 @endif
+
+@if(User::checkCategoryPermission('VendorRates','Connection'))
+    <li class="active">
+        <a href="{{ URL::to('/vendor_rates/connection/'.$id) }}" >
+            <span class="hidden-xs">Connection</span>
+        </a>
+    </li>
+@endif
 <li class="active">
     <a href="{{ URL::to('/vendor_rates/'.$id.'/settings') }}" >
         <span class="hidden-xs">Settings</span>

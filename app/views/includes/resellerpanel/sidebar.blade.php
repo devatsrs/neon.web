@@ -98,6 +98,7 @@
         </li>
         {{-- <li><a href="{{URL::to('customer/customers_rates')}}"><i class="fa fa-table"></i><span>Commercial</span></a></li> --}}
         <li><a href="{{URL::to('reseller/profile')}}"><i class="glyphicon glyphicon-user"></i><span>Profile</span></a></li>
+        <li><a href="{{URL::to('/rate_tables/commercial')}}"><i class="fa fa-table"></i><span>Commercial</span> </a> </li>
     </ul>
 
 </div>

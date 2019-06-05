@@ -120,6 +120,19 @@
 
     var update_new_url;
     var postdata;
+    $('table tbody').on('click', '.package-discount-table', function (ev) {
+        var $this   = $(this);
+        var AccountServicePackageID   = $this.prevAll("div.hiddenRowData").find("input[name='AccountServicePackageID']").val();
+        var PackageDiscountPlan   = $this.prevAll("div.hiddenRowData").find("input[name='PackageDiscountPlan']").val();
+        var PackageId   = $this.prevAll("div.hiddenRowData").find("input[name='PackageId']").val();
+        if (PackageDiscountPlan == 0) {
+            alert("Please select the valid package discount plan");
+            return;
+        }
+
+
+        getPackageDiscountPlan($this,AccountID,AccountServiceID,PackageId,AccountServicePackageID);
+    });
     $('table tbody').on('click', '.history-packagetable', function (ev) {
         var $this   = $(this);
         var RateTableID   = $this.prevAll("div.hiddenRowData").find("input[name='RateTableID']").val();
@@ -146,6 +159,78 @@
         getArchiveRateTableDIDRates1($this,SpecialPackageRateTableID,'',PackageId,'5');
     });
 
+    function getServiceName(ServiceID) {
+        if (ServiceID == 1) {
+            return "Volume";
+        } else if (ServiceID == 2) {
+            return "Minutes";
+        }else if (ServiceID == 3) {
+            return "Fixed";
+        }
+    }
+
+    function getPackageDiscountPlan($clickedButton,AccountID,AccountServiceID,PackageId,AccountServicePackageID) {
+        data_table_packagetable = $("#table-packagetable").DataTable();
+        // alert($("#table-packagetable").DataTable().rows().count());
+        var tr = $clickedButton.closest('tr');
+        var checkIfSame = $clickedButton.find('i').hasClass('entypo-plus-squared');
+        // alert('Called 1' + data_table_packagetable + "1" + tr.id);
+        //alert(data_table_packagetable.rows().count());
+        var row = data_table_packagetable.row(tr);
+        tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+        tr.find('.special-package-clitable i, .history-packagetable i,.package-discount-table i').removeClass('entypo-plus-squared entypo-minus-squared');
+        row.child.hide();
+        tr.removeClass('shown');
+
+        if(!checkIfSame)
+            $.ajax({
+                url: baseurl + "/discount_plan/PackageDiscountPlan",
+                type: 'POST',
+                data: "PackageId=" + PackageId + "&AccountID=" + AccountID
+                + "&AccountServiceID=" + AccountServiceID
+                + "&AccountServicePackageID=" + AccountServicePackageID,
+                dataType: 'json',
+                cache: false,
+                success: function (response) {
+                    if (response.status == 'success') {
+                        ArchiveRates = response.data;
+                        // alert(ArchiveRates);
+                        $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
+                        //tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                        var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
+                        var header = "<thead><tr><th>PackageName</th><th>Service</th><th>Components</th><th>Discount</th>";
+                        header += "</tr></thead>";
+                        table.append(header);
+                        var tbody = $("<tbody></tbody>");
+                        ArchiveRates.forEach(function (data) {
+                            // alert(data);
+                            // alert(data['Rate']);
+                            var html = "";
+                            html += "<tr class='no-selection'>";
+
+
+                            html += "<td>" + (data['PackageName'] != null ? data['PackageName'] : '') + "</td>";
+                            html += "<td>" + (data['Service'] != null ? getServiceName(data['Service'])  : '') + "</td>";
+                            html += "<td>" + (data['Components'] != null ? data['Components'] : '') + "</td>";
+                            html += "<td>" + (data['Discount'] != null ? data['Discount'] : '') + "</td>";
+                            html += "</tr>";
+                            table.append(html);
+
+                        })
+                        table.append(tbody);
+                        row.child(table).show();
+                        row.child().addClass('no-selection child-row');
+                        tr.addClass('shown');
+                        //alert(data['Rate']);
+                    } else {
+                        ArchiveRates = {};
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+
+                }
+            });
+    }
+
     function getArchiveRateTableDIDRates1($clickedButton,RateTableID,TerminationRateTable,PackageId,CityTariff) {
         data_table_packagetable = $("#table-packagetable").DataTable();
         // alert($("#table-packagetable").DataTable().rows().count());
@@ -155,7 +240,7 @@
         //alert(data_table_packagetable.rows().count());
         var row = data_table_packagetable.row(tr);
         tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
-        tr.find('.special-package-clitable i, .history-packagetable i').removeClass('entypo-plus-squared entypo-minus-squared');
+        tr.find('.package-discount-table i,.special-package-clitable i, .history-packagetable i').removeClass('entypo-plus-squared entypo-minus-squared');
         row.child.hide();
         tr.removeClass('shown');
 
@@ -171,7 +256,7 @@
                         ArchiveRates = response.data;
                         // alert(ArchiveRates);
                         $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
-                        tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                       // tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
                         var header = "<thead><tr><th>One Off Cost</th><th>Monthly Cost</th><th>Cost Per Minute</th><th>Recording Cost per Minute</th>" +
                                 "<th>Effective Date</th><th>End Date</th>";
@@ -325,17 +410,61 @@
                         }
                     },
                     {"bSortable": true},    // 1 Package
-                    {"bSortable": false,
+                    {
                         mRender: function(id, type, full) {
-                            return full[2];
+                            action = '';
+                            action +='<div id="hiddenRowData1" class = "hiddenRowData" >';
+                            for (var i = 0; i < package_list_fields.length; i++) {
+                                action += '<input disabled type = "hidden"  name = "' + package_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                            }
+                            action +='</div>';
+                            action += full[2];
+                            action += '<a title="Default Package Rate Table" href="javascript:;" class="history-packagetable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                            return action;
                         },
                         "className":      'details-control',
                         "orderable":      false,
                         "data": null,
                         "defaultContent": ''
                     },    // Rate table
-                    {"bSortable": true},//Contract ID
-                    {"bSortable": true},//Contract ID
+                    {
+                        mRender: function(id, type, full) {
+                        action = '';
+                        action +='<div id="hiddenRowData1" class = "hiddenRowData" >';
+                        for (var i = 0; i < package_list_fields.length; i++) {
+                            action += '<input disabled type = "hidden"  name = "' + package_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                        }
+                        action +='</div>';
+                        if(full[3] != undefined && full[3] != '' && full[3] != 0) {
+                                action += full[3];
+                                action += '<a title="Package Discount Table" href="javascript:;" class="package-discount-table btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                        }
+                        return action;
+                    },
+                        "className":      'details-control',
+                        "orderable":      false,
+                        "data": null,
+                        "defaultContent": ''
+                    },//Contract ID
+                    {
+                        mRender: function(id, type, full) {
+                        action = '';
+                        action +='<div id="hiddenRowData1" class = "hiddenRowData" >';
+                        for (var i = 0; i < package_list_fields.length; i++) {
+                            action += '<input disabled type = "hidden"  name = "' + package_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                        }
+                        action +='</div>';
+                        if(full[12] != undefined && full[12] != '' && full[12] != 0) {
+                            action += full[4];
+                            action += '<a title="Special Package Rate Table" href="javascript:;" class="special-package-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                        }
+                        return action;
+                    },
+                        "className":      'details-control',
+                        "orderable":      false,
+                        "data": null,
+                        "defaultContent": ''
+                    },//Contract ID
                     {"bSortable": true},//Start Date
                     {"bSortable": true},//End Date
                     {"bSortable": true},
@@ -365,12 +494,7 @@
                             action += '</div>';
                             action += ' <a href="javascript:;" title="Edit" class="edit-packagetable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                             action += ' <a href="' + packagetable_delete_url.replace("{id}", full[0]) + '" class="delete-packagetable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
-                            action += '<a title="Default Package Rate Table" href="javascript:;" class="history-packagetable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
 
-                            //Check if Special Package Rate Table exist
-                            if(full[12] != undefined && full[12] != '' && full[12] != 0) {
-                                action += '<a title="Special Package Rate Table" href="javascript:;" class="special-package-clitable btn btn-success btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
-                            }
                             return action;
                         }
                     }

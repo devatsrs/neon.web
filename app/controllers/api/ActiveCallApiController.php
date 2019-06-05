@@ -325,6 +325,7 @@ class ActiveCallApiController extends ApiController {
         //Validation
         $rules = array(
             'UUID' => 'required',
+            'CallRecordingStartTime' => 'required'
         );
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
@@ -341,7 +342,7 @@ class ActiveCallApiController extends ApiController {
                     return Response::json(["ErrorMessage" => "Recording Already Started"],Codes::$Code402[0]);
                 }
 
-                $UpdateData['CallRecordingStartTime'] = date('Y-m-d H:i:s');
+                $UpdateData['CallRecordingStartTime'] = $data['CallRecordingStartTime'];
                 $UpdateData['CallRecording'] = 1;
                 $UpdateData['updated_by'] = "API";
 

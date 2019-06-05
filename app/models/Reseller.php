@@ -166,4 +166,8 @@ class Reseller extends \Eloquent
         return  Reseller::where('ChildCompanyID',$CompanyID)->count();
     }
 
+    public static function getCompanyIDByChildCompanyID($CompanyID){
+        return Reseller::where('ChildCompanyID',$CompanyID)->pluck('CompanyID');
+    }
+
 }

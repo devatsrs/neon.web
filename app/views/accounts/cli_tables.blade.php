@@ -89,6 +89,10 @@
                 </div>
             </div>
         </div>
+
+
+
+
         </br>
         <table id="table-clitable" class="table table-bordered datatable table-clitable">
             <thead>
@@ -137,6 +141,7 @@
 
     var update_new_url;
     var postdata;
+
 
     $('table tbody').on('click', '.history-Termination-clitable', function (ev) {
 
@@ -189,6 +194,45 @@
         getArchiveRateTableDIDRates12($this,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff, Prefix);
     });
 
+
+    $('table tbody').on('click', '.access-discount-plan', function (ev) {
+        var $this   = $(this);
+
+        var CLIRateTableID   = $this.prevAll("div.hiddenRowData").find("input[name='CLIRateTableID']").val();
+        var AccessDicountPlan   = $this.prevAll("div.hiddenRowData").find("input[name='AccessDicountPlan']").val();
+        var AccessDicountPlanCLI   = $this.prevAll("div.hiddenRowData").find("input[name='CLI']").val();
+        if (AccessDicountPlan == '' || AccessDicountPlan == null) {
+            alert("Please Provide the Access Discount Plan");
+            return;
+        }
+
+        getAccessDiscountPlan($this,AccountID,AccountServiceID,AccessDicountPlanCLI,CLIRateTableID);
+    });
+   // $('#Termination-discount-plan').click(function (ev) {
+    $('table tbody').on('click', '.Termination-discount-plan', function (ev) {
+        var $this   = $(this);
+        var CLIRateTableID   = $this.prevAll("div.hiddenRowData").find("input[name='CLIRateTableID']").val();
+        var TerminationDicountPlan   = $this.prevAll("div.hiddenRowData").find("input[name='TerminationDiscountPlan']").val();
+        var TerminationDicountPlanCLI   = $this.prevAll("div.hiddenRowData").find("input[name='CLI']").val();
+
+        if (TerminationDicountPlan == '' || TerminationDicountPlan == null) {
+            alert("Please Provide the Termination Discount Plan");
+            return;
+        }
+
+        getTerminationDiscountPlan($this,AccountID,AccountServiceID,TerminationDicountPlanCLI,TerminationDicountPlan,CLIRateTableID);
+    });
+
+
+    $('table tbody').on('click', '.Display-Code-list', function (ev) {
+        var $this = $(this);
+       // var TerminationDiscountPlan   = $this.find("DisplayErrorCode");
+        var TerminationDiscountPlan   = document.getElementById("DisplayTerminationCode");
+        var TerminationDiscountPlanText = TerminationDiscountPlan.innerText;
+        $("#DisplayCode-form [name=TerminationDiscountPlanName]").val(TerminationDiscountPlanText);
+        $('#modal-DisplayCode').modal('show');
+        $('#DisplayCode_submit').trigger('click');
+    });
     $('table tbody').on('click', '.special-Access-clitable', function (ev) {
         var $this = $(this);
         var SpecialRateTableID   = $this.prevAll("div.hiddenRowData").find("input[name='SpecialRateTableID']").val();
@@ -223,6 +267,171 @@
 
         location.href = accessURL;
     });
+    //
+    function getTerminationDiscountPlan($clickedButton,AccountID,AccountServiceID,TerminationDicountPlanCLI,TerminationDiscountPlan,CLIRateTableID) {
+        data_table_clitable = $("#table-clitable").DataTable();
+        // alert($("#table-clitable").DataTable().rows().count());
+        var tr = $clickedButton.closest('tr');
+        var checkIfSame = $clickedButton.find('i').hasClass('entypo-plus-squared');
+        // alert('Called 1' + data_table_clitable + "1" + tr.id);
+        //alert(data_table_clitable.rows().count());
+        var row = data_table_clitable.row(tr);
+        tr.find('.details-control i').toggleClass('entypo-minus-squared entypo-plus-squared');
+        //access-discount-plan Termination-discount-plan
+        tr.find('.special-Termination-clitable i,.history-Termination-clitable i,.special-Access-clitable i, .history-clitable i,.access-discount-plan i, .Termination-discount-plan i').removeClass('entypo-plus-squared entypo-minus-squared');
+        row.child.hide();
+        tr.removeClass('shown');
+
+        if(!checkIfSame) {
+
+            // if(!checkIfSame)
+            $.ajax({
+                url: baseurl + "/discount_plan/TerminationDiscountPlan",
+                type: 'POST',
+                data: "TerminationDicountPlan=" + TerminationDicountPlanCLI + "&AccountID=" + AccountID
+                + "&AccountServiceID=" + AccountServiceID
+                + "&CLIRateTableID=" + CLIRateTableID,
+                dataType: 'json',
+                cache: false,
+                success: function (response) {
+
+                    if (response.status == 'success') {
+                        ArchiveRates = response.data;
+                        // alert(ArchiveRates);
+                        $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
+                        //tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                        var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
+                        var header = "<thead><tr>";
+                        header += "<th>Country</th><th>Type</th><th>Code</th><th>Service</th><th>Components</th><th>Discount</th>";
+                        header += "</tr></thead>";
+                        table.append(header);
+                        var tbody = $("<tbody></tbody>");
+                        ArchiveRates.forEach(function (data) {
+                            // alert(data);
+                            // alert(data['Rate']);
+                            var html = "";
+                            html += "<tr class='no-selection'>";
+                            // var VolumeDiscount = JSON.parse(data['VolumeDiscount']);
+                            // alert(Object.keys(VolumeDiscount).length);
+                            // VolumeDiscount.forEach(function (data1) {
+                            //     alert(data1.ToMin);
+                            // });
+
+
+                            html += "<td>" + (data['CountryName'] != null ? data['CountryName'] : '') + "</td>";
+                            html += "<td>" + (data['Type'] != null ? data['Type'] : '') + "</td>";
+                            html += "<td>" + (data['Code'] != null ? data['Code'] : '') +
+                                    '<div class="hide DisplayTerminationCode" id="DisplayTerminationCode">'+TerminationDiscountPlan+'</div>'+
+                                    '<a title="Display-Code-list" data-original-title="Display-Code-list" href="javascript:;" class="Display-Code-list btn btn-info btn-sm1"><i class="fa fa-eye"></i></a>' +
+                                    "</td>";
+                            html += "<td>" + (data['Service'] != null ? getServiceName(data['Service'])  : '') + "</td>";
+                            html += "<td>" + (data['Components'] != null ? data['Components'] : '') + "</td>";
+                            html += "<td>" + (data['Discount'] != null ? data['Discount'] : '') + "</td>";
+
+                            html += "</tr>";
+                            table.append(html);
+
+                        });
+                        table.append(tbody);
+                        row.child(table).show();
+                        row.child().addClass('no-selection child-row');
+                        tr.addClass('shown');
+                        //alert(data['Rate']);
+                    } else {
+                        ArchiveRates = {};
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+
+                }
+            });
+        }
+    }
+    function getServiceName(ServiceID) {
+        if (ServiceID == 1) {
+            return "Volume";
+        } else if (ServiceID == 2) {
+            return "Minutes";
+        }else if (ServiceID == 3) {
+            return "Fixed";
+        }
+    }
+    function getAccessDiscountPlan($clickedButton,AccountID,AccountServiceID,AccessDicountPlan,CLIRateTableID) {
+
+        data_table_clitable = $("#table-clitable").DataTable();
+        // alert($("#table-clitable").DataTable().rows().count());
+        var tr = $clickedButton.closest('tr');
+        var checkIfSame = $clickedButton.find('i').hasClass('entypo-plus-squared');
+        // alert('Called 1' + data_table_clitable + "1" + tr.id);
+        //alert(data_table_clitable.rows().count());
+        var row = data_table_clitable.row(tr);
+        tr.find('.details-control i').toggleClass('entypo-minus-squared entypo-plus-squared');
+        //access-discount-plan Termination-discount-plan
+        tr.find('.special-Termination-clitable i,.history-Termination-clitable i,.special-Access-clitable i, .history-clitable i,.access-discount-plan i, .Termination-discount-plan i').removeClass('entypo-plus-squared entypo-minus-squared');
+        row.child.hide();
+        tr.removeClass('shown');
+
+        if(!checkIfSame) {
+            $.ajax({
+                url: baseurl + "/discount_plan/AccessDiscountPlan",
+                type: 'POST',
+                data: "AccessDicountPlan=" + AccessDicountPlan + "&AccountID=" + AccountID
+                + "&AccountServiceID=" + AccountServiceID
+                + "&CLIRateTableID=" + CLIRateTableID,
+                dataType: 'json',
+                cache: false,
+                success: function (response) {
+                    $clickedButton.removeAttr('disabled');
+                    if (response.status == 'success') {
+                        ArchiveRates = response.data;
+                        // alert(ArchiveRates);
+                        $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
+                        //tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                        var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
+                        var header = "<thead><tr>";
+                        header += "<th>Country</th><th>Type</th><th>Prefix</th>" +
+                                "<th>City</th><th>Tariff</th><th>Service</th><th>Components</th><th>Discount</th>";
+                        header += "</tr></thead>";
+                        table.append(header);
+                        var tbody = $("<tbody></tbody>");
+                        ArchiveRates.forEach(function (data) {
+                            // alert(data);
+                            // alert(data['Rate']);
+                            var html = "";
+                            html += "<tr class='no-selection'>";
+                            // var VolumeDiscount = JSON.parse(data['VolumeDiscount']);
+                            // alert(Object.keys(VolumeDiscount).length);
+                            // VolumeDiscount.forEach(function (data1) {
+                            //     alert(data1.ToMin);
+                            // });
+
+
+                            html += "<td>" + (data['CountryName'] != null ? data['CountryName'] : '') + "</td>";
+                            html += "<td>" + (data['Type'] != null ? data['Type'] : '') + "</td>";
+                            html += "<td>" + (data['Prefix'] != null ? data['Prefix'] : '') + "</td>";
+                            html += "<td>" + (data['City'] != null ? data['City'] : '') + "</td>";
+                            html += "<td>" + (data['Tariff'] != null ? data['Tariff'] : '') + "</td>";
+                            html += "<td>" + (data['Service'] != null ? getServiceName(data['Service'])  : '') + "</td>";
+                            html += "<td>" + (data['Components'] != null ? data['Components'] : '') + "</td>";
+                            html += "<td>" + (data['Discount'] != null ? data['Discount'] : '') + "</td>";
+
+                            html += "</tr>";
+                            table.append(html);
+
+                        });
+                        table.append(tbody);
+                        row.child(table).show();
+                        row.child().addClass('no-selection child-row');
+                        tr.addClass('shown');
+                        //alert(data['Rate']);
+                    } else {
+                        ArchiveRates = {};
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+
+                }
+            });
+        }
+    }
 
     function getArchiveRateTableDIDRates12($clickedButton,AccessRateTable,TerminationRateTable,Type,Country,City,Tariff, Prefix) {
         data_table_clitable = $("#table-clitable").DataTable();
@@ -233,7 +442,7 @@
         //alert(data_table_clitable.rows().count());
         var row = data_table_clitable.row(tr);
         tr.find('.details-control i').toggleClass('entypo-minus-squared entypo-plus-squared');
-        tr.find('.special-Access-clitable i, .history-clitable i').removeClass('entypo-plus-squared entypo-minus-squared');
+        tr.find('.special-Termination-clitable i,.history-Termination-clitable i,.special-Access-clitable i, .history-clitable i,.access-discount-plan i, .Termination-discount-plan i').removeClass('entypo-plus-squared entypo-minus-squared');
         row.child.hide();
         tr.removeClass('shown');
 
@@ -251,7 +460,7 @@
                         ArchiveRates = response.data;
                         // alert(ArchiveRates);
                         $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
-                        tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                       // tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
                         var header = "<thead><tr><th>Origination</th><th>Time of Day</th>";
                         header += "<th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th>" +
@@ -319,6 +528,7 @@
 
         $("#clitable_submit").click(function (e) {
             e.preventDefault();
+
             $searchcli.CLIName = $("#clitable_filter").find('[name="CLIName"]').val();
             $searchcli.NumberContractID = $("#clitable_filter").find('[name="NumberContractID"]').val();
             $searchcli.NumberEndDate = $("#clitable_filter").find('[name="NumberEndDate"]').val();
@@ -426,18 +636,130 @@
                     {"bSortable": true},    // 1 Number
                     {
                         mRender: function(id, type, full) {
-                            return full[2];
+                            action = '';
+                            action +='<div id="hiddenRowData1" class = "hiddenRowData" >';
+                            for (var i = 0; i < cli_list_fields.length; i++) {
+                                action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                            }
+                            action +='</div>';
+                            action += "<div class='text-overflow: ellipsis;'>" + full[2] + "</div>";
+                            action += '<a title="Access Table" href="javascript:;" class="history-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                            return action;
                         },
+                        "className":      'details-control',
+                        "orderable":      false,
+
+                        "data": null,
+                        "defaultContent": ''
+                    },    // 2 Number Rate Table
+                    {
+                        mRender: function(id, type, full) {
+                        action = '';
+                        action +='<div id="hiddenRowData1" class = "hiddenRowData" >';
+                        for (var i = 0; i < cli_list_fields.length; i++) {
+                            action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                        }
+                        action +='</div>';
+
+                            if(full[18] != undefined && full[18] != '' && full[18] != 0) {
+                                action += "<div class='text-overflow: ellipsis;'>" + full[3] + "</div>";
+                                //action += full[3];
+                                action += '<a title="Access Discount Table" href="javascript:;" class="access-discount-plan btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                            }
+
+                        return action;
+                    },
                         "className":      'details-control',
                         "orderable":      false,
                         "data": null,
                         "defaultContent": ''
-                    },    // 2 Number Rate Table
-                    {"bSortable": true},
-                    {"bSortable": true},
-                    {"bSortable": true},
-                    {"bSortable": true},
-                    {"bSortable": true},
+                    },
+                    {
+                        mRender: function(id, type, full) {
+                        action = '';
+                        action +='<div id="hiddenRowData1" class = "hiddenRowData" >';
+                        for (var i = 0; i < cli_list_fields.length; i++) {
+                            action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                        }
+                        action +='</div>';
+                        action += "<div class='text-overflow: ellipsis;'>" + full[4] + "</div>";
+                         //action += full[4];
+                                action += '<a title="Termination Table" href="javascript:;" class="history-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+
+                        return action;
+                    },
+                        "className":      'details-control',
+                        "orderable":      false,
+                        "data": null,
+                        "defaultContent": ''
+                    },
+                    {
+                        mRender: function(id, type, full) {
+                        action = '';
+                        action +='<div id="hiddenRowData1" class = "hiddenRowData" >';
+                        for (var i = 0; i < cli_list_fields.length; i++) {
+                            action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                        }
+                        action +='</div>';
+
+                            if(full[20] != undefined && full[20] != '' && full[20] != 0) {
+                                action += "<div class='text-overflow: ellipsis;'>" + full[5] + "</div>";
+                                //action += full[5];
+                                action += '<a title="Termination Discount Plan" href="javascript:;" class="Termination-discount-plan btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                            }
+
+                        return action;
+                    },
+                        "className":      'details-control',
+                        "orderable":      false,
+                        "data": null,
+                        "defaultContent": ''
+                    },
+                    {
+                        mRender: function(id, type, full) {
+
+                        action = '';
+                        action +='<div id="hiddenRowData1" class = "hiddenRowData" >';
+                        for (var i = 0; i < cli_list_fields.length; i++) {
+                            action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                        }
+                        action +='</div>';
+
+                        if(full[22] != undefined && full[22] != '' && full[22] != 0) {
+                            action += "<div class='text-overflow: ellipsis;'>" + full[6] + "</div>";
+                            //action += full[6];
+                                action += '<a title="Special Access Table" href="javascript:;" class="special-Access-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                        }
+
+                        return action;
+                    },
+                        "className":      'details-control',
+                        "orderable":      false,
+                        "data": null,
+                        "defaultContent": ''
+                    },
+                    {
+                        mRender: function(id, type, full) {
+                        action = '';
+                        action +='<div id="hiddenRowData1" class = "hiddenRowData" >';
+                        for (var i = 0; i < cli_list_fields.length; i++) {
+                            action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                        }
+                        action +='</div>';
+
+                        if(full[23] != undefined && full[23] != '' && full[23] != 0) {
+                            action += "<div class='text-overflow: ellipsis;'>" + full[7] + "</div>";
+                           // action += full[7];
+                                action += '<a title="Special Termination Table" href="javascript:;" class="special-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
+                        }
+
+                        return action;
+                    },
+                        "className":      'details-control',
+                        "orderable":      false,
+                        "data": null,
+                        "defaultContent": ''
+                    },
                     {"bSortable": true},
                     {"bSortable": true},
                     {"bSortable": true},
@@ -472,16 +794,7 @@
 
                             action += ' <a href="javascript:;" title="Edit" class="edit-clitable btn btn-default btn-sm1 tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>&nbsp;';
                             action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm1 tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>&nbsp;'
-                            action += '<a title="Access Table" data-original-title="Access Table" href="javascript:;" class="history-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
-                            action += '<a title="Termination Table" data-original-title="Termination Table" href="javascript:;" class="history-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a></td></tr></table>&nbsp;';
-                            //Check if Special Access Rate Table exist
-                            if(full[22] != undefined && full[22] != '' && full[22] != 0) {
-                                action += '<a title="Special Access Table" data-original-title="Special Access Table" href="javascript:;" class="special-Access-clitable btn btn-success btn-sm1"><i class="fa fa-eye" data-toggle="tooltip"></i></a>&nbsp;';
-                            }
-                            //Check if Special Termination Rate Table exist
-                            if(full[23] != undefined && full[23] != '' && full[23] != 0) {
-                                action += '<a title="Special Termination Table" data-original-title="Special Termination Table" href="javascript:;" class="special-Termination-clitable btn btn-success btn-sm1" data-toggle="tooltip"><i class="fa fa-eye"></i></a></td></tr></table>&nbsp;';
-                            }
+
                             return action;
                         }
                     }
@@ -528,6 +841,7 @@
             $('#clitable_submit').trigger('click');
         }
         start = 2;
+
 
         $('#add-clitable').click(function (ev) {
             ev.preventDefault();
@@ -997,6 +1311,8 @@
             </div>
         </div>
     </div>
+
+    @include('accounts.DisplayCodes')
 @stop
 
 

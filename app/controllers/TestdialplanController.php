@@ -4,7 +4,8 @@ class TestdialplanController extends \BaseController {
 
     public function ajax_datagrid() {
         $data = Input::all();
-        
+
+        Log::info("Country List" . print_r($data,true));
         $rules = array(
             'DestinationCode' => 'required',
         );
@@ -24,14 +25,16 @@ class TestdialplanController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $columns = array('AccountID','AccountName','Name','Trunk','ServiceName','ServiceID');
         $sort_column = $columns[$data['iSortCol_0']];
-        
-        $query = "call prc_getTestDialPlan ('".$DefaultCurrencyID."','".$data['DestinationCode']."','".$data['DestinationCode']."','1','".$profileId."','',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $date = $data['StartDate'] . " " . $data['StartHour'] . ":00";
+        Log::info("Country List" . $date);
+        $query = "call prc_getTestDialPlan ('".$DefaultCurrencyID."','".$data['DestinationCode']."','".$data['DestinationCode']."','1','".$profileId."','',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0".
+            ",'" .$data['countryList'] . "','" . $date . "')";
         
         Log::info('query:.' . $query);
         
         \Illuminate\Support\Facades\Log::info($query);
 
-        return DataTableSql::of($query,'speakIntelligentRoutingEngine')->make();
+        return DataTableSql::of($query,'sqlsrvroutingengine')->make();
       // return DataTableSql::of($query,'neon_routingenginenew')->make();
 
         //return Datatables::of($RoutingCategory)->make();
@@ -42,7 +45,14 @@ class TestdialplanController extends \BaseController {
             //echo $CompanyTimezone = Config::get('app.timezone');
             $company_id = User::get_companyID();
             $routingprofile = RoutingProfiles::getActiveRoutingProfile($company_id);
-            return View::make('testdialplan.index',compact('routingprofile'));
+            $countryList = Country::getCountryDropdownList();
+        $countryList = unserialize(serialize($countryList));
+
+
+        unset($countryList['']);
+
+
+            return View::make('testdialplan.index',compact('routingprofile','countryList'));
 
         }
 

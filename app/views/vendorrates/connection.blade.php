@@ -32,6 +32,14 @@
             </a>
         </li>
     @endif
+
+    @if(User::checkCategoryPermission('VendorRates','TrunkCost'))
+        <li>
+            <a href="{{ URL::to('vendor_rates/'.$id.'/trunk_cost') }}" >
+                <span class="hidden-xs">Trunk Cost</span>
+            </a>
+        </li>
+    @endif
     {{--<li>
         <a href="{{ URL::to('vendor_rates/'.$id) }}" >
             <span class="hidden-xs">Vendor Rate</span>
@@ -44,13 +52,13 @@
         </a>
     </li>
     @endif--}}
-    @if(User::checkCategoryPermission('VendorRates','Download'))
+   {{-- @if(User::checkCategoryPermission('VendorRates','Download'))
         <li>
             <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >
                 <span class="hidden-xs">Vendor Rate Download</span>
             </a>
         </li>
-    @endif
+    @endif--}}
    {{-- @if(User::checkCategoryPermission('VendorRates','Settings'))
         <li>
             <a href="{{ URL::to('/vendor_rates/'.$id.'/settings') }}" >
@@ -72,16 +80,16 @@
             </a>
         </li>
     @endif--}}
-    @if(User::checkCategoryPermission('VendorRates','History'))
+    {{--@if(User::checkCategoryPermission('VendorRates','History'))
         <li>
             <a href="{{ URL::to('/vendor_rates/'.$id.'/history') }}" >
                 <span class="hidden-xs">Vendor Rate History</span>
             </a>
         </li>
-    @endif
+    @endif--}}
     @if(User::checkCategoryPermission('Timezones','Add'))
         <li>
-            <a href="{{ URL::to('/timezones/vendor_rates/'.$id) }}" >
+            <a href="{{ URL::to('/timezones_vendor/vendor_rates/'.$id) }}" >
                 <span class="hidden-xs">Time Of Day</span>
             </a>
         </li>
@@ -733,6 +741,7 @@
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").select2("val",cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }else if(list_fields[i] == 'Password'){
                                 //remain blank
+                                $("#edit-vendor-rate-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }else{
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }

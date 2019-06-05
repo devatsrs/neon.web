@@ -1358,6 +1358,7 @@
                         console.log(response.Email);
                         $(this).button('reset');
                         if (response.status == 'failed') {
+
                             $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',PartnerID);
                             $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',false);
                             $("#add-new-reseller-form [name='ResellerName']").val('');            
@@ -1365,7 +1366,10 @@
                             $("#add-new-reseller-form [name='LastName']").val('');
                             $("#add-new-reseller-form [name='Email']").val('');
                             $("#add-new-reseller-form [name='Status']").val('');
+                            $("#add-new-reseller-form [name='Password']").val('');
                             $("#add-new-reseller-form [name='ResellerID']").val('');
+                            $("#add-new-reseller-form [name='DomainUrl']").val('');
+                            $("#add-new-reseller-form [name='picture']").val('');
                             $("#add-new-reseller-form [name='TermsAndCondition']").summernote('code','');
                             $("#add-new-reseller-form [name='FooterTerm']").summernote('code','');
                             $("#add-new-reseller-form [name='invoiceTo']").val('');
@@ -1389,7 +1393,7 @@
                             FirstName = response.FirstName;
                             LastName = response.LastName;
                             AllowWhiteLabel = response.AllowWhiteLabel;
-                            Email = response.Email ;
+                            Email = response.ResellerEmail ;
                             Status = response.Status;
                             InvoiceTo = response.InvoiceTo;
                             InvoiceFrom = response.Status;
@@ -1401,6 +1405,10 @@
                             EmailFrom = response.EmailFrom;
                             Port = response.Port;
                             IsSSL = response.IsSSL;
+                            DomainUrl = response.DomainUrl;
+                            Password = response.Password;
+
+
                             //AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
 
                             //getDomainUrl($(this).attr('data-id'));
@@ -1411,12 +1419,15 @@
                                 $('#add-new-reseller-form [name="Status"]').prop('checked',false);
                             }*/
 
+                            $("#add-new-reseller-form [name='picture']").val('');
                             $("#add-new-reseller-form [name='ResellerName']").val(ResellerName);            
                             $("#add-new-reseller-form [name='FirstName']").val(FirstName);
                             $("#add-new-reseller-form [name='LastName']").val(LastName);
                             $("#add-new-reseller-form [name='Email']").val(Email);
                             $("#add-new-reseller-form [name='Status']").val(Status);
+                            $("#add-new-reseller-form [name='Password']").val(Password);
                             $("#add-new-reseller-form [name='invoiceTo']").val(InvoiceTo);
+                            $("#add-new-reseller-form [name='DomainUrl']").val(DomainUrl);
                             $("#add-new-reseller-form [name='TermsAndCondition']").summernote('code',Terms);
                             $("#add-new-reseller-form [name='FooterTerm']").summernote('code',Footer);
                             $('#InvoiceTemplateHeader').val(invoiceFrom);

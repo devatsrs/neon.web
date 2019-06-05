@@ -12,14 +12,22 @@ class RateTablesController extends \BaseController {
             ->leftjoin('tblCustomerTrunk','tblCustomerTrunk.CustomerTrunkID','=',DB::RAW('(SELECT CustomerTrunkID FROM tblCustomerTrunk WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
             ->leftjoin('tblVendorConnection','tblVendorConnection.VendorConnectionID','=',DB::RAW('(SELECT VendorConnectionID FROM tblVendorConnection WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
             ->leftjoin('tblReseller','tblReseller.ResellerID','=','tblRateTable.Reseller')
-            ->select([DB::RAW('IF(tblRateTable.Reseller=0,"",IF(tblRateTable.Reseller=-1,"All",tblReseller.ResellerName)) AS ResellerName'),'tblRateTable.Type','tblRateTable.AppliedTo','tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName', 'tblDIDCategory.CategoryName as CategoryName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID', 'tblRateTable.RoundChargedAmount', 'tblRateTable.MinimumCallCharge', 'tblRateTable.DIDCategoryID', 'tblCustomerTrunk.CustomerTrunkID', 'tblVendorConnection.VendorConnectionID','tblRateTable.Reseller'])
-            ->where("tblRateTable.CompanyId",$CompanyID);
+            ->select([DB::RAW('IF(tblRateTable.Reseller=0,"",IF(tblRateTable.Reseller=-1,"All",tblReseller.ResellerName)) AS ResellerName'),'tblRateTable.Type','tblRateTable.AppliedTo','tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName', 'tblDIDCategory.CategoryName as CategoryName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID', 'tblRateTable.RoundChargedAmount', 'tblRateTable.MinimumCallCharge', 'tblRateTable.DIDCategoryID', 'tblCustomerTrunk.CustomerTrunkID', 'tblVendorConnection.VendorConnectionID','tblRateTable.Reseller']);
         //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
 
         $data = Input::all();
-        if(isset($data['Reseller']) && $data['Reseller'] != 0){
-            $rate_tables->where('tblRateTable.Reseller',$data['Reseller']);
+
+        if(!empty($data['ResellerPage'])) {
+            $ResellerID = Reseller::getResellerID();
+            $rate_tables->where("tblRateTable.CompanyId",1);
+            $rate_tables->where("tblRateTable.Reseller",-1)->orWhere("tblRateTable.Reseller",$ResellerID);
+        } else {
+            $rate_tables->where("tblRateTable.CompanyId",$CompanyID);
+            if(isset($data['Reseller']) && $data['Reseller'] != 0){
+                $rate_tables->where('tblRateTable.Reseller',$data['Reseller']);
+            }
         }
+
         if($data['TrunkID']){
             $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
         }
@@ -61,11 +69,15 @@ class RateTablesController extends \BaseController {
         $data['Tariff']                 = !empty($data['Tariff']) ? "'".$data['Tariff']."'" : 'NULL';
         $data['AccessType']             = !empty($data['AccessType']) ? "'".$data['AccessType']."'" : 'NULL';
 
+        if(!empty($data['ResellerPage'])) {
+            $companyID = 1;
+        }
+
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
         $TypeVoiceCall  = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
         $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
 
-        $columns_voicecall  = array('RateTableRateID', 'TimezoneTitle', 'OriginationCode', 'OriginationDescription', 'Code', 'Description', 'MinimumDuration', 'Interval1', 'IntervalN', 'ConnectionFee', 'PreviousRate', 'Rate', 'RateN', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy', 'RoutingCategoryName', 'Preference');
+        $columns_voicecall  = array('RateTableRateID', 'DestinationType', 'TimezoneTitle', 'OriginationCode', 'OriginationDescription', 'Code', 'Description', 'MinimumDuration', 'Interval1', 'IntervalN', 'ConnectionFee', 'PreviousRate', 'Rate', 'RateN', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy', 'RoutingCategoryName', 'Preference');
         $columns_did        = array('RateTableRateID', 'AccessType', 'Country', 'OriginationCode', 'Code', 'City', 'Tariff', 'TimezoneTitle', 'OneOffCost', 'MonthlyCost', 'CostPerCall', 'CostPerMinute', 'SurchargePerCall', 'SurchargePerMinute', 'OutpaymentPerCall', 'OutpaymentPerMinute', 'Surcharges', 'Chargeback', 'CollectionCostAmount', 'CollectionCostPercentage', 'RegistrationCostPerNumber', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
         $columns_pkg        = array('RateTableRateID', 'TimezoneTitle', 'Code', 'OneOffCost', 'MonthlyCost', 'PackageCostPerMinute', 'RecordingCostPerMinute', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
 
@@ -137,18 +149,25 @@ class RateTablesController extends \BaseController {
      * @return Response
      */
     public function index() {
-            $companyID = User::get_companyID();
-            $trunks = Trunk::getTrunkDropdownIDList();
-            $trunk_keys = getDefaultTrunk($trunks);
-            $RateGenerators = RateGenerator::where(["Status" => 1, "CompanyID" => $companyID])->lists("RateGeneratorName", "RateGeneratorId");
-            $codedecks = BaseCodeDeck::where(["CompanyID" => $companyID])->lists("CodeDeckName", "CodeDeckId");
-            $codedecks = array(""=>"Select Codedeck")+$codedecks;
-            $RateGenerators = array(""=>"Select rate generator")+$RateGenerators;
-            $currencylist = Currency::getCurrencyDropdownIDList();
-            $DIDCategory = DIDCategory::getCategoryDropdownIDList($companyID);
-            $RateTypes   = RateType::getRateTypeDropDownList();
-            $ResellerDD  = RateTable::getResellerDropdownIDList();
-            return View::make('ratetables.index', compact('trunks','RateGenerators','codedecks','trunk_keys','currencylist','DIDCategory','RateTypes','ResellerDD'));
+        $companyID = User::get_companyID();
+        $trunks = Trunk::getTrunkDropdownIDList();
+        $trunk_keys = getDefaultTrunk($trunks);
+        $RateGenerators = RateGenerator::where(["Status" => 1, "CompanyID" => $companyID])->lists("RateGeneratorName", "RateGeneratorId");
+        $codedecks = BaseCodeDeck::where(["CompanyID" => $companyID])->lists("CodeDeckName", "CodeDeckId");
+        $codedecks = array(""=>"Select Codedeck")+$codedecks;
+        $RateGenerators = array(""=>"Select rate generator")+$RateGenerators;
+        $currencylist = Currency::getCurrencyDropdownIDList();
+        $DIDCategory = DIDCategory::getCategoryDropdownIDList($companyID);
+        $RateTypes   = RateType::getRateTypeDropDownList();
+        $ResellerDD  = RateTable::getResellerDropdownIDList();
+
+        $Page = Route::getCurrentRoute()->getPath();
+        $ResellerPage = 0;
+        if($Page == 'rate_tables/commercial') {
+            $ResellerPage = 1;
+        }
+
+        return View::make('ratetables.index', compact('trunks','RateGenerators','codedecks','trunk_keys','currencylist','DIDCategory','RateTypes','ResellerDD','ResellerPage'));
     }
 
 
@@ -237,12 +256,18 @@ class RateTablesController extends \BaseController {
         $City               = ServiceTemplate::getCityDD($CompanyID);
         $Tariff             = ServiceTemplate::getTariffDD($CompanyID);
 
+        $Page = Route::getCurrentRoute()->getPath();
+        $ResellerPage = 0;
+        if($Page == 'rate_tables/{id}/view/commercial') {
+            $ResellerPage = 1;
+        }
+
         if($rateTable->Type == $TypeVoiceCall) {
-            return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE','CurrencyDropDown','Timezone'));
+            return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE','CurrencyDropDown','Timezone','ResellerPage'));
         } else if($rateTable->Type == $TypeDID) {
-            return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown','Timezone','AccessType','City','Tariff'));
+            return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown','Timezone','AccessType','City','Tariff','ResellerPage'));
         } else {
-            return View::make('ratetables.edit_pkg', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown','Timezone'));
+            return View::make('ratetables.edit_pkg', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown','Timezone','ResellerPage'));
         }
     }
 
@@ -737,14 +762,22 @@ class RateTablesController extends \BaseController {
                 ->leftjoin('tblCustomerTrunk','tblCustomerTrunk.CustomerTrunkID','=',DB::RAW('(SELECT CustomerTrunkID FROM tblCustomerTrunk WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
                 ->leftjoin('tblVendorConnection','tblVendorConnection.VendorConnectionID','=',DB::RAW('(SELECT VendorConnectionID FROM tblVendorConnection WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
                 ->leftjoin('tblReseller','tblReseller.ResellerID','=','tblRateTable.Reseller')
-                ->select([DB::RAW($Partner),DB::RAW($Type),DB::RAW($AppliedTo),'tblRateTable.RateTableName','tblCurrency.Code AS Currency', 'tblTrunk.Trunk as Trunk', 'tblDIDCategory.CategoryName as AccessCategory','tblCodeDeck.CodeDeckName AS Codedeck','tblRateTable.updated_at AS LastUpdated'])
-                ->where("tblRateTable.CompanyId",$CompanyID);
+                ->select([DB::RAW($Partner),DB::RAW($Type),DB::RAW($AppliedTo),'tblRateTable.RateTableName','tblCurrency.Code AS Currency', 'tblTrunk.Trunk as Trunk', 'tblDIDCategory.CategoryName as AccessCategory','tblCodeDeck.CodeDeckName AS Codedeck','tblRateTable.updated_at AS LastUpdated']);
             //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
 
             $data = Input::all();
-            if(isset($data['Reseller']) && $data['Reseller'] != 0){
-                $rate_tables->where('tblRateTable.Reseller',$data['Reseller']);
+
+            if(!empty($data['ResellerPage'])) {
+                $ResellerID = Reseller::getResellerID();
+                $rate_tables->where("tblRateTable.CompanyId",1);
+                $rate_tables->where("tblRateTable.Reseller",-1)->orWhere("tblRateTable.Reseller",$ResellerID);
+            } else {
+                $rate_tables->where("tblRateTable.CompanyId",$CompanyID);
+                if(isset($data['Reseller']) && $data['Reseller'] != 0){
+                    $rate_tables->where('tblRateTable.Reseller',$data['Reseller']);
+                }
             }
+
             if($data['TrunkID']){
                 $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
             }
@@ -811,6 +844,10 @@ class RateTablesController extends \BaseController {
         $TypeVoiceCall  = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
         $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
 
+        if(!empty($data['ResellerPage'])) {
+            $companyID = 1;
+        }
+
         if($ApprovedStatus == RateTable::RATE_STATUS_APPROVED) { //approved rates
             if($rateTable->Type == $TypeVoiceCall) { // voice call
                 if(!empty($data['DiscontinuedRates'])) {
@@ -846,14 +883,28 @@ class RateTablesController extends \BaseController {
         $rate_table_rates  = DB::select($query);
         DB::setFetchMode( Config::get('database.fetch'));
 
+        if(!empty($data['ResellerPage'])) {
+            foreach ($rate_table_rates as $key => $value) {
+                if (isset($value['Approved By/Date'])) {
+                    unset($value['Approved By/Date']);
+                    $rate_table_rates[$key] = $value;
+                }
+                if (isset($value['ApprovedStatus'])) {
+                    unset($value['ApprovedStatus']);
+                    $rate_table_rates[$key] = $value;
+                }
+            }
+        }
+
         $RateTableName = str_replace( '\/','-',$RateTableName);
+        $RateTableName = str_replace( '/','-',$RateTableName);
 
         if($type=='csv'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rate Table Rates.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($rate_table_rates);
         }elseif($type=='xlsx'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xls';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rate Table Rates.xls';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($rate_table_rates);
         }

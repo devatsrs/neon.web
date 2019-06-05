@@ -158,6 +158,25 @@
                                 <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                             </div>
                         </div>
+                        <div class="form-group hidden" id="AffiliateDiv">
+                            <label class="col-md-2 control-label">Affiliate</label>
+                            <div class="col-md-4">
+                                <div class="make-switch switch-small" id="desablecustomer">
+                                    <input type="checkbox"  name="IsAffiliateAccount" @if($account->IsAffiliateAccount == 1 )checked="" @endif value="1">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group hidden @if(!$account->IsAffiliateAccount == 1 ) hidden @endif" id="AffiliateDetailDiv">
+                            <label class="col-md-2 control-label">Commission Percentage</label>
+                            <div class="col-md-4">
+                                <input type="text" name="CommissionPercentage" class="form-control" id="field-1" placeholder="" value="{{isset($account->CommissionPercentage) ? $account->CommissionPercentage : "5" }}" />
+                            </div>
+                            <label class="col-md-2 control-label">Duration Months</label>
+                            <div class="col-md-4">
+                                <input type="text" name="DurationMonths" class="form-control" id="field-1" placeholder="" value="{{$account->DurationMonths}}" />
+                            </div>
+                        </div>
                         @if(is_reseller())
                         @else
                             <div class="form-group">
@@ -1093,6 +1112,18 @@
                     //$('#disableresellerowner select').removeAttr("disabled");
                 }
             }
+
+            $('[name="IsAffiliateAccount"]').on("change",function(e){
+                if($('[name="IsAffiliateAccount"]').prop("checked") == true) {
+
+                    $("#AffiliateDetailDiv").removeClass('hidden');
+                }else {
+                    $("#AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
+                   // $('[name="CommissionPercentage"]').val('');
+                   // $('[name="DurationMonths"]').val(5);
+
+                }
+            });
 
             if(ResellerCount==0){
                 $('[name="IsReseller"]').on("change",function(e){

@@ -508,6 +508,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/{id}/process_download', array('as' => 'vendor_rates_process_download', 'uses' => 'VendorRatesController@process_download'));
 	Route::any('/vendor_rates/{id}/history', 'VendorRatesController@history');
 	Route::any('/vendor_rates/{id}/history_ajax_datagrid', 'VendorRatesController@history_ajax_datagrid');
+
+	// Vendor Trunk Cost
+	Route::any('/vendor_rates/{id}/trunk_cost', 'VendorRatesController@trunk_cost');
+	Route::any('/vendor_rates/{id}/trunk_cost_ajax_datagrid/{export?}', 'VendorRatesController@trunk_cost_ajax_datagrid');
+	Route::any('/vendor_rates/{id}/trunk_cost_update', 'VendorRatesController@trunk_cost_update');
+
 	Route::any('/vendor_rates/{id}/history/{hid}/view', 'VendorRatesController@show_history')->where('hid', '(.[09]*)+');
 	Route::any('/vendor_rates/{id}/history_exports/{type}', 'VendorRatesController@history_exports');
 	Route::any('/vendor_rates/{id}/search_ajax_datagrid', 'VendorRatesController@search_ajax_datagrid');
@@ -747,6 +753,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/search_ajax_datagrid_rates_account_service', 'RateTablesController@search_ajax_datagrid_rates_account_service');
 	Route::any('/rate_tables/{id}/search_ajax_datagrid_archive_rates', 'RateTablesController@search_ajax_datagrid_archive_rates'); // get archive rates for vendor rates grid
 	Route::any('/rate_tables', array('as' => 'customer_rates', 'uses' => 'RateTablesController@index'));
+	Route::any('/rate_tables/commercial', 'RateTablesController@index');
 	Route::any('/rate_tables/{id}/search_ajax_datagrid', array('as' => 'customer_rates_search', 'uses' => 'RateTablesController@search_ajax_datagrid'));
 	Route::any('/rate_tables/ajax_datagrid', 'RateTablesController@ajax_datagrid');
 	Route::any('/rate_tables/{id}/edit_ajax_datagrid', 'RateTablesController@edit_ajax_datagrid');
@@ -754,6 +761,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/edit/{id}', 'RateTablesController@edit');
 	Route::any('/rate_tables/{id}/delete', 'RateTablesController@delete');
 	Route::any('/rate_tables/{id}/view', 'RateTablesController@view');
+	Route::any('/rate_tables/{id}/view/commercial', 'RateTablesController@view');
 	Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
 	Route::any('/rate_tables/{id}/clear_rate', 'RateTablesController@clear_rate');
 	Route::any('/rate_tables/{id}/clear_did_rate', 'RateTablesController@clear_did_rate');
@@ -1455,6 +1463,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Destination Group Set
 	Route::any('/destination_group_set','DestinationGroupSetController@index');
 	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupSetController@ajax_datagrid');
+	Route::any('/destination_group_set/export_datagrid','DestinationGroupSetController@export_datagrid');
 	Route::any('/destination_group_set/store','DestinationGroupSetController@store');
 	Route::any('/destination_group_set/update/{id}','DestinationGroupSetController@update');
 	Route::any('/destination_group_set/delete/{id}','DestinationGroupSetController@delete');
@@ -1462,6 +1471,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	//Destination Group
 	Route::any('/destination_group/ajax_datagrid','DestinationGroupController@group_ajax_datagrid');
+	Route::any('/destination_group/export_datagrid','DestinationGroupController@export_datagrid');
 	Route::any('/destination_group/store','DestinationGroupController@group_store');
 	Route::any('/destination_group/update/{id}','DestinationGroupController@group_update');
 	Route::any('/destination_group/update_name/{id}','DestinationGroupController@update_name');
@@ -1478,6 +1488,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/discount_plan/store','DiscountController@store');
 	Route::any('/discount_plan/update/{id}','DiscountController@update');
 	Route::any('/discount_plan/delete/{id}','DiscountController@delete');
+	Route::any('/discount_plan/AccessDiscountPlan','DiscountController@AccessDiscountPlan');
+	Route::any('/discount_plan/TerminationDiscountPlan','DiscountController@TerminationDiscountPlan');
+	Route::any('/discount_plan/PackageDiscountPlan','DiscountController@PackageDiscountPlan');
+	Route::any('/discount_plan/TerminationDiscountPlanCodes','DiscountController@TerminationDiscountPlanCodes');
 
 	//Discounts
 	Route::any('/discount_plan/show/{id}','DiscountController@show');
@@ -1647,17 +1661,17 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/timezones/changeSelectedStatus/{type}','TimezonesController@changeSelectedStatus');
 	Route::any('/timezones/store','TimezonesController@store');
 	Route::any('/timezones/update/{id}','TimezonesController@update');
-
-
+	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
+	Route::controller('timezones', 'TimezonesController');
 	
 	//Vendor Timezone
 	// Route::any('/timezones/vendor_rates/{id}/delete/{type}','TimezonesController@delete');
-	Route::any('/timezones/vendor_rates/search_ajax_datagrid/{type}/{id}','TimezonesController@search_ajax_datagrid_Vendor');
-	Route::any('/timezones/vendor_rates/changeSelectedStatus/{type}','TimezonesController@vendor_changeSelectedStatus');
-	Route::any('/timezones/vendor_rates/store','TimezonesController@vendor_store');
-	Route::any('/timezones/vendor_rates/update/{id}','TimezonesController@vendor_update');
-	Route::any('/timezones/vendor_rates/{id}/delete/{type}','TimezonesController@vendor_delete');
-	Route::any('/timezones/vendor_rates/{id}', 'TimezonesController@vednorIndex');
+	Route::any('/timezones_vendor/vendor_rates/search_ajax_datagrid/{type}/{id}','TimezoneVendorController@search_ajax_datagrid');
+	Route::any('/timezones_vendor/vendor_rates/changeSelectedStatus/{type}','TimezoneVendorController@vendor_changeSelectedStatus');
+	Route::any('/timezones_vendor/vendor_rates/store','TimezoneVendorController@store');
+	Route::any('/timezones_vendor/vendor_rates/update/{id}','TimezoneVendorController@update');
+	Route::any('/timezones_vendor/vendor_rates/{id}/delete/{type}','TimezoneVendorController@destroy');
+	Route::any('/timezones_vendor/vendor_rates/{id}', 'TimezoneVendorController@Index');
 	//Route::any('/timezones/vendor_rates/changeSelectedStatus/{type}','TimezonesController@vendor_changeSelectedStatus');
 
 

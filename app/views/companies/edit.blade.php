@@ -105,20 +105,26 @@
 
                                     </div>
                     <div class="form-group"><!--Form Group Added by Abubakar -->
-                        {{-- <label for="field-1" class="col-sm-2 control-label">Default DashBoard</label>
 
-                        <div class="col-sm-4">
-                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control select2 small"))}}
-                        </div> --}}
-                        <label for="field-1" class="col-sm-2 control-label">Exclude Discount Components</label>
+                        <label for="field-1" class="col-sm-2 control-label">Termination Exclude Discount Components</label>
                         <div class="col-sm-4">
                             {{ Form::select('Components[]', DiscountPlan::$Component, $ExcludedComponent, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"MinutesComponent-1")) }}
                         </div>
-                        <!--<label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
 
-                        <p class="make-switch switch-small">
-                            <input id="PincodeWidget" name="PincodeWidget" type="checkbox" value="1" if($PincodeWidget == 1) checked="checked" endif>
-                        </p>-->
+                        <label for="field-1" class="col-sm-2 control-label">Access Exclude Discount Components</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('AccessComponents[]', DiscountPlan::$RateTableDIDRate_Components, $AccessExcludedComponent, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"MinutesComponent-1")) }}
+                        </div>
+
+                    </div>
+                    <div class="form-group"><!--Form Group Added by Abubakar -->
+
+                        <label for="field-1" class="col-sm-2 control-label">Package Exclude Discount Components</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('PackageComponents[]', DiscountPlan::$RateTablePKGRate_Components, $PackageExcludedComponent, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"MinutesComponent-1")) }}
+                        </div>
+
+
 
                     </div>
 
@@ -381,7 +387,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Password</label>
                         <div class="col-sm-4">
-                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="" />
+                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="{{$company->SMTPPassword}}" />
                         </div>
                     </div>
                     <div class="form-group">

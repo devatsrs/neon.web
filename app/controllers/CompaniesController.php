@@ -16,6 +16,10 @@ class CompaniesController extends \BaseController {
         $company = Company::find($company_id);
         $ExcludedComponent = array();
         $ExcludedComponent = explode(",",$company->Components);
+        $AccessExcludedComponent = array();
+        $AccessExcludedComponent = explode(",",$company->AccessComponents);
+        $PackageExcludedComponent = array();
+        $PackageExcludedComponent = explode(",",$company->PackageComponents);
         $countries = Country::getCountryDropdownList();
         $currencies = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
@@ -68,7 +72,7 @@ class CompaniesController extends \BaseController {
             $DigitalSignature=json_decode($DigitalSignature, true);
         }
 
-        return View::make('companies.edit')->with(compact('company','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend', 'RateApprovalProcess'));
+        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend', 'RateApprovalProcess'));
 
     }
 
@@ -97,6 +101,14 @@ class CompaniesController extends \BaseController {
         );
         if (isset($data['Components']) ){
             $data['Components'] = implode(",", $data['Components']);
+        }
+
+        if (isset($data['AccessComponents']) ){
+            $data['AccessComponents'] = implode(",", $data['AccessComponents']);
+        }
+
+        if (isset($data['PackageComponents']) ){
+            $data['PackageComponents'] = implode(",", $data['PackageComponents']);
         }
 
 

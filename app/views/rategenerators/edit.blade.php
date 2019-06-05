@@ -280,6 +280,12 @@
                                     <input type="number" min="0" class="form-control" id="Minutes" value="{{$rategenerators->Minutes}}" name="Minutes"/>
                                 </div>
                             </div>
+                            <div class="form-group DID-Div">
+                                <label for="field-1" class="control-label col-sm-2">No Of Services</label>
+                                <div class="col-sm-4">
+                                    {{Form::number('NoOfServicesContracted',$rategenerators->NoOfServicesContracted ,array("class"=>"form-control","min" => "0"))}}
+                                </div>
+                            </div>
                             <div class="form-group DID-Div Package-Div1">
                                 <label for="TimeOfDay" class="col-sm-2 control-label">Time of Day</label>
                                 <div class="col-sm-4">

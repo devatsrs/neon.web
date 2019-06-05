@@ -70,7 +70,14 @@
             </li>
         @endif
 
-        @if(User::checkCategoryPermission('VendorRates','Download'))
+        @if(User::checkCategoryPermission('VendorRates','TrunkCost'))
+            <li>
+                <a href="{{ URL::to('/vendor_rates/'.$id.'/trunk_cost') }}" >
+                    <span class="hidden-xs">Trunk Cost</span>
+                </a>
+            </li>
+        @endif
+        {{--@if(User::checkCategoryPermission('VendorRates','Download'))
             <li>
                 <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >
                     <span class="hidden-xs">Vendor Rate Download</span>
@@ -84,7 +91,7 @@
                     <span class="hidden-xs">Vendor Rate History</span>
                 </a>
             </li>
-        @endif
+        @endif--}}
         @if(User::checkCategoryPermission('Timezones','Add'))
             <li class="active">
                 <a href="{{ URL::to('/timezones/vendor_rates/'.$id) }}" >
@@ -170,7 +177,7 @@
                             "bDestroy": true,
                             "bProcessing": true,
                             "bServerSide": true,
-                            "sAjaxSource": baseurl + "/timezones/vendor_rates/search_ajax_datagrid/type/" + {{ $VendorID }},
+                            "sAjaxSource": baseurl + "/timezones_vendor/vendor_rates/search_ajax_datagrid/type/" + {{ $VendorID }},
                             "fnServerParams": function (aoData) {
                                 aoData.push({"name": "TimeZoneID", "value": TimeZone},{"name": "Status", "value": Status},{"name": "Type", "value": Type},{"name": "Country", "value": Country});
                                 data_table_extra_params.length = 0;
@@ -241,7 +248,8 @@
                                     "bSortable": false,
                                     mRender: function (id, type, full) {
                                         var action, edit_, delete_;
-                                        delete_ = "{{ URL::to('timezones/vendor_rates/{id}/delete')}}";
+                                        
+                                        delete_ = "{{ URL::to('/timezones_vendor/vendor_rates/{id}/delete')}}";
                                         edit_   = "{{ URL::to('timezones/vendor_rates/{id}/edit')}}";
                                         delete_ = delete_ .replace( '{id}', full[0] );
                                         edit_   = edit_.replace( '{id}', full[0] );
@@ -268,13 +276,13 @@
                                     {
                                         "sExtends": "download",
                                         "sButtonText": "EXCEL",
-                                        "sUrl": baseurl + "/timezones/vendor_rates/search_ajax_datagrid/xlsx/"+ {{ $VendorID }},
+                                        "sUrl": baseurl + "/timezones_vendor/vendor_rates/search_ajax_datagrid/xlsx/"+ {{ $VendorID }},
                                         sButtonClass: "save-collection btn-sm"
                                     },
                                     {
                                         "sExtends": "download",
                                         "sButtonText": "CSV",
-                                        "sUrl": baseurl + "/timezones/vendor_rates/search_ajax_datagrid/csv/" + {{ $VendorID }},
+                                        "sUrl": baseurl + "/timezones_vendor/vendor_rates/search_ajax_datagrid/csv/" + {{ $VendorID }},
                                         sButtonClass: "save-collection btn-sm"
                                     }
                                 ]
@@ -387,9 +395,9 @@
                         var VendorTimeZoneID = $("#add-edit-timezones-form [name='VendorTimeZoneID']").val();
 
                         if( typeof VendorTimeZoneID != 'undefined' && VendorTimeZoneID != ''){
-                            update_new_url = baseurl + '/timezones/vendor_rates/update/'+VendorTimeZoneID;
+                            update_new_url = baseurl + '/timezones_vendor/vendor_rates/update/'+VendorTimeZoneID;
                         }else{
-                            update_new_url = baseurl + '/timezones/vendor_rates/store';
+                            update_new_url = baseurl + '/timezones_vendor/vendor_rates/store';
                         }
                         showAjaxScript(update_new_url, new FormData(($('#add-edit-timezones-form')[0])), function(response){
                             $(".btn").button('reset');
@@ -484,7 +492,7 @@
                                     var formdata = new FormData();
                                     formdata.append('TimezonesIDs', TimezonesIDs);
                                     $.ajax({
-                                        url: baseurl + "/timezones/vendor_rates/changeSelectedStatus/" + type,
+                                        url: baseurl + "/timezones_vendor/vendor_rates/changeSelectedStatus/" + type,
                                         type: 'POST',
                                         dataType: 'json',
                                         success: function (response) {

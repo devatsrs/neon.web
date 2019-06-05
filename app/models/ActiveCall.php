@@ -58,6 +58,7 @@ class ActiveCall extends \Eloquent {
             $CostPerMinute = 0;
             $CostPerCall = 0;
             $MinimumCallCharge = 0;
+            $IsMinimumDuration = 0;
             $RateTableRateID = $ActiveCall->RateTableRateID;
             if($RateTableRateID>0){
                 $RateTableRate = RateTableRate::find($RateTableRateID);
@@ -69,6 +70,11 @@ class ActiveCall extends \Eloquent {
                 $IntervalN = $RateTableRate->IntervalN;
                 $Rate = $RateTableRate->Rate;
                 $RateN = $RateTableRate->RateN;
+                $MinimumDuration = empty($RateTableRate->MinimumDuration) ? 0 : $RateTableRate->MinimumDuration;
+                if($MinimumDuration > $Duration){
+                    $Duration = $MinimumDuration;
+                    $IsMinimumDuration = 1;
+                }
                 if(!empty($RateTableRate->RateCurrency)){
                     if(!empty($Rate)){
                         $Rate = Currency::convertCurrency($CompanyCurrency, $AccountCurrency, $RateTableRate->RateCurrency,$Rate);
@@ -78,6 +84,7 @@ class ActiveCall extends \Eloquent {
                     }
                 }
                 /** cost update */
+
                 if($Duration>=$Interval1){
                     $Cost = ($Rate/60.0)*$Interval1+ceil(($Duration-$Interval1)/$IntervalN)*($RateN/60.0)*$IntervalN+$ConnectionFee;
                     $CostPerMinute = ($Rate/60.0)*$Interval1+ceil(($Duration-$Interval1)/$IntervalN)*($RateN/60.0)*$IntervalN;
@@ -132,6 +139,7 @@ class ActiveCall extends \Eloquent {
             $UpdateData['CostPerCall'] = $CostPerCall;
             $UpdateData['CostPerMinute'] = $CostPerMinute;
             $UpdateData['MinimumCallCharge'] = $MinimumCallCharge;
+            $UpdateData['MinimumDuration'] = $IsMinimumDuration;
             $UpdateData['PackageCostPerMinute'] = $PackageCostPerMinute;
             $UpdateData['RecordingCostPerMinute'] = $RecordingCostPerMinute;
             $UpdateData['updated_at'] = date('Y-m-d H:i:s');
@@ -198,7 +206,6 @@ class ActiveCall extends \Eloquent {
                             $OutpaymentPerCallCurrency = $RateTableDIDRate->OutpaymentPerCallCurrency;
                             $OutpaymentPerCall = Currency::convertCurrency($CompanyCurrency, $AccountCurrency, $OutpaymentPerCallCurrency, $OutpaymentPerCall);
                         }
-                        $OutpaymentPerCall = ($Duration * ($OutpaymentPerCall/60));
                     }
                     $OutpaymentPerMinute = isset($RateTableDIDRate->OutpaymentPerMinute)?$RateTableDIDRate->OutpaymentPerMinute:0;
                     if(!empty($OutpaymentPerMinute)){
@@ -278,6 +285,7 @@ class ActiveCall extends \Eloquent {
         $RateTablePKGRateID = 0;
         $CallRecordingDuration = 0;
         $MinimumCallCharge = 0;
+        $MinimumDuration = 0;
         //$AccountServiceID = AccountService::getFirstAccountServiceID($AccountID);
         /**
          * update gateway account
@@ -471,6 +479,7 @@ class ActiveCall extends \Eloquent {
             $UpdateData['Tariff'] = $Tariff;
             $UpdateData['NoType'] = $NoType;
             $UpdateData['MinimumCallCharge'] = $MinimumCallCharge;
+            $UpdateData['MinimumDuration'] = $MinimumDuration;
             $UpdateData['OutPaymentVendorID'] = $OutPaymentVendorID;
             $UpdateData['updated_at'] = date('Y-m-d H:i:s');
             $ActiveCall->update($UpdateData);
@@ -561,6 +570,7 @@ class ActiveCall extends \Eloquent {
             $UpdateData['Tariff'] = $Tariff;
             $UpdateData['NoType'] = $NoType;
             $UpdateData['MinimumCallCharge'] = $MinimumCallCharge;
+            $UpdateData['MinimumDuration'] = $MinimumDuration;
             $UpdateData['OutPaymentVendorID'] = $OutPaymentVendorID;
             $UpdateData['updated_at'] = date('Y-m-d H:i:s');
             $ActiveCall->update($UpdateData);
@@ -648,6 +658,7 @@ class ActiveCall extends \Eloquent {
         $detaildata['SurchargePerCall'] = $ActiveCall->SurchargePerCall;
         $detaildata['SurchargePerMinute'] = $ActiveCall->SurchargePerMinute;
         $detaildata['MinimumCallCharge'] = $ActiveCall->MinimumCallCharge;
+        $detaildata['MinimumDuration'] = $ActiveCall->MinimumDuration;
 
         $UsageDetails = UsageDetail::create($detaildata);
         $UsageDetailID = $UsageDetails->UsageDetailID;
@@ -674,6 +685,7 @@ class ActiveCall extends \Eloquent {
                 $VendorGatewayAccountData['AccountName']=$Account->AccountName;
                 $VendorGatewayAccountData['ServiceID']=0;
                 $VendorGatewayAccountData['AccountServiceID']=0;
+                $VendorGatewayAccountData['IsVendor']=1;
                 $VendorGatewayAccount = GatewayAccount::create($VendorGatewayAccountData);
             }
             $VendorGatewayAccountPKID = $VendorGatewayAccount->GatewayAccountPKID;

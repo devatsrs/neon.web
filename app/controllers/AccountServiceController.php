@@ -79,7 +79,7 @@ class AccountServiceController extends \BaseController {
         $Packages = Package::getDropdownIDListByCompany($AccountCompanyId);
         $CurrencyID=Account::getCurrencyIDByAccount($id);
         $PackageType=RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
-
+        $AffiliateAccount = Account::getAffiliateAccount();
         $AppiedTo=Account::getAccountTypeByAccountID($id);
         $RateTable=RateTable::getPackageTariffDropDownList($CompanyID,$PackageType,$AppiedTo);
 
@@ -103,7 +103,7 @@ class AccountServiceController extends \BaseController {
         $City = array('' => "Select") + $City;
         $Tariff = array('' => "Select") + $Tariff;
 
-        return View::make('accountservices.edit', compact('CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table', 'termination_rate_table',
+        return View::make('accountservices.edit', compact('AffiliateAccount','CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table', 'termination_rate_table',
             'AccessType','Prefix','City','Tariff','package_rate_table','countries','DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
 
     }
@@ -207,7 +207,7 @@ class AccountServiceController extends \BaseController {
     // get all account service
     public function ajax_datagrid($id){
         $data = Input::all();
-        Log::info("Account ajax_datagrid " .  print_r($data,true));
+        //Log::info("Account ajax_datagrid " .  print_r($data,true));
         $id=$data['account_id'];
         $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $ServiceActive = 0;
@@ -215,6 +215,7 @@ class AccountServiceController extends \BaseController {
         $ServicePackageId = 0;
         $AccountServiceOrderID = 0;
         $iDisplayLength = 0;
+        $Affiliate = 0;
         if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
             $ServiceActive = 1;
         }
@@ -225,6 +226,9 @@ class AccountServiceController extends \BaseController {
         if(!empty($data['PackageName'])){
             $ServicePackageId = $data['PackageName'];
         }
+        if(!empty($data['Affiliate'])){
+            $Affiliate = $data['Affiliate'];
+        }
 
         if(!empty($data['AccountServiceOrderID'])){
             $AccountServiceOrderID = $data['AccountServiceOrderID'];
@@ -233,7 +237,9 @@ class AccountServiceController extends \BaseController {
         $iDisplayLength = $data['iDisplayLength'];
         $p_PageNumber = ceil($data['iDisplayStart'] / $data['iDisplayLength']);
 
-        $query = "call prcGetAccountServiceData('" . $id . "','" . $ServiceNumber . "','" . $ServicePackageId . "'," . $AccountServiceOrderID . "," . $iDisplayLength . " ," . $p_PageNumber . ",0" . ")";
+        $query = "call prcGetAccountServiceData('" . $id . "','" . $ServiceNumber . "','" .
+            $ServicePackageId . "'," . $AccountServiceOrderID . "," . $Affiliate . "," . $iDisplayLength . " ,"
+            . $p_PageNumber . ",0" . ")";
 
         //$result = DB::select($query);
         //$services->select($select);
@@ -494,6 +500,7 @@ class AccountServiceController extends \BaseController {
             $accdata['ServiceTitleShow'] = isset($data['ServiceTitleShow']) ? 1 : 0;
             $accdata['SubscriptionBillingCycleType'] = empty($data['SubscriptionBillingCycleType']) ? '' : $data['SubscriptionBillingCycleType'];
             $accdata['SubscriptionBillingCycleValue'] = empty($data['SubscriptionBillingCycleValue']) ? '' : $data['SubscriptionBillingCycleValue'];
+            $accdata['AffiliateAccount'] = empty($data['AffiliateAccount']) ? null : $data['AffiliateAccount'];
 
             AccountService::where(['AccountID' => $AccountID, 'AccountServiceID' => $AccountServiceID])->update($accdata);
 
@@ -698,7 +705,7 @@ class AccountServiceController extends \BaseController {
 
     public function exports($id,$type){
         $data = Input::all();
-        Log::info("Account ajax_datagrid " .  print_r($data,true));
+        //Log::info("Account ajax_datagrid " .  print_r($data,true));
         $id=$data['account_id'];
         $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $ServiceActive = 0;

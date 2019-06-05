@@ -13,24 +13,37 @@
                     <label for="Search" class="control-label">Search</label>
                     <input class="form-control" name="Search" id="Search"  type="text" >
                 </div>
-                <div class="form-group ">
-                    <label class="control-label">Partner</label><br/>
-                    {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
-                </div>
+
+                @if(!empty($ResellerPage))
+                    <input name="Reseller" type="hidden" value="-1" >
+                @else
+                    <div class="form-group ">
+                        <label class="control-label">Partner</label><br/>
+                        {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
+                    </div>
+                @endif
+
                 <div class="form-group">
                     <label class="control-label">Type</label>
                     {{Form::select('Type', [""=>"Select"]+$RateTypes, '',array("class"=>"form-control select2"))}}
                 </div>
-                @if(is_reseller())
-                    <div class="form-group">
-                        <label class="control-label">Applied To</label>
-                        {{Form::select('AppliedTo', [""=>"Select"]+RateTable::$AppliedToForPartner, '',array("class"=>"form-control select2"))}}
-                    </div>
+
+                <input name="ResellerPage" type="hidden" value="{{!empty($ResellerPage) ? $ResellerPage : 0}}" >
+
+                @if(!empty($ResellerPage))
+                    <input name="AppliedTo" type="hidden" value="{{RateTable::APPLIED_TO_RESELLER}}" >
                 @else
-                    <div class="form-group">
-                        <label class="control-label">Applied To</label>
-                        {{Form::select('AppliedTo', [""=>"Select"]+RateTable::$AppliedToForAdmin, '',array("class"=>"form-control select2"))}}
-                    </div>
+                    @if(is_reseller())
+                        <div class="form-group">
+                            <label class="control-label">Applied To</label>
+                            {{Form::select('AppliedTo', [""=>"Select"]+RateTable::$AppliedToForPartner, '',array("class"=>"form-control select2"))}}
+                        </div>
+                    @else
+                        <div class="form-group">
+                            <label class="control-label">Applied To</label>
+                            {{Form::select('AppliedTo', [""=>"Select"]+RateTable::$AppliedToForAdmin, '',array("class"=>"form-control select2"))}}
+                        </div>
+                    @endif
                 @endif
 
                 <div class="form-group" id="filter-TrunkID-box">
@@ -65,7 +78,7 @@
 </ol>
 <h3>Rate Table</h3>
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('RateTables','Add'))
+@if(User::checkCategoryPermission('RateTables','Add') && empty($ResellerPage))
     <a href="#" id="add-new-rate-table" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New RateTable
@@ -94,9 +107,9 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                     <tr>
-                                        <th >Partner</th>
+                                        <th style="@if(!empty($ResellerPage)) {{'display:none'}} @endif" >Partner</th>
                                         <th >Type</th>
-                                        <th >Applied To</th>
+                                        <th style="@if(!empty($ResellerPage)) {{'display:none'}} @endif" >Applied To</th>
                                         <th >Name</th>
                                         <th >Currency</th>
                                         <th >Trunk</th>
@@ -131,6 +144,12 @@ jQuery(document).ready(function($) {
     $searchFilter.DIDCategoryID = $('#ratetable_filter [name="DIDCategoryID"]').val();
     $searchFilter.AppliedTo = $('#ratetable_filter [name="AppliedTo"]').val();
     $searchFilter.Reseller = $('#ratetable_filter [name="Reseller"]').val();
+    $searchFilter.ResellerPage = $('#ratetable_filter [name="ResellerPage"]').val();
+
+    var bVisibleForReseller = true;
+    @if(!empty($ResellerPage))
+        bVisibleForReseller = false;
+    @endif
 
     data_table = $("#table-4").dataTable({
         "bDestroy": true,
@@ -143,16 +162,18 @@ jQuery(document).ready(function($) {
         "oTableTools": {},
         "aaSorting": [[3, "asc"]],
         "fnServerParams": function(aoData) {
-            aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID},{"name":"AppliedTo","value":$searchFilter.AppliedTo},{"name":"Reseller","value":$searchFilter.Reseller});
+            aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID},{"name":"AppliedTo","value":$searchFilter.AppliedTo},{"name":"Reseller","value":$searchFilter.Reseller},{"name":"ResellerPage","value":$searchFilter.ResellerPage});
             data_table_extra_params.length = 0;
-            data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID},{"name":"AppliedTo","value":$searchFilter.AppliedTo},{"name":"Reseller","value":$searchFilter.Reseller});
+            data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID},{"name":"AppliedTo","value":$searchFilter.AppliedTo},{"name":"Reseller","value":$searchFilter.Reseller},{"name":"ResellerPage","value":$searchFilter.ResellerPage});
         },
         "fnRowCallback": function(nRow, aData) {
             $(nRow).attr("id", "host_row_" + aData[2]);
         },
         "aoColumns":
                 [
-                    {},
+                    {
+                        "bVisible" : bVisibleForReseller
+                    },
                     {
                         mRender: function(id, type, full) {
                             var Types = JSON.parse('{{json_encode($RateTypes)}}');
@@ -160,6 +181,7 @@ jQuery(document).ready(function($) {
                         }
                     },
                     {
+                        "bVisible" : bVisibleForReseller,
                         mRender: function(id, type, full) {
                             var AppliedTo = JSON.parse('{{json_encode(RateTable::$AppliedTo)}}');
                             return AppliedTo[full[2]];
@@ -174,7 +196,11 @@ jQuery(document).ready(function($) {
                     {
                         mRender: function(id, type, full) {
                             var action, view_, delete_;
-                            view_ = "{{ URL::to('/rate_tables/{id}/view')}}";
+                            @if(!empty($ResellerPage))
+                                view_ = "{{ URL::to('/rate_tables/{id}/view/commercial')}}";
+                            @else
+                                view_ = "{{ URL::to('/rate_tables/{id}/view')}}";
+                            @endif
                             delete_ = "{{ URL::to('/rate_tables/{id}/delete')}}";
 
                             view_ = view_.replace('{id}', full[9]);
@@ -184,10 +210,15 @@ jQuery(document).ready(function($) {
                             full[12] = full[12] == null ? "" : full[12];
 
                             action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
-                            action += '<a title="Edit" data-id="'+  full[9] +'" data-Type="'+full[1]+'" data-AppliedTo="'+full[2]+'" data-rateTableName="'+full[3]+'" data-TrunkID="'+full[10]+'" data-CurrencyID="'+full[11]+'" data-RoundChargedAmount="'+full[12]+'" data-MinimumCallCharge="'+full[13]+'" data-DIDCategoryID="'+full[14]+'" data-CustomerTrunkID="'+full[15]+'" data-VendorConnectionID="'+full[16]+'" data-Reseller="'+full[17]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+
+                            @if(empty($ResellerPage))
+                                action += '<a title="Edit" data-id="'+  full[9] +'" data-Type="'+full[1]+'" data-AppliedTo="'+full[2]+'" data-rateTableName="'+full[3]+'" data-TrunkID="'+full[10]+'" data-CurrencyID="'+full[11]+'" data-RoundChargedAmount="'+full[12]+'" data-MinimumCallCharge="'+full[13]+'" data-DIDCategoryID="'+full[14]+'" data-CustomerTrunkID="'+full[15]+'" data-VendorConnectionID="'+full[16]+'" data-Reseller="'+full[17]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                            @endif
 
                             <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
-                                action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
+                                @if(empty($ResellerPage))
+                                    action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
+                                @endif
                             <?php } ?>
                             //action += status_link;
                             return action;
@@ -326,6 +357,7 @@ jQuery(document).ready(function($) {
         $searchFilter.DIDCategoryID = $('#ratetable_filter [name="DIDCategoryID"]').val();
         $searchFilter.AppliedTo = $('#ratetable_filter [name="AppliedTo"]').val();
         $searchFilter.Reseller = $('#ratetable_filter [name="Reseller"]').val();
+        $searchFilter.ResellerPage = $('#ratetable_filter [name="ResellerPage"]').val();
         data_table.fnFilter('', 0);
         return false;
      });

@@ -163,7 +163,7 @@
                         @endif
                         if (full[5] == 1) { /* When Status is 1 */
                             action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
-                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-type="' + full[11] + '" data-trunk="' + full[8] + '" data-codedeck="' + full[9] + '" data-currency="' + full[10] + '">Update Existing Rate Table</a></li></ul></div>';
+                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-type="' + full[11] + '" data-trunk="' + full[8] + '" data-codedeck="' + full[9] + '" data-currency="' + full[10] + '" data-AppliedTo="' + full[13] + '">Update Existing Rate Table</a></li></ul></div>';
                         }
                         <?php } ?>
                                 return action;
@@ -298,6 +298,7 @@
             var trunkID = $(this).attr("data-trunk");
             var codeDeckId = $(this).attr("data-codedeck");
             var CurrencyID = $(this).attr("data-currency");
+            var AppliedTo = $(this).attr("data-AppliedTo");
             var type = $(this).data("type");
             $.ajax({
                 url: baseurl + "/rategenerators/ajax_load_rate_table_dropdown",
@@ -311,7 +312,7 @@
 
                 },
                 // Form data
-                data: "TrunkID="+trunkID+'&CodeDeckId='+codeDeckId+'&CurrencyID='+CurrencyID+'&Type='+type ,
+                data: "TrunkID="+trunkID+'&CodeDeckId='+codeDeckId+'&CurrencyID='+CurrencyID+'&Type='+type+'&AppliedTo='+AppliedTo ,
                 cache: false,
                 contentType: false,
                 processData: false

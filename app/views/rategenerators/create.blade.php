@@ -241,6 +241,12 @@
                                 <input type="number" min="0" class="form-control" id="Minutes" name="Minutes"/>
                             </div>
                         </div>
+                        <div class="form-group DID-Div">
+                            <label for="field-1" class="control-label col-sm-2">No Of Services</label>
+                            <div class="col-sm-4">
+                                {{Form::number('NoOfServicesContracted','0' ,array("class"=>"form-control","min" => "0"))}}
+                            </div>
+                        </div>
                         <div class="form-group DID-Div Package-Div1">
                             <label for="TimeOfDay" class="col-sm-2 control-label">Time of Day</label>
                             <div class="col-sm-4">
@@ -261,7 +267,6 @@
                                 <input type="number" min="0" class="form-control" id="OriginationPercentage" name="OriginationPercentage"/>
                             </div>
                         </div>
-                       
                     </div>
                     <div class="form-group Package-Div" style="display:none;">
                         <label for="field-1" class="col-sm-2 control-label">Package*</label>
@@ -270,7 +275,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
                     <div class="panel-heading">
                         <div class="panel-title">

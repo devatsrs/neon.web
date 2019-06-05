@@ -1,8 +1,8 @@
 use speakintelligentRM;
 -- --------------------------------------------------------
--- Host:                         localhost
--- Server version:               5.7.23-log - MySQL Community Server (GPL)
--- Server OS:                    Win64
+-- Host:                         78.129.140.6
+-- Server version:               5.7.25 - MySQL Community Server (GPL)
+-- Server OS:                    Linux
 -- HeidiSQL Version:             9.5.0.5196
 -- --------------------------------------------------------
 
@@ -15,7 +15,7 @@ use speakintelligentRM;
 -- Dumping structure for procedure speakintelligentRM.prc_WSGenerateRateTableDID
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTableDID`;
 DELIMITER //
-CREATE  PROCEDURE `prc_WSGenerateRateTableDID`(
+CREATE PROCEDURE `prc_WSGenerateRateTableDID`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
@@ -24,6 +24,8 @@ CREATE  PROCEDURE `prc_WSGenerateRateTableDID`(
 	IN `p_delete_exiting_rate` INT,
 	IN `p_EffectiveRate` VARCHAR(50),
 	IN `p_ModifiedBy` VARCHAR(50)
+
+
 
 
 
@@ -112,6 +114,7 @@ GenerateRateTable:BEGIN
 				CollectionCostPercentage double(18,4),
 				RegistrationCostPerNumber double(18,4),
 
+
 				OneOffCostCurrency int,
 				MonthlyCostCurrency int,
 				CostPerCallCurrency int,
@@ -161,6 +164,7 @@ GenerateRateTable:BEGIN
 				CollectionCostPercentage double(18,4),
 				RegistrationCostPerNumber double(18,4),
 
+
 				OneOffCostCurrency int,
 				MonthlyCostCurrency int,
 				CostPerCallCurrency int,
@@ -173,7 +177,6 @@ GenerateRateTable:BEGIN
 				ChargebackCurrency int,
 				CollectionCostAmountCurrency int,
 				RegistrationCostPerNumberCurrency int,
-
 
 
 
@@ -328,7 +331,13 @@ GenerateRateTable:BEGIN
 				minutes int
 			);
 
-	set @p_RateGeneratorId = p_RateGeneratorId;
+			DROP TEMPORARY TABLE IF EXISTS tmp_NoOfServicesContracted;
+			CREATE TEMPORARY TABLE tmp_NoOfServicesContracted (
+				VendorID int,
+				NoOfServicesContracted int
+			);
+
+			set @p_RateGeneratorId = p_RateGeneratorId;
 
 
 		IF p_rateTableName IS NOT NULL
@@ -384,7 +393,7 @@ GenerateRateTable:BEGIN
 			IFNULL(Prefix,''),
 			IFNULL(AppliedTo,''),
 			IFNULL(Reseller,''),
-
+			NoOfServicesContracted,
 
 
 			IF( percentageRate = '' OR percentageRate is null	,0, percentageRate )
@@ -404,7 +413,7 @@ GenerateRateTable:BEGIN
 			@p_Prefix,
 			@p_AppliedTo,
 			@p_Reseller,
-
+			@p_NoOfServicesContracted,
 
 			@v_percentageRate_
 		FROM tblRateGenerator
@@ -512,6 +521,26 @@ GenerateRateTable:BEGIN
 
 			SET @p_Prefix = TRIM(LEADING '0' FROM @p_Prefix);
 
+
+			IF @p_NoOfServicesContracted = 0 THEN
+
+				insert into tmp_NoOfServicesContracted (VendorID,NoOfServicesContracted)
+				select VendorID,count(CLI) as NoOfServicesContracted
+				from  tblCLIRateTable
+				where
+					CompanyID  = @v_CompanyId_
+					AND VendorID > 0
+					AND Status = 1
+					AND NumberEndDate >= current_date()
+
+				group by VendorID;
+
+			ELSE
+
+				insert into tmp_NoOfServicesContracted (VendorID,NoOfServicesContracted)
+				select null,@p_NoOfServicesContracted;
+
+			END IF ;
 
 			IF @p_Calls = 0 AND @p_Minutes = 0 THEN
 
@@ -736,29 +765,58 @@ GenerateRateTable:BEGIN
 										* (drtr.OneOffCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
 								END as OneOffCost,
-								@MonthlyCost := ( ( CASE WHEN ( MonthlyCostCurrency is not null)
-								THEN
-
-								CASE WHEN  @v_CurrencyID_ = MonthlyCostCurrency THEN
-									drtr.MonthlyCost
-								ELSE
+								@MonthlyCost :=
 								(
+											(
+												CASE WHEN ( MonthlyCostCurrency is not null)
+												THEN
 
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_  )
-									* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = @v_CompanyId_ ))
+												CASE WHEN  @v_CurrencyID_ = MonthlyCostCurrency THEN
+													drtr.MonthlyCost
+												ELSE
+												(
+
+													(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_  )
+													* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = @v_CompanyId_ ))
+												)
+												END
+
+												WHEN  ( @v_CurrencyID_ = rt.CurrencyID ) THEN
+													drtr.MonthlyCost
+												ELSE
+													(
+
+														(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
+														* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
+													)
+												END * @v_months
+											)
+
+								+
+											-- @TrunkCostPerService :=
+										IFNULL(
+										(
+											(
+												CASE WHEN ( vtc.CurrencyID is not null)
+												THEN
+													CASE WHEN  @v_CurrencyID_ = vtc.CurrencyID THEN
+														vtc.Cost
+													ELSE
+													(
+
+														(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_)
+														* (vtc.Cost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = vtc.CurrencyID and  CompanyID = @v_CompanyId_ ))
+													)
+
+													END
+												ELSE
+													0
+												END
+											) / (select NoOfServicesContracted from  tmp_NoOfServicesContracted sc where sc.VendorID is null or sc.VendorID  = a.AccountID )
+										),0)
+
 								)
-								END
-
-								WHEN  ( @v_CurrencyID_ = rt.CurrencyID ) THEN
-									drtr.MonthlyCost
-								ELSE
-									(
-
-										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
-										* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
-									)
-								END) * @v_months) as MonthlyCost,
-
+								as MonthlyCost,
 								@CostPerCall := CASE WHEN ( CostPerCallCurrency is not null)
 								THEN
 
@@ -1016,6 +1074,9 @@ GenerateRateTable:BEGIN
 								END as RegistrationCostPerNumber,
 
 
+
+
+
 								OneOffCostCurrency,
 								MonthlyCostCurrency,
 								CostPerCallCurrency,
@@ -1028,6 +1089,7 @@ GenerateRateTable:BEGIN
 								ChargebackCurrency,
 								CollectionCostAmountCurrency,
 								RegistrationCostPerNumberCurrency,
+
 
 
 
@@ -1055,6 +1117,7 @@ GenerateRateTable:BEGIN
 				inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId
 				 inner join tblVendorConnection vc on vc.RateTableID = rt.RateTableId and vc.DIDCategoryID = rt.DIDCategoryID and vc.CompanyID = rt.CompanyId  and vc.Active=1
 				inner join tblAccount a on vc.AccountId = a.AccountID and rt.CompanyId = a.CompanyId
+				left join tblVendorTrunkCost vtc on vtc.AccountID = a.AccountID
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		 		inner join tblCountry c on c.CountryID = r.CountryID
@@ -1180,28 +1243,58 @@ GenerateRateTable:BEGIN
 										* (drtr.OneOffCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
 									)
 								END as OneOffCost,
-								@MonthlyCost := ( ( CASE WHEN ( MonthlyCostCurrency is not null)
-								THEN
-
-								CASE WHEN  @v_CurrencyID_ = MonthlyCostCurrency THEN
-									drtr.MonthlyCost
-								ELSE
+								@MonthlyCost :=
 								(
+											(
+												CASE WHEN ( MonthlyCostCurrency is not null)
+												THEN
 
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_  )
-									* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = @v_CompanyId_ ))
+												CASE WHEN  @v_CurrencyID_ = MonthlyCostCurrency THEN
+													drtr.MonthlyCost
+												ELSE
+												(
+
+													(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_  )
+													* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = MonthlyCostCurrency and  CompanyID = @v_CompanyId_ ))
+												)
+												END
+
+												WHEN  ( @v_CurrencyID_ = rt.CurrencyID ) THEN
+													drtr.MonthlyCost
+												ELSE
+													(
+
+														(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
+														* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
+													)
+												END * @v_months
+											)
+
+								+
+											-- @TrunkCostPerService :=
+										IFNULL(
+										(
+											(
+												CASE WHEN ( vtc.CurrencyID is not null)
+												THEN
+													CASE WHEN  @v_CurrencyID_ = vtc.CurrencyID THEN
+														vtc.Cost
+													ELSE
+													(
+
+														(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_)
+														* (vtc.Cost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = vtc.CurrencyID and  CompanyID = @v_CompanyId_ ))
+													)
+
+													END
+												ELSE
+													0
+												END
+											) / (select NoOfServicesContracted from  tmp_NoOfServicesContracted sc where sc.VendorID is null or sc.VendorID  = a.AccountID )
+										),0)
+
 								)
-								END
-
-								WHEN  ( @v_CurrencyID_ = rt.CurrencyID ) THEN
-									drtr.MonthlyCost
-								ELSE
-									(
-
-										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId =  @v_CurrencyID_  and  CompanyID = @v_CompanyId_ )
-										* (drtr.MonthlyCost  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = rt.CurrencyID and  CompanyID = @v_CompanyId_ ))
-									)
-								END) * @v_months) as MonthlyCost,
+								as MonthlyCost,
 
 								@CostPerCall := CASE WHEN ( CostPerCallCurrency is not null)
 								THEN
@@ -1499,6 +1592,7 @@ GenerateRateTable:BEGIN
 				inner join tblRateTable  rt on rt.RateTableId = drtr.RateTableId
 				 inner join tblVendorConnection vc on vc.RateTableID = rt.RateTableId and vc.DIDCategoryID = rt.DIDCategoryID and vc.CompanyID = rt.CompanyId  and vc.Active=1
 				inner join tblAccount a on vc.AccountId = a.AccountID and rt.CompanyId = a.CompanyId
+				left join tblVendorTrunkCost vtc on vtc.AccountID = a.AccountID
 				inner join tblRate r on drtr.RateID = r.RateID and r.CompanyID = vc.CompanyID
 				left join tblRate r2 on drtr.OriginationRateID = r2.RateID and r.CompanyID = vc.CompanyID
 		 		inner join tblCountry c on c.CountryID = r.CountryID
@@ -1536,6 +1630,7 @@ GenerateRateTable:BEGIN
 				)
 
 			;
+
 
 
 			delete t1 from tmp_table_without_origination t1 inner join tmp_table_with_origination t2 on t1.VendorID = t2.VendorID and t1.TimezonesID = t2.TimezonesID and t1.Code = t2.Code;
@@ -2462,7 +2557,7 @@ GenerateRateTable:BEGIN
 
 
 
-
+		-- leave GenerateRateTable;
 
 
 
@@ -3661,7 +3756,14 @@ GenerateRateTable:BEGIN
 
 			END WHILE;
 
-			SELECT RoundChargedAmount INTO @v_RoundChargedAmount from tblRateTable where RateTableID = @p_RateTableId  limit 1;
+
+
+		END IF;
+
+		commit;
+
+
+		SELECT RoundChargedAmount INTO @v_RoundChargedAmount from tblRateTable where RateTableID = @p_RateTableId  limit 1;
 
 
 
@@ -3721,10 +3823,6 @@ GenerateRateTable:BEGIN
 			END IF;
 
 
-		END IF;
-
-		commit;
-
 
 		IF (@v_RateApprovalProcess_ = 1 ) THEN
 
@@ -3737,7 +3835,15 @@ GenerateRateTable:BEGIN
 
 		END IF;
 
-		INSERT INTO tmp_JobLog_ (Message) VALUES (@p_RateTableId);
+		IF(@p_RateTableId > 0 ) THEN
+
+			INSERT INTO tmp_JobLog_ (Message) VALUES (@p_RateTableId);
+
+		ELSE
+
+			INSERT INTO tmp_JobLog_ (Message) VALUES ('No data found');
+
+		END IF;
 
 		SELECT * FROM tmp_JobLog_;
 
@@ -3749,7 +3855,6 @@ GenerateRateTable:BEGIN
 	END//
 DELIMITER ;
 
-
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

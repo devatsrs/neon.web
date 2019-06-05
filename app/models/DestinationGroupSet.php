@@ -22,7 +22,7 @@ class DestinationGroupSet extends \Eloquent
 
     public static function  getRateTypeIDList(){
         $row = RateType::where('Active', 1)->orderBy('Title','asc')->lists('Title','RateTypeID');
-        $row = array(""=> "All") + $row;
+        $row = array(""=> "Select") + $row;
         return $row;
 
     }
@@ -106,7 +106,11 @@ class DestinationGroupSet extends \Eloquent
             $sort_column = $columns[$post_data['iSortCol_0']];
             $query = "call prc_getDestinationGroupSet(" . $CompanyID . ",'" . $Name . "','" . intval($CodedeckID) . "'," . (ceil($post_data['iDisplayStart'] / $post_data['iDisplayLength'])) . " ," . $post_data['iDisplayLength'] . ",'" . $sort_column . "','" . $post_data['sSortDir_0'] ."','". $RateTypeID ."'";
             if (isset($post_data['Export']) && $post_data['Export'] == 1) {
-                $result = DB::select($query . ',1)');
+                $query = $query . ',1)';
+                Log::info($query);
+                 $result = DB::select($query);
+                return $result;
+
             } else {
                 $query .= ',0)';
                 Log::info($query);

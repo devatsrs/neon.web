@@ -92,6 +92,8 @@
                     </select>
                 </div>
 
+                <input name="ResellerPage" type="hidden" value="{{!empty($ResellerPage) ? $ResellerPage : 0}}" >
+
                 <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
@@ -118,36 +120,38 @@
 <h3>View Rate Table</h3>
 
 <div class="row" style="margin-bottom: 10px;">
-    <div  class="col-md-12">
-        <div class="input-group-btn pull-right hidden dropdown" style="width:70px;">
-            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                {{--@if($isBandTable)--}}
-                    @if(User::checkCategoryPermission('RateTables','Add') )
-                        <li><a href="javascript:void(0)" id="add-new-rate"><i class="entypo-plus"></i><span>Add New</span></a></li>
+    @if(empty($ResellerPage))
+        <div  class="col-md-12">
+            <div class="input-group-btn pull-right hidden dropdown" style="width:70px;">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                    {{--@if($isBandTable)--}}
+                        @if(User::checkCategoryPermission('RateTables','Add') )
+                            <li><a href="javascript:void(0)" id="add-new-rate"><i class="entypo-plus"></i><span>Add New</span></a></li>
+                        @endif
+                    {{--@endif--}}
+                    @if(User::checkCategoryPermission('RateTables','Edit') )
+                        <li><a href="javascript:void(0)" id="change-bulk-rate"><i class="entypo-pencil"></i><span>Change Selected</span></a></li>
                     @endif
-                {{--@endif--}}
-                @if(User::checkCategoryPermission('RateTables','Edit') )
-                    <li><a href="javascript:void(0)" id="change-bulk-rate"><i class="entypo-pencil"></i><span>Change Selected</span></a></li>
-                @endif
-                @if(User::checkCategoryPermission('RateTables','Delete') )
-                    <li><a href="javascript:void(0)" id="clear-bulk-rate"><i class="entypo-trash"></i><span>Delete Selected</span></a></li>
-                @endif
-                @if(User::checkCategoryPermission('RateTables','ApprovalProcess') )
-                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                        <li><a href="javascript:void(0)" id="approve-bulk-rate"><i class="entypo-check"></i><span>Approve Selected</span></a></li>
-                        <li><a href="javascript:void(0)" id="disapprove-bulk-rate"><i class="entypo-cancel"></i><span>Reject Selected</span></a></li>
+                    @if(User::checkCategoryPermission('RateTables','Delete'))
+                        <li><a href="javascript:void(0)" id="clear-bulk-rate"><i class="entypo-trash"></i><span>Delete Selected</span></a></li>
                     @endif
-                @endif
-            </ul>
-        </div><!-- /btn-group -->
+                    @if(User::checkCategoryPermission('RateTables','ApprovalProcess') )
+                        @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                            <li><a href="javascript:void(0)" id="approve-bulk-rate"><i class="entypo-check"></i><span>Approve Selected</span></a></li>
+                            <li><a href="javascript:void(0)" id="disapprove-bulk-rate"><i class="entypo-cancel"></i><span>Reject Selected</span></a></li>
+                        @endif
+                    @endif
+                </ul>
+            </div><!-- /btn-group -->
 
-        {{--@if(User::checkCategoryPermission('VendorRates','History'))--}}
-        <button class="btn btn-primary pull-right" onclick="location.href='{{ URL::to('/rate_upload/'.$id.'/'.RateUpload::ratetable) }}'">
-            <i class="fa fa-upload"></i> Upload Rates
-        </button>
-        {{--@endif--}}
-    </div>
+            {{--@if(User::checkCategoryPermission('VendorRates','History'))--}}
+            <button class="btn btn-primary pull-right" onclick="location.href='{{ URL::to('/rate_upload/'.$id.'/'.RateUpload::ratetable) }}'">
+                <i class="fa fa-upload"></i> Upload Rates
+            </button>
+            {{--@endif--}}
+        </div>
+    @endif
 </div>
 <form id="clear-bulk-rate-form" >
     <input type="hidden" name="RateTableRateID" />
@@ -178,6 +182,7 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
+            <th width="3%">Dest. Type</th>
             <th width="3%">Time of Day</th>
             <th width="4%" id="OCode-Header">Orig. Code</th>
             <th width="10%">Orig. Description</th>
@@ -211,7 +216,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','TimezoneTitle','OriginationCode','OriginationDescription','Code','Description','MinimumDuration','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate','RateCurrency','ConnectionFeeCurrency','RateCurrencySymbol','ConnectionFeeCurrencySymbol','TimezonesID'];
+        var list_fields  = ['ID','DestinationType','TimezoneTitle','OriginationCode','OriginationDescription','Code','Description','MinimumDuration','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate','RateCurrency','ConnectionFeeCurrency','RateCurrencySymbol','ConnectionFeeCurrencySymbol','TimezonesID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -655,6 +660,7 @@
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
         $searchFilter.RoutingCategoryID = RoutingCategoryID = $("#rate-table-search select[name='RoutingCategoryID']").val() != undefined ? $("#rate-table-search select[name='RoutingCategoryID']").val() : '';
 
+        $searchFilter.ResellerPage = ResellerPage = $('#rate-table-search [name="ResellerPage"]').val();
 
         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
         $searchFilter.Preference = Preference = $("#rate-table-search input[name='Preference']").val();
@@ -677,9 +683,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "ResellerPage", "value": ResellerPage});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "ResellerPage", "value": ResellerPage});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -694,19 +700,19 @@
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                                 if (full[24] == {{RateTable::RATE_STATUS_REJECTED}}) {
                                     html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
-                                } else if (full[24] == {{RateTable::RATE_STATUS_APPROVED}}) {
+                                } else if (full[25] == {{RateTable::RATE_STATUS_APPROVED}}) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
-                                } else if (full[24] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                } else if (full[25] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                     html += '<i class="fa fa-hourglass-1" title="Awaiting Approval" style="color: grey; "></i>';
-                                } else if (full[24] == {{RateTable::RATE_STATUS_DELETE}}) {
+                                } else if (full[25] == {{RateTable::RATE_STATUS_DELETE}}) {
                                     html += '<i class="fa fa-trash" title="Awaiting Approval Delete" style="color: red; "></i>';
                                 }
                                 @endif
 
                                 @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                                if (full[23] == 0) {
+                                if (full[24] == 0) {
                                     html += '<i class="entypo-lock-open" title="Unblocked" style="color: green; "></i>';
-                                } else if (full[23] == 1) {
+                                } else if (full[24] == 1) {
                                     html += '<i class="entypo-lock" title="Blocked" style="color: red; "></i>';
                                 }
                                 @endif
@@ -714,11 +720,12 @@
                                 return html;
                             }
                         }, //0Checkbox
-                        {}, //1 Timezone Title
+                        {}, //1 Destination Type
+                        {}, //2 Timezone Title
                         {
                             mRender: function(id, type, full) {
                                 if(view==1) {
-                                    return full[2];
+                                    return full[3];
                                 }else
                                     return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
                             },
@@ -726,83 +733,83 @@
                             "orderable":      false,
                             "data": null,
                             "defaultContent": ''
-                        }, //2 Origination Code
-                        {}, //3 Origination description
+                        }, //3 Origination Code
+                        {}, //4 Origination description
                         {
                             "bVisible" : view == 1 ? true : false,
                             mRender: function(col, type, full) {
                                 return view == 1 ? col : '';
                             }
-                        }, //4 Destination Code
-                        {}, //5 Destination description
-                        {}, //6 Min. Duration
+                        }, //5 Destination Code
+                        {}, //6 Destination description
+                        {}, //7 Min. Duration
                         {
                             mRender: function(id, type, full) {
-                                return full[7] + '/' + full[8]; // interval1/intervalN
+                                return full[8] + '/' + full[9]; // interval1/intervalN
                             }
-                        }, //7 interval 1
+                        }, //8 interval 1
                         {
                             "bVisible" : false
-                        }, //8 interval n
+                        }, //9 interval n
                         {
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[30] + col; else return '';  //ConnectionFeeCurrency+ConnectionFee
+                                if(col != null && col != '') return full[31] + col; else return '';  //ConnectionFeeCurrency+ConnectionFee
                             }
-                        }, //9 ConnectionFee
+                        }, //10 ConnectionFee
                         {
                             "bVisible" : bVisible
-                        }, //10 PreviousRate
+                        }, //11 PreviousRate
                         {
                             mRender: function(col, type, full) {
-                                var rate_html = full[29] + col; //RateCurrency+Rate
-                                if(col > full[10])
+                                var rate_html = full[30] + col; //RateCurrency+Rate
+                                if(col > full[11])
                                     rate_html = rate_html+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
-                                else if(col < full[10])
+                                else if(col < full[11])
                                     rate_html = rate_html+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
                                 return rate_html;
                             }
-                        }, //11 Rate
+                        }, //12 Rate
                         {
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[29] + col; else return '';  //RateCurrency+RateN
+                                if(col != null && col != '') return full[30] + col; else return '';  //RateCurrency+RateN
                             }
-                        }, //12 RateN
-                        {}, //13 Effective Date
-                        {"bVisible" : false}, //13 End Date
+                        }, //13 RateN
+                        {}, //14 Effective Date
+                        {"bVisible" : false}, //15 End Date
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[15] = full[15] != null ? full[15] : '';
                                 full[16] = full[16] != null ? full[16] : '';
-                                if(full[15] != '' && full[16] != '')
-                                    return full[16] + '<br/>' + full[15]; // modified by/modified date
+                                full[17] = full[17] != null ? full[17] : '';
+                                if(full[16] != '' && full[17] != '')
+                                    return full[17] + '<br/>' + full[16]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //16/15 modified by/modified date
+                        }, //17/16 modified by/modified date
                         {
                             "bVisible" : bVisibleApprovedStatus,
                             mRender: function(id, type, full) {
-                                full[25] = full[25] != null ? full[25] : '';
                                 full[26] = full[26] != null ? full[26] : '';
-                                if(full[25] != '' && full[26] != '')
-                                    return full[25] + '<br/>' + full[26]; // approved Status Changed by/date
+                                full[27] = full[27] != null ? full[27] : '';
+                                if(full[26] != '' && full[27] != '')
+                                    return full[26] + '<br/>' + full[27]; // approved Status Changed by/date
                                 else
                                     return '';
                             }
-                        }, //25/26 Approved Status Changed By/Approved Date
+                        }, //26/27 Approved Status Changed By/Approved Date
                         {
                             "bVisible" : bVisibleRoutingCategory,
                             mRender: function(id, type, full) {
-                                return full[21]
+                                return full[22]
                             }
-                        }, //20 RoutingCategoryName
+                        }, //22 RoutingCategoryName
                         {
                             "bVisible" : bVisiblePreferenceBlock,
                             mRender: function(id, type, full) {
-                                return full[22]
+                                return full[23]
                             }
-                        }, //21 Preference
+                        }, //23 Preference
                         {
                             "bSortable" : false,
                             "bVisible" : bVisible,
@@ -816,12 +823,12 @@
 
                                 $('#actionheader').attr('width','10%');
                                 clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
-                                clerRate_ = clerRate_.replace('{id}', full[17]);
+                                clerRate_ = clerRate_.replace('{id}', full[18]);
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
                                     // if awaiting approval rates then show Edit button else hide it
-                                    if(full[24] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                    if(full[25] == {{RateTable::RATE_STATUS_AWAITING}}) {
                                         action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
                                     }
                                 }
@@ -832,10 +839,12 @@
                                     action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
                                 }
 
-                                if (full[17] != null && full[17] != 0) {
+                                if (full[18] != null && full[18] != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
-                                        action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
+                                        @if(empty($ResellerPage))
+                                            action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
+                                        @endif
                                     }
                                     <?php } ?>
                                 }

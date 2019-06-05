@@ -72,6 +72,10 @@
                     <label class="control-label">Minutes</label>
                     <input type="number" min="0" name="Minutes" class="form-control" id="field-15" placeholder="" />
                 </div>
+                <div class="form-group NoOfServicesContracted">
+                    <label for="field-1" class="control-label">No Of Services</label>
+                    {{Form::number('NoOfServicesContracted','' ,array("class"=>"form-control","min" => "0"))}}
+                </div>
                 <div class="form-group" id="Timezone">
                     <label class="control-label">Time Of Day</label>
                     {{ Form::select('Timezone', $Timezones, '', array("class"=>"select2")) }}
@@ -164,6 +168,7 @@
 
 
         jQuery(document).ready(function($) {
+            $('#filter-button-toggle').show();
             var accbtnval=$('.didbutton').text();
             var packbtnval=$('.packageoption').text();
 
@@ -175,6 +180,8 @@
             $('.packagediv').show();
             $('.productdiv').hide();
             $('.productcategory').hide();
+            $('.NoOfServicesContracted').hide();
+
             $('#Origination').hide();
             $('#OriginationPercentage').hide();
             if (packbtnval == "Package") {
@@ -196,6 +203,7 @@
             $('.packagediv').hide();
             $('.productdiv').show();
             $('.productcategory').show();
+            $('.NoOfServicesContracted').show();
             $('#Origination').show();
             $('#OriginationPercentage').show();
             if (packbtnval == "Package") {
@@ -219,6 +227,7 @@
                     $('.packagediv').show();
                     $('.productdiv').hide();
                     $('.productcategory').hide();
+                    $('.NoOfServicesContracted').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
                     $('.didbutton').html(packbtnval+' <span class="caret"></span>');
@@ -231,6 +240,7 @@
                     $('.packagediv').hide();
                     $('.productdiv').show();
                     $('.productcategory').show();
+                    $('.NoOfServicesContracted').show();
                     $('#Origination').show();
                     $('#OriginationPercentage').show();
                 }
@@ -252,6 +262,7 @@
                     $('.packagediv').show();
                     $('.productdiv').hide();
                     $('.productcategory').hide();
+                    $('.NoOfServicesContracted').hide();
                     $('#Origination').hide();
                     $('#OriginationPercentage').hide();
                     if (packbtnval == "Package") {
@@ -270,6 +281,7 @@
                     $('.packagediv').hide();
                     $('.productdiv').show();
                     $('.productcategory').show();
+                    $('.NoOfServicesContracted').show();
                     $('#Origination').show();
                     $('#OriginationPercentage').show();
                     if (packbtnval == "Package") {
@@ -323,7 +335,7 @@
                 $searchFilter.OriginationPercentage       = $("#did-search-form input[name='OriginationPercentage']").val();
                 $searchFilter.DateTo                     = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom                   = $("#did-search-form input[name='DateFrom']").val();
-
+                $searchFilter.ServicesContracted         = $("#did-search-form input[name='NoOfServicesContracted']").val();
                 $searchFilter.lcr_type                   = $("#did-search-form input[name='lcr_type']").val();
                 $searchFilter.PackageID                  = $("#did-search-form select[name='PackageID']").val();
                 $searchFilter.lcrType = '';
@@ -808,7 +820,9 @@
                                 {"name": "DateTo", "value": $searchFilter.DateTo},
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
-                                {"name": "PackageID", "value": $searchFilter.PackageID}
+                                {"name": "PackageID", "value": $searchFilter.PackageID},
+                                {"name": "NoOfServicesContracted", "value": $searchFilter.ServicesContracted}
+                                
 
                         );
                         data_table_extra_params.length = 0;
@@ -832,6 +846,7 @@
                                 {"name": "DateFrom", "value": $searchFilter.DateFrom},
                                 {"name": "lcr_type", "value": $searchFilter.lcr_type},
                                 {"name": "PackageID", "value": $searchFilter.PackageID},
+                                {"name": "NoOfServicesContracted", "value": $searchFilter.ServicesContracted},
 
                                 {"name":"Export","value":1}
                         );
