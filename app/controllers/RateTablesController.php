@@ -453,22 +453,22 @@ class RateTablesController extends \BaseController {
                     }
                 }
                 if(!empty($data['updateMinimumDuration'])) {
-                    if(!empty($data['MinimumDuration'])) {
-                        $MinimumDuration = "'".$data['MinimumDuration']."'";
+                    if(isset($data['MinimumDuration'])) {
+                        $MinimumDuration = "'".trim($data['MinimumDuration'])."'";
                     } else {
                         $error=1;
                     }
                 }
                 if(!empty($data['updateInterval1'])) {
-                    if(!empty($data['Interval1'])) {
-                        $Interval1 = "'".$data['Interval1']."'";
+                    if(isset($data['Interval1'])) {
+                        $Interval1 = "'".trim($data['Interval1'])."'";
                     } else {
                         $error=1;
                     }
                 }
                 if(!empty($data['updateIntervalN'])) {
-                    if(!empty($data['IntervalN'])) {
-                        $IntervalN = "'".$data['IntervalN']."'";
+                    if(isset($data['IntervalN'])) {
+                        $IntervalN = "'".trim($data['IntervalN'])."'";
                     } else {
                         $error=1;
                     }
@@ -761,11 +761,18 @@ class RateTablesController extends \BaseController {
                 ->leftjoin('tblDIDCategory','tblDIDCategory.DIDCategoryID','=','tblRateTable.DIDCategoryID')
                 ->leftjoin('tblCustomerTrunk','tblCustomerTrunk.CustomerTrunkID','=',DB::RAW('(SELECT CustomerTrunkID FROM tblCustomerTrunk WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
                 ->leftjoin('tblVendorConnection','tblVendorConnection.VendorConnectionID','=',DB::RAW('(SELECT VendorConnectionID FROM tblVendorConnection WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
-                ->leftjoin('tblReseller','tblReseller.ResellerID','=','tblRateTable.Reseller')
-                ->select([DB::RAW($Partner),DB::RAW($Type),DB::RAW($AppliedTo),'tblRateTable.RateTableName','tblCurrency.Code AS Currency', 'tblTrunk.Trunk as Trunk', 'tblDIDCategory.CategoryName as AccessCategory','tblCodeDeck.CodeDeckName AS Codedeck','tblRateTable.updated_at AS LastUpdated']);
-            //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
+                ->leftjoin('tblReseller','tblReseller.ResellerID','=','tblRateTable.Reseller');
+
 
             $data = Input::all();
+
+            if(!empty($data['ResellerPage'])) {
+                $rate_tables->select([DB::RAW($Type),'tblRateTable.RateTableName','tblCurrency.Code AS Currency', 'tblTrunk.Trunk as Trunk', 'tblDIDCategory.CategoryName as AccessCategory','tblCodeDeck.CodeDeckName AS Codedeck','tblRateTable.updated_at AS LastUpdated']);
+            } else {
+                $rate_tables->select([DB::RAW($Partner),DB::RAW($Type),DB::RAW($AppliedTo),'tblRateTable.RateTableName','tblCurrency.Code AS Currency', 'tblTrunk.Trunk as Trunk', 'tblDIDCategory.CategoryName as AccessCategory','tblCodeDeck.CodeDeckName AS Codedeck','tblRateTable.updated_at AS LastUpdated']);
+            }
+
+            //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
 
             if(!empty($data['ResellerPage'])) {
                 $ResellerID = Reseller::getResellerID();

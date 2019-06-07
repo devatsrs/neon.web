@@ -570,7 +570,7 @@ function bulk_update(fullurl,data){
 @parent
 <div class="modal fade" id="modal-fileformat">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content modal-lg ">
 
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -579,15 +579,15 @@ function bulk_update(fullurl,data){
 
 
 
-            <div class="modal-body">
+            <div class="modal-body" style="overflow-x: scroll;">
             <p>All columns are mandatory and the first line should have the column headings.</p>
-                        <table class="table responsive">
+                        <table class="table datatable">
                             <thead>
                                 <tr>
                                     <th class="hide_country">Country(Optional)</th>
                                     <th>Code</th>
                                     <th>Description</th>
-                                    <th>Type</th>
+                                    <th>Type(Opt.)</th>
                                     <th>Action</th>
                                     <th>Interval1(Opt.)</th>
                                     <th>IntervalN(Opt.)</th>
