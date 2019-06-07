@@ -272,6 +272,11 @@
                 RateTableRateIDs[i++] = RateTableRateID;
             });
 
+            var $clickedButton = $(this);
+            if(typeof $clickedButton.attr('disabled') !== typeof undefined && $clickedButton.attr('disabled') !== false) {
+                return false;
+            }
+
             if(RateTableRateIDs.length || $(this).hasClass('clear-rate-table')) {
                 response = confirm('Are you sure?');
                 if (response) {
@@ -302,6 +307,11 @@
                         }
                     }
 
+                    $clickedButton.attr('disabled','disabled');
+                    if($clickedButton.attr('id') == 'clear-bulk-rate') {
+                        $clickedButton.html('<i class="entypo-trash"></i><span>Deleting...</span>');
+                    }
+
                     var formData = new FormData($('#clear-bulk-rate-form')[0]);
                     formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
 
@@ -310,6 +320,10 @@
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
+                            $clickedButton.removeAttr('disabled');
+                            if($clickedButton.attr('id') == 'clear-bulk-rate') {
+                                $clickedButton.html('<i class="entypo-trash"></i><span>Delete Selected</span>');
+                            }
                             $(".save.btn").button('reset');
 
                             if (response.status == 'success') {
@@ -828,7 +842,7 @@
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
                                     // if awaiting approval rates then show Edit button else hide it
-                                    if(full[25] == {{RateTable::RATE_STATUS_AWAITING}}) {
+                                    if(full[25] == {{RateTable::RATE_STATUS_AWAITING}} || {{$RateApprovalProcess}} != 1 || {{$rateTable->AppliedTo}} == {{RateTable::APPLIED_TO_VENDOR}}) {
                                         action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
                                     }
                                 }
@@ -1018,7 +1032,7 @@
                 });
 
                 // if approved rates then show Bulk update button else hide it
-                if($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}}) {
+                if({{$RateApprovalProcess}} != 1 || {{$rateTable->AppliedTo}} == {{RateTable::APPLIED_TO_VENDOR}} || ($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}})) {
                     if (Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
                         $('#change-bulk-rate').hide();
                     } else {
