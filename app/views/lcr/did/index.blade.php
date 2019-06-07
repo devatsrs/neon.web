@@ -375,7 +375,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[1] != null) {
-                                    var array = full[1].split(';');
+                                    var array = full[1].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -390,7 +390,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[2] != null) {
-                                    var array = full[2].split(';');
+                                    var array = full[2].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -405,7 +405,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[3] != null) {
-                                    var array = full[3].split(';');
+                                    var array = full[3].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -420,7 +420,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[4] != null) {
-                                    var array = full[4].split(';');
+                                    var array = full[4].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -435,7 +435,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[5] != null) {
-                                    var array = full[5].split(';');
+                                    var array = full[5].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -491,7 +491,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[1] != null) {
-                                    var array = full[1].split(';');
+                                    var array = full[1].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -506,7 +506,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[2] != null) {
-                                    var array = full[2].split(';');
+                                    var array = full[2].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -521,7 +521,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[3] != null) {
-                                    var array = full[3].split(';');
+                                    var array = full[3].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -536,7 +536,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[4] != null) {
-                                    var array = full[4].split(';');
+                                    var array = full[4].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -551,7 +551,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[5] != null) {
-                                    var array = full[5].split(';');
+                                    var array = full[5].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -566,7 +566,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[6] != null) {
-                                    var array = full[6].split(';');
+                                    var array = full[6].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -581,7 +581,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[7] != null) {
-                                    var array = full[7].split(';');
+                                    var array = full[7].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -596,7 +596,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[8] != null) {
-                                    var array = full[8].split(';');
+                                    var array = full[8].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -611,7 +611,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[9] != null) {
-                                    var array = full[9].split(';');
+                                    var array = full[9].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
@@ -626,7 +626,7 @@
                         { "bSortable": false,
                             mRender: function (id, type, full) {
                                 if (full[10] != null) {
-                                    var array = full[10].split(';');
+                                    var array = full[10].split('<br>');
                                     var html = "<table>";
                                     html += "<tr><td>" + array[0] + "</td></tr>";
                                     html += "<tr><td>" + array[1] + "</td></tr>";
