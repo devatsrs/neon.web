@@ -33,7 +33,7 @@ class LCRDIDController extends \BaseController {
         //$data['ProductID'] = 1; // 1 for local testing , 27825 for staging testing else "Geo number Argentina; Prefix:011"
         if($data['lcr_type']=='Y'){
 
-            $query = "call prc_GetPACKAGELCR(".$companyID.", '".$data['PackageID']."', '".$data['Currency']."' , '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['DateFrom']."','".$data['DateTo']."'";
+            $query = "call prc_GetPackageLCR(".$companyID.", '".$data['PackageID']."' ,'".$data['Currency']."' , '".intval($data['LCRPosition'])."' ,'".$data['EffectiveDate']."','".$data['Calls']."','".$data['Minutes']."','".$data['Timezone']."','".$data['TimezonePercentage']."','".$data['DateFrom']."','".$data['DateTo']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."'";
 
                 if(isset($data['Export']) && $data['Export'] == 1) {
                     $excel_data  = DB::select($query.',1)');
