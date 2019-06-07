@@ -4103,7 +4103,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 			TimezonesID  int,
 			TimezoneTitle  varchar(100),
 			EffectiveDate DATE,
-			Code varchar(100),
+			PackageName varchar(100),
 			VendorID int,
 			VendorName varchar(200),
 			MonthlyCost DECIMAL(18,8),
@@ -4117,7 +4117,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 			TimezonesID  int,
 			TimezoneTitle  varchar(100),
 			EffectiveDate DATE,
-			Code varchar(100),
+			PackageName varchar(100),
 			VendorID int,
 			VendorName varchar(200),
 			MonthlyCost DECIMAL(18,8),
@@ -4144,7 +4144,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 		DROP TEMPORARY TABLE IF EXISTS tmp_table_output_1;
 		CREATE TEMPORARY TABLE tmp_table_output_1 (
 
-			Code varchar(100),
+			PackageName varchar(100),
 			VendorID int,
 			VendorName varchar(200),
 			EffectiveDate DATE,
@@ -4156,7 +4156,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 		DROP TEMPORARY TABLE IF EXISTS tmp_table_output_2;
 		CREATE TEMPORARY TABLE tmp_table_output_2 (
 
-			Code varchar(100),
+			PackageName varchar(100),
 			VendorID int,
 			VendorName varchar(200),
 			EffectiveDate DATE,
@@ -4169,7 +4169,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 		DROP TEMPORARY TABLE IF EXISTS tmp_final_table_output;
 		CREATE TEMPORARY TABLE tmp_final_table_output (
 
-			Code varchar(100),
+			PackageName varchar(100),
 			VendorID int,
 			VendorName varchar(200),
 			EffectiveDate DATE,
@@ -4309,7 +4309,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 			TimezonesID,
 			TimezoneTitle,
 			EffectiveDate,
-			Code,
+			PackageName,
 			VendorID,
 			VendorName,
 			MonthlyCost,
@@ -4321,7 +4321,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 				drtr.TimezonesID,
 				t.Title AS TimezoneTitle,
 				drtr.EffectiveDate,
-				r.Code,
+				pk.Name,
 				a.AccountID,
 				a.AccountName,
 
@@ -4400,7 +4400,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 				INNER JOIN tblVendorConnection vc ON vc.RateTableID = rt.RateTableId  AND vc.CompanyID = rt.CompanyId  AND vc.Active=1 AND vc.RateTypeID = @v_PackageType
 				INNER JOIN tblAccount a ON vc.AccountId = a.AccountID AND rt.CompanyId = a.CompanyId
 				INNER JOIN tblRate r ON drtr.RateID = r.RateID AND r.CompanyID = vc.CompanyID
-				LEFT JOIN tblPackage pk ON pk.CompanyID = r.CompanyID AND pk.RateTableId = rt.RateTableId AND  pk.Name = r.Code
+				INNER JOIN tblPackage pk ON pk.CompanyID = r.CompanyID AND pk.RateTableId = rt.RateTableId AND  pk.Name = r.Code
 				INNER JOIN tblTimezones t ON t.TimezonesID =  drtr.TimezonesID
 				left join tmp_timezone_minutes tm on tm.TimezonesID = t.TimezonesID
 
@@ -4408,7 +4408,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 
 				rt.CompanyId =  p_companyid
 
-				AND ( @p_PackageId = 0 OR (pk.PackageId = @p_PackageId AND pk.PackageId is not null) )
+				AND ( @p_PackageId = 0 OR pk.PackageId = @p_PackageId )
 
 				AND rt.Type = @v_PackageType
 
@@ -4423,7 +4423,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 			TimezonesID,
 			TimezoneTitle,
 			EffectiveDate,
-			Code,
+			PackageName,
 			VendorID,
 			VendorName,
 			MonthlyCost,
@@ -4436,7 +4436,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 				TimezonesID,
 				TimezoneTitle,
 				EffectiveDate,
-				Code,
+				PackageName,
 				VendorID,
 				VendorName,
 				MonthlyCost,
@@ -4448,38 +4448,38 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 			WHERE Total IS NOT NULL;
 
 
-		insert into tmp_table_output_1 (Code ,VendorID ,VendorName,EffectiveDate,Total)
-			select Code ,VendorID ,VendorName,max(EffectiveDate),sum(Total) as Total
+		insert into tmp_table_output_1 (PackageName ,VendorID ,VendorName,EffectiveDate,Total)
+			select PackageName ,VendorID ,VendorName,max(EffectiveDate),sum(Total) as Total
 			from tmp_table1_
-			group by Code ,VendorID ,VendorName;
+			group by PackageName ,VendorID ,VendorName;
 
 
-		insert into tmp_table_output_2   ( Code ,VendorID ,VendorName,EffectiveDate,Total,vPosition )
+		insert into tmp_table_output_2   ( PackageName ,VendorID ,VendorName,EffectiveDate,Total,vPosition )
 
-			SELECT Code, VendorID, VendorName, EffectiveDate, Total, vPosition
+			SELECT PackageName, VendorID, VendorName, EffectiveDate, Total, vPosition
 			FROM (
-						 select Code ,VendorID ,VendorName,EffectiveDate,Total,
+						 select PackageName ,VendorID ,VendorName,EffectiveDate,Total,
 							 @vPosition := (
-								 CASE WHEN (@prev_Code = Code /*AND  @prev_VendorID = VendorID */ AND @prev_Total <=  Total
+								 CASE WHEN (@prev_PackageName = PackageName /*AND  @prev_VendorID = VendorID */ AND @prev_Total <=  Total
 								 )
 									 THEN
 										 @vPosition + 1
 								 ELSE
 									 1
 								 END) as  vPosition,
-							 @prev_Code  := Code  ,
+							 @prev_PackageName  := PackageName  ,
 							 @prev_VendorID  := VendorID,
 							 @prev_Total := Total
 
 						 from tmp_table_output_1
-							 ,(SELECT  @vPosition := 0 , @prev_Code  := ''  , @prev_VendorID  := '', @prev_Total := 0 ) t
+							 ,(SELECT  @vPosition := 0 , @prev_PackageName  := ''  , @prev_VendorID  := '', @prev_Total := 0 ) t
 
-						 ORDER BY Code,Total,VendorID
+						 ORDER BY PackageName,Total,VendorID
 					 ) tmp;
 
 
-		insert into tmp_final_table_output ( Code ,VendorID ,VendorName,EffectiveDate, Total,vPosition)
-			select Code ,VendorID ,VendorName,EffectiveDate, concat( @p_CurrencySymbol, Total ), vPosition
+		insert into tmp_final_table_output ( PackageName ,VendorID ,VendorName,EffectiveDate, Total,vPosition)
+			select PackageName ,VendorID ,VendorName,EffectiveDate, concat( @p_CurrencySymbol, Total ), vPosition
 			from tmp_table_output_2
 			where vPosition  < @p_Position ;
 
@@ -4507,9 +4507,9 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 
 		IF (p_isExport = 0) THEN
 
-			SET @stm_query = CONCAT("SELECT Code, ", @stm_columns," FROM tmp_final_table_output GROUP BY Code ORDER BY Code LIMIT ",p_RowspPage," OFFSET ",@v_OffSet_," ;");
+			SET @stm_query = CONCAT("SELECT PackageName, ", @stm_columns," FROM tmp_final_table_output GROUP BY PackageName ORDER BY PackageName LIMIT ",p_RowspPage," OFFSET ",@v_OffSet_," ;");
 
-			select count(Code) as totalcount from tmp_final_table_output;
+			select count(PackageName) as totalcount from tmp_final_table_output;
 
 
 			PREPARE stm_query FROM @stm_query;
@@ -4518,7 +4518,7 @@ CREATE PROCEDURE `prc_GetPackageLCR`(
 
 		ELSE
 
-			SET @stm_query = CONCAT("SELECT Code, ", @stm_columns," FROM tmp_final_table_output GROUP BY Code ORDER BY Code ;");
+			SET @stm_query = CONCAT("SELECT PackageName, ", @stm_columns," FROM tmp_final_table_output GROUP BY PackageName ORDER BY PackageName ;");
 
 
 			PREPARE stm_query FROM @stm_query;
