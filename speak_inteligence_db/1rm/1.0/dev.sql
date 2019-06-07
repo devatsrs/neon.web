@@ -4051,6 +4051,491 @@ CREATE  PROCEDURE `prc_GetLCRwithPrefix`(
 	END//
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `prc_GetPackageLCR`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetPackageLCR`(
+	IN `p_companyid` INT,
+	IN `p_PackageId` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_Position` INT,
+	IN `p_SelectedEffectiveDate` DATE,
+	IN `p_Calls` INT,
+	IN `p_Minutes` INT,
+	IN `p_Timezone` INT,
+	IN `p_TimezonePercentage` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_SortOrder` VARCHAR(50),
+	IN `p_isExport` INT
+)
+		ThisSP:BEGIN
+
+
+
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+		SET @v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+		SELECT CurrencyId INTO @v_CompanyCurrencyID_ FROM  tblCompany WHERE CompanyID = p_companyid;
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_all_components;
+		CREATE TEMPORARY TABLE tmp_all_components(
+			ID int,
+			component VARCHAR(200),
+			component_title VARCHAR(200)
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_Timezones;
+		CREATE TEMPORARY TABLE tmp_Timezones(
+			ID int AUTO_INCREMENT,
+			TimezonesID int,
+			Title varchar(200),
+			Primary Key (ID )
+
+		);
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_table1_;
+		CREATE TEMPORARY TABLE tmp_table1_ (
+			TimezonesID  int,
+			TimezoneTitle  varchar(100),
+			EffectiveDate DATE,
+			Code varchar(100),
+			VendorID int,
+			VendorName varchar(200),
+			MonthlyCost DECIMAL(18,8),
+			PackageCostPerMinute DECIMAL(18,8),
+			RecordingCostPerMinute DECIMAL(18,8),
+			Total DECIMAL(18,8)
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_table_pkg;
+		CREATE TEMPORARY TABLE tmp_table_pkg (
+			TimezonesID  int,
+			TimezoneTitle  varchar(100),
+			EffectiveDate DATE,
+			Code varchar(100),
+			VendorID int,
+			VendorName varchar(200),
+			MonthlyCost DECIMAL(18,8),
+			PackageCostPerMinute DECIMAL(18,8),
+			RecordingCostPerMinute DECIMAL(18,8),
+			Total DECIMAL(18,8)
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_vendors;
+		CREATE TEMPORARY TABLE tmp_vendors (
+			ID  int AUTO_INCREMENT,
+			VendorName varchar(100),
+			vPosition int,
+			PRIMARY KEY (ID)
+		);
+
+
+		INSERT INTO tmp_all_components (ID, component , component_title )
+		VALUES
+			(1, 'MonthlyCost', 			'Monthly cost'),
+			(2, 'PackageCostPerMinute',			'Package Cost Per Minute'),
+			(3, 'RecordingCostPerMinute', 'Recording Cost Per Minute');
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_table_output_1;
+		CREATE TEMPORARY TABLE tmp_table_output_1 (
+
+			Code varchar(100),
+			VendorID int,
+			VendorName varchar(200),
+			EffectiveDate DATE,
+			Total DECIMAL(18,8)
+
+		);
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_table_output_2;
+		CREATE TEMPORARY TABLE tmp_table_output_2 (
+
+			Code varchar(100),
+			VendorID int,
+			VendorName varchar(200),
+			EffectiveDate DATE,
+			Total DECIMAL(18,8),
+			vPosition int
+
+		);
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_final_table_output;
+		CREATE TEMPORARY TABLE tmp_final_table_output (
+
+			Code varchar(100),
+			VendorID int,
+			VendorName varchar(200),
+			EffectiveDate DATE,
+			Total varchar(200),
+			vPosition int
+
+		);
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_final_result;
+		CREATE TEMPORARY TABLE tmp_final_result (
+			Component  varchar(100)
+		);
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_vendor_position;
+		CREATE TEMPORARY TABLE tmp_vendor_position (
+			VendorID int,
+			vPosition int
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_timezones;
+		CREATE TEMPORARY TABLE tmp_timezones (
+			ID int auto_increment,
+			TimezonesID int,
+			primary key (ID)
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_timezone_minutes;
+		CREATE TEMPORARY TABLE tmp_timezone_minutes (
+			TimezonesID int,
+			minutes int
+		);
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_timezone_minutes_2;
+		CREATE TEMPORARY TABLE tmp_timezone_minutes_2 (
+			TimezonesID int,
+			minutes int
+		);
+		DROP TEMPORARY TABLE IF EXISTS tmp_timezone_minutes_3;
+		CREATE TEMPORARY TABLE tmp_timezone_minutes_3 (
+			TimezonesID int,
+			minutes int
+		);
+
+		-- SET @p_Calls	 							 = p_Calls;
+		SET @p_Minutes	 							 = p_Minutes;
+
+		set @p_CurrencyID = p_CurrencyID;
+		set @p_CurrencySymbol = (SELECT Symbol from tblCurrency where CurrencyID = @p_CurrencyID);
+
+		SET @p_StartDate	= p_StartDate;
+		SET @p_EndDate		= p_EndDate;
+
+
+
+		SET @p_Position = p_Position;
+
+		SET @p_PackageId  = p_PackageId;
+
+
+		SET	@v_PackageType = 3;
+		set @v_ApprovedStatus = 1;
+
+		set @v_AppliedToCustomer = 1;
+		set @v_AppliedToVendor = 2;
+		set @v_AppliedToReseller = 3;
+
+		IF /*@p_Calls = 0 AND*/ @p_Minutes = 0 THEN
+
+			insert into tmp_timezone_minutes (TimezonesID, minutes)
+
+				select PackageTimezonesID  , (sum(billed_duration) / 60) as minutes
+
+				from speakintelligentCDR.tblUsageDetails  d
+
+					inner join speakintelligentCDR.tblUsageHeader h on d.UsageHeaderID = h.UsageHeaderID
+
+				where CompanyID = p_companyid AND StartDate >= @p_StartDate AND StartDate <= @p_EndDate
+
+							AND d.is_inbound = 1
+
+							AND ( @p_PackageId = 0 OR d.AccountServicePackageID = @p_PackageId  )
+
+				group by PackageTimezonesID;
+
+
+		ELSE
+
+			SET @p_PeakTimeZonePercentage	 		 = p_TimezonePercentage;
+			SET @v_PeakTimeZoneMinutes				 =  ( (@p_Minutes/ 100) * @p_PeakTimeZonePercentage ) 	;
+
+			insert into tmp_timezones (TimezonesID) select TimezonesID from tblTimezones;
+
+			insert into tmp_timezone_minutes (TimezonesID, minutes) select p_Timezone, @v_PeakTimeZoneMinutes as minutes;
+
+			SET @v_RemainingTimezones = (select count(*) from tmp_timezones where TimezonesID != p_Timezone);
+			SET @v_RemainingMinutes = (@p_Minutes - @v_PeakTimeZoneMinutes) / @v_RemainingTimezones ;
+
+			SET @v_pointer_ = 1;
+			SET @v_rowCount_ = ( SELECT COUNT(*) FROM tmp_timezones );
+
+			WHILE @v_pointer_ <= @v_rowCount_
+			DO
+
+				SET @v_TimezonesID = (SELECT TimezonesID FROM tmp_timezones WHERE ID = @v_pointer_ AND TimezonesID != p_Timezone );
+
+				if @v_TimezonesID > 0 THEN
+
+					insert into tmp_timezone_minutes (TimezonesID, minutes)  select @v_TimezonesID, @v_RemainingMinutes as minutes;
+
+				END IF ;
+
+				SET @v_pointer_ = @v_pointer_ + 1;
+
+			END WHILE;
+
+		END IF;
+
+
+		SET @v_days =    TIMESTAMPDIFF(DAY, (SELECT @p_StartDate), (SELECT @p_EndDate)) + 1 ;
+		SET @v_period1 =      IF(MONTH((SELECT @p_StartDate)) = MONTH((SELECT @p_EndDate)), 0, (TIMESTAMPDIFF(DAY, (SELECT @p_StartDate), LAST_DAY((SELECT @p_StartDate)) + INTERVAL 1 DAY)) / DAY(LAST_DAY((SELECT @p_StartDate))));
+		SET @v_period2 =      TIMESTAMPDIFF(MONTH, LAST_DAY((SELECT @p_StartDate)) + INTERVAL 1 DAY, LAST_DAY((SELECT @p_EndDate))) ;
+		SET @v_period3 =      IF(MONTH((SELECT @p_StartDate)) = MONTH((SELECT @p_EndDate)), (SELECT @v_days), DAY((SELECT @p_EndDate))) / DAY(LAST_DAY((SELECT @p_EndDate)));
+		SET @p_months =     (SELECT @v_period1) + (SELECT @v_period2) + (SELECT @v_period3);
+
+		SET @p_months = ROUND(@p_months,1);
+
+
+		insert into tmp_timezone_minutes_2 (TimezonesID, minutes) select TimezonesID, minutes from tmp_timezone_minutes;
+		insert into tmp_timezone_minutes_3 (TimezonesID, minutes) select TimezonesID, minutes from tmp_timezone_minutes;
+
+
+		INSERT INTO tmp_table_pkg
+		(
+			TimezonesID,
+			TimezoneTitle,
+			EffectiveDate,
+			Code,
+			VendorID,
+			VendorName,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			Total
+		)
+			SELECT
+				drtr.TimezonesID,
+				t.Title AS TimezoneTitle,
+				drtr.EffectiveDate,
+				r.Code,
+				a.AccountID,
+				a.AccountName,
+
+				@MonthlyCost := CASE WHEN ( MonthlyCostCurrency IS NOT NULL)
+					THEN
+						CASE WHEN  @p_CurrencyID = MonthlyCostCurrency THEN
+							drtr.MonthlyCost
+						ELSE
+							(
+
+								(SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId =  @p_CurrencyID  AND  CompanyID = p_companyid  )
+								* (drtr.MonthlyCost  / (SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = MonthlyCostCurrency AND  CompanyID = p_companyid ))
+							)
+						END
+												WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+													drtr.MonthlyCost
+												ELSE
+													(
+
+														(SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId =  @p_CurrencyID  AND  CompanyID = p_companyid )
+														* (drtr.MonthlyCost  / (SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = rt.CurrencyID AND  CompanyID = p_companyid ))
+													)
+												END * @p_months AS MonthlyCost,
+
+				@PackageCostPerMinute := CASE WHEN ( PackageCostPerMinuteCurrency IS NOT NULL)
+					THEN
+						CASE WHEN  @p_CurrencyID = PackageCostPerMinuteCurrency THEN
+							drtr.PackageCostPerMinute
+						ELSE
+							(
+
+								(SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId =  @p_CurrencyID  AND  CompanyID = p_companyid )
+								* (drtr.PackageCostPerMinute  / (SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = PackageCostPerMinuteCurrency AND  CompanyID = p_companyid ))
+							)
+						END
+																 WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+																	 drtr.PackageCostPerMinute
+																 ELSE
+																	 (
+
+																		 (SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId =  @p_CurrencyID  AND  CompanyID = p_companyid )
+																		 * (drtr.PackageCostPerMinute  / (SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = rt.CurrencyID AND  CompanyID = p_companyid ))
+																	 )
+																 END  AS PackageCostPerMinute,
+
+				@RecordingCostPerMinute := CASE WHEN ( RecordingCostPerMinuteCurrency IS NOT NULL)
+					THEN
+						CASE WHEN  @p_CurrencyID = RecordingCostPerMinuteCurrency THEN
+							drtr.RecordingCostPerMinute
+						ELSE
+							(
+
+								(SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId =  @p_CurrencyID  AND  CompanyID = p_companyid )
+								* (drtr.RecordingCostPerMinute  / (SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = RecordingCostPerMinuteCurrency AND  CompanyID = p_companyid ))
+							)
+						END
+																	 WHEN  ( @p_CurrencyID = rt.CurrencyID ) THEN
+																		 drtr.RecordingCostPerMinute
+																	 ELSE
+																		 (
+
+																			 (SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId =  @p_CurrencyID  AND  CompanyID = p_companyid )
+																			 * (drtr.RecordingCostPerMinute  / (SELECT VALUE FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = rt.CurrencyID AND  CompanyID = p_companyid ))
+																		 )
+																	 END  AS RecordingCostPerMinute,
+
+				@Total := (
+					(	IFNULL(@MonthlyCost,0) 				)				+
+					(IFNULL(@PackageCostPerMinute,0) * IFNULL(tm.minutes,0)	)+
+					(IFNULL(@RecordingCostPerMinute,0) * IFNULL(tm.minutes,0) )
+				)
+					AS Total
+
+			FROM tblRateTablePKGRate  drtr
+				INNER JOIN tblRateTable  rt ON rt.RateTableId = drtr.RateTableId
+				INNER JOIN tblVendorConnection vc ON vc.RateTableID = rt.RateTableId  AND vc.CompanyID = rt.CompanyId  AND vc.Active=1 AND vc.RateTypeID = @v_PackageType
+				INNER JOIN tblAccount a ON vc.AccountId = a.AccountID AND rt.CompanyId = a.CompanyId
+				INNER JOIN tblRate r ON drtr.RateID = r.RateID AND r.CompanyID = vc.CompanyID
+				LEFT JOIN tblPackage pk ON pk.CompanyID = r.CompanyID AND pk.RateTableId = rt.RateTableId AND  pk.Name = r.Code
+				INNER JOIN tblTimezones t ON t.TimezonesID =  drtr.TimezonesID
+				left join tmp_timezone_minutes tm on tm.TimezonesID = t.TimezonesID
+
+			WHERE
+
+				rt.CompanyId =  p_companyid
+
+				AND ( @p_PackageId = 0 OR (pk.PackageId = @p_PackageId AND pk.PackageId is not null) )
+
+				AND rt.Type = @v_PackageType
+
+				AND rt.AppliedTo = @v_AppliedToVendor
+
+				AND EffectiveDate <= DATE(p_SelectedEffectiveDate)
+
+				AND (EndDate IS NULL OR EndDate > NOW() ) ;
+
+		INSERT INTO tmp_table1_
+		(
+			TimezonesID,
+			TimezoneTitle,
+			EffectiveDate,
+			Code,
+			VendorID,
+			VendorName,
+			MonthlyCost,
+			PackageCostPerMinute,
+			RecordingCostPerMinute,
+			Total
+		)
+
+			SELECT
+				TimezonesID,
+				TimezoneTitle,
+				EffectiveDate,
+				Code,
+				VendorID,
+				VendorName,
+				MonthlyCost,
+				PackageCostPerMinute,
+				RecordingCostPerMinute,
+				Total
+			from tmp_table_pkg
+
+			WHERE Total IS NOT NULL;
+
+
+		insert into tmp_table_output_1 (Code ,VendorID ,VendorName,EffectiveDate,Total)
+			select Code ,VendorID ,VendorName,max(EffectiveDate),sum(Total) as Total
+			from tmp_table1_
+			group by Code ,VendorID ,VendorName;
+
+
+		insert into tmp_table_output_2   ( Code ,VendorID ,VendorName,EffectiveDate,Total,vPosition )
+
+			SELECT Code, VendorID, VendorName, EffectiveDate, Total, vPosition
+			FROM (
+						 select Code ,VendorID ,VendorName,EffectiveDate,Total,
+							 @vPosition := (
+								 CASE WHEN (@prev_Code = Code /*AND  @prev_VendorID = VendorID */ AND @prev_Total <=  Total
+								 )
+									 THEN
+										 @vPosition + 1
+								 ELSE
+									 1
+								 END) as  vPosition,
+							 @prev_Code  := Code  ,
+							 @prev_VendorID  := VendorID,
+							 @prev_Total := Total
+
+						 from tmp_table_output_1
+							 ,(SELECT  @vPosition := 0 , @prev_Code  := ''  , @prev_VendorID  := '', @prev_Total := 0 ) t
+
+						 ORDER BY Code,Total,VendorID
+					 ) tmp;
+
+
+		insert into tmp_final_table_output ( Code ,VendorID ,VendorName,EffectiveDate, Total,vPosition)
+			select Code ,VendorID ,VendorName,EffectiveDate, concat( @p_CurrencySymbol, Total ), vPosition
+			from tmp_table_output_2
+			where vPosition  < @p_Position ;
+
+
+		SET @stm_columns = "";
+
+		IF p_isExport = 0 AND p_Position > 10 THEN
+
+			SET p_Position = 10;
+
+		END IF;
+
+		SET @v_pointer_ = 1;
+
+		WHILE @v_pointer_ <= @p_Position
+		DO
+
+			SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(vPosition) = ",@v_pointer_,", CONCAT(ANY_VALUE(Total), '<br>', ANY_VALUE(VendorName), '<br>', DATE_FORMAT (ANY_VALUE(EffectiveDate), '%d/%m/%Y'),'' ), NULL)) AS `POSITION ",@v_pointer_,"`,");
+
+			SET @v_pointer_ = @v_pointer_ + 1;
+
+		END WHILE;
+
+		SET @stm_columns = TRIM(TRAILING ',' FROM @stm_columns);
+
+		IF (p_isExport = 0) THEN
+
+			SET @stm_query = CONCAT("SELECT Code, ", @stm_columns," FROM tmp_final_table_output GROUP BY Code ORDER BY Code LIMIT ",p_RowspPage," OFFSET ",@v_OffSet_," ;");
+
+			select count(Code) as totalcount from tmp_final_table_output;
+
+
+			PREPARE stm_query FROM @stm_query;
+			EXECUTE stm_query;
+			DEALLOCATE PREPARE stm_query;
+
+		ELSE
+
+			SET @stm_query = CONCAT("SELECT Code, ", @stm_columns," FROM tmp_final_table_output GROUP BY Code ORDER BY Code ;");
+
+
+			PREPARE stm_query FROM @stm_query;
+			EXECUTE stm_query;
+			DEALLOCATE PREPARE stm_query;
+
+
+		END IF;
+
+
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+	END//
+DELIMITER ;
+
+
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
