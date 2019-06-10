@@ -102,7 +102,7 @@ class ServiceTemplate extends \Eloquent
         $country = ServiceTemplate::Join('tblCountry', function($join) {
                 $join->on('tblServiceTemplate.country','=','tblCountry.country');
                 })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",$CompanyID)
-                ->orderBy('tblServiceTemplate.country')->lists("country", "country");
+                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");       
         return $country;        
     }
 }
