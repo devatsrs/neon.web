@@ -13,11 +13,20 @@ class ServicesTemplateController extends BaseController {
     public function ajax_datagrid(){
 
        $data = Input::all();
-       //dd($data);
+        Log::info('servicesTemplate ajax_datagrid AJAX data.' . print_r($data,true));
        $companyID = User::get_companyID();
-      // $data['ServiceStatus'] = $data['ServiceStatus']== 'true'?1:0;
+
 
         $iSortCol_0 = isset($data['iSortCol_0']) ? $data['iSortCol_0']:1;
+        $data['ServiceName'] = isset($data['ServiceName']) ? $data['ServiceName']:'';
+        $data['ServiceId'] = isset($data['ServiceId']) && $data['ServiceId'] != '' ? $data['ServiceId']:0;
+        $data['CountryID'] = isset($data['CountryID']) ? $data['CountryID']:'';
+        $data['AccessType'] = isset($data['AccessType']) ? $data['AccessType']:'';
+        $data['Prefix'] = isset($data['Prefix']) ? $data['Prefix']:'';
+        $data['City'] = isset($data['City']) ? $data['City']:'';
+        $data['Tariff'] = isset($data['Tariff']) ? $data['Tariff']:'';
+
+
         $sSortDir_0 = '';
         if (isset($data['sSortDir_0'])) {
             $sSortDir_0 = $data['sSortDir_0'];
@@ -26,55 +35,42 @@ class ServicesTemplateController extends BaseController {
         }
 
         if ($iSortCol_0 == 1 || $iSortCol_0 == 0) {
-            $iSortCol_0 = "tblServiceTemplate.Name";
+            $iSortCol_0 = "Name";
         }else if ($iSortCol_0 == 2) {
-            $iSortCol_0 = "tblServiceTemplate.Name";
+            $iSortCol_0 = "Name";
         }else if ($iSortCol_0 == 3) {
-            $iSortCol_0 = "tblService.ServiceName";
+            $iSortCol_0 = "ServiceName";
         }else if ($iSortCol_0 == 4) {
-            $iSortCol_0 = "tblServiceTemplate.country";
+            $iSortCol_0 = "country";
         }else if ($iSortCol_0 == 5) {
-            $iSortCol_0 = "tblServiceTemplate.prefixName";
+            $iSortCol_0 = "prefixName";
         }else if ($iSortCol_0 == 6) {
-            $iSortCol_0 = "tblServiceTemplate.accessType";
+            $iSortCol_0 = "accessType";
         }else if ($iSortCol_0 == 7) {
-            $iSortCol_0 = "tblServiceTemplate.City";
+            $iSortCol_0 = "City";
         }else if ($iSortCol_0 == 8) {
-            $iSortCol_0 = "tblServiceTemplate.Tariff";
+            $iSortCol_0 = "Tariff";
         }
 
-        $servicesTemplate = ServiceTemplate::
-        leftJoin('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
-            ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblServiceTemplate.country','tblServiceTemplate.prefixName','tblServiceTemplate.accessType','tblServiceTemplate.City','tblServiceTemplate.Tariff','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId','tblServiceTemplate.ContractDuration','tblServiceTemplate.AutomaticRenewal','tblServiceTemplate.CancellationCharges','tblServiceTemplate.CancellationFee','tblServiceTemplate.PackageDiscountPlanId'])
-            ->where(["tblServiceTemplate.CompanyID" => $companyID])->orderBy($iSortCol_0, $sSortDir_0);
+        $data['iDisplayStart'] += 1;
+        $query = "call prc_getServiceTemplate(" . $companyID . ","
+            . "'" .$data['ServiceName']."',"
+            . "'" .$data['ServiceId']."',"
+            . "'" .$data['CountryID']."',"
+            . "'" .$data['AccessType']."',"
+            . "'" .$data['Prefix']."',"
+            . "'" .$data['City']."',"
+            . "'" .$data['Tariff']."',"
+            . "'" .(ceil($data['iDisplayStart'] / $data['iDisplayLength']))."',"
+            . "'" .$data['iDisplayLength']."',"
+            . "'" .$iSortCol_0."',"
+            . "'" .$sSortDir_0."',"
+            . "'" .'0'."'"
+            . ")";
 
+        Log::info('servicesTemplate ajax_datagrid AJAX data.' . $query);
 
-        if($data['ServiceName'] != ''){
-            $servicesTemplate->where('tblServiceTemplate.Name','like','%'.$data['ServiceName'].'%');
-        }
-        if($data['ServiceId'] != ''){
-            $servicesTemplate->where(["tblServiceTemplate.ServiceId"=>$data['ServiceId']]);
-        }
-        if($data['CountryID'] != ''){
-            $servicesTemplate->where("tblServiceTemplate.country",$data['CountryID']);
-        }
-        if($data['AccessType'] != ''){
-            $servicesTemplate->where(["tblServiceTemplate.accessType"=>$data['AccessType']]);
-        }
-        if($data['Prefix'] != ''){
-            $servicesTemplate->where(["tblServiceTemplate.prefixName"=>$data['Prefix']]);
-        }
-        if($data['City'] != ''){
-            $servicesTemplate->where(["tblServiceTemplate.City"=>$data['City']]);
-        }
-        if($data['Tariff'] != ''){
-            $servicesTemplate->where(["tblServiceTemplate.Tariff"=>$data['Tariff']]);
-        }
-
-        Log::info('$servicesTemplate ajax_datagrid AJAX.' . $servicesTemplate->toSql());
-
-
-       return Datatables::of($servicesTemplate)->make();
+       return DataTableSql::of($query)->make();
     }
     public function selectDataOnCurrency()
     {
@@ -707,62 +703,74 @@ class ServicesTemplateController extends BaseController {
 
 
     public function exports($type){
-            $companyID = User::get_companyID();
-            $data = Input::all();
-            //dd($data);
-
-            //$data['ServiceStatus']=$data['ServiceStatus']=='true'?1:0;
-
-       /* $exportSelectedTemplate = "select tempalte.ServiceTemplateId,".
-                                "(select service1.ServiceName from tblService service1 where service1.ServiceID = tempalte.ServiceId) as serviceName,".
-                                "(select accountPlan.Name from tblDiscountPlan accountPlan where accountPlan.DiscountPlanID = tempalte.InboundDiscountPlanId) as InboundDiscountPlanId,".
-                                "(select accountPlan.Name from tblDiscountPlan accountPlan where accountPlan.DiscountPlanID = tempalte.OutboundDiscountPlanId) as OutboundDiscountPlanId,".
-                                "(select GROUP_CONCAT(billSubscription.Name SEPARATOR ', ' ) as serviceSubscription from speakintelligentBilling.tblBillingSubscription billSubscription where billSubscription.SubscriptionID in (select billSubs.SubscriptionId from tblServiceTemapleSubscription billSubs where billSubs.ServiceTemplateID = tempalte.ServiceTemplateId)) as subscriptionList,".
-                                "(select GROUP_CONCAT(rateTable.RateTableName SEPARATOR ', ' ) as categoryTariff from tblRateTable rateTable where rateTable.RateTableId in (select categoryTariff.RateTableId from tblServiceTemapleInboundTariff categoryTariff where categoryTariff.ServiceTemplateID = tempalte.ServiceTemplateId)) as categoryTariff ".
-                                "from tblServiceTemplate tempalte";
-       DB::select($exportSelectedTemplate)
-       */
         try{
-        $exportSelectedTemplate = ServiceTemplate::
-        Join('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
-            //->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
-            ->select(['tblServiceTemplate.Name','tblService.ServiceName','tblServiceTemplate.country','tblServiceTemplate.prefixName','tblServiceTemplate.accessType','tblServiceTemplate.City','tblServiceTemplate.Tariff'])
-            ->orderBy("tblServiceTemplate.Name", "ASC");
+        $data = Input::all();
+        Log::info('servicesTemplate ajax_datagrid AJAX data.' . print_r($data,true));
+        $companyID = User::get_companyID();
 
-        if($data['ServiceName'] != ''){
-            //Log::info('$servicesTemplate AJAX.$data[\'ServiceName\']' . 'set the value');
-            $exportSelectedTemplate->where('tblServiceTemplate.Name','like','%'.$data['ServiceName'].'%');
-        }
-        if($data['ServiceId'] != ''){
-            $exportSelectedTemplate->where(["tblServiceTemplate.ServiceId"=>$data['ServiceId']]);
-        }
-        if($data['CountryID'] != ''){
-            $exportSelectedTemplate->where("tblServiceTemplate.country",$data['CountryID']);
-        }
-        if($data['AccessType'] != ''){
-            $exportSelectedTemplate->where(["tblServiceTemplate.accessType"=>$data['AccessType']]);
-        }
-        if($data['Prefix'] != ''){
-            $exportSelectedTemplate->where(["tblServiceTemplate.prefixName"=>$data['Prefix']]);
-        }
-        if($data['City'] != ''){
-            $exportSelectedTemplate->where(["tblServiceTemplate.City"=>$data['City']]);
-        }
-        if($data['Tariff'] != ''){
-            $exportSelectedTemplate->where(["tblServiceTemplate.Tariff"=>$data['Tariff']]);
+
+        $iSortCol_0 = isset($data['iSortCol_0']) ? $data['iSortCol_0']:1;
+        $data['ServiceName'] = isset($data['ServiceName']) ? $data['ServiceName']:'';
+        $data['ServiceId'] = isset($data['ServiceId']) && $data['ServiceId'] != '' ? $data['ServiceId']:0;
+        $data['CountryID'] = isset($data['CountryID']) ? $data['CountryID']:'';
+        $data['AccessType'] = isset($data['AccessType']) ? $data['AccessType']:'';
+        $data['Prefix'] = isset($data['Prefix']) ? $data['Prefix']:'';
+        $data['City'] = isset($data['City']) ? $data['City']:'';
+        $data['Tariff'] = isset($data['Tariff']) ? $data['Tariff']:'';
+
+
+        $sSortDir_0 = '';
+        if (isset($data['sSortDir_0'])) {
+            $sSortDir_0 = $data['sSortDir_0'];
+        }else {
+            $sSortDir_0 = "ASC";
         }
 
-        Log::info('$exportSelectedTemplate query.' . $exportSelectedTemplate->toSql());
-        $exportSelectedTemplate = $exportSelectedTemplate->get();
-        //Log::info('$exportSelectedTemplate count.' . count($exportSelectedTemplate));
+        if ($iSortCol_0 == 1 || $iSortCol_0 == 0) {
+            $iSortCol_0 = "Name";
+        }else if ($iSortCol_0 == 2) {
+            $iSortCol_0 = "Name";
+        }else if ($iSortCol_0 == 3) {
+            $iSortCol_0 = "ServiceName";
+        }else if ($iSortCol_0 == 4) {
+            $iSortCol_0 = "country";
+        }else if ($iSortCol_0 == 5) {
+            $iSortCol_0 = "prefixName";
+        }else if ($iSortCol_0 == 6) {
+            $iSortCol_0 = "accessType";
+        }else if ($iSortCol_0 == 7) {
+            $iSortCol_0 = "City";
+        }else if ($iSortCol_0 == 8) {
+            $iSortCol_0 = "Tariff";
+        }
 
-        $services = json_decode(json_encode($exportSelectedTemplate),true);
+        $data['iDisplayStart'] += 1;
+        $query = "call prc_getServiceTemplate(" . $companyID . ","
+            . "'" .$data['ServiceName']."',"
+            . "'" .$data['ServiceId']."',"
+            . "'" .$data['CountryID']."',"
+            . "'" .$data['AccessType']."',"
+            . "'" .$data['Prefix']."',"
+            . "'" .$data['City']."',"
+            . "'" .$data['Tariff']."',"
+            . "'" .(ceil($data['iDisplayStart'] / $data['iDisplayLength']))."',"
+            . "'" .$data['iDisplayLength']."',"
+            . "'" .$iSortCol_0."',"
+            . "'" .$sSortDir_0."',"
+            . "'" .'1'."'"
+            . ")";
+
+        Log::info('servicesTemplate ajax_datagrid AJAX data.' . $query);
+
+        $services =  DB::select($query);
+
+        $services = json_decode(json_encode($services),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Services.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ServicesTemplate.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($services);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Services.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ServicesTemplate.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($services);
             }

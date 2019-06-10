@@ -569,7 +569,8 @@
                 table.append("<thead><tr><th style='width:10%'>Origination Code</th><th>Code</th></tr></thead>");
                 var tbody = $("<tbody></tbody>");
                 for (var i = 0; i < Code.length; i++) {
-                    table.append("<tr class='no-selection'><td>" + OriginationCode[i] + "</td><td>" + Code[i] + "</td></tr>");
+                    Origination = OriginationCode[i] != undefined ? OriginationCode[i] : '';
+                    table.append("<tr class='no-selection'><td>" + Origination + "</td><td>" + Code[i] + "</td></tr>");
                 }
                 table.append(tbody);
                 row.child(table).show();
