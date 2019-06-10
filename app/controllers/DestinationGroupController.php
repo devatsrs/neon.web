@@ -114,7 +114,7 @@ class DestinationGroupController extends \BaseController {
         }
         $response =  NeonAPI::request('destinationgroup/store',$postdata,true,false,false);
         if($response->status == 'success'){
-            $DestinationGroupActilead = UserActivity::UserActivitySaved($postdata,'Add','Destination Group',$postdata['Name']);
+            $DestinationGroupActilead = UserActivity::UserActivitySaved($postdata,'Add','Destination Group',$postdata['Code']);
         }
         return json_response_api($response);
     }
