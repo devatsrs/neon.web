@@ -214,8 +214,9 @@ class CodeDecksController extends \BaseController {
 
     public function exports($type) {
             $companyID = User::get_companyID();
-
             $data = Input::all();
+            $export_type['type'] = $type;
+            $BasecodedecksActilead = UserActivity::UserActivitySaved($export_type,'Export','Base Code Deck');
 
             $data['ft_country']=$data['ft_country']!= ''?$data['ft_country']:'0';
             $data['ft_code'] = $data['ft_code'] != ''?"'".$data['ft_code']."'":'null';
