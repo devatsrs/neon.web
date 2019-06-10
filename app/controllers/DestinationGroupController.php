@@ -128,7 +128,6 @@ class DestinationGroupController extends \BaseController {
     }
     public function group_update($id){
         $postdata = Input::all();
-        dd($postdata);
         if(isset($postdata['RateID'])) {
             $postdata['RateID'] = implode(',', $postdata['RateID']);
         }
@@ -140,7 +139,7 @@ class DestinationGroupController extends \BaseController {
         }
         $response =  NeonAPI::request('destinationgroup/update/'.$id,$postdata,'put',false,false);
         if($response->status == 'success'){
-            $DestinationGroupActilead = UserActivity::UserActivitySaved($postdata,'Edit','Destination Group',$postdata['Name']);
+            $DestinationGroupActilead = UserActivity::UserActivitySaved($postdata,'Edit','Destination Group',$postdata['Code']);
         }
         return json_response_api($response);
     }
