@@ -762,7 +762,7 @@ class ServicesTemplateController extends BaseController {
 
         Log::info('servicesTemplate ajax_datagrid AJAX data.' . $query);
 
-        $services =  DataTableSql::of($query)->make();
+        $services =  DB::select($query);
 
         $services = json_decode(json_encode($services),true);
             if($type=='csv'){
