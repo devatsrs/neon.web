@@ -20,7 +20,7 @@ class ServicesTemplateController extends BaseController {
         $iSortCol_0 = isset($data['iSortCol_0']) ? $data['iSortCol_0']:1;
         $data['ServiceName'] = isset($data['ServiceName']) ? $data['ServiceName']:'';
         $data['ServiceId'] = isset($data['ServiceId']) && $data['ServiceId'] != '' ? $data['ServiceId']:0;
-        $data['CountryID'] = isset($data['CountryID']) && $data['CountryID'] != '' ? $data['CountryID']:0;
+        $data['CountryID'] = isset($data['CountryID']) ? $data['CountryID']:'';
         $data['AccessType'] = isset($data['AccessType']) ? $data['AccessType']:'';
         $data['Prefix'] = isset($data['Prefix']) ? $data['Prefix']:'';
         $data['City'] = isset($data['City']) ? $data['City']:'';
@@ -712,7 +712,7 @@ class ServicesTemplateController extends BaseController {
         $iSortCol_0 = isset($data['iSortCol_0']) ? $data['iSortCol_0']:1;
         $data['ServiceName'] = isset($data['ServiceName']) ? $data['ServiceName']:'';
         $data['ServiceId'] = isset($data['ServiceId']) && $data['ServiceId'] != '' ? $data['ServiceId']:0;
-        $data['CountryID'] = isset($data['CountryID']) && $data['CountryID'] != '' ? $data['CountryID']:0;
+        $data['CountryID'] = isset($data['CountryID']) ? $data['CountryID']:'';
         $data['AccessType'] = isset($data['AccessType']) ? $data['AccessType']:'';
         $data['Prefix'] = isset($data['Prefix']) ? $data['Prefix']:'';
         $data['City'] = isset($data['City']) ? $data['City']:'';
