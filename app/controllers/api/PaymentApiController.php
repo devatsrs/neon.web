@@ -514,12 +514,12 @@ class PaymentApiController extends ApiController {
 			$InvoiceTemplateID = BillingClass::getInvoiceTemplateID($BillingClassID);
 			$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
 			$Reseller = Reseller::where('AccountID', $AccountID)->first();
-			$message = @$Reseller->InvoiceTo;
+			$message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
 			$replace_array = Invoice::create_accountdetails($Account);
 			$text = Invoice::getInvoiceToByAccount($message, $replace_array);
 			$InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
-			$Terms = @$Reseller->TermsAndCondition;
-			$FooterTerm = @$Reseller->FooterTerm;
+			$Terms = isset($Reseller->TermsAndCondition) ? $Reseller->TermsAndCondition : '';
+			$FooterTerm = isset($Reseller->FooterTerm) ? $Reseller->FooterTerm : '';
 
 			$LastInvoiceNumber = InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID);
 			$FullInvoiceNumber = $InvoiceTemplate->InvoiceNumberPrefix . $LastInvoiceNumber;
