@@ -101,7 +101,7 @@
                   @endif
                   <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
                   @if(User::checkCategoryPermission('AccountSubscription','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1)
-                     <a class="btn btn-default btn-xs redirect_link"  title="View Account Subscriptions" href="{{ URL::to('/account_subscription?id='.$account->AccountID)}}"><i class="fa fa-refresh"></i></a>
+                     <!--<a class="btn btn-default btn-xs redirect_link"  title="View Account Subscriptions" href="{{ URL::to('/account_subscription?id='.$account->AccountID)}}"><i class="fa fa-refresh"></i></a>-->
                   @endif
                   
                   {{--@if($account->IsCustomer==1 || $account->IsVendor==1)--}}
