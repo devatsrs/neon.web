@@ -34,7 +34,7 @@
     var alert_history_url = baseurl + "/alert/history?AlertID={id}";
     var alert_datagrid_url = baseurl + "/alert/ajax_datagrid/type";
     jQuery(document).ready(function ($) {
-        $search.AlertType = $('#call_filter [name="AlertType"]').val();
+        $search.AlertType = $('#datatable-filter [name="MonitorType"]').val();
         data_table_call = $("#table-6").dataTable({
             "bDestroy": true,
             "bProcessing": true,
@@ -130,7 +130,8 @@
 
             e.preventDefault();
             public_vars.$body = $("body");
-            $search.AlertType = $('#call_filter [name="AlertType"]').val();
+            $search.AlertType = $('#datatable-filter [name="MonitorType"]').val();
+            alert($search.AlertType);
             data_table_call.fnFilter('', 0);
             return false;
         });
