@@ -5057,7 +5057,7 @@ BEGIN
 		IF p_view = 1
 		THEN
        	SELECT * FROM tmp_RateTableRate_
-					ORDER BY 
+					ORDER BY
 					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN DestinationType
                 END DESC,
@@ -5189,16 +5189,16 @@ BEGIN
 					GROUP BY Description, OriginationDescription, MinimumDuration, Interval1, IntervalN, ConnectionFee, Rate, EffectiveDate, ApprovedStatus, TimezonesID
 					ORDER BY
 					 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN DestinationType
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN ANY_VALUE(DestinationType)
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeASC') THEN DestinationType
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeASC') THEN ANY_VALUE(DestinationType)
                 END ASC,
 					 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN ANY_VALUE(TimezoneTitle)
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN ANY_VALUE(TimezoneTitle)
                 END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN ANY_VALUE(OriginationCode)
@@ -5285,22 +5285,22 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeASC') THEN ANY_VALUE(ConnectionFee)
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ApprovedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByDESC') THEN ANY_VALUE(ApprovedBy)
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ApprovedBy
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApprovedByASC') THEN ANY_VALUE(ApprovedBy)
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN RoutingCategoryName
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameDESC') THEN ANY_VALUE(RoutingCategoryName)
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN RoutingCategoryName
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutingCategoryNameASC') THEN ANY_VALUE(RoutingCategoryName)
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN Preference
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceDESC') THEN ANY_VALUE(Preference)
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN Preference
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PreferenceASC') THEN ANY_VALUE(Preference)
                 END ASC
 			LIMIT p_RowspPage OFFSET v_OffSet_;
 
@@ -6917,16 +6917,16 @@ BEGIN
 				Description, OriginationDescription, MinimumDuration, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus, TimezonesID
 			ORDER BY
 				CASE
-               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN DestinationType
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeDESC') THEN ANY_VALUE(DestinationType)
             END DESC,
             CASE
-               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeASC') THEN DestinationType
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DestinationTypeASC') THEN ANY_VALUE(DestinationType)
             END ASC,
 				CASE
-               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN TimezoneTitle
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleDESC') THEN ANY_VALUE(TimezoneTitle)
             END DESC,
             CASE
-               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN TimezoneTitle
+               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TimezoneTitleASC') THEN ANY_VALUE(TimezoneTitle)
             END ASC,
           	CASE
               	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN ANY_VALUE(OriginationCode)
