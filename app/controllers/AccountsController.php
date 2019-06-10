@@ -39,6 +39,9 @@ class AccountsController extends \BaseController {
             \Illuminate\Support\Facades\Log::info("Account query ".$query.',2)');
             $excel_data = json_decode(json_encode($excel_data),true);
 
+            foreach($excel_data as $key => $item)
+                unset($excel_data[$key]['Account Owner']);
+
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Accounts.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
