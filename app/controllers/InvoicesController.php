@@ -3904,6 +3904,9 @@ public function store_inv_in(){
                         return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
                     }
                 }
+            else {
+                return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
+            }
         }
         else {
             return Response::json(array("status" => "error", "message" => "Please Select Invoice"));

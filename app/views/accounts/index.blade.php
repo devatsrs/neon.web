@@ -135,12 +135,12 @@
                 
                 @endif
                 @if(User::checkCategoryPermission('Account','Email'))
-                <li>
+                        <!--<li>
                     <a href="javascript:void(0)" id="bulk-Ratesheet">
                         <i class="entypo-mail"></i>
                         <span>Bulk Rate sheet Email</span>
                     </a>
-                </li>
+                </li>-->
                 @endif
                 @if(User::checkCategoryPermission('Account','Add'))
                 <li>
@@ -149,12 +149,12 @@
                         <span>Import</span>
                    </a>
                 </li>
-                <li>
+                <!--<li>
                    <a href="{{ URL::to('/import/ips') }}" >
                         <i class="entypo-user-add"></i>
                         <span>Import IPs</span>
                    </a>
-                </li>
+                </li>-->
                 <li class="li_active">
                    <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
                         <i class="fa fa-plus-circle"></i>
