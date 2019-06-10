@@ -298,7 +298,7 @@ class GoCardLess {
 		}*/
 
 		$email = empty($account->BillingEmail)?'': explode(",", $account->BillingEmail);
-		$email = is_array($email) ? $email[0] : '';
+		$email = is_array($email) ? trim($email[0]) : '';
 		$accountname = empty($account->AccountName)?'':$account->AccountName;
 
 		$profileData['country'] 			= $data['country'];
