@@ -128,6 +128,7 @@ class DestinationGroupController extends \BaseController {
     }
     public function group_update($id){
         $postdata = Input::all();
+        dd($postdata);
         if(isset($postdata['RateID'])) {
             $postdata['RateID'] = implode(',', $postdata['RateID']);
         }
