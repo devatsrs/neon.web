@@ -64,7 +64,7 @@
                                 <label class="control-label">Status</label>
                                 <div class="panel-options">
                                     <div class="make-switch switch-small" >
-                                        <input type="checkbox" name="status">
+                                        <input type="checkbox" name="status" checked>
                                     </div>
                                 </div>
                             </div>
