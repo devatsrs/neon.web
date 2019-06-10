@@ -131,7 +131,6 @@
             e.preventDefault();
             public_vars.$body = $("body");
             $search.AlertType = $('#datatable-filter [name="MonitorType"]').val();
-            alert($search.AlertType);
             data_table_call.fnFilter('', 0);
             return false;
         });
