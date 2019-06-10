@@ -52,7 +52,8 @@ class AccountPayout extends \Eloquent
 
         $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
 
-        $message = $InvoiceTemplate->InvoiceTo;
+        $Reseller = Reseller::where('AccountID', $data['AccountID'])->first();
+        $message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
         $replace_array = Invoice::create_accountdetails($Account);
         $text = Invoice::getInvoiceToByAccount($message, $replace_array);
         $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
@@ -76,8 +77,8 @@ class AccountPayout extends \Eloquent
         $InvoiceData["InvoiceType"]   = Invoice::INVOICE_OUT;
         $InvoiceData["Note"]          = $CreatedBy;
         $InvoiceData["CreatedBy"]     = $CreatedBy;
-        $InvoiceData["Terms"]         = $InvoiceTemplate->Terms;
-        $InvoiceData["FooterTerm"]    = $InvoiceTemplate->FooterTerm;
+        $InvoiceData["Terms"]         = isset($Reseller->TermsAndCondition) ? $Reseller->TermsAndCondition : '';
+        $InvoiceData["FooterTerm"]    = isset($Reseller->FooterTerm) ? $Reseller->FooterTerm : '';
 
         try{
             DB::connection('sqlsrv2')->beginTransaction();
@@ -134,6 +135,9 @@ class AccountPayout extends \Eloquent
             if(!empty($InvoiceTaxRates1)) { //Invoice tax
                 InvoiceTaxRate::insert($InvoiceTaxRates1);
             }
+
+            //Store Last Invoice Number.
+            InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $InvoiceData["InvoiceNumber"]));
 
             Log::info($InvoiceID);
             $pdf_path = Invoice::generate_pdf($InvoiceID);

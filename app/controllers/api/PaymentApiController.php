@@ -513,12 +513,13 @@ class PaymentApiController extends ApiController {
 
 			$InvoiceTemplateID = BillingClass::getInvoiceTemplateID($BillingClassID);
 			$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
-			$message = $InvoiceTemplate->InvoiceTo;
+			$Reseller = Reseller::where('AccountID', $AccountID)->first();
+			$message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
 			$replace_array = Invoice::create_accountdetails($Account);
 			$text = Invoice::getInvoiceToByAccount($message, $replace_array);
 			$InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
-			$Terms = $InvoiceTemplate->Terms;
-			$FooterTerm = $InvoiceTemplate->FooterTerm;
+			$Terms = isset($Reseller->TermsAndCondition) ? $Reseller->TermsAndCondition : '';
+			$FooterTerm = isset($Reseller->FooterTerm) ? $Reseller->FooterTerm : '';
 
 			$LastInvoiceNumber = InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID);
 			$FullInvoiceNumber = $InvoiceTemplate->InvoiceNumberPrefix . $LastInvoiceNumber;
@@ -663,6 +664,15 @@ class PaymentApiController extends ApiController {
 				} else {
 
 					$Invoice->update(["PDF" => $pdf_path]);
+				}
+
+				$ubl_path = Invoice::generate_ubl_invoice($Invoice->InvoiceID);
+				if (empty($ubl_path)) {
+					$error['message'] = 'Failed to generate Invoice UBL File.';
+					$error['status'] = 'failure';
+					return $error;
+				} else {
+					$Invoice->update(["UblInvoice" => $ubl_path]);
 				}
 
 				DB::connection('sqlsrv2')->commit();
