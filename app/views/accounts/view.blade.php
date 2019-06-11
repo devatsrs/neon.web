@@ -103,7 +103,7 @@
                   @if(User::checkCategoryPermission('AccountSubscription','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1)
                      <!--<a class="btn btn-default btn-xs redirect_link"  title="View Account Subscriptions" href="{{ URL::to('/account_subscription?id='.$account->AccountID)}}"><i class="fa fa-refresh"></i></a>-->
                   @endif
-                  
+
                   {{--@if($account->IsCustomer==1 || $account->IsVendor==1)--}}
                      {{--<a class="btn btn-default btn-xs redirect_link" title="Authentication Rule" href="{{ URL::to('accounts/authenticate/'.$account->AccountID)}}"><i class="entypo-lock"></i></a>--}}
                   {{--@endif--}}
@@ -116,6 +116,9 @@
                   @endif
                   @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED)
            <a class="btn-info btn btn-default btn-xs" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}"><i class="fa fa-slideshare"></i></a>
+                   @endif
+                  @if($account->IsReseller==1)
+                      <button class="btn-info btn btn-default btn-xs" title="Partner" onclick="checkreseller('{{ $account->AccountID }}')"><i class="fa fa-users"></i></button>
                    @endif
                   @endif
                    </div>
@@ -583,9 +586,132 @@
 <?php unset($BoardID); ?>
 @include('opportunityboards.opportunitymodal')
 @include('accounts.unbilledreportmodal')
+@include('reseller.resellermodal')
 @include("accounts.activity_jscode",array("response_extensions"=>$response_extensions,"AccountID"=>$account->AccountID,"per_scroll"=>$per_scroll,"token"=>$random_token))
 @include('accounts.view_edit_models')
 <script>
+
+  function checkreseller(id) {
+    var PartnerID = id;
+    $.ajax({
+      url: baseurl+'/reseller/getdata/' + PartnerID,
+      type: 'POST',
+      dataType: 'json',
+      success: function (response) {
+        console.log(response.Email);
+        $(this).button('reset');
+        if (response.status == 'failed') {
+
+          $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',PartnerID);
+          $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',false);
+          $("#add-new-reseller-form [name='ResellerName']").val('');
+          $("#add-new-reseller-form [name='FirstName']").val('');
+          $("#add-new-reseller-form [name='LastName']").val('');
+          $("#add-new-reseller-form [name='Email']").val('');
+          $("#add-new-reseller-form [name='Status']").val('');
+          $("#add-new-reseller-form [name='Password']").val('');
+          $("#add-new-reseller-form [name='ResellerID']").val('');
+          $("#add-new-reseller-form [name='DomainUrl']").val('');
+          $("#add-new-reseller-form [name='picture']").val('');
+          $("#add-new-reseller-form [name='TermsAndCondition']").summernote('code','');
+          $("#add-new-reseller-form [name='FooterTerm']").summernote('code','');
+          $("#add-new-reseller-form [name='invoiceTo']").val('');
+          $("#add-new-reseller-form [name='AccountID']").removeAttr("disabled");
+          $("#SMTP-SERVER [name='SMTPServer']").val('');
+          $("#SMTP-SERVER [name='EmailFrom']").val('');
+          $("#SMTP-SERVER [name='SMTPUsername']").val('');
+          $("#SMTP-SERVER [name='Port']").val('');
+          $("#SMTP-SERVER [name='IsSSL']").prop('checked',false);
+          $('#InvoiceTemplateHeader').val('');
+          $('#copy_data').show();
+          $('#add-new-modal-reseller h4').html('Partner');
+          $('#add-new-modal-reseller').modal('show');
+        }else{
+          // ev.preventDefault();
+          // ev.stopPropagation();
+          $('#add-new-reseller-form').trigger("reset");
+          ResellerName =response.ResellerName;
+          ResellerID = response.ResellerID;
+          AccountID = response.AccountID;
+          FirstName = response.FirstName;
+          LastName = response.LastName;
+          AllowWhiteLabel = response.AllowWhiteLabel;
+          Email = response.ResellerEmail ;
+          Status = response.Status;
+          InvoiceTo = response.InvoiceTo;
+          InvoiceFrom = response.Status;
+          Footer = response.FooterTerm;
+          Terms = response.TermsAndCondition;
+          invoiceFrom = response.InvoiceFrom;
+          SMTPServer = response.SMTPServer;
+          SMTPUsername = response.SMTPUsername;
+          EmailFrom = response.EmailFrom;
+          Port = response.Port;
+          IsSSL = response.IsSSL;
+          DomainUrl = response.DomainUrl;
+          Password = response.Password;
+
+
+          //AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
+
+          //getDomainUrl($(this).attr('data-id'));
+          /*
+           if(Status == 1 ){
+           $('#add-new-reseller-form [name="Status"]').prop('checked',true);
+           }else{
+           $('#add-new-reseller-form [name="Status"]').prop('checked',false);
+           }*/
+
+          $("#add-new-reseller-form [name='picture']").val('');
+          $("#add-new-reseller-form [name='ResellerName']").val(ResellerName);
+          $("#add-new-reseller-form [name='FirstName']").val(FirstName);
+          $("#add-new-reseller-form [name='LastName']").val(LastName);
+          $("#add-new-reseller-form [name='Email']").val(Email);
+          $("#add-new-reseller-form [name='Status']").val(Status);
+          $("#add-new-reseller-form [name='Password']").val(Password);
+          $("#add-new-reseller-form [name='invoiceTo']").val(InvoiceTo);
+          $("#add-new-reseller-form [name='DomainUrl']").val(DomainUrl);
+          $("#add-new-reseller-form [name='TermsAndCondition']").summernote('code',Terms);
+          $("#add-new-reseller-form [name='FooterTerm']").summernote('code',Footer);
+          $('#InvoiceTemplateHeader').val(invoiceFrom);
+          $("#SMTP-SERVER [name='SMTPServer']").val(SMTPServer);
+          $("#SMTP-SERVER [name='EmailFrom']").val(EmailFrom);
+          $("#SMTP-SERVER [name='SMTPUsername']").val(SMTPUsername);
+          $("#SMTP-SERVER [name='Port']").val(Port);
+          //$("#SMTP-SERVER [name='IsSSL']").val(IsSSL);
+
+
+
+          if(IsSSL == 1 ){
+            $("#SMTP-SERVER [name='IsSSL']").prop('checked',true);
+          }else{
+            $("#SMTP-SERVER [name='IsSSL']").prop('checked',false);
+          }
+
+          if(AllowWhiteLabel == 1 ){
+            $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',true);
+          }else{
+            $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',false);
+          }
+          $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',AccountID);
+          $("#add-new-reseller-form [name='UpdateAccountID']").val(AccountID);
+          $("#add-new-reseller-form [name='ResellerID']").val(ResellerID);
+
+          //account disabled when edit
+          $("#add-new-reseller-form [name='AccountIDs']").attr("disabled","disabled");
+          $("#add-new-reseller-form [name='AccountID']").attr("disabled","disabled");
+          //hide copy data when edit
+          $('#copy_data').show();
+          $('#add-new-modal-reseller h4').html('Partner');
+          setTimeout(function(){
+            $('#add-new-modal-reseller').modal('show');
+          },10);
+        }
+      }
+    });
+
+  }
+
   jQuery(document).ready(function ($) {
     $("body").popover({
       selector: '[data-toggle="popover3"]',
@@ -594,6 +720,9 @@
       template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
       //template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
     });
+
+
+
   });
 	$(".tags").select2({
                         tags:<?php echo $users; ?>
@@ -603,5 +732,6 @@
 		 $('.opportunityTags').select2({
             tags:{{$opportunitytags}}
         });
+
 </script>
 @stop

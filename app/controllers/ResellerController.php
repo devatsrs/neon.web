@@ -529,8 +529,8 @@ class ResellerController extends BaseController {
             ->where('tblCompanyConfiguration.Key','WEB_URL')->first();
         
         $reseller = json_decode($data,true);
-        $reseller['Password'] = Crypt::decrypt($reseller['Password']);
         if(!empty($reseller)){
+            $reseller['Password'] = Crypt::decrypt($reseller['Password']);
             return Response::json($reseller);
         }else{
             return Response::json(array("status" => "failed", "message" => "Partner Not Found!"));
