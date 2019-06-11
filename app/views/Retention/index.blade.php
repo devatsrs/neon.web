@@ -64,28 +64,28 @@
         </div>
         <div class="col-sm-8"></div>
     </div>
-    <div class="form-group">
+    {{-- <div class="form-group">
         <label for="field-1" class="col-sm-2 control-label">Customer Rate Sheet Download History : </label>
         <div class="col-sm-2">
             <input type="text" name="TableData[CustomerRateSheet]" class="form-control" value="{{isset($DataRetenion->CustomerRateSheet)?$DataRetenion->CustomerRateSheet:''}}"/>
         </div>
         <div class="col-sm-8"></div>
-    </div>
-    <div class="form-group">
+    </div> --}}
+    {{-- <div class="form-group">
         <label for="field-1" class="col-sm-2 control-label">Vendor Rate Sheet Upload/Download History : </label>
         <div class="col-sm-2">
             <input type="text" name="TableData[VendorRateSheet]" class="form-control" value="{{isset($DataRetenion->VendorRateSheet)?$DataRetenion->VendorRateSheet:''}}"/>
         </div>
         <div class="col-sm-8"></div>
-    </div>
+    </div> --}}
 
-    <div class="form-group">
+    {{-- <div class="form-group">
         <label for="field-1" class="col-sm-2 control-label">Tickets : </label>
         <div class="col-sm-2">
             <input type="text" name="TableData[DeleteTickets]" class="form-control" value="{{isset($DataRetenion->DeleteTickets)?$DataRetenion->DeleteTickets:''}}"/>
         </div>
         <div class="col-sm-8"></div>
-    </div>
+    </div> --}}
     <div class="form-group">
         <label for="field-1" class="col-sm-2 control-label">Delete archived rates : </label>
         <div class="col-sm-2">

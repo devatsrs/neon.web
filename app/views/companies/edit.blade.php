@@ -240,10 +240,12 @@
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control" id="InvoiceStatus" name="InvoiceStatus" value="{{$company->InvoiceStatus}}" />
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Use Prefix In CDR</label>
-                                    <p class="make-switch switch-small">
-                                        <input id="UseInBilling" name="UseInBilling" type="checkbox" value="1" @if($UseInBilling == 1) checked="checked" @endif>
-                                    </p>
+                                    <label class="col-sm-2 control-label">Rate Approval Process</label>
+                                    <div class="col-sm-4">
+                                        <p class="make-switch switch-small">
+                                            <input id="RateApprovalProcess" name="RateApprovalProcess" type="checkbox" value="1" @if($RateApprovalProcess == 1) checked="checked" @endif>
+                                        </p>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">Decimal Places (123.45) </label>
@@ -296,12 +298,7 @@
                                             <input id="invoicePdfSend" name="invoicePdfSend" type="checkbox" value="1" @if($invoicePdfSend == 1) checked="checked" @endif>
                                         </p>
                                     </div>
-                                    <label class="col-sm-2 control-label">Rate Approval Process</label>
-                                    <div class="col-sm-4">
-                                        <p class="make-switch switch-small">
-                                            <input id="RateApprovalProcess" name="RateApprovalProcess" type="checkbox" value="1" @if($RateApprovalProcess == 1) checked="checked" @endif>
-                                        </p>
-                                    </div>
+                                    
                                 </div>
                                 {{--<div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">RateSheet excel Note</label>

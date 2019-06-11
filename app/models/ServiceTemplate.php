@@ -101,8 +101,15 @@ class ServiceTemplate extends \Eloquent
     public static function getCountryDD($CompanyID){
         $country = ServiceTemplate::Join('tblCountry', function($join) {
                 $join->on('tblServiceTemplate.country','=','tblCountry.country');
-                })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",$CompanyID)
-                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");       
+                })->select('tblCountry.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",$CompanyID)
+                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
         return $country;        
+    }
+    public static function getCountryDDForProduct($CompanyID){
+        $country = ServiceTemplate::Join('tblCountry', function($join) {
+            $join->on('tblServiceTemplate.country','=','tblCountry.country');
+        })->select('tblCountry.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",$CompanyID)
+            ->orderBy('tblServiceTemplate.country')->lists("country", "country");
+        return $country;
     }
 }

@@ -136,7 +136,9 @@ class RateTable extends \Eloquent
     }
 
     public static function getRateTablesForPackage($CompanyID,$Type){
-        $RateTables = RateTable::select(['RateTableName','RateTableId'])->where(['CompanyID' => $CompanyID,'Type' => $Type])->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        $RateTables = RateTable::select(['RateTableName','RateTableId'])
+            ->where('AppliedTo','<>', 2)
+            ->where(['CompanyID' => $CompanyID,'Type' => $Type])->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
         if(!empty($RateTables)){
             $RateTables = [''=>'Select'] + $RateTables;
         }

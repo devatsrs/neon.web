@@ -80,7 +80,6 @@
     .checkicon{color:green; font-size: 17px;}
     .timesicon{color:red; font-size: 17px;}
     .aligncenter { text-align: center; }
-    .export-data { display: none; }
     
 </style>
 
@@ -145,6 +144,16 @@ var postdata;
                                 {"name": "FlatStatus", "value": $searchFilter.FlatStatus},
                                 {"name": "ftDutchProvider", "value": $searchFilter.ftDutchProvider},
                                 {"name": "ftDutchFoundation", "value": $searchFilter.ftDutchFoundation}
+                        );
+                        data_table_extra_params.length = 0;
+                        data_table_extra_params.push(
+                            {"name": "Title", "value": $searchFilter.Title},
+                            {"name": "TaxType", "value": $searchFilter.TaxType},
+                            {"name": "Country", "value": $searchFilter.ftCountry},
+                            {"name": "FlatStatus", "value": $searchFilter.FlatStatus},
+                            {"name": "ftDutchProvider", "value": $searchFilter.ftDutchProvider},
+                            {"name": "ftDutchFoundation", "value": $searchFilter.ftDutchFoundation},
+                            {"name": "Export", "value": 1}
                         );
                     },
              "aoColumns":

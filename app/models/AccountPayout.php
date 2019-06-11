@@ -53,7 +53,7 @@ class AccountPayout extends \Eloquent
         $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
 
         $Reseller = Reseller::where('AccountID', $data['AccountID'])->first();
-        $message = @$Reseller->InvoiceTo;
+        $message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
         $replace_array = Invoice::create_accountdetails($Account);
         $text = Invoice::getInvoiceToByAccount($message, $replace_array);
         $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
@@ -77,8 +77,8 @@ class AccountPayout extends \Eloquent
         $InvoiceData["InvoiceType"]   = Invoice::INVOICE_OUT;
         $InvoiceData["Note"]          = $CreatedBy;
         $InvoiceData["CreatedBy"]     = $CreatedBy;
-        $InvoiceData["Terms"]         = @$Reseller->Terms;
-        $InvoiceData["FooterTerm"]    = @$Reseller->FooterTerm;
+        $InvoiceData["Terms"]         = isset($Reseller->TermsAndCondition) ? $Reseller->TermsAndCondition : '';
+        $InvoiceData["FooterTerm"]    = isset($Reseller->FooterTerm) ? $Reseller->FooterTerm : '';
 
         try{
             DB::connection('sqlsrv2')->beginTransaction();
