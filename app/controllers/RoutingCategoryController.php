@@ -6,7 +6,7 @@ class RoutingCategoryController extends \BaseController {
         $data = Input::all();
         $RoutingCategory = RoutingCategory::select('Name','Description', 'RoutingCategoryID');
         if(!empty($data['Name'])){
-           $RoutingCategory->where(["tblRoutingCategory.Name" => $data['Name']]);
+            $RoutingCategory->where("tblRoutingCategory.Name" , 'LIKE' ,'%' . $data['Name']. '%');
         }
         
         return Datatables::of($RoutingCategory)->make();

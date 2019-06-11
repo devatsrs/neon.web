@@ -28,12 +28,9 @@ class Notification extends \Eloquent {
         Notification::WeeklyPaymentTransactionLog=>'Weekly Payment Transaction Log',
         Notification::PendingApprovalPayment=>'Payment Verification',
         Notification::RetentionDiskSpaceEmail=>'Retention Disk Space Email',
-        Notification::BlockAccount=>'Block Account',
         Notification::InvoicePaidByCustomer=>'Invoice Paid',
-        Notification::AutoAddIP=>'Auto Add IP',
         Notification::AutoTopAccount=>'Auto Top Account',
         Notification::AutoOutPayment=>'Auto Out Payment',
-        Notification::ContractManage=>'Contract',
         //Notification::ApproveOutPayment=>'Approve Out Payment',
         //Notification::LowStockReminder=>'Low Stock Reminder'
     ];

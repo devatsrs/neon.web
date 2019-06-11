@@ -182,7 +182,7 @@ class ServicesTemplateController extends BaseController {
             $inbounddiscountplan =   DiscountPlan::lists('Name','DiscountPlanID');
             $BillingSubsForSrvTemplate = BillingSubscription::lists('Name','SubscriptionID');
             $RateType = RateType::select('RateTypeID','Title')->lists('Title','RateTypeID');
-            $country            = ServiceTemplate::getCountryDD($CompanyID);
+            $country            = ServiceTemplate::getCountryDDForProduct($CompanyID);
             $AccessType         = ServiceTemplate::getAccessTypeDD($CompanyID);
             $City               = ServiceTemplate::getCityDD($CompanyID);
             $Tariff             = ServiceTemplate::getTariffDD($CompanyID);
@@ -762,7 +762,7 @@ class ServicesTemplateController extends BaseController {
 
         Log::info('servicesTemplate ajax_datagrid AJAX data.' . $query);
 
-        $services =  DataTableSql::of($query)->make();
+        $services =  DB::select($query);
 
         $services = json_decode(json_encode($services),true);
             if($type=='csv'){

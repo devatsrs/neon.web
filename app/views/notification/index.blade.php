@@ -43,7 +43,7 @@
                     <form id="notification_filter" method="get" class="form-horizontal form-groups-bordered validate" novalidate>
                         <div class="form-group">
                             <label for="field-1" class="control-label">Type</label>
-                            {{Form::select('NotificationType',$notificationType,'',array("class"=>"select2 Notification_Type_dropdown"))}}
+                            {{Form::select('MonitorType',$call_monitor_alert_type,'',array("class"=>"select2 Notification_Type_dropdown"))}}
                         </div>
                         <div class="form-group">
                             <br/>

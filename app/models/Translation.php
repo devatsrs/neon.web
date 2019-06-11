@@ -189,7 +189,7 @@ $html_translation[] = array("SystemName"=>$key, "Translation"=> str_replace("&nb
 
         $data_langs = Translation::get_language_labels($language);
 
-        $json_file = json_decode($data_langs->Translation, true);
+        $json_file = !empty($data_langs->Translation) ? (array) json_decode($data_langs->Translation, true) : [];
         if(array_key_exists($system_name, $json_file)){
             unset($json_file[$system_name]);
         }

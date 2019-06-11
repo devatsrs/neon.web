@@ -40,7 +40,7 @@ class CompaniesController extends \BaseController {
             $RateSheetTemplate['FooterSize'] = "";
         }
 
-        $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
+        // $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
         $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
         $RateApprovalProcess = CompanySetting::getKeyVal('RateApprovalProcess');
         $AccountVerification = CompanySetting::getKeyVal('AccountVerification');
@@ -72,7 +72,7 @@ class CompaniesController extends \BaseController {
             $DigitalSignature=json_decode($DigitalSignature, true);
         }
 
-        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend', 'RateApprovalProcess'));
+        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend', 'RateApprovalProcess'));
 
     }
 
@@ -88,7 +88,7 @@ class CompaniesController extends \BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
-        $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
+        // $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
         $data['invoicePdfSend'] = isset($data['invoicePdfSend']) ? 1 : 0;
         $data['RateApprovalProcess'] = isset($data['RateApprovalProcess']) ? 1 : 0;
         $data['AccountVerification'] = isset($data['AccountVerification']) ? CompanySetting::ACCOUT_VARIFICATION_ON : CompanySetting::ACCOUT_VARIFICATION_OFF;
@@ -179,8 +179,8 @@ class CompaniesController extends \BaseController {
             unset($data['RateSheetTemplate']);
             unset($data['RateSheetTemplateFile']);
         }
-        CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
-        unset($data['UseInBilling']);
+        // CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
+        // unset($data['UseInBilling']);
         CompanySetting::setKeyVal('invoicePdfSend',$data['invoicePdfSend']);
         unset($data['invoicePdfSend']);
         CompanySetting::setKeyVal('RateApprovalProcess',$data['RateApprovalProcess']);
