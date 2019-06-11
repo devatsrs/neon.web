@@ -404,7 +404,7 @@
                                         
                                     @endif --}}
                                         <td class="Package-Div">
-                                            {{ Form::select('Package-'.$a, $Package, $Component->Package, array("class"=>"select2")) }}
+                                            {{ Form::select('Package-'.$a, $Package, $Component->PackageID, array("class"=>"select2")) }}
                                         </td>
                                         <td id="testValues">
                                             @if($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
@@ -541,7 +541,7 @@
                                         ?>
                                         <tr id="selectedRateRow-{{$a}}">
                                             <td class="Package-Div">
-                                                {{ Form::select('Package1-'.$a, $Package, $calculatedRate->Package, array("class"=>"select2")) }}
+                                                {{ Form::select('Package1-'.$a, $Package, $calculatedRate->PackageID, array("class"=>"select2")) }}
                                             </td>
                                             <td>
                                                 @if($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
