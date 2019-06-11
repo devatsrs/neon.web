@@ -367,6 +367,7 @@ jQuery(document).ready(function($) {
          $('#add-new-form')[0].reset();
          $('#add-new-form select[name=Type]').trigger('change');
          $('#add-new-form input[name="AppliedTo"]').trigger('change');
+         $('#add-new-form select[name="CurrencyID"]').select2('val',{{$CompanyCurrency}});
          $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
      });
      $("#add-new-form").submit(function(ev){
@@ -481,7 +482,7 @@ jQuery(document).ready(function($) {
                         <div class="col-md-6">
                             <div class="form-group ">
                                 <label for="field-5" class="control-label">Currency</label>
-                                {{Form::SelectControl('currency')}}
+                                {{Form::SelectControl('currency',0,$CompanyCurrency)}}
                                         <!--{ Form::select('CurrencyID', $currencylist,  '', array("class"=>"select2")) }}-->
                             </div>
                         </div>
@@ -522,12 +523,12 @@ jQuery(document).ready(function($) {
                                     </label>
                                 @else
                                     <label class="radio-inline">
-                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, true,array("class"=>""))}}
-                                        Partner
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_VENDOR, true,array("class"=>""))}}
+                                        Vendor
                                     </label>
                                     <label class="radio-inline">
-                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_VENDOR, false,array("class"=>""))}}
-                                        Vendor
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, false,array("class"=>""))}}
+                                        Partner
                                     </label>
                                 @endif     
                             </div>
