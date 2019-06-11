@@ -864,7 +864,7 @@
                 var label = 'Map From File';
                 if(el.name != undefined) {
                     var currency_static_column = el.name.replace('selection[', '').replace(']', '');
-                    if (searchKeyByValue(currency_static_column, currency_static_columns_timezone) != false) {
+                    if (searchKeyByValue(currency_static_column, currency_static_columns_timezone) != false || all_occupied_timezone_fields2.indexOf(currency_static_column.replace('Currency','')) !== -1) {
                         self.select2('destroy');
                         self.select2();
                     }
@@ -890,7 +890,7 @@
                 if(el.name !='selection[DateFormat]' && el.name != 'selection[FromCurrency]'){
                     var currency_static_column = el.name.replace('selection[', '').replace(']', '');
                     // if not component currency field then
-                    if (searchKeyByValue(currency_static_column, currency_static_columns_timezone) === false) {
+                    if (searchKeyByValue(currency_static_column, currency_static_columns_timezone) === false && all_occupied_timezone_fields2.indexOf(currency_static_column.replace('Currency','')) === -1) {
                         var self = $('#add-template-form [name="' + el.name + '"]');
                         rebuildSelect2(self, data.columns, 'Skip loading');
                     }
@@ -917,15 +917,14 @@
                                 $("#add-template-form [name='selection["+key+"]']").val(value).trigger("change");
 
                                 // hide all timezones sections which are not mapped
-                                if(key.search("MonthlyCost") >= 0) {
-                                    var id = key.replace("MonthlyCost", "");
-                                    if(id != '' && parseInt(id) > 0) {
-                                        if(value != '') {
+                                var all_components = ['OneOffCost','MonthlyCost','PackageCostPerMinute','RecordingCostPerMinute'];
+                                var id = key.replace( /[^\d]/g, '' );
+                                if(id != '' && parseInt(id) > 0) {
+                                    component = key.replace(id,'');
+                                    if(all_components.indexOf(component) !== -1 && value != '') {
+                                        if($('#panel-mapping-' + id).hasClass('panel-collapse')) {
                                             $('#panel-mapping-' + id).removeClass('panel-collapse');
                                             $('#mapping-' + id).css('display', 'block');
-                                        } else {
-                                            $('#panel-mapping-'+id).addClass('panel-collapse');
-                                            $('#mapping-'+id).css('display','none');
                                         }
                                     }
                                 }
