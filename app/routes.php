@@ -961,6 +961,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/taxrate/create', 'TaxRatesController@create');
 	Route::any('/taxrate/update/{id}', 'TaxRatesController@update');
 	Route::any('/taxrate/{id}/delete', 'TaxRatesController@delete');
+	Route::any('/taxrate/base_exports', 'TaxRatesController@export');
+
+	
 
 	//BilllingSubscription
 	Route::any('/billing_subscription/ajax_datagrid/{type}', 'BillingSubscriptionController@ajax_datagrid');
