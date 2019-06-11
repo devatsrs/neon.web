@@ -600,6 +600,7 @@
       success: function (response) {
         console.log(response.Email);
         $(this).button('reset');
+        $(".logoUpload").empty();
         if (response.status == 'failed') {
 
           $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',PartnerID);
@@ -650,6 +651,7 @@
           IsSSL = response.IsSSL;
           DomainUrl = response.DomainUrl;
           Password = response.Password;
+          PartnerLogo = response.Logo;
 
 
           //AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
@@ -687,6 +689,11 @@
           }else{
             $("#SMTP-SERVER [name='IsSSL']").prop('checked',false);
           }
+
+
+          if(PartnerLogo != ''){
+            $(".logoUpload").html('<img src="' + PartnerLogo + '" style="max-width: 100px;margin-bottom: 5px">');
+         }
 
           if(AllowWhiteLabel == 1 ){
             $('#add-new-reseller-form [name="AllowWhiteLabel"]').prop('checked',true);
