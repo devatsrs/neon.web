@@ -287,7 +287,7 @@ class AccountsController extends \BaseController {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
         }
         if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
+            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
         }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
@@ -324,7 +324,7 @@ class AccountsController extends \BaseController {
         }
 
         $validator = Validator::make($data, Account::$rules, Account::$messages);
-        $validator->setAttributeNames(['AccountName' => 'Company Name']);
+        $validator->setAttributeNames(['AccountName' => 'Account Name']);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -508,7 +508,7 @@ class AccountsController extends \BaseController {
         $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
 
         if ($account = Account::create($data)) {
-            /*
+
             $DynamicData = array();
             $DynamicData['CompanyID']= $companyID;
             $DynamicData['AccountID']= $account->AccountID;
@@ -644,7 +644,7 @@ class AccountsController extends \BaseController {
 
 
             $account->update($data);
-            */
+
             return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
@@ -1031,7 +1031,7 @@ class AccountsController extends \BaseController {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
         }
         if (strpbrk($data['AccountName'],'\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
+            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
         }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
@@ -1076,7 +1076,7 @@ class AccountsController extends \BaseController {
         }
         $validator = Validator::make($data, Account::$rules,Account::$messages);
 
-        $validator->setAttributeNames(['AccountName' => 'Company Name']);
+        $validator->setAttributeNames(['AccountName' => 'Account Name']);
         if ($validator->fails()) {
             return json_validator_response($validator);
             exit;
