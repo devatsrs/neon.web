@@ -751,7 +751,8 @@ class Account extends \Eloquent {
 
     public static function addUpdateAccountDynamicfield($data=array()){
         $DynamicFields = array();
-        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>$data['CompanyID'],'FieldSlug'=>$data['FieldName']])->pluck('DynamicFieldsID');
+        $CompanyID =  getParentCompanyIdIfReseller($data['CompanyID']);
+        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>$CompanyID,'FieldSlug'=>$data['FieldName']])->pluck('DynamicFieldsID');
         if(!empty($FieldsID)){
             $customer=Session::get('customer');
             $UserType = 'user';

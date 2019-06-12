@@ -157,8 +157,8 @@
 
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 hide control-label">Email</label>
-                        <div class="col-md-4 hide">
+                        <label class="col-md-2 control-label">Email</label>
+                        <div class="col-md-4">
                             <input type="text" class="form-control" name="Email" data-validate="required" data-message-required="" placeholder="" value="{{Input::old('Email')}}" />
                         </div>
 
