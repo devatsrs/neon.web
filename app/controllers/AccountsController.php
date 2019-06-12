@@ -287,7 +287,7 @@ class AccountsController extends \BaseController {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
         }
         if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
+            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
         }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
@@ -324,7 +324,7 @@ class AccountsController extends \BaseController {
         }
 
         $validator = Validator::make($data, Account::$rules, Account::$messages);
-        $validator->setAttributeNames(['AccountName' => 'Company Name']);
+        $validator->setAttributeNames(['AccountName' => 'Account Name']);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -470,33 +470,6 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
         }
 
-        if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] = 1) {
-            $rules = array(
-                'OutPaymentThreshold' => 'required|numeric',
-                'OutPaymentAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
-
-            );
-            $validator = Validator::make($data, $rules);
-
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-        }
-
-
-        if (isset($data['AutoTopup']) && $data['AutoTopup'] = 1) {
-            $rules = array(
-                'MinThreshold' => 'required|numeric',
-                'TopupAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
-
-            );
-            $validator = Validator::make($data, $rules);
-
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-        }
-
         if(empty($data['DifferentBillingAddress'])) {
             $data['BillingAddress1'] = $data['Address1'];
             $data['BillingAddress2'] = $data['Address2'];
@@ -508,15 +481,13 @@ class AccountsController extends \BaseController {
         $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
 
         if ($account = Account::create($data)) {
-            /*
+
             $DynamicData = array();
             $DynamicData['CompanyID']= $companyID;
             $DynamicData['AccountID']= $account->AccountID;
 
-            if( isset($data['BillingType']) && $data['BillingType'] == 1 ) {
-                $AccountPaymentAutomation['AccountID'] = $DynamicData['AccountID'];
-                AccountPaymentAutomation::create($AccountPaymentAutomation);
-            }
+            $AccountPaymentAutomation['AccountID'] = $DynamicData['AccountID'];
+            AccountPaymentAutomation::create($AccountPaymentAutomation);
             //
             if($RoutingProfileID!=''){
                 $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$account->AccountID])->first();
@@ -644,7 +615,7 @@ class AccountsController extends \BaseController {
 
 
             $account->update($data);
-            */
+
             return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
@@ -1031,7 +1002,7 @@ class AccountsController extends \BaseController {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
         }
         if (strpbrk($data['AccountName'],'\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
+            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
         }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
@@ -1076,7 +1047,7 @@ class AccountsController extends \BaseController {
         }
         $validator = Validator::make($data, Account::$rules,Account::$messages);
 
-        $validator->setAttributeNames(['AccountName' => 'Company Name']);
+        $validator->setAttributeNames(['AccountName' => 'Account Name']);
         if ($validator->fails()) {
             return json_validator_response($validator);
             exit;
@@ -1254,7 +1225,14 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
         }
 
-        AccountPaymentAutomation::where(['AccountID' => $id])->update($AccountPaymentAutomation);
+        $automation = AccountPaymentAutomation::where(['AccountID' => $id])->first();
+
+        if ($automation != false)
+            $automation->update($AccountPaymentAutomation);
+        else{
+            $AccountPaymentAutomation['AccountID'] = $id;
+            AccountPaymentAutomation::create($AccountPaymentAutomation);
+        }
 
 //        else{
 //
@@ -1275,9 +1253,9 @@ class AccountsController extends \BaseController {
             $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
         }
 
-       /* if ($data['IsAffiliateAccount'] == 0) {
-            unset($data['CommissionPercentage']);
-        }*/
+        /* if ($data['IsAffiliateAccount'] == 0) {
+             unset($data['CommissionPercentage']);
+         }*/
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -1920,14 +1898,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function update_credit(){
         $data = Input::all();
         $postdata= $data;
-        
+
         $rules=array();$messages=array();
         if(!empty($postdata['counttr'])){
             $thList = $postdata['counttr'];
             for ($k = 0; $k < $thList; $k++) {
                 $rules['BalanceThresholdnew-' . ($k)] = 'required';
                 $messages['BalanceThresholdnew-' . ($k).'.required'] = "Balance Threshold Value for the Row " . ($k+1 ) . " required";
-                
+
                 $rules['email-' . ($k)] = 'required';
                 $messages['email-' . ($k).'.required'] = "Balance Threshold Email Value for the Row " . ($k+1 ) . " required";
             }
@@ -2246,7 +2224,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = $account->CompanyId;
         $message = '';
 
-       // Log::info("clitable_store " . print_r($data,true));
+        // Log::info("clitable_store " . print_r($data,true));
         $rules['CLI']                    = 'required';
         $rules['NumberStartDate']        = 'required';
         $rules['NumberEndDate']          = 'required';
@@ -2533,7 +2511,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return Response::json(array("status" => "check","check"=>1));
         }
 
-       // Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
+        // Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
 
         if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
@@ -2546,7 +2524,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function packagetable_delete($AccountServicePackageID){
         $data = Input::all();
-       // Log::info("packagetable_delete " . print_r($data,true) . '' . $AccountServicePackageID);
+        // Log::info("packagetable_delete " . print_r($data,true) . '' . $AccountServicePackageID);
         $CompanyID = User::get_companyID();
         if ($AccountServicePackageID > 0) {
             $data['AccountServicePackageIDs'] = $AccountServicePackageID + ",";
@@ -2690,7 +2668,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $query = 'call prc_getRateTableVendor (' . $rate_tables['RateTableID'] .",'" .
                 $rate_tables['NoType'] . "','" . $rate_tables['City']. "','" . $rate_tables['Tariff']. "','" . $rate_tables['CountryID'] . "','" . '0' .
                 "','" . $rate_tables['Prefix'] . "'" . ')';
-           $results = DB::select($query);
+            $results = DB::select($query);
             Log::info("clitable_update " . $query);
             $VendorID = '';
             foreach($results as $result){

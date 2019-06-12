@@ -266,6 +266,8 @@
                                                     <div class="col-sm-6">
                                                         <input id="picture" type="file" name="CompanyLogo" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                                                     </div>
+                                                    <div class="col-sm-5 logoUpload">
+                                                    </div>
                                                 </div>
                                             </div>
                                             <br>

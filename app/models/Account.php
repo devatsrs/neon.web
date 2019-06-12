@@ -833,8 +833,9 @@ class Account extends \Eloquent {
     public static function getDynamicfields($Type,$ParentID){
         $results = array();
         $data = array();
+        $CompanyID = getParentCompanyIdIfReseller(User::get_companyID());
 
-        $Fields = DB::table('tblDynamicFields')->where(['CompanyID'=>User::get_companyID(),'Type'=>$Type,'Status'=>1])->get();
+        $Fields = DB::table('tblDynamicFields')->where(['CompanyID'=>$CompanyID,'Type'=>$Type,'Status'=>1])->get();
         Log::info("Count for Dynamic fields for Account ." . $ParentID . count($Fields));
         if(!empty($Fields) && count($Fields)>0){
             //Log::info("Count for Dynamic fields for Account ." . $ParentID . ' in side loop ');

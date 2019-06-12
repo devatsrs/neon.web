@@ -33,20 +33,35 @@ class Currency extends \Eloquent {
         }
     }
 
-    public static function getCurrencyDropdownIDList($CompanyID=0){
+    public static function getCurrencyDropdownIDList($CompanyID=0,$includePrefix=0){
 
-        if (self::$enable_cache && Cache::has('currency_dropdown1_cache')) {
-            $admin_defaults = Cache::get('currency_dropdown1_cache');
-            self::$cache['currency_dropdown1_cache'] = $admin_defaults['currency_dropdown1_cache'];
+        if($includePrefix == 1) {
+            if (self::$enable_cache && Cache::has('currency_dropdown11_cache')) {
+                $admin_defaults = Cache::get('currency_dropdown11_cache');
+                self::$cache['currency_dropdown11_cache'] = $admin_defaults['currency_dropdown11_cache'];
+            } else {
+                $CompanyId = $CompanyID > 0 ? $CompanyID : User::get_companyID();
+                //self::$cache['currency_dropdown11_cache'] = Currency::where("CompanyId",$CompanyId)->lists('Code','CurrencyID');
+
+                self::$cache['currency_dropdown11_cache'] = Currency::select('Code', DB::raw('CONCAT("DBDATA-",CurrencyID) AS CurrencyID'))->lists('Code', 'CurrencyID');
+                self::$cache['currency_dropdown11_cache'] = array('' => "Select") + self::$cache['currency_dropdown11_cache'];
+                Cache::forever('currency_dropdown11_cache', array('currency_dropdown11_cache' => self::$cache['currency_dropdown11_cache']));
+            }
+            return self::$cache['currency_dropdown11_cache'];
         } else {
-            $CompanyId = $CompanyID>0?$CompanyID : User::get_companyID();
-            //self::$cache['currency_dropdown1_cache'] = Currency::where("CompanyId",$CompanyId)->lists('Code','CurrencyID');
-            self::$cache['currency_dropdown1_cache'] = Currency::lists('Code','CurrencyID');
-            self::$cache['currency_dropdown1_cache'] = array('' => "Select")+ self::$cache['currency_dropdown1_cache'];
-            Cache::forever('currency_dropdown1_cache', array('currency_dropdown1_cache' => self::$cache['currency_dropdown1_cache']));
-        }
+            if (self::$enable_cache && Cache::has('currency_dropdown1_cache')) {
+                $admin_defaults = Cache::get('currency_dropdown1_cache');
+                self::$cache['currency_dropdown1_cache'] = $admin_defaults['currency_dropdown1_cache'];
+            } else {
+                $CompanyId = $CompanyID > 0 ? $CompanyID : User::get_companyID();
+                //self::$cache['currency_dropdown1_cache'] = Currency::where("CompanyId",$CompanyId)->lists('Code','CurrencyID');
 
-        return self::$cache['currency_dropdown1_cache'];
+                self::$cache['currency_dropdown1_cache'] = Currency::lists('Code', 'CurrencyID');
+                self::$cache['currency_dropdown1_cache'] = array('' => "Select") + self::$cache['currency_dropdown1_cache'];
+                Cache::forever('currency_dropdown1_cache', array('currency_dropdown1_cache' => self::$cache['currency_dropdown1_cache']));
+            }
+            return self::$cache['currency_dropdown1_cache'];
+        }
     }
 
     public static function getCurrencyDropdownList(){

@@ -529,8 +529,10 @@ class ResellerController extends BaseController {
             ->where('tblCompanyConfiguration.Key','WEB_URL')->first();
         
         $reseller = json_decode($data,true);
-        $reseller['Password'] = Crypt::decrypt($reseller['Password']);
         if(!empty($reseller)){
+            $reseller['Password'] = Crypt::decrypt($reseller['Password']);
+            Log::info("Amazon" . AmazonS3::$isAmazonS3);
+            $reseller['Logo']  = !empty($reseller['LogoAS3Key']) ? AmazonS3::unSignedImageUrl($reseller['LogoAS3Key'], $reseller['ChildCompanyID']):'';
             return Response::json($reseller);
         }else{
             return Response::json(array("status" => "failed", "message" => "Partner Not Found!"));
