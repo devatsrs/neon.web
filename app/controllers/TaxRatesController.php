@@ -188,7 +188,7 @@ class TaxRatesController extends \BaseController {
         
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $taxrates = TaxRate::select('Title','Amount','Country','DutchProvider','DutchFoundation')->where("CompanyID", $CompanyID);
+        $taxrates = TaxRate::select('Title','Amount as VAT%','Country','DutchProvider','DutchFoundation')->where("CompanyID", $CompanyID);
         if(isset($data['Title']) and !empty($data['Title']))
         {
              $taxrates = $taxrates->where('Title', 'like', '%'.$data['Title'].'%');
