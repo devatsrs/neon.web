@@ -681,13 +681,13 @@ class AccountServiceController extends \BaseController {
             $error = '';
             try {
                 foreach ($AccountServiceIds as $Service => $key) {
-                    if (AccountService::checkForeignKeyById($AccountID, $key)) {
+                    /*if (AccountService::checkForeignKeyById($AccountID, $key)) {*/
                         AccountService::where(array('AccountID' => $AccountID, 'AccountServiceID' => $key))->delete();
-                    } else {
+                    /*} else {
                         $ServiceName = Service::getServiceNameByID($key);
                         $error .= '<br>' . $ServiceName;
 
-                    }
+                    }*/
                 }
                 if (!empty($error)) {
                     $errormsg = '<br>Following Service is Use,you can not delete.' . $error;
