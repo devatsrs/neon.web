@@ -392,10 +392,10 @@ class RateTablesController extends \BaseController {
                 }
 
                 if($data['ApprovedStatus'] == RateTable::RATE_STATUS_APPROVED) {
-                    $success_message = 'Rates Successfully Deleted';
+                    $success_message = 'Rates Successfully added for approval to Delete';
                     $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 } else {
-                    $success_message = 'Rates Successfully added for approval to Delete';
+                    $success_message = 'Rates Successfully Deleted';
                     $query = "call prc_RateTableRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "'," . $p_criteria . "," . $action . ")";
                 }
 
@@ -1622,10 +1622,10 @@ class RateTablesController extends \BaseController {
                 }
 
                 if($data['ApprovedStatus'] == RateTable::RATE_STATUS_APPROVED) {
-                    $success_message = 'Rates Successfully Deleted';
+                    $success_message = 'Rates Successfully added for approval to Delete';
                     $query = "call prc_RateTableDIDRateUpdateDelete (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $City . "," . $Tariff . "," . $AccessType . "," . $OneOffCost . "," . $MonthlyCost . "," . $CostPerCall . "," . $CostPerMinute . "," . $SurchargePerCall . "," . $SurchargePerMinute . "," . $OutpaymentPerCall . "," . $OutpaymentPerMinute . "," . $Surcharges . "," . $Chargeback . "," . $CollectionCostAmount . "," . $CollectionCostPercentage . "," . $RegistrationCostPerNumber . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $CostPerCallCurrency . "," . $CostPerMinuteCurrency . "," . $SurchargePerCallCurrency . "," . $SurchargePerMinuteCurrency . "," . $OutpaymentPerCallCurrency . "," . $OutpaymentPerMinuteCurrency . "," . $SurchargesCurrency . "," . $ChargebackCurrency . "," . $CollectionCostAmountCurrency . "," . $RegistrationCostPerNumberCurrency . "," . $criteria['Country'] . "," . $criteria['OriginationCode'] . "," . $criteria['Code'] . "," . $criteria['City'] . "," . $criteria['Tariff'] . "," . $criteria['AccessType'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 } else {
-                    $success_message = 'Rates Successfully added for approval to Delete';
+                    $success_message = 'Rates Successfully Deleted';
                     $query = "call prc_RateTableDIDRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $City . "," . $Tariff . "," . $AccessType . "," . $OneOffCost . "," . $MonthlyCost . "," . $CostPerCall . "," . $CostPerMinute . "," . $SurchargePerCall . "," . $SurchargePerMinute . "," . $OutpaymentPerCall . "," . $OutpaymentPerMinute . "," . $Surcharges . "," . $Chargeback . "," . $CollectionCostAmount . "," . $CollectionCostPercentage . "," . $RegistrationCostPerNumber . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $CostPerCallCurrency . "," . $CostPerMinuteCurrency . "," . $SurchargePerCallCurrency . "," . $SurchargePerMinuteCurrency . "," . $OutpaymentPerCallCurrency . "," . $OutpaymentPerMinuteCurrency . "," . $SurchargesCurrency . "," . $ChargebackCurrency . "," . $CollectionCostAmountCurrency . "," . $RegistrationCostPerNumberCurrency . "," . $criteria['Country'] . "," . $criteria['OriginationCode'] . "," . $criteria['Code'] . "," . $criteria['City'] . "," . $criteria['Tariff'] . "," . $criteria['AccessType'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 }
 
@@ -1795,10 +1795,10 @@ class RateTablesController extends \BaseController {
                 }
 
                 if($data['ApprovedStatus'] == RateTable::RATE_STATUS_APPROVED) {
-                    $success_message = 'Rates Successfully Deleted';
+                    $success_message = 'Rates Successfully added for approval to Delete';
                     $query = "call prc_RateTablePKGRateUpdateDelete (" . $RateTableID . ",'" . $RateTablePKGRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $OneOffCost . "," . $MonthlyCost . "," . $PackageCostPerMinute . "," . $RecordingCostPerMinute . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $PackageCostPerMinuteCurrency . "," . $RecordingCostPerMinuteCurrency . "," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 } else {
-                    $success_message = 'Rates Successfully added for approval to Delete';
+                    $success_message = 'Rates Successfully Deleted';
                     $query = "call prc_RateTablePKGRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTablePKGRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $OneOffCost . "," . $MonthlyCost . "," . $PackageCostPerMinute . "," . $RecordingCostPerMinute . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $PackageCostPerMinuteCurrency . "," . $RecordingCostPerMinuteCurrency . "," . $criteria['Code'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 }
 
