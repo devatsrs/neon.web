@@ -160,6 +160,7 @@ class RateTablesController extends \BaseController {
         $DIDCategory = DIDCategory::getCategoryDropdownIDList($companyID);
         $RateTypes   = RateType::getRateTypeDropDownList();
         $ResellerDD  = RateTable::getResellerDropdownIDList();
+        $CompanyCurrency = Company::getCompanyField($companyID,'CurrencyId');
 
         $Page = Route::getCurrentRoute()->getPath();
         $ResellerPage = 0;
@@ -167,7 +168,7 @@ class RateTablesController extends \BaseController {
             $ResellerPage = 1;
         }
 
-        return View::make('ratetables.index', compact('trunks','RateGenerators','codedecks','trunk_keys','currencylist','DIDCategory','RateTypes','ResellerDD','ResellerPage'));
+        return View::make('ratetables.index', compact('trunks','RateGenerators','codedecks','trunk_keys','currencylist','DIDCategory','RateTypes','ResellerDD','ResellerPage','CompanyCurrency'));
     }
 
 

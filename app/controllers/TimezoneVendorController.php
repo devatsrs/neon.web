@@ -24,12 +24,17 @@ class TimezoneVendorController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
+            foreach($excel_data as $key => $item) {
+                $timeofday = ['Time Of Day' => $item['TimeZone']];
+                $excel_data[$key] = array_splice($item, 0, 3, true) + $timeofday + array_slice($item, 3, count($item)-3, true);
+                unset($excel_data[$key]['TimeZone']);
+            }
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Timezones.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Time Of Day.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Timezones.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Time Of Day.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

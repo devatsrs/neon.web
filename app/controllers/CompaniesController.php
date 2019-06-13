@@ -122,6 +122,7 @@ class CompaniesController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        $data['SMTPPassword'] = Crypt::encrypt($data['SMTPPassword']);
         if(empty($data['SMTPPassword'])){
             unset($data['SMTPPassword']);
         }

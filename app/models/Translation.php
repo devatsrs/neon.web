@@ -176,6 +176,8 @@ $html_translation[] = array("SystemName"=>$key, "Translation"=> str_replace("&nb
         foreach($labelArr as $label){
             $system_name=strtoupper($label["system_name"]);
             $json_file[$system_name]=$label["value"];
+
+            Log::info("result save". $system_name . ' ' . $label["value"]);
         }
         DB::table('tblTranslation')
             ->where(['TranslationID'=>$data_langs->TranslationID])
