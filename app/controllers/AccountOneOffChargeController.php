@@ -109,7 +109,9 @@ class AccountOneOffChargeController extends \BaseController {
         $rules = array(
             'AccountID'   => 'required',
             'ProductID'   => 'required',
+            'Description' => 'required',
             'Date'        => 'required',
+            'CurrencyID'  => 'required',
             'Qty'         => 'required',
             'Price'       => 'required|numeric'
         );
@@ -176,11 +178,13 @@ class AccountOneOffChargeController extends \BaseController {
             $verifier->setConnection('sqlsrv2');
 
             $rules = array(
-                'AccountID'         =>      'required',
-                'ProductID'    =>  'required',
-                'Date'               =>'required',
-                'Qty'               =>'required',
-                'Price'               =>'required|numeric'
+                'AccountID'   => 'required',
+                'ProductID'   => 'required',
+                'Description' => 'required',
+                'Date'        => 'required',
+                'CurrencyID'  => 'required',
+                'Qty'         => 'required',
+                'Price'       => 'required|numeric'
             );
             $validator = Validator::make($data, $rules);
             $validator->setPresenceVerifier($verifier);

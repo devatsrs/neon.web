@@ -214,7 +214,7 @@
         </table>
     </div>
 
-    <div class="vendorRateInfo hide">
+    <div class="vendorRateInfo hide" style="display:none">
         <ul class="nav nav-tabs">
             <?php $i = 0; $active = ''; ?>
             @foreach($Timezones as $ID => $Title)
@@ -1138,6 +1138,7 @@
 
             /* show margine datatable */
             $('#table-4 tbody').on('click', 'td.destination', function () {
+                return false; // disabled
                 var SelectedEffectiveDate = $("#lcr-search-form input[name='SelectedEffectiveDate']").val();
                 var LCRPosition = $("#lcr-search-form select[name='LCRPosition']").val();
                 $("#margineDataTable_processing").css('visibility','visible');

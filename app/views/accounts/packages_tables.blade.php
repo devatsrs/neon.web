@@ -258,7 +258,7 @@
                         $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
                        // tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
-                        var header = "<thead><tr><th>One Off Cost</th><th>Monthly Cost</th><th>Cost Per Minute</th><th>Recording Cost per Minute</th>" +
+                        var header = "<thead><tr><th>Time Of Day</th><th>One Off Cost</th><th>Monthly Cost</th><th>Cost Per Minute</th><th>Recording Cost per Minute</th>" +
                                 "<th>Effective Date</th><th>End Date</th>";
                         header += "</tr></thead>";
                         table.append(header);
@@ -270,6 +270,7 @@
                             html += "<tr class='no-selection'>";
 
 
+                            html += "<td>" + (data['TimeZone'] != null ? data['TimeZone'] : '') + "</td>";
                             html += "<td>" + (data['OneOffCost'] != null ? data['OneOffCost'] : '') + "</td>";
                             html += "<td>" + (data['MonthlyCost'] != null ? data['MonthlyCost'] : '') + "</td>";
                             html += "<td>" + (data['PackageCostPerMinute'] != null ? data['PackageCostPerMinute'] : '') + "</td>";
@@ -567,7 +568,7 @@
 
             var fields = $(this).prev(".hiddenRowData");
             $('#packagetable-form').trigger("reset");
-            $('#modal-packagetable h4').html('Edit Number RateTable');
+            $('#modal-packagetable h4').html('Edit Package');
 
             /* var package_list_fields = ["AccountServicePackageID", "PackageName","RateTableName", "PackageDiscountPlan",'ContractID', 'PackageStartDate', 'PackageEndDate',
              'Status','PackageId','RateTableID','PackageDiscountPlanID'];*/
@@ -660,7 +661,7 @@
                 }
             });
             $('#packagetable-form').trigger("reset");
-            $('#modal-packagetable h4').html('Update Number');
+            $('#modal-packagetable h4').html('Update Package');
             $("#packagetable-form [name=RateTableID]").select2().select2('val', "");
             $("#packagetable-form [name=PackageID]").select2().select2('val', "");
             $("#packagetable-form [name=PackageRateTableID]").select2().select2('val', "");
@@ -845,7 +846,7 @@
                 <form role="form" id="form-confirm-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Delete Number</h4>
+                        <h4 class="modal-title">Delete Package</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -857,7 +858,7 @@
                                     </div>
                                     <div class="col-sm-3"></div>
                                     <div class="col-sm-3"></div>
-                                    <div class="col-sm-9">This is the date when you deleted Number against this account from the switch</div>
+                                    <div class="col-sm-9">This is the date when you deleted Package against this account from the switch</div>
                                 </div>
                             </div>
                         </div>

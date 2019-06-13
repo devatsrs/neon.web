@@ -485,9 +485,11 @@ class RateGeneratorsController extends \BaseController {
                         $addComponents['ToPrefix'] = $GetTPrefix;
                         $addComponents['ToCity'] = $GetTCity;
                         $addComponents['ToTariff'] = $GetTTarif;
-                        $addComponents['Package'] = $GetPackage;
+                        $addComponents['PackageID'] = $GetPackage;
 
-
+                        if($addComponents['PackageID'] == ''){
+                            $addComponents['PackageID'] = Null;
+                        }
                         if (RateGeneratorComponent::create($addComponents)) {
                             $CostComponentSaved = "and Cost component Updated";
                         }
@@ -511,10 +513,11 @@ class RateGeneratorsController extends \BaseController {
                         $addCalRate['Prefix']          = $rPrefix[$i];
                         $addCalRate['City']            = $rCity[$i];
                         $addCalRate['Tariff']          = $rTarrif[$i];
-                        $addCalRate['Package']         =  $rPackage[$i];
+                        $addCalRate['PackageID']         =  $rPackage[$i];
 
-
-
+                        if($addCalRate['PackageID'] == ''){
+                            $addCalRate['PackageID'] = Null;
+                        }
 
                         if (RateGeneratorCalculatedRate::create($addCalRate)) {
                             $CostComponentSaved = "and Calculated Rate Updated";
@@ -1016,8 +1019,12 @@ class RateGeneratorsController extends \BaseController {
                         $addComponents['ToPrefix'] = $GetTPrefix;
                         $addComponents['ToCity'] = $GetTCity;
                         $addComponents['ToTariff'] = $GetTTarif;
-                        $addComponents['Package'] = $GetPackage;
+                        $addComponents['PackageID'] = $GetPackage;
 
+
+                        if($addComponents['PackageID'] == ''){
+                            $addComponents['PackageID'] = Null;
+                        }
                         if (RateGeneratorComponent::create($addComponents)) {
                             $CostComponentSaved = "and Cost component Updated";
                         }
@@ -1042,8 +1049,11 @@ class RateGeneratorsController extends \BaseController {
                         $addCalRate['Prefix']          = $rPrefix[$i];
                         $addCalRate['City']            = $rCity[$i];
                         $addCalRate['Tariff']          = $rTarrif[$i];
-                        $addCalRate['Package']         =  $rPackage[$i];
+                        $addCalRate['PackageID']         =  $rPackage[$i];
 
+                        if($addCalRate['PackageID'] == ''){
+                            $addCalRate['PackageID'] = Null;
+                        }
                         if (RateGeneratorCalculatedRate::create($addCalRate)) {
                             $CostComponentSaved = "and Calculated Rate Updated";
                         }

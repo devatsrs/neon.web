@@ -59,6 +59,7 @@ class TaxRate extends \Eloquent {
     }
     public static function getTaxRateDropdownIDList($CompanyID){
 
+        $CompanyID = getParentCompanyIdIfReseller($CompanyID);
         $Taxes = TaxRate::where(array('CompanyID'=>$CompanyID))->lists('Title','TaxRateID');
         $Taxes = array('' => "Select")+ $Taxes;
         return $Taxes;

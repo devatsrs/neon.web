@@ -226,7 +226,7 @@ class TranslateController extends \BaseController {
             $excel = Input::file('excel'); // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
 
-            if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
+            if (in_array(strtolower($ext), array("xls", "xlsx"))) {
                 $file_name = "Translat_". GUID::generate() . '.' . $ext;
                 Log::info("file name ".$file_name);
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TRANSLATION_IMPORT']) ;
@@ -259,7 +259,7 @@ class TranslateController extends \BaseController {
                 }
 
             } else {
-                return Response::json(array("status" => "failed", "message" => "Allowed Extension .xls, .xlxs, .csv."));
+                return Response::json(array("status" => "failed", "message" => "Allowed Extension .xls, .xlxs."));
             }
         } else {
             return Response::json(array("status" => "failed", "message" => "Please upload excel/csv file <5MB."));
