@@ -429,7 +429,7 @@ public function main() {
                         }
                 }
 
-                return Response::json(array("status" => "success", "message" => "Subscription Successfully Created", 'LastID' => $AccountSubscription->AccountSubscriptionID));
+                return Response::json(array("status" => "success", "message" => "Subscription Successfully Updated", 'LastID' => $AccountSubscription->AccountSubscriptionID));
             }catch(Exception $ex){
                 Log::info('Trach Line...' . $ex->getTraceAsString());
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:" . $ex->getMessage()));
