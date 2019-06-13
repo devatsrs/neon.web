@@ -194,8 +194,8 @@
                             </div>
                         @endif
                         <div class="form-group">
-                            <label class="col-md-2 hide control-label">Email</label>
-                            <div class="col-md-4 hide">
+                            <label class="col-md-2 control-label">Email</label>
+                            <div class="col-md-4">
                                 <input type="text" class="form-control" name="Email" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{{$account->Email}}" />
                             </div>
                             <label class="col-md-2 control-label">Billing Email</label>

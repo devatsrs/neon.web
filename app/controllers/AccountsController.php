@@ -318,7 +318,7 @@ class AccountsController extends \BaseController {
             Account::$rules['CommissionPercentage'] = 'required';
         }
 
-        if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
+        if(DynamicFields::where(['CompanyID' => getParentCompanyIdIfReseller($companyID), 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
             Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
         }
@@ -3152,6 +3152,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $Taxes = '';
         $CompanyID = $data['CompanyID'];
+        $CompanyID = getParentCompanyIdIfReseller($CompanyID);
         $Country = $data['Country'];
         $RegisterDutchFoundation = 0;
         $DutchProvider = 0;
