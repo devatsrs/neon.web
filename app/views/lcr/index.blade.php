@@ -1138,6 +1138,7 @@
 
             /* show margine datatable */
             $('#table-4 tbody').on('click', 'td.destination', function () {
+                return false; // disabled
                 var SelectedEffectiveDate = $("#lcr-search-form input[name='SelectedEffectiveDate']").val();
                 var LCRPosition = $("#lcr-search-form select[name='LCRPosition']").val();
                 $("#margineDataTable_processing").css('visibility','visible');
