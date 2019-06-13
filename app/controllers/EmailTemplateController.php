@@ -77,7 +77,7 @@ class EmailTemplateController extends \BaseController {
 		$emailfrom	 	=	TicketGroups::GetGroupsFrom($CompanyID);
 		$email_from		=	array_merge(array(""=>"Select"),$emailfrom);
         $reseller_owners = Reseller::getDropdownIDListAll();
-        
+        unset($reseller_owners['']);
         return View::make('emailtemplate.index',compact('privacy','type',"TemplateType","email_from","reseller_owners","CompanyID"));
     }
 
