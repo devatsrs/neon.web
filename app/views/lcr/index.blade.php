@@ -214,7 +214,7 @@
         </table>
     </div>
 
-    <div class="vendorRateInfo hide">
+    <div class="vendorRateInfo hide" style="display:none">
         <ul class="nav nav-tabs">
             <?php $i = 0; $active = ''; ?>
             @foreach($Timezones as $ID => $Title)
