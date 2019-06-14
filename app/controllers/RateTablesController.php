@@ -23,7 +23,7 @@ class RateTablesController extends \BaseController {
             $rate_tables->where("tblRateTable.Reseller",-1)->orWhere("tblRateTable.Reseller",$ResellerID);
         } else {
             $rate_tables->where("tblRateTable.CompanyId",$CompanyID);
-            if(isset($data['Reseller']) && $data['Reseller'] != 0){
+            if(isset($data['Reseller']) && $data['Reseller'] != 0 && !empty($data['AppliedTo']) && $data['AppliedTo']==RateTable::APPLIED_TO_RESELLER){
                 $rate_tables->where('tblRateTable.Reseller',$data['Reseller']);
             }
         }
