@@ -103,7 +103,6 @@ class RateGeneratorsController extends \BaseController {
             ])->lists("Name", "ServiceTemplateId");
 
         $ResellerDD  = RateTable::getResellerDropdownIDList();
-        unset($ResellerDD['']);
 
         return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones','country','AccessType','Prefix','City','Tariff','ResellerDD'));
     }
@@ -620,8 +619,6 @@ class RateGeneratorsController extends \BaseController {
             ])->lists("Name", "PackageId");
 
             $ResellerDD  = RateTable::getResellerDropdownIDList();
-            unset($ResellerDD['']);
-
             // Debugbar::info($rategenerator_rules);
             return View::make('rategenerators.edit', compact('id', 'Products','Package', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones','country','AccessType','Prefix','City','country_rule','Tariff','ResellerDD'));
         }
