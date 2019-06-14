@@ -15,7 +15,7 @@ class AccountServiceController extends \BaseController {
         $ServiceName = Service::getServiceNameByID($ServiceID);
         $decimal_places = get_round_decimal_places($id);
         $products = Product::getProductDropdownList($CompanyID);
-        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
+        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0, getParentCompanyIdIfReseller($CompanyID));
         $rate_table = RateTable::getRateTableList([
             'types' => [RateGenerator::DID],
             'NotVendor' => true,
@@ -93,10 +93,11 @@ class AccountServiceController extends \BaseController {
             $RateTableID=$AccountServicePackage->RateTableID;
         }
 
-        $AccessType         = ServiceTemplate::getAccessTypeDD($AccountCompanyId);
-        $City               = ServiceTemplate::getCityDD($AccountCompanyId);
-        $Tariff             =ServiceTemplate::getTariffDD($AccountCompanyId);
-        $Prefix             = ServiceTemplate::getPrefixDD($AccountCompanyId);
+        $ParentCompanyID    = getParentCompanyIdIfReseller($AccountCompanyId);
+        $AccessType         = ServiceTemplate::getAccessTypeDD($ParentCompanyID);
+        $City               = ServiceTemplate::getCityDD($ParentCompanyID);
+        $Tariff             = ServiceTemplate::getTariffDD($ParentCompanyID);
+        $Prefix             = ServiceTemplate::getPrefixDD($ParentCompanyID);
 
         $AccessType = array('' => "Select") + $AccessType;
         $Prefix = array('' => "Select") + $Prefix;
@@ -115,7 +116,7 @@ class AccountServiceController extends \BaseController {
         $AccountID = $id;
         $decimal_places = get_round_decimal_places($id);
         $products = Product::getProductDropdownList($CompanyID);
-        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
+        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,getParentCompanyIdIfReseller($CompanyID));
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
         $allservices = Service::where('Status', 1)->get();

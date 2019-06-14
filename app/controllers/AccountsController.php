@@ -1102,6 +1102,13 @@ class AccountsController extends \BaseController {
             $COCNumber = '';
         }
 
+        if (isset($data['CustomerID'])) {
+            $CustomerID = $data['CustomerID'];
+            unset($data['CustomerID']);
+        }else{
+            $CustomerID = '';
+        }
+
         if (isset($data['PONumber'])) {
             $PONumber = $data['PONumber'];
             unset($data['PONumber']);
@@ -1267,9 +1274,9 @@ class AccountsController extends \BaseController {
                 $DynamicData['FieldValue']= $AccountGateway;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
-            if(!empty($data["CustomerID"])){
+            if(!empty($CustomerID)){
                 $DynamicData['FieldName'] = 'CustomerID';
-                $DynamicData['FieldValue']= $data["CustomerID"];
+                $DynamicData['FieldValue']= $CustomerID;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
 
