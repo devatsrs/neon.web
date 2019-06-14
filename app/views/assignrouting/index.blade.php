@@ -16,7 +16,7 @@
                 </div>--}}
                 <div class="form-group">
                     <label class="control-label" for="field-1">Apply To</label>
-                    {{ Form::select('level', ["S"=>"Service","T"=>"Trunk","A"=>"Account",], 'T', array("class"=>"select2 level","data-type"=>"level")) }}
+                    {{ Form::select('level', ["S"=>"Service","A"=>"Account",], 'S', array("class"=>"select2 level","data-type"=>"level")) }}
                 </div>
 
                 <div class="form-group hidden S">
