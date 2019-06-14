@@ -272,7 +272,7 @@ BEGIN
         WHERE vac.CompanyID = p_CompanyID
 		AND(p_GatewayName ='' OR vac.GatewayName like Concat('%',p_GatewayName,'%'))
 		AND(p_CompanyGatewayID = 0 OR vac.CompanyGatewayID = p_CompanyGatewayID)
-		AND(p_CallPrefix ='' OR vac.CallPrefix like Concat(p_CallPrefix,'%'))
+		AND(p_CallPrefix ='' OR vac.CallPrefix like Concat('%',p_CallPrefix,'%'))
 			
          ORDER BY
 				CASE
@@ -302,7 +302,7 @@ BEGIN
 			WHERE vac.CompanyID = p_CompanyID
 			AND(p_GatewayName ='' OR vac.GatewayName like Concat('%',p_GatewayName,'%'))
 			AND(p_CompanyGatewayID = 0 OR vac.CompanyGatewayID = p_CompanyGatewayID)
-			AND(p_CallPrefix ='' OR vac.CallPrefix like Concat(p_CallPrefix,'%'));
+			AND(p_CallPrefix ='' OR vac.CallPrefix like Concat('%',p_CallPrefix,'%'));
 
 	ELSE
 
@@ -317,7 +317,7 @@ BEGIN
 			WHERE vac.CompanyID = p_CompanyID
 			AND(p_GatewayName ='' OR vac.GatewayName like Concat('%',p_GatewayName,'%'))
 			AND(p_CompanyGatewayID = 0 OR vac.CompanyGatewayID = p_CompanyGatewayID)
-			AND(p_CallPrefix ='' OR vac.CallPrefix like Concat(p_CallPrefix,'%'));
+			AND(p_CallPrefix ='' OR vac.CallPrefix like Concat('%',p_CallPrefix,'%'));
 
 	END IF;
 
@@ -1027,7 +1027,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getVOSAccountIP`;
 DELIMITER //
-CREATE PROCEDURE `prc_getVOSAccountIP`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSAccountIP`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountName` VARCHAR(255),
 	IN `p_RemoteIps` VARCHAR(255),
@@ -1036,7 +1036,6 @@ CREATE PROCEDURE `prc_getVOSAccountIP`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_Export` INT
-
 
 )
 BEGIN
@@ -1119,6 +1118,7 @@ BEGIN
 	
 END//
 DELIMITER ;
+
 
 
 
@@ -2232,7 +2232,7 @@ END//
 DELIMITER ;
 
 
-/* Display RatePrefix in customer & Vendor Rate Tab - Remain in staging*/
+/* Display RatePrefix in customer & Vendor Rate Tab */
  
 ALTER TABLE `tblCustomerRateArchive`
 	ADD COLUMN `RatePrefix` VARCHAR(255) NULL DEFAULT NULL AFTER `Notes`;
@@ -3562,6 +3562,122 @@ ThisSP:BEGIN
 END//
 DELIMITER ;
 	
+	
 
+DROP PROCEDURE IF EXISTS `prc_WSCronJobDeleteOldVendorRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSCronJobDeleteOldVendorRate`(
+	IN `p_DeletedBy` TEXT
+
+)
+BEGIN
+
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	INSERT INTO tblVendorRateArchive
+   SELECT DISTINCT  null , 
+							vr.`VendorRateID`,
+							vr.`AccountId`,
+							vr.`TrunkID`,
+							vr.`TimezonesID`,
+							vr.`RateId`,
+							vr.`Rate`,
+							vr.`RateN`,
+							vr.`EffectiveDate`,
+							IFNULL(vr.`EndDate`,date(now())) as EndDate,
+							vr.`updated_at`,
+							now() as created_at,
+							p_DeletedBy AS `created_by`,
+							vr.`updated_by`,
+							vr.`Interval1`,
+							vr.`IntervalN`,
+							vr.`ConnectionFee`,
+							vr.`MinimumCost`,
+	   concat('Ends Today rates @ ' , now() ) as `Notes`,
+	   vr.RatePrefix
+      FROM tblVendorRate vr
+     	INNER JOIN tblAccount a on vr.AccountId = a.AccountID
+		WHERE a.Status = 1 AND vr.EndDate <= NOW();
+
+ 
+	DELETE  vr 
+	FROM tblVendorRate vr
+   inner join tblVendorRateArchive vra
+   on vr.VendorRateID = vra.VendorRateID;
+  
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSCronJobDeleteOldCustomerRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSCronJobDeleteOldCustomerRate`(
+	IN `p_DeletedBy` TEXT
+
+
+)
+BEGIN
+     
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	
+	UPDATE 
+		tblCustomerRate cr
+	INNER JOIN tblCustomerRate cr2
+		ON cr2.CustomerID = cr.CustomerID
+		AND cr2.TrunkID = cr.TrunkID
+		AND cr2.RateID = cr.RateID
+	SET
+		cr.EndDate=NOW()
+	WHERE  
+		cr.EffectiveDate <= NOW() AND 
+		cr2.EffectiveDate <= NOW() AND 
+		cr.EffectiveDate < cr2.EffectiveDate;
+
+   INSERT INTO tblCustomerRateArchive
+	SELECT DISTINCT  null , 
+		`CustomerRateID`,
+		`CustomerID`,
+		`TrunkID`,
+		`TimezonesID`,
+		`RateId`,
+		`Rate`,
+		`RateN`,
+		`EffectiveDate`,
+		IFNULL(`EndDate`,date(now())) as EndDate,
+		now() as `created_at`,
+		p_DeletedBy AS `created_by`,
+		`LastModifiedDate`,
+		`LastModifiedBy`,
+		`Interval1`,
+		`IntervalN`,
+		`ConnectionFee`,
+		`RoutinePlan`,
+		concat('Ends Today rates @ ' , now() ) as `Notes`,
+		`RatePrefix`
+	FROM 
+		tblCustomerRate 
+	WHERE  
+		EndDate <= NOW();
+
+
+	DELETE  cr 
+	FROM tblCustomerRate cr
+	INNER JOIN tblCustomerRateArchive cra
+	ON cr.CustomerRateID = cra.CustomerRateID;
+	
+   SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;         
+	            
+END//
+DELIMITER ;
+
+
+/*New Add RatePrefix in Account- Bulk Ratesheet Email*/
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VOS_RATEPREFIX_RATESHEET', '0');
 	
 	
