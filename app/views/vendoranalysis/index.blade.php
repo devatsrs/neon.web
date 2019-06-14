@@ -104,9 +104,9 @@
         @if(User::checkCategoryPermission('Analysis','Vendor') || User::checkCategoryPermission('Analysis','All'))
             <li class="active"><a href="#">Vendor</a></li>
         @endif
-        @if(User::checkCategoryPermission('Analysis','AccountManager') || User::checkCategoryPermission('Analysis','All'))
+        {{-- @if(User::checkCategoryPermission('Analysis','AccountManager') || User::checkCategoryPermission('Analysis','All'))
             <li ><a href="{{ URL::to('/analysis_manager') }}">Account Manager</a></li>
-        @endif
+        @endif --}}
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="customer" >

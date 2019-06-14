@@ -25,11 +25,11 @@ class DIDCategoryController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DIDCategory.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AccessCategory.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DIDCategory.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AccessCategory.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -79,7 +79,7 @@ class DIDCategoryController extends \BaseController {
         }
         $checkduplicate=DIDCategory::where('CategoryName',$data['CategoryName'])->get()->count();
         if($checkduplicate > 0){
-            return Response::json(array("status" => "failed", "message" => "CategoryName Already Exists."));
+            return Response::json(array("status" => "failed", "message" => "Category Name Already Exists."));
         }
 
         if ($itemtype = DIDCategory::create($data)) {
