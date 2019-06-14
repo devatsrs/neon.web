@@ -270,7 +270,7 @@
                             html += "<tr class='no-selection'>";
 
 
-                            html += "<td>" + (data['TimeZone'] != null ? data['TimeZone'] : '') + "</td>";
+                            html += "<td>" + (data['TimeTitle'] != null ? data['TimeTitle'] : '') + "</td>";
                             html += "<td>" + (data['OneOffCost'] != null ? data['OneOffCost'] : '') + "</td>";
                             html += "<td>" + (data['MonthlyCost'] != null ? data['MonthlyCost'] : '') + "</td>";
                             html += "<td>" + (data['PackageCostPerMinute'] != null ? data['PackageCostPerMinute'] : '') + "</td>";
@@ -568,7 +568,7 @@
 
             var fields = $(this).prev(".hiddenRowData");
             $('#packagetable-form').trigger("reset");
-            $('#modal-packagetable h4').html('Edit Package');
+            $('#modal-packagetable h4').html('Edit Package RateTable');
 
             /* var package_list_fields = ["AccountServicePackageID", "PackageName","RateTableName", "PackageDiscountPlan",'ContractID', 'PackageStartDate', 'PackageEndDate',
              'Status','PackageId','RateTableID','PackageDiscountPlanID'];*/
