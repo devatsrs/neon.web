@@ -176,7 +176,7 @@ class PaymentIntegration {
 		if($response['status']=='failed'){
 			return $response;
 		}
-		log::info('Payment Validate sucessfully');
+		log::info('Payment Validate successfully');
 		$transactionResponse =  $this->request->paymentWithApiCreditCard($data);
 		return $transactionResponse;
 	}
