@@ -40,7 +40,7 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                     @if(isset($BillingClass->Name))
                                     {{ Form::select('ResellerOwner',$reseller_owners,$PartnerID, array("class"=>"select2", 'disabled' => "false")) }}
                                     @else 
-                                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                                    {{ Form::select('ResellerOwner',$reseller_owners,'-1', array("class"=>"select2")) }}
                                     @endif
                                     
                                     
