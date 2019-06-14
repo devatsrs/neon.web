@@ -68,7 +68,7 @@ class AccountServiceController extends \BaseController {
         //ServiceOrderID = $AccountService->ServiceOrderID;
 
         //As per new question call the routing profile model for fetch the routing profile list.
-        $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
+        $routingprofile = RoutingProfiles::getRoutingProfile(getParentCompanyIdIfReseller($CompanyID));
 
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where('AccountID',$id)->where('AccountServiceID',$AccountServiceID)->first();
         //----------------------------------------------------------------------
