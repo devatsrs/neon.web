@@ -823,7 +823,8 @@ class Account extends \Eloquent {
     public static function getDynamicfieldValue($ParentID,$FieldName){
         $FieldValue = '';
 
-        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>User::get_companyID(),'FieldSlug'=>$FieldName])->pluck('DynamicFieldsID');
+        $CompanyID = getParentCompanyIdIfReseller(User::get_companyID());
+        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>$CompanyID,'FieldSlug'=>$FieldName])->pluck('DynamicFieldsID');
         if(!empty($FieldsID)){
             $FieldValue = DynamicFieldsValue::where(['ParentID'=>$ParentID,'DynamicFieldsID'=>$FieldsID])->pluck('FieldValue');
         }
