@@ -157,8 +157,9 @@ class AccountsController extends \BaseController {
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
         
         $VOS_RATEPREFIX_RATESHEET = CompanyConfiguration::get('VOS_RATEPREFIX_RATESHEET');
-        
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones','VOS_RATEPREFIX_RATESHEET'));
+        $RatePrefixes = CustomerRate::getRatePrefix();
+
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones','VOS_RATEPREFIX_RATESHEET','RatePrefixes'));
     }
 
     /**
@@ -1243,6 +1244,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function bulk_mail(){
 
             $data = Input::all();
+
+            if(empty($data['RatePrefix'])){
+                $data['RatePrefix'] = '';
+            }else if(is_array($data['RatePrefix']) && !empty($data['RatePrefix'])){
+                $data['RatePrefix'] = implode(',',$data['RatePrefix']);
+            }
+        
             if (User::is('AccountManager')) { // Account Manager
                 $criteria = json_decode($data['criteria'],true);
                 $criteria['account_owners'] = $userID = User::get_userID();

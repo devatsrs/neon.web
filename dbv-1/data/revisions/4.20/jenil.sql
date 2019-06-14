@@ -661,7 +661,7 @@ BEGIN
 			WHERE  tblAccount.AccountID = p_CustomerID
 						 AND tblCustomerRate.TrunkID = p_Trunk
 						 AND tblCustomerRate.TimezonesID = p_TimezonesID
-						 AND (p_RatePrefix='' OR tblCustomerRate.RatePrefix like p_RatePrefix)
+						 AND (p_RatePrefix='' OR FIND_IN_SET(tblCustomerRate.RatePrefix,p_RatePrefix))
 			ORDER BY tblCustomerRate.CustomerID,tblCustomerRate.TrunkID,tblCustomerRate.TimezonesID,tblCustomerRate.RateID,tblCustomerRate.EffectiveDate DESC;
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates4_;
