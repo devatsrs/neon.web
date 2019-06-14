@@ -910,7 +910,7 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $account = Account::find($id);
         //$companyID = User::get_companyID();
-        $companyID = $account->CompanyID;
+        $companyID = $account->CompanyId;
         //$ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
 
 
