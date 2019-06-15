@@ -88,11 +88,13 @@ class RateTable extends \Eloquent
         return RateTable::where(["RateTableId" => $RateTableId,'RateGeneratorID'=>0])->count();
     }
     public static function getRateTableList($data=array()){
-        $data['CompanyID']= User::get_companyID();
+
         $data['Status'] = 1;
 
         $types = [];
         $appliedTos = [];
+        $AccountCompanyID = 0;
+        $resellerID = 0;
         if(isset($data['types']) && !empty($data['types'])) {
             $types = $data['types'];
             unset($data['types']);
@@ -101,6 +103,16 @@ class RateTable extends \Eloquent
         if(isset($data['applied_tos']) && !empty($data['applied_tos'])) {
             $appliedTos = $data['applied_tos'];
             unset($data['applied_tos']);
+        }
+
+        if(isset($data['CompanyID']) && !empty($data['CompanyID'])) {
+            $AccountCompanyID = $data['CompanyID'];
+
+            $reseller = Reseller::where('ChildCompanyID', $AccountCompanyID)->first();
+            if($reseller != false)
+                $resellerID = $reseller->ResellerID;
+
+            unset($data['CompanyID']);
         }
 
         $notVendor = false;
@@ -116,6 +128,21 @@ class RateTable extends \Eloquent
 
         if(!empty($appliedTos))
             $row->whereIn("AppliedTo", $appliedTos);
+
+        if($AccountCompanyID != 0){
+
+            $row->where(function($query) use($AccountCompanyID, $resellerID){
+                $query->where(['CompanyID' => $AccountCompanyID, 'Reseller' => '0'])
+                    ->orWhere(['CompanyID' => $AccountCompanyID, 'Reseller' => '-1'])
+                    ->orWhere(['CompanyID' => User::get_companyID(), 'Reseller' => '-1']);
+
+                if($resellerID != 0)
+                    $query->where(['CompanyID' => $AccountCompanyID, 'Reseller' => $resellerID])
+                        ->orWhere(['CompanyID' => User::get_companyID(), 'Reseller' => $resellerID]);
+            });
+
+        } else
+            $row->where('CompanyID', User::get_companyID());
 
         if($notVendor == true)
             $row->where("AppliedTo", "!=", self::APPLIED_TO_VENDOR);
