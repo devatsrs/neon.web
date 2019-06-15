@@ -136,8 +136,7 @@ class RateTable extends \Eloquent
                     ->orWhere(['Reseller' => '-1']);
 
                 if($resellerID != 0)
-                    $query->where(['CompanyID' => $AccountCompanyID, 'Reseller' => $resellerID])
-                        ->orWhere(['CompanyID' => User::get_companyID(), 'Reseller' => $resellerID]);
+                        $query->orWhere(['Reseller' => $resellerID]);
             });
 
         } else
