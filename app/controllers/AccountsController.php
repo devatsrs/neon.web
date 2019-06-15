@@ -275,7 +275,10 @@ class AccountsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
         if(is_reseller() && $data['IsCustomer'] == 0)
-            return Response::json(array("status" => "failed", "message" => "Customer switch should be checked."));
+            return Response::json(array("status" => "failed", "message" => "Customer option should be checked."));
+
+        if(!is_reseller() && $data['IsCustomer'] == 1 && $ResellerOwner == 0)
+            return Response::json(array("status" => "failed", "message" => "Account Partner is required for customer"));
 
         unset($data['ResellerOwner']);
         unset($data['routingprofile']);
@@ -989,7 +992,7 @@ class AccountsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
         if(is_reseller() && $data['IsCustomer'] == 0)
-            return Response::json(array("status" => "failed", "message" => "Customer switch should be checked."));
+            return Response::json(array("status" => "failed", "message" => "Customer option should be on."));
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
