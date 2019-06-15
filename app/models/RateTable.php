@@ -88,7 +88,7 @@ class RateTable extends \Eloquent
         return RateTable::where(["RateTableId" => $RateTableId,'RateGeneratorID'=>0])->count();
     }
     public static function getRateTableList($data=array()){
-        $data['CompanyID']=User::get_companyID();
+        $data['CompanyID']= User::get_companyID();
         $data['Status'] = 1;
 
         $types = [];

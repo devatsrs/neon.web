@@ -33,10 +33,10 @@
             </a>
         @endif
         {{--@if(User::checkCategoryPermission('Opportunity','Add'))--}}
-            {{--<a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">--}}
-                {{--<i class="fa fa-line-chart"></i>--}}
-                {{--Add Opportunity--}}
-            {{--</a>--}}
+        {{--<a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">--}}
+        {{--<i class="fa fa-line-chart"></i>--}}
+        {{--Add Opportunity--}}
+        {{--</a>--}}
 
         {{--@endif--}}
         @if($account->VerificationStatus == Account::NOT_VERIFIED)
@@ -46,12 +46,12 @@
             </a>
         @endif
         {{--@if( User::checkCategoryPermission('AuthenticationRule','View'))--}}
-            {{--@if($account->IsCustomer==1 || $account->IsVendor==1)--}}
-                {{--<a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">--}}
-                    {{--<i class="entypo-lock"></i>--}}
-                    {{--Authentication Rule--}}
-                {{--</a>--}}
-            {{--@endif--}}
+        {{--@if($account->IsCustomer==1 || $account->IsVendor==1)--}}
+        {{--<a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">--}}
+        {{--<i class="entypo-lock"></i>--}}
+        {{--Authentication Rule--}}
+        {{--</a>--}}
+        {{--@endif--}}
         {{--@endif--}}
         <button type="button" id="save_account" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
             <i class="entypo-floppy"></i>
@@ -132,19 +132,21 @@
                             </div>
 
                         </div>
-                        <div class="form-group">
-                            <label class="col-md-2 control-label">Vendor</label>
-                            <div class="col-md-4">
-                                <div class="make-switch switch-small" id="desablevendor">
-                                    <input type="checkbox" name="IsVendor"  @if($account->IsVendor == 1 )checked=""@endif value="1">
+                        @if(!is_reseller())
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Vendor</label>
+                                <div class="col-md-4">
+                                    <div class="make-switch switch-small" id="desablevendor">
+                                        <input type="checkbox" name="IsVendor"  @if($account->IsVendor == 1 )checked=""@endif value="1">
+                                    </div>
+                                </div>
+
+                                <label class="col-md-2 hide control-label">Fax</label>
+                                <div class="col-md-4 hide">
+                                    <input type="text" name="Fax" class="form-control" id="field-1" placeholder="" value="{{$account->Fax}}" />
                                 </div>
                             </div>
-
-                            <label class="col-md-2 hide control-label">Fax</label>
-                            <div class="col-md-4 hide">
-                                <input type="text" name="Fax" class="form-control" id="field-1" placeholder="" value="{{$account->Fax}}" />
-                            </div>
-                        </div>
+                        @endif
                         <div class="form-group">
                             <label class="col-md-2 control-label">Customer</label>
                             <div class="col-md-4">
@@ -177,8 +179,7 @@
                                 <input type="text" name="DurationMonths" class="form-control" id="field-1" placeholder="" value="{{$account->DurationMonths}}" />
                             </div>
                         </div>
-                        @if(is_reseller())
-                        @else
+                        @if(!is_reseller())
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Partner</label>
                                 <div class="col-md-4">
@@ -945,88 +946,88 @@
 
                         <ul class="icheck-list">
                             @if(is_authorize($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-3-11" name="PaymentMethod" value="AuthorizeNet" @if( $account->PaymentMethod == 'AuthorizeNet' ) checked="" @endif />
-                                <label for="minimal-radio-3-11">AuthorizeNet</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-3-11" name="PaymentMethod" value="AuthorizeNet" @if( $account->PaymentMethod == 'AuthorizeNet' ) checked="" @endif />
+                                    <label for="minimal-radio-3-11">AuthorizeNet</label>
+                                </li>
                             @endif
                             @if(is_authorize($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-12-11" name="PaymentMethod" value="AuthorizeNetEcheck" @if( $account->PaymentMethod == 'AuthorizeNetEcheck' ) checked="" @endif />
-                                <label for="minimal-radio-12-11">AuthorizeNet Echeck</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-12-11" name="PaymentMethod" value="AuthorizeNetEcheck" @if( $account->PaymentMethod == 'AuthorizeNetEcheck' ) checked="" @endif />
+                                    <label for="minimal-radio-12-11">AuthorizeNet Echeck</label>
+                                </li>
                             @endif
                             @if(is_FideliPay($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-9-11" name="PaymentMethod" value="FideliPay" @if( $account->PaymentMethod == 'FideliPay' ) checked="" @endif />
-                                <label for="minimal-radio-9-11">FideliPay</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-9-11" name="PaymentMethod" value="FideliPay" @if( $account->PaymentMethod == 'FideliPay' ) checked="" @endif />
+                                    <label for="minimal-radio-9-11">FideliPay</label>
+                                </li>
                             @endif
                             @if(is_paypal($account->CompanyId))
-                            <li>
-                                <input class="icheck-11" type="radio" id="minimal-radio-1-11" name="PaymentMethod" value="Paypal" @if( $account->PaymentMethod == 'Paypal' ) checked="" @endif />
-                                <label for="minimal-radio-1-11">Paypal</label>
-                            </li>
+                                <li>
+                                    <input class="icheck-11" type="radio" id="minimal-radio-1-11" name="PaymentMethod" value="Paypal" @if( $account->PaymentMethod == 'Paypal' ) checked="" @endif />
+                                    <label for="minimal-radio-1-11">Paypal</label>
+                                </li>
                             @endif
                             @if(is_PeleCard($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-10-11" name="PaymentMethod" value="PeleCard" @if( $account->PaymentMethod == 'PeleCard' ) checked="" @endif />
-                                <label for="minimal-radio-10-11">PeleCard</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-10-11" name="PaymentMethod" value="PeleCard" @if( $account->PaymentMethod == 'PeleCard' ) checked="" @endif />
+                                    <label for="minimal-radio-10-11">PeleCard</label>
+                                </li>
                             @endif
                             @if(is_sagepay($account->CompanyId))
-                            <li>
-                                <input class="icheck-11" type="radio" id="minimal-radio-7-11" name="PaymentMethod" value="SagePay" @if( $account->PaymentMethod == 'SagePay' ) checked="" @endif />
-                                <label for="minimal-radio-7-11">SagePay</label>
-                            </li>
+                                <li>
+                                    <input class="icheck-11" type="radio" id="minimal-radio-7-11" name="PaymentMethod" value="SagePay" @if( $account->PaymentMethod == 'SagePay' ) checked="" @endif />
+                                    <label for="minimal-radio-7-11">SagePay</label>
+                                </li>
                             @endif
                             @if(is_SagePayDirectDebit($account->CompanyId))
-                            <li>
-                                <input class="icheck-11" type="radio" id="minimal-radio-8-11" name="PaymentMethod" value="SagePayDirectDebit" @if( $account->PaymentMethod == 'SagePayDirectDebit' ) checked="" @endif />
-                                <label for="minimal-radio-8-11">SagePay Direct Debit</label>
-                            </li>
+                                <li>
+                                    <input class="icheck-11" type="radio" id="minimal-radio-8-11" name="PaymentMethod" value="SagePayDirectDebit" @if( $account->PaymentMethod == 'SagePayDirectDebit' ) checked="" @endif />
+                                    <label for="minimal-radio-8-11">SagePay Direct Debit</label>
+                                </li>
                             @endif
                             @if(is_Stripe($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-4-11" name="PaymentMethod" value="Stripe" @if( $account->PaymentMethod == 'Stripe' ) checked="" @endif />
-                                <label for="minimal-radio-4-11">Stripe</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-4-11" name="PaymentMethod" value="Stripe" @if( $account->PaymentMethod == 'Stripe' ) checked="" @endif />
+                                    <label for="minimal-radio-4-11">Stripe</label>
+                                </li>
                             @endif
                             @if(is_StripeACH($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-6-11" name="PaymentMethod" value="StripeACH" @if( $account->PaymentMethod == 'StripeACH' ) checked="" @endif />
-                                <label for="minimal-radio-6-11">Stripe ACH</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-6-11" name="PaymentMethod" value="StripeACH" @if( $account->PaymentMethod == 'StripeACH' ) checked="" @endif />
+                                    <label for="minimal-radio-6-11">Stripe ACH</label>
+                                </li>
                             @endif
                             @if(is_FastPay($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-13-11" name="PaymentMethod" value="FastPay" @if( $account->PaymentMethod == 'FastPay' ) checked="" @endif />
-                                <label for="minimal-radio-13-11">Fast Pay</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-13-11" name="PaymentMethod" value="FastPay" @if( $account->PaymentMethod == 'FastPay' ) checked="" @endif />
+                                    <label for="minimal-radio-13-11">Fast Pay</label>
+                                </li>
                             @endif
                             @if(is_merchantwarrior($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-11-11" name="PaymentMethod" value="MerchantWarrior" @if( $account->PaymentMethod == 'MerchantWarrior' ) checked="" @endif />
-                                <label for="minimal-radio-11-11">MerchantWarrior</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-11-11" name="PaymentMethod" value="MerchantWarrior" @if( $account->PaymentMethod == 'MerchantWarrior' ) checked="" @endif />
+                                    <label for="minimal-radio-11-11">MerchantWarrior</label>
+                                </li>
                             @endif
                             @if(is_wiretransfer($account->CompanyId))
-                            <li>
-                                <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="WireTransfer" @if( $account->PaymentMethod == 'WireTransfer' ) checked="" @endif />
-                                <label for="minimal-radio-2-11">Bank Transfer</label>
-                            </li>
+                                <li>
+                                    <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="WireTransfer" @if( $account->PaymentMethod == 'WireTransfer' ) checked="" @endif />
+                                    <label for="minimal-radio-2-11">Bank Transfer</label>
+                                </li>
                             @endif
                             @if(is_directdebit($account->CompanyId))
-                            <li>
-                                <input class="icheck-11" type="radio" id="minimal-radio-22-11" name="PaymentMethod" value="DirectDebit" @if( $account->PaymentMethod == 'DirectDebit' ) checked="" @endif />
-                                <label for="minimal-radio-22-11">Direct Debit</label>
-                            </li>
+                                <li>
+                                    <input class="icheck-11" type="radio" id="minimal-radio-22-11" name="PaymentMethod" value="DirectDebit" @if( $account->PaymentMethod == 'DirectDebit' ) checked="" @endif />
+                                    <label for="minimal-radio-22-11">Direct Debit</label>
+                                </li>
                             @endif
                             @if(is_ingenico($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11 ingenico" id="minimal-radio-14-11" name="PaymentMethod" value="Ingenico" @if( $account->PaymentMethod == 'Ingenico' ) checked="" @endif />
-                                <label for="minimal-radio-14-11">Ingenico</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11 ingenico" id="minimal-radio-14-11" name="PaymentMethod" value="Ingenico" @if( $account->PaymentMethod == 'Ingenico' ) checked="" @endif />
+                                    <label for="minimal-radio-14-11">Ingenico</label>
+                                </li>
                             @endif
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
@@ -1119,8 +1120,8 @@
                     $("#AffiliateDetailDiv").removeClass('hidden');
                 }else {
                     $("#AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
-                   // $('[name="CommissionPercentage"]').val('');
-                   // $('[name="DurationMonths"]').val(5);
+                    // $('[name="CommissionPercentage"]').val('');
+                    // $('[name="DurationMonths"]').val(5);
 
                 }
             });
