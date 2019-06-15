@@ -271,8 +271,11 @@ class AccountsController extends \BaseController {
             $data['IsVendor']=0;
         }
 
-        if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
+        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
+
+        if(is_reseller() && $data['IsCustomer'] == 0)
+            return Response::json(array("status" => "failed", "message" => "Customer switch should be checked."));
 
         unset($data['ResellerOwner']);
         unset($data['routingprofile']);
@@ -982,8 +985,11 @@ class AccountsController extends \BaseController {
             $data['IsVendor']=0;
         }
 
-        if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
+        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
+
+        if(is_reseller() && $data['IsCustomer'] == 0)
+            return Response::json(array("status" => "failed", "message" => "Customer switch should be checked."));
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
