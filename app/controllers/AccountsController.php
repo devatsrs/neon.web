@@ -908,20 +908,21 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $ServiceID = 0;
         $data = Input::all();
-        $companyID = User::get_companyID();
-        $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        $account = Account::find($id);
+        //$companyID = User::get_companyID();
+        $companyID = $account->CompanyId;
+        //$ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
 
 
 
-        if($ResellerOwner>0){
+        /*if($ResellerOwner>0){
             $Reseller = Reseller::getResellerDetails($ResellerOwner);
             $ResellerCompanyID = $Reseller->ChildCompanyID;
             $ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
             $ResellerUserID = $ResellerUser->UserID;
             $companyID=$ResellerCompanyID;
             $data['Owner'] = $ResellerUserID;
-        }
-        $account = Account::find($id);
+        }*/
         if(isset($data['tags'])){
             Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
         }

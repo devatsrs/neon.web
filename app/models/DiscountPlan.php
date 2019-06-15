@@ -66,7 +66,7 @@ class DiscountPlan extends \Eloquent
         $ExcludedComponent = array();
         $DiscountPlanComponents = [];
         if ($DestinationGroupSetID == 1) {
-            $DiscountPlanComponents = DiscountPlan::$Component;
+            $DiscountPlanComponents = DiscountPlan::$RateTableRate_Components;
             $AllComponents = $company->Components;
         } else if ($DestinationGroupSetID == 2) {
             $DiscountPlanComponents = DiscountPlan::$RateTableDIDRate_Components;

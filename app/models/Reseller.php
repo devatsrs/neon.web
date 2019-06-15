@@ -32,7 +32,7 @@ class Reseller extends \Eloquent
     }
     public static function getDropdownIDListAll(){
         $DropdownIDList = Reseller::where(array("Status"=>1))->lists('ResellerName', 'ChildCompanyID');
-        $DropdownIDList = array('' => "Select") + array('-1'=>"All") + $DropdownIDList;
+        $DropdownIDList = array('-1'=>"All") + $DropdownIDList;
         return $DropdownIDList;
     }
     public static function getDropdownIDListAllChildCompanyID(){

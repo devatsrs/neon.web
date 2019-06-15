@@ -108,7 +108,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Termination Exclude Discount Components</label>
                         <div class="col-sm-4">
-                            {{ Form::select('Components[]', DiscountPlan::$Component, $ExcludedComponent, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"MinutesComponent-1")) }}
+                            {{ Form::select('Components[]', DiscountPlan::$RateTableRate_Components, $ExcludedComponent, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"MinutesComponent-1")) }}
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Access Exclude Discount Components</label>

@@ -18,7 +18,7 @@
                 @else
                 <div class="form-group">
                     <label for="field-1" class="control-label">Partner</label>
-                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                    {{ Form::select('ResellerOwner',$reseller_owners,'-1', array("class"=>"select2")) }}
                 </div>
                 @endif
                 <div class="form-group">
