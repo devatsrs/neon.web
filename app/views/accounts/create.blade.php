@@ -161,6 +161,10 @@
 
                             </div>
                         @endif
+
+                        @if(is_reseller())
+                            <input type="hidden" name="ResellerOwner" value="{{ @$reseller->ResellerID }}">
+                        @endif
                         <div class="form-group">
                             <label class="col-md-2 hide control-label">Email</label>
                             <div class="col-md-4 hide">
