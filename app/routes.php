@@ -1463,6 +1463,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/retention', "RetentionController@index");
 	Route::any('/retention/create', "RetentionController@create");
 
+	//Nodes
+	Route::any('/nodes', "NodesController@index");
+	Route::any('/node/ajax_datagrid', "NodesController@ajax_datagrid");
+	Route::any('/node/store', "NodesController@store");
+	Route::any('/node/update/{id}', "NodesController@update");
+	Route::any('/node/delete/{id}', "NodesController@delete");
+	Route::any('/node/exports/{type}', "NodesController@export");
+	
+	
 	//Destination Group Set
 	Route::any('/destination_group_set','DestinationGroupSetController@index');
 	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupSetController@ajax_datagrid');
