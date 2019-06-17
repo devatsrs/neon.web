@@ -263,14 +263,6 @@ class AccountsController extends \BaseController {
         }else{
             $AccountGateway = '';
         }
-        /**
-         * If Reseller on backend customer is on
-         */
-        if($data['IsReseller']==1){
-            $data['IsCustomer']=1;
-            $data['IsVendor']=0;
-        }
-
         if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
@@ -279,6 +271,14 @@ class AccountsController extends \BaseController {
 
         if(!is_reseller() && $data['IsCustomer'] == 1 && $ResellerOwner == 0)
             return Response::json(array("status" => "failed", "message" => "Account Partner is required for customer"));
+
+        /**
+         * If Reseller on backend customer is on
+         */
+        if($data['IsReseller']==1){
+            $data['IsCustomer']=1;
+            $data['IsVendor']=0;
+        }
 
         unset($data['ResellerOwner']);
         unset($data['routingprofile']);
