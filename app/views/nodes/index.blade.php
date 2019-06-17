@@ -104,7 +104,7 @@
                    
                     data_table_extra_params.push({"name":"ServerName","value":$searchFilter.ServerName},{ "name": "Export", "value": 1});
                     data_table_extra_params.push({"name":"ServerIP","value":$searchFilter.ServerIP},{ "name": "Export", "value": 1});
-                    data_table_extra_params.push({"name":"Status","value":$searchFilter.Status},{ "name": "Export", "value": 1});
+                    data_table_extra_params.push({"name":"status","value":$searchFilter.Status},{ "name": "Export", "value": 1});
                 },
                 "aoColumns":
                         [

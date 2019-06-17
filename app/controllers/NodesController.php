@@ -130,9 +130,9 @@ class NodesController extends \BaseController {
         }
 	}
 
-	public function exports($type){
+	public function export($type){
 
-        $data = Input::all();
+		$data = Input::all();
         $Nodes = Nodes::select('ServerName','ServerIP','Status');
 		$Status = $data['status'] == 'true' ? 1 : 0;
 
@@ -150,11 +150,11 @@ class NodesController extends \BaseController {
 
         $NodeExports = json_decode(json_encode($NodeExports),true);
         if($type=='csv'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Packages.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Nodes.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($NodeExports);
         }elseif($type=='xlsx'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Packages.xls';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Nodes.xls';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($NodeExports);
         }
