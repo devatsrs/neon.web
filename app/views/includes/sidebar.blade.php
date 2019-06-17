@@ -331,6 +331,9 @@
         @if(User::checkCategoryPermission('themes','View'))
         <li class="{{ active_url_class("themes") }}"> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
         @endif
+        @if(User::checkCategoryPermission('nodes','View'))
+        <li class="{{ active_url_class("nodes") }}"> <a href="{{ Url::to('/nodes')}}">  <span>Nodes</span> </a> </li>
+        @endif
         {{--@if(User::checkCategoryPermission('AccountChecklist','View'))--}}
         {{--<li class="{{ active_url_class("accountapproval") }}"> <a href="{{Url::to('accountapproval')}}">  <span>Account Checklist</span> </a> </li>--}}
         {{--@endif--}}
