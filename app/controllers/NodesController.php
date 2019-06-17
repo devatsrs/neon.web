@@ -66,6 +66,12 @@ class NodesController extends \BaseController {
 		 if ($validator->fails()) {
 			 return json_validator_response($validator);
 		 }
+
+		 $valid = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
+		 if(!$valid){
+			return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
+		 }
+
 		 if($Package = Nodes::create($data)){
 			 return  Response::json(array("status" => "success", "message" => "Node Successfully Created"));
 		 } else {
@@ -122,7 +128,13 @@ class NodesController extends \BaseController {
         $validator = Validator::make($data, Nodes::$rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
-        }
+		}
+		
+		$valid = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
+		if(!$valid){
+		   return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
+		}
+
         if($Node->update($data)){
             return  Response::json(array("status" => "success", "message" => "Node Successfully Updated"));
         } else {
