@@ -619,7 +619,6 @@ class RateGeneratorsController extends \BaseController {
             ])->lists("Name", "PackageId");
 
             $ResellerDD  = RateTable::getResellerDropdownIDList();
-
             // Debugbar::info($rategenerator_rules);
             return View::make('rategenerators.edit', compact('id', 'Products','Package', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones','country','AccessType','Prefix','City','country_rule','Tariff','ResellerDD'));
         }
@@ -1105,6 +1104,16 @@ class RateGeneratorsController extends \BaseController {
 
                 RateGeneratorComponent::where('RateGeneratorId',$id)->delete();
                 RateGeneratorCalculatedRate::where('RateGeneratorId',$id)->delete();
+                $Raterule = RateRule::where('RateGeneratorId',$id);
+                if(count($Raterule->get()) > 0)
+                {
+                    foreach($Raterule->get() as $rule)
+                    {
+                        RateRuleMargin::where('RateRuleId',$rule->RateRuleId)->delete();
+                        RateRuleSource::where('RateRuleId',$rule->RateRuleId)->delete();
+                    }                           
+                }
+                $Raterule->delete();
                 RateGenerator::find($id)->delete();
                 DB::commit();
                 return Response::json(array("status" => "success", "message" => "Rate Generator Successfully deleted"));

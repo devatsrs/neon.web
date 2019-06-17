@@ -17,7 +17,7 @@
                 @if(!empty($ResellerPage))
                     <input name="Reseller" type="hidden" value="-1" >
                 @else
-                    <div class="form-group ">
+                    <div class="form-group FilterResellerBox" style="display: none;">
                         <label class="control-label">Partner</label><br/>
                         {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
                     </div>
@@ -432,6 +432,17 @@ jQuery(document).ready(function($) {
             $('#add-new-form select[name="Reseller"]').select2("val","");
         }
     });
+    $('#ratetable_filter [name="AppliedTo"]').change(function() {
+        var AppliedTo = $('#ratetable_filter [name="AppliedTo"]').val();
+
+        if(AppliedTo == {{ RateTable::APPLIED_TO_RESELLER }}) {
+            $('.FilterResellerBox').show();
+        } else {
+            $('.FilterResellerBox').hide();
+            //$('#ratetable_filter [name="Reseller"]').select2("val","");
+        }
+    });
+    //$('#ratetable_filter [name="AppliedTo"]').trigger('change');
 });
 
 </script>

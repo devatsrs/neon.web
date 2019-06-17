@@ -211,8 +211,10 @@ class AccountsController extends \BaseController {
         $TaxRates = TaxRate::getTaxRateDropdownIDList($company_id);
         //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
+        $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$CompanyID)->first():[];
+
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
-        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID','TaxRates'));
+        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID','TaxRates','reseller'));
     }
 
     /**
@@ -269,8 +271,14 @@ class AccountsController extends \BaseController {
             $data['IsVendor']=0;
         }
 
-        if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
+        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
+
+        if(is_reseller() && $data['IsCustomer'] == 0)
+            return Response::json(array("status" => "failed", "message" => "Customer option should be checked."));
+
+        if(!is_reseller() && $data['IsCustomer'] == 1 && $ResellerOwner == 0)
+            return Response::json(array("status" => "failed", "message" => "Account Partner is required for customer"));
 
         unset($data['ResellerOwner']);
         unset($data['routingprofile']);
@@ -894,8 +902,9 @@ class AccountsController extends \BaseController {
         $Packages = Package::getDropdownIDListByCompany($companyID);
         $AffiliateAccount = Account::getAffiliateAccount();
 
+        $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$companyID)->first():[];
         return View::make('accounts.edit', compact('account','AffiliateAccount', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
-            'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
+            'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller'));
     }
 
     /**
@@ -908,20 +917,21 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $ServiceID = 0;
         $data = Input::all();
-        $companyID = User::get_companyID();
-        $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        $account = Account::find($id);
+        //$companyID = User::get_companyID();
+        $companyID = $account->CompanyId;
+        //$ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
 
 
 
-        if($ResellerOwner>0){
+        /*if($ResellerOwner>0){
             $Reseller = Reseller::getResellerDetails($ResellerOwner);
             $ResellerCompanyID = $Reseller->ChildCompanyID;
             $ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
             $ResellerUserID = $ResellerUser->UserID;
             $companyID=$ResellerCompanyID;
             $data['Owner'] = $ResellerUserID;
-        }
-        $account = Account::find($id);
+        }*/
         if(isset($data['tags'])){
             Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
         }
@@ -978,8 +988,11 @@ class AccountsController extends \BaseController {
             $data['IsVendor']=0;
         }
 
-        if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
+        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
+
+        if(is_reseller() && $data['IsCustomer'] == 0)
+            return Response::json(array("status" => "failed", "message" => "Customer option should be on."));
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],

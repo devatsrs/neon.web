@@ -1597,9 +1597,9 @@
              });
              }*/
             if (tblID == "servicetableSubBox") {
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(17)').children('a').attr('id', "merge-" + numb);
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(18)').children('a').attr('id', "merge-" + numb);
             } else {
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(10)').children('a').attr('id', "rateCal-" + numb);
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(11)').children('a').attr('id', "rateCal-" + numb);
             }
 
 
