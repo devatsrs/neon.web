@@ -76,14 +76,14 @@
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
     <li class="active">
         <a href="{{ URL::to('ActiveCalls') }}" >
-            <span class="hidden-xs">Online Mapping Gateway</span>
+            <span class="hidden-xs">Active Calls</span>
         </a>
     </li>
 
     @if(User::checkCategoryPermission('VOSActiveCall','View') && CompanyConfiguration::getValueConfigurationByKey('VOS_ACTIVECALL_MENU',User::get_companyID()) == '1')
         <li>
             <a href="{{ URL::to('/VOS_ActiveCalls') }}" >
-                <span class="hidden-xs">Online Mapping Gateway</span>
+                <span class="hidden-xs">Active Calls</span>
             </a>
         </li>
     @endif
