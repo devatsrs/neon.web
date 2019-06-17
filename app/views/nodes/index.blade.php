@@ -54,7 +54,7 @@
     </ol>
     <h3>Nodes</h3>
     <p class="text-right">
-        <a href="#" data-action="showAddModal" data-type="package" data-modal="add-new-modal-node" class="btn btn-primary">
+        <a href="#" data-action="showAddModal" data-type="Node" data-modal="add-new-modal-node" class="btn btn-primary">
             <i class="entypo-plus"></i>
             Add New Node
         </a>
