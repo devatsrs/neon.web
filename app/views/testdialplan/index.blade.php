@@ -34,7 +34,7 @@
                             <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
                         </div>
                         <div class="col-md-6 select_hour">
-                            <input type="text" name="StartHour" data-minute-step="30"   data-show-meridian="false" data-default-time="00:00" value="00:00"  data-template="dropdown" class="form-control timepicker">
+                            <input type="text" name="StartHour" data-minute-step="30"   data-show-meridian="false" data-default-time="00:00" value="{{date('H:i')}}"  data-template="dropdown" class="form-control timepicker">
                         </div>
                     </div>
                 </div>
