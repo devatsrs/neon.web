@@ -111,7 +111,7 @@
                   <button type="button" data-id="{{$account->AccountID}}" title="View Account Logs" redirecto="{{ URL::to('accounts/'.$account->AccountID.'/log')}}" class="btn btn-default btn-xs"> <i class="fa fa-file-text-o"></i></button>
 
                   @if($leadOrAccountCheck=='account')
-                  @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
+                  @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED && $account->IsReseller!=1)
                      <a class="btn-warning btn btn-default btn-xs" href="{{ URL::to('customers_rates/'.$account->AccountID)}}" disabled><i class="entypo-user"></i></a>
                   @endif
                   @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED)

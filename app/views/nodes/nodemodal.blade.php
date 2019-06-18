@@ -40,12 +40,12 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Name</label>
+                                    <label for="field-5" class="control-label">Name*</label>
                                     <input type="text" name="ServerName" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="ServerID" >
                                 </div>
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Server Ip</label>
+                                    <label for="field-5" class="control-label">Server IP*</label>
                                     <input type="text" name="ServerIP" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
