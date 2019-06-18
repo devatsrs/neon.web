@@ -19,14 +19,17 @@ class AccountServiceController extends \BaseController {
         $rate_table = RateTable::getRateTableList([
             'types' => [RateGenerator::DID],
             'NotVendor' => true,
+            'CompanyID' => $AccountCompanyId
         ]);
         $termination_rate_table = RateTable::getRateTableList([
             'types' => [RateGenerator::VoiceCall],
             'NotVendor' => true,
+            'CompanyID' => $AccountCompanyId
         ]);
         $package_rate_table = RateTable::getRateTableList([
             'types' => [RateGenerator::Package],
             'NotVendor' => true,
+            'CompanyID' => $AccountCompanyId
         ]);
         //$DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
         $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);

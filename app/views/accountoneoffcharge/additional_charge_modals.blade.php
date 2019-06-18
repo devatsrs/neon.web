@@ -35,7 +35,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Qty*</label>
-                                <input type="text" name="Qty" class="form-control Qty" value="1" data-min="1" />
+                                <input type="number" name="Qty" min="0" class="form-control Qty" value="1" data-min="1" />
                             </div>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Price*</label>
-                                <input type="text" name="Price" class="form-control" value="0"   />
+                                <input type="number" name="Price" min="0" class="form-control" value="0"   />
                             </div>
                         </div>
                     </div>
