@@ -150,8 +150,8 @@ CREATE TEMPORARY TABLE tmp_table1_ (
 	EffectiveDate DATE,
 	Code varchar(100),
 	OriginationCode  varchar(100),
-	VendorID int,
-	VendorName varchar(200),
+	VendorConnectionID int,
+	VendorConnectionName varchar(200),
 	MonthlyCost DECIMAL(18,8),
 	CostPerCall DECIMAL(18,8),
 	CostPerMinute DECIMAL(18,8),
@@ -180,8 +180,8 @@ CREATE TEMPORARY TABLE tmp_table_with_origination (
 	EffectiveDate DATE,
 	Code varchar(100),
 	OriginationCode  varchar(100),
-	VendorID int,
-	VendorName varchar(200),
+	VendorConnectionID int,
+	VendorConnectionName varchar(200),
 	MonthlyCost DECIMAL(18,8),
 	CostPerCall DECIMAL(18,8),
 	CostPerMinute DECIMAL(18,8),
@@ -213,8 +213,8 @@ CREATE TEMPORARY TABLE tmp_table_without_origination (
 	EffectiveDate DATE,
 	Code varchar(100),
 	OriginationCode  varchar(100),
-	VendorID int,
-	VendorName varchar(200),
+	VendorConnectionID int,
+	VendorConnectionName varchar(200),
 	MonthlyCost DECIMAL(18,8),
 	CostPerCall DECIMAL(18,8),
 	CostPerMinute DECIMAL(18,8),
@@ -235,7 +235,7 @@ CREATE TEMPORARY TABLE tmp_table_without_origination (
 DROP TEMPORARY TABLE IF EXISTS tmp_vendors;
 CREATE TEMPORARY TABLE tmp_vendors (
 	ID  int AUTO_INCREMENT,
-	VendorName varchar(100),
+	VendorConnectionName varchar(100),
 	vPosition int,
 	PRIMARY KEY (ID)
 );
@@ -265,8 +265,8 @@ CREATE TEMPORARY TABLE tmp_table_output_1 (
 	City varchar(50),
 	Tariff varchar(50),
 	Code varchar(100),
-	VendorID int,
-	VendorName varchar(200),
+	VendorConnectionID int,
+	VendorConnectionName varchar(200),
 	EffectiveDate DATE,
 	Total DECIMAL(18,8)
 
@@ -281,8 +281,8 @@ CREATE TEMPORARY TABLE tmp_table_output_2 (
 	City varchar(50),
 	Tariff varchar(50),
 	Code varchar(100),
-	VendorID int,
-	VendorName varchar(200),
+	VendorConnectionID int,
+	VendorConnectionName varchar(200),
 	EffectiveDate DATE,
 	Total DECIMAL(18,8),
 	vPosition int
@@ -299,8 +299,8 @@ CREATE TEMPORARY TABLE tmp_final_table_output (
 	City varchar(50),
 	Tariff varchar(50),
 	Code varchar(100),
-	VendorID int,
-	VendorName varchar(200),
+	VendorConnectionID int,
+	VendorConnectionName varchar(200),
 	EffectiveDate DATE,
 	Total varchar(200),
 	vPosition int
@@ -316,7 +316,7 @@ CREATE TEMPORARY TABLE tmp_final_result (
 
 DROP TEMPORARY TABLE IF EXISTS tmp_vendor_position;
 CREATE TEMPORARY TABLE tmp_vendor_position (
-	VendorID int,
+	VendorConnectionID int,
 	vPosition int
 );
 
@@ -515,7 +515,7 @@ END IF;
 
 
 SET @v_days =    TIMESTAMPDIFF(DAY, (SELECT @p_StartDate), (SELECT @p_EndDate)) + 1 ;
-SET @v_period1 =      IF(MONTH((SELECT @p_StartDate)) = MONTH((SELECT @p_EndDate)), 0, (TIMESTAMPDIFF(DAY, (SELECT @p_StartDate), LAST_DAY((SELECT @p_StartDate)) + INTERVAL 1 DAY)) / DAY(LAST_DAY((SELECT @p_StartDate))));
+SET @v_period1 =      IF(MONTH((SELECT @p_StartDate)) = MONTH((SELECT @p_EndDate)), 0, (TIMESTAMPDIFF(DAY, (SELECT @p_StartDate), LAST_DAY((SELECT @p_StartDate)) + INTERVAL 0 DAY)) / DAY(LAST_DAY((SELECT @p_StartDate))));
 SET @v_period2 =      TIMESTAMPDIFF(MONTH, LAST_DAY((SELECT @p_StartDate)) + INTERVAL 1 DAY, LAST_DAY((SELECT @p_EndDate))) ;
 SET @v_period3 =      IF(MONTH((SELECT @p_StartDate)) = MONTH((SELECT @p_EndDate)), (SELECT @v_days), DAY((SELECT @p_EndDate))) / DAY(LAST_DAY((SELECT @p_EndDate)));
 SET @p_months =     (SELECT @v_period1) + (SELECT @v_period2) + (SELECT @v_period3);
@@ -540,8 +540,8 @@ insert into tmp_table_without_origination (
 
 	Code,
 	OriginationCode,
-	VendorID,
-	VendorName,
+	VendorConnectionID,
+	VendorConnectionName,
 	MonthlyCost,
 	CostPerCall,
 	CostPerMinute,
@@ -570,8 +570,8 @@ insert into tmp_table_without_origination (
 
 		r.Code,
 		r2.Code as OriginationCode,
-		a.AccountID,
-		a.AccountName,
+		vc.VendorConnectionID,
+		vc.Name as VendorConnectionName,
 
 
 		@MonthlyCost :=
@@ -935,8 +935,8 @@ insert into tmp_table_with_origination
 
 	Code,
 	OriginationCode,
-	VendorID,
-	VendorName,
+	VendorConnectionID,
+	VendorConnectionName,
 	MonthlyCost,
 	CostPerCall,
 	CostPerMinute,
@@ -963,8 +963,8 @@ insert into tmp_table_with_origination
 
 		r.Code,
 		r2.Code as OriginationCode,
-		a.AccountID,
-		a.AccountName,
+		vc.VendorConnectionID,
+		vc.Name as VendorConnectionName,
 		@MonthlyCost :=
 		(
 			(
@@ -1315,7 +1315,7 @@ insert into tmp_table_with_origination
 
 
 
-delete t1 from tmp_table_without_origination t1 inner join tmp_table_with_origination t2 on t1.VendorID = t2.VendorID and t1.TimezonesID = t2.TimezonesID and t1.Code = t2.Code;
+delete t1 from tmp_table_without_origination t1 inner join tmp_table_with_origination t2 on t1.VendorConnectionID = t2.VendorConnectionID and t1.TimezonesID = t2.TimezonesID and t1.Code = t2.Code;
 
 
 
@@ -1330,8 +1330,8 @@ insert into tmp_table1_ (
 	EffectiveDate,
 	Code,
 	OriginationCode,
-	VendorID,
-	VendorName,
+	VendorConnectionID,
+	VendorConnectionName,
 	MonthlyCost,
 	CostPerCall,
 	CostPerMinute,
@@ -1357,8 +1357,8 @@ insert into tmp_table1_ (
 		EffectiveDate,
 		Code,
 		OriginationCode,
-		VendorID,
-		VendorName,
+		VendorConnectionID,
+		VendorConnectionName,
 		MonthlyCost,
 		CostPerCall,
 		CostPerMinute,
@@ -1383,8 +1383,8 @@ insert into tmp_table1_ (
 					 EffectiveDate,
 					 Code,
 					 OriginationCode,
-					 VendorID,
-					 VendorName,
+					 VendorConnectionID,
+					 VendorConnectionName,
 					 MonthlyCost,
 					 CostPerCall,
 					 CostPerMinute,
@@ -1413,8 +1413,8 @@ insert into tmp_table1_ (
 					 EffectiveDate,
 					 Code,
 					 OriginationCode,
-					 VendorID,
-					 VendorName,
+					 VendorConnectionID,
+					 VendorConnectionName,
 					 MonthlyCost,
 					 CostPerCall,
 					 CostPerMinute,
@@ -1436,20 +1436,20 @@ insert into tmp_table1_ (
 
 
 insert into tmp_table_output_1
-(AccessType ,CountryID ,City ,Tariff,Code ,VendorID ,VendorName,EffectiveDate,Total)
-	select AccessType ,CountryID ,City ,Tariff,Code ,VendorID ,VendorName,max(EffectiveDate),sum(Total) as Total
+(AccessType ,CountryID ,City ,Tariff,Code ,VendorConnectionID ,VendorConnectionName,EffectiveDate,Total)
+	select AccessType ,CountryID ,City ,Tariff,Code ,VendorConnectionID ,VendorConnectionName,max(EffectiveDate),sum(Total) as Total
 	from tmp_table1_
-	group by AccessType ,CountryID ,City ,Tariff,Code ,VendorID ,VendorName;
+	group by AccessType ,CountryID ,City ,Tariff,Code ,VendorConnectionID ,VendorConnectionName;
 
 
-insert into tmp_table_output_2   ( AccessType ,CountryID ,City ,Tariff,Code ,VendorID ,VendorName,EffectiveDate,Total,vPosition )
+insert into tmp_table_output_2   ( AccessType ,CountryID ,City ,Tariff,Code ,VendorConnectionID ,VendorConnectionName,EffectiveDate,Total,vPosition )
 
-	SELECT AccessType ,CountryID ,City ,Tariff,Code ,VendorID ,VendorName,EffectiveDate,Total,vPosition
+	SELECT AccessType ,CountryID ,City ,Tariff,Code ,VendorConnectionID ,VendorConnectionName,EffectiveDate,Total,vPosition
 	FROM (
-				 select AccessType ,CountryID ,City ,Tariff,Code ,VendorID ,VendorName,EffectiveDate,Total,
+				 select AccessType ,CountryID ,City ,Tariff,Code ,VendorConnectionID ,VendorConnectionName,EffectiveDate,Total,
 					 @vPosition := (
 						 CASE WHEN (@prev_Code = Code AND  @prev_AccessType    = AccessType AND  @prev_CountryID = CountryID
-												AND  @prev_City    = City AND  @prev_Tariff = Tariff /*AND  @prev_VendorID = VendorID */ AND @prev_Total <=  Total
+												AND  @prev_City    = City AND  @prev_Tariff = Tariff /*AND  @prev_VendorConnectionID = VendorConnectionID */ AND @prev_Total <=  Total
 						 )
 							 THEN
 								 @vPosition + 1
@@ -1461,19 +1461,19 @@ insert into tmp_table_output_2   ( AccessType ,CountryID ,City ,Tariff,Code ,Ven
 					 @prev_City  := City  ,
 					 @prev_Tariff := Tariff ,
 					 @prev_Code  := Code  ,
-					 @prev_VendorID  := VendorID,
+					 @prev_VendorConnectionID  := VendorConnectionID,
 					 @prev_Total := Total
 
 				 from tmp_table_output_1
-					 ,(SELECT  @vPosition := 0 , @prev_AccessType := '' ,@prev_CountryID  := '' ,@prev_City  := '' ,@prev_Tariff := '' ,@prev_Code  := ''  , @prev_VendorID  := '', @prev_Total := 0 ) t
+					 ,(SELECT  @vPosition := 0 , @prev_AccessType := '' ,@prev_CountryID  := '' ,@prev_City  := '' ,@prev_Tariff := '' ,@prev_Code  := ''  , @prev_VendorConnectionID  := '', @prev_Total := 0 ) t
 
-				 ORDER BY Code,AccessType,CountryID,City,Tariff,Total,VendorID
+				 ORDER BY Code,AccessType,CountryID,City,Tariff,Total,VendorConnectionID
 			 ) tmp;
 
 
 insert into tmp_final_table_output
-(AccessType ,Country ,City ,Tariff,Code ,VendorID ,VendorName,EffectiveDate, Total,vPosition)
-	select AccessType ,Country ,City ,Tariff,Code ,VendorID ,VendorName,EffectiveDate, concat( @p_CurrencySymbol, Total ),vPosition
+(AccessType ,Country ,City ,Tariff,Code ,VendorConnectionID ,VendorConnectionName,EffectiveDate, Total,vPosition)
+	select AccessType ,Country ,City ,Tariff,Code ,VendorConnectionID ,VendorConnectionName,EffectiveDate, concat( @p_CurrencySymbol, Total ),vPosition
 	from tmp_table_output_2 t
 		LEFT JOIN tblCountry  c on t.CountryID = c.CountryID
 	where vPosition  < @p_Position ;
@@ -1491,7 +1491,7 @@ SET @v_pointer_ = 1;
 WHILE @v_pointer_ <= @p_Position
 DO
 
-SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(vPosition) = ",@v_pointer_,", CONCAT(ANY_VALUE(Total), '<br>', ANY_VALUE(VendorName), '<br>', DATE_FORMAT (ANY_VALUE(EffectiveDate), '%d/%m/%Y'),'' ), NULL)) AS `POSITION ",@v_pointer_,"`,");
+SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(vPosition) = ",@v_pointer_,", CONCAT(ANY_VALUE(Total), '<br>', ANY_VALUE(VendorConnectionName), '<br>', DATE_FORMAT (ANY_VALUE(EffectiveDate), '%d/%m/%Y'),'' ), NULL)) AS `POSITION ",@v_pointer_,"`,");
 
 SET @v_pointer_ = @v_pointer_ + 1;
 
