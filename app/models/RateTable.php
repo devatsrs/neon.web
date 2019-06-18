@@ -151,9 +151,14 @@ class RateTable extends \Eloquent
     }
 
     public static function getRateTables($data=array()){
-        $compantID = User::get_companyID();
-        $where = ['CompanyID'=>$compantID];
-        $RateTables = RateTable::select(['RateTableName','RateTableId'])->where($where)->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        if(!empty($data['ResellerPage'])) {
+            $where = ['CompanyID'=>1];
+            $ResellerID = Reseller::getResellerID();
+            $RateTables = RateTable::select(['RateTableName','RateTableId'])->where($where)->where("tblRateTable.Reseller",-1)->orWhere("tblRateTable.Reseller",$ResellerID)->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        } else {
+            $where = ['CompanyID'=>User::get_companyID()];
+            $RateTables = RateTable::select(['RateTableName','RateTableId'])->where($where)->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        }
         if(!empty($RateTables)){
             $RateTables = [''=>'Select'] + $RateTables;
         }
