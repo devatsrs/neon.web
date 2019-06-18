@@ -202,7 +202,7 @@ function slapolicies_dropbox($id=0,$data=array()){
 }
 
 function rate_tables_dropbox($id=0,$data=array()){
-    $all_getRateTables = RateTable::getRateTables();
+    $all_getRateTables = RateTable::getRateTables($data);
     return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
