@@ -77,7 +77,7 @@ class BillingClass extends \Eloquent
             $DropdownIDList = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($CompanyID){
                 $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
                 $join->on('b1.IsGlobal','=', DB::raw('1'));
-                $join->on('b2.CompanyID','=', $CompanyID);
+                $join->on('b2.CompanyID','=', DB::raw($CompanyID));
             })->select(['b1.Name','b1.BillingClassID'])
                 ->where(function($q) use($CompanyID) {
                     $q->where('b1.CompanyID', $CompanyID)
