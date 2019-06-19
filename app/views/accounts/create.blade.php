@@ -101,7 +101,7 @@
                                 <label class="col-md-2 control-label">Vendor</label>
                                 <div class="col-md-4">
                                     <div class="make-switch switch-small" id="desablevendor">
-                                        <input type="checkbox" name="IsVendor"  @if(Input::old('IsVendor') == 1 )checked=""@endif value="1">
+                                        <input type="checkbox" name="IsVendor"  @if(Input::old('IsVendor') == 1 )checked="" @endif value="1">
                                     </div>
                                 </div>
                                 <label class="col-md-2 hide control-label">Fax</label>
@@ -150,7 +150,7 @@
                                 <label class="col-md-2 control-label">Partner</label>
                                 <div class="col-md-4">
                                     <div class="make-switch switch-small" id="desablereseller">
-                                        <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked=""@endif value="1">
+                                        <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked="" @endif value="1">
                                     </div>
                                 </div>
 
@@ -693,7 +693,7 @@
             });
             $('[name="Billing"]').trigger('change');
 
-            $('[name="IsReseller"]').on("change",function(e){
+            /*$('[name="IsReseller"]').on("change",function(e){
                 if($('[name="IsReseller"]').prop("checked") == true){
                     $('[name="IsCustomer"]').prop("checked", false).trigger('change');
                     $('[name="IsVendor"]').prop("checked", false).trigger('change');
@@ -706,7 +706,7 @@
                     $("#desablereseller").removeClass('deactivate');
                     $('#disableresellerowner select').removeAttr("disabled");
                 }
-            });
+            });*/
 
             function getAccountPartnerInfo(id){
                 id = id != "" ? id : 0;

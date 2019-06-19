@@ -491,7 +491,7 @@
                                 <?php } ?>
 								
 
-                                if(full[10]==1 && full[12]=='{{Account::VERIFIED}}' && full[27]!=1){
+                                if(full[10]==1 && full[12]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
                                         action += '&nbsp;<button redirecto="'+customer_rate_+'" title="Customer" class="btn small_icons btn-warning btn-xs" disabled><i class="entypo-user"></i></button>';
                                     <?php } ?>
