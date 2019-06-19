@@ -245,16 +245,16 @@ class AccountsController extends \BaseController {
         if(isset($data['routingprofile'])){
             $RoutingProfileID=$data['routingprofile'];
         }
-        $data['CompanyID'] = $companyID;
-        $data['AccountType'] = 1;
-        $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
-        $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+        $data['CompanyID']      = $companyID;
+        $data['AccountType']    = 1;
+        $data['IsVendor']       = isset($data['IsVendor']) ? 1 : 0;
+        $data['IsCustomer']     = isset($data['IsCustomer']) ? 1 : 0;
         $data['IsAffiliateAccount'] = isset($data['IsAffiliateAccount']) ? 1 : 0;
-        $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
-        $data['Billing'] = isset($data['Billing']) ? 1 : 0;
-        $data['created_by'] = User::get_user_full_name();
-        $data['AccountType'] = 1;
-        $data['AccountName'] = trim($data['AccountName']);
+        $data['IsReseller']     = isset($data['IsReseller']) ? 1 : 0;
+        $data['Billing']        = isset($data['Billing']) ? 1 : 0;
+        $data['created_by']     = User::get_user_full_name();
+        $data['AccountType']    = 1;
+        $data['AccountName']    = trim($data['AccountName']);
         $CustomerID = '';
 
         if (isset($data['accountgateway'])) {
@@ -263,6 +263,7 @@ class AccountsController extends \BaseController {
         }else{
             $AccountGateway = '';
         }
+
         if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
@@ -275,10 +276,10 @@ class AccountsController extends \BaseController {
         /**
          * If Reseller on backend customer is on
          */
-        if($data['IsReseller']==1){
+        /*if($data['IsReseller']==1){
             $data['IsCustomer']=1;
             $data['IsVendor']=0;
-        }
+        }*/
 
         unset($data['ResellerOwner']);
         unset($data['routingprofile']);
