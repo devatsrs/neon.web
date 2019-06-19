@@ -200,10 +200,10 @@ class AccountsController extends \BaseController {
         if(!User::is_admin()){
             unset($doc_status[Account::VERIFIED]);
         }
-        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::VOICECALL_ID);
+        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForRateType(RateType::VOICECALL_ID);
         $DiscountPlan = $DiscountPlanVOICECALL;
-        $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::DID_ID);
-        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::PACKAGE_ID);
+        $DiscountPlanDID = DiscountPlan::getDropdownIDListForRateType(RateType::DID_ID);
+        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForRateType(RateType::PACKAGE_ID);
         $dynamicfields = Account::getDynamicfields('account',0);
         $reseller_owners = Reseller::getDropdownIDList($company_id);
         //As per new question call the routing profile model for fetch the routing profile list.
@@ -859,10 +859,10 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
+        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForRateType(RateType::VOICECALL_ID);
         $DiscountPlan = $DiscountPlanVOICECALL;
-        $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::DID_ID);
-        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::PACKAGE_ID);
+        $DiscountPlanDID = DiscountPlan::getDropdownIDListForRateType(RateType::DID_ID);
+        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForRateType(RateType::PACKAGE_ID);
         $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
         $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
         $decimal_places = get_round_decimal_places($id);
@@ -1431,9 +1431,9 @@ class AccountsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Invalid Request."));
 
         $data['BillingClass'] = BillingClass::getBillingClassListByCompanyID($CompanyID);
-        $data['TerminationDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::VOICECALL_ID);
-        $data['AccessDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::DID_ID);
-        $data['PackageDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::PACKAGE_ID);
+        /*$data['TerminationDiscountPlan'] = DiscountPlan::getDropdownIDListForRateType(RateType::VOICECALL_ID);
+        $data['AccessDiscountPlan'] = DiscountPlan::getDropdownIDListForRateType(RateType::DID_ID);
+        $data['PackageDiscountPlan'] = DiscountPlan::getDropdownIDListForRateType(RateType::PACKAGE_ID);*/
         $data['TaxRates'] = TaxRate::getTaxRateDropdownIDList($CompanyID);
         //log::info(print_r($data['TaxRates'],true));
 
