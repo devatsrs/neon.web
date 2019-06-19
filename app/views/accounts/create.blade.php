@@ -693,7 +693,7 @@
             });
             $('[name="Billing"]').trigger('change');
 
-            /*$('[name="IsReseller"]').on("change",function(e){
+            $('[name="IsReseller"]').on("change",function(e){
                 if($('[name="IsReseller"]').prop("checked") == true){
                     $('[name="IsCustomer"]').prop("checked", false).trigger('change');
                     $('[name="IsVendor"]').prop("checked", false).trigger('change');
@@ -706,7 +706,7 @@
                     $("#desablereseller").removeClass('deactivate');
                     $('#disableresellerowner select').removeAttr("disabled");
                 }
-            });*/
+            });
 
             function getAccountPartnerInfo(id){
                 id = id != "" ? id : 0;
