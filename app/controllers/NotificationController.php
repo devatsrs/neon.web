@@ -151,7 +151,7 @@ class NotificationController extends \BaseController {
         $postdata = Input::all();
         $response =  NeonAPI::request('qos_alert/store',$postdata,true,false,false);
         if($response->status == 'success'){
-            $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Alert',$postdata['Name']);
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','QOS',$postdata['Name']);
         }
         
         return json_response_api($response);
@@ -161,7 +161,7 @@ class NotificationController extends \BaseController {
         $data['id'] = $id;
         $response =  NeonAPI::request('qos_alert/delete/'.$id,array(),'delete',false,false);
         if($response->status == 'success'){
-            $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Alert');
+            $UserActilead = UserActivity::UserActivitySaved($data,'Delete','QOS');
         }
         return json_response_api($response);
     }
@@ -170,7 +170,7 @@ class NotificationController extends \BaseController {
         $postdata = Input::all();
         $response =  NeonAPI::request('qos_alert/update/'.$id,$postdata,'put',false,false);
         if($response->status == 'success'){
-            $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','Alert',$postdata['Name']);
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','QOS',$postdata['Name']);
         }
         return json_response_api($response);
     }
@@ -179,7 +179,7 @@ class NotificationController extends \BaseController {
         $export_type['type'] = 'xls';
         $response =  NeonAPI::request('qos_alert/datagrid',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
-            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Alert');
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','QOS');
             $excel_data = $response->data;
             $excel_data = json_decode(json_encode($excel_data), true);
             Excel::create('Alert', function ($excel) use ($excel_data) {
@@ -191,17 +191,17 @@ class NotificationController extends \BaseController {
         return json_response_api($response,true,true,true);
     }
     public function history(){
-        $data = Input::all();
+        $data = Input::all(); 
         $companyID = User::get_companyID();
         $alertType = array(""=> "Select") + Alert::$qos_alert_type+Alert::$call_monitor_alert_type;
         $Alerts = Alert::getDropdownIDList($companyID);
         $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
         $data['EndDateDefault']  	= 	date('Y-m-d');
-
         return View::make('notification.history', compact('alertType','Alerts','data'));
     }
     public function history_grid(){
         $getdata = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($getdata,'View','Notification History');
         $response =  NeonAPI::request('alert/history',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
             $excel_data = $response->data;

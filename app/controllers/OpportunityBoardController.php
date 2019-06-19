@@ -36,7 +36,7 @@ class OpportunityBoardController extends \BaseController {
         if(isset($TaskBoard[0]->BoardID) && $TaskBoard[0]->BoardID==$id){
             $urlto = 'task';
         }
-        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'View','Opportunity Boards');
+        $opportunityboardsActilead = UserActivity::UserActivitySaved($data,'View','Configure Board');
         return View::make('opportunityboards.configure', compact('id','Board','urlto'));
     }
 

@@ -75,8 +75,9 @@ class TranslateController extends \BaseController {
         $request = Input::all();
         $language = $request["language"];
         $listLabels = $request["listLabels"];
-
         Translation::multi_update_labels($language, $listLabels);
+        unset($request['listLabels']);
+        $TranslationActilead = UserActivity::UserActivitySaved($request,'Bulk Edit','Translation');
         return json_encode(["status" => "success", "message" => ""]);
     }
 

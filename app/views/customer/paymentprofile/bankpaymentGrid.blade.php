@@ -19,7 +19,7 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a  id="add-new-bankaccount" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_ADD_BANK_ACCOUNT')</a>
+            <a id="add-new-bankaccount" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_ADD_BANK_ACCOUNT')</a>
             <div class="clear clearfix"><br></div>
         </div>
         <table class="table table-bordered datatable" id="table-4">
@@ -226,11 +226,12 @@
                 $('#add-new-bankaccount').click(function (ev) {
                     ev.preventDefault();
                     var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
-                    $("#add-bankaccount-form")[0].reset();
-                    $("#add-bankaccount-form").find('input[name="cardID"]').val('');
-                    $("#add-bankaccount-form").find('input[name="PaymentGatewayID"]').val(pgid);
-                    $("#add-bankaccount-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
-                    $("#add-bankaccount-form").find('input[name="CompanyID"]').val('{{$account->CompanyId}}');
+                    var BankForm = $("#add-modal-bankaccount form");
+                    BankForm[0].reset();
+                    BankForm.find('input[name="cardID"]').val('');
+                    BankForm.find('input[name="PaymentGatewayID"]').val(pgid);
+                    BankForm.find('input[name="AccountID"]').val('{{$account->AccountID}}');
+                    BankForm.find('input[name="CompanyID"]').val('{{$account->CompanyId}}');
                     $('#add-modal-bankaccount').modal('show');
                 });
 
@@ -244,6 +245,35 @@
                         update_new_url = baseurl + '/customer/PaymentMethodProfiles/create';
                     }
                     ajax_Add_update(update_new_url);
+                });
+
+                $('#add-new-gocardless').submit(function(e){
+                    e.preventDefault();
+                    var data = new FormData($(this)[0]);
+                    $.ajax({
+                        url:baseurl + '/customer/PaymentMethodProfiles/create', //Server script to process data
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            console.log(response.RedirectURL);
+                            $("#bankaccount-update").button('reset');
+                            $(".btn").button('reset');
+                            console.log(response);
+                            if (response.status == 'success') {
+                                toastr.success(response.message, "Success", toastr_opts);
+                                window.location.replace(response.RedirectURL);
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                            $('#table-4_processing').css('visibility','hidden');
+                            $('.btn.upload').button('reset');
+                        },
+                        data: data,
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
                 });
 
                 $('table tbody').on('click','.edit-bankaccount',function(ev){
@@ -353,7 +383,13 @@
     <div class="modal fade" id="add-modal-bankaccount" data-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form id="add-bankaccount-form" method="post">
+                <form
+                    @if($title == "GoCardLess")
+                    id="add-new-gocardless"
+                    @else
+                    id="add-bankaccount-form"
+                    @endif
+                        method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_TITLE')</h4>
@@ -366,34 +402,42 @@
                                     <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_NAME')</label>
-                                    <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" id="field-5" placeholder="">
+
+                            @if($title != 'GoCardLess')
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_NAME')</label>
+                                        <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_NUMBER')</label>
-                                    <input type="text" name="AccountNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
-                                    <input type="hidden" name="cardID" />
-                                    <input type="hidden" name="AccountID" />
-                                    <input type="hidden" name="CompanyID" />
-                                    <input type="hidden" name="PaymentGatewayID" />
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_NUMBER')</label>
+                                        <input type="text" name="AccountNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                                        <input type="hidden" name="cardID" />
+                                        <input type="hidden" name="AccountID" />
+                                        <input type="hidden" name="CompanyID" />
+                                        <input type="hidden" name="PaymentGatewayID" />
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_ROUTING_NUMBER')</label>
-                                    <input type="text" name="RoutingNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_ROUTING_NUMBER')</label>
+                                        <input type="text" name="RoutingNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_TYPE')</label>
-                                    {{ Form::select('AccountHolderType',Payment::$account_holder_type,'', array("class"=>"select2 small")) }}
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_TYPE')</label>
+                                        {{ Form::select('AccountHolderType',Payment::$account_holder_type,'', array("class"=>"select2 small")) }}
+                                    </div>
                                 </div>
-                            </div>
+                            @else
+                                <input type="hidden" name="cardID" />
+                                <input type="hidden" name="AccountID" />
+                                <input type="hidden" name="CompanyID" />
+                                <input type="hidden" name="PaymentGatewayID" />
+                            @endif
                         </div>
                     </div>
                     <div class="modal-footer">
