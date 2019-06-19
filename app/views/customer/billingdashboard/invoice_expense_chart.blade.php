@@ -1,3 +1,11 @@
+<?php
+
+$PaymentReceived = cus_lang('CUST_PANEL_PAGE_ANALYSIS_HEADING_INVOICES_&_EXPENSES_LBL_PAYMENT_RECEIVED');
+$TotalInvoice = cus_lang('CUST_PANEL_PAGE_ANALYSIS_HEADING_INVOICES_&_EXPENSES_LBL_TOTAL_INVOICE');
+$TotalOutstanding = cus_lang('CUST_PANEL_PAGE_ANALYSIS_HEADING_INVOICES_&_EXPENSES_LBL_TOTAL_OUTSTANDING');
+
+?>
+
 @if(isset($InvoiceExpense) && count($InvoiceExpense))
     <div class="tab-pane active" id="line-chart-2">
         <div id="bar-chart" class="morrischart" style="height: 300px"></div>
@@ -94,13 +102,13 @@ $(function() {
                                         row.x+
                                         '</div>' +
                                         '<div  class="morris-hover-point">' +
-                                        '   <a  style="color: #3399FF" class="paymentReceived" data-startdate="'+StartDate+'" data-enddate="'+EndDate+'" data-currency="'+Currency+'" href="javascript:void(0)">Payment Received: {{$CurrencySymbol}}'+row.y+'</a>' +
+                                        '   <a  style="color: #3399FF" class="paymentReceived" data-startdate="'+StartDate+'" data-enddate="'+EndDate+'" data-currency="'+Currency+'" href="javascript:void(0)">{{ $PaymentReceived }} {{$CurrencySymbol}}'+row.y+'</a>' +
                                         '</div>' +
                                         '<div  class="morris-hover-point">' +
-                                        '   <a style="color: #333399" class="totalInvoice" data-startdate="'+StartDate+'" data-enddate="'+EndDate+'" data-currency="'+Currency+'" href="javascript:void(0)">Total Invoice: {{$CurrencySymbol}}'+row.z+'</a>' +
+                                        '   <a style="color: #333399" class="totalInvoice" data-startdate="'+StartDate+'" data-enddate="'+EndDate+'" data-currency="'+Currency+'" href="javascript:void(0)">{{ $TotalInvoice }} {{$CurrencySymbol}}'+row.z+'</a>' +
                                         '</div>' +
                                         '<div  class="morris-hover-point">' +
-                                        '   <a style="color: #3366CC" class="totalOutstanding" data-startdate="'+StartDate+'" data-enddate="'+EndDate+'" data-currency="'+Currency+'" href="javascript:void(0)">Total Outstanding: {{$CurrencySymbol}}'+row.a+'</a>' +
+                                        '   <a style="color: #3366CC" class="totalOutstanding" data-startdate="'+StartDate+'" data-enddate="'+EndDate+'" data-currency="'+Currency+'" href="javascript:void(0)">{{$TotalOutstanding}} {{$CurrencySymbol}}'+row.a+'</a>' +
                                         '</div>';
                                 //return '<div class="morris-hover-row-label">'+row.x+'</div><div  class="morris-hover-point"><a  style="color: #3399FF" target="_blank" href="'+baseurl+'/customer/payments?Type=Payment In&StartDate='+StartDate+'&EndDate='+EndDate+'">Payment Deposited: {{$CurrencySymbol}}'+row.y+'</a></div><div  class="morris-hover-point"><a style="color: #333399" target="_blank" href="'+baseurl+'/customer/invoice?StartDate='+StartDate+'&EndDate='+EndDate+'&InvoiceType=1">Total Invoice: {{$CurrencySymbol}}'+row.z+'</a></div><div  class="morris-hover-point"><a style="color: #3366CC" target="_blank" href="'+baseurl+'/customer/invoice?StartDate='+StartDate+'&EndDate='+EndDate+'&InvoiceType=1">Total Outstanding: {{$CurrencySymbol}}'+row.a+'</a></div>'
                             }
