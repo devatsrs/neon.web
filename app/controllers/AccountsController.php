@@ -2346,16 +2346,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             if (!empty($rate_tables['CountryID']) && !empty($rate_tables['PrefixWithoutCountry'])) {
                 $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
                 $zeroPrefix = 0;
-                for ($x = 0; $x < strlen($rate_tables['PrefixWithoutCountry']); $x++) {
+                $zeroPrefixStop = 0;
+                for ($x = 0; $x < strlen($rate_tables['PrefixWithoutCountry']) && $zeroPrefixStop == 0; $x++) {
                     if (substr($rate_tables['PrefixWithoutCountry'], $x, 1) == "0") {
                         $zeroPrefix++;
+                    }else {
+                        $zeroPrefixStop = 1;
                     }
                 }
 
                 if ($zeroPrefix > 0) {
                     $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], $zeroPrefix, strlen($rate_tables['PrefixWithoutCountry']));
                 } else {
-                    $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry'];
+                    $ProductCountryPrefix = $ProductCountry->Prefix . (empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry']);
                 }
                 $rate_tables['Prefix'] = $ProductCountryPrefix;
             }
