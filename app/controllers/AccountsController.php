@@ -2692,9 +2692,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $rate_tables['Prefix'] = $rate_tables['PrefixWithoutCountry'];
             if (!empty($rate_tables['CountryID']) && !empty($rate_tables['PrefixWithoutCountry'])) {
                 $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
-                for ($x = 0; $x < strlen($rate_tables['PrefixWithoutCountry']); $x++) {
+                $zeroPrefixStop = 0;
+                for ($x = 0; $x < strlen($rate_tables['PrefixWithoutCountry']) && $zeroPrefixStop == 1; $x++) {
                     if (substr($rate_tables['PrefixWithoutCountry'], $x, 1) == "0") {
                         $zeroPrefix++;
+                    }else {
+                        $zeroPrefixStop = 1;
                     }
                 }
 
