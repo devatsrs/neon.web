@@ -2704,7 +2704,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 if ($zeroPrefix > 0) {
                     $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], $zeroPrefix, strlen($rate_tables['PrefixWithoutCountry']));
                 } else {
-                    $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry'];
+                    $ProductCountryPrefix = $ProductCountry->Prefix . (empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry']);
                 }
                 $rate_tables['Prefix'] = $ProductCountryPrefix;
             }
