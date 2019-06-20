@@ -216,7 +216,7 @@
             @endif
 
             $('.didbutton').click(function(){
-                //  alert("Access Called");
+                
                 var packbtnval = $('.didbutton').html();
                 if(packbtnval=='Package'){
                     var accbtnval=$('.didbutton').text();
@@ -232,7 +232,7 @@
                     $('#OriginationPercentage').hide();
                     $('.didbutton').html(packbtnval+' <span class="caret"></span>');
                     //  $('.packageoption').html(accbtnval);
-                }else {
+                }else if(packbtnval == 'Access') {
                     var accbtnval = $('.didbutton').text();
                     var packbtnval = $('.packageoption').text();
                     $('#lcr_type').val('N');

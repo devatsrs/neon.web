@@ -52,7 +52,7 @@
                 <li> <a href="{{URL::to('/package')}}">  <span>Packages</span> </a> </li>
                 {{-- <li> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li> --}}
                 {{-- <li> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li> --}}
-                <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
+<!--                <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>-->
                 {{-- <li> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li> --}}
                 <li> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
                 <li> <a href="{{URL::to('/cdr_upload')}}">  <span>CDR Upload</span> </a> </li>
@@ -60,16 +60,16 @@
             </ul>
         </li>
         <li class="two-links"> <a href="{{Url::to('/report')}}" class="first"> <i class="fa fa-line-chart"></i><span>Reports</span></a> <a href="{{URL::to('report/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
-        <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
+<!--        <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
             <ul>
-                <!--<li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>-->
+                <li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>
                 <li> <a href="{{Url::to('/codedecks')}}">  <span>Code Decks</span> </a> </li>
                 {{-- <li> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li> --}}
-                <!--<li> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>-->
+                <li> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>
                 {{-- <li> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li> --}}
                 <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
             </ul>
-        </li>
+        </li>-->
         <li> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li>
         <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
             <ul>
