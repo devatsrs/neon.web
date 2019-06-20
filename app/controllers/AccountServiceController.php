@@ -32,10 +32,10 @@ class AccountServiceController extends \BaseController {
             'CompanyID' => $AccountCompanyId
         ]);
         //$DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
-        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
+        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForRateType(RateType::VOICECALL_ID);
         $DiscountPlan = $DiscountPlanVOICECALL;
-        $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::DID_ID);
-        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::PACKAGE_ID);
+        $DiscountPlanDID = DiscountPlan::getDropdownIDListForRateType(RateType::DID_ID);
+        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForRateType(RateType::PACKAGE_ID);
         $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceID)->first();
         $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID',$AccountServiceID)->first();
 
