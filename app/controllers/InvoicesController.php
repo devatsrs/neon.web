@@ -287,8 +287,8 @@ public function edit_inv_in($id){
             }
 
 			 if(isset($data['BillingClassID']) && $data['BillingClassID']>0){  
-				$InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
-				$InvoiceData["InvoiceNumber"] = $LastInvoiceNumber = ($isAutoInvoiceNumber)?InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID):$data["InvoiceNumber"];
+				//$InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+				$InvoiceData["InvoiceNumber"] = $LastInvoiceNumber = ($isAutoInvoiceNumber)?Invoice::getNextInvoiceNumber($companyID):$data["InvoiceNumber"];
 			 }
             
             $InvoiceData["CompanyID"] = $companyID;
@@ -315,8 +315,8 @@ public function edit_inv_in($id){
 			$InvoiceData['BillingClassID'] = $data["BillingClassID"];
 			
             //$InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
-            if(!isset($InvoiceTemplateID) || (int)$InvoiceTemplateID == 0){
-                return Response::json(array("status" => "failed", "message" => "Please enable billing."));
+            if(!isset($LastInvoiceNumber) || (int)$LastInvoiceNumber == 0){
+                return Response::json(array("status" => "failed", "message" => "Unable to create new invoice number."));
             }
             ///////////
             $rules = array(
@@ -346,12 +346,12 @@ public function edit_inv_in($id){
             }
 
             try{
-                $InvoiceData["FullInvoiceNumber"] = ($isAutoInvoiceNumber)?InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix.$LastInvoiceNumber:$LastInvoiceNumber;
+                $InvoiceData["FullInvoiceNumber"] = ($isAutoInvoiceNumber) ? Company::getCompanyField($companyID, "InvoiceNumberPrefix") . $LastInvoiceNumber:$LastInvoiceNumber;
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Invoice = Invoice::create($InvoiceData);
                 //Store Last Invoice Number.
                 if($isAutoInvoiceNumber) {
-                    InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber ));
+                    Company::find($companyID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber ));
                 }
 
                 $InvoiceDetailData = $InvoiceTaxRates = $InvoiceAllTaxRates = array();

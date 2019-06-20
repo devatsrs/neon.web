@@ -1008,4 +1008,28 @@ class Invoice extends \Eloquent {
     {
         return $this->hasOne(Dispute::class, 'InvoiceNo', 'InvoiceNumber');
     }
+
+    public static function getAccountNextInvoiceNumber($AccountID){
+
+        $CompanyID = Account::getCompanyIDByAccountID($AccountID);
+        if($CompanyID > 0){
+            return self::getNextInvoiceNumber($CompanyID);
+        }else{
+            return 0;
+        }
+    }
+
+
+    public static function getNextInvoiceNumber($CompanyID){
+        $Company = Company::find($CompanyID);
+        $NewInvoiceNumber =  ($Company->LastInvoiceNumber > 0)?($Company->LastInvoiceNumber + 1):1;
+        while(Invoice::where([
+                "InvoiceNumber" => $NewInvoiceNumber,
+                'CompanyID'     => $CompanyID
+            ])->count()>0){
+            $NewInvoiceNumber++;
+        }
+
+        return $NewInvoiceNumber;
+    }
 }

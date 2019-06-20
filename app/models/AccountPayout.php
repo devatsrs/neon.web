@@ -40,17 +40,13 @@ class AccountPayout extends \Eloquent
 
     public static function createPayoutInvoice($data){
 
-        $InvoiceData["CompanyID"] = $data['CompanyID'];
+        $CompanyID = $data['CompanyID'];
+        $InvoiceData["CompanyID"] = $CompanyID;
         $InvoiceData["AccountID"] = $data['AccountID'];
         $CreatedBy = "API";
         $Account = Account::find($data["AccountID"]);
         $BillingClassID = AccountBilling::getBillingClassID($data['AccountID']);
-        $InvoiceTemplateID = $BillingClassID != false ? BillingClass::getInvoiceTemplateID($BillingClassID) : false;
 
-        if($InvoiceTemplateID == false)
-            return ["status"  => "failed", "message" => "Account don't have billing class."];
-
-        $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
 
         $Reseller = Reseller::where('AccountID', $data['AccountID'])->first();
         $message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
@@ -58,9 +54,9 @@ class AccountPayout extends \Eloquent
         $text = Invoice::getInvoiceToByAccount($message, $replace_array);
         $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
 
-        $prefix = $InvoiceTemplate->InvoiceNumberPrefix;
+        $prefix = Company::getCompanyField($CompanyID, "InvoiceNumberPrefix");
 
-        $InvoiceData["InvoiceNumber"] = InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID);
+        $InvoiceData["InvoiceNumber"] = Invoice::getNextInvoiceNumber($CompanyID);
         $InvoiceData["FullInvoiceNumber"] = $prefix . $InvoiceData["InvoiceNumber"];
         $InvoiceData["Address"]       = $InvoiceToAddress;
         $InvoiceData["Description"]   = "Out Payment";
@@ -85,13 +81,13 @@ class AccountPayout extends \Eloquent
             $Invoice = Invoice::create($InvoiceData);
 
             $ProductID = Product::where([
-                'CompanyId' => $data['CompanyID'],
+                'CompanyId' => $CompanyID,
                 'Code'      => 'outpayment'
             ])->pluck('ProductID');
 
             if (empty($ProductID)) {
                 $ProductData = array();
-                $ProductData['CompanyID'] = $data['CompanyID'];
+                $ProductData['CompanyID'] = $CompanyID;
                 $ProductData['Name'] = 'OutPayment';
                 $ProductData['Amount'] = '0.00';
                 $ProductData['Description'] = 'Out Payment';
@@ -137,7 +133,9 @@ class AccountPayout extends \Eloquent
             }
 
             //Store Last Invoice Number.
-            InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $InvoiceData["InvoiceNumber"]));
+            Company::find($CompanyID)->update(array(
+                "LastInvoiceNumber" => $InvoiceData["InvoiceNumber"]
+            ));
 
             Log::info($InvoiceID);
             $pdf_path = Invoice::generate_pdf($InvoiceID);
