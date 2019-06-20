@@ -338,11 +338,15 @@ jQuery(document).ready(function($) {
             $("#modal-edit-new-rate-table [name='TrunkID']").attr('disabled','disabled');
             $("#modal-edit-new-rate-table [name='DIDCategoryID']").attr('disabled','disabled');
         }
-        if($(this).attr('data-Type') == 1) {
+        if($(this).attr('data-Type') == 3) { // package
+            $('#box-edit-DIDCategory').hide();
+            $('#box-edit-Trunk').hide();
+            $('#box-edit-MinimumCallCharge').hide();
+        } else if($(this).attr('data-Type') == 1) { // voicecall
             $('#box-edit-DIDCategory').hide();
             $('#box-edit-Trunk').show();
             $('#box-edit-MinimumCallCharge').hide();//$('#box-edit-MinimumCallCharge').show();
-        } else {
+        } else { // did
             $('#box-edit-Trunk').hide();
             $('#box-edit-MinimumCallCharge').hide();
             $('#box-edit-DIDCategory').show();

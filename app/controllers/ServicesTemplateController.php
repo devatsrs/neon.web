@@ -195,9 +195,9 @@ class ServicesTemplateController extends BaseController {
             //     }
             // }
             //$CityTariff = array_merge($CityTariff, $CityTariffFilter);
-            $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::VOICECALL_ID);
-            $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::PACKAGE_ID);
-            $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::DID_ID);
+            $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForRateType(RateType::VOICECALL_ID);
+            $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForRateType(RateType::PACKAGE_ID);
+            $DiscountPlanDID = DiscountPlan::getDropdownIDListForRateType(RateType::DID_ID);
 
 
             $country = array('' => "All") + $country;
