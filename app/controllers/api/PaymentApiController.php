@@ -511,8 +511,8 @@ class PaymentApiController extends ApiController {
 		try {
 			DB::connection('sqlsrv2')->beginTransaction();
 
-			$InvoiceTemplateID = BillingClass::getInvoiceTemplateID($BillingClassID);
-			$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+			//$InvoiceTemplateID = BillingClass::getInvoiceTemplateID($BillingClassID);
+			//$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
 			$Reseller = Reseller::where('AccountID', $AccountID)->first();
 			$message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
 			$replace_array = Invoice::create_accountdetails($Account);
@@ -521,8 +521,8 @@ class PaymentApiController extends ApiController {
 			$Terms = isset($Reseller->TermsAndCondition) ? $Reseller->TermsAndCondition : '';
 			$FooterTerm = isset($Reseller->FooterTerm) ? $Reseller->FooterTerm : '';
 
-			$LastInvoiceNumber = InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID);
-			$FullInvoiceNumber = $InvoiceTemplate->InvoiceNumberPrefix . $LastInvoiceNumber;
+			$LastInvoiceNumber = Invoice::getNextInvoiceNumber($CompanyID);
+			$FullInvoiceNumber = Company::getCompanyField($CompanyID, "InvoiceNumberPrefix") . $LastInvoiceNumber;
 			$InvoiceData["InvoiceNumber"] = $LastInvoiceNumber;
 			$InvoiceData["CompanyID"] = $CompanyID;
 			$InvoiceData["AccountID"] = intval($AccountID);
@@ -563,7 +563,7 @@ class PaymentApiController extends ApiController {
 			}
 
 			//Store Last Invoice Number.
-			InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber));
+			Company::find($CompanyID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber));
 			$InvoiceID = $Invoice->InvoiceID;
 			log::info('InvoiceID ' . $InvoiceID);
 
@@ -615,7 +615,7 @@ class PaymentApiController extends ApiController {
 							$InvoiceTaxRates['InvoiceID'] = $InvoiceID;
 							$InvoiceTaxRates['InvoiceDetailID'] = 0;
 							$InvoiceTaxRates['TaxRateID'] = $TaxRateID;
-							$TaxAmount=TaxRate::calculateProductTaxAmount($TaxRateID,$Amount);
+							$TaxAmount = TaxRate::calculateProductTaxAmount($TaxRateID,$Amount);
 							$InvoiceTaxRates['TaxAmount'] = $TaxAmount;
 							$InvoiceTaxRates['Title'] = $TaxRateData->Title;
 							$InvoiceTaxRates['InvoiceTaxType'] = 1;
