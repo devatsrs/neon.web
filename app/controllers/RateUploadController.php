@@ -1362,6 +1362,9 @@ class RateUploadController extends \BaseController {
 
                                 $CostComponentsMapped = 0;
 
+                                // remove 0 from starting of the Code
+                                $tempdata['Code'] = ltrim($tempdata['Code'],'0');
+
                                 if (!empty($attrselection->City)) {
                                     if (array_key_exists($attrselection->City, $City)) {// if City selected from Neon Database
                                         $tempdata['City'] = str_replace($prefixKeyword,'',$attrselection->City);
