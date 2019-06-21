@@ -101,7 +101,7 @@
                                 <label class="col-md-2 control-label">Vendor</label>
                                 <div class="col-md-4">
                                     <div class="make-switch switch-small" id="desablevendor">
-                                        <input type="checkbox" name="IsVendor"  @if(Input::old('IsVendor') == 1 )checked=""@endif value="1">
+                                        <input type="checkbox" name="IsVendor"  @if(Input::old('IsVendor') == 1 )checked="" @endif value="1">
                                     </div>
                                 </div>
                                 <label class="col-md-2 hide control-label">Fax</label>
@@ -150,7 +150,7 @@
                                 <label class="col-md-2 control-label">Partner</label>
                                 <div class="col-md-4">
                                     <div class="make-switch switch-small" id="desablereseller">
-                                        <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked=""@endif value="1">
+                                        <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked="" @endif value="1">
                                     </div>
                                 </div>
 

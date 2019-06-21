@@ -272,8 +272,9 @@ class CronJobController extends \BaseController {
 
         $commands = CronJobCommand::getCommands();
         $Process = new Process();
+        $Nodes = Nodes::getActiveNodes();
         $crontab_status = $Process->check_crontab_status();
-        return View::make('cronjob.cronjob_monitor', compact('commands','crontab_status'));
+        return View::make('cronjob.cronjob_monitor', compact('commands','crontab_status','Nodes'));
 
     }
 

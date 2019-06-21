@@ -15,4 +15,8 @@ class Nodes extends \Eloquent {
         'ServerIP' =>      'required|unique:tblNode',
     );
 
+    public static function getActiveNodes(){
+        $Nodes = Nodes::where('Status','1')->lists('ServerName','ServerIP');
+        return $Nodes;
+    }
 }
