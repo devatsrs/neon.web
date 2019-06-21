@@ -168,6 +168,12 @@ class BillingClassController extends \BaseController {
     }
 
     public function delete($id){
+        if(is_reseller()) {
+            $BillingClass = BillingClass::find($id);
+            if ($BillingClass != false && $BillingClass->IsGlobal == 1)
+                return Response::json(['status' => 'failed', 'message' => 'Invalid Request.']);
+        }
+
         $response =  NeonAPI::request('billing_class/delete/'.$id,array(),'delete',false,false);
         return json_response_api($response);
     }
