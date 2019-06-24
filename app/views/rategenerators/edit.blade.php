@@ -648,7 +648,7 @@
                                     <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
                                         @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                                             <td>
-                                                @if(@$rategenerator_rule->Package != '') {{Package::getServiceNameByID($rategenerator_rule->Package)}} @else ALL @endif
+                                                @if(@$rategenerator_rule->PackageID != '') {{Package::getPackageNameByID($rategenerator_rule->PackageID)}} @else ALL @endif
                                             </td>    
                                         @endif
                                         @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)  || $rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
