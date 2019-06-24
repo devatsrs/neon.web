@@ -513,7 +513,7 @@ class PaymentApiController extends ApiController {
 
 			//$InvoiceTemplateID = BillingClass::getInvoiceTemplateID($BillingClassID);
 			//$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
-			$Reseller = Reseller::where('AccountID', $AccountID)->first();
+			$Reseller = Reseller::where('CompanyID', $Account->CompanyId)->first();
 			$message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
 			$replace_array = Invoice::create_accountdetails($Account);
 			$text = Invoice::getInvoiceToByAccount($message, $replace_array);
