@@ -67,7 +67,7 @@ tfoot {
     </div>
     <div id="company" class="pull-right flip">
       <h2 class="name text-right flip"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_FROM')</b></h2>
-      <div class="text-right flip">{{ nl2br(Account::getFullAddress($Account)) }}</div>
+      <div class="text-right flip">{{ nl2br(Account::getAddress($Account)) }}</div>
     </div>
   </header>
   <!-- logo and invoice from section end-->
