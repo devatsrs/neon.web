@@ -219,6 +219,9 @@ class RateGeneratorRuleController extends \BaseController {
             if(isset($data['OriginationCountryID']) && $data['OriginationCountryID'] == ''){
                 $data['OriginationCountryID'] = null;
             }
+            if(isset($data['PackageID']) && $data['PackageID'] == ''){
+                $data['PackageID'] = null;
+            }
 
             // Checking if any other rule exist with same condition
             $whereArr = [];
@@ -309,6 +312,9 @@ class RateGeneratorRuleController extends \BaseController {
             }
             if(isset($data['OriginationCountryID']) && $data['OriginationCountryID'] == ''){
                 $data['OriginationCountryID'] = null;
+            }
+            if(isset($data['PackageID']) && $data['PackageID'] == ''){
+                $data['PackageID'] = null;
             }
 
             // Checking if any other rule exist with same condition
