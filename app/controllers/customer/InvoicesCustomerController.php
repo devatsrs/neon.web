@@ -104,7 +104,7 @@ class InvoicesCustomerController extends \BaseController {
             $Invoice = Invoice::find($id);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
             $Account = Account::find($Invoice->AccountID);
-            $Reseller = Reseller::where('CompanyID', $Account->CompanyId)->first();
+            $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);

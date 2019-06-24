@@ -1280,7 +1280,7 @@ class NeonRegistartionController extends \BaseController {
             //$InvoiceTemplateID = BillingClass::getInvoiceTemplateID($data['BillingClassID']);
             //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
 
-            $Reseller = Reseller::where('CompanyID', $Account->CompanyId)->first();
+            $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
             $message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
             $replace_array = Invoice::create_accountdetails($Account);
             $text = Invoice::getInvoiceToByAccount($message, $replace_array);

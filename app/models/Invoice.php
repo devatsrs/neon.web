@@ -119,7 +119,7 @@ class Invoice extends \Eloquent {
                 $PaymentDueInDays = BillingClass::getPaymentDueInDays($BillingClassID);
             }
 
-            $Reseller = Reseller::where('CompanyID', $Account->CompanyId)->first();
+            $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
             //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($Reseller->LogoUrl) || AmazonS3::unSignedUrl($Reseller->LogoAS3Key, $Account->CompanyId) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");

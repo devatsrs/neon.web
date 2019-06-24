@@ -48,7 +48,7 @@ class AccountPayout extends \Eloquent
         $BillingClassID = AccountBilling::getBillingClassID($data['AccountID']);
 
 
-        $Reseller = Reseller::where('AccountID', $data['AccountID'])->first();
+        $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
         $message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
         $replace_array = Invoice::create_accountdetails($Account);
         $text = Invoice::getInvoiceToByAccount($message, $replace_array);
