@@ -135,7 +135,7 @@ class Invoice extends \Eloquent {
 
             //$InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
 
-            $common_name = Str::slug($Account->AccountName.'-'.$Invoice->FullInvoiceNumber.'-'.date(invoice_date_fomat(''),strtotime($Invoice->IssueDate)).'-'.$InvoiceID);
+            $common_name = Str::slug($Account->AccountName.'-'.$Invoice->FullInvoiceNumber.'-'.date(invoice_date_fomat($Reseller->InvoiceDateFormat),strtotime($Invoice->IssueDate)).'-'.$InvoiceID);
 
             $file_name = 'Invoice--' .$common_name . '.pdf';
             $htmlfile_name = 'Invoice--' .$common_name . '.html';
