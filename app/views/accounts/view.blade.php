@@ -118,7 +118,7 @@
            <a class="btn-info btn btn-default btn-xs" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}"><i class="fa fa-slideshare"></i></a>
                    @endif
                   @if($account->IsReseller==1)
-                      <button class="btn-info btn btn-default btn-xs" title="Partner" onclick="checkreseller('{{ $account->AccountID }}')"><i class="fa fa-users"></i></button>
+                      <button class="btn-info btn btn-default btn-xs" title="Partner" onclick="checkreseller('{{ $account->AccountID }}')"><i class="entypo-users"></i></button>
                    @endif
                   @endif
                    </div>
