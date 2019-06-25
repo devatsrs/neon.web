@@ -2345,10 +2345,20 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $rate_tables['Prefix'] = $rate_tables['PrefixWithoutCountry'];
             if (!empty($rate_tables['CountryID']) && !empty($rate_tables['PrefixWithoutCountry'])) {
                 $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
-                if (substr($rate_tables['PrefixWithoutCountry'], 0, 1) == "0") {
-                    $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], 1, strlen($rate_tables['PrefixWithoutCountry']));
+                $zeroPrefix = 0;
+                $zeroPrefixStop = 0;
+                for ($x = 0; $x < strlen($rate_tables['PrefixWithoutCountry']) && $zeroPrefixStop == 0; $x++) {
+                    if (substr($rate_tables['PrefixWithoutCountry'], $x, 1) == "0") {
+                        $zeroPrefix++;
+                    }else {
+                        $zeroPrefixStop = 1;
+                    }
+                }
+
+                if ($zeroPrefix > 0) {
+                    $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], $zeroPrefix, strlen($rate_tables['PrefixWithoutCountry']));
                 } else {
-                    $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry'];
+                    $ProductCountryPrefix = $ProductCountry->Prefix . (empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry']);
                 }
                 $rate_tables['Prefix'] = $ProductCountryPrefix;
             }
@@ -2572,6 +2582,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['PrefixWithoutCountry']   = 'required'; // Prefix
         // Log::info("clitable_store " . print_r($data,true));
 
+        $zeroPrefix = 0;
+
+
+
+
         $validator = Validator::make($data, $rules, [
             'CLI.required'                    => "The number is required.",
             'RateTableID.required'            => "The default access rate table is required.",
@@ -2619,6 +2634,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
         $rate_tables['AccountID'] = $data['AccountID'];
         $rate_tables['CompanyID'] = $CompanyID;
+
 
 
         $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
@@ -2679,10 +2695,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $rate_tables['Prefix'] = $rate_tables['PrefixWithoutCountry'];
             if (!empty($rate_tables['CountryID']) && !empty($rate_tables['PrefixWithoutCountry'])) {
                 $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
-                if (substr($rate_tables['PrefixWithoutCountry'], 0, 1) == "0") {
-                    $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], 1, strlen($rate_tables['PrefixWithoutCountry']));
+                $zeroPrefixStop = 0;
+                for ($x = 0; $x < strlen($rate_tables['PrefixWithoutCountry']) && $zeroPrefixStop == 0; $x++) {
+                    if (substr($rate_tables['PrefixWithoutCountry'], $x, 1) == "0") {
+                        $zeroPrefix++;
+                    }else {
+                        $zeroPrefixStop = 1;
+                    }
+                }
+
+                if ($zeroPrefix > 0) {
+                    $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], $zeroPrefix, strlen($rate_tables['PrefixWithoutCountry']));
                 } else {
-                    $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry'];
+                    $ProductCountryPrefix = $ProductCountry->Prefix . (empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry']);
                 }
                 $rate_tables['Prefix'] = $ProductCountryPrefix;
             }

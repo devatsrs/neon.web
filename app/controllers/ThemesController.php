@@ -79,7 +79,7 @@ class ThemesController extends \BaseController {
     {
 		$ResellerAllowWhiteLabel = Reseller::is_AllowWhiteLabel();
 		if(is_reseller() && empty($ResellerAllowWhiteLabel)){
-			return Redirect::to('reseller/profile');
+			return Redirect::to('accounts');
 		}
         $companyID 				= 		User::get_companyID();
         $data 					= 		Input::all();
@@ -100,7 +100,7 @@ class ThemesController extends \BaseController {
 		$CompanyID 				= 	User::get_companyID();
 		$ResellerAllowWhiteLabel = Reseller::is_AllowWhiteLabel();
 		if(is_reseller() && empty($ResellerAllowWhiteLabel)){
-			return Redirect::to('reseller/profile');
+			return Redirect::to('accounts');
 		}
 
 		$Domain_Url = CompanyConfiguration::getValueConfigurationByKey('WEB_URL',$CompanyID);

@@ -104,6 +104,7 @@ class InvoicesCustomerController extends \BaseController {
             $Invoice = Invoice::find($id);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
             $Account = Account::find($Invoice->AccountID);
+            $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
@@ -136,7 +137,7 @@ class InvoicesCustomerController extends \BaseController {
                 }
             }
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'Reseller', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
