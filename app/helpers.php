@@ -262,6 +262,7 @@ function sendMail($view,$data,$ViewType=1){
 	}
 	else{ 
 		$config = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $companyID)->first();
+        if($config != false) $config->SMTPPassword = Crypt::decrypt($config->SMTPPassword);
 		$status = 	PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID,$body);
 	}
 	return $status;
