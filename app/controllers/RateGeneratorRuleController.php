@@ -414,12 +414,12 @@ class RateGeneratorRuleController extends \BaseController {
             $data ['RateRuleId'] = $RateRuleId;
            
             
-            if(!empty($data ['MinRate'])){
+            if(isset($data['MinRate']) && $data['MinRate'] != ''){
                  $data ['MinRate'] = doubleval($data ['MinRate']);
             }else{
                 $data ['MinRate']=null;
             }
-            if(!empty($data ['MaxRate'])){
+            if(isset($data['MaxRate']) && $data['MaxRate'] != ''){
                 $data ['MaxRate'] = doubleval($data ['MaxRate']);
             }else{
                 $data ['MaxRate']=null;
@@ -508,12 +508,12 @@ class RateGeneratorRuleController extends \BaseController {
             $data = Input::all();
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateRuleId'] = $RateRuleId;
-            if(!empty($data ['MinRate'])){
+            if(isset($data['MinRate']) && $data['MinRate'] != ''){
                 $data ['MinRate'] = doubleval($data ['MinRate']);
             }else{
                 $data ['MinRate']=null;
             }
-            if(!empty($data ['MaxRate'])){
+            if(isset($data['MaxRate']) && $data['MaxRate'] != ''){
                 $data ['MaxRate'] = doubleval($data ['MaxRate']);
             }else{
                 $data ['MaxRate']=null;
