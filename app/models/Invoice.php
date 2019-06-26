@@ -119,7 +119,7 @@ class Invoice extends \Eloquent {
                 $PaymentDueInDays = BillingClass::getPaymentDueInDays($BillingClassID);
             }
 
-            $Reseller = Reseller::where('AccountID', $Invoice->AccountID)->first();
+            $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
             //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($Reseller->LogoUrl) || AmazonS3::unSignedUrl($Reseller->LogoAS3Key, $Account->CompanyId) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
@@ -134,8 +134,8 @@ class Invoice extends \Eloquent {
             @chmod($logo,0777);
 
             //$InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
-
-            $common_name = Str::slug($Account->AccountName.'-'.$Invoice->FullInvoiceNumber.'-'.date(invoice_date_fomat(''),strtotime($Invoice->IssueDate)).'-'.$InvoiceID);
+            Log::info('date format: '. $Reseller->InvoiceDateFormat);
+            $common_name = Str::slug($Account->AccountName.'-'.$Invoice->FullInvoiceNumber.'-'.date(invoice_date_fomat($Reseller->InvoiceDateFormat),strtotime($Invoice->IssueDate)).'-'.$InvoiceID);
 
             $file_name = 'Invoice--' .$common_name . '.pdf';
             $htmlfile_name = 'Invoice--' .$common_name . '.html';
@@ -156,7 +156,8 @@ class Invoice extends \Eloquent {
             }
 			
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates','language' ,'arrSignature','RoundChargesAmount','MultiCurrencies'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'Reseller',
+'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates','language' ,'arrSignature','RoundChargesAmount','MultiCurrencies'))->render();
 
             $body = htmlspecialchars_decode($body);  
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();

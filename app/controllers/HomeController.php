@@ -290,7 +290,7 @@ class HomeController extends BaseController {
                 if(!empty($Resellers) && count($Resellers)>0){
                     log::info('reseller');
                     Session::set("reseller", 1);
-                    $redirect_to = URL::to("/reseller/profile");
+                    $redirect_to = URL::to("/accounts");
                 }
 
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
