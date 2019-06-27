@@ -182,7 +182,7 @@ class RateGeneratorRuleController extends \BaseController {
             if($rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
                 $rules = array(
                     'Component'  => 'required',
-                    'TimeOfDay'  => 'required',
+                    'TimezonesID'  => 'required',
                     'CreatedBy'  => 'required',
                 );
 
@@ -293,7 +293,7 @@ class RateGeneratorRuleController extends \BaseController {
             if($rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
                 $rules = array(
                     'Component'   => 'required',
-                    'TimeOfDay'   => 'required',
+                    'TimezonesID'   => 'required',
                     'ModifiedBy'  => 'required',
                 );
             }
