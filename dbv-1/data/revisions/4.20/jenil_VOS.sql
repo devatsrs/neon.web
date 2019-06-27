@@ -1380,12 +1380,12 @@ sp:BEGIN
 			
 			
 			
-			SELECT GROUP_CONCAT(distinct a.CustomerID) INTO v_AccountIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.CustomerID;
-			SELECT GROUP_CONCAT(distinct a.TrunkID) INTO v_TrunkIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.TrunkID;
-			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.TimezonesID;	
+			SELECT GROUP_CONCAT(distinct a.CustomerID) INTO v_AccountIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY a.CustomerID;
+			SELECT GROUP_CONCAT(distinct a.TrunkID) INTO v_TrunkIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY a.TrunkID;
+			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY a.TimezonesID;	
 			
 					
-			UPDATE tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID set a.EndDate=NOW();
+			UPDATE tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID set a.EndDate=NOW() WHERE cr.EffectiveDate <= CURRENT_DATE();
 			
 			select count(*) As TotalArchivedRates from tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID;
 		
@@ -3679,5 +3679,121 @@ DELIMITER ;
 
 /*New Add RatePrefix in Account- Bulk Ratesheet Email*/
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VOS_RATEPREFIX_RATESHEET', '0');
+
+/* Gateway Mapping Online */
+USE `NeonCDRDev`;
+
+DROP TABLE IF EXISTS `tblVOSGatewayMappingOnline`;
+CREATE TABLE IF NOT EXISTS `tblVOSGatewayMappingOnline` (
+  `VOSGatewayMappingOnlineID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) NOT NULL,
+  `GatewayName` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `TotalCurrentCalls` int(11) DEFAULT NULL,
+  `Asr` decimal(18,6) DEFAULT NULL,
+  `Acd` decimal(18,6) DEFAULT NULL,
+  `RemoteIP` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CompanyGatewayID` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`VOSGatewayMappingOnlineID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getVOSGatewayMappingOnline`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSGatewayMappingOnline`(
+	IN `p_CompanyID` INT,
+	IN `p_GatewayName` VARCHAR(255),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_CompanyGatewayID` INT,
+	IN `p_Export` INT
+
+)
+BEGIN
+     DECLARE v_OffSet_ int;
+     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	      
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+
+	if p_Export = 0
+	THEN
+
+    SELECT   
+			vgmo.GatewayName,
+			vgmo.TotalCurrentCalls,
+			vgmo.Asr,
+			vgmo.Acd,
+			vgmo.RemoteIP
+			
+    FROM tblVOSGatewayMappingOnline vgmo			
+        WHERE vgmo.CompanyID = p_CompanyID
+		AND(p_GatewayName ='' OR vgmo.GatewayName like Concat('%',p_GatewayName,'%'))
+		AND(p_CompanyGatewayID = 0 OR vgmo.CompanyGatewayID = p_CompanyGatewayID)
+		
+			
+         ORDER BY
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GatewayNameDESC') THEN vgmo.GatewayName
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GatewayNameASC') THEN vgmo.GatewayName
+                END ASC,
+				
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RemoteIPDESC') THEN vgmo.RemoteIP
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RemoteIPASC') THEN vgmo.RemoteIP
+                END ASC
+            LIMIT p_RowspPage OFFSET v_OffSet_;
+
+			SELECT
+				COUNT(vgmo.VOSGatewayMappingOnlineID) AS totalcount
+			FROM tblVOSGatewayMappingOnline vgmo
+			WHERE vgmo.CompanyID = p_CompanyID
+			AND(p_GatewayName ='' OR vgmo.GatewayName like Concat('%',p_GatewayName,'%'))
+			AND(p_CompanyGatewayID = 0 OR vgmo.CompanyGatewayID = p_CompanyGatewayID)
+			;
+
+	ELSE
+
+			SELECT
+				vgmo.GatewayName,
+				vgmo.TotalCurrentCalls,
+				vgmo.Asr,
+				vgmo.Acd,
+				vgmo.RemoteIP
+         FROM tblVOSGatewayMappingOnline vgmo
+			WHERE vgmo.CompanyID = p_CompanyID
+			AND(p_GatewayName ='' OR vgmo.GatewayName like Concat('%',p_GatewayName,'%'))
+			AND(p_CompanyGatewayID = 0 OR vgmo.CompanyGatewayID = p_CompanyGatewayID)
+			;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 	
-	
+END//
+DELIMITER ;
+
+
+
+INSERT INTO `NeonRMDev`.`tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'VOS_ONLINE_GATEWAY_MAPPING_MENU', '1');
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1384, 'GatewayMappingOnline.All', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1383, 'GatewayMappingOnline.View', 1, 7);
+
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('GatewayMappingOnline.GetGatewayMappingOnline', 'GatewayMappingOnlineController.GetGatewayMappingOnline', 1, 'Sumera Saeed', NULL, '2019-06-27 11:48:03.000', '2019-06-27 11:48:03.000', 1383);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('GatewayMappingOnline.ajax_datagrid', 'GatewayMappingOnlineController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-06-27 11:48:03.000', '2019-06-27 11:48:03.000', 1383);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('GatewayMappingOnline.*', 'GatewayMappingOnlineController.*', 1, 'Sumera Saeed', NULL, '2019-06-27 11:48:03.000', '2019-06-27 11:48:03.000', 1384);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('GatewayMappingOnline.index', 'GatewayMappingOnlineController.index', 1, 'Sumera Saeed', NULL, '2019-06-27 11:48:03.000', '2019-06-27 11:48:03.000', 1383);
+

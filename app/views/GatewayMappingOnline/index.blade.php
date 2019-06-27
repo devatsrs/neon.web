@@ -8,23 +8,16 @@
                 <i class="fa fa-filter"></i>
                 Filter
             </h2>
-            <form role="form" id="activecall-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
+            <form role="form" id="vendor-activecall-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
 
                 <div class="form-group">
-                    <label class="control-label" for="field-1">CLI</label>
-                    <input type="text" name="CLI" class="form-control mid_fld "  value=""  />
+                    <label class="control-label" for="field-1">Gateway Name</label>
+                    <input type="text" name="GatewayName" class="form-control mid_fld "  value=""  />
                 </div>
+
                 <div class="form-group">
-                    <label class="control-label" for="field-1">CLD</label>
-                    <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
-                </div>
-                <div class="form-group">
-                    <label class="control-label" for="field-1">Mapping Gateway</label>
-                    <input type="text" name="MappingGateway" class="form-control mid_fld "  value=""  />
-                </div>
-                <div class="form-group">
-                    <label class="control-label" for="field-1">Routing Gateway</label>
-                    <input type="text" name="RoutingGateway" class="form-control mid_fld "  value=""  />
+                    <label class="control-label" for="field-1">Gateway</label>
+                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
                 </div>
 
                 <div class="form-group">
@@ -57,48 +50,46 @@
 <h3>Active Calls</h3>
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
     @if(User::checkCategoryPermission('ActiveCall','View') && CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1')
+        <li >
+            <a href="{{ URL::to('ActiveCalls') }}" >
+                <span class="hidden-xs">Active Calls</span>
+            </a>
+        </li>
+    @endif
+
+    @if(User::checkCategoryPermission('VOSActiveCall','View') &&  CompanyConfiguration::getValueConfigurationByKey('VOS_ACTIVECALL_MENU',User::get_companyID()) == '1')
+        <li>
+            <a href="{{ URL::to('/VOS_ActiveCalls') }}" >
+                <span class="hidden-xs">Active Calls</span>
+            </a>
+        </li>
+    @endif
+
+    @if(User::checkCategoryPermission('VendorActiveCall','View') && CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1')
     <li>
-        <a href="{{ URL::to('ActiveCalls') }}" >
-            <span class="hidden-xs">Active Calls</span>
+        <a href="{{ URL::to('/Vendor_ActiveCalls') }}" >
+            <span class="hidden-xs">Online Routing Gateway</span>
         </a>
     </li>
     @endif
 
     <li class="active">
-        <a href="{{ URL::to('/VOS_ActiveCalls') }}" >
-            <span class="hidden-xs">Active Calls</span>
-        </a>
-    </li>
-
-    @if(User::checkCategoryPermission('VendorActiveCall','View') && CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1')
-        <li>
-            <a href="{{ URL::to('/Vendor_ActiveCalls') }}" >
-                <span class="hidden-xs">Online Routing Gateway</span>
-            </a>
-        </li>
-    @endif
-
-
-    @if(User::checkCategoryPermission('VOSOnlineGatewayMapping','View') && CompanyConfiguration::getValueConfigurationByKey('VOS_ONLINE_GATEWAY_MAPPING_MENU',User::get_companyID()) == '1')
-
-    <li>
         <a href="{{ URL::to('/GatewayMappingOnline') }}" >
             <span class="hidden-xs">Online Mapping Gateway</span>
         </a>
     </li>
-        @endif
-
 
 
 </ul>
+
 
     <div class="clear"></div>
 
 
 <div class="row dropdown">
     <div  class="col-md-12">
-        @if(CompanyConfiguration::getValueConfigurationByKey('VOSACTIVECALL_BTN_LOADACTIVECALL',User::get_companyID()) == '1')
-            <a href="javascript:;" id="LoadVOSActiveCalls" class="btn upload btn-primary pull-right" data-action="{{URL::to('VOS_ActiveCalls/API/GetCurrentCall')}}"> Load Active Calls </a>
+        @if(CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_BTN_LOADACTIVECALL',User::get_companyID()) == '1')
+            <a href="javascript:;" id="LoadGatewayMapping" class="btn upload btn-primary pull-right" data-action="{{URL::to('GatewayMappingOnline/API/GetGatewayMappingOnline')}}"> Load Mapping Gateway </a>
         @endif
 
     </div>
@@ -107,18 +98,12 @@
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
-
-            <th width="10%">CLI</th>
-            <th width="9%">CLD</th>
-            <th width="8%">Mapping Gateway</th>
-            <th width="10%">Routing Gateway</th>
-            <th width="6%">Caller PDD</th>
-            <th width="6%">Callee PDD</th>
-            <th width="10%">Connect Time </th>
-            <th width="6%">Duration</th>
-            <th width="10%">Codec</th>
-            <th width="10%">Customer IP</th>
-            <th width="15%">Supplier  IP and RTP</th>
+            {{--<th width="1%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>--}}
+            <th width="10%">Gateway name</th>
+            <th width="10%">Total Current Calls</th>
+            <th width="10%">ASR</th>
+            <th width="10%">ACD</th>
+            <th width="10%">Remote IP</th>
 
         </tr>
         </thead>
@@ -128,7 +113,7 @@
     <script type="text/javascript">
         var toFixed = '{{get_round_decimal_places()}}';
 
-                var list_fields  = ['CLI','CLD','MappingGateway','RoutingGateway','CallerPDD','CalleePDD','ConnectTime','Duration','Codec','CustomerIP','SupplierIPRTP'];
+                var list_fields  = ['GatewayName','TotalCurrentCalls','Asr','Acd','RemoteIP','CompanyGatewayID'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -136,31 +121,26 @@
 
                     $('#filter-button-toggle').show();
 
-                    $searchFilter.CLI = $("#activecall-table-search [name='CLI']").val();
-                    $searchFilter.CLD = $("#activecall-table-search [name='CLD']").val();
-                    $searchFilter.MappingGateway = $("#activecall-table-search [name='MappingGateway']").val();
-                    $searchFilter.RoutingGateway = $("#activecall-table-search [name='RoutingGateway']").val();
-
+                    $searchFilter.GatewayName = $("#vendor-activecall-table-search [name='GatewayName']").val();
 
                     data_table = $("#table-4").dataTable({
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,
-                        "sAjaxSource": baseurl + "/VOS_ActiveCalls/ajax_datagrid/type",
+                        "sAjaxSource": baseurl + "/GatewayMappingOnline/ajax_datagrid/type",
                         "fnServerParams": function (aoData) {
+                            if($searchFilter.CompanyGatewayID == '' || typeof($searchFilter.CompanyGatewayID) == 'undefined'){
+                                $searchFilter.CompanyGatewayID = 0;
+                            }
                             aoData.push(
-                                    {"name": "CLI","value": $searchFilter.CLI},
-                                    {"name": "CLD","value": $searchFilter.CLD},
-                                    {"name": "MappingGateway","value": $searchFilter.MappingGateway},
-                                    {"name": "RoutingGateway", "value": $searchFilter.RoutingGateway}
+                                    {"name": "GatewayName", "value": $searchFilter.GatewayName},
+                                    {"name": "CompanyGatewayID","value": $searchFilter.CompanyGatewayID}
 
                             );
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push(
-                                    {"name": "CLI","value": $searchFilter.CLI},
-                                    {"name": "CLD","value": $searchFilter.CLD},
-                                    {"name": "MappingGateway","value": $searchFilter.MappingGateway},
-                                    {"name": "RoutingGateway", "value": $searchFilter.RoutingGateway},
+                                    {"name": "GatewayName", "value": $searchFilter.GatewayName},
+                                    {"name": "CompanyGatewayID","value": $searchFilter.CompanyGatewayID},
                                     {"name":"Export","value":1}
                             );
 
@@ -168,9 +148,9 @@
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox1.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[6, 'desc']],
+                        "aaSorting": [[0, 'asc']],
                         "aoColumns": [
-                           /* {
+                            /*{
                                 "bSortable": false, //checkbox
                                 mRender: function (id, type, full) {
                                     var chackbox = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
@@ -181,37 +161,19 @@
                                 }
                             },*/
                             {
-                                "bSortable": true //CLI
+                                "bSortable": true //GatewayName
                             },
                             {
-                                "bSortable": true //CLD
+                                "bSortable": false // TotalCurrentCall
                             },
                             {
-                                "bSortable": true // Mapping Gateway
+                                "bSortable": false // ASR
                             },
                             {
-                                "bSortable": true // Routing Gateway
+                                "bSortable": false // ACD
                             },
                             {
-                                "bSortable": false // Caller PDD
-                            },
-                            {
-                                "bSortable": false // Callee PDD
-                            },
-                            {
-                                "bSortable": true // Connect Time
-                            },
-                            {
-                                "bSortable": false // Duration
-                            },
-                            {
-                                "bSortable": false // Codec
-                            },
-                            {
-                                "bSortable": false // Customer IP
-                            },
-                            {
-                                "bSortable": false // Supplier IP and RTP
+                                "bSortable": true // RemoteIP
                             }
 
                         ],
@@ -220,13 +182,13 @@
                                 {
                                     "sExtends": "download",
                                     "sButtonText": "EXCEL",
-                                    "sUrl": baseurl + "/VOS_ActiveCalls/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                                    "sUrl": baseurl + "/GatewayMappingOnline/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                                     sButtonClass: "save-collection"
                                 },
                                 {
                                     "sExtends": "download",
                                     "sButtonText": "CSV",
-                                    "sUrl": baseurl + "/VOS_ActiveCalls/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                                    "sUrl": baseurl + "/GatewayMappingOnline/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                                     sButtonClass: "save-collection"
                                 }
                             ]
@@ -497,7 +459,7 @@
                         }
                         ajax_Add_update(update_new_url);
                     });
-                    //$("#activecall-table-search").submit();
+                    //$("#vendor-activecall-table-search").submit();
 
 
                     function createGrid(data){
@@ -574,23 +536,22 @@
                         });
                     });
 
-                    $("#activecall-table-search").submit(function(e) {
+                    $("#vendor-activecall-table-search").submit(function(e) {
                         e.preventDefault();
                         public_vars.$body = $("body");
                         //show_loading_bar(40);
-                        $searchFilter.CLI = $("#activecall-table-search [name='CLI']").val();
-                        $searchFilter.CLD = $("#activecall-table-search [name='CLD']").val();
-                        $searchFilter.MappingGateway = $("#activecall-table-search [name='MappingGateway']").val();
-                        $searchFilter.RoutingGateway = $("#activecall-table-search [name='RoutingGateway']").val();
+                        $searchFilter.GatewayName = $("#vendor-activecall-table-search [name='GatewayName']").val();
+                        $searchFilter.CompanyGatewayID = $("#vendor-activecall-table-search [name='CompanyGatewayID']").val();
 
                         data_table.fnFilter('', 0);
                         return false;
                     });
 
-                    //LoadVOSActiveCalls
-                    $("#LoadVOSActiveCalls").on("click", function (e) {
+                    //LoadGatewayMapping
+                    $("#LoadGatewayMapping").on("click", function (e) {
                         e.preventDefault();
-                        $("#LoadVOSActiveCalls").attr('disabled','disabled');
+
+                        $("#LoadGatewayMapping").attr('disabled','disabled');
                         $.ajax({
                             url: $(this).attr("data-action"),
                             type: 'POST',
@@ -600,10 +561,10 @@
                                 if (response.status == 'success') {
                                     toastr.success(response.message, "Success", toastr_opts);
                                     data_table.fnFilter('', 0);
-                                    $("#LoadVOSActiveCalls").removeAttr('disabled');
+                                    $("#LoadGatewayMapping").removeAttr('disabled');
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
-                                    $("#LoadVOSActiveCalls").removeAttr('disabled');
+                                    $("#LoadGatewayMapping").removeAttr('disabled');
                                 }
                             },
                             // Form data
@@ -697,6 +658,7 @@
 @stop
 @section('footer_ext')
     @parent
+
 
 
 @stop
