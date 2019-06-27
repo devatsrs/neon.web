@@ -462,7 +462,7 @@
                         $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
                        // tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
-                        var header = "<thead><tr><th>Origination</th><tr><th>Prefix</th><th>Time of Day</th>";
+                        var header = "<thead><tr><th>Origination</th><th>Prefix</th><th>Time of Day</th>";
                         header += "<th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th>" +
                                 "<th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th>" +
                                 "<th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th>" +
