@@ -1,8 +1,6 @@
 @extends('layout.main')
 
 @section('content')
-
-
     <ol class="breadcrumb bc-3">
         <li>
             <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -324,6 +322,10 @@
                             Merge Components
                         </div>
                         <div class="panel-options">
+                            <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="Service-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
+                                <i></i>
+                                +
+                            </button>
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
@@ -352,12 +354,9 @@
                                     <th style="width:250px !important;" class="DID-Div">To Tariff</th>
                                     <th style="width:200px !important;" class="DID-Div">To Origination</th>
                                     <th style="width:200px !important;">To Time of Day</th>
-                                    <th style="width:40px !important;">
-                                        <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="Service-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
-                                            <i></i>
-                                            +
-                                        </button>
-                                    </th>
+                                    {{-- <th style="width:40px !important;">
+                                        
+                                    </th> --}}
                                 </tr>
                                 </thead>
                                 <tbody id="tbody">
@@ -491,14 +490,20 @@
                             <div class="panel-title">
                                 Calculated Rate
                             </div>
+                            
                             <div class="panel-options">
+                                <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
+                                        <i></i>
+                                        +
+                                </button>
                                 <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                             </div>
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body">    
                             <div class="" style="overflow: auto;">
                                 <br/>
                                 <input type="hidden" id="getRateIDs" name="getRateIDs" value=""/>
+                                
                                 <table id="ratetableSubBox" class="table table-bordered datatable">
                                     <thead>
                                     <tr>
@@ -513,12 +518,9 @@
                                         <th style="width:200px !important;">Time of Day</th>
                                         <th style="width:200px !important;">Calculated Rate</th>
                                         <th style="width:200px !important;">Change Rate To</th>
-                                        <th style="width:40px !important;"> 
-                                            <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
-                                                <i></i>
-                                                +
-                                            </button>
-                                        </th>
+                                        {{-- <th style="width:40px !important;"> 
+                                            
+                                        </th> --}}
                                     </tr>
                                     </thead>
                                     <tbody id="ratetbody">

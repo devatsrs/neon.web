@@ -283,6 +283,10 @@
                         </div>
 
                         <div class="panel-options">
+                            <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
+                                <i></i>
+                                +
+                            </button>
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
@@ -311,12 +315,6 @@
                                     <th style="width:250px;" class="DID-Div">To Tariff</th>
                                     <th style="width:200px;" class="DID-Div">To Origination</th>
                                     <th style="width:200px;">To Time of Day</th>
-                                    <th style="width:40px !important;">
-                                        <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
-                                            <i></i>
-                                            +
-                                        </button>
-                                    </th>
                                 </tr>
                                 </thead>
                                 <tbody id="tbody">
@@ -388,6 +386,10 @@
                             Calculated Rate
                         </div>
                         <div class="panel-options">
+                            <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
+                                <i></i>
+                                +
+                            </button>
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
@@ -409,12 +411,7 @@
                                     <th style="width:200px !important;">Time of Day</th>
                                     <th style="width:200px !important;">Calculated Rate</th>
                                     <th style="width:200px !important;">Change Rate To</th>
-                                    <th style="width:40px !important;">
-                                        <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
-                                            <i></i>
-                                            +
-                                        </button>
-                                    </th>
+                                   
                                 </tr>
                                 </thead>
                                 <tbody id="ratetbody">

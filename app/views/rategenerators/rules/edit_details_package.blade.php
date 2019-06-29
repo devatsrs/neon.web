@@ -34,7 +34,7 @@
             <div class="col-md-4">
                 <div class="form-group">
                     <label for="field-5" class="control-label">Time of Day*</label>
-                    {{ Form::select('TimeOfDay', $Timezones, @$rategenerator_rule['TimeOfDay'], array("class"=>"select2")) }}
+                    {{ Form::select('TimezonesID', $Timezones, @$rategenerator_rule['TimeOfDay'], array("class"=>"select2")) }}
                 </div>
             </div>
         </div>
