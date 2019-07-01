@@ -984,10 +984,10 @@ class AccountsController extends \BaseController {
         $data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
         $data['DisplayRates'] = isset($data['DisplayRates']) ? 1 : 0;
 
-        if($data['IsReseller']==1){
+        /*if($data['IsReseller']==1){
             $data['IsCustomer']=1;
             $data['IsVendor']=0;
-        }
+        }*/
 
         if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
