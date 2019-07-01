@@ -830,6 +830,8 @@ class AccountsController extends \BaseController {
         $ServiceID = 0;
         $account = Account::find($id);
         $companyID = $account->CompanyId;
+        if(is_reseller() && $companyID != User::get_companyID())
+            return  Response::json(array("status" => "failed", "message" => "Invalid Data.","scroll"=>"end"));
         //$companyID = User::get_companyID();
         $account_owners = User::getOwnerUsersbyRole();
         $countries = $this->countries;
