@@ -831,7 +831,7 @@ class AccountsController extends \BaseController {
         $account = Account::find($id);
         $companyID = $account->CompanyId;
         if(is_reseller() && $companyID != User::get_companyID())
-            return  Response::json(array("status" => "failed", "message" => "Invalid Data.","scroll"=>"end"));
+            return  Response::json(array("status" => "failed", "message" => "Invalid Data."));
         //$companyID = User::get_companyID();
         $account_owners = User::getOwnerUsersbyRole();
         $countries = $this->countries;
@@ -1870,6 +1870,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         //$CompanyID = User::get_companyID();
         $account = Account::find($id);
         $CompanyID = $account->CompanyId;
+
+        if(is_reseller() && $CompanyID != User::get_companyID())
+            return  Response::json(array("status" => "failed", "message" => "Invalid Data."));
+
         $BillingType=AccountBilling::where(['AccountID'=>$id,'ServiceID'=>0])->pluck('BillingType');
         $getdata['AccountID'] = $id;
         $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount', 'OutPaymentAwaiting', 'OutPaymentAvailable', 'OutPaymentPaid']);
