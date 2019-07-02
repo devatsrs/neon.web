@@ -265,7 +265,7 @@ class Account extends \Eloquent {
             $data['AccountType'] = 1;
             $data['VerificationStatus'] = Account::VERIFIED;
         }
-        if(!User::is_admin())
+        if(is_reseller())
             $data['CompanyID']=User::get_companyID();
         $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         if(!empty($row)){
