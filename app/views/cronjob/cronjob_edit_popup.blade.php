@@ -201,18 +201,9 @@
                 starttime.hide();
                 starttime.val('');
             }else if(jobtype == 'SECONDS'){
-                options.push(new Option("1 Second", 1, true, true));
-                options.push(new Option("2 Second", 2, true, true));
-                options.push(new Option("3 Second", 3, true, true));
-                options.push(new Option("4 Second", 4, true, true));
-                options.push(new Option("5 Second", 5, true, true));
-                options.push(new Option("6 Second", 6, true, true));
-                options.push(new Option("7 Second", 7, true, true));
-                options.push(new Option("8 Second", 8, true, true));
-                options.push(new Option("9 Second", 9, true, true));
-                options.push(new Option("10 Second", 10, true, true));
-                options.push(new Option("20 Second", 20, true, true));
-                options.push(new Option("30 Second", 30, true, true));
+                for(var i=1;i<60;i++){
+                    options.push(new Option(i+" Second", i, true, true));
+                }
                 starttime.hide();
                 starttime.val('');
             }else if(jobtype == 'DAILY'){
