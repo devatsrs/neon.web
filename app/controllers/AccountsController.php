@@ -830,6 +830,8 @@ class AccountsController extends \BaseController {
         $ServiceID = 0;
         $account = Account::find($id);
         $companyID = $account->CompanyId;
+        if(is_reseller() && $companyID != User::get_companyID())
+            return  Response::json(array("status" => "failed", "message" => "Invalid Data."));
         //$companyID = User::get_companyID();
         $account_owners = User::getOwnerUsersbyRole();
         $countries = $this->countries;
@@ -984,10 +986,10 @@ class AccountsController extends \BaseController {
         $data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
         $data['DisplayRates'] = isset($data['DisplayRates']) ? 1 : 0;
 
-        if($data['IsReseller']==1){
+        /*if($data['IsReseller']==1){
             $data['IsCustomer']=1;
             $data['IsVendor']=0;
-        }
+        }*/
 
         if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
@@ -1868,6 +1870,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         //$CompanyID = User::get_companyID();
         $account = Account::find($id);
         $CompanyID = $account->CompanyId;
+
+        if(is_reseller() && $CompanyID != User::get_companyID())
+            return  Response::json(array("status" => "failed", "message" => "Invalid Data."));
+
         $BillingType=AccountBilling::where(['AccountID'=>$id,'ServiceID'=>0])->pluck('BillingType');
         $getdata['AccountID'] = $id;
         $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount', 'OutPaymentAwaiting', 'OutPaymentAvailable', 'OutPaymentPaid']);

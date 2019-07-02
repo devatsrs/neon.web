@@ -251,13 +251,6 @@ class RateGeneratorsController extends \BaseController {
                         
                     } else {
                         
-                        if(isset($data['FCountry-' . $numberArray[$i]]) && $data['FCountry-' . $numberArray[$i]] == ''){
-                            $data['FCountry-' . $numberArray[$i]] = null;
-                        }
-                        if(isset($data['TCountry-' . $numberArray[$i]]) && $data['TCountry-' . $numberArray[$i]] == ''){
-                            $data['TCountry-' . $numberArray[$i]] = null;
-                        }
-
                         $componts[]       = $data['Component-' . $numberArray[$i]];
                         $origination[]    = @$data['Origination-' . $numberArray[$i]];
                         $timeofday[]      = $data['TimeOfDay-' . $numberArray[$i]];
@@ -490,6 +483,42 @@ class RateGeneratorsController extends \BaseController {
                         if($addComponents['PackageID'] == ''){
                             $addComponents['PackageID'] = Null;
                         }
+                        if($addComponents['Origination'] == ''){
+                            $addComponents['Origination'] = Null;
+                        }
+                        if($addComponents['FromCountryID'] == ''){
+                            $addComponents['FromCountryID'] = Null;
+                        }
+                        if($addComponents['FromAccessType'] == ''){
+                            $addComponents['FromAccessType'] = Null;
+                        }
+                        if($addComponents['FromPrefix'] == ''){
+                            $addComponents['FromPrefix'] = Null;
+                        }
+                        if($addComponents['FromCity'] == ''){
+                            $addComponents['FromCity'] = Null;
+                        }
+                        if($addComponents['FromTariff'] == ''){
+                            $addComponents['FromTariff'] = Null;
+                        }
+                        if($addComponents['ToOrigination'] == ''){
+                            $addComponents['ToOrigination'] = Null;
+                        }
+                        if($addComponents['ToCountryID'] == ''){
+                            $addComponents['ToCountryID'] = Null;
+                        }
+                        if($addComponents['ToAccessType'] == ''){
+                            $addComponents['ToAccessType'] = Null;
+                        }
+                        if($addComponents['ToPrefix'] == ''){
+                            $addComponents['ToPrefix'] = Null;
+                        }
+                        if($addComponents['ToCity'] == ''){
+                            $addComponents['ToCity'] = Null;
+                        }
+                        if($addComponents['ToTariff'] == ''){
+                            $addComponents['ToTariff'] = Null;
+                        }
                         if (RateGeneratorComponent::create($addComponents)) {
                             $CostComponentSaved = "and Cost component Updated";
                         }
@@ -517,6 +546,24 @@ class RateGeneratorsController extends \BaseController {
 
                         if($addCalRate['PackageID'] == ''){
                             $addCalRate['PackageID'] = Null;
+                        }
+                        if($addCalRate['CountryID'] == ''){
+                            $addCalRate['CountryID'] = Null;
+                        }
+                        if($addCalRate['Origination'] == ''){
+                            $addCalRate['Origination'] = Null;
+                        }
+                        if($addCalRate['AccessType'] == ''){
+                            $addCalRate['AccessType'] = Null;
+                        }
+                        if($addCalRate['Prefix'] == ''){
+                            $addCalRate['Prefix'] = Null;
+                        }
+                        if($addCalRate['City'] == ''){
+                            $addCalRate['City'] = Null;
+                        }
+                        if($addCalRate['Tariff'] == ''){
+                            $addCalRate['Tariff'] = Null;
                         }
 
                         if (RateGeneratorCalculatedRate::create($addCalRate)) {
@@ -791,14 +838,7 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['TTariff-' . $numberArray[$i]]);
                         unset($data['Package-' . $numberArray[$i]]);
                     } else {                       
-                        if(isset($data['FCountry-' . $numberArray[$i]]) && $data['FCountry-' . $numberArray[$i]] == ''){
-                            $data['FCountry-' . $numberArray[$i]] = null;
-                        }
-                        if(isset($data['TCountry-' . $numberArray[$i]]) && $data['TCountry-' . $numberArray[$i]] == ''){
-                            $data['TCountry-' . $numberArray[$i]] = null;
-                        }
                         
-
                         $componts[] = $data['Component-' . $numberArray[$i]];
                         $origination[] = @$data['Origination-' . $numberArray[$i]];
                         $timeofday[] = $data['TimeOfDay-' . $numberArray[$i]];
@@ -817,7 +857,6 @@ class RateGeneratorsController extends \BaseController {
                         $ftariif[]        = $data['FTariff-' . $numberArray[$i]];
                         $ttariif[]        = $data['TTariff-' . $numberArray[$i]];
                         $PackageComponent[]  = $data['Package-' . $numberArray[$i]];
-
                        
                     }
 
@@ -876,11 +915,6 @@ class RateGeneratorsController extends \BaseController {
                                 "message" => "Calculated Rate Value is missing."
                             ));
                         }
-
-                        if(isset($data['Country1-' . $calculatedRates[$i]]) && $data['Country1-' . $calculatedRates[$i]] == ''){
-                            $data['Country1-' . $calculatedRates[$i]] = null;
-                        }
-                        
 
                         $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
                         $rOrigination[]  = @$data['RateOrigination-' . $calculatedRates[$i]];
@@ -1024,6 +1058,42 @@ class RateGeneratorsController extends \BaseController {
                         if($addComponents['PackageID'] == ''){
                             $addComponents['PackageID'] = Null;
                         }
+                        if($addComponents['Origination'] == ''){
+                            $addComponents['Origination'] = Null;
+                        }
+                        if($addComponents['FromCountryID'] == ''){
+                            $addComponents['FromCountryID'] = Null;
+                        }
+                        if($addComponents['FromAccessType'] == ''){
+                            $addComponents['FromAccessType'] = Null;
+                        }
+                        if($addComponents['FromPrefix'] == ''){
+                            $addComponents['FromPrefix'] = Null;
+                        }
+                        if($addComponents['FromCity'] == ''){
+                            $addComponents['FromCity'] = Null;
+                        }
+                        if($addComponents['FromTariff'] == ''){
+                            $addComponents['FromTariff'] = Null;
+                        }
+                        if($addComponents['ToOrigination'] == ''){
+                            $addComponents['ToOrigination'] = Null;
+                        }
+                        if($addComponents['ToCountryID'] == ''){
+                            $addComponents['ToCountryID'] = Null;
+                        }
+                        if($addComponents['ToAccessType'] == ''){
+                            $addComponents['ToAccessType'] = Null;
+                        }
+                        if($addComponents['ToPrefix'] == ''){
+                            $addComponents['ToPrefix'] = Null;
+                        }
+                        if($addComponents['ToCity'] == ''){
+                            $addComponents['ToCity'] = Null;
+                        }
+                        if($addComponents['ToTariff'] == ''){
+                            $addComponents['ToTariff'] = Null;
+                        }
                         if (RateGeneratorComponent::create($addComponents)) {
                             $CostComponentSaved = "and Cost component Updated";
                         }
@@ -1052,6 +1122,24 @@ class RateGeneratorsController extends \BaseController {
 
                         if($addCalRate['PackageID'] == ''){
                             $addCalRate['PackageID'] = Null;
+                        }
+                        if($addCalRate['CountryID'] == ''){
+                            $addCalRate['CountryID'] = Null;
+                        }
+                        if($addCalRate['Origination'] == ''){
+                            $addCalRate['Origination'] = Null;
+                        }
+                        if($addCalRate['AccessType'] == ''){
+                            $addCalRate['AccessType'] = Null;
+                        }
+                        if($addCalRate['Prefix'] == ''){
+                            $addCalRate['Prefix'] = Null;
+                        }
+                        if($addCalRate['City'] == ''){
+                            $addCalRate['City'] = Null;
+                        }
+                        if($addCalRate['Tariff'] == ''){
+                            $addCalRate['Tariff'] = Null;
                         }
                         if (RateGeneratorCalculatedRate::create($addCalRate)) {
                             $CostComponentSaved = "and Calculated Rate Updated";

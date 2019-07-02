@@ -556,7 +556,7 @@
                             <label class="col-md-2 control-label">Out Payment Threshold</label>
                             <div class="col-md-4">
                                 {{Form::number('OutPaymentThreshold','',array('class'=>'form-control'))}}
-                            </div>,
+                            </div>
                             <label class="col-md-2 control-label">Topup Threshold</label>
                             <div class="col-md-4">
                                 {{Form::number('MinThreshold', '',array('class'=>'form-control'))}}

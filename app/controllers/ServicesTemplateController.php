@@ -619,7 +619,7 @@ class ServicesTemplateController extends BaseController {
                     }
                 }
                 if($ServiceTemplate->update($ServiceTemplateData)) {
-                    return Response::json(array("status" => "success", "message" => "Service Template Successfully Updated", 'LastID' => $ServiceTemplate->ServiceTemplateId, 'newcreated' => $ServiceTemplate));
+                    return Response::json(array("status" => "success", "message" => "Product Successfully Updated", 'LastID' => $ServiceTemplate->ServiceTemplateId, 'newcreated' => $ServiceTemplate));
                 }else {
                     return  Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
                 }
@@ -669,7 +669,7 @@ class ServicesTemplateController extends BaseController {
                                 //Log::info("delete DynamicFieldValue ProductID=".$id);
                                 DynamicFieldsValue::deleteDynamicValuesByProductID($companyID,$id);
                             }
-                            return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
+                            return Response::json(array("status" => "success", "message" => "Product Successfully Deleted"));
                         }else {
                             return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
                         }
@@ -766,11 +766,11 @@ class ServicesTemplateController extends BaseController {
 
         $services = json_decode(json_encode($services),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ServicesTemplate.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Products.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($services);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ServicesTemplate.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Products.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($services);
             }
@@ -903,7 +903,7 @@ class ServicesTemplateController extends BaseController {
                     }
                 }
 
-                return  Response::json(array("status" => "success", "message" => "Service Template Successfully Created",'LastID'=>$ServiceTemplate->ServiceTemplateId,'newcreated'=>$ServiceTemplate));
+                return  Response::json(array("status" => "success", "message" => "Product Successfully Created",'LastID'=>$ServiceTemplate->ServiceTemplateId,'newcreated'=>$ServiceTemplate));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
             }
