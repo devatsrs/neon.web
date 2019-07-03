@@ -201,9 +201,9 @@
                 starttime.hide();
                 starttime.val('');
             }else if(jobtype == 'SECONDS'){
-                options.push(new Option("10 Second", 10, true, true));
-                options.push(new Option("20 Second", 20, true, true));
-                options.push(new Option("30 Second", 30, true, true));
+                for(var i=1;i<60;i++){
+                    options.push(new Option(i+" Second", i, true, true));
+                }
                 starttime.hide();
                 starttime.val('');
             }else if(jobtype == 'DAILY'){

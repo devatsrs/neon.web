@@ -566,7 +566,7 @@ class CompanyGateway extends \Eloquent {
         }
         log::info('-- Active CronJob END--');
 
-        log::info('-- Activity Reminder --');
+        /*log::info('-- Activity Reminder --');
         $ActivityReminderJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('accountactivityreminder',$CompanyID);
         $ActivityReminder_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$ActivityReminderJobCommandID])->count();
         if($ActivityReminder_Count == 0) {
@@ -602,7 +602,7 @@ class CompanyGateway extends \Eloquent {
             log::info($AutoInvoiceGeneratordata);
             CronJob::create($AutoInvoiceGeneratordata);
         }
-        log::info('-- Auto Invoice Generator END--');
+        log::info('-- Auto Invoice Generator END--');*/
         log::info('-- Create Summary --');
         $CreateSummaryCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummary',$CompanyID);
         $CreateSummary_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CreateSummaryCommandID])->count();
