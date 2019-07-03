@@ -659,7 +659,7 @@ class CompanyGateway extends \Eloquent {
         }
         log::info('-- Account Balance Generator--');
 
-        log::info('-- System Alert --');
+        /*log::info('-- System Alert --');
         $SystemAlertCommandID = CronJobCommand::getCronJobCommandIDByCommand('neonalerts',$CompanyID);
         $SystemAlert_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$SystemAlertCommandID])->count();
         if($SystemAlert_Count == 0) {
@@ -676,7 +676,7 @@ class CompanyGateway extends \Eloquent {
             log::info($SystemAlertLivedata);
             CronJob::create($SystemAlertLivedata);
         }
-        log::info('-- System Alert END--');
+        log::info('-- System Alert END--');*/
 
     }
 
