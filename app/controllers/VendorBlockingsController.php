@@ -78,6 +78,7 @@ class VendorBlockingsController extends \BaseController {
     /**
      * @return mixed
      */
+    // not in use now
     public function blockunblockcode()
     {
 
@@ -95,7 +96,7 @@ class VendorBlockingsController extends \BaseController {
         DB::select($query);
         \Illuminate\Support\Facades\Log::info($query);
 
-        $msgVendor = $Blocked == 1 ? 'Unblocked' : 'Blocked';
+        $msgVendor = $Blocked == 1 ? 'Blocked' : 'Unblocked';
         try{
             $message =  "Vendor ".$msgVendor." Successfully";
             return json_encode(["status" => "success", "message" => $message]);
