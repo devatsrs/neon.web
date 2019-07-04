@@ -308,30 +308,53 @@ class LCRController extends \BaseController {
 
     public function editPreference(){
         $data = Input::all();
-        $preference =  !empty($data['preference']) ? $data['preference'] : 5;
-        $Timezones =  $data['Timezones'];
-        $description = $data["Description"];
-        $OriginationDescription = $data["OriginationDescription"];
 
-        $username = User::get_user_full_name();
+        $EffectiveDate  = $EndDate = $Rate = $RateN = $MinimumDuration = $Interval1 = $IntervalN = $ConnectionFee = $OriginationRateID = $RoutingCategoryID = $Preference = $Blocked = $RateCurrency = $ConnectionFeeCurrency = 'null';
+        $Preference     =  !empty($data['preference']) ? $data['preference'] : 5;
+        $p_criteria     = 0;
+        $action         = 1; //update action
+        $username       = User::get_user_full_name();
 
-        $query = "call prc_editpreference ('".$data["GroupBy"]."',".$preference.",".$data["RateTableRateID"].",".$Timezones.",'".$OriginationDescription."','".$description."','".$username."')";
-        \Illuminate\Support\Facades\Log::info($query);
-        DB::select($query);
+        $RateTableRateID = $data["RateTableRateID"];
+        $RateTableID    = RateTableRate::find($RateTableRateID)->pluck('RateTableId');
 
         try{
+            $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . ",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'" . $username . "'," . $p_criteria . "," . $action . ")";
+            \Illuminate\Support\Facades\Log::info($query);
+            DB::statement($query);
 
             $message =  "Preference Update Successfully";
-            return json_encode(["status" => "success", "message" => $message,"preference"=>$preference]);
-
+            return json_encode(["status" => "success", "message" => $message,"preference"=>$Preference]);
         }catch ( Exception $ex ){
-
             $message =  "Oops Somethings Wrong !";
-            return json_encode(["status" => "fail", "message" => $message,"preference"=>$preference]);
-
+            return json_encode(["status" => "fail", "message" => $message,"preference"=>$Preference]);
         }
+    }
 
+    public function blockunblockcode(){
+        $data = Input::all();
 
-     }
+        $EffectiveDate  = $EndDate = $Rate = $RateN = $MinimumDuration = $Interval1 = $IntervalN = $ConnectionFee = $OriginationRateID = $RoutingCategoryID = $Preference = $Blocked = $RateCurrency = $ConnectionFeeCurrency = 'null';
+        $Blocked        = $data['Blocked']==0 ? 1 : 0;
+        $msgVendor      = $Blocked == 1 ? 'Blocked' : 'Unblocked';
+        $p_criteria     = 0;
+        $action         = 1; //update action
+        $username       = User::get_user_full_name();
+
+        $RateTableRateID = $data["RateTableRateID"];
+        $RateTableID    = RateTableRate::find($RateTableRateID)->pluck('RateTableId');
+
+        try{
+            $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . ",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'" . $username . "'," . $p_criteria . "," . $action . ")";
+            \Illuminate\Support\Facades\Log::info($query);
+            DB::statement($query);
+
+            $message =  "Vendor ".$msgVendor." Successfully";
+            return json_encode(["status" => "success", "message" => $message]);
+        }catch ( Exception $ex ){
+            $message =  "Oops Somethings Wrong !";
+            return json_encode(["status" => "fail", "message" => $message]);
+        }
+    }
 
 }

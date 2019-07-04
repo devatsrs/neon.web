@@ -483,7 +483,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_blocking/unblock/{id}', array('as' => 'vendor_blocking_unblock', 'uses' => 'VendorBlockingsController@unblock'));
 
 	Route::any('/vendor_blocking/index_blockby_code/{id}',  'VendorBlockingsController@index_blockby_code');
-	Route::any('/vendor_blocking_lrc/blockunblockcode',  'VendorBlockingsController@blockunblockcode');
+	Route::any('/vendor_blocking_lrc/blockunblockcode',  'LCRController@blockunblockcode');
 
 	Route::any('/vendor_blocking/blockby_code/{id}', array('as' => 'vendor_blocking_block_blockby_code', 'uses' => 'VendorBlockingsController@blockby_code'));
 	Route::any('/vendor_blocking/unblockby_code/{id}', array('as' => 'vendor_blocking_unblockby_code', 'uses' => 'VendorBlockingsController@unblockby_code'));
