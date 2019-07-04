@@ -89,9 +89,10 @@
                     <label for="field-1" class="control-label">Show Positions</label>
                     {{ Form::select('LCRPosition', LCR::$position, $LCRPosition , array("class"=>"select2")) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: none">
                     <label for="field-1" class="control-label">Group By</label>
-                    {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
+                    {{Form::select('GroupBy', ["code"=>"Code"], 'Code' ,array("class"=>"form-control select2"))}}
+                    {{--{{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}--}}
                 </div>
 
                 <div class="form-group">

@@ -83,24 +83,34 @@
                             </div>
                         </div>
                         <div class="form-group" id="group-preference-div">
-                            <label for="field-1" class="col-sm-2 control-label">Group By</label>
-                            <div class="col-sm-4">
-                                {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), $rategenerators->GroupBy , array("class"=>"select2")) }}
+                            <label for="field-1" class="col-sm-2 control-label" style="display: none;">Group By</label>
+                            <div class="col-sm-4" style="display: none;">
+                                {{ Form::select('GroupBy', array('Code'=>'Code'), 'Code' , array("class"=>"select2")) }}
+                                {{--{{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), $rategenerators->GroupBy , array("class"=>"select2")) }}--}}
                             </div>
-                            <div class="col-sm-3">
-                                <label for="field-1" class="control-label">Use Preference</label>
-                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON then vendors will be ordered based on Preference instead of rate." data-original-title="Use Preference">?</span>
-                                <div class="make-switch switch-small">
-                                    {{Form::checkbox('UsePreference', 1,  $rategenerators->UsePreference );}}
+                            <div>
+                                <div class="col-sm-6">
+                                    <label for="field-1" class="col-sm-4 control-label">
+                                        Use Preference
+                                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON then vendors will be ordered based on Preference instead of rate." data-original-title="Use Preference">?</span>
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <div class="make-switch switch-small">
+                                            {{Form::checkbox('UsePreference', 1,  $rategenerators->UsePreference );}}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div id="rate-aveg-div">
-                                <div class="col-sm-3">
-                                    <label for="field-1" class="control-label">Use Average</label>
-                                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="IF ON system will take the average of all available vendor rates and use that." data-original-title="Use Average">?</span>
-
-                                    <div class="make-switch switch-small">
-                                        {{Form::checkbox('UseAverage', 1,  $rategenerators->UseAverage );}}
+                                <div class="col-sm-6">
+                                    <label for="field-1" class="col-sm-4 control-label">
+                                        Use Average
+                                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="IF ON system will take the average of all available vendor rates and use that." data-original-title="Use Average">?</span>
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <div class="make-switch switch-small">
+                                            {{Form::checkbox('UseAverage', 1,  $rategenerators->UseAverage );}}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
