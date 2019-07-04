@@ -157,7 +157,7 @@ class ResellerController extends BaseController {
                         }
                         $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
                         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PARTNER_LOGO'],'',$ChildCompanyID) ;
-                        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH',$ChildCompanyID) . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
+                        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
 
                         //Create profile company_logo dir if not exists
                         if (!file_exists($destinationPath)) {

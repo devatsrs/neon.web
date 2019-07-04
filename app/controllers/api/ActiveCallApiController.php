@@ -230,6 +230,8 @@ class ActiveCallApiController extends ApiController {
     public function blockCall(){
         $post_vars = json_decode(file_get_contents("php://input"));
         $data=json_decode(json_encode($post_vars),true);
+        Log::useFiles(storage_path() . '/logs/blockcalldata-' . date('Y-m-d') . '.log');
+        Log::info("data: ". json_encode($data));
 
         $AccountID=0;
 
