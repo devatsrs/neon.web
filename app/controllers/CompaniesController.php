@@ -197,19 +197,19 @@ class CompaniesController extends \BaseController {
         //unset($data['PincodeWidget']);
         // LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         // unset($data['LastPrefixNo']);
-		
+	$Getparent_CompanyID =  getParentCompanyIdIfReseller($companyID);	
         if(!empty($data['CurrencyId'])){
             //add default currency value in exchange rate
             $CurrencyCon = array();
             $CurrencyCon['CurrencyID'] = $data['CurrencyId'];
             $CurrencyCon['Value'] = '1.000000';
             $CurrencyCon['EffectiveDate'] = date('Y-m-d H:i:s');
-            $CurrencyCon['CompanyID'] = $companyID;
-            $CurrencyConversion = CurrencyConversion::select('Value','EffectiveDate')->where(array('CompanyId' => $companyID, 'CurrencyID' => $data['CurrencyId']))->first();
+            $CurrencyCon['CompanyID'] = $Getparent_CompanyID;
+            $CurrencyConversion = CurrencyConversion::select('Value','EffectiveDate')->where(array('CompanyId' => $Getparent_CompanyID, 'CurrencyID' => $data['CurrencyId']))->first();
             if(count($CurrencyConversion)>0){
                 $cval = $CurrencyConversion->Value;
                 if($cval!='1.000000'){
-                    CurrencyConversion::where(array('CompanyId' => $companyID, 'CurrencyID' => $data['CurrencyId']))->update($CurrencyCon);
+                    CurrencyConversion::where(array('CompanyId' => $Getparent_CompanyID, 'CurrencyID' => $data['CurrencyId']))->update($CurrencyCon);
                 }
             }else{
                 CurrencyConversion::create($CurrencyCon);
