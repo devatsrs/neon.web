@@ -665,22 +665,22 @@
                                         @endif
                                         @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)  || $rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
                                             <td>
-                                                @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
-                                                    {{ @DiscountPlan::$RateTablePKGRate_Components[$rategenerator_rule->Component] }}
-                                                @elseif($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
-                                                    {{ @ DiscountPlan::$RateTableDIDRate_Components[$rategenerator_rule->Component] }}
+                                                @if(isset($rategenerator_rule->Component) && $rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
+                                                    {{ DiscountPlan::$RateTablePKGRate_Components[$rategenerator_rule->Component] }}
+                                                @elseif( isset($rategenerator_rule->Component) && $rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
+                                                    {{ DiscountPlan::$RateTableDIDRate_Components[$rategenerator_rule->Component] }}
                                                 @endif
                                                 @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
                                                     <br>
-                                                    Country: @if(@$rategenerator_rule->Country != ''){{@$rategenerator_rule->Country->Country}}@else ALL @endif
+                                                    Country: @if(isset($rategenerator_rule->Country) && $rategenerator_rule->Country != ''){{ $rategenerator_rule->Country->Country}}@else ALL @endif
                                                     <br>
-                                                        Type: @if(@$rategenerator_rule->AccessType != ''){{@$rategenerator_rule->AccessType}} @else ALL @endif
+                                                        Type: @if(isset($rategenerator_rule->AccessType) && $rategenerator_rule->AccessType != ''){{ $rategenerator_rule->AccessType}} @else ALL @endif
                                                     <br>
-                                                        Prefix: @if(@$rategenerator_rule->Prefix != ''){{@$rategenerator_rule->Prefix}} @else ALL @endif
+                                                        Prefix: @if(isset($rategenerator_rule->Prefix) && $rategenerator_rule->Prefix != ''){{ $rategenerator_rule->Prefix}} @else ALL @endif
                                                     <br>
-                                                        City: @if(@$rategenerator_rule->City != ''){{@$rategenerator_rule->City}} @else ALL @endif
+                                                        City: @if(isset($rategenerator_rule->City) && $rategenerator_rule->City != ''){{ $rategenerator_rule->City}} @else ALL @endif
                                                     <br>
-                                                        Tariff: @if(@$rategenerator_rule->Tariff != ''){{@$rategenerator_rule->Tariff}} @else ALL @endif    
+                                                        Tariff: @if(isset($rategenerator_rule->Tariff) && $rategenerator_rule->Tariff != ''){{ $rategenerator_rule->Tariff}} @else ALL @endif    
                                                 @endif                                               
                                             </td>
                                             @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
@@ -689,7 +689,9 @@
                                             </td>
                                             @endif
                                             <td>
-                                                {{@$Timezones[$rategenerator_rule->TimeOfDay] }}
+                                                @if(isset($rategenerator_rule->TimezonesID))
+                                                    {{ $Timezones[$rategenerator_rule->TimezonesID] }}
+                                                @endif
                                             </td>
                                         @else
                                             <td>

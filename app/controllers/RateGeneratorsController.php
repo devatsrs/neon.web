@@ -116,8 +116,8 @@ class RateGeneratorsController extends \BaseController {
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $data ['DIDCategoryID']= isset($data['Category']) ? $data['Category'] : '';
         $data['VendorPositionPercentage'] = $data['percentageRate'];
-        $getNumberString = @$data['getIDs'];
-        $getRateNumberString = @$data['getRateIDs'];
+        $getNumberString = isset($data['getIDs']) ? $data['getIDs'] : '' ;
+        $getRateNumberString = isset($data['getRateIDs']) ? $data['getRateIDs'] : '';
         $SelectType = $data['SelectType'];
         
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
@@ -252,11 +252,11 @@ class RateGeneratorsController extends \BaseController {
                     } else {
                         
                         $componts[]       = $data['Component-' . $numberArray[$i]];
-                        $origination[]    = @$data['Origination-' . $numberArray[$i]];
+                        $origination[]    = $data['Origination-' . $numberArray[$i]];
                         $timeofday[]      = $data['TimeOfDay-' . $numberArray[$i]];
                         $action[]         = $data['Action-' . $numberArray[$i]];
                         $mergeTo[]        = $data['MergeTo-' . $numberArray[$i]];
-                        $originationTo[]  = @$data['ToOrigination-' . $numberArray[$i]];
+                        $originationTo[]  = $data['ToOrigination-' . $numberArray[$i]];
                         $timeofdayTo[]    = $data['ToTimeOfDay-' . $numberArray[$i]];
                         $fcountry[]       = $data['FCountry-' . $numberArray[$i]];
                         $tcountry[]       = $data['TCountry-' . $numberArray[$i]];
@@ -337,7 +337,7 @@ class RateGeneratorsController extends \BaseController {
                             } 
 
                             $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
-                            $rOrigination[]  = @$data['RateOrigination-' . $calculatedRates[$i]];
+                            $rOrigination[]  = $data['RateOrigination-' . $calculatedRates[$i]];
                             $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
                             $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
                             $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
@@ -691,8 +691,8 @@ class RateGeneratorsController extends \BaseController {
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $data ['DIDCategoryID']= isset($data['Category']) ? $data['Category'] : '';
         $data['VendorPositionPercentage'] = $data['percentageRate'];
-        $getNumberString = @$data['getIDs'];
-        $getRateNumberString = @$data['getRateIDs'];
+        $getNumberString = isset($data['getIDs']) ? $data['getIDs'] : '' ;
+        $getRateNumberString = isset($data['getRateIDs']) ? $data['getRateIDs'] : '';
 
         unset($data['SelectType']);
 
@@ -840,11 +840,11 @@ class RateGeneratorsController extends \BaseController {
                     } else {                       
                         
                         $componts[] = $data['Component-' . $numberArray[$i]];
-                        $origination[] = @$data['Origination-' . $numberArray[$i]];
+                        $origination[] = $data['Origination-' . $numberArray[$i]];
                         $timeofday[] = $data['TimeOfDay-' . $numberArray[$i]];
                         $action[] = $data['Action-' . $numberArray[$i]];
                         $mergeTo[] = $data['MergeTo-' . $numberArray[$i]];
-                        $originationTo[] = @$data['ToOrigination-' . $numberArray[$i]];
+                        $originationTo[] = $data['ToOrigination-' . $numberArray[$i]];
                         $timeofdayTo[] = $data['ToTimeOfDay-' . $numberArray[$i]];
                         $fcountry[]       = $data['FCountry-' . $numberArray[$i]];
                         $tcountry[]       = $data['TCountry-' . $numberArray[$i]];
@@ -917,7 +917,7 @@ class RateGeneratorsController extends \BaseController {
                         }
 
                         $rComponent[]    = $data['RateComponent-' . $calculatedRates[$i]];
-                        $rOrigination[]  = @$data['RateOrigination-' . $calculatedRates[$i]];
+                        $rOrigination[]  = $data['RateOrigination-' . $calculatedRates[$i]];
                         $rTimeOfDay[]    = $data['RateTimeOfDay-' . $calculatedRates[$i]];
                         $rRateLessThen[] = $data['RateLessThen-' . $calculatedRates[$i]];
                         $rChangeRateTo[] = $data['ChangeRateTo-' . $calculatedRates[$i]];
@@ -1378,20 +1378,20 @@ class RateGeneratorsController extends \BaseController {
     public function ajax_load_rate_table_dropdown(){
         $data = Input::all();
         // If type is Voice Call
-        if(@$data['Type'] == RateGenerator::VoiceCall && @$data['TrunkID'] > 0) {
+        if($data['Type'] == RateGenerator::VoiceCall && isset($data['TrunkID']) && $data['TrunkID'] > 0) {
             $filterdata['Type']       = intval($data['Type']);
             $filterdata['TrunkID']    = intval($data['TrunkID']);
             $filterdata['CodeDeckId'] = intval($data['CodeDeckId']);
             $filterdata['AppliedTo']  = intval($data['AppliedTo']);
             //$filterdata['NotVendor']  = true;
             $rate_table = RateTable::getRateTableCache($filterdata);
-        } elseif(@$data['Type'] == RateGenerator::DID) {
+        } elseif($data['Type'] == RateGenerator::DID) {
             $filterdata['Type']       = intval($data['Type']);
             //$filterdata['CodeDeckId'] = intval($data['CodeDeckId']);
             $filterdata['AppliedTo']  = intval($data['AppliedTo']);
             //$filterdata['NotVendor']  = true;
             $rate_table = RateTable::getRateTableCache($filterdata);
-        } elseif(@$data['Type'] == RateGenerator::Package) {
+        } elseif($data['Type'] == RateGenerator::Package) {
             $filterdata['Type']       = intval($data['Type']);
             $filterdata['AppliedTo']  = intval($data['AppliedTo']);
             //$filterdata['NotVendor']  = true;

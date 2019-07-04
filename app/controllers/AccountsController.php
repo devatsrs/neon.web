@@ -1876,17 +1876,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         $BillingType=AccountBilling::where(['AccountID'=>$id,'ServiceID'=>0])->pluck('BillingType');
         $getdata['AccountID'] = $id;
-        $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount', 'OutPaymentAwaiting', 'OutPaymentAvailable', 'OutPaymentPaid']);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = $OutPaymentAwaiting = $OutPaymentAvailable = $OutPaymentPaid = $OutPaymentPaid = 0;
+        $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount', 'OutPaymentAvailable', 'OutPaymentPaid']);
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = $OutPaymentAvailable = $OutPaymentPaid = $OutPaymentPaid = 0;
+
+        // Calculating total Out Payment
+        $OutPaymentAwaiting = OutPaymentLog::where([
+            'AccountID' => $id,
+            'Status' => 0,
+        ])->sum('Amount');
+
         if (!empty($response)) {
             if (!empty($response->PermanentCredit)) {
                 $PermanentCredit = $response->PermanentCredit;
             }
             if (!empty($response->TemporaryCredit)) {
                 $TemporaryCredit = $response->TemporaryCredit;
-            }
-            if (!empty($response->OutPaymentAwaiting)) {
-                $OutPaymentAwaiting = $response->OutPaymentAwaiting;
             }
             if (!empty($response->OutPaymentAvailable)) {
                 $OutPaymentAvailable = $response->OutPaymentAvailable;
