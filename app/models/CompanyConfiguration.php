@@ -4,7 +4,7 @@ class CompanyConfiguration extends \Eloquent {
 
     protected $fillable = [];
     protected $guarded = array('CompanyConfigurationID');
-    protected $table = 'tblCompanyConfiguration';
+    protected $table = 'tblCompanyConfiguration_adnan';
     public  $primaryKey = "CompanyConfigurationID";
     static protected  $enable_cache = true;
     public static $cache = ["CompanyConfiguration"];
