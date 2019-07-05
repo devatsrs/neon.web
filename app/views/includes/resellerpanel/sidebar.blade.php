@@ -37,7 +37,7 @@
             <ul>
                 <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
                 {{-- <li> <a href="{{URL::to('/lcr')}}">  <span>Compare Vendor Rate</span> </a> </li> --}}
-                <li> <a href="{{URL::to('/rategenerators')}}">  <span>Rate Generator</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('/rategenerators')}}">  <span>Rate Generator</span> </a> </li> --}}
                 {{-- <li> <a href="{{URL::to('/rate_compare')}}">  <span>Rate Analysis</span> </a> </li> --}}
                 {{-- <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li> --}}
             </ul>
@@ -91,8 +91,8 @@
             <ul>
                 <li><a href="{{Url::to('customer/invoice')}}"><span>Invoices</span></a></li>
                 <li><a href="{{URL::to('customer/payments')}}"><span>Payments</span></a></li>
-                <li><a href="{{URL::to('customer/account_statement')}}"><span>Account Statement</span></a></li>
-                <li><a href="{{URL::to('customer/PaymentMethodProfiles')}}"><span>Payment Method Profiles</span></a></li>
+                {{-- <li><a href="{{URL::to('customer/account_statement')}}"><span>Account Statement</span></a></li>
+                <li><a href="{{URL::to('customer/PaymentMethodProfiles')}}"><span>Payment Method Profiles</span></a></li> --}}
                 {{-- <li><a href="{{URL::to('customer/cdr')}}"><span>CDR</span></a></li> --}}
             </ul>
         </li>

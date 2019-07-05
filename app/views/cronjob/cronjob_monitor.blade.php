@@ -67,11 +67,13 @@
     </ol>
     <h3>Cron Job</h3>
     <p style="text-align: right;">
-        @if( User::checkCategoryPermission('CronJob','Add') )
-            <a href="#" id="add-new-config" class="btn btn-primary ">
-                <i class="entypo-plus"></i>
-                Add New
-            </a>
+        @if(!is_Reseller())
+            @if( User::checkCategoryPermission('CronJob','Add') )
+                <a href="#" id="add-new-config" class="btn btn-primary ">
+                    <i class="entypo-plus"></i>
+                    Add New
+                </a>
+            @endif
         @endif
     </p>
 
