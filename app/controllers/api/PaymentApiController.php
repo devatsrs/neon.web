@@ -293,12 +293,11 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function depositFund(){
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data=json_decode(json_encode($post_vars),true);
+		$post_vars 	= json_decode(file_get_contents("php://input"));
+		$data		= json_decode(json_encode($post_vars),true);
 
-		$AccountID=0;
-		$BillingClassID=0;
-		$errors=[];
+		$AccountID	= 0;
+		$errors		= [];
 
 		if(!empty($data['AccountID'])) {
 			$AccountID = $data['AccountID'];
@@ -349,16 +348,17 @@ class PaymentApiController extends ApiController {
 				}
 			}
 
+
 			//DeductTaxAmount
-			$AmountExcludeTax=self::AmountExcludeTaxRate($BillingClassID,$data['Amount']);
+			/*$AmountExcludeTax=self::AmountExcludeTaxRate($BillingClassID,$data['Amount']);
 			if($AmountExcludeTax > 0){
 				Log::info("Original Amount = ".$data['Amount']);
 
-				$data['Amount']=$data['Amount']-$AmountExcludeTax;
+				//$data['Amount']=$data['Amount']-$AmountExcludeTax;
 
 				Log::info("Amount Excluded Tax = ".$data['Amount']);
 
-			}
+			}*/
 
 			$PaymentData=array();
 			$CompanyID=$Account->CompanyID;
@@ -390,13 +390,13 @@ class PaymentApiController extends ApiController {
 						Log::info("==== Payment success Log ====");
 						Log::info(print_r($PaymentResponse,true));
 
-						$InsertPayment=array();
+						$InsertPayment = array();
 						$InsertPayment['PaymentMethod']=$PaymentResponse['PaymentMethod'];
 						$InsertPayment['transaction_notes']=$PaymentResponse['transaction_notes'];
 
-						$PaymentID=self::PaymentLog($Account,$InsertPayment,$data);
+						$PaymentID = self::PaymentLog($Account,$InsertPayment,$data);
 
-						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
+						$InvoiceGenerate = self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
 
 
 						if (!empty($InvoiceGenerate['LastInvoiceID'])) {
@@ -406,13 +406,13 @@ class PaymentApiController extends ApiController {
 							$Message = "Customer Invoice Successfully Created. Please view the invoice from the link send to you " ;
 							$Subject = "Customer Invoice";
 							$Account=Account::find($Invoice->AccountID);
-							$data['EmailTo'] 		= 	$Account->BillingEmail;
-							$singleemail = $Account->BillingEmail;
-							$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-							$body					=	EmailsTemplates::ReplaceEmail($singleemail,$Message);
+							$data['EmailTo'] 		= $Account->BillingEmail;
+							$singleemail 			= $Account->BillingEmail;
+							$data['InvoiceURL']		= URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+							$body					= EmailsTemplates::ReplaceEmail($singleemail,$Message);
 							$body = $body . $data['InvoiceURL'];
-							$data['Subject']		=	$Subject;
-							$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
+							$data['Subject']		= $Subject;
+							//$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
 
 							$invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
 
@@ -425,7 +425,7 @@ class PaymentApiController extends ApiController {
 							}
 
 
-							$status 				= 	$this->sendInvoiceMail($body,$data,0);
+							$status  = 	$this->sendInvoiceMail($body,$data,0);
 							Log::info('depositFund:. Email Send');
 
 						}
@@ -484,20 +484,22 @@ class PaymentApiController extends ApiController {
 
 	public static function PaymentLog($Account,$PaymentResponse,$data){
 		if(!empty($PaymentResponse)){
+
 			$PaymentInsertData=array();
-			$PaymentInsertData['CompanyID'] = $Account->CompanyId;
-			$PaymentInsertData['AccountID'] = $Account->AccountID;
-			$PaymentInsertData['PaymentDate'] = date('Y-m-d');
+			$PaymentInsertData['CompanyID'] 	= $Account->CompanyId;
+			$PaymentInsertData['AccountID'] 	= $Account->AccountID;
+			$PaymentInsertData['PaymentDate'] 	= date('Y-m-d');
 			$PaymentInsertData['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
-			$PaymentInsertData['CurrencyID'] = $Account->CurrencyId;
-			$PaymentInsertData['PaymentType'] = 'Payment In';
-			$PaymentInsertData['Notes'] = $PaymentResponse['transaction_notes'];
-			$PaymentInsertData['Amount'] = floatval($data['Amount']);
-			$PaymentInsertData['Status'] = 'Approved';
-			$PaymentInsertData['created_at'] = date('Y-m-d H:i:s');
-			$PaymentInsertData['updated_at'] = date('Y-m-d H:i:s');
-			$PaymentInsertData['CreatedBy'] = 'API';
-			$PaymentInsertData['ModifyBy'] = 'API';
+			$PaymentInsertData['CurrencyID'] 	= $Account->CurrencyId;
+			$PaymentInsertData['PaymentType'] 	= 'Payment In';
+			$PaymentInsertData['Notes'] 		= $PaymentResponse['transaction_notes'];
+			$PaymentInsertData['Amount'] 		= floatval($data['Amount']);
+			$PaymentInsertData['Status'] 		= 'Approved';
+			$PaymentInsertData['created_at'] 	= date('Y-m-d H:i:s');
+			$PaymentInsertData['updated_at'] 	= date('Y-m-d H:i:s');
+			$PaymentInsertData['CreatedBy'] 	= 'API';
+			$PaymentInsertData['ModifyBy'] 		= 'API';
+
 			$Payment=Payment::create($PaymentInsertData);
 			return $Payment->PaymentID;
 		}
@@ -511,8 +513,6 @@ class PaymentApiController extends ApiController {
 		try {
 			DB::connection('sqlsrv2')->beginTransaction();
 
-			//$InvoiceTemplateID = BillingClass::getInvoiceTemplateID($BillingClassID);
-			//$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
 			$Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
 			$message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
 			$replace_array = Invoice::create_accountdetails($Account);
@@ -523,31 +523,28 @@ class PaymentApiController extends ApiController {
 
 			$LastInvoiceNumber = Invoice::getNextInvoiceNumber($CompanyID);
 			$FullInvoiceNumber = Company::getCompanyField($CompanyID, "InvoiceNumberPrefix") . $LastInvoiceNumber;
-			$InvoiceData["InvoiceNumber"] = $LastInvoiceNumber;
-			$InvoiceData["CompanyID"] = $CompanyID;
-			$InvoiceData["AccountID"] = intval($AccountID);
-			$InvoiceData["Address"] = $InvoiceToAddress;        //change
-			$InvoiceData["IssueDate"] = date('Y-m-d');  //today
-			$InvoiceData["PONumber"] = ''; //blank
-			$InvoiceData["SubTotal"] = str_replace(",", "", $Amount);
-			//$InvoiceData["TotalDiscount"] = str_replace(",","",$data["TotalDiscount"]);
-			$InvoiceData["TotalDiscount"] = 0;
-			//$InvoiceData["TotalTax"] = str_replace(",","",$data["TotalTax"]);
-			$InvoiceData["TotalTax"] = 0;
-			$InvoiceData["GrandTotal"] = floatval(str_replace(",", "", $Amount));
-			$InvoiceData["CurrencyID"] = $Account->CurrencyId;
-			$InvoiceData["InvoiceType"] = Invoice::INVOICE_OUT;
-			$InvoiceData["InvoiceStatus"] = Invoice::PAID;
-			$InvoiceData["ItemInvoice"] = Invoice::ITEM_INVOICE;
-			$InvoiceData["Note"] = 'API'; //static api generation
-			$InvoiceData["Terms"] = $Terms;  //change
-			$InvoiceData["CreatedBy"] = 'API';
-			//$InvoiceData['InvoiceTotal'] = str_replace(",","",$data["GrandTotal"]);
-			$InvoiceData['InvoiceTotal'] = 0;
-			$InvoiceData['BillingClassID'] = $BillingClassID;
+			$InvoiceData["InvoiceNumber"] 	= $LastInvoiceNumber;
+			$InvoiceData["CompanyID"] 		= $CompanyID;
+			$InvoiceData["AccountID"] 		= intval($AccountID);
+			$InvoiceData["Address"] 		= $InvoiceToAddress;        //change
+			$InvoiceData["IssueDate"] 		= date('Y-m-d');  //today
+			$InvoiceData["PONumber"] 		= ''; //blank
+			$InvoiceData["SubTotal"] 		= str_replace(",", "", $Amount);
+			$InvoiceData["TotalDiscount"] 	= 0;
+			$InvoiceData["TotalTax"] 		= 0;
+			$InvoiceData["GrandTotal"] 		= floatval(str_replace(",", "", $Amount));
+			$InvoiceData["CurrencyID"] 		= $Account->CurrencyId;
+			$InvoiceData["InvoiceType"] 	= Invoice::INVOICE_OUT;
+			$InvoiceData["InvoiceStatus"] 	= Invoice::PAID;
+			$InvoiceData["ItemInvoice"] 	= Invoice::ITEM_INVOICE;
+			$InvoiceData["Note"] 			= 'API'; //static api generation
+			$InvoiceData["Terms"] 			= $Terms;  //change
+			$InvoiceData["CreatedBy"] 		= 'API';
+			$InvoiceData['InvoiceTotal'] 	= 0;
+			$InvoiceData['BillingClassID'] 	= $BillingClassID;
 			$InvoiceData["FullInvoiceNumber"] = $FullInvoiceNumber;
 
-			$InvoiceData["FooterTerm"] = $FooterTerm;
+			$InvoiceData["FooterTerm"] 		= $FooterTerm;
 
 
 			//print_r($InvoiceData);die;
@@ -555,11 +552,9 @@ class PaymentApiController extends ApiController {
 			$Invoice = Invoice::create($InvoiceData);
 
 			if(empty($Invoice)){
-				//$reseponse = array("status" => "failed", "message" => "Problem Creating Invoice. ");
 				$error['ErrorMessage']="Problem Creating Invoice For Account ".$Account->AccountName;
 				$error['status']="500";
 				return $error;
-
 			}
 
 			//Store Last Invoice Number.
@@ -573,73 +568,80 @@ class PaymentApiController extends ApiController {
 				$ProductID = Product::where(['CompanyId' => $CompanyID, 'Code' => 'topup'])->pluck('ProductID');
 				if (empty($ProductID)) {
 					$ProductData = array();
-					$ProductData['CompanyID'] = $CompanyID;
-					$ProductData['Name'] = 'TopUp';
-					$ProductData['Amount'] = '0.00';
+					$ProductData['CompanyID'] 	= $CompanyID;
+					$ProductData['Name'] 		= 'TopUp';
+					$ProductData['Amount'] 		= '0.00';
 					$ProductData['Description'] = 'TopUp';
-					$ProductData['Code'] = 'topup';
-					$product = Product::create($ProductData);
-					$ProductID = $product->ProductID;
+					$ProductData['Code'] 		= 'topup';
+
+					$product 	= Product::create($ProductData);
+					$ProductID 	= $product->ProductID;
 				}
 
-				$InvoiceDetailData['InvoiceID'] = $InvoiceID;
-				$InvoiceDetailData['ProductID'] = $ProductID;
-				$InvoiceDetailData['Description'] = 'TopUp';
-				$InvoiceDetailData['Price'] = $Amount;
-				$InvoiceDetailData['Qty'] = 1;
-				$InvoiceDetailData['TaxAmount'] = 0;
-				$InvoiceDetailData['LineTotal'] = $Amount;
-				$InvoiceDetailData['StartDate'] = '';
-				$InvoiceDetailData['EndDate'] = '';
-				$InvoiceDetailData['Discount'] = 0;
-				$InvoiceDetailData['TaxRateID'] = 0;
-				$InvoiceDetailData['TaxRateID2'] = 0;
-				$InvoiceDetailData['CreatedBy'] = "API";
-				$InvoiceDetailData['ModifiedBy'] = "API";
-				$InvoiceDetailData['created_at'] = $created_at;
-				$InvoiceDetailData['updated_at'] = $created_at;
-				$InvoiceDetailData['ProductType'] = Product::ITEM;
-				$InvoiceDetailData['ServiceID'] = 0;
-				$InvoiceDetailData['AccountSubscriptionID'] = 0;
-				InvoiceDetail::create($InvoiceDetailData);
 
 				//For Tax Rate
-				$TaxRates=BillingClass::getTaxRateType($BillingClassID,TaxRate::TAX_ALL);
+				$TaxRates = isset($Account->TaxRateID) && $Account->TaxRateID != null ? explode(",",$Account->TaxRateID) : [];
+
+				$TotalTax = 0;
 
 				if(!empty($TaxRates)){
 					foreach ($TaxRates as $TaxRateID) {
-						$TaxRateData=TaxRate::find($TaxRateID);
+						$TaxRateData = TaxRate::find($TaxRateID);
 
 						if(!empty($TaxRateData)){
 							$InvoiceTaxRates = array();
-							$InvoiceTaxRates['InvoiceID'] = $InvoiceID;
+							$InvoiceTaxRates['InvoiceID'] 		= $InvoiceID;
 							$InvoiceTaxRates['InvoiceDetailID'] = 0;
-							$InvoiceTaxRates['TaxRateID'] = $TaxRateID;
+							$InvoiceTaxRates['TaxRateID'] 		= $TaxRateID;
 							$TaxAmount = TaxRate::calculateProductTaxAmount($TaxRateID,$Amount);
-							$InvoiceTaxRates['TaxAmount'] = $TaxAmount;
-							$InvoiceTaxRates['Title'] = $TaxRateData->Title;
-							$InvoiceTaxRates['InvoiceTaxType'] = 1;
-
+							$TotalTax += (int)$TaxAmount;
+							$InvoiceTaxRates['TaxAmount'] 		= $TaxAmount;
+							$InvoiceTaxRates['Title'] 			= $TaxRateData->Title;
+							$InvoiceTaxRates['InvoiceTaxType'] 	= 1;
 							InvoiceTaxRate::create($InvoiceTaxRates);
-						}
 
+						}
 					}
 				}
 
+				$InvoiceDetailData['InvoiceID'] 	= $InvoiceID;
+				$InvoiceDetailData['ProductID'] 	= $ProductID;
+				$InvoiceDetailData['Description'] 	= 'TopUp';
+				$InvoiceDetailData['Price'] 		= $Amount;
+				$InvoiceDetailData['Qty'] 			= 1;
+				$InvoiceDetailData['TaxAmount'] 	= $TotalTax;
+				$InvoiceDetailData['LineTotal'] 	= $Amount;
+				$InvoiceDetailData['StartDate'] 	= '';
+				$InvoiceDetailData['EndDate'] 		= '';
+				$InvoiceDetailData['Discount'] 		= 0;
+				$InvoiceDetailData['TaxRateID'] 	= isset($TaxRates[0]) ? $TaxRates[0] : 0;
+				$InvoiceDetailData['TaxRateID2'] 	= isset($TaxRates[1]) ? $TaxRates[1] : 0;
+				$InvoiceDetailData['CreatedBy'] 	= "API";
+				$InvoiceDetailData['ModifiedBy'] 	= "API";
+				$InvoiceDetailData['created_at'] 	= $created_at;
+				$InvoiceDetailData['updated_at'] 	= $created_at;
+				$InvoiceDetailData['ProductType'] 	= Product::ITEM;
+				$InvoiceDetailData['ServiceID'] 	= 0;
+				$InvoiceDetailData['AccountSubscriptionID'] = 0;
+				InvoiceDetail::create($InvoiceDetailData);
+
+				Log::info("Total Tax: ". $InvoiceDetailData['TaxAmount']);
+				Log::info("Total Amount: ". $Amount);
+
 				//StockHistory
-				$StockHistory=array();
-				$temparray=array();
-				$InvoiceDetailStockData=InvoiceDetail::where(['InvoiceID'=>$InvoiceID,'ProductType'=>1])->get();
+				$StockHistory = array();
+				$temparray    = array();
+				$InvoiceDetailStockData = InvoiceDetail::where(['InvoiceID'=>$InvoiceID,'ProductType'=>1])->get();
 
 				if(!empty($InvoiceDetailStockData) && count($InvoiceDetailStockData)>0) {
 					foreach ($InvoiceDetailStockData as $CheckInvoiceHistory) {
 						$ProductID = intval($CheckInvoiceHistory->ProductID);
 						$Qty = intval($CheckInvoiceHistory->Qty);
-						$temparray['CompanyID'] = $CompanyID;
-						$temparray['ProductID'] = $ProductID;
-						$temparray['InvoiceID'] = $InvoiceID;
-						$temparray['Qty'] = $Qty;
-						$temparray['Reason'] = '';
+						$temparray['CompanyID']  = $CompanyID;
+						$temparray['ProductID']  = $ProductID;
+						$temparray['InvoiceID']  = $InvoiceID;
+						$temparray['Qty'] 		 = $Qty;
+						$temparray['Reason'] 	 = '';
 						$temparray['InvoiceNumber'] = $InvoiceData["FullInvoiceNumber"];
 						$temparray['created_by'] = "API";
 						array_push($StockHistory, $temparray);
@@ -649,11 +651,11 @@ class PaymentApiController extends ApiController {
 				}
 
 				$invoiceloddata = array();
-				$invoiceloddata['InvoiceID'] = $InvoiceID;
-				$invoiceloddata['Note'] = 'Created By ' . "API";
-				$invoiceloddata['created_at'] = $created_at;
+				$invoiceloddata['InvoiceID'] 		= $InvoiceID;
+				$invoiceloddata['Note'] 			= 'Created By ' . "API";
+				$invoiceloddata['created_at'] 		= $created_at;
 				$invoiceloddata['InvoiceLogStatus'] = InVoiceLog::CREATED;
-				$Log=InVoiceLog::insert($invoiceloddata);
+				$Log = InVoiceLog::insert($invoiceloddata);
 
 				$pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
 
@@ -676,11 +678,11 @@ class PaymentApiController extends ApiController {
 				}
 
 				DB::connection('sqlsrv2')->commit();
-				$SuccessMsg="Invoice Successfully Created.";
-				$reseponse = array("status" => "success", "message" => $SuccessMsg,'LastInvoiceID'=>$Invoice->InvoiceID);
+				$SuccessMsg = "Invoice Successfully Created.";
+				$reseponse  = array("status" => "success", "message" => $SuccessMsg,'LastInvoiceID' => $Invoice->InvoiceID);
 				return $reseponse;
 			}else{
-				$error['ErrorMessage']="Empty InvoiceID Found.";
+				$error['ErrorMessage'] = "Empty InvoiceID Found.";
 				$error['status'] = '404';
 				return $error;
 			}
