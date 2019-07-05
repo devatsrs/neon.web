@@ -120,8 +120,8 @@ class Invoice extends \Eloquent {
             }
 
             $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
-            Log::info("Pdf Reseller");
-            Log::info(print_r($Reseller, true));
+            //Log::info("Pdf Reseller");
+            //Log::info(print_r($Reseller, true));
             //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($Reseller->LogoUrl) || AmazonS3::unSignedUrl($Reseller->LogoAS3Key, $Account->CompanyId) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");

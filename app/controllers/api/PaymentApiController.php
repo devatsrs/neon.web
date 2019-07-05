@@ -231,7 +231,6 @@ class PaymentApiController extends ApiController {
 				]);
 
 				// Sending Invoice Email
-				$Message = "Out Payment Invoice Successfully Created. Please view the invoice from the link send to you." ;
 				$InvoiceID 				= $resp["LastID"];
 				$Subject 				= "Out Payment Invoice";
 				$Invoice 				= Invoice::find($InvoiceID);
@@ -239,15 +238,15 @@ class PaymentApiController extends ApiController {
 				$emailData['EmailTo']  	= $Account->BillingEmail;
 				$singleemail 			= $Account->BillingEmail;
 				$emailData['InvoiceURL']=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-				$body = $Message . $emailData['InvoiceURL'];
-				$emailData['Subject']		=	$Subject;
+				$Message	 		 	=	 EmailsTemplates::SendinvoiceSingle($InvoiceID,'body',$data);
+				$emailData['Subject']	=	$Subject;
 
 				if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 					$emailData['EmailFrom']	=	$postdata['email_from'];
 				else
 					$emailData['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
 
-				$this->sendInvoiceMail($body, $emailData, 0);
+				$this->sendInvoiceMail($Message, $emailData, 0);
 				Log::info('OutPayment:. Email Send.' . $emailData['InvoiceURL']);
 
 				//AccountPayout::successPayoutCustomerEmail($data);
@@ -293,6 +292,7 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function depositFund(){
+		Log::useFiles(storage_path() . '/logs/deposit-fund-' . date('Y-m-d') . '.log');
 		$post_vars 	= json_decode(file_get_contents("php://input"));
 		$data		= json_decode(json_encode($post_vars),true);
 
@@ -402,15 +402,14 @@ class PaymentApiController extends ApiController {
 						if (!empty($InvoiceGenerate['LastInvoiceID'])) {
 							$InvoiceID = $InvoiceGenerate["LastInvoiceID"];
 							$Invoice = Invoice::find($InvoiceID);
-							$Company = Company::find($Invoice->CompanyID);
-							$Message = "Customer Invoice Successfully Created. Please view the invoice from the link send to you " ;
-							$Subject = "Customer Invoice";
-							$Account=Account::find($Invoice->AccountID);
+
+							$Account				= Account::find($Invoice->AccountID);
 							$data['EmailTo'] 		= $Account->BillingEmail;
 							$singleemail 			= $Account->BillingEmail;
 							$data['InvoiceURL']		= URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-							$body					= EmailsTemplates::ReplaceEmail($singleemail,$Message);
-							$body = $body . $data['InvoiceURL'];
+							$Subject	 		 	=	 EmailsTemplates::SendinvoiceSingle($InvoiceID,"subject",$data);
+							$Message	 		 	=	 EmailsTemplates::SendinvoiceSingle($InvoiceID,'body',$data);
+
 							$data['Subject']		= $Subject;
 							//$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
 
@@ -425,7 +424,7 @@ class PaymentApiController extends ApiController {
 							}
 
 
-							$status  = 	$this->sendInvoiceMail($body,$data,0);
+							$status  = 	$this->sendInvoiceMail($Message,$data,0);
 							Log::info('depositFund:. Email Send');
 
 						}
