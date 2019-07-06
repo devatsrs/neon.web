@@ -238,7 +238,7 @@ class PaymentApiController extends ApiController {
 				$emailData['EmailTo']  	= $Account->BillingEmail;
 				$singleemail 			= $Account->BillingEmail;
 				$emailData['InvoiceURL']=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-				$Message	 		 	= EmailsTemplates::SendinvoiceSingle($InvoiceID,'body',$data);
+				$Message	 		 	= EmailsTemplates::SendinvoiceSingle($InvoiceID,'body',$emailData);
 				$emailData['Subject']	= $Subject;
 
 				if(isset($postdata['email_from']) && !empty($postdata['email_from']))
