@@ -2696,7 +2696,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 
 
-            if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
+            if($check != false  && $check->count() > 0 || $check1 != false && $check1->count() > 0 ||$check2 != false && $check2->count() > 0){
                 $message = 'Number '. $data['CLI'] . ' already exist between start date '.
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
@@ -2823,7 +2823,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 
 
-            if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
+            if($check != false && $check->count() > 0 || $check1 != false && $check1->count() > 0 || $check2 != false && $check2->count() > 0){
                 $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }

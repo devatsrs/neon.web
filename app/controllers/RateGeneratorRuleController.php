@@ -452,21 +452,25 @@ class RateGeneratorRuleController extends \BaseController {
             if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
                 
                 $minRateCount = RateRuleMargin::whereBetween('MinRate', array($data['MinRate'], $data['MaxRate']))
-                ->where('RateRuleId' , '!=' , $RateRuleId)
+                ->where('RateRuleId' , '=' , $RateRuleId)
+                ->where('RateRuleMarginId' , '!=' , $RateRuleMarginId)
                 ->count();
                 
                 $maxRateCount = RateRuleMargin::whereBetween('MaxRate', array($data['MinRate'], $data['MaxRate']))
-                ->where('RateRuleId' , '!=' , $RateRuleId)
+                ->where('RateRuleId' , '=' , $RateRuleId)
+                ->where('RateRuleMarginId' , '!=' , $RateRuleMarginId)
                 ->count();
                 
                 $minRate = RateRuleMargin::where('MaxRate','>=',$data['MinRate'])->where('MinRate','<=',$data['MinRate'])
-                ->where('RateRuleId' , '!=' , $RateRuleId)
+                ->where('RateRuleId' , '=' , $RateRuleId)
+                ->where('RateRuleMarginId' , '!=' , $RateRuleMarginId)
                 ->count();
                 $maxRate = $data ['MinRate']>$data ['MaxRate']?1:0;
                 
             }else {
                 $EmptyRate = RateRuleMargin::where('MaxRate','=',null)->where('MinRate','=',null)
-                ->where('RateRuleId' , '!=' , $RateRuleId)
+                ->where('RateRuleId' , '=' , $RateRuleId)
+                ->where('RateRuleMarginId' , '!=' , $RateRuleMarginId)
                 ->count();
                
             }
@@ -476,13 +480,7 @@ class RateGeneratorRuleController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-            if($EmptyRate>0){
-                return Response::json(array(
-                    "status" => "failed",
-                    "message" => "RateGenerator Rule Margin is overlapping."
-                ));
-            }
-            if($minRateCount>0 || $maxRateCount>0 || $minRate>0){
+            if($minRateCount>0 || $maxRateCount>0 || $minRate>0 || $EmptyRate>0){
                 return Response::json(array(
                     "status" => "failed",
                     "message" => "RateGenerator Rule Margin is overlapping."
@@ -547,21 +545,21 @@ class RateGeneratorRuleController extends \BaseController {
             $minRateCount=0;$maxRateCount=0;$minRate=0;$maxRate=0;$EmptyRate=0;
             if(!empty($data ['MinRate']) && !empty($data ['MaxRate'])){
                 $minRateCount = RateRuleMargin::whereBetween('MinRate', array($data['MinRate'], $data['MaxRate']))
-                    ->where('RateRuleId' , '!=' ,$RateRuleId)
+                    ->where('RateRuleId' , '=' ,$RateRuleId)
                     ->count();
                 
                 $maxRateCount = RateRuleMargin::whereBetween('MaxRate', array($data['MinRate'], $data['MaxRate']))
-                    ->where('RateRuleId' , '!=' ,$RateRuleId)
+                    ->where('RateRuleId' , '=' ,$RateRuleId)
                     ->count();
                 
                 $minRate = RateRuleMargin::where('MaxRate','>=',$data['MinRate'])->where('MinRate','<=',$data['MinRate'])
-                    ->where('RateRuleId' , '!=' ,$RateRuleId)
+                    ->where('RateRuleId' , '=' ,$RateRuleId)
                     ->count();
                 
                 $maxRate = $data ['MinRate']>$data ['MaxRate']?1:0;
             }else {
                 $EmptyRate = RateRuleMargin::where('MaxRate','=',null)->where('MinRate','=',null)
-                    ->where('RateRuleId' , '!=' ,$RateRuleId)
+                    ->where('RateRuleId' , '=' ,$RateRuleId)
                     ->count();
             }
                 

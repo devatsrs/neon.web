@@ -153,7 +153,7 @@ class RateTablesController extends \BaseController {
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunk_keys = getDefaultTrunk($trunks);
         $RateGenerators = RateGenerator::where(["Status" => 1, "CompanyID" => $companyID])->lists("RateGeneratorName", "RateGeneratorId");
-        $codedecks = BaseCodeDeck::where(["CompanyID" => $companyID])->lists("CodeDeckName", "CodeDeckId");
+        $codedecks = BaseCodeDeck::lists("CodeDeckName", "CodeDeckId");
         $codedecks = array(""=>"Select Codedeck")+$codedecks;
         $RateGenerators = array(""=>"Select rate generator")+$RateGenerators;
         $currencylist = Currency::getCurrencyDropdownIDList();

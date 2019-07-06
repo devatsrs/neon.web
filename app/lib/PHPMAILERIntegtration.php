@@ -102,7 +102,7 @@ class PHPMAILERIntegtration{
     } 
 
 		$emailto = is_array($data['EmailTo'])?implode(",",$data['EmailTo']):$data['EmailTo'];
-		Log::info('Mail OBJ: ' . json_encode($mail));
+		//Log::info('Mail OBJ: ' . json_encode($mail));
 		if (!$mail->send()) {
 					$status['status'] = 0;
 					$status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $emailto . ')';

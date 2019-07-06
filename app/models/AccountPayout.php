@@ -87,12 +87,12 @@ class AccountPayout extends \Eloquent
 
             if (empty($ProductID)) {
                 $ProductData = array();
-                $ProductData['CompanyID'] = $CompanyID;
-                $ProductData['Name'] = 'OutPayment';
-                $ProductData['Amount'] = '0.00';
+                $ProductData['CompanyID']   = $CompanyID;
+                $ProductData['Name']        = 'OutPayment';
+                $ProductData['Amount']      = '0.00';
                 $ProductData['Description'] = 'Out Payment';
-                $ProductData['Code'] = Product::OutPaymentCode;
-                $product = Product::create($ProductData);
+                $ProductData['Code']        = Product::OutPaymentCode;
+                $product   = Product::create($ProductData);
                 $ProductID = $product->ProductID;
             }
 
@@ -142,7 +142,7 @@ class AccountPayout extends \Eloquent
             Log::info($pdf_path);
             if (empty($pdf_path)) {
                 $error['message'] = 'Failed to generate Invoice PDF File';
-                $error['status'] = 'failed';
+                $error['status']  = 'failed';
                 return $error;
             } else {
                 $Invoice->where('InvoiceID', $InvoiceID)->update(["PDF" => $pdf_path]);
@@ -152,7 +152,7 @@ class AccountPayout extends \Eloquent
             Log::info($ubl_path);
             if (empty($ubl_path)) {
                 $error['message'] = 'Failed to generate Invoice UBL File.';
-                $error['status'] = 'failed';
+                $error['status']  = 'failed';
                 return $error;
             } else {
                 $Invoice->where('InvoiceID', $InvoiceID)->update(["UblInvoice" => $ubl_path]);
@@ -193,9 +193,9 @@ class AccountPayout extends \Eloquent
         if($Account != false) {
             $PayoutMethod = $Account->PayoutMethod != "" ? $Account->PayoutMethod : "Stripe";
             if (!empty($PayoutMethod) && $PayoutMethod=='Stripe') {
-                $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PayoutMethod);
+                $PaymentGatewayID    = PaymentGateway::getPaymentGatewayIDByName($PayoutMethod);
                 $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
-                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $data['CompanyID']);
+                $PaymentIntegration  = new PaymentIntegration($PaymentGatewayClass, $data['CompanyID']);
                 $data['account'] = $Account;
 
                 $response = $PaymentIntegration->payoutWithStripeAccount($data);
@@ -211,12 +211,12 @@ class AccountPayout extends \Eloquent
 
         $status = EmailsTemplates::CheckEmailTemplateStatus(Account::OutPaymentEmailTemplate);
         if($status != false) {
-            $Account = Account::find($email['AccountID']);
-            $CompanyID = $email['CompanyID'];
-            $CompanyName = Company::getName();
-            $Currency = Currency::find($Account->CurrencyId);
-            $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-            $emaildata = array(
+            $Account        = Account::find($email['AccountID']);
+            $CompanyID      = $email['CompanyID'];
+            $CompanyName    = Company::getName();
+            $Currency       = Currency::find($Account->CurrencyId);
+            $CurrencyCode   = !empty($Currency) ? $Currency->Code : '';
+            $emaildata      = array(
                 'CompanyName' => $CompanyName,
                 'Currency' => $CurrencyCode,
                 'CompanyID' => $CompanyID,
