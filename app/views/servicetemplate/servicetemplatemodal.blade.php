@@ -745,7 +745,7 @@
                                                     <td width="5%">&nbsp;</td>
                                                     <td width="15%"><label for="field-5" class="control-label">Access Discount plan</label></td>
                                                     <td width="35%">
-                                                        {{ Form::select('InboundDiscountPlanID123',$DiscountPlanDID,array(), array("id" => "InboundDiscountPlanId", "class"=>"form-control")) }}
+                                                        {{ Form::select('InboundDiscountPlanID123',$DiscountPlanDID,array(), array("id" => "InboundDiscountPlanId", "class"=>"form-control select2")) }}
 
                                                         {{--<select id="InboundDiscountPlanId" name="InboundDiscountPlanId" >--}}
                                                         {{--</select>--}}
@@ -761,7 +761,7 @@
                                                 <tr>
                                                     <td width="15%"><label for="field-5" class="control-label">Termination Discount plan</label></td>
                                                     <td width="30%">
-                                                        {{ Form::select('OutboundDiscountPlanID123',$DiscountPlanVOICECALL,array(), array("id" => "OutboundDiscountPlanId", "class"=>"form-control")) }}
+                                                        {{ Form::select('OutboundDiscountPlanID123',$DiscountPlanVOICECALL,array(), array("id" => "OutboundDiscountPlanId", "class"=>"form-control select2")) }}
 
                                                         {{--<select id="OutboundRateTableId" name="OutboundRateTableId" class="form-control">--}}
 
@@ -769,7 +769,7 @@
                                                     <td width="5%">&nbsp;</td>
                                                     <td width="15%"><label for="field-5" class="control-label">Package Discount Plan</label></td>
                                                     <td width="35%">
-                                                        {{ Form::select('PackageDiscountPlanId',$DiscountPlanPACKAGE,array(), array("id" => "PackageDiscountPlanId", "class"=>"form-control")) }}
+                                                        {{ Form::select('PackageDiscountPlanId',$DiscountPlanPACKAGE,array(), array("id" => "PackageDiscountPlanId", "class"=>"form-control select2")) }}
                                                     </td>
 
                                                 </tr>
