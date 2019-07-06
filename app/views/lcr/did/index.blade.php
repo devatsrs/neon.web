@@ -131,13 +131,6 @@
     <br>
     <table class="table table-bordered datatable" id="table">
         <thead>
-        {{--<tr>
-            <th><h4><strong>PRS IT 0900 caller rate:</strong></h4></th>
-            <th>$</th>
-            <th></th>
-            <th></th>
-        </tr>--}}
-
         <tr>
             <th id="dt_AccessType">Access Type</th>
             <th id="dt_Country">Country</th>
@@ -374,77 +367,72 @@
                         { "bSortable": false}, //1 Access Type
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[1] != null) {
-                                    var array = full[1].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[1];
+                                return html;
                             }
                         }, //2 Country
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[2] != null) {
-                                    var array = full[2].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[2];
+                                return html;
                             }
                         }, //3 Prefix
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[3] != null) {
-                                    var array = full[3].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[3];
+                                return html;
                             }
                         }, //4 City
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[4] != null) {
-                                    var array = full[4].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[4];
+                                return html;
                             }
                         }, //5 Tariff
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[5] != null) {
-                                    var array = full[5].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[5];
+                                return html;
                             }
                         }, //6 Position 1
                         { "bSortable": false,"bVisible" : false}, //7 Position 2
@@ -490,152 +478,142 @@
                         { "bSortable": false}, //1 Access Type
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[1] != null) {
-                                    var array = full[1].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[1];
+                                return html;
                             }
                         }, //2 Country
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[2] != null) {
-                                    var array = full[2].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[2];
+                                return html;
                             }
                         }, //3 Prefix
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[3] != null) {
-                                    var array = full[3].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[3];
+                                return html;
                             }
                         }, //4 City
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[4] != null) {
-                                    var array = full[4].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[4];
+                                return html;
                             }
                         }, //5 Tariff
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[5] != null) {
-                                    var array = full[5].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[5];
+                                return html;
                             }
                         }, //6 Position 1
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[6] != null) {
-                                    var array = full[6].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[6];
+                                return html;
                             }
                         }, //7 Position 2
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[7] != null) {
-                                    var array = full[7].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[7];
+                                return html;
                             }
                         }, //8 Position 3
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[8] != null) {
-                                    var array = full[8].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[8];
+                                return html;
                             }
                         }, //9 Position 4
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[9] != null) {
-                                    var array = full[9].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[9];
+                                return html;
                             }
                         }, //10 Position 5
                         { "bSortable": false,
                             mRender: function (id, type, full) {
-                                if (full[10] != null) {
-                                    var array = full[10].split('<br>');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
+                                var html = '';
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+                                    var array = id.split(",");
+                                    for (i=0;i<array.length;i++){
+                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                                        html += array[i] + hr;
+                                    }
                                     return html;
                                 }
-                                return full[10];
+                                return html;
                             }
                         }, //11 Position 6
                         /* { "bVisible": false},  //12 Position 7
@@ -952,6 +930,10 @@
         });
     </script>
     <style>
+        .hrpadding{
+            margin-top: 4px;
+            margin-bottom: 2px;
+        }
         .dataTables_filter label{
             display:none !important;
         }
