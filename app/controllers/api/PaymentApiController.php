@@ -238,13 +238,13 @@ class PaymentApiController extends ApiController {
 				$emailData['EmailTo']  	= $Account->BillingEmail;
 				$singleemail 			= $Account->BillingEmail;
 				$emailData['InvoiceURL']=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-				$Message	 		 	=	 EmailsTemplates::SendinvoiceSingle($InvoiceID,'body',$data);
-				$emailData['Subject']	=	$Subject;
+				$Message	 		 	= EmailsTemplates::SendinvoiceSingle($InvoiceID,'body',$data);
+				$emailData['Subject']	= $Subject;
 
 				if(isset($postdata['email_from']) && !empty($postdata['email_from']))
-					$emailData['EmailFrom']	=	$postdata['email_from'];
+					$emailData['EmailFrom']	= $postdata['email_from'];
 				else
-					$emailData['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
+					$emailData['EmailFrom']	= EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
 
 				$this->sendInvoiceMail($Message, $emailData, 0);
 				Log::info('OutPayment:. Email Send.' . $emailData['InvoiceURL']);
@@ -407,8 +407,8 @@ class PaymentApiController extends ApiController {
 							$data['EmailTo'] 		= $Account->BillingEmail;
 							$singleemail 			= $Account->BillingEmail;
 							$data['InvoiceURL']		= URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-							$Subject	 		 	=	 EmailsTemplates::SendinvoiceSingle($InvoiceID,"subject",$data);
-							$Message	 		 	=	 EmailsTemplates::SendinvoiceSingle($InvoiceID,'body',$data);
+							$Subject	 		 	= EmailsTemplates::SendinvoiceSingle($InvoiceID,"subject",$data);
+							$Message	 		 	= EmailsTemplates::SendinvoiceSingle($InvoiceID,'body',$data);
 
 							$data['Subject']		= $Subject;
 							//$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
@@ -418,9 +418,9 @@ class PaymentApiController extends ApiController {
 
 							if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 							{
-								$data['EmailFrom']	=	$postdata['email_from'];
+								$data['EmailFrom']	= $postdata['email_from'];
 							}else{
-								$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
+								$data['EmailFrom']	= EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
 							}
 
 
@@ -434,7 +434,7 @@ class PaymentApiController extends ApiController {
 							$UpdateData=array();
 							$UpdateData['InvoiceID'] = $InvoiceGenerate['LastInvoiceID'];
 							$UpdateData['InvoiceNo'] = $FullInvoiceNumber;
-							Payment::where(['PaymentID'=>$PaymentID])->update($UpdateData);
+							Payment::where(['PaymentID' => $PaymentID])->update($UpdateData);
 						}
 
 
@@ -522,15 +522,37 @@ class PaymentApiController extends ApiController {
 
 			$LastInvoiceNumber = Invoice::getNextInvoiceNumber($CompanyID);
 			$FullInvoiceNumber = Company::getCompanyField($CompanyID, "InvoiceNumberPrefix") . $LastInvoiceNumber;
+
+			//For Tax Rate
+			$TotalTax = 0;
+			$TaxRateArr = [];
+			$TaxRates = isset($Account->TaxRateID) && $Account->TaxRateID != null ? explode(",",$Account->TaxRateID) : [];
+			if(!empty($TaxRates)){
+				foreach ($TaxRates as $TaxRateID) {
+					$TaxRateData = TaxRate::find($TaxRateID);
+					if(!empty($TaxRateData)){
+						$InvoiceTaxRates = array();
+						$InvoiceTaxRates['InvoiceDetailID'] = 0;
+						$InvoiceTaxRates['TaxRateID'] 		= $TaxRateID;
+						$TaxAmount = TaxRate::calculateProductTaxAmount($TaxRateID,$Amount);
+						$TotalTax += (float)$TaxAmount;
+						$InvoiceTaxRates['TaxAmount'] 		= $TaxAmount;
+						$InvoiceTaxRates['Title'] 			= $TaxRateData->Title;
+						$InvoiceTaxRates['InvoiceTaxType'] 	= TaxRate::TAX_ALL;
+						$TaxRateArr[] = $InvoiceTaxRates;
+					}
+				}
+			}
+
 			$InvoiceData["InvoiceNumber"] 	= $LastInvoiceNumber;
 			$InvoiceData["CompanyID"] 		= $CompanyID;
 			$InvoiceData["AccountID"] 		= intval($AccountID);
 			$InvoiceData["Address"] 		= $InvoiceToAddress;        //change
 			$InvoiceData["IssueDate"] 		= date('Y-m-d');  //today
 			$InvoiceData["PONumber"] 		= ''; //blank
-			$InvoiceData["SubTotal"] 		= str_replace(",", "", $Amount);
+			$InvoiceData["SubTotal"] 		= str_replace(",", "", ($Amount - $TotalTax));
 			$InvoiceData["TotalDiscount"] 	= 0;
-			$InvoiceData["TotalTax"] 		= 0;
+			$InvoiceData["TotalTax"] 		= $TotalTax;
 			$InvoiceData["GrandTotal"] 		= floatval(str_replace(",", "", $Amount));
 			$InvoiceData["CurrencyID"] 		= $Account->CurrencyId;
 			$InvoiceData["InvoiceType"] 	= Invoice::INVOICE_OUT;
@@ -577,29 +599,11 @@ class PaymentApiController extends ApiController {
 					$ProductID 	= $product->ProductID;
 				}
 
-
-				//For Tax Rate
-				$TaxRates = isset($Account->TaxRateID) && $Account->TaxRateID != null ? explode(",",$Account->TaxRateID) : [];
-
-				$TotalTax = 0;
-
-				if(!empty($TaxRates)){
-					foreach ($TaxRates as $TaxRateID) {
-						$TaxRateData = TaxRate::find($TaxRateID);
-
-						if(!empty($TaxRateData)){
-							$InvoiceTaxRates = array();
-							$InvoiceTaxRates['InvoiceID'] 		= $InvoiceID;
-							$InvoiceTaxRates['InvoiceDetailID'] = 0;
-							$InvoiceTaxRates['TaxRateID'] 		= $TaxRateID;
-							$TaxAmount = TaxRate::calculateProductTaxAmount($TaxRateID,$Amount);
-							$TotalTax += (int)$TaxAmount;
-							$InvoiceTaxRates['TaxAmount'] 		= $TaxAmount;
-							$InvoiceTaxRates['Title'] 			= $TaxRateData->Title;
-							$InvoiceTaxRates['InvoiceTaxType'] 	= 1;
-							InvoiceTaxRate::create($InvoiceTaxRates);
-
-						}
+				//Inserting VAT Rates
+				if(!empty($TaxRateArr)){
+					foreach($TaxRateArr as $TaxRateInsert){
+						$TaxRateInsert['InvoiceID'] = $InvoiceID;
+						InvoiceTaxRate::create($TaxRateInsert);
 					}
 				}
 
