@@ -131,6 +131,8 @@ class ResellerController extends BaseController {
                 $CompanyData['LastName'] = $LastName;
                 $CompanyData['Email'] = $data['Email'];
                 $CompanyData['Status'] = '1';
+                $CompanyData['CurrencyId'] = $Account->CurrencyId;
+                $CompanyData['Country'] = $Account->Country;
                 $CompanyData['TimeZone'] = 'Etc/GMT';
                 $CompanyData['SMTPServer'] = $data['SMTPServer'];
                 $CompanyData['SMTPUsername'] = $data['SMTPUsername'];
