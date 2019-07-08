@@ -125,21 +125,21 @@ class ResellerController extends BaseController {
             try {
 
                 $CompanyData = array();
-                $CompanyData['CompanyName'] = $AccountName;
+                $CompanyData['CompanyName']     = $AccountName;
                 $CompanyData['CustomerAccountPrefix'] = '22221';
-                $CompanyData['FirstName'] = $FirstName;
-                $CompanyData['LastName'] = $LastName;
-                $CompanyData['Email'] = $data['Email'];
-                $CompanyData['Status'] = '1';
-                $CompanyData['CurrencyId'] = $Account->CurrencyId;
-                $CompanyData['Country'] = $Account->Country;
-                $CompanyData['TimeZone'] = 'Etc/GMT';
-                $CompanyData['SMTPServer'] = $data['SMTPServer'];
-                $CompanyData['SMTPUsername'] = $data['SMTPUsername'];
-                $CompanyData['SMTPPassword'] = Crypt::encrypt($data['SMTPPassword']);
-                $CompanyData['Port'] = $data['Port'];
-                $CompanyData['EmailFrom'] = $data['EmailFrom'];
-                $CompanyData['IsSSL'] = isset($data['IsSSL']) ? 1 : 0;
+                $CompanyData['FirstName']       = $FirstName;
+                $CompanyData['LastName']        = $LastName;
+                $CompanyData['Email']           = $data['Email'];
+                $CompanyData['Status']          = '1';
+                $CompanyData['CurrencyId']      = $Account->CurrencyId;
+                $CompanyData['Country']         = $Account->Country;
+                $CompanyData['TimeZone']        = Company::getCompanyTimeZone($CompanyID);
+                $CompanyData['SMTPServer']      = $data['SMTPServer'];
+                $CompanyData['SMTPUsername']    = $data['SMTPUsername'];
+                $CompanyData['SMTPPassword']    = Crypt::encrypt($data['SMTPPassword']);
+                $CompanyData['Port']            = $data['Port'];
+                $CompanyData['EmailFrom']       = $data['EmailFrom'];
+                $CompanyData['IsSSL']           = isset($data['IsSSL']) ? 1 : 0;
 
                 $CompanyData['created_at'] = $CurrentTime;
                 $CompanyData['created_by'] = $CreatedBy;
