@@ -143,7 +143,7 @@
             @foreach($AccountBalanceThreshold as $key=>$AccountBalanceThresholdRow)
                         <tr id="selectedRow-{{$key}}" class="fieldwrapper">
                             <td id="testValues">
-                                <input type="text" class="form-control BalanceThresholdcls"  name="BalanceThresholdnew-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
+                                <input type="number" class="form-control BalanceThresholdcls"  name="BalanceThresholdnew-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
                             </td>
                             <td>
                                 <input type="text" class="form-control emailcls"  name="email-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThresholdEmail}}" id="email">
