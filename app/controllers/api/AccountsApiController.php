@@ -2560,6 +2560,8 @@ class AccountsApiController extends ApiController {
 							$CompanyData['LastName'] = $LastName;
 							$CompanyData['Email'] = $ResellerData['Email'];
 							$CompanyData['Status'] = '1';
+							$CompanyData['CurrencyId'] = $Account->CurrencyId;
+							$CompanyData['Country'] = $Account->Country;
 							$CompanyData['TimeZone'] = 'Etc/GMT';
 							$CompanyData['created_at'] = $CurrentTime;
 							$CompanyData['created_by'] = $CreatedBy;
