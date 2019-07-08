@@ -365,76 +365,11 @@
                     },10);
                     aoColumns = [
                         { "bSortable": false}, //1 Access Type
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //2 Country
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //3 Prefix
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //4 City
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //5 Tariff
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //6 Position 1
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //2 Country
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //3 Prefix
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //4 City
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //5 Tariff
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //6 Position 1
                         { "bSortable": false,"bVisible" : false}, //7 Position 2
                         { "bSortable": false,"bVisible" : false}, //8 Position 3
                         { "bSortable": false,"bVisible" : false}, //9 Position 4
@@ -476,146 +411,16 @@
                     },10);
                     aoColumns = [
                         { "bSortable": false}, //1 Access Type
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //2 Country
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //3 Prefix
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //4 City
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //5 Tariff
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //6 Position 1
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //7 Position 2
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //8 Position 3
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //9 Position 4
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //10 Position 5
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var html = '';
-                                if (typeof id != 'undefined' && id != null && id != 'null') {
-                                    var array = id.split(",");
-                                    for (i=0;i<array.length;i++){
-                                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
-                                        html += array[i] + hr;
-                                    }
-                                    return html;
-                                }
-                                return html;
-                            }
-                        }, //11 Position 6
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //2 Country
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //3 Prefix
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //4 City
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //5 Tariff
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //6 Position 1
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //7 Position 2
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //8 Position 3
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //9 Position 4
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //10 Position 5
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //11 Position 6
                         /* { "bVisible": false},  //12 Position 7
                          { "bVisible": false},  //13 Position 8
                          { "bVisible": false},  //14 Position 9
@@ -662,11 +467,11 @@
                         { "bSortable": false}, //3 Prefix
                         { "bSortable": false}, //4 City
                         { "bSortable": false}, //5 Tariff
-                        { "bSortable": false}, //6 Position 1
-                        { "bSortable": false}, //7 Position 2
-                        { "bSortable": false}, //8 Position 3
-                        { "bSortable": false}, //9 Position 4
-                        { "bSortable": false}, //10 Position 5
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //6 Position 1
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //7 Position 2
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //8 Position 3
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //9 Position 4
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //10 Position 5
                         /* { "bSortable": false}, //11 Position 6
                          { "bVisible": false},  //12 Position 7
                          { "bVisible": false},  //13 Position 8
@@ -709,16 +514,16 @@
                         { "bSortable": false}, //3 Prefix
                         { "bSortable": false}, //4 City
                         { "bSortable": false}, //5 Tariff
-                        { "bSortable": false}, //6 Position 1
-                        { "bSortable": false}, //7 Position 2
-                        { "bSortable": false}, //8 Position 3
-                        { "bSortable": false}, //9 Position 4
-                        { "bSortable": false}, //10 Position 5
-                        { "bSortable": false}, //11 Position 6
-                        { "bSortable": false},  //12 Position 7
-                        { "bSortable": false},  //13 Position 8
-                        { "bSortable": false},  //14 Position 9
-                        { "bSortable": false},  //15 Company 10
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //6 Position 1
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //7 Position 2
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //8 Position 3
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //9 Position 4
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //10 Position 5
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //11 Position 6
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}},  //12 Position 7
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}},  //13 Position 8
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}},  //14 Position 9
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}},  //15 Company 10
 
 
 
@@ -927,6 +732,20 @@
             $(".pagination a").click(function(ev) {
                 replaceCheckboxes();
             });
+
+            function split_data(col_data){
+
+                var html = '';
+                if (typeof col_data != 'undefined' && col_data != null && col_data != 'null') {
+
+                    var array = col_data.split(",");
+                    for (i=0;i<array.length;i++){
+                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                        html += array[i] + hr;
+                    }
+                }
+                return html;
+            }
         });
     </script>
     <style>
