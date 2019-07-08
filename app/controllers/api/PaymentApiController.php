@@ -532,13 +532,12 @@ class PaymentApiController extends ApiController {
 					$TaxRateData = TaxRate::find($TaxRateID);
 					if(!empty($TaxRateData)){
 						$InvoiceTaxRates = array();
-						$InvoiceTaxRates['InvoiceDetailID'] = 0;
 						$InvoiceTaxRates['TaxRateID'] 		= $TaxRateID;
 						$TaxAmount = TaxRate::calculateProductTaxAmount($TaxRateID,$Amount);
 						$TotalTax += (float)$TaxAmount;
 						$InvoiceTaxRates['TaxAmount'] 		= $TaxAmount;
 						$InvoiceTaxRates['Title'] 			= $TaxRateData->Title;
-						$InvoiceTaxRates['InvoiceTaxType'] 	= TaxRate::TAX_ALL;
+						$InvoiceTaxRates['InvoiceTaxType'] 	= 0;
 						$TaxRateArr[] = $InvoiceTaxRates;
 					}
 				}
@@ -599,13 +598,6 @@ class PaymentApiController extends ApiController {
 					$ProductID 	= $product->ProductID;
 				}
 
-				//Inserting VAT Rates
-				if(!empty($TaxRateArr)){
-					foreach($TaxRateArr as $TaxRateInsert){
-						$TaxRateInsert['InvoiceID'] = $InvoiceID;
-						InvoiceTaxRate::create($TaxRateInsert);
-					}
-				}
 
 				$InvoiceDetailData['InvoiceID'] 	= $InvoiceID;
 				$InvoiceDetailData['ProductID'] 	= $ProductID;
@@ -626,15 +618,24 @@ class PaymentApiController extends ApiController {
 				$InvoiceDetailData['ProductType'] 	= Product::ITEM;
 				$InvoiceDetailData['ServiceID'] 	= 0;
 				$InvoiceDetailData['AccountSubscriptionID'] = 0;
-				InvoiceDetail::create($InvoiceDetailData);
+				$InvoiceDetails = InvoiceDetail::create($InvoiceDetailData);
 
+				//Inserting VAT Rates
+				if(!empty($TaxRateArr)){
+					foreach($TaxRateArr as $TaxRateInsert){
+						$TaxRateInsert['InvoiceID'] = $InvoiceID;
+						$TaxRateInsert['InvoiceDetailID'] = $InvoiceDetails != false ?
+$InvoiceDetails->InvoiceDetailID : 0;
+						InvoiceTaxRate::create($TaxRateInsert);
+					}
+				}
 				Log::info("Total Tax: ". $InvoiceDetailData['TaxAmount']);
 				Log::info("Total Amount: ". $Amount);
 
 				//StockHistory
 				$StockHistory = array();
 				$temparray    = array();
-				$InvoiceDetailStockData = InvoiceDetail::where(['InvoiceID'=>$InvoiceID,'ProductType'=>1])->get();
+				$InvoiceDetailStockData = InvoiceDetail::where(['InvoiceID'=>$InvoiceID,'ProductType'=>Product::ITEM])->get();
 
 				if(!empty($InvoiceDetailStockData) && count($InvoiceDetailStockData)>0) {
 					foreach ($InvoiceDetailStockData as $CheckInvoiceHistory) {

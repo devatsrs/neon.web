@@ -2562,7 +2562,7 @@ class AccountsApiController extends ApiController {
 							$CompanyData['Status'] = '1';
 							$CompanyData['CurrencyId'] = $Account->CurrencyId;
 							$CompanyData['Country'] = $Account->Country;
-							$CompanyData['TimeZone'] = 'Etc/GMT';
+							$CompanyData['TimeZone'] = Company::getCompanyTimeZone($CompanyID);
 							$CompanyData['created_at'] = $CurrentTime;
 							$CompanyData['created_by'] = $CreatedBy;
 
