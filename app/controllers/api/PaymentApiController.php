@@ -618,17 +618,17 @@ class PaymentApiController extends ApiController {
 				$InvoiceDetailData['ProductType'] 	= Product::ITEM;
 				$InvoiceDetailData['ServiceID'] 	= 0;
 				$InvoiceDetailData['AccountSubscriptionID'] = 0;
-				$InvoiceDetails = InvoiceDetail::create($InvoiceDetailData);
-
+				$InvoiceDetails  = InvoiceDetail::create($InvoiceDetailData);
+				$InvoiceDetailID = $InvoiceDetails != false ? $InvoiceDetails->InvoiceDetailID : 0;
 				//Inserting VAT Rates
 				if(!empty($TaxRateArr)){
 					foreach($TaxRateArr as $TaxRateInsert){
 						$TaxRateInsert['InvoiceID'] = $InvoiceID;
-						$TaxRateInsert['InvoiceDetailID'] = $InvoiceDetails != false ?
-$InvoiceDetails->InvoiceDetailID : 0;
+						$TaxRateInsert['InvoiceDetailID'] = $InvoiceDetailID;
 						InvoiceTaxRate::create($TaxRateInsert);
 					}
 				}
+				
 				Log::info("Total Tax: ". $InvoiceDetailData['TaxAmount']);
 				Log::info("Total Amount: ". $Amount);
 
