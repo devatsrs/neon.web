@@ -211,6 +211,7 @@
         <th width="10%">Trunk</th>
         <th width="12%">Category</th>
         <th width="10%">Location</th>
+        <th width="10%">RateTable</th>
         <th width="10%">Created At</th>
         <th width="20%">Action</th>
     </tr>
@@ -545,7 +546,7 @@
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [8, "desc"],
+            "aaSorting": [9, "desc"],
             "aoColumns":
                     [
                         {"bSortable": false, //RateID
@@ -579,8 +580,21 @@
                         {"bSortable": false}, //5 TrunkName
                         {"bSortable": false}, //6 CategoryName
                         {"bSortable": false}, //7 Location
-                        {"bSortable": true}, //8 created at
                         {// 9 Action
+                            "bSortable": false,
+                            mRender: function(id, type, full) {
+                                var RateTable = full[21];
+                                return RateTable;
+                            }
+                        }, //8 RateTable
+                        {"bSortable": true,
+                            mRender: function(id, type, full) {
+                                var created_at = full[8];
+                                return created_at;
+                            }
+
+                        }, //9 created at
+                        {// 10 Action
                             "bSortable": false,
                             mRender: function(id, type, full) {
 
