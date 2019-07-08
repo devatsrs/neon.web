@@ -9201,3 +9201,343 @@ BEGIN
 
 END//
 DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `UpdateRateTableInProductANDPackage`;
+DELIMITER //
+CREATE PROCEDURE `UpdateRateTableInProductANDPackage`()
+BEGIN
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateANDDID;
+	CREATE TEMPORARY TABLE tmp_RateANDDID  (
+		RateTableId INT,
+		CompanyId int,
+		DIDCategoryID INT,
+		City varchar(200),
+		Tariff varchar(200),
+		accessType varchar(200),
+		prefixName varchar(200)
+
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateANDTermination;
+	CREATE TEMPORARY TABLE tmp_RateANDTermination  (
+		CompanyId INT,
+		RateTableId INT
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateANDPackage;
+	CREATE TEMPORARY TABLE tmp_RateANDPackage  (
+		RateTableId INT,
+		CompanyId int,
+		PackageCode varchar(50)
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateANDPackagePartner;
+	CREATE TEMPORARY TABLE tmp_RateANDPackagePartner  (
+		RateTableId INT,
+		ResellerID int,
+		PackageCode varchar(50)
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateANDPackagePartner1;
+	CREATE TEMPORARY TABLE tmp_RateANDPackagePartner1  (
+		ChildCompanyID int
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateANDDIDPartner;
+	CREATE TEMPORARY TABLE tmp_RateANDDIDPartner  (
+		RateTableId INT,
+		ResellerID int,
+		DIDCategoryID INT,
+		City varchar(200),
+		Tariff varchar(200),
+		accessType varchar(200),
+		prefixName varchar(200)
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateANDDIDPartner1;
+	CREATE TEMPORARY TABLE tmp_RateANDDIDPartner1  (
+		ChildCompanyID int
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_SELECTedRateANDDID;
+	CREATE TEMPORARY TABLE tmp_SELECTedRateANDDID  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		RateTableId INT,
+		CompanyId int,
+		DIDCategoryID INT,
+		RateTableDIDRateID INT
+
+	);
+
+	SET @RateTableId:=0,@CompanyID:='',@DIDCategoryID:='',@ProductRateTableID:='',@OutboundRateTableID:=0;
+
+	INSERT INTO tmp_RateANDPackage(RateTableId,CompanyId,PackageCode)
+	SELECT MAX(rateTable.RateTableId), rateTable.CompanyId ,rate.Code
+	FROM tblRateTablePKGRate pkgRate,tblRateTable rateTable,tblRate rate
+	WHERE pkgRate.RateTableId = rateTable.RateTableId
+		AND pkgRate.RateID = rate.RateID
+		AND pkgRate.EffectiveDate <= date(sysdate())
+		AND rateTable.`Type` = 3
+		AND rateTable.AppliedTo = 1
+		AND (SELECT COUNT(*) FROM tblRateTablePKGRateAA  WHERE RateTableId = pkgRate.RateTableId) =0
+		AND rateTable.`Status` = 1
+	GROUP BY rateTable.CompanyId,rate.Code;
+
+	INSERT INTO tmp_RateANDPackagePartner(RateTableId,ResellerID,PackageCode)
+	SELECT MAX(rateTable.RateTableId), rateTable.Reseller ,rate.Code
+	FROM tblRateTablePKGRate pkgRate,tblRateTable rateTable,tblRate rate
+	WHERE pkgRate.RateTableId = rateTable.RateTableId
+		AND pkgRate.RateID = rate.RateID
+		AND pkgRate.EffectiveDate <= date(sysdate())
+		AND rateTable.`Type` = 3
+		AND rateTable.AppliedTo = 3
+		AND (SELECT COUNT(*) FROM tblRateTablePKGRateAA  WHERE RateTableId = pkgRate.RateTableId) =0
+		AND rateTable.`Status` = 1
+	GROUP BY rateTable.RateTableId,rateTable.Reseller,rate.Code;
+
+
+
+	INSERT INTO tmp_RateANDPackage(RateTableId,CompanyId,PackageCode)
+	SELECT RateTableId,ChildCompanyID,PackageCode FROM tblReseller,tmp_RateANDPackagePartner WHERE tblReseller.ResellerID = tmp_RateANDPackagePartner.ResellerID;
+
+	SET @V_AllPackageCOUNT = (SELECT COUNT(*) FROM tmp_RateANDPackagePartner WHERE tmp_RateANDPackagePartner.ResellerID = -1);
+
+
+	IF @V_AllPackageCOUNT > 0 THEN
+
+		INSERT INTO tmp_RateANDPackagePartner1(ChildCompanyID)
+		SELECT ChildCompanyID FROM tblReseller WHERE
+		ResellerID not in (SELECT tmp_RateANDPackagePartner.ResellerID FROM tmp_RateANDPackagePartner WHERE tmp_RateANDPackagePartner.ResellerID <> -1);
+
+		INSERT INTO tmp_RateANDPackage(RateTableId,CompanyId,PackageCode)
+		SELECT RateTableId,ChildCompanyID,PackageCode FROM tmp_RateANDPackagePartner,tmp_RateANDPackagePartner1
+		WHERE tmp_RateANDPackagePartner.ResellerID = -1;
+
+	END IF;
+
+	SELECT * FROM tmp_RateANDPackage;
+
+
+
+	UPDATE tblPackage as package
+	JOIN tmp_RateANDPackage ON package.CompanyID = tmp_RateANDPackage.CompanyID AND package.Name = tmp_RateANDPackage.PackageCode
+		SET package.RateTableId = tmp_RateANDPackage.RateTableId
+	WHERE package.Status = 1;
+
+
+	-- get CompanyID and RateTableID list in tmp_RateANDTermination
+	CALL getTerminationRateTableCompanyIDList();
+
+	-- tmp_RateANDTermination table will populate from above procedure then update tblServiceTemplate in below query
+	UPDATE
+		tblServiceTemplate terminationTemplate
+	JOIN
+		tmp_RateANDTermination ON terminationTemplate.CompanyID = tmp_RateANDTermination.CompanyID
+	SET
+		terminationTemplate.OutboundRateTableId = tmp_RateANDTermination.RateTableId;
+
+
+	INSERT INTO tmp_RateANDDID(RateTableId,CompanyId,DIDCategoryID,City,Tariff,accessType,prefixName)
+	SELECT MAX(rateTable.RateTableId),rateTable.CompanyId,rateTable.DIDCategoryID,didRate.City,didRate.Tariff,didRate.AccessType,rate.Code
+	FROM tblRateTableDIDRate didRate,tblRateTable rateTable,tblRate rate
+	WHERE didRate.RateTableId = rateTable.RateTableId
+		AND didRate.EffectiveDate <= date(NOW())
+		AND rateTable.`Type` = 2
+		AND rateTable.AppliedTo = 1
+		AND (SELECT COUNT(*) FROM tblRateTableDIDRateAA  WHERE RateTableId = didRate.RateTableId) =0
+		AND rateTable.`Status` = 1
+		AND didRate.RateID = rate.RateID
+	GROUP BY rateTable.CompanyId,
+				rateTable.DIDCategoryID,didRate.City,didRate.Tariff,didRate.AccessType,rate.Code;
+
+	INSERT INTO tmp_RateANDDIDPartner(RateTableId,ResellerID,DIDCategoryID,City,Tariff,accessType,prefixName)
+	SELECT MAX(rateTable.RateTableId),rateTable.Reseller,rateTable.DIDCategoryID,didRate.City,didRate.Tariff,didRate.AccessType,rate.Code
+	FROM tblRateTableDIDRate didRate,tblRateTable rateTable,tblRate rate
+	WHERE didRate.RateTableId = rateTable.RateTableId
+		AND didRate.EffectiveDate <= date(NOW())
+		AND rateTable.`Type` = 2
+		AND rateTable.AppliedTo = 3
+		AND (SELECT COUNT(*) FROM tblRateTableDIDRateAA  WHERE RateTableId = didRate.RateTableId) =0
+		AND rateTable.`Status` = 1
+		AND didRate.RateID = rate.RateID
+	GROUP BY rateTable.RateTableId,rateTable.Reseller,
+				rateTable.DIDCategoryID,didRate.City,didRate.Tariff,didRate.AccessType,rate.Code;
+
+
+
+	INSERT INTO tmp_RateANDDID(RateTableId,CompanyId,DIDCategoryID,City,Tariff,accessType,prefixName)
+	SELECT RateTableId,ChildCompanyID,DIDCategoryID,City,Tariff,accessType,prefixName FROM tblReseller,tmp_RateANDDIDPartner WHERE tblReseller.ResellerID = tmp_RateANDDIDPartner.ResellerID;
+
+	SET @V_AllDIDCOUNT = (SELECT COUNT(*) FROM tmp_RateANDDIDPartner WHERE tmp_RateANDDIDPartner.ResellerID = -1);
+
+	IF @V_AllDIDCOUNT > 0 THEN
+
+		-- SELECT RateTableId,DIDCategoryID INTO @V_AllDIDRateTable,@DIDCategoryID FROM tmp_RateANDDIDPartner WHERE tmp_RateANDDIDPartner.ResellerID = 0;
+		INSERT INTO tmp_RateANDDIDPartner1(ChildCompanyID)
+		SELECT ChildCompanyID FROM tblReseller WHERE
+		ResellerID not in (SELECT tmp_RateANDDIDPartner.ResellerID FROM tmp_RateANDDIDPartner WHERE tmp_RateANDDIDPartner.ResellerID <> -1);
+
+		INSERT INTO tmp_RateANDDID(RateTableId,CompanyId,DIDCategoryID,City,Tariff,accessType,prefixName)
+		SELECT RateTableId,ChildCompanyID,DIDCategoryID,City,Tariff,accessType,prefixName FROM tmp_RateANDDIDPartner,tmp_RateANDDIDPartner1
+		WHERE tmp_RateANDDIDPartner.ResellerID = -1;
+
+	END IF;
+
+
+	SELECT * FROM tmp_RateANDDID;
+
+
+	UPDATE tblServiceTemapleInboundTariff AS ServiceTemapleInboundTariff
+	INNER JOIN
+	(
+		SELECT
+			serviceTemplate.ServiceTemplateId,r.DIDCategoryID,r.RateTableId
+		FROM
+			tblServiceTemplate serviceTemplate
+		JOIN
+			tmp_RateANDDID r ON r.CompanyId = serviceTemplate.CompanyID
+			AND IFNULL(r.City,'') = IFNULL(serviceTemplate.City,'')
+			AND IFNULL(r.Tariff,'') = IFNULL(serviceTemplate.Tariff,'')
+			AND IFNULL(r.accessType,'') = IFNULL(serviceTemplate.accessType,'')
+			AND r.prefixName =concat((SELECT Prefix FROM tblCountry WHERE Country = serviceTemplate.Country), TRIM(LEADING '0' FROM serviceTemplate.prefixName))
+		INNER JOIN
+			tblServiceTemapleInboundTariff tariff ON r.DIDCategoryID = tariff.DIDCategoryId
+			AND serviceTemplate.ServiceTemplateId = tariff.ServiceTemplateID )	 serviceTemplate1
+	SET
+		ServiceTemapleInboundTariff.RateTableId = serviceTemplate1.RateTableId
+	WHERE
+		ServiceTemapleInboundTariff.ServiceTemplateID = serviceTemplate1.ServiceTemplateId
+		AND ServiceTemapleInboundTariff.DIDCategoryId = serviceTemplate1.DIDCategoryID;
+
+
+	INSERT INTO tblServiceTemapleInboundTariff
+	(
+		ServiceTemplateID,
+		DIDCategoryId,
+		RateTableId,
+		CompanyID
+	)
+	SELECT
+		serviceTemplate.ServiceTemplateId ,
+		r.DIDCategoryID ,
+		r.RateTableId ,
+		serviceTemplate.CompanyID
+	FROM
+		tblServiceTemplate serviceTemplate
+	JOIN
+		tmp_RateANDDID r ON r.CompanyId = serviceTemplate.CompanyID
+		AND IFNULL(r.City,'') = IFNULL(serviceTemplate.City,'')
+		AND IFNULL(r.Tariff,'') = IFNULL(serviceTemplate.Tariff,'')
+		AND IFNULL(r.accessType,'') = IFNULL(serviceTemplate.accessType,'')
+		AND r.prefixName =concat((SELECT Prefix FROM tblCountry WHERE Country = serviceTemplate.Country), TRIM(LEADING '0' FROM serviceTemplate.prefixName))
+	LEFT JOIN
+		tblServiceTemapleInboundTariff tariff ON serviceTemplate.ServiceTemplateId = tariff.ServiceTemplateID
+	WHERE
+		tariff.ServiceTemapleInboundTariffId IS NULL;
+
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `getTerminationRateTableCompanyIDList`;
+DELIMITER //
+CREATE PROCEDURE `getTerminationRateTableCompanyIDList`()
+BEGIN
+
+	-- get all company list
+	INSERT INTO tmp_RateANDTermination (CompanyId)
+	SELECT DISTINCT CompanyID from tblCompany;
+
+	-- update the RateTableId if exist against that company
+	UPDATE
+		tmp_RateANDTermination temp
+	JOIN
+	(
+		SELECT
+			rateTable.CompanyId AS CompanyId, MAX(rateTable.RateTableId) AS RateTableId
+		FROM
+			tblRateTable rateTable
+		INNER JOIN
+			tblRateTableRate termRate ON termRate.RateTableId = rateTable.RateTableId
+		LEFT JOIN
+			tblRateTableRateAA AA ON AA.RateTableId = rateTable.RateTableId
+		WHERE
+			AA.RateTableRateAAID IS NULL
+			AND termRate.EffectiveDate <= date(NOW())
+			AND rateTable.`Type` = 1
+			AND rateTable.AppliedTo != 2
+			AND rateTable.`Status` = 1
+		GROUP BY
+			rateTable.CompanyId
+	) temp2 ON temp.CompanyId = temp2.CompanyId
+	SET
+		temp.RateTableId = temp2.RateTableId
+	WHERE
+		temp.CompanyId = temp2.CompanyId;
+
+	-- update rateTable if Partner = that partner
+	UPDATE
+		tmp_RateANDTermination temp
+	JOIN
+	(
+		SELECT
+			res.ChildCompanyID AS CompanyID, MAX(rateTable.RateTableId) AS RateTableId
+		FROM
+			tblRateTable rateTable
+		INNER JOIN
+			tblRateTableRate termRate ON termRate.RateTableId = rateTable.RateTableId
+		LEFT JOIN
+			tblRateTableRateAA AA ON AA.RateTableId = rateTable.RateTableId
+		INNER JOIN
+			tblReseller res ON res.ResellerID = rateTable.Reseller
+		WHERE
+			AA.RateTableRateAAID IS NULL
+			AND termRate.EffectiveDate <= date(NOW())
+			AND rateTable.`Type` = 1
+			AND rateTable.AppliedTo = 3
+			AND rateTable.`Status` = 1
+		GROUP BY
+			res.ChildCompanyID
+	) temp2 ON temp.CompanyId = temp2.CompanyID
+	SET
+		temp.RateTableId = temp2.RateTableId
+	WHERE
+		temp.RateTableId IS NULL;
+
+	-- If not found any rateTable against that company then get Partner=All RateTable and Update against that company
+	UPDATE
+		tmp_RateANDTermination temp
+	JOIN
+	(
+		SELECT
+			MAX(rateTable.RateTableId) AS RateTableId
+		FROM
+			tblRateTable rateTable
+		INNER JOIN
+			tblRateTableRate termRate ON termRate.RateTableId = rateTable.RateTableId
+		LEFT JOIN
+			tblRateTableRateAA AA ON AA.RateTableId = rateTable.RateTableId
+		WHERE
+			AA.RateTableRateAAID IS NULL
+			AND termRate.EffectiveDate <= date(NOW())
+			AND rateTable.`Type` = 1
+			AND rateTable.AppliedTo = 3
+			AND rateTable.`Status` = 1
+			AND rateTable.`Reseller` = -1
+		GROUP BY
+			rateTable.CompanyID
+	) temp2 ON temp.RateTableId IS NULL
+	SET
+		temp.RateTableId = temp2.RateTableId
+	WHERE
+		temp.RateTableId IS NULL;
+
+END//
+DELIMITER ;
