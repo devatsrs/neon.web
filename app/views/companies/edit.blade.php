@@ -218,7 +218,7 @@
                         </div>
                         <label for=" field-1" class="col-sm-2 control-label">Country</label>
                         <div class="col-sm-4">
-                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control select2 small"))}}
+                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control select2"))}}
                         </div>
                     </div>
                 </div>

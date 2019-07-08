@@ -120,6 +120,8 @@ class Invoice extends \Eloquent {
             }
 
             $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
+            //Log::info("Pdf Reseller");
+            //Log::info(print_r($Reseller, true));
             //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($Reseller->LogoUrl) || AmazonS3::unSignedUrl($Reseller->LogoAS3Key, $Account->CompanyId) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
@@ -134,8 +136,9 @@ class Invoice extends \Eloquent {
             @chmod($logo,0777);
 
             //$InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
-            Log::info('date format: '. $Reseller->InvoiceDateFormat);
-            $common_name = Str::slug($Account->AccountName.'-'.$Invoice->FullInvoiceNumber.'-'.date(invoice_date_fomat($Reseller->InvoiceDateFormat),strtotime($Invoice->IssueDate)).'-'.$InvoiceID);
+            $dateFormat = isset($Reseller->InvoiceDateFormat) ? $Reseller->InvoiceDateFormat : '';
+            Log::info('date format: '. $dateFormat);
+            $common_name = Str::slug($Account->AccountName.'-'.$Invoice->FullInvoiceNumber.'-'.date(invoice_date_fomat($dateFormat),strtotime($Invoice->IssueDate)).'-'.$InvoiceID);
 
             $file_name = 'Invoice--' .$common_name . '.pdf';
             $htmlfile_name = 'Invoice--' .$common_name . '.html';
