@@ -383,7 +383,7 @@ class RateTablesController extends \BaseController {
                 $RateTableID                = $id;
                 $RateTableRateID            = $data['RateTableRateID'];
 
-                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                if((empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') && !empty($data['TimezonesID'])) {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
@@ -550,7 +550,7 @@ class RateTablesController extends \BaseController {
                 $OriginationRateID          = !empty($OriginationRateID) ? $OriginationRateID : 'NULL';
                 $RoutingCategoryID          = !empty($RoutingCategoryID) ? $RoutingCategoryID : 'NULL';
 
-                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                if((empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') && !empty($data['TimezonesID'])) {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
@@ -608,7 +608,7 @@ class RateTablesController extends \BaseController {
                 $RateTableID                = $id;
                 $RateTableRateID            = $data['RateTableRateID'];
 
-                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                if((empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') && !empty($data['TimezonesID'])) {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
@@ -666,7 +666,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                if((empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') && !empty($data['TimezonesID'])) {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
                 $query = "call prc_RateTableDIDRateApprove (" . $RateTableID . ",'" . $RateTableDIDRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['OriginationCode'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . "," . $criteria['City'] . "," . $criteria['Tariff'] . ",'" . $username . "',".$p_criteria.",".$action.")";
@@ -708,7 +708,7 @@ class RateTablesController extends \BaseController {
                 if (empty($data['RateTablePKGRateID']) && !empty($data['criteria'])) {
                     $p_criteria = 1;
                 }
-                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                if((empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') && !empty($data['TimezonesID'])) {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
@@ -1556,7 +1556,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                if((empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') && !empty($data['TimezonesID'])) {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
@@ -1617,7 +1617,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                if((empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') && !empty($data['TimezonesID'])) {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
@@ -1727,7 +1727,7 @@ class RateTablesController extends \BaseController {
                 $RateTableID                = $id;
                 $RateTablePKGRateID         = $data['RateTablePKGRateID'];
 
-                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                if((empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') && !empty($data['TimezonesID'])) {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
@@ -1790,7 +1790,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                if((empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') && !empty($data['TimezonesID'])) {
                     $criteria['TimezonesID'] = $data['TimezonesID'];
                 }
 
