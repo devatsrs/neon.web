@@ -997,8 +997,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_subscription/dynamicField/update_bulk_itemtypes_status', 'BillingSubscriptionController@UpdateBulkItemTypeStatus');
 	Route::any('/billing_subscription/dynamicField/typesAccess/{data}', 'BillingSubscriptionController@getSubscritionsType');
 	Route::any('/billing_subscription/dynamicField/fieldAccess', 'BillingSubscriptionController@getSubscritionsField');
-
-
+	
+	//ActiveCall	
+	Route::any('/ActiveCalls', 'ActiveCallController@index');
+	Route::any('/ActiveCalls/ajax_datagrid/{type}', 'ActiveCallController@ajax_datagrid');	
 
 
 	//InvoiceTemplate
