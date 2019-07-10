@@ -3410,7 +3410,8 @@ BEGIN
 		ApprovedDate,
 		RateCurrency,
 		ConnectionFeeCurrency,
-		Notes
+		Notes,
+		VendorID
 	)
 	SELECT DISTINCT -- null ,
 		`RateTableRateID`,
@@ -3438,7 +3439,8 @@ BEGIN
 		`ApprovedDate`,
 		`RateCurrency`,
 		`ConnectionFeeCurrency`,
-		concat('Ends Today rates @ ' , now() ) as `Notes`
+		concat('Ends Today rates @ ' , now() ) as `Notes`,
+		VendorID
 	FROM tblRateTableRate
 	WHERE FIND_IN_SET(RateTableId,p_RateTableIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(TimezonesID,p_TimezonesIDs) != 0) AND EndDate <= NOW();
 
@@ -3510,7 +3512,8 @@ BEGIN
 		ApprovedDate,
 		RateCurrency,
 		ConnectionFeeCurrency,
-		Notes
+		Notes,
+		VendorID
 	)
 	SELECT DISTINCT -- null ,
 		`RateTableRateAAID`,
@@ -3538,7 +3541,8 @@ BEGIN
 		`ApprovedDate`,
 		`RateCurrency`,
 		`ConnectionFeeCurrency`,
-		concat('Ends Today rates @ ' , now() ) as `Notes`
+		concat('Ends Today rates @ ' , now() ) as `Notes`,
+		VendorID
 	FROM tblRateTableRateAA
 	WHERE
 		FIND_IN_SET(RateTableId,p_RateTableIds) != 0
@@ -8067,6 +8071,7 @@ ThisSP:BEGIN
 		`ApprovedStatus` TINYINT(4),
 		`ApprovedBy` VARCHAR(50),
 		`ApprovedDate` DATETIME,
+		`VendorID` INT(11),
 		`RateTablePKGRateID` INT(11),
 		INDEX tmp_RateTablePKGRate_RateID (`RateID`,`TimezonesID`,`EffectiveDate`)
 	);
@@ -8094,6 +8099,7 @@ ThisSP:BEGIN
 		rtr.ApprovedStatus AS ApprovedStatus,
 		p_ApprovedBy AS ApprovedBy,
 		NOW() AS ApprovedDate,
+		rtr.VendorID,
 		rtr.RateTablePKGRateID
 	FROM
 		tblRateTablePKGRateAA rtr
@@ -8201,7 +8207,8 @@ ThisSP:BEGIN
 			ModifiedBy,
 			ApprovedStatus,
 			ApprovedBy,
-			ApprovedDate
+			ApprovedDate,
+			VendorID
 		)
 		SELECT
 			RateID,
@@ -8223,7 +8230,8 @@ ThisSP:BEGIN
 			ModifiedBy,
 			v_StatusApproved_ AS ApprovedStatus,
 			ApprovedBy,
-			ApprovedDate
+			ApprovedDate,
+			VendorID
 		FROM
 			tmp_RateTablePKGRate2_
 		WHERE
@@ -9538,6 +9546,291 @@ BEGIN
 		temp.RateTableId = temp2.RateTableId
 	WHERE
 		temp.RateTableId IS NULL;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_ArchiveOldRateTableDIDRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_ArchiveOldRateTableDIDRate`(
+	IN `p_RateTableIds` LONGTEXT,
+	IN `p_TimezonesIDs` LONGTEXT,
+	IN `p_DeletedBy` TEXT
+)
+BEGIN
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	UPDATE
+		tblRateTableDIDRate rtr
+	INNER JOIN tblRateTableDIDRate rtr2
+		ON rtr2.RateTableId = rtr.RateTableId
+		AND rtr2.RateID = rtr.RateID
+		AND rtr2.OriginationRateID = rtr.OriginationRateID
+		AND rtr2.TimezonesID = rtr.TimezonesID
+		AND rtr2.City = rtr.City
+		AND rtr2.Tariff = rtr.Tariff
+	SET
+		rtr.EndDate=NOW()
+	WHERE
+		(FIND_IN_SET(rtr.RateTableId,p_RateTableIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(rtr.TimezonesID,p_TimezonesIDs) != 0) AND rtr.EffectiveDate <= NOW()) AND
+		(FIND_IN_SET(rtr2.RateTableId,p_RateTableIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(rtr2.TimezonesID,p_TimezonesIDs) != 0) AND rtr2.EffectiveDate <= NOW()) AND
+		rtr.EffectiveDate < rtr2.EffectiveDate AND rtr.RateTableDIDRateID != rtr2.RateTableDIDRateID;
+
+
+	INSERT INTO tblRateTableDIDRateArchive
+	(
+		RateTableDIDRateID,
+		OriginationRateID,
+		RateId,
+		RateTableId,
+		TimezonesID,
+		EffectiveDate,
+		EndDate,
+		City,
+		Tariff,
+		AccessType,
+		OneOffCost,
+		MonthlyCost,
+		CostPerCall,
+		CostPerMinute,
+		SurchargePerCall,
+		SurchargePerMinute,
+		OutpaymentPerCall,
+		OutpaymentPerMinute,
+		Surcharges,
+		Chargeback,
+		CollectionCostAmount,
+		CollectionCostPercentage,
+		RegistrationCostPerNumber,
+		OneOffCostCurrency,
+		MonthlyCostCurrency,
+		CostPerCallCurrency,
+		CostPerMinuteCurrency,
+		SurchargePerCallCurrency,
+		SurchargePerMinuteCurrency,
+		OutpaymentPerCallCurrency,
+		OutpaymentPerMinuteCurrency,
+		SurchargesCurrency,
+		ChargebackCurrency,
+		CollectionCostAmountCurrency,
+		RegistrationCostPerNumberCurrency,
+		created_at,
+		updated_at,
+		CreatedBy,
+		ModifiedBy,
+		ApprovedStatus,
+		ApprovedBy,
+		ApprovedDate,
+		Notes,
+		VendorID
+	)
+	SELECT DISTINCT -- null ,
+		`RateTableDIDRateID`,
+		`OriginationRateID`,
+		`RateId`,
+		`RateTableId`,
+		`TimezonesID`,
+		`EffectiveDate`,
+		IFNULL(`EndDate`,date(now())) as EndDate,
+		`City`,
+		`Tariff`,
+		`AccessType`,
+		`OneOffCost`,
+		`MonthlyCost`,
+		`CostPerCall`,
+		`CostPerMinute`,
+		`SurchargePerCall`,
+		`SurchargePerMinute`,
+		`OutpaymentPerCall`,
+		`OutpaymentPerMinute`,
+		`Surcharges`,
+		`Chargeback`,
+		`CollectionCostAmount`,
+		`CollectionCostPercentage`,
+		`RegistrationCostPerNumber`,
+		`OneOffCostCurrency`,
+        `MonthlyCostCurrency`,
+        `CostPerCallCurrency`,
+        `CostPerMinuteCurrency`,
+        `SurchargePerCallCurrency`,
+        `SurchargePerMinuteCurrency`,
+        `OutpaymentPerCallCurrency`,
+        `OutpaymentPerMinuteCurrency`,
+        `SurchargesCurrency`,
+        `ChargebackCurrency`,
+        `CollectionCostAmountCurrency`,
+        `RegistrationCostPerNumberCurrency`,
+		now() as `created_at`,
+		`updated_at`,
+		p_DeletedBy AS `CreatedBy`,
+		`ModifiedBy`,
+		`ApprovedStatus`,
+		`ApprovedBy`,
+		`ApprovedDate`,
+		concat('Ends Today rates @ ' , now() ) as `Notes`,
+		VendorID
+	FROM tblRateTableDIDRate
+	WHERE FIND_IN_SET(RateTableId,p_RateTableIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(TimezonesID,p_TimezonesIDs) != 0) AND EndDate <= NOW();
+
+
+
+	DELETE  rtr
+	FROM tblRateTableDIDRate rtr
+	inner join tblRateTableDIDRateArchive rtra
+		on rtr.RateTableDIDRateID = rtra.RateTableDIDRateID
+	WHERE  FIND_IN_SET(rtr.RateTableId,p_RateTableIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(rtr.TimezonesID,p_TimezonesIDs) != 0);
+
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_ArchiveOldRateTableDIDRateAA`;
+DELIMITER //
+CREATE PROCEDURE `prc_ArchiveOldRateTableDIDRateAA`(
+	IN `p_RateTableIds` LONGTEXT,
+	IN `p_TimezonesIDs` LONGTEXT,
+	IN `p_DeletedBy` TEXT
+)
+BEGIN
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	UPDATE
+		tblRateTableDIDRateAA rtr
+	INNER JOIN tblRateTableDIDRateAA rtr2
+		ON rtr2.RateTableId = rtr.RateTableId
+		AND rtr2.RateID = rtr.RateID
+		AND rtr2.OriginationRateID = rtr.OriginationRateID
+		AND rtr2.City = rtr.City
+		AND rtr2.Tariff = rtr.Tariff
+		AND rtr2.TimezonesID = rtr.TimezonesID
+	SET
+		rtr.EndDate=NOW()
+	WHERE
+		(FIND_IN_SET(rtr.RateTableId,p_RateTableIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(rtr.TimezonesID,p_TimezonesIDs) != 0) AND rtr.EffectiveDate <= NOW()) AND
+		(FIND_IN_SET(rtr2.RateTableId,p_RateTableIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(rtr2.TimezonesID,p_TimezonesIDs) != 0) AND rtr2.EffectiveDate <= NOW()) AND
+		rtr.EffectiveDate < rtr2.EffectiveDate AND rtr.RateTableDIDRateAAID != rtr2.RateTableDIDRateAAID;
+
+
+	INSERT INTO tblRateTableDIDRateArchive
+	(
+		RateTableDIDRateID,
+		OriginationRateID,
+		RateId,
+		RateTableId,
+		TimezonesID,
+		EffectiveDate,
+		EndDate,
+		City,
+		Tariff,
+		AccessType,
+		OneOffCost,
+		MonthlyCost,
+		CostPerCall,
+		CostPerMinute,
+		SurchargePerCall,
+		SurchargePerMinute,
+		OutpaymentPerCall,
+		OutpaymentPerMinute,
+		Surcharges,
+		Chargeback,
+		CollectionCostAmount,
+		CollectionCostPercentage,
+		RegistrationCostPerNumber,
+		OneOffCostCurrency,
+		MonthlyCostCurrency,
+		CostPerCallCurrency,
+		CostPerMinuteCurrency,
+		SurchargePerCallCurrency,
+		SurchargePerMinuteCurrency,
+		OutpaymentPerCallCurrency,
+		OutpaymentPerMinuteCurrency,
+		SurchargesCurrency,
+		ChargebackCurrency,
+		CollectionCostAmountCurrency,
+		RegistrationCostPerNumberCurrency,
+		created_at,
+		updated_at,
+		CreatedBy,
+		ModifiedBy,
+		ApprovedStatus,
+		ApprovedBy,
+		ApprovedDate,
+		Notes,
+		VendorID
+	)
+	SELECT DISTINCT -- null ,
+		`RateTableDIDRateAAID`,
+		`OriginationRateID`,
+		`RateId`,
+		`RateTableId`,
+		`TimezonesID`,
+		`EffectiveDate`,
+		IFNULL(`EndDate`,date(now())) as EndDate,
+		`City`,
+		`Tariff`,
+		`AccessType`,
+		`OneOffCost`,
+		`MonthlyCost`,
+		`CostPerCall`,
+		`CostPerMinute`,
+		`SurchargePerCall`,
+		`SurchargePerMinute`,
+		`OutpaymentPerCall`,
+		`OutpaymentPerMinute`,
+		`Surcharges`,
+		`Chargeback`,
+		`CollectionCostAmount`,
+		`CollectionCostPercentage`,
+		`RegistrationCostPerNumber`,
+		`OneOffCostCurrency`,
+        `MonthlyCostCurrency`,
+        `CostPerCallCurrency`,
+        `CostPerMinuteCurrency`,
+        `SurchargePerCallCurrency`,
+        `SurchargePerMinuteCurrency`,
+        `OutpaymentPerCallCurrency`,
+        `OutpaymentPerMinuteCurrency`,
+        `SurchargesCurrency`,
+        `ChargebackCurrency`,
+        `CollectionCostAmountCurrency`,
+        `RegistrationCostPerNumberCurrency`,
+		now() as `created_at`,
+		`updated_at`,
+		p_DeletedBy AS `CreatedBy`,
+		`ModifiedBy`,
+		`ApprovedStatus`,
+		`ApprovedBy`,
+		`ApprovedDate`,
+		concat('Ends Today rates @ ' , now() ) as `Notes`,
+		VendorID
+	FROM tblRateTableDIDRateAA
+	WHERE
+		FIND_IN_SET(RateTableId,p_RateTableIds) != 0
+		AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(TimezonesID,p_TimezonesIDs) != 0)
+		AND EndDate <= NOW()
+		AND ApprovedStatus = 2; -- only rejected rates will be archive
+
+
+
+	DELETE  rtr
+	FROM tblRateTableDIDRateAA rtr
+	WHERE
+		FIND_IN_SET(rtr.RateTableId,p_RateTableIds) != 0
+		AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(rtr.TimezonesID,p_TimezonesIDs) != 0)
+		AND EndDate <= NOW();
+
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
 DELIMITER ;
