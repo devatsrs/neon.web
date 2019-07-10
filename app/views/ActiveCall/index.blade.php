@@ -122,8 +122,7 @@
             <th width="8%">Prefix</th>
             <th width="10%">Connect Time</th>
             <th width="10%">Cost</th>
-            <th width="10%">Trunk</th>
-            <th width="10%">Service</th>
+            <th width="10%">Duration</th>
             <th width="10%">Type</th>
 
         </tr>
@@ -217,10 +216,7 @@
                                 "bSortable": false // Cost
                             },
                             {
-                                "bSortable": false // Trunk
-                            },
-                            {
-                                "bSortable": false // Service
+                                "bSortable": false // Duration
                             },
                             {
                                 "bSortable": false // Type
