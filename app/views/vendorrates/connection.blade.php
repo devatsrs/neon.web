@@ -584,7 +584,10 @@
                             "bSortable": false,
                             mRender: function(id, type, full) {
                                 var RateTable = full[21];
-                                return RateTable;
+                                var Url = "{{ URL::to('rate_tables/{id}/view')}}";
+                                Url  = Url .replace( '{id}', full[10] );
+                                RateTableName = '<a href="'+Url+'">'+ RateTable +'</a?'
+                                return RateTableName;
                             }
                         }, //8 RateTable
                         {"bSortable": true,

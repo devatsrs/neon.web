@@ -640,6 +640,7 @@ class CompanyGateway extends \Eloquent {
         }
         log::info('-- Create Summary Live END--');
 
+        /*
         log::info('-- Account Balance Generator --');
         $AccountBalanceGeneratorCommandID = CronJobCommand::getCronJobCommandIDByCommand('accountbalancegenerator',$CompanyID);
         $AccountBalanceGenerator_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$AccountBalanceGeneratorCommandID])->count();
@@ -658,6 +659,7 @@ class CompanyGateway extends \Eloquent {
             CronJob::create($AccountBalanceGeneratorLivedata);
         }
         log::info('-- Account Balance Generator--');
+        */
 
         /*log::info('-- System Alert --');
         $SystemAlertCommandID = CronJobCommand::getCronJobCommandIDByCommand('neonalerts',$CompanyID);
