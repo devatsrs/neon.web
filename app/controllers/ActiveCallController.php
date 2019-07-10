@@ -37,7 +37,7 @@ class ActiveCallController extends \BaseController {
 
         $query = "call prc_getActiveCalls(".$CompanyID.",".$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."','".$data['CLDPrefix']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['CallType'].",".$data['TrunkID'].",".$data['ServiceID'].",".$data['CompanyGatewayID']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrvcdr')->select($query.',1)');
+            $excel_data  = DB::connection('sqlsrvroutingengine')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ActiveCall.csv';
@@ -51,7 +51,7 @@ class ActiveCallController extends \BaseController {
         }
         $query .=',0)';
 
-        return DataTableSql::of($query,'sqlsrvcdr')->make();
+        return DataTableSql::of($query,'sqlsrvroutingengine')->make();
     }
 
 
