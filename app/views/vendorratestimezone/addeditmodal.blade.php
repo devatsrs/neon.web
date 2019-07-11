@@ -19,7 +19,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="control-label">Country*</label>
-                                {{Form::select('Country',$CountryList,'',array("class"=>"form-control select2 small"))}}
+                                {{Form::select('Country',$CountryList,'',array("class"=>"form-control select2"))}}
                             </div>
                         </div>
                         <div class="col-md-12">
