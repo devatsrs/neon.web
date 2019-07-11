@@ -27,7 +27,7 @@ class ActiveCallController extends \BaseController {
         $data['CLI']				     =		$data['CLI']!= ''?$data['CLI']:'';
         $data['CLD']				     =		$data['CLD']!= ''?$data['CLD']:'';
         $data['CLDPrefix']				 =		$data['CLDPrefix']!= ''?$data['CLDPrefix']:'';
-        $data['CallType'] 				 = 		$data['CallType']!= ''?$data['CallType']: '';
+        $data['CallType'] 				 = 		$data['CallType']!= ''?$data['CallType']:0;
         // $data['TrunkID'] 				 = 		$data['TrunkID']!= ''?$data['TrunkID']:0;
         // $data['ServiceID'] 				 = 		$data['ServiceID']!= ''?$data['ServiceID']:0;
         // $data['CompanyGatewayID']		 =		$data['CompanyGatewayID']!= ''?$data['CompanyGatewayID']:0;
