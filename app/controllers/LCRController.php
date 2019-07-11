@@ -316,7 +316,7 @@ class LCRController extends \BaseController {
         $username       = User::get_user_full_name();
 
         $RateTableRateID = $data["RateTableRateID"];
-        $RateTableID    = RateTableRate::find($RateTableRateID)->pluck('RateTableId');
+        $RateTableID    = RateTableRate::where(['RateTableRateID'=>$RateTableRateID])->pluck('RateTableId');
 
         try{
             $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . ",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'" . $username . "'," . $p_criteria . "," . $action . ")";
@@ -342,7 +342,7 @@ class LCRController extends \BaseController {
         $username       = User::get_user_full_name();
 
         $RateTableRateID = $data["RateTableRateID"];
-        $RateTableID    = RateTableRate::find($RateTableRateID)->pluck('RateTableId');
+        $RateTableID    = RateTableRate::where(['RateTableRateID'=>$RateTableRateID])->pluck('RateTableId');
 
         try{
             $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . ",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'" . $username . "'," . $p_criteria . "," . $action . ")";

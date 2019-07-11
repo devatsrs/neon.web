@@ -21,7 +21,7 @@
                     <label for="Active" class="control-label">Category</label>
                     {{Form::select('DIDCategoryID',[''=>'Select']+$Categories,'',array("class"=>"form-control select2 small DIDCategoryID"))}}
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="filter-TrunkID-box">
                     <label for="Active" class="control-label">Trunk</label>
                     {{ Form::select('Trunk', $Trunks, '', array("class"=>"form-control select2 small","id"=>"Trunk")) }}
                 </div>
@@ -282,13 +282,18 @@
 
         $("#rategenerator_filter select[name=SelectType]").on('change',function(){
            var Type=$(this).val();
+            $('#filter-TrunkID-box').hide();
             $('#did_Div').find(".DIDCategoryID").select2("val", "");
+            if(Type == {{RateTable::RATE_TABLE_TYPE_TERMINATION}}) {
+                $('#filter-TrunkID-box').show();
+            }
             if(Type=='{{$DIDType}}'){
                 $("#did_Div").removeClass('hidden');
             }else{
                 $("#did_Div").addClass('hidden');
             }
         });
+        $("#rategenerator_filter select[name=SelectType]").trigger('change');
 
         $('body').on('click', '.generate_rate.update', function (e) {
 

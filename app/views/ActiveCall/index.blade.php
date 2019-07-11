@@ -30,7 +30,7 @@
                     {{ Form::select('CallType',array(''=>'Both','0' => "Inbound", '1' => "Outbound" ),'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
 
-                <div class="form-group">
+                {{-- <div class="form-group">
                     <label class="control-label" for="field-1">Trunk</label>
                     {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
@@ -38,7 +38,7 @@
                 <div class="form-group">
                     <label class="control-label" for="field-1">Service</label>
                     {{ Form::select('ServiceID',$Services,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                </div>
+                </div> --}}
 
                 <div class="form-group">
                     <label class="control-label" for="field-1">Gateway</label>
@@ -122,8 +122,7 @@
             <th width="8%">Prefix</th>
             <th width="10%">Connect Time</th>
             <th width="10%">Cost</th>
-            <th width="10%">Trunk</th>
-            <th width="10%">Service</th>
+            <th width="10%">Duration</th>
             <th width="10%">Type</th>
 
         </tr>
@@ -217,10 +216,7 @@
                                 "bSortable": false // Cost
                             },
                             {
-                                "bSortable": false // Trunk
-                            },
-                            {
-                                "bSortable": false // Service
+                                "bSortable": false // Duration
                             },
                             {
                                 "bSortable": false // Type

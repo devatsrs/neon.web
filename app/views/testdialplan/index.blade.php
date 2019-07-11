@@ -15,7 +15,12 @@
                     <input class="form-control" name="Search" id="Search"  type="text" >
                 </div>--}}
                 <div class="form-group A">
-                    <label for="field-1" class="control-label">Phone Number</label>
+                    <label class="control-label">Origination Phone Number</label>
+                    <input type="text" value="" placeholder="Origination Phone Number" class="form-control" name="OriginationCode">
+                </div>
+
+                <div class="form-group A">
+                    <label class="control-label">Phone Number</label>
                     <input type="text" value="" placeholder="Phone Number" id="field-1" required="" class="form-control" name="DestinationCode">
                 </div>
 
@@ -79,6 +84,7 @@
                 <tr>
                     
                     <th></th>
+                    <th>Origination</th>
                     <th>Destination</th>
                     <th>Vendor</th>
                     <th>Connection</th>
@@ -188,6 +194,7 @@ $('#filter-button-toggle').show();
             });
             $("#testdialplan_form").submit(function (e) {
                 $('#table-4').show();
+                $searchFilter.OriginationCode = $("#testdialplan_form [name='OriginationCode']").val();
                 $searchFilter.DestinationCode = $("#testdialplan_form [name='DestinationCode']").val();
                 $searchFilter.routingprofile = $("#testdialplan_form select[name='routingprofile']").val();
                 $searchFilter.countryList = $("#testdialplan_form select[name='countryList']").val();
@@ -206,22 +213,22 @@ $('#filter-button-toggle').show();
                     "aaSorting": [[1, 'asc']],
                     "fnServerParams": function (aoData) {
                         aoData.push({"name": "DestinationCode", "value": $searchFilter.DestinationCode}, {"name": "routingprofile","value": $searchFilter.routingprofile},{"name": "countryList", "value": $searchFilter.countryList},
-                                {"name": "StartDate", "value": $searchFilter.StartDate},{"name": "StartHour", "value": $searchFilter.StartHour});
+                                {"name": "StartDate", "value": $searchFilter.StartDate},{"name": "StartHour", "value": $searchFilter.StartHour},{"name": "OriginationCode", "value": $searchFilter.OriginationCode});
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push({"name": "DestinationCode","value": $searchFilter.DestinationCode}, {"name": "routingprofile", "value": $searchFilter.routingprofile},{"name": "countryList", "value": $searchFilter.countryList},
-                                {"name": "StartDate", "value": $searchFilter.StartDate},{"name": "StartHour", "value": $searchFilter.StartHour});
+                                {"name": "StartDate", "value": $searchFilter.StartDate},{"name": "StartHour", "value": $searchFilter.StartHour},{"name": "OriginationCode", "value": $searchFilter.OriginationCode});
                     },
                     "aoColumns": [
                         {"bSortable": false, mRender: function (id, type, full) { return id;}},
                         {"bSortable": false, mRender: function (id, type, full) { return full[1];}},
-                        {"bSortable": false, mRender: function (id, type, full) {return full[3]; }},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[2];}},
                         {"bSortable": false, mRender: function (id, type, full) { return full[4];}},
-                        {"bSortable": false, mRender: function (id, type, full) { return full[12]; }},
-                        {"bSortable": false, mRender: function (id, type, full) { return full[14];}},
-                            
-                            {"bSortable": false, mRender: function (id, type, full) { return full[16];}},
-                                {"bSortable": false, mRender: function (id, type, full) { return full[15];}},
-                        {"bSortable": false, mRender: function (id, type, full) { return full[6];}},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[5];}},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[13];}},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[15];}},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[17];}},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[16];}},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[7];}},
                     ],
                     "oTableTools": {
                         "aButtons": [

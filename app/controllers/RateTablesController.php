@@ -1006,6 +1006,8 @@ class RateTablesController extends \BaseController {
                 $RateTableRate['Blocked'] = !empty($data['Blocked']) ? $data['Blocked'] : 0;
             }
 
+            $RateTableRate['RoutingCategoryID'] = !empty($RateTableRate['RoutingCategoryID']) ? $RateTableRate['RoutingCategoryID'] : NULL;
+
             $Rate = $RateTableRateModel::insert($RateTableRate);
             $archive_query = "CALL prc_ArchiveOldRateTableRate('".$RateTableRate['RateTableId']."','".$RateTableRate['TimezonesID']."','".$username."');";
         } else if($rateTable->Type == $TypeDID) {
