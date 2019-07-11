@@ -29,7 +29,6 @@
                     <label class="control-label small_label" for="field-1">Type</label>
                     {{ Form::select('CallType',array(''=>'Both','0' => "Inbound", '1' => "Outbound" ),'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
-
                 {{-- <div class="form-group">
                     <label class="control-label" for="field-1">Trunk</label>
                     {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
@@ -40,10 +39,10 @@
                     {{ Form::select('ServiceID',$Services,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div> --}}
 
-                <div class="form-group">
+                {{-- <div class="form-group">
                     <label class="control-label" for="field-1">Gateway</label>
                     {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
-                </div>
+                </div> --}}
 
                 <div class="form-group">
                     <br/>
