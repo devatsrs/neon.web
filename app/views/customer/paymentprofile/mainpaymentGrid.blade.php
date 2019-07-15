@@ -6,7 +6,7 @@
 		@include('customer.paymentprofile.paymentGrid')
 	@endif
 @endif
-@if( $account->PaymentMethod == 'StripeACH' || $account->PaymentMethod == "GoCardLess")
+@if( $account->PaymentMethod == 'StripeACH' || $account->PaymentMethod == "GoCardLess" || $account->PaymentMethod == "AuthorizeNetEcheck")
 	@if(is_StripeACH($account->CompanyId))
 		@include('customer.paymentprofile.bankpaymentGrid')
 	@endif
