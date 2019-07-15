@@ -336,25 +336,25 @@ class AuthorizeNetEcheck {
 
     public function doValidation($data){
 		$ValidationResponse = array();
-		$rules = array(
-			'AccountNumber' => 'required|digits_between:6,19',
-			'RoutingNumber' => 'required',
-			'AccountHolderType' => 'required',
-			'AccountHolderName' => 'required',
-			//'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
-		);
+		// $rules = array(
+		// 	'AccountNumber' => 'required|digits_between:6,19',
+		// 	'RoutingNumber' => 'required',
+		// 	'AccountHolderType' => 'required',
+		// 	'AccountHolderName' => 'required',
+		// 	//'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
+		// );
 
-		$validator = Validator::make($data, $rules);
-		if ($validator->fails()) {
-			$errors = "";
-			foreach ($validator->messages()->all() as $error){
-				$errors .= $error."<br>";
-			}
+		// $validator = Validator::make($data, $rules);
+		// if ($validator->fails()) {
+		// 	$errors = "";
+		// 	foreach ($validator->messages()->all() as $error){
+		// 		$errors .= $error."<br>";
+		// 	}
 
-			$ValidationResponse['status'] = 'failed';
-			$ValidationResponse['message'] = $errors;
-			return $ValidationResponse;
-		}
+		// 	$ValidationResponse['status'] = 'failed';
+		// 	$ValidationResponse['message'] = $errors;
+		// 	return $ValidationResponse;
+		// }
 		$CustomerID = $data['AccountID'];
 		$account = Account::find($CustomerID);
 		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
