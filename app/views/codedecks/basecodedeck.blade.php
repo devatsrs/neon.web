@@ -294,6 +294,13 @@ function ajax_update(fullurl,data){
                                 <input type="hidden" name="CodeDeckId" >
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Type</label>
+                               {{  Form::select('Type', RateType::getRateTypeDropDownList() , '1', array('class' => 'select2 small')) }}
+                                <input type="hidden" name="CodeDeckId" >
+                            </div>
+                        </div>
                     </div>
 
                 </div>
