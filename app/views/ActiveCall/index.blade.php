@@ -27,7 +27,7 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label small_label" for="field-1">Type</label>
-                    {{ Form::select('CallType',array(''=>'Both','0' => "Inbound", '1' => "Outbound" ),'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                    {{ Form::select('CallType',array(''=>'Both','Inbound' => "Inbound", 'Outbound' => "Outbound" ),'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
                 {{-- <div class="form-group">
                     <label class="control-label" for="field-1">Trunk</label>

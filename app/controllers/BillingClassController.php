@@ -194,7 +194,11 @@ class BillingClassController extends \BaseController {
 
         $response =  NeonAPI::request('billing_class/store',$postdata,true,false,false);
         if(!empty($response) && $response->status == 'success'){
-            AccountBilling::where('BillingClassID',$id)->update(['BillingClassID'=>$response->data->BillingClassID]);
+            AccountBilling::join('tblAccount','tblAccount.AccountID','=','tblAccountBilling.AccountID')
+                ->where([
+                    'tblAccountBilling.BillingClassID' => $id,
+                    'tblAccount.CompanyId' => $CompanyID
+                ])->update(['BillingClassID'=>$response->data->BillingClassID]);
             $response->redirect =  URL::to('/billing_class/edit/' . $response->data->BillingClassID);
         }
         return json_response_api($response);

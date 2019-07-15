@@ -111,7 +111,7 @@
                         <input id="vendor_block" name="vendor_block" type="checkbox" value="1">
                     </p>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display:none;"> <!--Hide this as per skype requirement by mam - 07-11-2019-->
                     <label for="field-1" class="control-label">Show All Vendor Codes</label>
                     <p class="make-switch switch-small">
                         <input id="show_customer_rate" name="show_all_vendor_codes" type="checkbox" value="1">
