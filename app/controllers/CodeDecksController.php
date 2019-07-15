@@ -447,7 +447,7 @@ class CodeDecksController extends \BaseController {
     public function base_datagrid(){
 
         $CompanyID = User::get_companyID();
-        $rate_tables = BaseCodeDeck::where(["CompanyId" => $CompanyID])->select(["CodeDeckName","updated_at","ModifiedBy","CodeDeckId","DefaultCodedeck"]);
+        $rate_tables = BaseCodeDeck::where(["CompanyId" => $CompanyID])->select(["CodeDeckName","updated_at","ModifiedBy","CodeDeckId","DefaultCodedeck","Type"]);
         return Datatables::of($rate_tables)->make();
     }
     public function updatecodedeck($id){

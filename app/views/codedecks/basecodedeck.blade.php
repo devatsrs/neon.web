@@ -78,7 +78,7 @@ var postdata;
                         show_ = show_.replace( '{id}', id);
                         action = '<a href="'+show_+'" class="btn btn-default btn-sm tooltip-primary" data-original-title="View" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>';
                         @if(User::checkCategoryPermission('CodeDecks','Edit') )
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-codedeck btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
+                            action += ' <a data-type = "'+full[5]+'" data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-codedeck btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Delete') )
                         if(full[4] == 0) {
@@ -161,6 +161,7 @@ var postdata;
         $('#add-new-codedeck-form').trigger("reset");
         $("#add-new-codedeck-form [name='CodedeckName']").val($(this).attr('data-name'));
         $("#add-new-codedeck-form [name='CodeDeckId']").val($(this).attr('data-id'));
+        $("#add-new-codedeck-form [name='Type']").val($(this).attr('data-type')).trigger('change');
         $('#add-new-modal-codedeck h4').html('Edit Codedeck');
         $('#add-new-modal-codedeck').modal('show');
     });
