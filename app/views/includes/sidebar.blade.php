@@ -263,7 +263,7 @@
       <li class=""> <a href="#"> <i class="fa fa-credit-card" ></i> <span>API</span> </a>
         <ul>
           {{--<li >  <a href="{{Url::to('/VOS/AccountBalance')}}"> <span>Account Balance</span> </a> </li>--}}
-          <li >  <a href="{{Url::to('/VOS/AccountIP')}}"> <span>Account IP</span> </a> </li>
+          <li >  <a href="{{Url::to('/VOS/mapping_gateway')}}"> <span>Account</span> </a> </li>
 
           @if((CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1' || CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1') && User::checkCategoryPermission('ActiveCall','View'))
             <li >  <a href="{{$ActiveCallPath}}"> <span>Active Calls</span> </a> </li>

@@ -665,6 +665,7 @@ DELIMITER ;
 
 
 
+DROP TABLE IF EXISTS `tblVosIP`;
 CREATE TABLE IF NOT EXISTS `tblVosIP` (
   `VOSIPID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) NOT NULL,
@@ -678,8 +679,11 @@ CREATE TABLE IF NOT EXISTS `tblVosIP` (
   `updated_at` datetime DEFAULT NULL,
   `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `LockType` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `NumberPrefix` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`VOSIPID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 
 
@@ -1025,6 +1029,9 @@ END//
 DELIMITER ;
 
 
+
+
+-- Dumping structure for procedure NeonRMDev.prc_getVOSAccountIP
 DROP PROCEDURE IF EXISTS `prc_getVOSAccountIP`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSAccountIP`(
@@ -1036,6 +1043,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSAccountIP`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_Export` INT
+
 
 )
 BEGIN
@@ -1059,14 +1067,18 @@ BEGIN
 		SELECT   
 			
 			vi.AccountName,
-			vi.RemoteIps,
-			CASE WHEN vi.IPType=1 THEN 'Vendor' ELSE 'Customer' END as IPType
+			vi.Name,
+			vi.LockType,
+			vi.RemoteIps
+			
+			-- CASE WHEN vi.IPType=1 THEN 'Vendor' ELSE 'Customer' END as IPType
 									
 		FROM tblVosIP vi		
         WHERE vi.CompanyID = p_CompanyID
         AND vi.AccountName!=''
         AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
         AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
+        AND vi.IPType = 0
 		  group by  vi.AccountName,vi.RemoteIps,vi.IPType	
 		  
          ORDER BY
@@ -1092,6 +1104,7 @@ BEGIN
 			WHERE vi.CompanyID = p_CompanyID
 			AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
         AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
+         AND vi.IPType = 0
 		  GROUP BY  vi.AccountName,vi.RemoteIps,vi.IPType;
             
 
@@ -1103,13 +1116,17 @@ BEGIN
 
 			SELECT   
 				vi.AccountName,
-				vi.RemoteIps,
-				CASE WHEN vi.IPType=1 THEN 'Vendor' ELSE 'Customer' END as IPType
+				vi.Name,
+				vi.LockType,
+				vi.RemoteIps
+				
+			--	CASE WHEN vi.IPType=1 THEN 'Vendor' ELSE 'Customer' END as IPType
 									
 			FROM tblVosIP vi		
 			WHERE vi.CompanyID = p_CompanyID
 			AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
         AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
+         AND vi.IPType = 0
 		  GROUP BY  vi.AccountName,vi.RemoteIps,vi.IPType;
 
 	END IF;
@@ -1202,11 +1219,11 @@ CREATE TABLE IF NOT EXISTS `tblVOSVendorFeeRateGroup` (
 
 DROP PROCEDURE IF EXISTS `prc_VOSImportCustomerFeeRate`;
 DELIMITER //
-CREATE PROCEDURE `prc_VOSImportCustomerFeeRate`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_VOSImportCustomerFeeRate`(
 	IN `p_CompanyID` INT	
 
-
 )
+    DETERMINISTIC
 sp:BEGIN
 	DECLARE v_AccountIds LONGTEXT;
 	DECLARE v_TrunkIds LONGTEXT; 
@@ -1272,7 +1289,8 @@ sp:BEGIN
 						ct.AccountID
 					FROM tblVOSCustomerFeeRateGroup cfg
 					inner join tblCustomerTrunk ct 
-						on cfg.FeeRateGroup = ct.Prefix 
+					--	on cfg.FeeRateGroup = ct.Prefix 
+					on cfg.VosAccount = ct.Prefix
 				--	inner join tblRate r 
 				--		on r.CompanyID = ct.CompanyID  
 				--		and r.CodedeckID = ct.CodedeckID 
@@ -1347,10 +1365,9 @@ sp:BEGIN
 			
 		--	SELECT * FROM tmp_customer_feerate_group;
 			
-
-			CALL prc_LoadVOSCustomerRates(p_CompanyID);
-			
-						
+		
+			/*CALL prc_LoadVOSCustomerRates(p_CompanyID);*/
+								
 			-- SELECT * FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID JOIN tblRate c ON c.RateID=a.RateID;
 		
 					
@@ -1365,32 +1382,41 @@ sp:BEGIN
 			join tmp_customer_rates_id d ON d.CustomerRateID=c.CustomerRateID;*/
 		
 			--  Delete from vos table which rates and Code matches 
-			DELETE a
+			DELETE cfg
 			FROM 
-			tmp_customer_feerate_group a 
-			INNER join tblRate b 
-				ON a.AreaCode=b.Code  
-				AND b.CompanyID = p_CompanyID
-				AND b.CodeDeckId = a.CodeDeckId
-			join tblCustomerRate c ON c.RateID=b.RateID AND c.Rate=a.Fee AND c.RatePrefix=a.FeePrefix
-			join tmp_customer_rates_id d ON d.CustomerRateID=c.CustomerRateID;
+			tmp_customer_feerate_group cfg 
+			INNER join tblRate r 
+				ON r.RateID=cfg.RateID
+			join tblCustomerRate cr 
+				ON cr.RateID=r.RateID 
+				AND cr.Rate=cfg.Fee 
+		   	AND cr.RatePrefix=cfg.FeePrefix
+		   	
+		   	AND cr.CustomerID=cfg.AccountID
+		   	AND cr.TrunkID=cfg.TrunkID;
+		   	
+		 /* join tmp_customer_rates_id d
+			 ON d.CustomerRateID=cr.CustomerRateID;*/
+			
+		
 			
 			-- Load TempTable
 			CALL prc_LoadVOSCustomerRates(p_CompanyID);
 			
 			
 			
-			SELECT GROUP_CONCAT(distinct a.CustomerID) INTO v_AccountIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY a.CustomerID;
-			SELECT GROUP_CONCAT(distinct a.TrunkID) INTO v_TrunkIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY a.TrunkID;
-			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY a.TimezonesID;	
+			SELECT GROUP_CONCAT(distinct cr.CustomerID) INTO v_AccountIds FROM tblCustomerRate cr JOIN tmp_customer_rates_id tcr ON cr.CustomerRateID=tcr.CustomerRateID JOIN tblRate r on r.RateID=cr.RateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY cr.CustomerID;
+			SELECT GROUP_CONCAT(distinct cr.TrunkID) INTO v_TrunkIds FROM tblCustomerRate cr JOIN tmp_customer_rates_id tcr ON cr.CustomerRateID=tcr.CustomerRateID JOIN tblRate r on r.RateID=cr.RateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY cr.TrunkID;
+			SELECT GROUP_CONCAT(distinct cr.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate cr JOIN tmp_customer_rates_id tcr ON cr.CustomerRateID=tcr.CustomerRateID JOIN tblRate r on r.RateID=cr.RateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY cr.TimezonesID;	
 			
 					
-			UPDATE tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID set a.EndDate=NOW() WHERE cr.EffectiveDate <= CURRENT_DATE();
+			UPDATE tblCustomerRate cr INNER JOIN tmp_customer_rates_id tcr ON cr.CustomerRateID=tcr.CustomerRateID set cr.EndDate=NOW() WHERE cr.EffectiveDate <= CURRENT_DATE();
 			
-			select count(*) As TotalArchivedRates from tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID;
+			select count(*) As TotalArchivedRates from tblCustomerRate cr INNER JOIN tmp_customer_rates_id tcr ON cr.CustomerRateID=tcr.CustomerRateID;
 		
 		--	select v_AccountIds;
 		--	select v_TrunkIds;
+			
 			
 			IF v_AccountIds != '' AND v_TrunkIds != '' THEN
 				
@@ -1457,6 +1483,7 @@ sp:BEGIN
 	
 END//
 DELIMITER ;
+
 
 
 
@@ -1533,7 +1560,7 @@ ALTER TABLE `tblVendorRate`
 
 DROP PROCEDURE IF EXISTS `prc_VOSImportVendorFeeRate`;
 DELIMITER //
-CREATE PROCEDURE `prc_VOSImportVendorFeeRate`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_VOSImportVendorFeeRate`(
 	IN `p_CompanyID` INT	
 
 )
@@ -1600,7 +1627,8 @@ sp:BEGIN
 						ct.AccountID
 					FROM tblVOSVendorFeeRateGroup vfg
 					inner join tblVendorTrunk ct 
-						on vfg.FeeRateGroup = ct.Prefix 
+					--	on vfg.FeeRateGroup = ct.Prefix 
+						ON vfg.VosAccount = ct.Prefix
 				--	inner join tblRate r 
 				--		on r.CompanyID = ct.CompanyID  
 				--		and r.CodedeckID = ct.CodedeckID 
@@ -1638,18 +1666,18 @@ sp:BEGIN
 					
 				FROM (
 						SELECT 
-							a.AreaCode,
-							a.CodeDeckId,
-							a.Period,
-							a.AreaName 
-						from tmp_vendor_VOSData a 
-						left join tblRate b 
-						on b.CompanyID=p_CompanyID
-						and b.Code=a.AreaCode 
-						and b.CodeDeckId=a.CodeDeckId 
+							tvv.AreaCode,
+							tvv.CodeDeckId,
+							tvv.Period,
+							tvv.AreaName 
+						from tmp_vendor_VOSData tvv
+						left join tblRate r 
+						on r.CompanyID=p_CompanyID
+						and r.Code=tvv.AreaCode 
+						and r.CodeDeckId=tvv.CodeDeckId 
 						WHERE 
-							b.RateID is NULL
-							group by a.CodeDeckId,a.AreaCode
+							r.RateID is NULL
+							group by tvv.CodeDeckId,tvv.AreaCode
 					) tbl1;
 				
 				
@@ -1682,20 +1710,21 @@ sp:BEGIN
 		--	SELECT * FROM tmp_vendor_feerate_group;
 		
 			
-			CALL prc_LoadVOSVendorRates(p_CompanyID);
+		/*	CALL prc_LoadVOSVendorRates(p_CompanyID); */
 			
 			 -- SELECT * FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID JOIN tblRate c ON c.RateID=a.RateID;
 					
 			--  Delete from vos table which rates and Code matches 
-			DELETE a
+			DELETE vfg
 			FROM 
-			tmp_vendor_feerate_group a 
-			INNER join tblRate b 
-				ON a.AreaCode=b.Code  
-				AND b.CompanyID = p_CompanyID
-				AND b.CodeDeckId = a.CodeDeckId
-			join tblVendorRate c ON c.RateID=b.RateID AND c.Rate=a.Fee AND c.RatePrefix=a.FeePrefix
-			join tmp_vendor_rates_id d ON d.VendorRateID=c.VendorRateID;
+			tmp_vendor_feerate_group vfg 
+			INNER join tblRate r 
+				ON r.RateID=vfg.RateID
+			--	ON vfg.AreaCode=r.Code  
+			--	AND r.CompanyID = p_CompanyID
+			--	AND r.CodeDeckId = vfg.CodeDeckId
+			join tblVendorRate vr ON vr.RateID=r.RateID AND vr.Rate=vfg.Fee AND vr.RatePrefix=vfg.FeePrefix;
+		--	join tmp_vendor_rates_id tvr ON tvr.VendorRateID=vr.VendorRateID;
 			
 			-- Load TempTable 
 				
@@ -1703,14 +1732,14 @@ sp:BEGIN
 			CALL prc_LoadVOSVendorRates(p_CompanyID);
 			
 						
-			SELECT GROUP_CONCAT( distinct a.AccountId) INTO v_AccountIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID; -- GROUP BY a.AccountId;
-			SELECT GROUP_CONCAT(distinct a.TrunkID) INTO v_TrunkIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID; -- GROUP BY a.TrunkID;
-			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblVendorRate a JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID; -- GROUP BY a.TimezonesID;	
+			SELECT GROUP_CONCAT( distinct vr.AccountId) INTO v_AccountIds FROM tblVendorRate vr JOIN tmp_vendor_rates_id tvr ON vr.VendorRateID=tvr.VendorRateID; -- GROUP BY a.AccountId;
+			SELECT GROUP_CONCAT(distinct vr.TrunkID) INTO v_TrunkIds FROM tblVendorRate vr JOIN tmp_vendor_rates_id tvr ON vr.VendorRateID=tvr.VendorRateID; -- GROUP BY a.TrunkID;
+			SELECT GROUP_CONCAT(distinct vr.TimezonesID) INTO v_TimezoneIds FROM tblVendorRate vr JOIN tmp_vendor_rates_id tvr ON vr.VendorRateID=tvr.VendorRateID; -- GROUP BY a.TimezonesID;	
 			
 			
-			UPDATE tblVendorRate a INNER JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID set a.EndDate=NOW();
+			UPDATE tblVendorRate vr INNER JOIN tmp_vendor_rates_id tvr ON vr.VendorRateID=tvr.VendorRateID set vr.EndDate=NOW();
 			
-			select count(*) As TotalArchivedRates from tblVendorRate a INNER JOIN tmp_vendor_rates_id b ON a.VendorRateID=b.VendorRateID;
+			select count(*) As TotalArchivedRates from tblVendorRate vr INNER JOIN tmp_vendor_rates_id tvr ON vr.VendorRateID=tvr.VendorRateID;
 		
 		--	select v_AccountIds;
 		--	select v_TrunkIds;
@@ -1776,6 +1805,7 @@ sp:BEGIN
 	
 END//
 DELIMITER ;
+
 
 
 
@@ -3797,3 +3827,16 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('GatewayMappingOnline.*', 'GatewayMappingOnlineController.*', 1, 'Sumera Saeed', NULL, '2019-06-27 11:48:03.000', '2019-06-27 11:48:03.000', 1384);
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('GatewayMappingOnline.index', 'GatewayMappingOnlineController.index', 1, 'Sumera Saeed', NULL, '2019-06-27 11:48:03.000', '2019-06-27 11:48:03.000', 1383);
 
+
+
+/* New */
+ALTER TABLE `tblVOSCustomerFeeRateGroup`
+	ADD COLUMN `VosAccount` VARCHAR(255) NULL AFTER `FeeRateGroup`;
+
+
+ALTER TABLE `tblVOSVendorFeeRateGroup`
+	ADD COLUMN `VosAccount` VARCHAR(255) NULL DEFAULT NULL AFTER `FeeRateGroup`;	
+	
+
+
+	
