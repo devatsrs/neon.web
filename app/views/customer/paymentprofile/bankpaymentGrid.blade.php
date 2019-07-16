@@ -10,6 +10,9 @@
             if($title=='GoCardLess'){
                 $title='GoCardLess';
             }
+            if($title=='AuthorizeNetEcheck'){
+                $title='AuthorizeNetEcheck';
+            }
             ?>
             {{$title}} @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TITLE')
         </div>

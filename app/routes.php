@@ -76,6 +76,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/Vendor_ActiveCalls/ajax_datagrid/{type}', 'VendorActiveCallController@ajax_datagrid');
 	Route::any('/Vendor_ActiveCalls/API/GetGatewayRoutingOnline', 'VendorActiveCallController@GetGatewayRoutingOnline');
 
+	//GetGatewayMappingOnline
+	Route::any('/GatewayMappingOnline', 'GatewayMappingOnlineController@index');
+	Route::any('/GatewayMappingOnline/ajax_datagrid/{type}', 'GatewayMappingOnlineController@ajax_datagrid');
+	Route::any('/GatewayMappingOnline/API/GetGatewayMappingOnline', 'GatewayMappingOnlineController@GetGatewayMappingOnline');
+
 	//VOS ActiveCall
 	Route::any('/VOS_ActiveCalls', 'VOSActiveCallController@index');
 	Route::any('/VOS_ActiveCalls/ajax_datagrid/{type}', 'VOSActiveCallController@ajax_datagrid');

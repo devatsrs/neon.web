@@ -76,6 +76,15 @@
         </a>
     </li>
 
+    @if(User::checkCategoryPermission('VOSOnlineGatewayMapping','View') && CompanyConfiguration::getValueConfigurationByKey('VOS_ONLINE_GATEWAY_MAPPING_MENU',User::get_companyID()) == '1')
+
+    <li>
+        <a href="{{ URL::to('/GatewayMappingOnline') }}" >
+            <span class="hidden-xs">Online Mapping Gateway</span>
+        </a>
+    </li>
+    @endif
+
 
 </ul>
 
