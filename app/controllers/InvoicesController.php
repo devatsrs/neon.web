@@ -4411,11 +4411,13 @@ public function store_inv_in(){
 
      public function add_inv_in()
     {
-        $companyID  =   User::get_companyID();
-        $vendors   =   Account::getOnlyVendorIDList();
+        $companyID  =  User::get_companyID();
+        $vendors    =  Account::getOnlyVendorIDList();
+        $vendors    = !empty($vendors) ? array(""=> "Select") + $vendors : array(""=> "Select");
+
         $currencies =   Currency::getCurrencyDropdownIDList();
         //$products   =   Product::getProductDropdownList($companyID);
-        $products   =   Product::where(['Active' => 1, 'CompanyId' => $companyID ])->get();
+        $products   =   Product::where(['Active' => 1, 'CompanyId' => $companyID])->get();
         $taxes      =   TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
         //echo "<pre>";         print_r($taxes);        echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
