@@ -43,7 +43,7 @@
       <div class="form-group">
         <div class="col-sm-6">
           <label for="field-2" class="col-sm-3 control-label">Account</label>
-          <div class="col-sm-9"> {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}} </div><br>
+          <div class="col-sm-9"> {{Form::select('AccountID',$vendors,'',array("class"=>"select2"))}} </div><br>
 
           <div class="clearfix margin-bottom "></div>
           <label for="field-1" class="col-sm-3 control-label">Invoice #</label>
