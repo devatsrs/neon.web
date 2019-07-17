@@ -75,6 +75,7 @@ class CodeDecksController extends \BaseController {
         }
 
         if ($codedesk = CodeDeck::create($data)) {
+            run_artisan_command($companyID,"insert_into_rate_search_code",$data['codedeckid'] .' ' . $data['Code']);  // trigger command to insert into tblRateSearchCode
             return Response::json(array("status" => "success", "message" => "Code Decks Successfully Created",'LastID'=>$codedesk->RateID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Code Decks."));
@@ -128,7 +129,11 @@ class CodeDecksController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        $old_code  = $codedeck->Code ;
         if ($codedeck->update($data)) {
+            if($old_code != $data['Code']){
+                run_artisan_command($companyID,"insert_into_rate_search_code",$data['codedeckid'] .' ' . $data['Code']);  // trigger command to insert into tblRateSearchCode
+            }
             return Response::json(array("status" => "success", "message" => "Code Decks Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Code Decks."));
