@@ -279,63 +279,60 @@ public function edit_inv_in($id){
             $companyID = User::get_companyID();
             $CreatedBy = User::get_user_full_name();
 
-            //$CurrencyId = Account::where("AccountID",intval($data["AccountID"]))->pluck('CurrencyId');
             $isAutoInvoiceNumber = true;
 			$InvoiceData = array();
             if(!empty($data["InvoiceNumber"])){
                 $isAutoInvoiceNumber = false;
-				$InvoiceData["InvoiceNumber"] =  $data["InvoiceNumber"];
             }
 
-			 if(isset($data['BillingClassID']) && $data['BillingClassID']>0){  
-				//$InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
-				$InvoiceData["InvoiceNumber"] = $LastInvoiceNumber = ($isAutoInvoiceNumber)?Invoice::getNextInvoiceNumber($companyID):$data["InvoiceNumber"];
-			 }
+				$InvoiceData["InvoiceNumber"] = $LastInvoiceNumber = ($isAutoInvoiceNumber) ? Invoice::getNextInvoiceNumber($companyID) : $data["InvoiceNumber"];
             
-            $InvoiceData["CompanyID"] = $companyID;
-            $InvoiceData["AccountID"] = intval($data["AccountID"]);
-            $InvoiceData["Address"] = $data["Address"];
-         
-            $InvoiceData["IssueDate"] = $data["IssueDate"];
-            $InvoiceData["PONumber"] = $data["PONumber"];
-            $InvoiceData["SubTotal"] = str_replace(",","",$data["SubTotal"]);
-            //$InvoiceData["TotalDiscount"] = str_replace(",","",$data["TotalDiscount"]);
-			$InvoiceData["TotalDiscount"] = 0;
-            $InvoiceData["TotalTax"] = str_replace(",","",$data["TotalTax"]);
-			$InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotalInvoice"]));
-            //$InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
+            $InvoiceData["CompanyID"]       = $companyID;
+            $InvoiceData["AccountID"]       = intval($data["AccountID"]);
+            $InvoiceData["Address"]         = $data["Address"];
+            $InvoiceData["IssueDate"]       = $data["IssueDate"];
+            $InvoiceData["PONumber"]        = $data["PONumber"];
+            $InvoiceData["SubTotal"]        = str_replace(",","",$data["SubTotal"]);
+			$InvoiceData["TotalDiscount"]   = 0;
+            $InvoiceData["TotalTax"]        = str_replace(",","",$data["TotalTax"]);
+			$InvoiceData["GrandTotal"]      = floatval(str_replace(",","",$data["GrandTotalInvoice"]));
             $InvoiceData["CurrencyID"]      = $data["CurrencyID"];
             $InvoiceData["InvoiceType"]     = Invoice::INVOICE_OUT;
             $InvoiceData["InvoiceStatus"]   = Invoice::AWAITING;
             $InvoiceData["ItemInvoice"]     = Invoice::ITEM_INVOICE;
-            $InvoiceData["Note"]  = $data["Note"];
-            $InvoiceData["Terms"] = $data["Terms"];
-            $InvoiceData["FooterTerm"]     = $data["FooterTerm"];
-            $InvoiceData["CreatedBy"]      = $CreatedBy;
-			$InvoiceData['InvoiceTotal']   = str_replace(",","",$data["GrandTotal"]);
-			$InvoiceData['BillingClassID'] = $data["BillingClassID"];
-			
-            //$InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
+            $InvoiceData["Note"]            = $data["Note"];
+            $InvoiceData["Terms"]           = $data["Terms"];
+            $InvoiceData["FooterTerm"]      = $data["FooterTerm"];
+            $InvoiceData["CreatedBy"]       = $CreatedBy;
+			$InvoiceData['InvoiceTotal']    = str_replace(",","",$data["GrandTotal"]);
+			$InvoiceData['BillingClassID']  = $data["BillingClassID"];
+
             if(!isset($LastInvoiceNumber) || (int)$LastInvoiceNumber == 0){
                 return Response::json(array("status" => "failed", "message" => "Unable to create new invoice number."));
             }
             ///////////
             $rules = array(
-                'CompanyID' => 'required',
-                'AccountID' => 'required|integer|min:1',
-                'Address' => 'required',
+                'CompanyID'     => 'required',
+                'AccountID'     => 'required|integer|min:1',
+                'Address'       => 'required',
 				'BillingClassID'=> 'required',
                 'InvoiceNumber' => 'required|unique:tblInvoice,InvoiceNumber,NULL,InvoiceID,CompanyID,'.$companyID,
-                'IssueDate' => 'required',
-                'CurrencyID' => 'required',
-                'GrandTotal' => 'required',
-                'InvoiceType' => 'required',
+                'IssueDate'     => 'required',
+                'CurrencyID'    => 'required',
+                'GrandTotal'    => 'required',
+                'InvoiceType'   => 'required',
             );
-			$message = ['BillingClassID.required'=>'Billing Class field is required','AccountID'=>'Client field is required','AccountID.min'=>'Client field is required'];
+
+            $message = [
+                'BillingClassID.required' => 'Billing Class field is required',
+                'AccountID' => 'Client field is required',
+                'AccountID.min' => 'Client field is required'
+            ];
+
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
 
-            $validator = Validator::make($InvoiceData, $rules,$message);
+            $validator = Validator::make($InvoiceData, $rules, $message);
             $validator->setPresenceVerifier($verifier);
 
             if ($validator->fails()) {
@@ -350,6 +347,7 @@ public function edit_inv_in($id){
                 $InvoiceData["FullInvoiceNumber"] = ($isAutoInvoiceNumber) ? Company::getCompanyField($companyID, "InvoiceNumberPrefix") . $LastInvoiceNumber:$LastInvoiceNumber;
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Invoice = Invoice::create($InvoiceData);
+
                 //Store Last Invoice Number.
                 if($isAutoInvoiceNumber) {
                     Company::find($companyID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber ));
@@ -372,23 +370,16 @@ public function edit_inv_in($id){
                         }else{
                             $InvoiceDetailData[$i][$field] = $value;
                         }
+
 						$InvoiceDetailData[$i]["Discount"] 	= 	0;
                         $InvoiceDetailData[$i]["InvoiceID"] = $Invoice->InvoiceID;
                         $InvoiceDetailData[$i]["created_at"] = date("Y-m-d H:i:s");
                         $InvoiceDetailData[$i]["CreatedBy"] = $CreatedBy;
-                       /* if($field == 'TaxRateID'){
-                            $InvoiceTaxRates[$i][$field] = $value;
-                            $InvoiceTaxRates[$i]['Title'] = TaxRate::getTaxName($value);
-                            $InvoiceTaxRates[$i]["created_at"] = date("Y-m-d H:i:s");
-                            $InvoiceTaxRates[$i]["InvoiceID"] = $Invoice->InvoiceID;
-                        }
-						if($field == 'TaxAmount'){
-                            $InvoiceTaxRates[$i][$field] = str_replace(",","",$value);
-                        }
-                       */
+
 					    if(empty($InvoiceDetailData[$i]['ProductID'])){
                             unset($InvoiceDetailData[$i]);
                         }
+
                         $i++;
                     }
                 }
@@ -424,10 +415,7 @@ public function edit_inv_in($id){
                         $temparray['created_by']=User::get_user_full_name();
 
                         array_push($StockHistory,$temparray);
-                        //$returnValidateData = stockHistoryValidateCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $InvoiceData["FullInvoiceNumber"]);
-                        /*if ($returnValidateData && $returnValidateData['status'] == 'failed') {
-                            return Response::json($returnValidateData);
-                        }*/
+
                     }
                 }
 
@@ -448,12 +436,12 @@ public function edit_inv_in($id){
 				if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
 					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
                         if(!empty($InvoiceTaxes)) {
-                            $InvoiceAllTaxRates[$p]['TaxRateID'] = $InvoiceTaxes;
-                            $InvoiceAllTaxRates[$p]['Title'] = TaxRate::getTaxName($InvoiceTaxes);
-                            $InvoiceAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                            $InvoiceAllTaxRates[$p]['TaxRateID']    = $InvoiceTaxes;
+                            $InvoiceAllTaxRates[$p]['Title']        = TaxRate::getTaxName($InvoiceTaxes);
+                            $InvoiceAllTaxRates[$p]["created_at"]   = date("Y-m-d H:i:s");
                             $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
-                            $InvoiceAllTaxRates[$p]["InvoiceID"] = $Invoice->InvoiceID;
-                            $InvoiceAllTaxRates[$p]["TaxAmount"] = $data['InvoiceTaxes']['value'][$p];
+                            $InvoiceAllTaxRates[$p]["InvoiceID"]    = $Invoice->InvoiceID;
+                            $InvoiceAllTaxRates[$p]["TaxAmount"]    = $data['InvoiceTaxes']['value'][$p];
                         }
 					}
 				}
@@ -462,18 +450,17 @@ public function edit_inv_in($id){
 				$InvoiceAllTaxRates  = 	merge_tax($InvoiceAllTaxRates);*/
 				
                 $invoiceloddata = array();
-                $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
-                $invoiceloddata['Note']= 'Created By '.$CreatedBy;
-                $invoiceloddata['created_at']= date("Y-m-d H:i:s");
-                $invoiceloddata['InvoiceLogStatus']= InVoiceLog::CREATED;
+                $invoiceloddata['InvoiceID']        = $Invoice->InvoiceID;
+                $invoiceloddata['Note']             = 'Created By '.$CreatedBy;
+                $invoiceloddata['created_at']       = date("Y-m-d H:i:s");
+                $invoiceloddata['InvoiceLogStatus'] = InVoiceLog::CREATED;
                 InVoiceLog::insert($invoiceloddata);
-                /*if(!empty($InvoiceTaxRates)) { //product tax
-                    InvoiceTaxRate::insert($InvoiceTaxRates);
-                }*/
+
 				
 				 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                     InvoiceTaxRate::insert($InvoiceAllTaxRates);
-                } 
+                }
+
                 if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
                     $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($Invoice->InvoiceID);
                     if(!empty($InvoiceTaxRates1)) { //Invoice tax
@@ -604,8 +591,6 @@ public function store_inv_in(){
                 Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],"InvoiceType"=>Invoice::INVOICE_IN,  "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"],"sendEmail"=>1));
 
             }
-
-           
 
             try{
                 
