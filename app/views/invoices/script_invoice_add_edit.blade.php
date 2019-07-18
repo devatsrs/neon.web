@@ -379,8 +379,8 @@ $(document).ready(function(){
 				  
 				  
 				  var obj 			  =   $(element).parent().parent();
-				  var taxAmount  	  =   parseFloat(tt.attr("data-amount").replace(/,/g,''));				
-				  var flatstatus 	  =   parseFloat(tt.attr("data-flatstatus").replace(/,/g,''));
+				  var taxAmount  	  =   tt.attr("data-amount") != undefined ? parseFloat(tt.attr("data-amount").replace(/,/g,'')) : 0;
+				  var flatstatus 	  =   tt.attr("data-amount") != undefined ? parseFloat(tt.attr("data-flatstatus").replace(/,/g,'')) : 0;
 				  
 				  if(flatstatus == 1){
 						var tax = parseFloat( ( taxAmount) );
