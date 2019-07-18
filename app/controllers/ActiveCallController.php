@@ -27,15 +27,15 @@ class ActiveCallController extends \BaseController {
         $data['CLI']				     =		$data['CLI']!= ''?$data['CLI']:'';
         $data['CLD']				     =		$data['CLD']!= ''?$data['CLD']:'';
         $data['CLDPrefix']				 =		$data['CLDPrefix']!= ''?$data['CLDPrefix']:'';
-        $data['CallType'] 				 = 		$data['CallType']!= ''?$data['CallType']:-1;
+        $data['CallType'] 				 = 		$data['CallType']!= ''?$data['CallType']:'';
         // $data['TrunkID'] 				 = 		$data['TrunkID']!= ''?$data['TrunkID']:0;
         // $data['ServiceID'] 				 = 		$data['ServiceID']!= ''?$data['ServiceID']:0;
-        $data['CompanyGatewayID']				 =		$data['CompanyGatewayID']!= ''?$data['CompanyGatewayID']:0;
+        // $data['CompanyGatewayID']		 =		$data['CompanyGatewayID']!= ''?$data['CompanyGatewayID']:0;
 
         $columns = array('ActiveCallID','AccountName','CLI','CLD','CLDPrefix','ConnectTime','Cost','CompanyGatewayID');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_getActiveCalls(".$CompanyID.",".$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."','".$data['CLDPrefix']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['CallType'].",".$data['CompanyGatewayID']."";
+        $query = "call prc_getActiveCalls(".$CompanyID.",".$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."','".$data['CLDPrefix']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','".$data['CallType']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrvroutingengine')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

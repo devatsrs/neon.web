@@ -1573,6 +1573,11 @@ function run_process($command) {
     return $status = $process->status();
 }
 
+function run_artisan_command($CompanyID, $Command, $extr_perams = "") {
+    $command = CompanyConfiguration::get("PHP_EXE_PATH"). " " .CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"). " " . $Command . " " . $CompanyID . " " . $extr_perams ;
+    return run_process($command);
+}
+
 function Get_Api_file_extentsions($ajax=false){
 
 	 /*if (Session::has("api_response_extensions")){

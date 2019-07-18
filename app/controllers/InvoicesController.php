@@ -4411,22 +4411,24 @@ public function store_inv_in(){
 
      public function add_inv_in()
     {
-        $companyID  =   User::get_companyID();
-        $accounts   =   Account::getAccountIDList();
+        $companyID  =  User::get_companyID();
+        $vendors    =  Account::getOnlyVendorIDList();
+        $vendors    = !empty($vendors) ? array(""=> "Select") + $vendors : array(""=> "Select");
+
         $currencies =   Currency::getCurrencyDropdownIDList();
         //$products   =   Product::getProductDropdownList($companyID);
-        $products   =   Product::where(['Active' => 1, 'CompanyId' => $companyID ])->get();
+        $products   =   Product::where(['Active' => 1, 'CompanyId' => $companyID])->get();
         $taxes      =   TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
         //echo "<pre>";         print_r($taxes);        echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
-        $BillingClass = BillingClass::getDropdownIDList($companyID);
+        //$BillingClass = BillingClass::getDropdownIDList($companyID);
 
         $Type =  Product::DYNAMIC_TYPE;
         $productsControllerObj = new ProductsController();
         $DynamicFields = $productsControllerObj->getDynamicFields($companyID,$Type);
         $itemtypes  =   ItemType::getItemTypeDropdownList($companyID);
 
-        return View::make('invoices.create_inv_in',compact('accounts','products','taxes','BillingClass','DynamicFields','itemtypes','currencies'));
+        return View::make('invoices.create_inv_in',compact('vendors','products','taxes','DynamicFields','itemtypes','currencies'));
     }
 
 
