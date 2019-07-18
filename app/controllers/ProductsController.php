@@ -826,6 +826,7 @@ class ProductsController extends \BaseController {
             $query = "call prc_UpdateProductsStatus (".$CompanyID.",'".$UserName."','".$data['Name']."','".$data['Code']."',".$data['Active'].",".$data['AppliedTo'].",".$data['status_set'].")";
 
             $result = DB::connection('sqlsrv2')->select($query);
+            $productsActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Products');
             return Response::json(array("status" => "success", "message" => "Items Status Updated"));
         }
 
@@ -835,6 +836,7 @@ class ProductsController extends \BaseController {
                     Product::whereIn('ProductID',$data['SelectedIDs'])->where('Active','!=',$data['status_set'])->update(["Active"=>intval($data['status_set'])]);
 //                    Product::find($SelectedID)->where('Active','!=',$data['status_set'])->update(["Active"=>intval($data['status_set']),'ModifiedBy'=>$UserName,'updated_at'=>date('Y-m-d H:i:s')]);
 //                }
+                $productsActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Products');
                 return Response::json(array("status" => "success", "message" => "Items Status Updated"));
             }else{
                 return Response::json(array("status" => "failed", "message" => "No Items selected"));

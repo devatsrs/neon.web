@@ -272,7 +272,7 @@ BEGIN
         WHERE vac.CompanyID = p_CompanyID
 		AND(p_GatewayName ='' OR vac.GatewayName like Concat('%',p_GatewayName,'%'))
 		AND(p_CompanyGatewayID = 0 OR vac.CompanyGatewayID = p_CompanyGatewayID)
-		AND(p_CallPrefix ='' OR vac.CallPrefix like Concat(p_CallPrefix,'%'))
+		AND(p_CallPrefix ='' OR vac.CallPrefix like Concat('%',p_CallPrefix,'%'))
 			
          ORDER BY
 				CASE
@@ -302,7 +302,7 @@ BEGIN
 			WHERE vac.CompanyID = p_CompanyID
 			AND(p_GatewayName ='' OR vac.GatewayName like Concat('%',p_GatewayName,'%'))
 			AND(p_CompanyGatewayID = 0 OR vac.CompanyGatewayID = p_CompanyGatewayID)
-			AND(p_CallPrefix ='' OR vac.CallPrefix like Concat(p_CallPrefix,'%'));
+			AND(p_CallPrefix ='' OR vac.CallPrefix like Concat('%',p_CallPrefix,'%'));
 
 	ELSE
 
@@ -317,7 +317,7 @@ BEGIN
 			WHERE vac.CompanyID = p_CompanyID
 			AND(p_GatewayName ='' OR vac.GatewayName like Concat('%',p_GatewayName,'%'))
 			AND(p_CompanyGatewayID = 0 OR vac.CompanyGatewayID = p_CompanyGatewayID)
-			AND(p_CallPrefix ='' OR vac.CallPrefix like Concat(p_CallPrefix,'%'));
+			AND(p_CallPrefix ='' OR vac.CallPrefix like Concat('%',p_CallPrefix,'%'));
 
 	END IF;
 
@@ -1027,7 +1027,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getVOSAccountIP`;
 DELIMITER //
-CREATE PROCEDURE `prc_getVOSAccountIP`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSAccountIP`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountName` VARCHAR(255),
 	IN `p_RemoteIps` VARCHAR(255),
@@ -1036,7 +1036,6 @@ CREATE PROCEDURE `prc_getVOSAccountIP`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_Export` INT
-
 
 )
 BEGIN
@@ -1119,6 +1118,7 @@ BEGIN
 	
 END//
 DELIMITER ;
+
 
 
 
@@ -1380,12 +1380,12 @@ sp:BEGIN
 			
 			
 			
-			SELECT GROUP_CONCAT(distinct a.CustomerID) INTO v_AccountIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.CustomerID;
-			SELECT GROUP_CONCAT(distinct a.TrunkID) INTO v_TrunkIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.TrunkID;
-			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID; -- GROUP BY a.TimezonesID;	
+			SELECT GROUP_CONCAT(distinct a.CustomerID) INTO v_AccountIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY a.CustomerID;
+			SELECT GROUP_CONCAT(distinct a.TrunkID) INTO v_TrunkIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY a.TrunkID;
+			SELECT GROUP_CONCAT(distinct a.TimezonesID) INTO v_TimezoneIds FROM tblCustomerRate a JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID WHERE cr.EffectiveDate <= CURRENT_DATE(); -- GROUP BY a.TimezonesID;	
 			
 					
-			UPDATE tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID set a.EndDate=NOW();
+			UPDATE tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID set a.EndDate=NOW() WHERE cr.EffectiveDate <= CURRENT_DATE();
 			
 			select count(*) As TotalArchivedRates from tblCustomerRate a INNER JOIN tmp_customer_rates_id b ON a.CustomerRateID=b.CustomerRateID;
 		
@@ -2232,7 +2232,7 @@ END//
 DELIMITER ;
 
 
-/* Display RatePrefix in customer & Vendor Rate Tab - Remain in staging*/
+/* Display RatePrefix in customer & Vendor Rate Tab */
  
 ALTER TABLE `tblCustomerRateArchive`
 	ADD COLUMN `RatePrefix` VARCHAR(255) NULL DEFAULT NULL AFTER `Notes`;
@@ -3562,6 +3562,238 @@ ThisSP:BEGIN
 END//
 DELIMITER ;
 	
+	
+
+DROP PROCEDURE IF EXISTS `prc_WSCronJobDeleteOldVendorRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSCronJobDeleteOldVendorRate`(
+	IN `p_DeletedBy` TEXT
+
+)
+BEGIN
 
 	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
+	INSERT INTO tblVendorRateArchive
+   SELECT DISTINCT  null , 
+							vr.`VendorRateID`,
+							vr.`AccountId`,
+							vr.`TrunkID`,
+							vr.`TimezonesID`,
+							vr.`RateId`,
+							vr.`Rate`,
+							vr.`RateN`,
+							vr.`EffectiveDate`,
+							IFNULL(vr.`EndDate`,date(now())) as EndDate,
+							vr.`updated_at`,
+							now() as created_at,
+							p_DeletedBy AS `created_by`,
+							vr.`updated_by`,
+							vr.`Interval1`,
+							vr.`IntervalN`,
+							vr.`ConnectionFee`,
+							vr.`MinimumCost`,
+	   concat('Ends Today rates @ ' , now() ) as `Notes`,
+	   vr.RatePrefix
+      FROM tblVendorRate vr
+     	INNER JOIN tblAccount a on vr.AccountId = a.AccountID
+		WHERE a.Status = 1 AND vr.EndDate <= NOW();
+
+ 
+	DELETE  vr 
+	FROM tblVendorRate vr
+   inner join tblVendorRateArchive vra
+   on vr.VendorRateID = vra.VendorRateID;
+  
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSCronJobDeleteOldCustomerRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSCronJobDeleteOldCustomerRate`(
+	IN `p_DeletedBy` TEXT
+
+
+)
+BEGIN
+     
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	
+	UPDATE 
+		tblCustomerRate cr
+	INNER JOIN tblCustomerRate cr2
+		ON cr2.CustomerID = cr.CustomerID
+		AND cr2.TrunkID = cr.TrunkID
+		AND cr2.RateID = cr.RateID
+	SET
+		cr.EndDate=NOW()
+	WHERE  
+		cr.EffectiveDate <= NOW() AND 
+		cr2.EffectiveDate <= NOW() AND 
+		cr.EffectiveDate < cr2.EffectiveDate;
+
+   INSERT INTO tblCustomerRateArchive
+	SELECT DISTINCT  null , 
+		`CustomerRateID`,
+		`CustomerID`,
+		`TrunkID`,
+		`TimezonesID`,
+		`RateId`,
+		`Rate`,
+		`RateN`,
+		`EffectiveDate`,
+		IFNULL(`EndDate`,date(now())) as EndDate,
+		now() as `created_at`,
+		p_DeletedBy AS `created_by`,
+		`LastModifiedDate`,
+		`LastModifiedBy`,
+		`Interval1`,
+		`IntervalN`,
+		`ConnectionFee`,
+		`RoutinePlan`,
+		concat('Ends Today rates @ ' , now() ) as `Notes`,
+		`RatePrefix`
+	FROM 
+		tblCustomerRate 
+	WHERE  
+		EndDate <= NOW();
+
+
+	DELETE  cr 
+	FROM tblCustomerRate cr
+	INNER JOIN tblCustomerRateArchive cra
+	ON cr.CustomerRateID = cra.CustomerRateID;
+	
+   SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;         
+	            
+END//
+DELIMITER ;
+
+
+/*New Add RatePrefix in Account- Bulk Ratesheet Email*/
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VOS_RATEPREFIX_RATESHEET', '0');
+
+/* Gateway Mapping Online */
+USE `NeonCDRDev`;
+
+DROP TABLE IF EXISTS `tblVOSGatewayMappingOnline`;
+CREATE TABLE IF NOT EXISTS `tblVOSGatewayMappingOnline` (
+  `VOSGatewayMappingOnlineID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) NOT NULL,
+  `GatewayName` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `TotalCurrentCalls` int(11) DEFAULT NULL,
+  `Asr` decimal(18,6) DEFAULT NULL,
+  `Acd` decimal(18,6) DEFAULT NULL,
+  `RemoteIP` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CompanyGatewayID` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`VOSGatewayMappingOnlineID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getVOSGatewayMappingOnline`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSGatewayMappingOnline`(
+	IN `p_CompanyID` INT,
+	IN `p_GatewayName` VARCHAR(255),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_CompanyGatewayID` INT,
+	IN `p_Export` INT
+
+)
+BEGIN
+     DECLARE v_OffSet_ int;
+     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	      
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+
+	if p_Export = 0
+	THEN
+
+    SELECT   
+			vgmo.GatewayName,
+			vgmo.TotalCurrentCalls,
+			vgmo.Asr,
+			vgmo.Acd,
+			vgmo.RemoteIP
+			
+    FROM tblVOSGatewayMappingOnline vgmo			
+        WHERE vgmo.CompanyID = p_CompanyID
+		AND(p_GatewayName ='' OR vgmo.GatewayName like Concat('%',p_GatewayName,'%'))
+		AND(p_CompanyGatewayID = 0 OR vgmo.CompanyGatewayID = p_CompanyGatewayID)
+		
+			
+         ORDER BY
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GatewayNameDESC') THEN vgmo.GatewayName
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GatewayNameASC') THEN vgmo.GatewayName
+                END ASC,
+				
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RemoteIPDESC') THEN vgmo.RemoteIP
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RemoteIPASC') THEN vgmo.RemoteIP
+                END ASC
+            LIMIT p_RowspPage OFFSET v_OffSet_;
+
+			SELECT
+				COUNT(vgmo.VOSGatewayMappingOnlineID) AS totalcount
+			FROM tblVOSGatewayMappingOnline vgmo
+			WHERE vgmo.CompanyID = p_CompanyID
+			AND(p_GatewayName ='' OR vgmo.GatewayName like Concat('%',p_GatewayName,'%'))
+			AND(p_CompanyGatewayID = 0 OR vgmo.CompanyGatewayID = p_CompanyGatewayID)
+			;
+
+	ELSE
+
+			SELECT
+				vgmo.GatewayName,
+				vgmo.TotalCurrentCalls,
+				vgmo.Asr,
+				vgmo.Acd,
+				vgmo.RemoteIP
+         FROM tblVOSGatewayMappingOnline vgmo
+			WHERE vgmo.CompanyID = p_CompanyID
+			AND(p_GatewayName ='' OR vgmo.GatewayName like Concat('%',p_GatewayName,'%'))
+			AND(p_CompanyGatewayID = 0 OR vgmo.CompanyGatewayID = p_CompanyGatewayID)
+			;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
+
+
+
+INSERT INTO `NeonRMDev`.`tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'VOS_ONLINE_GATEWAY_MAPPING_MENU', '1');
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1384, 'GatewayMappingOnline.All', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1383, 'GatewayMappingOnline.View', 1, 7);
+
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('GatewayMappingOnline.GetGatewayMappingOnline', 'GatewayMappingOnlineController.GetGatewayMappingOnline', 1, 'Sumera Saeed', NULL, '2019-06-27 11:48:03.000', '2019-06-27 11:48:03.000', 1383);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('GatewayMappingOnline.ajax_datagrid', 'GatewayMappingOnlineController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-06-27 11:48:03.000', '2019-06-27 11:48:03.000', 1383);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('GatewayMappingOnline.*', 'GatewayMappingOnlineController.*', 1, 'Sumera Saeed', NULL, '2019-06-27 11:48:03.000', '2019-06-27 11:48:03.000', 1384);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('GatewayMappingOnline.index', 'GatewayMappingOnlineController.index', 1, 'Sumera Saeed', NULL, '2019-06-27 11:48:03.000', '2019-06-27 11:48:03.000', 1383);
+

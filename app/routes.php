@@ -76,6 +76,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/Vendor_ActiveCalls/ajax_datagrid/{type}', 'VendorActiveCallController@ajax_datagrid');
 	Route::any('/Vendor_ActiveCalls/API/GetGatewayRoutingOnline', 'VendorActiveCallController@GetGatewayRoutingOnline');
 
+	//GetGatewayMappingOnline
+	Route::any('/GatewayMappingOnline', 'GatewayMappingOnlineController@index');
+	Route::any('/GatewayMappingOnline/ajax_datagrid/{type}', 'GatewayMappingOnlineController@ajax_datagrid');
+	Route::any('/GatewayMappingOnline/API/GetGatewayMappingOnline', 'GatewayMappingOnlineController@GetGatewayMappingOnline');
+
 	//VOS ActiveCall
 	Route::any('/VOS_ActiveCalls', 'VOSActiveCallController@index');
 	Route::any('/VOS_ActiveCalls/ajax_datagrid/{type}', 'VOSActiveCallController@ajax_datagrid');
@@ -1597,7 +1602,9 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
 	Route::any('/report/export/{id}','ReportController@getdatagrid');
-	
+
+	Route::any('/gocardless_confirmation', array("as" => "gocardless_confirmation", "uses" => "PaymentProfileCustomerController@GoCardLess_Confirmation"));
+	Route::post('/gocardless_webhook_check', array("as" => "gocardless", "uses" => "PaymentProfileCustomerController@GoCardLess_Webhook"));
     /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');

@@ -380,6 +380,7 @@ class PaymentsController extends \BaseController {
      */
     public function recall($id) {
         $data = Input::all();
+        $ids = $data['PaymentIDs'];
         $rules['RecallReasoan'] = 'required';
         $validator = Validator::make($data, $rules);
         $data['RecallBy'] =  User::get_user_full_name();
@@ -498,6 +499,7 @@ class PaymentsController extends \BaseController {
                         }
                     }
                 }
+                $data['PaymentIDs'] = $ids;
                 $PaymentsActilead = UserActivity::UserActivitySaved($data,'Recall','Payments');
                 return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
             } else {

@@ -3,9 +3,7 @@
 class VOSAccountIPController extends \BaseController {
 
     public function index(){
-        $data = array();
         $CompanyID = User::get_companyID();
-        $AccountIPActilead = UserActivity::UserActivitySaved($data,'View','AccountIP');
         return View::make('vosaccountip.index', compact('CompanyID'));
     }
 
@@ -13,8 +11,8 @@ class VOSAccountIPController extends \BaseController {
 	{
 
         $data 							 = 		Input::all();
-
         $CompanyID 						 = 		User::get_companyID();
+        $AccountIPActilead               =      UserActivity::UserActivitySaved($data,'View','AccountIP');
         $data['iDisplayStart'] 			+=		1;
         $data['AccountName'] = !empty($data['AccountName'])?$data['AccountName']:'';
         $data['RemoteIps'] = !empty($data['RemoteIps'])?$data['RemoteIps']:'';

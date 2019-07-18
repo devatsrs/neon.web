@@ -335,43 +335,49 @@ class AuthorizeNetEcheck {
     }
 
     public function doValidation($data){
-        $ValidationResponse = array();
-        $rules = array(
-            'CardNumber' => 'required|digits_between:13,19',
-            'ExpirationMonth' => 'required',
-            'ExpirationYear' => 'required',
-            'NameOnCard' => 'required',
-            'CVVNumber' => 'required',
-            //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
-        );
+		$ValidationResponse = array();
+		// $rules = array(
+		// 	'AccountNumber' => 'required|digits_between:6,19',
+		// 	'RoutingNumber' => 'required',
+		// 	'AccountHolderType' => 'required',
+		// 	'AccountHolderName' => 'required',
+		// 	//'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
+		// );
 
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            $errors = "";
-            foreach ($validator->messages()->all() as $error){
-                $errors .= $error."<br>";
-            }
+		// $validator = Validator::make($data, $rules);
+		// if ($validator->fails()) {
+		// 	$errors = "";
+		// 	foreach ($validator->messages()->all() as $error){
+		// 		$errors .= $error."<br>";
+		// 	}
 
-            $ValidationResponse['status'] = 'failed';
-            $ValidationResponse['message'] = $errors;
-            return $ValidationResponse;
-        }
-        if (date("Y") == $data['ExpirationYear'] && date("m") > $data['ExpirationMonth']) {
-
-            $ValidationResponse['status'] = 'failed';
-            $ValidationResponse['message'] = cus_lang("PAYMENT_MSG_MONTH_MUST_BE_AFTER") . date("F");
-            return $ValidationResponse;
-        }
-        $card = CreditCard::validCreditCard($data['CardNumber']);
-        if ($card['valid'] == 0) {
-            $ValidationResponse['status'] = 'failed';
-            $ValidationResponse['message'] = cus_lang("PAYMENT_MSG_ENTER_VALID_CARD_NUMBER");
-            return $ValidationResponse;
-        }
-
-        $ValidationResponse['status'] = 'success';
-        return $ValidationResponse;
-    }
+		// 	$ValidationResponse['status'] = 'failed';
+		// 	$ValidationResponse['message'] = $errors;
+		// 	return $ValidationResponse;
+		// }
+		$CustomerID = $data['AccountID'];
+		$account = Account::find($CustomerID);
+		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
+		if(empty($CurrencyCode)){
+			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
+			return $ValidationResponse;
+		}
+		$data['currency'] = strtolower($CurrencyCode);
+		$Country = $account->Country;
+		if(!empty($Country)){
+			$CountryCode = Country::where(['Country'=>$Country])->pluck('ISO2');
+		}else{
+			$CountryCode = '';
+		}
+		if(empty($CountryCode)){
+			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_COUNTRY_AVAILABLE");
+			return $ValidationResponse;
+		}
+		$ValidationResponse['status'] = 'success';
+		return $ValidationResponse;
+	}
 
     public function createProfile($data){
         $ProfileID = "";

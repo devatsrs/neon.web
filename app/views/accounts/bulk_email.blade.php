@@ -64,7 +64,8 @@
                 <div class="form-group">
                   <label for="field-1" class="col-sm-2 control-label">Rate Prefix</label>
                   <div class="desc col-sm-4 ">
-                    <input type="text" class="form-control" name="RatePrefix" value="">
+                   {{-- <input type="text" class="form-control" name="RatePrefix" value="">--}}
+                    {{Form::select('RatePrefix[]',$RatePrefixes,'',array("class"=>"select2 ",'multiple'))}}
                   </div>
                 </div>
               </div>
