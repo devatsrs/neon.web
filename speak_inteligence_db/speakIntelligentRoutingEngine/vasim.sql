@@ -659,3 +659,232 @@ PRC:BEGIN
 
 END//
 DELIMITER ;
+
+
+
+
+DROP FUNCTION IF EXISTS `fn_updateTempCDRTimeZones`;
+DELIMITER //
+CREATE FUNCTION `fn_updateTempCDRTimeZones`(
+	`p_DateAndTime` DATETIME,
+	`p_VendorID` INT,
+	`p_RateType` INT,
+	`p_CountryName` VARCHAR(50),
+	`p_APICountry` VARCHAR(200)
+) RETURNS int(11)
+ThisSP:BEGIN
+
+	DECLARE v_timezones_count_ INT;
+	DECLARE v_TimezonesID_ INT;
+	DECLARE v_VendorTimeZone_ VARCHAR(200);
+	DECLARE v_countryTimeZone_ VARCHAR(200);
+	DECLARE v_CompanyTimeZone_ VARCHAR(200);
+	DECLARE v_DateAndTimeVendorToCountry DATETIME;
+	DECLARE v_DateAndTimeCompanyToCountry DATETIME;
+	DECLARE v_APICountryID INT;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_timezones;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_timezones (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		AccountID INT(11),
+		TimezonesID INT(11),
+		Title VARCHAR(50),
+		FromTime VARCHAR(10),
+		ToTime VARCHAR(10),
+		DaysOfWeek VARCHAR(100),
+		DaysOfMonth VARCHAR(100),
+		Months VARCHAR(100),
+		ApplyIF VARCHAR(100)
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_tblgetTimezone;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblgetTimezone (
+		`getTimezoneID` INT(11) NOT NULL AUTO_INCREMENT,
+		`AccountID` INT(11),
+		`connect_time` DATETIME NULL DEFAULT NULL,
+		`disconnect_time` DATETIME NULL DEFAULT NULL,
+		`TimezonesID` INT(11) NULL DEFAULT NULL,
+		PRIMARY KEY (`getTimezoneID`)
+	);
+
+	-- get company timezone
+	SET v_CompanyTimeZone_ = "+00:00"; -- set default value
+	SELECT IFNULL(TimeZoneValue,"+00:00") INTO v_CompanyTimeZone_ FROM tbl_Neon_TimeZone WHERE TimeZoneName = (SELECT TimeZone FROM tblCompany WHERE CompanyID = 1);
+
+	-- get api vendor timezone
+	SET v_VendorTimeZone_ = "+00:00"; -- set default value
+	SELECT IFNULL(TimeZoneValue,"+00:00") INTO v_VendorTimeZone_ FROM tbl_Neon_TimeZone WHERE TimeZoneName = (SELECT TimeZone FROM tblAccount WHERE AccountID = p_VendorID);
+
+	-- get api country timezone
+	SET v_countryTimeZone_ = "+00:00"; -- set default value
+	SELECT CountryID,IFNULL(TimeZone,"+00:00") INTO v_APICountryID,v_countryTimeZone_ FROM tblCountry WHERE Country = p_APICountry;
+
+	-- convert time from company timezone to api country timezone
+	SELECT CONVERT_TZ(p_DateAndTime,v_CompanyTimeZone_,v_countryTimeZone_) INTO v_DateAndTimeCompanyToCountry;
+
+	-- convert time from vendor timezone to api country timezone
+	SELECT CONVERT_TZ(p_DateAndTime,v_VendorTimeZone_,v_countryTimeZone_) INTO v_DateAndTimeVendorToCountry;
+
+	-- insert vendor timezones where timezone country = api country or timezones country = all
+	INSERT INTO tmp_timezones (
+		AccountID,TimezonesID,Title,FromTime,ToTime,DaysOfWeek,DaysOfMonth,Months,ApplyIF
+	)
+	SELECT
+		VendorID AS AccountID,TimezoneID AS TimezonesID,'' AS Title,
+		CASE WHEN INSTR(FromTime,':') = 2 THEN CONCAT('0',FromTime) ELSE FromTime END AS FromTime,
+		CASE WHEN INSTR(ToTime,':') = 2  THEN CONCAT('0',ToTime) ELSE ToTime END AS ToTime,
+		DaysOfWeek,DaysOfMonth,Months,ApplyIF
+	FROM
+		tblVendorTimezone
+	WHERE
+		Status=1 AND Type = p_RateType AND VendorID = p_VendorID AND (Country = v_APICountryID OR Country IS NULL)
+	ORDER BY
+		Country DESC; -- order by => first matched country timezones then All country timezones
+
+	-- insert all timezones from main company timezone table
+	INSERT INTO tmp_timezones (
+		AccountID,TimezonesID,Title,FromTime,ToTime,DaysOfWeek,DaysOfMonth,Months,ApplyIF
+	)
+	SELECT
+		0,TimezonesID AS TimezonesID,'' AS Title,
+		CASE WHEN INSTR(FromTime,':') = 2 THEN CONCAT('0',FromTime) ELSE FromTime END AS FromTime,
+		CASE WHEN INSTR(ToTime,':') = 2  THEN CONCAT('0',ToTime) ELSE ToTime END AS ToTime,
+		DaysOfWeek,DaysOfMonth,Months,ApplyIF
+	FROM
+		tblTimezones
+	WHERE
+		Status=1
+	ORDER BY
+		TimezonesID DESC;
+
+
+	SELECT COUNT(*) INTO v_timezones_count_ FROM tmp_timezones;
+
+	IF v_timezones_count_ >= 1
+	THEN
+
+		INSERT INTO tmp_tblgetTimezone (AccountID,connect_time,disconnect_time) VALUES (p_VendorID,v_DateAndTimeVendorToCountry, v_DateAndTimeVendorToCountry);
+		INSERT INTO tmp_tblgetTimezone (AccountID,connect_time,disconnect_time) VALUES (0,v_DateAndTimeCompanyToCountry, v_DateAndTimeCompanyToCountry);
+
+		UPDATE
+			tmp_tblgetTimezone temp
+		JOIN
+			tmp_timezones t ON t.AccountID = temp.AccountID
+		SET
+			temp.TimezonesID = t.TimezonesID
+		WHERE
+		(
+			(temp.TimezonesID = '' OR temp.TimezonesID IS NULL)
+			AND
+			(
+				(t.FromTime = '' AND t.ToTime = '')
+				OR
+				(
+					(
+						t.ApplyIF = 'start' AND
+						-- DATE_FORMAT(connect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00')
+						(TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime))
+					)
+					OR
+					(
+						t.ApplyIF = 'end' AND
+						-- DATE_FORMAT(disconnect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00')
+						(TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime))
+					)
+					OR
+					(
+						t.ApplyIF = 'both' AND
+						-- DATE_FORMAT(connect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00') AND
+						-- DATE_FORMAT(disconnect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00')
+						(TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)) AND
+						(TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime))
+					)
+				)
+			)
+			AND
+			(
+				t.Months = ''
+				OR
+				(
+					(
+						t.ApplyIF = 'start' AND
+						FIND_IN_SET(MONTH(connect_time), Months) != 0
+					)
+					OR
+					(
+						t.ApplyIF = 'end' AND
+						FIND_IN_SET(MONTH(disconnect_time), Months) != 0
+					)
+					OR
+					(
+						t.ApplyIF = 'both' AND
+						FIND_IN_SET(MONTH(connect_time), Months) != 0 AND
+						FIND_IN_SET(MONTH(disconnect_time), Months) != 0
+					)
+				)
+			)
+			AND
+			(
+				t.DaysOfMonth = ''
+				OR
+				(
+					(
+						t.ApplyIF = 'start' AND
+						FIND_IN_SET(DAY(connect_time), DaysOfMonth) != 0
+					)
+					OR
+					(
+						t.ApplyIF = 'end' AND
+						FIND_IN_SET(DAY(disconnect_time), DaysOfMonth) != 0
+					)
+					OR
+					(
+						t.ApplyIF = 'both' AND
+						FIND_IN_SET(DAY(connect_time), DaysOfMonth) != 0 AND
+						FIND_IN_SET(DAY(disconnect_time), DaysOfMonth) != 0
+					)
+				)
+			)
+			AND
+			(
+				t.DaysOfWeek = ''
+				OR
+				(
+					(
+						t.ApplyIF = 'start' AND
+						FIND_IN_SET(DAYOFWEEK(connect_time), DaysOfWeek) != 0
+					)
+					OR
+					(
+						t.ApplyIF = 'end' AND
+						FIND_IN_SET(DAYOFWEEK(disconnect_time), DaysOfWeek) != 0
+					)
+					OR
+					(
+						t.ApplyIF = 'both' AND
+						FIND_IN_SET(DAYOFWEEK(connect_time), DaysOfWeek) != 0 AND
+						FIND_IN_SET(DAYOFWEEK(disconnect_time), DaysOfWeek) != 0
+					)
+				)
+			)
+		);
+
+		-- if vendor timezone match
+		SELECT TimezonesID INTO v_TimezonesID_ FROM tmp_tblgetTimezone WHERE AccountID = p_VendorID AND TimezonesID IS NOT NULL;
+
+		IF v_TimezonesID_ IS NULL
+		THEN
+			-- if vendor timezone not match then check if company timezone match
+			SELECT TimezonesID INTO v_TimezonesID_ FROM tmp_tblgetTimezone WHERE AccountID = 0 AND TimezonesID IS NOT NULL;
+		END IF;
+
+		RETURN IFNULL(v_TimezonesID_,1);-- return match timezone, if not match any then return default timezone which is 1
+
+	ELSE
+
+		RETURN 1; -- return default timezone
+
+	END IF;
+
+END//
+DELIMITER ;
