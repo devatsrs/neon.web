@@ -410,7 +410,7 @@ $(document).ready(function(){
 
         var qty = parseFloat(obj.find(".Qty").val());
         //var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
-		var discount = 0;
+
         var discount = parseFloat(obj.find(".DiscountAmount").val().replace(/,/g,''));
         var discount_type = obj.find(".DiscountType option:selected").val();
         if(discount_type == 'Percentage')
@@ -422,26 +422,26 @@ $(document).ready(function(){
             var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
         }
 
-        var taxAmount  =  parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
+        var taxAmount  =  obj.find(".TaxRateID option:selected") != undefined ? parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,'')) : 0;
 		
-        var flatstatus = parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,''));
+        var flatstatus = obj.find(".TaxRateID option:selected") != undefined ? parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,'')) : 0;
         if(flatstatus == 1){
             var tax = parseFloat( ( taxAmount) );
         }else{
             var tax = parseFloat( (line_total * taxAmount)/100 );
         }
 		
-		var taxAmount2 =  parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-amount").replace(/,/g,''));
+		var taxAmount2 = obj.find(".TaxRateID2 option:selected") != undefined ? parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-amount").replace(/,/g,'')) : 0;
 		
-		 var flatstatus2 = parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-flatstatus").replace(/,/g,''));
+		 var flatstatus2 = obj.find(".TaxRateID2 option:selected") != undefined ? parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-flatstatus").replace(/,/g,'')) : 0;
         if(flatstatus2 == 1){
             var tax2 = parseFloat( ( taxAmount2) );
         }else{
             var tax2 = parseFloat( (line_total * taxAmount2)/100 );
         }
 		
-		var tax1val = obj.find("select.TaxRateID").val();
-		var tax2val = obj.find("select.TaxRateID2").val(); 
+		var tax1val = obj.find("select.TaxRateID") != undefined ? obj.find("select.TaxRateID").val() : 0;
+		var tax2val = obj.find("select.TaxRateID2") != undefined ? obj.find("select.TaxRateID2").val() : 0;
 		if(tax1val > 0 &&  (tax1val == tax2val)){
 			toastr.error(obj.find(".TaxRateID2 option:selected").text()+" already applied on product", "Error", toastr_opts);
 		}
@@ -542,7 +542,7 @@ $(document).ready(function(){
 
     });
 	
-	$("#AccountBillingClassID").change( function (e) {
+/*	$("#AccountBillingClassID").change( function (e) {
 		if($("select[name=AccountID]").val() == '') {
             toastr.error("Please Select Client first.", "Error", toastr_opts);
             return false;
@@ -572,7 +572,7 @@ $(document).ready(function(){
             });
         }   
 	
-	});
+	});*/
 	function add_invoce_tax(AccountTaxRate){		
 		$('.all_tax_row').remove();
 		if(AccountTaxRate.length>0){			
