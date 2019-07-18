@@ -9834,3 +9834,481 @@ BEGIN
 
 END//
 DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_RateTableDIDRateUpdateDelete`;
+DELIMITER //
+CREATE PROCEDURE `prc_RateTableDIDRateUpdateDelete`(
+	IN `p_RateTableId` INT,
+	IN `p_RateTableDIDRateId` LONGTEXT,
+	IN `p_OriginationRateID` INT,
+	IN `p_EffectiveDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_City` VARCHAR(50),
+	IN `p_Tariff` VARCHAR(50),
+	IN `p_AccessType` VARCHAR(200),
+	IN `p_OneOffCost` VARCHAR(255),
+	IN `p_MonthlyCost` VARCHAR(255),
+	IN `p_CostPerCall` VARCHAR(255),
+	IN `p_CostPerMinute` VARCHAR(255),
+	IN `p_SurchargePerCall` VARCHAR(255),
+	IN `p_SurchargePerMinute` VARCHAR(255),
+	IN `p_OutpaymentPerCall` VARCHAR(255),
+	IN `p_OutpaymentPerMinute` VARCHAR(255),
+	IN `p_Surcharges` VARCHAR(255),
+	IN `p_Chargeback` VARCHAR(255),
+	IN `p_CollectionCostAmount` VARCHAR(255),
+	IN `p_CollectionCostPercentage` VARCHAR(255),
+	IN `p_RegistrationCostPerNumber` VARCHAR(255),
+	IN `p_OneOffCostCurrency` DECIMAL(18,6),
+	IN `p_MonthlyCostCurrency` DECIMAL(18,6),
+	IN `p_CostPerCallCurrency` DECIMAL(18,6),
+	IN `p_CostPerMinuteCurrency` DECIMAL(18,6),
+	IN `p_SurchargePerCallCurrency` DECIMAL(18,6),
+	IN `p_SurchargePerMinuteCurrency` DECIMAL(18,6),
+	IN `p_OutpaymentPerCallCurrency` DECIMAL(18,6),
+	IN `p_OutpaymentPerMinuteCurrency` DECIMAL(18,6),
+	IN `p_SurchargesCurrency` DECIMAL(18,6),
+	IN `p_ChargebackCurrency` DECIMAL(18,6),
+	IN `p_CollectionCostAmountCurrency` DECIMAL(18,6),
+	IN `p_RegistrationCostPerNumberCurrency` DECIMAL(18,6),
+	IN `p_Critearea_CountryId` INT,
+	IN `p_Critearea_OriginationCode` VARCHAR(50),
+	IN `p_Critearea_Code` varchar(50),
+	IN `p_Critearea_City` VARCHAR(50),
+	IN `p_Critearea_Tariff` VARCHAR(50),
+	IN `p_Critearea_AccessType` VARCHAR(50),
+	IN `p_Critearea_Effective` VARCHAR(50),
+	IN `p_TimezonesID` INT,
+	IN `p_Critearea_ApprovedStatus` TINYINT,
+	IN `p_ModifiedBy` varchar(50),
+	IN `p_Critearea` INT,
+	IN `p_action` INT
+)
+ThisSP:BEGIN
+
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_RateTableAppliedTo_ INT;
+
+	DECLARE v_StatusAwaitingApproval_ INT(11) DEFAULT 0;
+	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
+	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
+	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = (SELECT CompanyId FROM tblRateTable WHERE RateTableID = p_RateTableId) AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_RateTableAppliedTo_ FROM tblRateTable WHERE RateTableID = p_RateTableId;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableDIDRate_;
+	CREATE TEMPORARY TABLE tmp_TempRateTableDIDRate_ (
+		`RateTableDIDRateId` int(11) NOT NULL,
+		`OriginationRateID` int(11) NOT NULL DEFAULT '0',
+		`RateId` int(11) NOT NULL,
+		`RateTableId` int(11) NOT NULL,
+		`TimezonesID` int(11) NOT NULL,
+		`City` VARCHAR(50) NOT NULL DEFAULT '',
+		`Tariff` VARCHAR(50) NOT NULL DEFAULT '',
+		`AccessType` VARCHAR(200) NULL DEFAULT NULL,
+		`OneOffCost` decimal(18,6) NULL DEFAULT NULL,
+		`MonthlyCost` decimal(18,6) NULL DEFAULT NULL,
+		`CostPerCall` decimal(18,6) NULL DEFAULT NULL,
+		`CostPerMinute` decimal(18,6) NULL DEFAULT NULL,
+		`SurchargePerCall` decimal(18,6) NULL DEFAULT NULL,
+		`SurchargePerMinute` decimal(18,6) NULL DEFAULT NULL,
+		`OutpaymentPerCall` decimal(18,6) NULL DEFAULT NULL,
+		`OutpaymentPerMinute` decimal(18,6) NULL DEFAULT NULL,
+		`Surcharges` decimal(18,6) NULL DEFAULT NULL,
+		`Chargeback` decimal(18,6) NULL DEFAULT NULL,
+		`CollectionCostAmount` decimal(18,6) NULL DEFAULT NULL,
+		`CollectionCostPercentage` decimal(18,6) NULL DEFAULT NULL,
+		`RegistrationCostPerNumber` decimal(18,6) NULL DEFAULT NULL,
+		`OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
+		`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
+		`CostPerCallCurrency` INT(11) NULL DEFAULT NULL,
+		`CostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
+		`SurchargePerCallCurrency` INT(11) NULL DEFAULT NULL,
+		`SurchargePerMinuteCurrency` INT(11) NULL DEFAULT NULL,
+		`OutpaymentPerCallCurrency` INT(11) NULL DEFAULT NULL,
+		`OutpaymentPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
+		`SurchargesCurrency` INT(11) NULL DEFAULT NULL,
+		`ChargebackCurrency` INT(11) NULL DEFAULT NULL,
+		`CollectionCostAmountCurrency` INT(11) NULL DEFAULT NULL,
+		`RegistrationCostPerNumberCurrency` INT(11) NULL DEFAULT NULL,
+		`EffectiveDate` datetime NOT NULL,
+		`EndDate` datetime DEFAULT NULL,
+		`created_at` datetime DEFAULT NULL,
+		`updated_at` datetime DEFAULT NULL,
+		`CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`ApprovedStatus` tinyint,
+		`ApprovedBy` varchar(50),
+		`ApprovedDate` datetime
+	);
+
+	INSERT INTO tmp_TempRateTableDIDRate_
+	SELECT
+		rtr.RateTableDIDRateId,
+		IF(rtr.OriginationRateID=0,IFNULL(p_OriginationRateID,rtr.OriginationRateID),rtr.OriginationRateID) AS OriginationRateID,
+		rtr.RateId,
+		rtr.RateTableId,
+		rtr.TimezonesID,
+		IFNULL(p_City,rtr.City) AS City,
+		IFNULL(p_Tariff,rtr.Tariff) AS Tariff,
+		IFNULL(p_AccessType,rtr.AccessType) AS AccessType,
+		IF(p_OneOffCost IS NOT NULL,IF(p_OneOffCost='NULL',NULL,p_OneOffCost),rtr.OneOffCost) AS OneOffCost,
+		IF(p_MonthlyCost IS NOT NULL,IF(p_MonthlyCost='NULL',NULL,p_MonthlyCost),rtr.MonthlyCost) AS MonthlyCost,
+		IF(p_CostPerCall IS NOT NULL,IF(p_CostPerCall='NULL',NULL,p_CostPerCall),rtr.CostPerCall) AS CostPerCall,
+		IF(p_CostPerMinute IS NOT NULL,IF(p_CostPerMinute='NULL',NULL,p_CostPerMinute),rtr.CostPerMinute) AS CostPerMinute,
+		IF(p_SurchargePerCall IS NOT NULL,IF(p_SurchargePerCall='NULL',NULL,p_SurchargePerCall),rtr.SurchargePerCall) AS SurchargePerCall,
+		IF(p_SurchargePerMinute IS NOT NULL,IF(p_SurchargePerMinute='NULL',NULL,p_SurchargePerMinute),rtr.SurchargePerMinute) AS SurchargePerMinute,
+		IF(p_OutpaymentPerCall IS NOT NULL,IF(p_OutpaymentPerCall='NULL',NULL,p_OutpaymentPerCall),rtr.OutpaymentPerCall) AS OutpaymentPerCall,
+		IF(p_OutpaymentPerMinute IS NOT NULL,IF(p_OutpaymentPerMinute='NULL',NULL,p_OutpaymentPerMinute),rtr.OutpaymentPerMinute) AS OutpaymentPerMinute,
+		IF(p_Surcharges IS NOT NULL,IF(p_Surcharges='NULL',NULL,p_Surcharges),rtr.Surcharges) AS Surcharges,
+		IF(p_Chargeback IS NOT NULL,IF(p_Chargeback='NULL',NULL,p_Chargeback),rtr.Chargeback) AS Chargeback,
+		IF(p_CollectionCostAmount IS NOT NULL,IF(p_CollectionCostAmount='NULL',NULL,p_CollectionCostAmount),rtr.CollectionCostAmount) AS CollectionCostAmount,
+		IF(p_CollectionCostPercentage IS NOT NULL,IF(p_CollectionCostPercentage='NULL',NULL,p_CollectionCostPercentage),rtr.CollectionCostPercentage) AS CollectionCostPercentage,
+		IF(p_RegistrationCostPerNumber IS NOT NULL,IF(p_RegistrationCostPerNumber='NULL',NULL,p_RegistrationCostPerNumber),rtr.RegistrationCostPerNumber) AS RegistrationCostPerNumber,
+		IFNULL(p_OneOffCostCurrency,rtr.OneOffCostCurrency) AS OneOffCostCurrency,
+		IFNULL(p_MonthlyCostCurrency,rtr.MonthlyCostCurrency) AS MonthlyCostCurrency,
+		IFNULL(p_CostPerCallCurrency,rtr.CostPerCallCurrency) AS CostPerCallCurrency,
+		IFNULL(p_CostPerMinuteCurrency,rtr.CostPerMinuteCurrency) AS CostPerMinuteCurrency,
+		IFNULL(p_SurchargePerCallCurrency,rtr.SurchargePerCallCurrency) AS SurchargePerCallCurrency,
+		IFNULL(p_SurchargePerMinuteCurrency,rtr.SurchargePerMinuteCurrency) AS SurchargePerMinuteCurrency,
+		IFNULL(p_OutpaymentPerCallCurrency,rtr.OutpaymentPerCallCurrency) AS OutpaymentPerCallCurrency,
+		IFNULL(p_OutpaymentPerMinuteCurrency,rtr.OutpaymentPerMinuteCurrency) AS OutpaymentPerMinuteCurrency,
+		IFNULL(p_SurchargesCurrency,rtr.SurchargesCurrency) AS SurchargesCurrency,
+		IFNULL(p_ChargebackCurrency,rtr.ChargebackCurrency) AS ChargebackCurrency,
+		IFNULL(p_CollectionCostAmountCurrency,rtr.CollectionCostAmountCurrency) AS CollectionCostAmountCurrency,
+		IFNULL(p_RegistrationCostPerNumberCurrency,rtr.RegistrationCostPerNumberCurrency) AS RegistrationCostPerNumberCurrency,
+		IFNULL(p_EffectiveDate,rtr.EffectiveDate) AS EffectiveDate,
+		IFNULL(p_EndDate,rtr.EndDate) AS EndDate,
+		rtr.created_at,
+		NOW() AS updated_at,
+		rtr.CreatedBy,
+		p_ModifiedBy AS ModifiedBy,
+		rtr.ApprovedStatus,
+		rtr.ApprovedBy,
+		rtr.ApprovedDate
+	FROM
+		tblRateTableDIDRate rtr
+	INNER JOIN
+		tblRate r ON r.RateID = rtr.RateId
+	LEFT JOIN
+		tblRate r2 ON r2.RateID = rtr.OriginationRateID
+   INNER JOIN
+		tblRateTable ON tblRateTable.RateTableId = rtr.RateTableId
+	WHERE
+		(
+			p_EffectiveDate IS NULL OR (
+				(rtr.RateID,rtr.OriginationRateID,rtr.TimezonesID,City,Tariff) NOT IN (
+						SELECT
+							RateID,OriginationRateID,TimezonesID,City,Tariff
+						FROM
+							tblRateTableDIDRate
+						WHERE
+							EffectiveDate=p_EffectiveDate AND (p_TimezonesID IS NULL OR TimezonesID = p_TimezonesID) AND
+							((p_Critearea = 0 AND (FIND_IN_SET(RateTableDIDRateID,p_RateTableDIDRateID) = 0 )) OR p_Critearea = 1) AND
+							RateTableId = p_RateTableId
+				)
+			)
+		)
+		AND
+		(
+			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTableDIDRateID,p_RateTableDIDRateID) != 0 )) OR
+			(
+				p_Critearea = 1 AND
+				(
+					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
+					((p_Critearea_OriginationCode IS NULL) OR (p_Critearea_OriginationCode IS NOT NULL AND r2.Code LIKE REPLACE(p_Critearea_OriginationCode,'*', '%'))) AND
+					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
+					(p_Critearea_City IS NULL OR rtr.City = p_Critearea_City) AND
+					(p_Critearea_Tariff IS NULL OR rtr.Tariff = p_Critearea_Tariff) AND
+					(p_Critearea_AccessType IS NULL OR rtr.AccessType = p_Critearea_AccessType) AND
+					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
+					(
+						p_Critearea_Effective = 'All' OR
+						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
+						(p_Critearea_Effective = 'Future' AND rtr.EffectiveDate > NOW() )
+					)
+				)
+			)
+		) AND
+		rtr.RateTableId = p_RateTableId AND
+		(p_TimezonesID IS NULL OR 	rtr.TimezonesID = p_TimezonesID);
+
+
+	IF p_action = 1
+	THEN
+
+		IF p_EffectiveDate IS NOT NULL
+		THEN
+			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableDIDRate_2 as (select * from tmp_TempRateTableDIDRate_);
+			DELETE n1 FROM tmp_TempRateTableDIDRate_ n1, tmp_TempRateTableDIDRate_2 n2 WHERE n1.RateTableDIDRateID < n2.RateTableDIDRateID AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID AND n1.City=n2.City AND n1.Tariff=n2.Tariff;
+		END IF;
+
+		-- delete records which can be duplicates, we will not update them
+		DELETE n1.* FROM tmp_TempRateTableDIDRate_ n1, tblRateTableDIDRate n2 WHERE n1.RateTableDIDRateID <> n2.RateTableDIDRateID AND n1.RateTableID = n2.RateTableID AND n1.TimezonesID = n2.TimezonesID AND n1.EffectiveDate = n2.EffectiveDate AND n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.City=n2.City AND n1.Tariff=n2.Tariff AND n2.RateTableID=p_RateTableId;
+
+		/*
+			it was creating history evan if no columns are updating of row
+			so, using this query we are removing rows which are not updating any columns
+		*/
+		DELETE
+			temp
+		FROM
+			tmp_TempRateTableDIDRate_ temp
+		JOIN
+			tblRateTableDIDRate rtr ON rtr.RateTableDIDRateID = temp.RateTableDIDRateID
+		WHERE
+			(rtr.OriginationRateID = temp.OriginationRateID) AND
+			(rtr.EffectiveDate = temp.EffectiveDate) AND
+			(rtr.TimezonesID = temp.TimezonesID) AND
+			(rtr.City = temp.City) AND
+			(rtr.Tariff = temp.Tariff) AND
+			((rtr.AccessType IS NULL && temp.AccessType IS NULL) || rtr.AccessType = temp.AccessType) AND
+			((rtr.OneOffCost IS NULL && temp.OneOffCost IS NULL) || rtr.OneOffCost = temp.OneOffCost) AND
+			((rtr.MonthlyCost IS NULL && temp.MonthlyCost IS NULL) || rtr.MonthlyCost = temp.MonthlyCost) AND
+			((rtr.CostPerCall IS NULL && temp.CostPerCall IS NULL) || rtr.CostPerCall = temp.CostPerCall) AND
+			((rtr.CostPerMinute IS NULL && temp.CostPerMinute IS NULL) || rtr.CostPerMinute = temp.CostPerMinute) AND
+			((rtr.SurchargePerCall IS NULL && temp.SurchargePerCall IS NULL) || rtr.SurchargePerCall = temp.SurchargePerCall) AND
+			((rtr.SurchargePerMinute IS NULL && temp.SurchargePerMinute IS NULL) || rtr.SurchargePerMinute = temp.SurchargePerMinute) AND
+			((rtr.OutpaymentPerCall IS NULL && temp.OutpaymentPerCall IS NULL) || rtr.OutpaymentPerCall = temp.OutpaymentPerCall) AND
+			((rtr.OutpaymentPerMinute IS NULL && temp.OutpaymentPerMinute IS NULL) || rtr.OutpaymentPerMinute = temp.OutpaymentPerMinute) AND
+			((rtr.Surcharges IS NULL && temp.Surcharges IS NULL) || rtr.Surcharges = temp.Surcharges) AND
+			((rtr.Chargeback IS NULL && temp.Chargeback IS NULL) || rtr.Chargeback = temp.Chargeback) AND
+			((rtr.CollectionCostAmount IS NULL && temp.CollectionCostAmount IS NULL) || rtr.CollectionCostAmount = temp.CollectionCostAmount) AND
+			((rtr.CollectionCostPercentage IS NULL && temp.CollectionCostPercentage IS NULL) || rtr.CollectionCostPercentage = temp.CollectionCostPercentage) AND
+			((rtr.RegistrationCostPerNumber IS NULL && temp.RegistrationCostPerNumber IS NULL) || rtr.RegistrationCostPerNumber = temp.RegistrationCostPerNumber) AND
+			((rtr.OneOffCostCurrency IS NULL && temp.OneOffCostCurrency IS NULL) || rtr.OneOffCostCurrency = temp.OneOffCostCurrency) AND
+			((rtr.MonthlyCostCurrency IS NULL && temp.MonthlyCostCurrency IS NULL) || rtr.MonthlyCostCurrency = temp.MonthlyCostCurrency) AND
+			((rtr.CostPerCallCurrency IS NULL && temp.CostPerCallCurrency IS NULL) || rtr.CostPerCallCurrency = temp.CostPerCallCurrency) AND
+			((rtr.CostPerMinuteCurrency IS NULL && temp.CostPerMinuteCurrency IS NULL) || rtr.CostPerMinuteCurrency = temp.CostPerMinuteCurrency) AND
+			((rtr.SurchargePerCallCurrency IS NULL && temp.SurchargePerCallCurrency IS NULL) || rtr.SurchargePerCallCurrency = temp.SurchargePerCallCurrency) AND
+			((rtr.SurchargePerMinuteCurrency IS NULL && temp.SurchargePerMinuteCurrency IS NULL) || rtr.SurchargePerMinuteCurrency = temp.SurchargePerMinuteCurrency) AND
+			((rtr.OutpaymentPerCallCurrency IS NULL && temp.OutpaymentPerCallCurrency IS NULL) || rtr.OutpaymentPerCallCurrency = temp.OutpaymentPerCallCurrency) AND
+			((rtr.OutpaymentPerMinuteCurrency IS NULL && temp.OutpaymentPerMinuteCurrency IS NULL) || rtr.OutpaymentPerMinuteCurrency = temp.OutpaymentPerMinuteCurrency) AND
+			((rtr.SurchargesCurrency IS NULL && temp.SurchargesCurrency IS NULL) || rtr.SurchargesCurrency = temp.SurchargesCurrency) AND
+			((rtr.ChargebackCurrency IS NULL && temp.ChargebackCurrency IS NULL) || rtr.ChargebackCurrency = temp.ChargebackCurrency) AND
+			((rtr.CollectionCostAmountCurrency IS NULL && temp.CollectionCostAmountCurrency IS NULL) || rtr.CollectionCostAmountCurrency = temp.CollectionCostAmountCurrency) AND
+			((rtr.RegistrationCostPerNumberCurrency IS NULL && temp.RegistrationCostPerNumberCurrency IS NULL) || rtr.RegistrationCostPerNumberCurrency = temp.RegistrationCostPerNumberCurrency);
+
+	END IF;
+
+
+	-- if rate table is not vendor rate table and rate approval process is on then set approval status to awaiting approval while updating
+	IF v_RateTableAppliedTo_!=2 AND v_RateApprovalProcess_=1
+	THEN
+		UPDATE
+			tmp_TempRateTableDIDRate_
+		SET
+			ApprovedStatus = v_StatusAwaitingApproval_,
+			ApprovedBy = NULL,
+			ApprovedDate = NULL;
+
+
+		INSERT INTO tblRateTableDIDRateAA (
+			RateTableDIDRateID,
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			City,
+			Tariff,
+			AccessType,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			CostPerCallCurrency,
+			CostPerMinuteCurrency,
+			SurchargePerCallCurrency,
+			SurchargePerMinuteCurrency,
+			OutpaymentPerCallCurrency,
+			OutpaymentPerMinuteCurrency,
+			SurchargesCurrency,
+			ChargebackCurrency,
+			CollectionCostAmountCurrency,
+			RegistrationCostPerNumberCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		)
+		SELECT
+			RateTableDIDRateId,
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			City,
+			Tariff,
+			AccessType,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			CostPerCallCurrency,
+			CostPerMinuteCurrency,
+			SurchargePerCallCurrency,
+			SurchargePerMinuteCurrency,
+			OutpaymentPerCallCurrency,
+			OutpaymentPerMinuteCurrency,
+			SurchargesCurrency,
+			ChargebackCurrency,
+			CollectionCostAmountCurrency,
+			RegistrationCostPerNumberCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			IF(p_action=1,v_StatusAwaitingApproval_,v_StatusDelete_) AS ApprovedStatus, -- if action=update then status=aa else status=aadelete
+			ApprovedBy,
+			ApprovedDate
+		FROM
+			tmp_TempRateTableDIDRate_;
+
+		LEAVE ThisSP;
+
+	END IF;
+
+
+	UPDATE
+		tblRateTableDIDRate rtr
+	INNER JOIN
+		tmp_TempRateTableDIDRate_ temp ON temp.RateTableDIDRateID = rtr.RateTableDIDRateID
+	SET
+		rtr.EndDate = NOW()
+	WHERE
+		temp.RateTableDIDRateID = rtr.RateTableDIDRateID;
+
+	CALL prc_ArchiveOldRateTableDIDRate(p_RateTableId,p_TimezonesID,p_ModifiedBy);
+
+	IF p_action = 1
+	THEN
+
+		INSERT INTO tblRateTableDIDRate (
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			City,
+			Tariff,
+			AccessType,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			CostPerCallCurrency,
+			CostPerMinuteCurrency,
+			SurchargePerCallCurrency,
+			SurchargePerMinuteCurrency,
+			OutpaymentPerCallCurrency,
+			OutpaymentPerMinuteCurrency,
+			SurchargesCurrency,
+			ChargebackCurrency,
+			CollectionCostAmountCurrency,
+			RegistrationCostPerNumberCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		)
+		SELECT
+			OriginationRateID,
+			RateId,
+			RateTableId,
+			TimezonesID,
+			City,
+			Tariff,
+			AccessType,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+			OneOffCostCurrency,
+			MonthlyCostCurrency,
+			CostPerCallCurrency,
+			CostPerMinuteCurrency,
+			SurchargePerCallCurrency,
+			SurchargePerMinuteCurrency,
+			OutpaymentPerCallCurrency,
+			OutpaymentPerMinuteCurrency,
+			SurchargesCurrency,
+			ChargebackCurrency,
+			CollectionCostAmountCurrency,
+			RegistrationCostPerNumberCurrency,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			ApprovedStatus,
+			ApprovedBy,
+			ApprovedDate
+		FROM
+			tmp_TempRateTableDIDRate_;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
