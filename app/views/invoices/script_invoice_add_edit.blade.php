@@ -422,18 +422,18 @@ $(document).ready(function(){
             var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
         }
 
-        var taxAmount  =  obj.find(".TaxRateID option:selected") != undefined ? parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,'')) : 0;
+        var taxAmount  =  obj.find(".TaxRateID option:selected").hasAttribute('data-amount') ? parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,'')) : 0;
 		
-        var flatstatus = obj.find(".TaxRateID option:selected") != undefined ? parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,'')) : 0;
+        var flatstatus = obj.find(".TaxRateID option:selected").hasAttribute('data-flatstatus') ? parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,'')) : 0;
         if(flatstatus == 1){
             var tax = parseFloat( ( taxAmount) );
         }else{
             var tax = parseFloat( (line_total * taxAmount)/100 );
         }
 		
-		var taxAmount2 = obj.find(".TaxRateID2 option:selected") != undefined ? parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-amount").replace(/,/g,'')) : 0;
+		var taxAmount2 = obj.find(".TaxRateID2 option:selected").hasAttribute('data-amount') ? parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-amount").replace(/,/g,'')) : 0;
 		
-		 var flatstatus2 = obj.find(".TaxRateID2 option:selected") != undefined ? parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-flatstatus").replace(/,/g,'')) : 0;
+		 var flatstatus2 = obj.find(".TaxRateID2 option:selected").hasAttribute('data-flatstatus') ? parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-flatstatus").replace(/,/g,'')) : 0;
         if(flatstatus2 == 1){
             var tax2 = parseFloat( ( taxAmount2) );
         }else{
