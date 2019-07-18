@@ -1470,7 +1470,7 @@ public function store_inv_in(){
 				$InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
 				$Terms = $Reseller->TermsAndCondition;
 				$FooterTerm = $Reseller->FooterTerm;
-				$AccountTaxRate  = Account::getTaxRateType($Account->AccountiD,TaxRate::TAX_ALL);
+				$AccountTaxRate  = Account::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
 				$return = ['Terms','FooterTerm','InvoiceToAddress','AccountTaxRate'];
 			}
             return Response::json(compact($return));
