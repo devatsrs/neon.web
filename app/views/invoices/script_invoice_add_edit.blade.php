@@ -377,10 +377,10 @@ $(document).ready(function(){
 				  
 				  taxes_array.push(tax_current_id);					  
 				  
-				  
+				  console.log(tt);
 				  var obj 			  =   $(element).parent().parent();
-				  var taxAmount  	  =   tt.attr("data-amount") != undefined ? parseFloat(tt.attr("data-amount").replace(/,/g,'')) : 0;
-				  var flatstatus 	  =   tt.attr("data-amount") != undefined ? parseFloat(tt.attr("data-flatstatus").replace(/,/g,'')) : 0;
+				  var taxAmount  	  =   parseFloat(tt.attr("data-amount").replace(/,/g,''));
+				  var flatstatus 	  =   parseFloat(tt.attr("data-flatstatus").replace(/,/g,''));
 				  
 				  if(flatstatus == 1){
 						var tax = parseFloat( ( taxAmount) );
