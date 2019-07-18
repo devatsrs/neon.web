@@ -1453,26 +1453,26 @@ public function store_inv_in(){
 		
         $data = Input::all();
         if ((isset($data['BillingClassID']) && $data['BillingClassID'] > 0 ) && (isset($data['account_id']) && $data['account_id'] > 0 ) ) {
-            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country"];
+            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country",'CompanyId'];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
-            $InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+            $CompanyID = $Account->CompanyId;
+            //$InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
             $Terms = $FooterTerm = $InvoiceToAddress ='';						
-            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+            //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             $currencies =   Currency::getCurrencyDropdownIDList();
                 /* for item invoice generate - invoice to address as invoice template */
-				
-			if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
-				$message = $InvoiceTemplate->InvoiceTo;
+            $return = ['Terms','FooterTerm','InvoiceToAddress'];
+            $Reseller = Reseller::where('ChildCompanyID',$CompanyID)->first();
+            if(isset($Reseller) && $Reseller != false) {
+				$message = $Reseller->InvoiceTo;
 				$replace_array = Invoice::create_accountdetails($Account);
 				$text = Invoice::getInvoiceToByAccount($message,$replace_array);
 				$InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
-				$Terms = $InvoiceTemplate->Terms;
-				$FooterTerm = $InvoiceTemplate->FooterTerm;			
+				$Terms = $Reseller->TermsAndConditions;
+				$FooterTerm = $Reseller->FooterTerm;
 				$AccountTaxRate  = BillingClass::getTaxRateType($data['BillingClassID'],TaxRate::TAX_ALL);
-				$return = ['Terms','FooterTerm','InvoiceTemplateID','InvoiceToAddress','AccountTaxRate'];
-			}else{
-			return Response::json(array("status" => "failed", "message" => "You can not create Invoice for this Account. as It has no Invoice Template assigned" ));
-		   }
+				$return = ['Terms','FooterTerm','InvoiceToAddress','AccountTaxRate'];
+			}
             return Response::json(compact($return));
         }
     }
