@@ -1432,7 +1432,7 @@ public function store_inv_in(){
                 	$replace_array = Invoice::create_accountdetails($Account);
 	                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
     	            $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
-				    $Terms = $Reseller->TermsAndConditions;
+				    $Terms = $Reseller->TermsAndCondition;
     	            $FooterTerm = $Reseller->FooterTerm;
                 } else {
                     $InvoiceToAddress 	= 	'';
@@ -1468,7 +1468,7 @@ public function store_inv_in(){
 				$replace_array = Invoice::create_accountdetails($Account);
 				$text = Invoice::getInvoiceToByAccount($message,$replace_array);
 				$InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
-				$Terms = $Reseller->TermsAndConditions;
+				$Terms = $Reseller->TermsAndCondition;
 				$FooterTerm = $Reseller->FooterTerm;
 				$AccountTaxRate  = BillingClass::getTaxRateType($data['BillingClassID'],TaxRate::TAX_ALL);
 				$return = ['Terms','FooterTerm','InvoiceToAddress','AccountTaxRate'];
