@@ -1420,7 +1420,7 @@ public function store_inv_in(){
 
             $Terms = $FooterTerm = $InvoiceToAddress ='';
 			
-			 $AccountTaxRate = AccountBilling::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
+			 $AccountTaxRate = Account::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
 			//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 		
            // if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
