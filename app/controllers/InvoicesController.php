@@ -185,9 +185,7 @@ class InvoicesController extends \BaseController {
         $accounts 	= 	Account::getAccountIDList();
         $products 	= 	Product::getProductDropdownList($companyID);
         $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
-		//echo "<pre>"; 		print_r($taxes);		echo "</pre>"; exit;
-        //$gateway_product_ids = Product::getGatewayProductIDs();
-		$BillingClass = BillingClass::getDropdownIDList($companyID);
+		$BillingClass = BillingClass::getBillingClassListByCompanyID($companyID);
 
         $Type =  Product::DYNAMIC_TYPE;
         $productsControllerObj = new ProductsController();
@@ -218,15 +216,15 @@ class InvoicesController extends \BaseController {
             $Account = Account::where(["AccountID" => $Invoice->AccountID])->select(["AccountName","BillingEmail", "CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
             $CurrencyID = !empty($Invoice->CurrencyID)?$Invoice->CurrencyID:$Account->CurrencyId;
             $RoundChargesAmount = get_round_decimal_places($Invoice->AccountID);
-            $InvoiceTemplateID = BillingClass::getInvoiceTemplateID($InvoiceBillingClass);
-            $InvoiceNumberPrefix = ($InvoiceTemplateID>0)?InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix:'';
+            //$InvoiceTemplateID = BillingClass::getInvoiceTemplateID($InvoiceBillingClass);
+            $InvoiceNumberPrefix = Company::getCompanyField($CompanyID, "InvoiceNumberPrefix");
             $Currency = Currency::find($CurrencyID);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CompanyName = Company::getName($CompanyID);
             $taxes =  TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
             $invoicelog =  InVoiceLog::where(array('InvoiceID'=>$id))->get();
 			$InvoiceAllTax =  InvoiceTaxRate::where(["InvoiceID"=>$id,"InvoiceTaxType"=>1])->get();
-			$BillingClass = BillingClass::getDropdownIDList($CompanyID);
+			$BillingClass = BillingClass::getBillingClassListByCompanyID($CompanyID);
 
             $Type =  Product::DYNAMIC_TYPE;
             $productsControllerObj = new ProductsController();
@@ -1126,8 +1124,8 @@ public function store_inv_in(){
 
                             $InvoiceDetailData[$i]['TotalMinutes']  = $data['TotalMinutes'];
                             $InvoiceDetailData[$i]['StartDate']     = date('Y-m-d H:i:s', strtotime($data['StartDate']));
-                            $InvoiceDetailData[$i]['EndDate'] = date('Y-m-d H:i:s', strtotime($data['EndDate']));
-                            $InvoiceDetailData[$i]["Discount"]      =   0;
+                            $InvoiceDetailData[$i]['EndDate']       = date('Y-m-d H:i:s', strtotime($data['EndDate']));
+                            $InvoiceDetailData[$i]["Discount"]      = 0;
                             $InvoiceDetailData[$i]["InvoiceID"]     = $Invoice->InvoiceID;
                             $InvoiceDetailData[$i]["created_at"]    = date("Y-m-d H:i:s");
                             $InvoiceDetailData[$i]["updated_at"]    = date("Y-m-d H:i:s");
