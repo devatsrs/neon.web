@@ -191,10 +191,11 @@ class InvoicesController extends \BaseController {
 
         $Type =  Product::DYNAMIC_TYPE;
         $productsControllerObj = new ProductsController();
+        $InvoiceType = Invoice::INVOICE_OUT;
         $DynamicFields = $productsControllerObj->getDynamicFields($companyID,$Type);
         $itemtypes 	= 	ItemType::getItemTypeDropdownList($companyID);
 
-        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass','DynamicFields','itemtypes'));
+        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass','DynamicFields','itemtypes','InvoiceType'));
 
     }
 
@@ -584,8 +585,8 @@ public function store_inv_in(){
            
             $message = '';
         if (Input::hasFile('Attachment')) {
-            $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID);
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD'],$CompanyID);
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$companyID);
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD'],$companyID);
             $destinationPath = $upload_path . '/' . $amazonPath;
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
@@ -593,7 +594,7 @@ public function store_inv_in(){
             if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
                 $Attachment->move($destinationPath, $file_name);
-                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath,$CompanyID)) {
+                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath,$companyID)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
@@ -1249,9 +1250,9 @@ public function store_inv_in(){
             $Account = Account::find($AccountID);
             if (!empty($Account)) {
                 //$InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($AccountID);
-				$InvoiceTemplateID   = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
-                $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
-                if (isset($InvoiceTemplate->InvoiceTemplateID) && $InvoiceTemplate->InvoiceTemplateID > 0) {
+				//$InvoiceTemplateID   = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+                //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+                //if (isset($InvoiceTemplate->InvoiceTemplateID) && $InvoiceTemplate->InvoiceTemplateID > 0) {
                     $decimal_places = get_round_decimal_places($AccountID);
 
                     if (Product::$ProductTypes[$data['product_type']] == Product::ITEM) {
@@ -1272,7 +1273,7 @@ public function store_inv_in(){
                                 $TaxRates->toArray();
                             }
                             //$AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
-							$AccountTaxRate =  explode(",",BillingClass::getTaxRate($data['BillingClassID']));
+							$AccountTaxRate =  explode(",",Account::getTaxRate($AccountID));
 							//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
                             $TaxRateAmount = $TaxRateId = $FlatStatus =  0; 
@@ -1352,7 +1353,7 @@ public function store_inv_in(){
                             }
                             //$AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
                            // $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
-						    $AccountTaxRate =  explode(",",BillingClass::getTaxRate($data['BillingClassID']));
+						    $AccountTaxRate =  explode(",",Account::getTaxRate($AccountID));
 
                             $TaxRateAmount = $TaxRateId = 0;
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
@@ -1385,9 +1386,9 @@ public function store_inv_in(){
 
                         $error = "No Invoice Template Assigned to Account";
                     }
-                } else {
+                /*} else {
                     $error = "Billing Class Not Found, Please select Account and Billing Class both.";
-                }
+                }*/
                 if (empty($response)) {
                     $response = [
                         "status" => "failure",
@@ -4416,19 +4417,16 @@ public function store_inv_in(){
         $vendors    = !empty($vendors) ? array(""=> "Select") + $vendors : array(""=> "Select");
 
         $currencies =   Currency::getCurrencyDropdownIDList();
-        //$products   =   Product::getProductDropdownList($companyID);
         $products   =   Product::where(['Active' => 1, 'CompanyId' => $companyID])->get();
         $taxes      =   TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
-        //echo "<pre>";         print_r($taxes);        echo "</pre>"; exit;
-        //$gateway_product_ids = Product::getGatewayProductIDs();
-        //$BillingClass = BillingClass::getDropdownIDList($companyID);
 
         $Type =  Product::DYNAMIC_TYPE;
+        $InvoiceType = Invoice::INVOICE_IN;
         $productsControllerObj = new ProductsController();
         $DynamicFields = $productsControllerObj->getDynamicFields($companyID,$Type);
         $itemtypes  =   ItemType::getItemTypeDropdownList($companyID);
 
-        return View::make('invoices.create_inv_in',compact('vendors','products','taxes','DynamicFields','itemtypes','currencies'));
+        return View::make('invoices.create_inv_in',compact('vendors','products','taxes','DynamicFields','itemtypes','currencies','InvoiceType'));
     }
 
 

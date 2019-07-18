@@ -1030,4 +1030,8 @@ class Account extends \Eloquent {
         return $Type;
     }
 
+    public static function getTaxRate($AccountID){
+        return Account::where('AccountID',$AccountID)->pluck('TaxRateID');
+    }
+
 }
