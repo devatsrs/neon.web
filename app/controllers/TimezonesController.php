@@ -47,8 +47,8 @@ class TimezonesController extends BaseController {
         if(!empty($data)){
             $rules = array(
                 "Title"         => "required|unique:tblTimezones",
-                "FromTime"      => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i",
-                "ToTime"        => "required_with:FromTime|date_format:H:i",
+                "FromTime"      => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i:s",
+                "ToTime"        => "required_with:FromTime|date_format:H:i:s",
                 "DaysOfWeek"    => "required_without_all:FromTime,DaysOfMonth,Months",
                 "DaysOfMonth"   => "required_without_all:DaysOfWeek,FromTime,Months",
                 "Months"        => "required_without_all:DaysOfWeek,DaysOfMonth,FromTime"
@@ -98,8 +98,8 @@ class TimezonesController extends BaseController {
                 if (!empty($Timezone)) {
                     $rules = array(
                         "Title" => "required|unique:tblTimezones,Title," . $id . ",TimezonesID",
-                        "FromTime" => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i",
-                        "ToTime" => "required_with:FromTime|date_format:H:i",
+                        "FromTime" => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i:s",
+                        "ToTime" => "required_with:FromTime|date_format:H:i:s",
                         "DaysOfWeek" => "required_without_all:FromTime,DaysOfMonth,Months",
                         "DaysOfMonth" => "required_without_all:DaysOfWeek,FromTime,Months",
                         "Months" => "required_without_all:DaysOfWeek,DaysOfMonth,FromTime"
