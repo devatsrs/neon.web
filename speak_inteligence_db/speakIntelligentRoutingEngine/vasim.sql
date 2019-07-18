@@ -206,7 +206,10 @@ BEGIN
 	INNER JOIN
 		tmp_VendorRates2 t2
 	WHERE
-		t1.VendorID = t2.VendorID AND t1.VendorConnectionID = t2.VendorConnectionID AND t1.TimezonesID < t2.TimezonesID;
+		t1.VendorID = t2.VendorID AND t1.VendorConnectionID = t2.VendorConnectionID AND
+		t1.DestinationCode = t2.DestinationCode AND
+		((t1.OriginationCode IS NULL AND t2.OriginationCode IS NULL) OR t1.OriginationCode = t2.OriginationCode) AND
+		t1.TimezonesID < t2.TimezonesID;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_VendorRates3;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRates3 AS (SELECT * FROM tmp_VendorRates);
@@ -239,7 +242,7 @@ BEGIN
 		FROM
 			tmp_VendorRates
 		ORDER BY
-			IFNULL(Preference ,5) DESC, Rate ASC, RoutingCategoryOrder  DESC, DestinationCode DESC, OriginationCode DESC, VendorConnectionName;
+			RoutingCategoryOrder ASC, IFNULL(Preference ,5) DESC, Rate ASC, DestinationCode DESC, OriginationCode DESC, VendorConnectionName;
 
 	ELSE -- IF p_profileIDs > 0
 
@@ -602,7 +605,10 @@ PRC:BEGIN
 	INNER JOIN
 		tmp_VendorRates2 t2
 	WHERE
-		t1.VendorID = t2.VendorID AND t1.VendorConnectionID = t2.VendorConnectionID AND t1.TimezonesID < t2.TimezonesID;
+		t1.VendorID = t2.VendorID AND t1.VendorConnectionID = t2.VendorConnectionID AND
+		t1.DestinationCode = t2.DestinationCode AND
+		((t1.OriginationCode IS NULL AND t2.OriginationCode IS NULL) OR t1.OriginationCode = t2.OriginationCode) AND
+		t1.TimezonesID < t2.TimezonesID;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_VendorRates3;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRates3 AS (SELECT * FROM tmp_VendorRates);
@@ -635,7 +641,7 @@ PRC:BEGIN
 		FROM
 			tmp_VendorRates
 		ORDER BY
-			IFNULL(Preference ,5) DESC, Rate ASC, RoutingCategoryOrder DESC, DestinationCode DESC, OriginationCode DESC, VendorConnectionName;
+			RoutingCategoryOrder ASC, IFNULL(Preference ,5) DESC, Rate ASC, DestinationCode DESC, OriginationCode DESC, VendorConnectionName;
 
 	ELSE
 
