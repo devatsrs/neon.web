@@ -1030,4 +1030,22 @@ class Account extends \Eloquent {
         return $Type;
     }
 
+    public static function getTaxRate($AccountID){
+        return Account::where('AccountID',$AccountID)->pluck('TaxRateID');
+    }
+
+    public static function getTaxRateType($AccountID,$type){
+        $final 			=   array();
+        $result 		=   self::getTaxRate($AccountID);
+        $resultarray 	= 	explode(",",$result);
+
+        foreach($resultarray as $resultdata)	{
+            if(TaxRate::where(['TaxRateId'=>$resultdata,'TaxType'=>$type])->count()){
+                $final[]  = $resultdata;
+            }
+        }
+
+        return $final;
+    }
+
 }

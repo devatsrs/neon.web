@@ -513,18 +513,27 @@ $(document).ready(function(){
                     $("#Account_Address").html(response.InvoiceToAddress);
                     $("input[name=CurrencyCode]").val(response.Currency);
                     $("input[name=CurrencyID]").val(response.CurrencyId);
-					$("#AccountBillingClassID").val(response.BillingClassID).trigger('change'); 
+
+                    @if(isset($InvoiceType) && $InvoiceType == Invoice::INVOICE_OUT)
+					    $("#AccountBillingClassID").val(response.BillingClassID).trigger('change');
+                    @endif
                     $('#add-new-billing_subscription-form [data-type="currency"]').val(response.CurrencyId).trigger('change');
                     if($('#add-new-billing_subscription-form input[name=CurrencyID]').length > 0) {
                         $('#add-new-billing_subscription-form input[name=CurrencyID]').val(response.CurrencyId);
                     }else{
                         $('#add-new-billing_subscription-form select[data-type="currency"]').after($('<input type="hidden" name="CurrencyID" value="' + response.CurrencyId + '" />'));
                     }
-                    $("input[name=InvoiceTemplateID]").val(response.InvoiceTemplateID);
+                    //$("input[name=InvoiceTemplateID]").val(response.InvoiceTemplateID);
                     $("[name=Terms]").val(response.Terms);
                     $("[name=FooterTerm]").val(response.FooterTerm);
-					add_invoce_tax(response.AccountTaxRate);
-                    InvoiceTemplateID = response.InvoiceTemplateID;
+
+                    @if(isset($InvoiceType) && $InvoiceType == Invoice::INVOICE_OUT)
+					    add_invoce_tax(response.AccountTaxRate);
+                    @endif
+                    @if(isset($InvoiceType) && $InvoiceType == Invoice::INVOICE_IN)
+					    calculate_total();
+                    @endif
+                    //InvoiceTemplateID = response.InvoiceTemplateID;
                 }
 				show_summerinvoicetemplate($("[name=Terms]"));
 				show_summerinvoicetemplate($("[name=FooterTerm]"));	
