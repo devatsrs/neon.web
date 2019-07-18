@@ -530,6 +530,9 @@ $(document).ready(function(){
                     @if(isset($InvoiceType) && $InvoiceType == Invoice::INVOICE_OUT)
 					    add_invoce_tax(response.AccountTaxRate);
                     @endif
+                    @if(isset($InvoiceType) && $InvoiceType == Invoice::INVOICE_IN)
+					    calculate_total();
+                    @endif
                     //InvoiceTemplateID = response.InvoiceTemplateID;
                 }
 				show_summerinvoicetemplate($("[name=Terms]"));

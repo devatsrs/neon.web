@@ -1408,7 +1408,6 @@ public function store_inv_in(){
     public function getAccountInfo()
     {
         $data = Input::all();
-        $currencies =   Currency::getCurrencyDropdownIDList();
         if (isset($data['account_id']) && $data['account_id'] > 0 ) {
             $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country","CompanyId"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
@@ -1420,8 +1419,7 @@ public function store_inv_in(){
 
             $Terms = $FooterTerm = $InvoiceToAddress ='';
 			
-			 $AccountTaxRate = Account::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
-			//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
+            $AccountTaxRate = Account::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
 		
            // if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
                 //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
@@ -1439,6 +1437,7 @@ public function store_inv_in(){
                     $Terms 				= 	'';
                     $FooterTerm 		= 	'';
                 }
+
 				$BillingClassID     =   AccountBilling::getBillingClassID($data['account_id']);
 				
                 $return = ['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate','InvoiceToAddress','BillingClassID'];
@@ -1456,12 +1455,9 @@ public function store_inv_in(){
             $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country",'CompanyId'];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
             $CompanyID = $Account->CompanyId;
-            //$InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
-            $Terms = $FooterTerm = $InvoiceToAddress ='';						
-            //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
-            $currencies =   Currency::getCurrencyDropdownIDList();
-                /* for item invoice generate - invoice to address as invoice template */
-            $return = ['Terms','FooterTerm','InvoiceToAddress'];
+            $Terms = $FooterTerm = $InvoiceToAddress ='';
+            $AccountTaxRate  = Account::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
+
             $Reseller = Reseller::where('ChildCompanyID',$CompanyID)->first();
             if(isset($Reseller) && $Reseller != false) {
 				$message = $Reseller->InvoiceTo;
@@ -1470,10 +1466,9 @@ public function store_inv_in(){
 				$InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
 				$Terms = $Reseller->TermsAndCondition;
 				$FooterTerm = $Reseller->FooterTerm;
-				$AccountTaxRate  = Account::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
-				$return = ['Terms','FooterTerm','InvoiceToAddress','AccountTaxRate'];
 			}
-            return Response::json(compact($return));
+
+            return Response::json(compact(['Terms','FooterTerm','InvoiceToAddress','AccountTaxRate']));
         }
     }
 
