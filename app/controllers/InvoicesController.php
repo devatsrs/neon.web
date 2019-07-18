@@ -1034,9 +1034,18 @@ public function store_inv_in(){
     }
 
     public function updateIn($id){
-        $data = Input::all();
 
-        $validator = Validator::make($data, ['InvoiceStatus' => 'required']);
+        $data = Input::all();
+        $rules = array(
+            'AccountID' => 'required',
+            'IssueDate' => 'required|date_format:d-m-Y',
+            'StartDate' => 'required|date_format:d-m-Y',
+            'EndDate' => 'required|date_format:d-m-Y',
+            'GrandTotalInvoice'=>'required|numeric',
+            'InvoiceStatus' => 'required',
+        );
+        
+        $validator = Validator::make($data, $rules);
 
         $verifier = App::make('validation.presence');
         $verifier->setConnection('sqlsrv2');
@@ -1046,34 +1055,33 @@ public function store_inv_in(){
             return json_validator_response($validator);
         }
 
+        $startDate = \Carbon\Carbon::createFromFormat("d-m-Y",$data['StartDate']);
+        $endDate   = \Carbon\Carbon::createFromFormat("d-m-Y",$data['EndDate']);
+
+        if($startDate->gte($endDate)){
+            return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
+        }
+
         if(!empty($data) && $id > 0){
             $Invoice = Invoice::find($id);
             $companyID = User::get_companyID();
             $CreatedBy = User::get_user_full_name();
-            $FullInvoiceNumber=$Invoice->FullInvoiceNumber;
-            $OldProductsarr=InvoiceDetail::where(['InvoiceID'=>$Invoice->InvoiceID])->get(['ProductID','Qty','ProductType','InvoiceDetailID'])->toArray();
 
             $InvoiceData = array();
-            $InvoiceData["CompanyID"] = $companyID;
-            $InvoiceData["AccountID"] = $data["AccountID"];
-            $InvoiceData["Address"] = $data["Address"];
-            $InvoiceData["InvoiceStatus"] = $data["InvoiceStatus"];
-            $InvoiceData["InvoiceNumber"] = $data["InvoiceNumber"];
-            $InvoiceData["IssueDate"] = date("Y-m-d H:i:s",strtotime($data["IssueDate"]));
-            $InvoiceData["SubTotal"] = str_replace(",","",$data["SubTotal"]);
-            //$InvoiceData["TotalDiscount"] = str_replace(",","",$data["TotalDiscount"]);
-            $InvoiceData["TotalDiscount"] = 0;
-            $InvoiceData["TotalTax"] = str_replace(",","",$data["TotalTax"]);
-            $InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotalInvoice"]));
-            //$InvoiceData["CurrencyID"] = $data["CurrencyID"];
-            $InvoiceData["ModifiedBy"] = $CreatedBy;
-            $InvoiceData['InvoiceTotal'] = str_replace(",","",$data["GrandTotal"]);
-            //$InvoiceData["InvoiceType"] = Invoice::INVOICE_OUT;
+            $InvoiceData["CompanyID"]       = $companyID;
+            $InvoiceData["AccountID"]       = $data["AccountID"];
+            $InvoiceData["Address"]         = $data["Address"];
+            $InvoiceData["InvoiceStatus"]   = $data["InvoiceStatus"];
+            $InvoiceData["InvoiceNumber"]   = $data["InvoiceNumber"];
+            $InvoiceData["IssueDate"]       = date("Y-m-d H:i:s",strtotime($data["IssueDate"]));
+            $InvoiceData["SubTotal"]        = str_replace(",","",$data["SubTotal"]);
+            $InvoiceData["TotalDiscount"]   = 0;
+            $InvoiceData["TotalTax"]        = str_replace(",","",$data["TotalTax"]);
+            $InvoiceData["GrandTotal"]      = floatval(str_replace(",","",$data["GrandTotalInvoice"]));
+            $InvoiceData["ModifiedBy"]      = $CreatedBy;
+            $InvoiceData['InvoiceTotal']    = str_replace(",","",$data["GrandTotal"]);
 
             ///////////
-            
-
-            
 
             try{
 
@@ -1084,11 +1092,12 @@ public function store_inv_in(){
                     if($Invoice->GrandTotal != $InvoiceData['GrandTotal']){
                         $Extralognote = ' Total '.$Invoice->GrandTotal.' To '.$InvoiceData['GrandTotal'];
                     }
+
                     $invoiceloddata = array();
-                    $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
-                    $invoiceloddata['Note']= 'Updated By '.$CreatedBy.$Extralognote;
-                    $invoiceloddata['created_at']= date("Y-m-d H:i:s");
-                    $invoiceloddata['InvoiceLogStatus']= InVoiceLog::UPDATED;
+                    $invoiceloddata['InvoiceID']  = $Invoice->InvoiceID;
+                    $invoiceloddata['Note'] = 'Updated By '.$CreatedBy.$Extralognote;
+                    $invoiceloddata['created_at'] = date("Y-m-d H:i:s");
+                    $invoiceloddata['InvoiceLogStatus'] = InVoiceLog::UPDATED;
                     $Invoice->update($InvoiceData);
                     InVoiceLog::insert($invoiceloddata);
                     $InvoiceDetailData = $StockHistoryData = $InvoiceTaxRates = $InvoiceAllTaxRates = array();
@@ -1111,59 +1120,53 @@ public function store_inv_in(){
                                 $InvoiceDetailData[$i][$field] = "";
                             }
                         }else{
-                                    $InvoiceDetailData[$i][$field] = $value;
-                                    $StockHistoryData[$i][$field] = $value;
-                                }
-                                $InvoiceDetailData[$i]['TotalMinutes']= $data['TotalMinutes'];
-                                $InvoiceDetailData[$i]['StartDate'] = date('Y-m-d H:i:s', strtotime($data['StartDate']));
-                        $InvoiceDetailData[$i]['EndDate'] = date('Y-m-d H:i:s', strtotime($data['EndDate']));
-                                $InvoiceDetailData[$i]["Discount"]  =   0;
-                                $InvoiceDetailData[$i]["InvoiceID"] = $Invoice->InvoiceID;
-                                $InvoiceDetailData[$i]["created_at"] = date("Y-m-d H:i:s");
-                                $InvoiceDetailData[$i]["updated_at"] = date("Y-m-d H:i:s");
-                                $InvoiceDetailData[$i]["CreatedBy"] = $CreatedBy;
-                                $InvoiceDetailData[$i]["ModifiedBy"] = $CreatedBy;
-                                if(isset($InvoiceDetailData[$i]["InvoiceDetailID"])){
-                                    unset($InvoiceDetailData[$i]["InvoiceDetailID"]);
-                                }
-                                if(empty($InvoiceDetailData[$i]['ProductID'])){
-                                    //unset($InvoiceDetailData[$i]);
-                                }
-                                
-                                $i++;                               
+                                $InvoiceDetailData[$i][$field] = $value;
+                                $StockHistoryData[$i][$field]  = $value;
                             }
-                        }
 
-                        if(isset($data['Tax']) && is_array($data['Tax'])){
-                            foreach($data['Tax'] as $j => $taxdata)
-                            {
-                                $InvoiceTaxRates[$j]['TaxRateID']   =   $j;
-                                $InvoiceTaxRates[$j]['Title']       =   TaxRate::getTaxName($j);
-                                $InvoiceTaxRates[$j]["created_at"]  =   date("Y-m-d H:i:s");
-                                $InvoiceTaxRates[$j]["InvoiceID"]   =   $Invoice->InvoiceID;
-                                $InvoiceTaxRates[$j]["TaxAmount"]   =   $taxdata;
+                            $InvoiceDetailData[$i]['TotalMinutes']  = $data['TotalMinutes'];
+                            $InvoiceDetailData[$i]['StartDate']     = date('Y-m-d H:i:s', strtotime($data['StartDate']));
+                            $InvoiceDetailData[$i]['EndDate'] = date('Y-m-d H:i:s', strtotime($data['EndDate']));
+                            $InvoiceDetailData[$i]["Discount"]      =   0;
+                            $InvoiceDetailData[$i]["InvoiceID"]     = $Invoice->InvoiceID;
+                            $InvoiceDetailData[$i]["created_at"]    = date("Y-m-d H:i:s");
+                            $InvoiceDetailData[$i]["updated_at"]    = date("Y-m-d H:i:s");
+                            $InvoiceDetailData[$i]["CreatedBy"]     = $CreatedBy;
+                            $InvoiceDetailData[$i]["ModifiedBy"]    = $CreatedBy;
+                            if(isset($InvoiceDetailData[$i]["InvoiceDetailID"])){
+                                unset($InvoiceDetailData[$i]["InvoiceDetailID"]);
+                            }
+                            if(empty($InvoiceDetailData[$i]['ProductID'])){
+                                //unset($InvoiceDetailData[$i]);
+                            }
+
+                            $i++;
+                        }
+                    }
+
+                    if(isset($data['Tax']) && is_array($data['Tax'])){
+                        foreach($data['Tax'] as $j => $taxdata)
+                        {
+                            $InvoiceTaxRates[$j]['TaxRateID']   =   $j;
+                            $InvoiceTaxRates[$j]['Title']       =   TaxRate::getTaxName($j);
+                            $InvoiceTaxRates[$j]["created_at"]  =   date("Y-m-d H:i:s");
+                            $InvoiceTaxRates[$j]["InvoiceID"]   =   $Invoice->InvoiceID;
+                            $InvoiceTaxRates[$j]["TaxAmount"]   =   $taxdata;
+                        }
+                    }
+                        
+                    if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
+                        foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
+                            if(!empty($InvoiceTaxes)) {
+                                $InvoiceAllTaxRates[$p]['TaxRateID'] = $InvoiceTaxes;
+                                $InvoiceAllTaxRates[$p]['Title'] = TaxRate::getTaxName($InvoiceTaxes);
+                                $InvoiceAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                                $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
+                                $InvoiceAllTaxRates[$p]["InvoiceID"] = $Invoice->InvoiceID;
+                                $InvoiceAllTaxRates[$p]["TaxAmount"] = $data['InvoiceTaxes']['value'][$p];
                             }
                         }
-                        
-                        if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
-                            foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
-                                if(!empty($InvoiceTaxes)) {
-                                    $InvoiceAllTaxRates[$p]['TaxRateID'] = $InvoiceTaxes;
-                                    $InvoiceAllTaxRates[$p]['Title'] = TaxRate::getTaxName($InvoiceTaxes);
-                                    $InvoiceAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
-                                    $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
-                                    $InvoiceAllTaxRates[$p]["InvoiceID"] = $Invoice->InvoiceID;
-                                    $InvoiceAllTaxRates[$p]["TaxAmount"] = $data['InvoiceTaxes']['value'][$p];
-                                }
-                            }
-                        }
-                        
-                        /*$InvoiceTaxRates    =     merge_tax($InvoiceTaxRates);
-                        $InvoiceAllTaxRates   =     merge_tax($InvoiceAllTaxRates);*/
-                        
-                        /*if(!empty($InvoiceTaxRates)) { //product tax
-                            InvoiceTaxRate::insert($InvoiceTaxRates);
-                        }*/
+                    }
 
                         $i=0;
                         foreach($InvoiceDetailData as $idata)
