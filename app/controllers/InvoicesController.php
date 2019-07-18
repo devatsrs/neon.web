@@ -566,7 +566,7 @@ public function store_inv_in(){
             $startDate = \Carbon\Carbon::createFromFormat("d-m-Y",$data['StartDate']);
             $endDate   = \Carbon\Carbon::createFromFormat("d-m-Y",$data['EndDate']);
 
-            if($startDate->lte($endDate)){
+            if($startDate->gte($endDate)){
                 return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
              }
 
