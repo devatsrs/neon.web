@@ -1410,12 +1410,13 @@ public function store_inv_in(){
         $data = Input::all();
         $currencies =   Currency::getCurrencyDropdownIDList();
         if (isset($data['account_id']) && $data['account_id'] > 0 ) {
-            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country"];
+            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country","CompanyId"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
             $Currency = Currency::getCurrencySymbol($Account->CurrencyId);
             $InvoiceTemplateID  = 	AccountBilling::getInvoiceTemplateID($Account->AccountID);
             $CurrencyId = $Account->CurrencyId;
             $Address = Account::getFullAddress($Account);
+            $CompanyID = $Account->CompanyId;
 
             $Terms = $FooterTerm = $InvoiceToAddress ='';
 			
@@ -1423,22 +1424,21 @@ public function store_inv_in(){
 			//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 		
            // if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
-                $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+                //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
                 /* for item invoice generate - invoice to address as invoice template */
-				
-				if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
-                	$message = $InvoiceTemplate->InvoiceTo;
+				$Reseller = Reseller::where('ChildCompanyID',$CompanyID)->first();
+				if(isset($Reseller) && $Reseller != false) {
+                	$message = $Reseller->InvoiceTo;
                 	$replace_array = Invoice::create_accountdetails($Account);
 	                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
     	            $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
-				    $Terms = $InvoiceTemplate->Terms;
-    	            $FooterTerm = $InvoiceTemplate->FooterTerm;
-				}
-				else{
-					$InvoiceToAddress 	= 	'';
-				    $Terms 				= 	'';
-    	            $FooterTerm 		= 	'';
-				}
+				    $Terms = $Reseller->TermsAndConditions;
+    	            $FooterTerm = $Reseller->FooterTerm;
+                } else {
+                    $InvoiceToAddress 	= 	'';
+                    $Terms 				= 	'';
+                    $FooterTerm 		= 	'';
+                }
 				$BillingClassID     =   AccountBilling::getBillingClassID($data['account_id']);
 				
                 $return = ['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate','InvoiceToAddress','BillingClassID'];
