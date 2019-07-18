@@ -90,14 +90,14 @@ BEGIN
 				vc.AccountId AS VendorID,
 				a.AccountName AS VendorName,
 				vc.Name AS VendorConnectionName, vc.SipHeader, vc.IP, vc.Port, vc.Username, vc.Password, vc.AuthenticationMode,rtr.TimezonesID,
-				CASE WHEN IFNULL(rtr.RateCurrency,a.CurrencyID) = @v_AccountCurrencyID_
+				CASE WHEN IFNULL(rtr.RateCurrency,rt.CurrencyID) = @v_AccountCurrencyID_
 				THEN
 					rtr.Rate
 				ELSE
 				(
 					-- Convert to base currrncy AND x by RateGenerator Exhange
 					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_AccountCurrencyID_ )
-					* ( rtr.Rate  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = IFNULL(rtr.RateCurrency,a.CurrencyID) ))
+					* ( rtr.Rate  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = IFNULL(rtr.RateCurrency,rt.CurrencyID) ))
 				)
 				END AS Rate,
 				rtr.Preference,
@@ -147,14 +147,14 @@ BEGIN
 			SELECT
 				CONCAT(IFNULL(vc.CallPrefix ,""),rtr.DestinationCode) AS Prefix,IFNULL(vc.CallPrefix ,"") AS TrunkPrefix,rtr.DestinationCode AS VendorCLDPrefix,IFNULL(rtr.OriginationCode ,"") AS VendorCLIPrefix,vc.AccountId AS VendorID,v.AccountName AS VendorName,vc.Name AS VendorConnectionName,vc.SipHeader AS SipHeader,vc.IP AS IP,vc.Port AS Port,vc.Username AS Username,vc.Password AS Password,
 				vc.AuthenticationMode AS AuthenticationMode,rtr.TimezonesID, @v_AccountCurrency_ as AccountCurrency,
-				CASE WHEN  v.CurrencyId = @v_AccountCurrencyID_
+				CASE WHEN IFNULL(rtr.RateCurrency,rt.CurrencyID) = @v_AccountCurrencyID_
 				THEN
 					rtr.Rate
 				ELSE
 				(
 					-- Convert to base currrncy AND x by RateGenerator Exhange
 					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_AccountCurrencyID_ )
-					* ( rtr.Rate  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = IFNULL(rtr.RateCurrency,v.CurrencyID) ))
+					* ( rtr.Rate  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = IFNULL(rtr.RateCurrency,rt.CurrencyID) ))
 				)
 				END AS Rate,
 				rtr.Preference,
@@ -497,14 +497,14 @@ PRC:BEGIN
 				vc.AccountId AS VendorID,
 				a.AccountName AS VendorName,
 				vc.Name AS VendorConnectionName, vc.SipHeader, vc.IP, vc.Port, vc.Username, vc.Password, vc.AuthenticationMode,rtr.TimezonesID,
-				CASE WHEN IFNULL(rtr.RateCurrency,a.CurrencyID) = @v_AccountCurrencyID_
+				CASE WHEN IFNULL(rtr.RateCurrency,rt.CurrencyID) = @v_AccountCurrencyID_
 				THEN
 					rtr.Rate
 				ELSE
 				(
 					-- Convert to base currrncy AND x by RateGenerator Exhange
 					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = @v_AccountCurrencyID_ )
-					* ( rtr.Rate  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = IFNULL(rtr.RateCurrency,a.CurrencyID) ))
+					* ( rtr.Rate  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = IFNULL(rtr.RateCurrency,rt.CurrencyID) ))
 				)
 				END as Rate,
 				-- rtr.Preference,
@@ -551,14 +551,14 @@ PRC:BEGIN
 			SELECT
 				CONCAT(IFNULL(vc.CallPrefix ,""),rtr.DestinationCode) as Prefix,IFNULL(vc.CallPrefix ,"") as TrunkPrefix,rtr.DestinationCode as VendorCLDPrefix,IFNULL(rtr.OriginationCode ,"") as VendorCLIPrefix,vc.AccountId as VendorID,v.AccountName as VendorName,vc.Name as VendorConnectionName,vc.SipHeader as SipHeader,vc.IP as IP,vc.Port as Port,vc.Username as Username,vc.Password as Password,
 				vc.AuthenticationMode as AuthenticationMode,rtr.TimezonesID, @v_AccountCurrency_ as Currency,
-				CASE WHEN  v.CurrencyId = @v_AccountCurrencyID_
+				CASE WHEN IFNULL(rtr.RateCurrency,rt.CurrencyID) = @v_AccountCurrencyID_
 				THEN
 					rtr.Rate
 				ELSE
 				(
 					-- Convert to base currrncy AND x by RateGenerator Exhange
 					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = @v_AccountCurrencyID_ )
-					* ( rtr.Rate  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = IFNULL(rtr.RateCurrency,v.CurrencyID) ))
+					* ( rtr.Rate  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = IFNULL(rtr.RateCurrency,rt.CurrencyID) ))
 				)
 				END as Rate,rtr.Preference,rc.Order ,rtr.DestinationCode,
 				rtr.OriginationCode,
