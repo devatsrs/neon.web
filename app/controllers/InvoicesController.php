@@ -553,7 +553,7 @@ public function store_inv_in(){
             $startDate = \Carbon\Carbon::createFromFormat("d-m-Y",$data['StartDate']);
             $endDate   = \Carbon\Carbon::createFromFormat("d-m-Y",$data['EndDate']);
 
-            if($startDate->gte($endDate)){
+            if($startDate->gt($endDate)){
                 return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
              }
 
@@ -1044,7 +1044,7 @@ public function store_inv_in(){
             'GrandTotalInvoice'=>'required|numeric',
             'InvoiceStatus' => 'required',
         );
-        
+
         $validator = Validator::make($data, $rules);
 
         $verifier = App::make('validation.presence');
@@ -1058,7 +1058,7 @@ public function store_inv_in(){
         $startDate = \Carbon\Carbon::createFromFormat("d-m-Y",$data['StartDate']);
         $endDate   = \Carbon\Carbon::createFromFormat("d-m-Y",$data['EndDate']);
 
-        if($startDate->gte($endDate)){
+        if($startDate->gt($endDate)){
             return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
         }
 
