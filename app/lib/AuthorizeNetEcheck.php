@@ -94,7 +94,7 @@ class AuthorizeNetEcheck {
             $result["message"] = $ex->getMessage();
             return $result;
         }
-    }
+    } 
 
     public function deleteAuthorizeProfile($ProfileID){
         try{
