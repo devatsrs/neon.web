@@ -140,8 +140,8 @@ class InvoicesController extends \BaseController {
         Invoice::multiLang_init();
         Payment::multiLang_init();
         $CompanyID = User::get_companyID();
-        $accounts = Account::getAccountIDList();
-		$DefaultCurrencyID    	=   Company::where("CompanyID",$CompanyID)->pluck("CurrencyId");
+        $accounts  = Account::getAccountIDList();
+		$DefaultCurrencyID = Company::where("CompanyID",$CompanyID)->pluck("CurrencyId");
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
         //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
 		$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
@@ -593,12 +593,6 @@ public function store_inv_in(){
                 }
             }
 
-            if( !empty($data["DisputeAmount"])  ){
-
-                Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],"InvoiceType"=>Invoice::INVOICE_IN,  "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"],"sendEmail"=>1));
-
-            }
-
             try{
                 
                 $Invoice = Invoice::create($InvoiceData);
@@ -609,7 +603,7 @@ public function store_inv_in(){
                 $InvoiceDetailData['InvoiceID'] = $Invoice->InvoiceID;
                 $InvoiceDetailData['StartDate'] = date("Y-m-d", strtotime($data['StartDate']));
                 $InvoiceDetailData['EndDate'] = date("Y-m-d", strtotime($data['EndDate']));
-                $InvoiceDetailData['TotalMinutes'] = $data['TotalMinutes'];
+                $InvoiceDetailData['TotalMinutes'] = 0;
                 $InvoiceDetailData['Price'] = $data["GrandTotalInvoice"];
                 $InvoiceDetailData['Qty'] = 1;
                 $InvoiceDetailData['ProductType'] = Product::INVOICE_PERIOD;
@@ -667,9 +661,6 @@ public function store_inv_in(){
                     $i++;
                 }
 
-                
-
-                
 
                 //product tax
                 if(isset($data['Tax']) && is_array($data['Tax'])){
@@ -696,9 +687,7 @@ public function store_inv_in(){
                     }
                 }
             }
-                /*$InvoiceTaxRates   =  merge_tax($InvoiceTaxRates);
-                $InvoiceAllTaxRates  =  merge_tax($InvoiceAllTaxRates);*/
-                
+
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
                 $invoiceloddata['Note']= 'Created By '.$CreatedBy;
@@ -1140,7 +1129,7 @@ public function store_inv_in(){
                                 $StockHistoryData[$i][$field]  = $value;
                             }
 
-                            $InvoiceDetailData[$i]['TotalMinutes']  = $data['TotalMinutes'];
+                            $InvoiceDetailData[$i]['TotalMinutes']  = 0;
                             $InvoiceDetailData[$i]['StartDate']     = date('Y-m-d H:i:s', strtotime($data['StartDate']));
                             $InvoiceDetailData[$i]['EndDate']       = date('Y-m-d H:i:s', strtotime($data['EndDate']));
                             $InvoiceDetailData[$i]["Discount"]      = 0;
@@ -1812,15 +1801,6 @@ public function store_inv_in(){
 
             
             InvoiceDetail::insert($InvoiceDetailData);
-            
-
-            //if( $data["DisputeTotal"] != '' && $data["DisputeDifference"] != '' && $data["DisputeMinutes"] != '' && $data["MinutesDifference"] != '' ){
-            if( !empty($data["DisputeAmount"])  ){
-
-                //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$Invoice->InvoiceID,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
-                Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],"InvoiceType"=>Invoice::INVOICE_IN,  "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"],"sendEmail"=>1));
-
-            }
 
             return Response::json(["status" => "success", "message" => "Invoice in Created successfully. ".$message]);
 
@@ -1893,23 +1873,21 @@ public function store_inv_in(){
         $InvoiceDetailData["updated_at"] = date("Y-m-d H:i:s");
         $InvoiceDetailData['Description'] = $data['Description'];
         $InvoiceDetailData["ModifiedBy"] = $CreatedBy;
+
         if(Invoice::find($id)->update($InvoiceData)) {
             if(InvoiceDetail::find($data['InvoiceDetailID'])->update($InvoiceDetailData)) {
 
-                //if( $data["DisputeTotal"] != '' && $data["DisputeDifference"] != '' && $data["DisputeMinutes"] != '' && $data["MinutesDifference"] != '' ){
-                if( $data["DisputeID"] > 0 && !empty($data["DisputeAmount"]) ){
-
-                    //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$id,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
-                    Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"], "InvoiceType"=>Invoice::INVOICE_IN,"AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));
-                }
                 return Response::json(["status" => "success", "message" => "Invoice in updated successfully. ".$message]);
-            }else{
+
+            } else {
                 return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
             }
-        }else{
+        } else {
             return Response::json(["status" => "success", "message" => "Problem Updating Invoice"]);
         }
     }
+
+
     public function  download_doc_file($id){
         $DocumentFile = Invoice::where(["InvoiceID"=>$id])->pluck('Attachment');
         $Invoice = Invoice::find($id);
@@ -3001,7 +2979,6 @@ public function store_inv_in(){
         $result['EndTime'] = $EndTime[1];
         $result['TotalMinutes'] = $InvoiceDetail->TotalMinutes;
 
-        //$Dispute = Dispute::where(["InvoiceID"=>$data['InvoiceID'],"Status"=>Dispute::PENDING])->select(["DisputeID","InvoiceID","DisputeTotal", "DisputeDifference", "DisputeDifferencePer", "DisputeMinutes","MinutesDifference", "MinutesDifferencePer"])->first();
         $Dispute = Dispute::where(["CompanyID"=>$CompanyID,  "InvoiceNo"=>$InvoiceNumber])->select(["DisputeID","DisputeAmount"])->first();
 
         if(isset($Dispute->DisputeID)){
@@ -3009,12 +2986,6 @@ public function store_inv_in(){
             $result["DisputeID"] = $Dispute->DisputeID;
             $result["DisputeAmount"] = $Dispute->DisputeAmount;
 
-            /*$result["DisputeTotal"] = $Dispute->DisputeTotal;
-            $result["DisputeDifference"] = $Dispute->DisputeDifference;
-            $result["DisputeDifferencePer"] = $Dispute->DisputeDifferencePer;
-            $result["DisputeMinutes"] = $Dispute->DisputeMinutes;
-            $result["MinutesDifference"] = $Dispute->MinutesDifference;
-            $result["MinutesDifferencePer"] = $Dispute->MinutesDifferencePer;*/
         }
         return Response::json($result);
 
