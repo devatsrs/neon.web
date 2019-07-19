@@ -68,66 +68,9 @@
           <label for="field-1" class="col-sm-4 control-label">End Date</label>
           <div class="col-sm-8"> {{Form::text('EndDate',date('d-m-Y'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
           <div class="clearfix margin-bottom "></div>
-          <label for="field-1" class="col-sm-4 control-label">Total Seconds</label>
-          <div class="col-sm-8"> {{Form::text('TotalMinutes','',array("class"=>"form-control"))}} </div>
         </div>
       </div>
-      <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Dispute Amount</label>
-            <div class="col-sm-2">
-              <input type="text" name="DisputeAmount" class="form-control" value=""/>
-            </div>
-             <label class="col-sm-2 control-label" for="field-1">Reconcile</label>
-            <div class="col-sm-6">
-              <table class="reconcile_table table table-bordered datatable hidden">
-                <thead>
-                <th></th>
-                  <th>Total</th>
-                  <th>Difference</th>
-                  <th>Difference %</th>
-                    </thead>
-                <tbody>
-                  <tr>
-                    <th>Amount</th>
-                    <td><span class="DisputeTotal"></span></td>
-                    <td><span class="DisputeDifference"></span></td>
-                    <td><span class="DisputeDifferencePer"></span></td>
-                  </tr>
-                  <tr>
-                    <th>Seconds</th>
-                    <td><span class="DisputeMinutes"></span></td>
-                    <td><span class="MinutesDifference"></span></td>
-                    <td><span class="MinutesDifferencePer"></span></td>
-                  </tr>
-                </tbody>
-              </table>
-              <button class="btn btn-primary reconcile btn-sm btn-icon icon-left" type="button"
-                                        data-loading-text="Loading..."> <i class="entypo-pencil"></i> Reconcile </button>
-              <button class="btn ignore btn-danger btn-sm btn-icon icon-left hidden" type="button"
-                                        data-loading-text="Loading..."> <i class="entypo-pencil"></i> Ignore </button>
-              <input type="hidden" name="DisputeID">
-              {{--
-              <input type="hidden" name="DisputeTotal">
-              --}}
-              {{--
-              <input type="hidden" name="DisputeDifference">
-              --}}
-              {{--
-              <input type="hidden" name="DisputeDifferencePer">
-              --}}
-              
-              {{--
-              <input type="hidden" name="DisputeMinutes">
-              --}}
-              {{--
-              <input type="hidden" name="MinutesDifference">
-              --}}
-              {{--
-              <input type="hidden" name="MinutesDifferencePer">
-              --}} </div>
-             
-            <div class="col-sm-1 download"> </div>
-          </div>
+
           <div class="form-group">
              <label class="col-sm-4 control-label" for="field-1">Attachment(.pdf, .jpg, .png,
               .gif)</label>
