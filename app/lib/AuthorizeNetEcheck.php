@@ -94,7 +94,7 @@ class AuthorizeNetEcheck {
             $result["message"] = $ex->getMessage();
             return $result;
         }
-    } 
+    }
 
     public function deleteAuthorizeProfile($ProfileID){
         try{
@@ -123,7 +123,6 @@ class AuthorizeNetEcheck {
             $paymentProfile->payment->bankAccount->nameOnAccount = $data["AccountHolderName"];
             $paymentProfile->payment->bankAccount->accountNumber = $data["AccountNumber"];
             $paymentProfile->payment->bankAccount->routingNumber = $data["RoutingNumber"];
-            $paymentProfile->payment->bankAccount->echeckType = $data["RoutingNumber"];
             $response = $this->request->createCustomerPaymentProfile($customerProfileId, $paymentProfile);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
@@ -150,7 +149,6 @@ class AuthorizeNetEcheck {
             $paymentProfile->payment->bankAccount->nameOnAccount = $data["AccountHolderName"];
             $paymentProfile->payment->bankAccount->accountNumber = $data["AccountNumber"];
             $paymentProfile->payment->bankAccount->routingNumber = $data["RoutingNumber"];
-            $paymentProfile->payment->bankAccount->echeckType = $data["RoutingNumber"];
             $response = $this->request->updateCustomerPaymentProfile($customerProfileId,$paymentProfileId,$paymentProfile);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
