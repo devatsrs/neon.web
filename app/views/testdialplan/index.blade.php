@@ -39,7 +39,7 @@
                             <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
                         </div>
                         <div class="col-md-6 select_hour">
-                            <input type="text" name="StartHour" data-minute-step="30"   data-show-meridian="false" data-default-time="00:00" value=""  data-template="dropdown" class="form-control timepicker">
+                            <input type="text" name="StartHour" data-minute-step="30" data-show-meridian="false" data-show-seconds="true" data-default-time="00:00:00" value="" data-template="dropdown" class="form-control timepicker">
                         </div>
                     </div>
                 </div>
@@ -111,7 +111,7 @@
 
         $(function () {
             var d = new Date();
-            $("#testdialplan_form [name='StartHour']").val(d.getHours() + ":" + d.getMinutes());
+            $("#testdialplan_form [name='StartHour']").val(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
             //load_vendorGrid();
 $('#filter-button-toggle').show();
             $('.nav-tabs li a').click(function (e) {
