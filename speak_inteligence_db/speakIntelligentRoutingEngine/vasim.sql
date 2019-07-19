@@ -783,21 +783,66 @@ ThisSP:BEGIN
 					(
 						t.ApplyIF = 'start' AND
 						-- DATE_FORMAT(connect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00')
-						(TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime))
+						-- (TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime))
+						(
+							TIME(FromTime) > TIME(ToTime) AND
+							(
+								-- this condition works when date change for ex: FromTime=18:00 and ToTime=08:00
+								-- if you see that day changes between 18:00 to 08:00, 18:00 to 00:00 then 00:00 to 08:00
+								TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+							OR
+							TIME(FromTime) <= TIME(ToTime) AND
+							(
+								-- this condition works when same date for ex: FromTime=09:00 and ToTime=12:00
+								TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) AND TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+						)
 					)
 					OR
 					(
 						t.ApplyIF = 'end' AND
 						-- DATE_FORMAT(disconnect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00')
-						(TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime))
+						(
+							TIME(FromTime) > TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+							OR
+							TIME(FromTime) <= TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) AND TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+						)
 					)
 					OR
 					(
 						t.ApplyIF = 'both' AND
 						-- DATE_FORMAT(connect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00') AND
 						-- DATE_FORMAT(disconnect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00')
-						(TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)) AND
-						(TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime))
+						(
+							TIME(FromTime) > TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+							OR
+							TIME(FromTime) <= TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) AND TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+						)
+						AND
+						(
+							TIME(FromTime) > TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+							OR
+							TIME(FromTime) <= TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) AND TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+						)
 					)
 				)
 			)
