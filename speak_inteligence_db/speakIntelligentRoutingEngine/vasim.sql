@@ -681,6 +681,7 @@ ThisSP:BEGIN
 	DECLARE v_CompanyTimeZone_ VARCHAR(200);
 	DECLARE v_DateAndTimeVendorToCountry DATETIME;
 	DECLARE v_DateAndTimeCompanyToCountry DATETIME;
+	DECLARE v_DateAndTimeCompanyToVendor DATETIME;
 	DECLARE v_APICountryID INT;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_timezones;
@@ -722,8 +723,12 @@ ThisSP:BEGIN
 	-- convert time from company timezone to api country timezone
 	SELECT CONVERT_TZ(p_DateAndTime,v_CompanyTimeZone_,v_countryTimeZone_) INTO v_DateAndTimeCompanyToCountry;
 
+
+	-- convert time from company -> vendor -> api_country
+	-- convert time from company timezone to vendor timezone
+	SELECT CONVERT_TZ(p_DateAndTime,v_CompanyTimeZone_,v_VendorTimeZone_) INTO v_DateAndTimeCompanyToVendor;
 	-- convert time from vendor timezone to api country timezone
-	SELECT CONVERT_TZ(p_DateAndTime,v_VendorTimeZone_,v_countryTimeZone_) INTO v_DateAndTimeVendorToCountry;
+	SELECT CONVERT_TZ(v_DateAndTimeCompanyToVendor,v_VendorTimeZone_,v_countryTimeZone_) INTO v_DateAndTimeVendorToCountry;
 
 	-- insert vendor timezones where timezone country = api country or timezones country = all
 	INSERT INTO tmp_timezones (
