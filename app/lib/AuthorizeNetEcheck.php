@@ -429,10 +429,12 @@ class AuthorizeNetEcheck {
             $PaymentProfileID = $result["ID"];
             /**  @TODO save this field NameOnCard and CCV */
             $option = array(
-                'ProfileID' => $ProfileID,
+                'ProfileID'         => $ProfileID,
                 'ShippingProfileID' => $ShippingProfileID,
-                'PaymentProfileID' => $PaymentProfileID
+                'PaymentProfileID'  => $PaymentProfileID,
+                'VerifyStatus'      => 'verified',
             );
+
             $CardDetail = array('Title' => $title,
                 'Options' => json_encode($option),
                 'Status' => 1,
@@ -441,6 +443,7 @@ class AuthorizeNetEcheck {
                 'CompanyID' => $CompanyID,
                 'AccountID' => $CustomerID,
                 'PaymentGatewayID' => $PaymentGatewayID);
+            
             if (AccountPaymentProfile::create($CardDetail)) {
                 return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_CREATED")));
             } else {
