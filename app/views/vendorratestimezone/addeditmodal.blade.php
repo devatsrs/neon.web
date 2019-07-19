@@ -31,13 +31,13 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="control-label">From Time </label>
-                                {{ Form::text('FromTime', '', array('class' => 'form-control timepicker', 'data-minute-step' => '5', 'data-show-meridian' => 'false', 'data-default-time' => '00:00', 'data-show-seconds' => 'false', 'data-template' => 'dropdown')); }}
+                                {{ Form::text('FromTime', '', array('class' => 'form-control timepicker', 'data-minute-step' => '5', 'data-show-meridian' => 'false', 'data-default-time' => '00:00:00', 'data-show-seconds' => 'true', 'data-template' => 'dropdown')); }}
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="control-label">To Time </label>
-                                {{ Form::text('ToTime', '', array('class' => 'form-control timepicker', 'data-minute-step' => '5', 'data-show-meridian' => 'false', 'data-default-time' => '00:00', 'data-show-seconds' => 'false', 'data-template' => 'dropdown')); }}
+                                {{ Form::text('ToTime', '', array('class' => 'form-control timepicker', 'data-minute-step' => '5', 'data-show-meridian' => 'false', 'data-default-time' => '00:00:00', 'data-show-seconds' => 'true', 'data-template' => 'dropdown')); }}
                             </div>
                         </div>
                         <div class="col-md-12">

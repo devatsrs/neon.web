@@ -83,8 +83,8 @@ class TimezoneVendorController extends \BaseController {
             $rules = array(
                 "Type"          => "required",
                 "TimeZoneID"    => "required",
-                "FromTime"      => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i",
-                "ToTime"        => "required_with:FromTime|date_format:H:i",
+                "FromTime"      => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i:s",
+                "ToTime"        => "required_with:FromTime|date_format:H:i:s",
                 "DaysOfWeek"    => "required_without_all:FromTime,DaysOfMonth,Months",
                 "DaysOfMonth"   => "required_without_all:DaysOfWeek,FromTime,Months",
                 "Months"        => "required_without_all:DaysOfWeek,DaysOfMonth,FromTime"
@@ -106,9 +106,9 @@ class TimezoneVendorController extends \BaseController {
                 return json_validator_response($validator);
             }
 
-            if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
+            /*if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
                 return  Response::json(array("status" => "failed", "message" => "To time always greater than from time"));
-            }
+            }*/
 
             if($data['Country'] == ''){
                 $data['Country'] = null;
@@ -189,8 +189,8 @@ class TimezoneVendorController extends \BaseController {
                     $rules = array(
                         "Type"          => "required",
                         "TimeZoneID"    => "required",
-                        "FromTime" => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i",
-                        "ToTime" => "required_with:FromTime|date_format:H:i",
+                        "FromTime" => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i:s",
+                        "ToTime" => "required_with:FromTime|date_format:H:i:s",
                         "DaysOfWeek" => "required_without_all:FromTime,DaysOfMonth,Months",
                         "DaysOfMonth" => "required_without_all:DaysOfWeek,FromTime,Months",
                         "Months" => "required_without_all:DaysOfWeek,DaysOfMonth,FromTime"
@@ -209,9 +209,9 @@ class TimezoneVendorController extends \BaseController {
                         return json_validator_response($validator);
                     }
 
-                    if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
+                    /*if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
                         return  Response::json(array("status" => "failed", "message" => "To time always greater than from time"));
-                    }
+                    }*/
 
                     if($data['Country'] == ''){
                         $data['Country'] = null;

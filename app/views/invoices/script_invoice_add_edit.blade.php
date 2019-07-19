@@ -377,9 +377,9 @@ $(document).ready(function(){
 				  
 				  taxes_array.push(tax_current_id);					  
 				  
-				  
+				  console.log(tt);
 				  var obj 			  =   $(element).parent().parent();
-				  var taxAmount  	  =   parseFloat(tt.attr("data-amount").replace(/,/g,''));				
+				  var taxAmount  	  =   parseFloat(tt.attr("data-amount").replace(/,/g,''));
 				  var flatstatus 	  =   parseFloat(tt.attr("data-flatstatus").replace(/,/g,''));
 				  
 				  if(flatstatus == 1){
@@ -410,7 +410,7 @@ $(document).ready(function(){
 
         var qty = parseFloat(obj.find(".Qty").val());
         //var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
-		var discount = 0;
+
         var discount = parseFloat(obj.find(".DiscountAmount").val().replace(/,/g,''));
         var discount_type = obj.find(".DiscountType option:selected").val();
         if(discount_type == 'Percentage')
@@ -422,26 +422,26 @@ $(document).ready(function(){
             var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
         }
 
-        var taxAmount  =  parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
+        var taxAmount  =  obj.find(".TaxRateID option:selected").attr("data-amount") != undefined ? parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,'')) : 0;
 		
-        var flatstatus = parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,''));
+        var flatstatus = obj.find(".TaxRateID option:selected").attr("data-flatstatus") != undefined ? parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,'')) : 0;
         if(flatstatus == 1){
             var tax = parseFloat( ( taxAmount) );
         }else{
             var tax = parseFloat( (line_total * taxAmount)/100 );
         }
 		
-		var taxAmount2 =  parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-amount").replace(/,/g,''));
+		var taxAmount2 = obj.find(".TaxRateID2 option:selected").attr("data-amount") != undefined ? parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-amount").replace(/,/g,'')) : 0;
 		
-		 var flatstatus2 = parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-flatstatus").replace(/,/g,''));
+		 var flatstatus2 = obj.find(".TaxRateID2 option:selected").attr("data-flatstatus") != undefined ? parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-flatstatus").replace(/,/g,'')) : 0;
         if(flatstatus2 == 1){
             var tax2 = parseFloat( ( taxAmount2) );
         }else{
             var tax2 = parseFloat( (line_total * taxAmount2)/100 );
         }
 		
-		var tax1val = obj.find("select.TaxRateID").val();
-		var tax2val = obj.find("select.TaxRateID2").val(); 
+		var tax1val = obj.find("select.TaxRateID") != undefined ? obj.find("select.TaxRateID").val() : 0;
+		var tax2val = obj.find("select.TaxRateID2") != undefined ? obj.find("select.TaxRateID2").val() : 0;
 		if(tax1val > 0 &&  (tax1val == tax2val)){
 			toastr.error(obj.find(".TaxRateID2 option:selected").text()+" already applied on product", "Error", toastr_opts);
 		}
@@ -513,18 +513,27 @@ $(document).ready(function(){
                     $("#Account_Address").html(response.InvoiceToAddress);
                     $("input[name=CurrencyCode]").val(response.Currency);
                     $("input[name=CurrencyID]").val(response.CurrencyId);
-					$("#AccountBillingClassID").val(response.BillingClassID).trigger('change'); 
+
+                    @if(isset($InvoiceType) && $InvoiceType == Invoice::INVOICE_OUT)
+					    $("#AccountBillingClassID").val(response.BillingClassID).trigger('change');
+                    @endif
                     $('#add-new-billing_subscription-form [data-type="currency"]').val(response.CurrencyId).trigger('change');
                     if($('#add-new-billing_subscription-form input[name=CurrencyID]').length > 0) {
                         $('#add-new-billing_subscription-form input[name=CurrencyID]').val(response.CurrencyId);
                     }else{
                         $('#add-new-billing_subscription-form select[data-type="currency"]').after($('<input type="hidden" name="CurrencyID" value="' + response.CurrencyId + '" />'));
                     }
-                    $("input[name=InvoiceTemplateID]").val(response.InvoiceTemplateID);
+                    //$("input[name=InvoiceTemplateID]").val(response.InvoiceTemplateID);
                     $("[name=Terms]").val(response.Terms);
                     $("[name=FooterTerm]").val(response.FooterTerm);
-					add_invoce_tax(response.AccountTaxRate);
-                    InvoiceTemplateID = response.InvoiceTemplateID;
+
+                    @if(isset($InvoiceType) && $InvoiceType == Invoice::INVOICE_OUT)
+					    add_invoce_tax(response.AccountTaxRate);
+                    @endif
+                    @if(isset($InvoiceType) && $InvoiceType == Invoice::INVOICE_IN)
+					    calculate_total();
+                    @endif
+                    //InvoiceTemplateID = response.InvoiceTemplateID;
                 }
 				show_summerinvoicetemplate($("[name=Terms]"));
 				show_summerinvoicetemplate($("[name=FooterTerm]"));	
@@ -533,7 +542,7 @@ $(document).ready(function(){
 
     });
 	
-	$("#AccountBillingClassID").change( function (e) {
+/*	$("#AccountBillingClassID").change( function (e) {
 		if($("select[name=AccountID]").val() == '') {
             toastr.error("Please Select Client first.", "Error", toastr_opts);
             return false;
@@ -563,7 +572,7 @@ $(document).ready(function(){
             });
         }   
 	
-	});
+	});*/
 	function add_invoce_tax(AccountTaxRate){		
 		$('.all_tax_row').remove();
 		if(AccountTaxRate.length>0){			
