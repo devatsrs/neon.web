@@ -636,7 +636,7 @@ public function store_inv_in(){
 
                         $InvoiceDetailData[$i]['StartDate'] = date('Y-m-d H:i:s', strtotime($data['StartDate']));
                         $InvoiceDetailData[$i]['EndDate'] = date('Y-m-d H:i:s', strtotime($data['EndDate']));
-                        $InvoiceDetailData[$i]['TotalMinutes'] = $data['TotalMinutes'];
+                        $InvoiceDetailData[$i]['TotalMinutes'] = 0;
                         $InvoiceDetailData[$i]["Discount"]  =   0;
                         $InvoiceDetailData[$i]["InvoiceID"] = $Invoice->InvoiceID;
                         $InvoiceDetailData[$i]["created_at"] = date("Y-m-d H:i:s");
@@ -1789,7 +1789,7 @@ public function store_inv_in(){
             $InvoiceDetailData['InvoiceID'] = $Invoice->InvoiceID;
             $InvoiceDetailData['StartDate'] = $data['StartDate'];
             $InvoiceDetailData['EndDate'] = $data['EndDate'];
-            $InvoiceDetailData['TotalMinutes'] = $data['TotalMinutes'];
+            $InvoiceDetailData['TotalMinutes'] = 0;
             $InvoiceDetailData['Price'] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceDetailData['Qty'] = 1;
             $InvoiceDetailData['ProductType'] = Product::INVOICE_PERIOD;
@@ -1868,7 +1868,7 @@ public function store_inv_in(){
         $InvoiceDetailData['StartDate'] = $data['StartDate'].' '.$data['StartTime'];
         $InvoiceDetailData['EndDate'] = $data['EndDate'].' '.$data['EndTime'];
         $InvoiceDetailData['Price'] = floatval(str_replace(",","",$data["GrandTotal"]));
-        $InvoiceDetailData['TotalMinutes'] = floatval(str_replace(",","",$data["TotalMinutes"]));
+        $InvoiceDetailData['TotalMinutes'] = 0;
         $InvoiceDetailData['LineTotal'] = floatval(str_replace(",","",$data["GrandTotal"]));
         $InvoiceDetailData["updated_at"] = date("Y-m-d H:i:s");
         $InvoiceDetailData['Description'] = $data['Description'];
