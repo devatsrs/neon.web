@@ -283,8 +283,17 @@ public function edit_inv_in($id){
                 $isAutoInvoiceNumber = false;
             }
 
+            if(!empty($data["AccountID"])){
+                $AccountID = intval($data["AccountID"]);
+                $Account = Account::find($AccountID);
+                if($AccountID == false)
+                    return Response::json(array("status" => "failed", "message" => "Invalid Request."));
+
+                $companyID = $Account->CompanyId;
+            }
+
 				$InvoiceData["InvoiceNumber"] = $LastInvoiceNumber = ($isAutoInvoiceNumber) ? Invoice::getNextInvoiceNumber($companyID) : $data["InvoiceNumber"];
-            
+
             $InvoiceData["CompanyID"]       = $companyID;
             $InvoiceData["AccountID"]       = intval($data["AccountID"]);
             $InvoiceData["Address"]         = $data["Address"];
@@ -737,6 +746,15 @@ public function store_inv_in(){
             $CreatedBy = User::get_user_full_name();
             $FullInvoiceNumber=$Invoice->FullInvoiceNumber;
             $OldProductsarr=InvoiceDetail::where(['InvoiceID'=>$Invoice->InvoiceID])->get(['ProductID','Qty','ProductType','InvoiceDetailID'])->toArray();
+
+            if(!empty($data["AccountID"])){
+                $AccountID = intval($data["AccountID"]);
+                $Account = Account::find($AccountID);
+                if($AccountID == false)
+                    return Response::json(array("status" => "failed", "message" => "Invalid Request."));
+
+                $companyID = $Account->CompanyId;
+            }
 
             $InvoiceData = array();
             $InvoiceData["CompanyID"] = $companyID;
