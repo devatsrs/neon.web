@@ -3008,4 +3008,4 @@ GenerateRateTable:BEGIN
 	END//
 DELIMITER ;
 
-
+ALTER TABLE `AccountEmailLog`	ADD INDEX `TicketId` (`TicketID`);
