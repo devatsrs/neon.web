@@ -681,6 +681,7 @@ ThisSP:BEGIN
 	DECLARE v_CompanyTimeZone_ VARCHAR(200);
 	DECLARE v_DateAndTimeVendorToCountry DATETIME;
 	DECLARE v_DateAndTimeCompanyToCountry DATETIME;
+	DECLARE v_DateAndTimeCompanyToVendor DATETIME;
 	DECLARE v_APICountryID INT;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_timezones;
@@ -722,8 +723,12 @@ ThisSP:BEGIN
 	-- convert time from company timezone to api country timezone
 	SELECT CONVERT_TZ(p_DateAndTime,v_CompanyTimeZone_,v_countryTimeZone_) INTO v_DateAndTimeCompanyToCountry;
 
+
+	-- convert time from company -> vendor -> api_country
+	-- convert time from company timezone to vendor timezone
+	SELECT CONVERT_TZ(p_DateAndTime,v_CompanyTimeZone_,v_VendorTimeZone_) INTO v_DateAndTimeCompanyToVendor;
 	-- convert time from vendor timezone to api country timezone
-	SELECT CONVERT_TZ(p_DateAndTime,v_VendorTimeZone_,v_countryTimeZone_) INTO v_DateAndTimeVendorToCountry;
+	SELECT CONVERT_TZ(v_DateAndTimeCompanyToVendor,v_VendorTimeZone_,v_countryTimeZone_) INTO v_DateAndTimeVendorToCountry;
 
 	-- insert vendor timezones where timezone country = api country or timezones country = all
 	INSERT INTO tmp_timezones (
@@ -783,21 +788,66 @@ ThisSP:BEGIN
 					(
 						t.ApplyIF = 'start' AND
 						-- DATE_FORMAT(connect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00')
-						(TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime))
+						-- (TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime))
+						(
+							TIME(FromTime) > TIME(ToTime) AND
+							(
+								-- this condition works when date change for ex: FromTime=18:00 and ToTime=08:00
+								-- if you see that day changes between 18:00 to 08:00, 18:00 to 00:00 then 00:00 to 08:00
+								TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+							OR
+							TIME(FromTime) <= TIME(ToTime) AND
+							(
+								-- this condition works when same date for ex: FromTime=09:00 and ToTime=12:00
+								TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) AND TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+						)
 					)
 					OR
 					(
 						t.ApplyIF = 'end' AND
 						-- DATE_FORMAT(disconnect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00')
-						(TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime))
+						(
+							TIME(FromTime) > TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+							OR
+							TIME(FromTime) <= TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) AND TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+						)
 					)
 					OR
 					(
 						t.ApplyIF = 'both' AND
 						-- DATE_FORMAT(connect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00') AND
 						-- DATE_FORMAT(disconnect_time, '%H:%i:%s') BETWEEN CONCAT(FromTime,':00') AND CONCAT(ToTime,':00')
-						(TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)) AND
-						(TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime))
+						(
+							TIME(FromTime) > TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+							OR
+							TIME(FromTime) <= TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) >= TIME(FromTime) AND TIME(DATE_FORMAT(connect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+						)
+						AND
+						(
+							TIME(FromTime) > TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) OR TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+							OR
+							TIME(FromTime) <= TIME(ToTime) AND
+							(
+								TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) >= TIME(FromTime) AND TIME(DATE_FORMAT(disconnect_time, '%H:%i:%s')) <= TIME(ToTime)
+							)
+						)
 					)
 				)
 			)
