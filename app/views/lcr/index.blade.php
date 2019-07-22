@@ -54,12 +54,12 @@
                     <label for="field-1" class="control-label">Trunk</label>
                     {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
                 </div>
-                <div class="form-group">
+                {{-- <div class="form-group">
                     <label class="control-label">Merge Time Of Day</label>
                     <p class="make-switch switch-small">
                         <input id="merge_timezones" name="merge_timezones" type="checkbox" value="1">
                     </p>
-                </div>
+                </div> --}}
                 <div class="form-group TimezonesMergedBox" style="display: none;">
                     <label class="control-label">Time Of Day</label>
                     {{ Form::select('TimezonesMerged[]', $Timezones, '', array("class"=>"select2","multiple"=>"multiple")) }}
@@ -68,10 +68,10 @@
                     <label class="control-label">Take Price</label>
                     {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), 0 , array("class"=>"select2")) }}
                 </div>
-                <div class="form-group" id="TimezonesBox">
+                {{-- <div class="form-group" id="TimezonesBox">
                     <label class="control-label">Time Of Day</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
-                </div>
+                </div> --}}
                 <div class="form-group">
                     <label for="field-1" class="control-label">CodeDeck</label>
                     {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
@@ -196,6 +196,7 @@
             <thead>
             <tr>
                 <th>Destination</th>
+                <th>Time Of Day</th>
                 <th id="dt_company1">Position 1</th>
                 <th id="dt_company2">Position 2</th>
                 <th id="dt_company3">Position 3</th>
@@ -303,8 +304,8 @@
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                 SelectedEffectiveDate = $("#lcr-search-form input[name='SelectedEffectiveDate']").val();
                 Accounts = $("#lcr-search-form select[name='Accounts[]']").val();
-                Timezones = $("#lcr-search-form select[name='Timezones']").val();
-                merge_timezones = $("#lcr-search-form [name='merge_timezones']").prop("checked");
+                // Timezones = $("#lcr-search-form select[name='Timezones']").val();
+                // merge_timezones = $("#lcr-search-form [name='merge_timezones']").prop("checked");
                 TimezonesMerged = $("#lcr-search-form select[name='TimezonesMerged[]']").val();
                 TakePrice       = $("#lcr-search-form select[name='TakePrice']").val();
 
@@ -962,9 +963,9 @@
                     "bServerSide": true,
                     "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
                     "fnServerParams": function(aoData) {
-                        aoData.push({"name": "OriginationCode", "value": OriginationCode},{"name": "OriginationDescription", "value": OriginationDescription},{"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Timezones","value":Timezones},{"name":"merge_timezones","value":merge_timezones},{"name":"TimezonesMerged","value":TimezonesMerged},{"name":"TakePrice","value":TakePrice});
+                        aoData.push({"name": "OriginationCode", "value": OriginationCode},{"name": "OriginationDescription", "value": OriginationDescription},{"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"TimezonesMerged","value":TimezonesMerged},{"name":"TakePrice","value":TakePrice});
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({"name": "OriginationCode", "value": OriginationCode},{"name": "OriginationDescription", "value": OriginationDescription},{"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Timezones","value":Timezones},{"name":"merge_timezones","value":merge_timezones},{"name":"TimezonesMerged","value":TimezonesMerged},{"name":"TakePrice","value":TakePrice},{"name":"Export","value":1});
+                        data_table_extra_params.push({"name": "OriginationCode", "value": OriginationCode},{"name": "OriginationDescription", "value": OriginationDescription},{"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"TimezonesMerged","value":TimezonesMerged},{"name":"TakePrice","value":TakePrice},{"name":"Export","value":1});
                     },
                     "iDisplayLength": 10,
                     "sPaginationType": "bootstrap",
