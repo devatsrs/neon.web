@@ -21,6 +21,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Total Current Calls</label>
+                    <input type="text" name="TotalCurrentCalls" class="form-control mid_fld "   />
+                </div>
+
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -134,12 +139,14 @@
                             }
                             aoData.push(
                                     {"name": "GatewayName", "value": $searchFilter.GatewayName},
+                                    {"name": "TotalCurrentCalls", "value": $searchFilter.TotalCurrentCalls},
                                     {"name": "CompanyGatewayID","value": $searchFilter.CompanyGatewayID}
 
                             );
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push(
                                     {"name": "GatewayName", "value": $searchFilter.GatewayName},
+                                    {"name": "TotalCurrentCalls", "value": $searchFilter.TotalCurrentCalls},
                                     {"name": "CompanyGatewayID","value": $searchFilter.CompanyGatewayID},
                                     {"name":"Export","value":1}
                             );
@@ -541,6 +548,7 @@
                         public_vars.$body = $("body");
                         //show_loading_bar(40);
                         $searchFilter.GatewayName = $("#vendor-activecall-table-search [name='GatewayName']").val();
+                        $searchFilter.TotalCurrentCalls = $("#vendor-activecall-table-search [name='TotalCurrentCalls']").val();
                         $searchFilter.CompanyGatewayID = $("#vendor-activecall-table-search [name='CompanyGatewayID']").val();
 
                         data_table.fnFilter('', 0);

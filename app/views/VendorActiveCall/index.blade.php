@@ -26,6 +26,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Total Current Calls</label>
+                    <input type="text" name="TotalCurrentCalls" class="form-control mid_fld "   />
+                </div>
+
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -140,6 +145,7 @@
                             aoData.push(
                                     {"name": "GatewayName", "value": $searchFilter.GatewayName},
                                     {"name": "CallPrefix","value": $searchFilter.CallPrefix},
+                                    {"name": "TotalCurrentCalls","value": $searchFilter.TotalCurrentCalls},
                                     {"name": "CompanyGatewayID","value": $searchFilter.CompanyGatewayID}
 
                             );
@@ -148,6 +154,7 @@
                                     {"name": "GatewayName", "value": $searchFilter.GatewayName},
                                     {"name": "CallPrefix","value": $searchFilter.CallPrefix},
                                     {"name": "CompanyGatewayID","value": $searchFilter.CompanyGatewayID},
+                                    {"name": "TotalCurrentCalls","value": $searchFilter.TotalCurrentCalls},
                                     {"name":"Export","value":1}
                             );
 
@@ -553,6 +560,7 @@
                         $searchFilter.GatewayName = $("#vendor-activecall-table-search [name='GatewayName']").val();
                         $searchFilter.CallPrefix = $("#vendor-activecall-table-search [name='CallPrefix']").val();
                         $searchFilter.CompanyGatewayID = $("#vendor-activecall-table-search [name='CompanyGatewayID']").val();
+                        $searchFilter.TotalCurrentCalls = $("#vendor-activecall-table-search [name='TotalCurrentCalls']").val();
 
                         data_table.fnFilter('', 0);
                         return false;
