@@ -84,7 +84,7 @@ class ReportCustomerCDR extends \Eloquent{
             if($column == 'CountryID'){
                 $final_query->groupby(self::$DetailTable.'.'.$column);
             }else if(isset(self::$database_columns[$column])){
-                $final_query->groupby($column);
+                $final_query->groupby(self::$database_columns[$column]);
             }else {
                 $columnname = report_col_name($column);
                 $final_query->groupby($columnname);
