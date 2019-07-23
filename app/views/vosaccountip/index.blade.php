@@ -21,6 +21,21 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Route Prefix</label>
+                    <input type="text" name="RoutePrefix" class="form-control mid_fld "  value=""  />
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Gateway Name</label>
+                    <input type="text" name="GatewayName" class="form-control mid_fld "  value=""  />
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label small_label" for="field-1">Lock Type</label>
+                    {{ Form::select('LockType',array('-1'=>'Select','0' => "No Lock", '3' => "Bar all" ),'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                </div>
+
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -107,6 +122,9 @@
 
                     $searchFilter.AccountName = $("#vos-account-balance [name='AccountName']").val();
                     $searchFilter.RemoteIps = $("#vos-account-balance [name='RemoteIps']").val();
+                    $searchFilter.RoutePrefix = $("#vos-account-balance [name='RoutePrefix']").val();
+                    $searchFilter.GatewayName = $("#vos-account-balance [name='GatewayName']").val();
+                    $searchFilter.LockType = $("#vos-account-balance [name='LockType']").val();
 
                     data_table = $("#table-4").dataTable({
                         "bDestroy": true,
@@ -116,12 +134,18 @@
                         "fnServerParams": function (aoData) {
                             aoData.push(
                                     {"name": "AccountName", "value": $searchFilter.AccountName},
-                                    {"name": "RemoteIps","value": $searchFilter.RemoteIps}
+                                    {"name": "RemoteIps","value": $searchFilter.RemoteIps},
+                                    {"name": "RoutePrefix","value": $searchFilter.RoutePrefix},
+                                    {"name": "LockType","value": $searchFilter.LockType},
+                                    {"name": "GatewayName","value": $searchFilter.GatewayName}
                             );
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push(
                                     {"name": "AccountName", "value": $searchFilter.AccountName},
                                     {"name": "RemoteIps","value": $searchFilter.RemoteIps},
+                                    {"name": "RoutePrefix","value": $searchFilter.RoutePrefix},
+                                    {"name": "GatewayName","value": $searchFilter.GatewayName},
+                                    {"name": "LockType","value": $searchFilter.LockType},
                                     {"name":"Export","value":1}
                             );
 
@@ -279,6 +303,9 @@
                         //show_loading_bar(40);
                         $searchFilter.AccountName = $("#vos-account-balance [name='AccountName']").val();
                         $searchFilter.RemoteIps = $("#vos-account-balance [name='RemoteIps']").val();
+                        $searchFilter.RoutePrefix = $("#vos-account-balance [name='RoutePrefix']").val();
+                        $searchFilter.GatewayName = $("#vos-account-balance [name='GatewayName']").val();
+                        $searchFilter.LockType = $("#vos-account-balance [name='LockType']").val();
 
                         data_table.fnFilter('', 0);
                         return false;

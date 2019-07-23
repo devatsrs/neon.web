@@ -16,11 +16,14 @@ class VOSAccountIPController extends \BaseController {
         $data['iDisplayStart'] 			+=		1;
         $data['AccountName'] = !empty($data['AccountName'])?$data['AccountName']:'';
         $data['RemoteIps'] = !empty($data['RemoteIps'])?$data['RemoteIps']:'';
+        $data['RoutePrefix'] = !empty($data['RoutePrefix'])?$data['RoutePrefix']:'';
+        $data['GatewayName'] = !empty($data['GatewayName'])?$data['GatewayName']:'';
+
 
         $columns = array('AccountName','Name','LockType','RemoteIps','RoutePrefix','LineLimit','routingGatewayGroups');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_getVOSAccountIP(".$CompanyID.",'".$data['AccountName']."','".$data['RemoteIps']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_getVOSAccountIP(".$CompanyID.",'".$data['AccountName']."','".$data['RemoteIps']."','".$data['RoutePrefix']."','".$data['GatewayName']."',".$data['LockType'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $export_type['type'] = $type;
             $AccountIPActilead = UserActivity::UserActivitySaved($export_type,'Export','AccountIP');
