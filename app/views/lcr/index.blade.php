@@ -320,6 +320,7 @@
                     var GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                     aoColumns = [
                         {}, //1 Destination
+                        {}, //1 Timezone
                         { "bSortable": false,
                             mRender: function ( id, type, full ) {
                                 if (typeof id != 'undefined' && id != null && id != 'null') {
@@ -514,11 +515,12 @@
 
                     aoColumnDefs = [
                         {    "sClass": "destination not-active", "aTargets": [ 0 ] },
-                        {    "sClass": "rate1_class", "aTargets": [ 1 ] },
-                        {    "sClass": "rate2_class", "aTargets": [ 2 ] },
-                        {    "sClass": "rate3_class", "aTargets": [ 3 ] },
-                        {    "sClass": "rate4_class", "aTargets": [ 4 ] },
-                        {    "sClass": "rate5_class", "aTargets": [ 5 ] }
+                        {    "sClass": "timezone not-active", "aTargets": [ 1 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 2 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 3 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 4 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 5 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 6 ] }
                     ];
                 }else{
                     setTimeout(function(){
@@ -530,6 +532,7 @@
                     },10);
                     aoColumns = [
                         {}, //1 Destination
+                        {}, //1 Timezone
                         { "bSortable": false,
                             mRender: function ( id, type, full ) {
                                 if (typeof id != 'undefined' && id != null && id != 'null') {
@@ -915,16 +918,17 @@
 
                     aoColumnDefs = [
                         {    "sClass": "destination", "aTargets": [ 0 ] },
-                        {    "sClass": "rate1_class", "aTargets": [ 1 ] },
-                        {    "sClass": "rate2_class", "aTargets": [ 2 ] },
-                        {    "sClass": "rate3_class", "aTargets": [ 3 ] },
-                        {    "sClass": "rate4_class", "aTargets": [ 4 ] },
-                        {    "sClass": "rate5_class", "aTargets": [ 5 ] },
-                        {    "sClass": "rate6_class", "aTargets": [ 6 ] },
-                        {    "sClass": "rate7_class", "aTargets": [ 7 ] },
-                        {    "sClass": "rate8_class", "aTargets": [ 8 ] },
-                        {    "sClass": "rate9_class", "aTargets": [ 9 ] },
-                        {    "sClass": "rate10_class", "aTargets": [ 10 ] }
+                        {    "sClass": "timezone not-active", "aTargets": [ 1 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 2 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 3 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 4 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 5 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 6 ] },
+                        {    "sClass": "rate6_class", "aTargets": [ 7 ] },
+                        {    "sClass": "rate7_class", "aTargets": [ 8 ] },
+                        {    "sClass": "rate8_class", "aTargets": [ 9 ] },
+                        {    "sClass": "rate9_class", "aTargets": [ 10 ] },
+                        {    "sClass": "rate10_class", "aTargets": [ 11 ] }
                     ];
                 }
                 if(typeof Trunk  == 'undefined' || Trunk == '' ){
@@ -1016,35 +1020,36 @@
 
                                 // console.log(data_table.oApi.aoColumns);
                                 //data_table.Columns[0].ColumnName = "newColumnName";
-                                if (typeof results.jqXHR.responseJSON.sColumns[1] != 'undefined') {
-                                    $('#dt_company1').html(results.jqXHR.responseJSON.sColumns[1]);
-                                }
+
                                 if (typeof results.jqXHR.responseJSON.sColumns[2] != 'undefined') {
-                                    $('#dt_company2').html(results.jqXHR.responseJSON.sColumns[2]);
+                                    $('#dt_company1').html(results.jqXHR.responseJSON.sColumns[2]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[3] != 'undefined') {
-                                    $('#dt_company3').html(results.jqXHR.responseJSON.sColumns[3]);
+                                    $('#dt_company2').html(results.jqXHR.responseJSON.sColumns[3]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[4] != 'undefined') {
-                                    $('#dt_company4').html(results.jqXHR.responseJSON.sColumns[4]);
+                                    $('#dt_company3').html(results.jqXHR.responseJSON.sColumns[4]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
-                                    $('#dt_company5').html(results.jqXHR.responseJSON.sColumns[5]);
+                                    $('#dt_company4').html(results.jqXHR.responseJSON.sColumns[5]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
-                                    $('#dt_company6').html(results.jqXHR.responseJSON.sColumns[6]);
+                                    $('#dt_company5').html(results.jqXHR.responseJSON.sColumns[6]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
-                                    $('#dt_company7').html(results.jqXHR.responseJSON.sColumns[7]);
+                                    $('#dt_company6').html(results.jqXHR.responseJSON.sColumns[7]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
-                                    $('#dt_company8').html(results.jqXHR.responseJSON.sColumns[8]);
+                                    $('#dt_company7').html(results.jqXHR.responseJSON.sColumns[8]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
-                                    $('#dt_company9').html(results.jqXHR.responseJSON.sColumns[9]);
+                                    $('#dt_company8').html(results.jqXHR.responseJSON.sColumns[9]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
-                                    $('#dt_company10').html(results.jqXHR.responseJSON.sColumns[10]);
+                                    $('#dt_company9').html(results.jqXHR.responseJSON.sColumns[10]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[11] != 'undefined') {
+                                    $('#dt_company10').html(results.jqXHR.responseJSON.sColumns[11]);
                                 }
                             }
                             catch(err) {
