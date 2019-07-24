@@ -13,7 +13,15 @@ class PackageController extends BaseController {
     public function ajax_datagrid(){
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $packages = Package::leftJoin('tblRateTable','tblPackage.RateTableId','=','tblRateTable.RateTableId')
+        $packages = Package::leftJoin('tblRateTable',function($join){
+            $join->on('tblPackage.RateTableId','=','tblRateTable.RateTableId');
+            $join->on('tblRateTable.Type','=',DB::raw(RateTable::RATE_TABLE_TYPE_PACKAGE));
+            $join->on('tblRateTable.CompanyId','=',DB::raw(User::get_companyID()));
+            if(is_reseller()) 
+                $join->on('tblRateTable.AppliedTo','=',DB::raw(RateTable::APPLIED_TO_RESELLER));
+            else
+                $join->on('tblRateTable.AppliedTo','<>',DB::raw(RateTable::APPLIED_TO_VENDOR));   
+            })         
             ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
             ->select([
                 "tblPackage.PackageId",
@@ -43,7 +51,7 @@ class PackageController extends BaseController {
     public function index() {
         $CompanyID = User::get_companyID();
        
-        $rateTables = RateTable::getRateTablesForPackage($CompanyID,RateTable::RATE_TABLE_TYPE_PACKAGE);
+        $rateTables = RateTable::getRateTablesByType($CompanyID,RateTable::RATE_TABLE_TYPE_PACKAGE);
         $CompanyID  = User::get_companyID();
         $defaultCurrencyId = Company::getCompanyField($CompanyID, "CurrencyId");
 
@@ -156,7 +164,15 @@ class PackageController extends BaseController {
 
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $query = Package::leftJoin('tblRateTable','tblPackage.RateTableId','=','tblRateTable.RateTableId')
+        $query = Package::leftJoin('tblRateTable',function($join){
+            $join->on('tblPackage.RateTableId','=','tblRateTable.RateTableId');
+            $join->on('tblRateTable.Type','=',DB::raw(RateTable::RATE_TABLE_TYPE_PACKAGE));
+            $join->on('tblRateTable.CompanyId','=',DB::raw(User::get_companyID()));
+            if(is_reseller()) 
+                $join->on('tblRateTable.AppliedTo','=',DB::raw(RateTable::APPLIED_TO_RESELLER));
+            else
+                $join->on('tblRateTable.AppliedTo','<>',DB::raw(RateTable::APPLIED_TO_VENDOR));   
+            })  
             ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
             ->select([
                 "tblPackage.Name",
