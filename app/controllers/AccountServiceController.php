@@ -107,8 +107,15 @@ class AccountServiceController extends \BaseController {
         $City = array('' => "Select") + $City;
         $Tariff = array('' => "Select") + $Tariff;
 
+        $AccountRateTable = AccountRateTable::where(['AccountID' => $AccountID])->first();
+
+        $AccountAccessRateTableID = isset($AccountRateTable->AccessRateTableID) ? $AccountRateTable->AccessRateTableID : '';
+        $AccountPackageRateTableID = isset($AccountRateTable->PackageRateTableID) ? $AccountRateTable->PackageRateTableID : '';
+        $AccountTerminationRateTableID = isset($AccountRateTable->TerminationRateTableID) ? $AccountRateTable->TerminationRateTableID : '';
+
+
         return View::make('accountservices.edit', compact('AffiliateAccount','CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table', 'termination_rate_table',
-            'AccessType','Prefix','City','Tariff','package_rate_table','countries','DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
+            'AccessType','Prefix','City','Tariff','package_rate_table','countries','DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID'));
 
     }
 
