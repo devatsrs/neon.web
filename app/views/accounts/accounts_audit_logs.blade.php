@@ -7,6 +7,7 @@
         <li>
             {{--<a><span>{{customer_dropbox($account->AccountID)}}</span></a>--}}
             <a><span>{{customer_leads_dropbox($account->AccountID)}}</span></a>
+            <input type="hidden" id="AccountID" value="{{ $account->AccountID }}">
         </li>
         <li class="active"> <strong>Account Logs</strong> </li>
     </ol>
@@ -46,7 +47,7 @@
                 minimumResultsForSearch: -1
             });
 
-            var AccountID = jQuery('#drp_toandfro_jump').val();
+            var AccountID = jQuery('#AccountID').val();
             data_table = $("#table-4").dataTable({
 
                 "bProcessing":true,
