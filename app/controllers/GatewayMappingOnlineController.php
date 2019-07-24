@@ -26,12 +26,13 @@ class GatewayMappingOnlineController extends \BaseController {
         $data['GatewayName'] 				 = 		$data['GatewayName']?$data['GatewayName']:'';
 
         $data['CompanyGatewayID']				 =		$data['CompanyGatewayID']!= ''?$data['CompanyGatewayID']:0;
+        $data['TotalCurrentCalls']				 =		$data['TotalCurrentCalls']!= ''?$data['TotalCurrentCalls']:0;
 
         $columns = array('GatewayName','TotalCurrentCalls','Asr','Acd','RemoteIP','CompanyGatewayID');
         $sort_column = $columns[$data['iSortCol_0']];
 
 
-        $query = "call prc_getVOSGatewayMappingOnline(".$CompanyID.",'".$data['GatewayName']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['CompanyGatewayID']."";
+        $query = "call prc_getVOSGatewayMappingOnline(".$CompanyID.",'".$data['GatewayName']."',".$data['TotalCurrentCalls'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['CompanyGatewayID']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $export_type['type'] = $type;
             $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','GatewayMappingOnline');

@@ -1297,9 +1297,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/VOS/AccountBalance', 'VOSAccountBalanceController@index');
 	Route::any('/VOS/AccountBalance/ajax_datagrid/{type}', 'VOSAccountBalanceController@ajax_datagrid');
 
-	//VOS AccountIP
-	Route::any('/VOS/AccountIP', 'VOSAccountIPController@index');
-	Route::any('/VOS/AccountIP/ajax_datagrid/{type}', 'VOSAccountIPController@ajax_datagrid');
+	//VOS MappingGateway
+	Route::any('/VOS/mapping_gateway', 'VOSAccountIPController@index');
+	Route::any('/VOS/mapping_gateway/ajax_datagrid/{type}', 'VOSAccountIPController@ajax_datagrid');
+
+	Route::any('/VOS/RoutingGateway', 'VOSRoutingGatewayController@index');
+	Route::any('/VOS/RoutingGateway/ajax_datagrid/{type}', 'VOSRoutingGatewayController@ajax_datagrid');
 
     //AccountPaymentProfile
     Route::any('/paymentprofile/create', 'AccountsPaymentProfileController@create');

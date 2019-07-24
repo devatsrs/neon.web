@@ -156,14 +156,14 @@ class CronJobController extends \BaseController {
                 $hour_limit = 3;
             }else if($CronJobCommand->Command == 'portaaccountusage'){
                 $day_limit= 2;
-            }else if($CronJobCommand->Command == 'updatepbxcustomerrate'){
+            }else if($CronJobCommand->Command == 'updatepbxcustomerrate' || $CronJobCommand->Command == 'exportclaritypbxcustomerrate'){
                 $day_limit= 2;
                 $rateTableList = RateTable::where(["CompanyId" => $companyID])
                     ->lists('RateTableName', 'RateTableId');
                 if(!empty($rateTableList)){
                     $rateTableList = array(""=> "Select")+$rateTableList;
                 }
-            }else if($CronJobCommand->Command == 'updatepbxvendorrate'){
+            }else if($CronJobCommand->Command == 'updatepbxvendorrate' || $CronJobCommand->Command == 'exportclaritypbxvendorrate'){
                 $vendorList = Account::getOnlyVendorIDList();
                 if(!empty($vendorList)){
                     $vendorList = array(""=> "Select")+$vendorList;
