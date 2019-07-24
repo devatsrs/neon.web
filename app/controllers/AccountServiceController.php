@@ -377,6 +377,7 @@ class AccountServiceController extends \BaseController {
             $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
             $PackageDiscountPlan = empty($data['PackageDiscountPlanID']) ? '' : $data['PackageDiscountPlanID'];
 
+
             //billing
             //$invoice_count = Account::getInvoiceCount($AccountID);
             $invoice_count = 0;
@@ -408,6 +409,7 @@ class AccountServiceController extends \BaseController {
                     $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), $ServiceID);
                 }
             }
+
             if (!empty($AccountPeriod)) {
                 $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                 $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
@@ -495,6 +497,27 @@ class AccountServiceController extends \BaseController {
                     AccountServicePackage::create($packagedata);
 
                 }
+            }
+
+            //Account Rate Tables
+            $AccountAccessRateTableID = empty($data['AccountAccessRateTableID']) ? '0' : $data['AccountAccessRateTableID'];
+            $AccountPackageRateTableID = empty($data['AccountPackageRateTableID']) ? '0' : $data['AccountPackageRateTableID'];
+            $AccountTerminationRateTableID = empty($data['AccountTerminationRateTableID']) ? '0' : $data['AccountTerminationRateTableID'];
+
+
+            $AccountRateTableData = [
+                'AccessRateTableID'      => $AccountAccessRateTableID,
+                'PackageRateTableID'     => $AccountPackageRateTableID,
+                'TerminationRateTableID' => $AccountTerminationRateTableID,
+            ];
+
+            $AccountRateTable = AccountRateTable::where(['AccountID' => $AccountID])->first();
+
+            if($AccountRateTable != false){
+                $AccountRateTable->update($AccountRateTableData);
+            } else {
+                $AccountRateTableData['AccountID'] = $AccountID;
+                AccountRateTable::create($AccountRateTableData);
             }
 
             $accdata = array();
