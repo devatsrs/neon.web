@@ -118,18 +118,17 @@ class AuthorizeNetEcheck {
 
     public function CreatePaymentProfile($customerProfileId,$data){
         try{
-            $data["ExpirationDate"] = $data["ExpirationYear"]."-".$data["ExpirationMonth"];
             $paymentProfile = new AuthorizeNetPaymentProfile;
-            $paymentProfile->customerType = "individual";
-            $paymentProfile->payment->creditCard->cardNumber = $data["CardNumber"];
-            $paymentProfile->payment->creditCard->expirationDate = $data["ExpirationDate"]; 
+            $paymentProfile->customerType = strtolower($data['AccountHolderType']);
+            $paymentProfile->payment->bankAccount->nameOnAccount = $data["AccountHolderName"];
+            $paymentProfile->payment->bankAccount->accountNumber = $data["AccountNumber"];
+            $paymentProfile->payment->bankAccount->routingNumber = $data["RoutingNumber"];
             $response = $this->request->createCustomerPaymentProfile($customerProfileId, $paymentProfile);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = cus_lang("PAYMENT_MSG_PAYMENT_PROFILE_CREATED_ON_AUTHORIZE_NET");
                 $result["ID"] = (int) $response->xml->customerPaymentProfileId;
-            }
-            else {
+            } else {
                 $result["status"] = "failed";
                 $result["message"] = $response->xml->messages->message->text;
             }
@@ -146,9 +145,10 @@ class AuthorizeNetEcheck {
         try{
             $data["ExpirationDate"] = $data["ExpirationYear"]."-".$data["ExpirationMonth"];
             $paymentProfile = new AuthorizeNetPaymentProfile;
-            $paymentProfile->customerType = "individual";
-            $paymentProfile->payment->creditCard->cardNumber = $data["CardNumber"];
-            $paymentProfile->payment->creditCard->expirationDate = $data["ExpirationDate"];
+            $paymentProfile->customerType = strtolower($data['AccountHolderType']);
+            $paymentProfile->payment->bankAccount->nameOnAccount = $data["AccountHolderName"];
+            $paymentProfile->payment->bankAccount->accountNumber = $data["AccountNumber"];
+            $paymentProfile->payment->bankAccount->routingNumber = $data["RoutingNumber"];
             $response = $this->request->updateCustomerPaymentProfile($customerProfileId,$paymentProfileId,$paymentProfile);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
@@ -429,10 +429,12 @@ class AuthorizeNetEcheck {
             $PaymentProfileID = $result["ID"];
             /**  @TODO save this field NameOnCard and CCV */
             $option = array(
-                'ProfileID' => $ProfileID,
+                'ProfileID'         => $ProfileID,
                 'ShippingProfileID' => $ShippingProfileID,
-                'PaymentProfileID' => $PaymentProfileID
+                'PaymentProfileID'  => $PaymentProfileID,
+                'VerifyStatus'      => 'verified',
             );
+
             $CardDetail = array('Title' => $title,
                 'Options' => json_encode($option),
                 'Status' => 1,
@@ -441,6 +443,7 @@ class AuthorizeNetEcheck {
                 'CompanyID' => $CompanyID,
                 'AccountID' => $CustomerID,
                 'PaymentGatewayID' => $PaymentGatewayID);
+            
             if (AccountPaymentProfile::create($CardDetail)) {
                 return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_CREATED")));
             } else {
