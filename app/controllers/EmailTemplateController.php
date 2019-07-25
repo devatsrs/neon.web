@@ -252,6 +252,68 @@ class EmailTemplateController extends \BaseController {
         }
     }
 
+    public function clone_email(){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $data['CompanyID'] = $companyID;
+        $data['CreatedBy'] = User::get_user_full_name();
+
+        $data['IsGlobal'] = 0;
+        if(!empty($data['ResellerOwner'])){
+            if($data['ResellerOwner']=='-1'){
+                $data['IsGlobal'] =1;
+            }else{
+                $data['CompanyID'] = $data['ResellerOwner'];
+            }
+        }
+        unset($data['ResellerOwner']);
+
+
+
+        $rules = [
+            "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,NULL,TemplateID,CompanyID,".$data['CompanyID'].",IsGlobal,".$data['IsGlobal'],
+            "Subject" => "required",
+            "TemplateBody"=>"required",
+            "LanguageID"=>"required"
+        ];
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        if(isset($data['Email_template_privacy']) && $data['Email_template_privacy']>0){
+            $data['userID'] = User::get_userID();
+        }else
+		{
+			$data['userID'] = NULL;
+		}
+		$data['Status'] = isset($data['Status'])?1:0;
+        unset($data['Email_template_privacy']);
+         $data['EmailFrom'] =  isset($data['email_from'])?$data['email_from']:"";
+         unset($data['email_from']);
+
+        if(!empty($data['SystemType'])){
+            if(EmailTemplate::where([ "LanguageID"=>$data['LanguageID'], "SystemType"=>$data['SystemType'], "CompanyID"=>$data['CompanyID'],"IsGlobal"=>$data['IsGlobal']])->count()){
+                return Response::json(array("status" => "failed", "message" => "Template already exists."));
+            }
+            $emailTemplate = EmailTemplate::where(['SystemType'=>$data['SystemType'],'LanguageID'=>Translation::$default_lang_id])->first();
+            if(!empty($emailTemplate)){
+                $data['StatusDisabled'] = $emailTemplate->StatusDisabled;
+                $data['TicketTemplate'] = $emailTemplate->TicketTemplate;
+                $data['StaticType'] = $emailTemplate->StaticType;
+                $data['Type'] = $emailTemplate->Type;
+            }
+        }
+
+        if ($obj = EmailTemplate::create($data)) {
+            Log::info(json_encode($data));
+            return Response::json(array("status" => "success", "message" => "Template Successfully Clone","newcreated"=>$obj));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Cloning Template."));
+        }
+    }
+
     public function delete($id)
     {
         if( intval($id) > 0){
