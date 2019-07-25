@@ -258,3 +258,62 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_UpdateCDRRounding`;
+DELIMITER //
+CREATE PROCEDURE `prc_UpdateCDRRounding`(
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_processId` INT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+	-- trunk based
+	SET @stm = CONCAT('
+		UPDATE
+			RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		LEFT JOIN
+			Ratemanagement3.`tblCustomerTrunk` ct ON ct.AccountID = ud.AccountID AND ct.TrunkID = ud.TrunkID AND ct.Status =1
+		INNER JOIN
+			Ratemanagement3.`tblRateTable` rt ON rt.RateTableID = ct.RateTableID
+		SET
+			cost = ROUND((CEIL(cost * POWER(10,IFNULL(rt.RoundChargedAmount,6)))/POWER(10,IFNULL(rt.RoundChargedAmount,6))),IFNULL(rt.RoundChargedAmount,6))
+		WHERE
+			ct.AccountID IS NOT NULL AND
+			rt.RoundChargedAmount IS NOT NULL AND
+			ud.ProcessID="' , p_processId , '";
+	');
+
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
+
+	-- service based
+	SET @stm = CONCAT('
+		UPDATE
+			RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		LEFT JOIN
+			Ratemanagement3.`tblAccountTariff` t ON t.AccountID = ud.AccountID AND t.ServiceID = ud.ServiceID and ((t.`Type`=1 and ud.is_inbound=0) or (t.`Type`=2 and ud.is_inbound=1))
+		INNER JOIN
+			Ratemanagement3.`tblRateTable` rt ON rt.RateTableID = t.RateTableID
+		SET
+			cost = ROUND((CEIL(cost * POWER(10,IFNULL(rt.RoundChargedAmount,6)))/POWER(10,IFNULL(rt.RoundChargedAmount,6))),IFNULL(rt.RoundChargedAmount,6))
+		WHERE
+			t.AccountID IS NOT NULL AND
+			rt.RoundChargedAmount IS NOT NULL AND
+			ud.ProcessID="' , p_processId , '" AND
+			ud.is_rerated=1;
+	');
+
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
