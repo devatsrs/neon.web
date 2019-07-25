@@ -576,6 +576,7 @@
                     </div>
                 </div>
                 @include('accountdiscountplan.index')
+                @include('accounts.ratetables')
 
             </form>
         </div>

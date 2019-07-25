@@ -909,6 +909,7 @@
         @if(AccountBilling::where(array('AccountID'=>$account->AccountID,'BillingCycleType'=>'manual'))->count() == 0 || !empty($BillingCycleType))
             @include('accountdiscountplan.index')
         @endif
+        @include('accounts.ratetables')
         @if(User::checkCategoryPermission('AccountService','View'))
             @include('accountsubscription.index')
         @endif

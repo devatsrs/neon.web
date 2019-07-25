@@ -107,15 +107,9 @@ class AccountServiceController extends \BaseController {
         $City = array('' => "Select") + $City;
         $Tariff = array('' => "Select") + $Tariff;
 
-        $AccountRateTable = AccountRateTable::where(['AccountID' => $AccountID])->first();
-
-        $AccountAccessRateTableID = isset($AccountRateTable->AccessRateTableID) ? $AccountRateTable->AccessRateTableID : '';
-        $AccountPackageRateTableID = isset($AccountRateTable->PackageRateTableID) ? $AccountRateTable->PackageRateTableID : '';
-        $AccountTerminationRateTableID = isset($AccountRateTable->TerminationRateTableID) ? $AccountRateTable->TerminationRateTableID : '';
-
 
         return View::make('accountservices.edit', compact('AffiliateAccount','CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table', 'termination_rate_table',
-            'AccessType','Prefix','City','Tariff','package_rate_table','countries','DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID'));
+            'AccessType','Prefix','City','Tariff','package_rate_table','countries','DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
 
     }
 
@@ -504,27 +498,6 @@ class AccountServiceController extends \BaseController {
                     AccountServicePackage::create($packagedata);
 
                 }
-            }
-
-            //Account Rate Tables
-            $AccountAccessRateTableID = empty($data['AccountAccessRateTableID']) ? '0' : $data['AccountAccessRateTableID'];
-            $AccountPackageRateTableID = empty($data['AccountPackageRateTableID']) ? '0' : $data['AccountPackageRateTableID'];
-            $AccountTerminationRateTableID = empty($data['AccountTerminationRateTableID']) ? '0' : $data['AccountTerminationRateTableID'];
-
-
-            $AccountRateTableData = [
-                'AccessRateTableID'      => $AccountAccessRateTableID,
-                'PackageRateTableID'     => $AccountPackageRateTableID,
-                'TerminationRateTableID' => $AccountTerminationRateTableID,
-            ];
-
-            $AccountRateTable = AccountRateTable::where(['AccountID' => $AccountID])->first();
-
-            if($AccountRateTable != false){
-                $AccountRateTable->update($AccountRateTableData);
-            } else {
-                $AccountRateTableData['AccountID'] = $AccountID;
-                AccountRateTable::create($AccountRateTableData);
             }
 
             $accdata = array();

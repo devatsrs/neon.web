@@ -383,44 +383,6 @@
                 @include('accounts.cli_tables')
                 @include('accounts.packages_tables')
 
-
-
-                        <!-- Account RateTables start -->
-                <div class="panel panel-primary ratetable-section-hide" data-collapsed="0">
-
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            RateTables
-                        </div>
-
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <label for="field-1" class="col-md-1 control-label">Access</label>
-                            <div class="col-md-3">
-                                    {{ Form::select('AccountAccessRateTableID', $rate_table , $AccountAccessRateTableID , array("class"=>"select2")) }}
-                            </div>
-
-                            <label class="col-md-1 control-label">Package</label>
-                            <div class="col-md-3">
-                                {{ Form::select('AccountPackageRateTableID', $package_rate_table , $AccountPackageRateTableID, array("class"=>"select2")) }}
-                            </div>
-
-                            <label class="col-md-1 control-label">Termination</label>
-                            <div class="col-md-3">
-                                    {{ Form::select('AccountTerminationRateTableID', $termination_rate_table , $AccountTerminationRateTableID, array("class"=>"select2")) }}
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <!-- Account RateTables end -->
-
-
                 <!-- Account Option start -->
                 <div class="panel panel-primary additional-optional-section-hide hide" data-collapsed="0">
                     <div class="panel-heading">
