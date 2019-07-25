@@ -176,8 +176,11 @@ class ServicesTemplateController extends BaseController {
             $CompanyID  = User::get_companyID();
             $CategoryDropdownIDList = DIDCategory::getCategoryDropdownIDList($CompanyID);
             $servicesTemplate = Service::lists('ServiceName','ServiceID');
-            $rateTable = RateTable::getRateTablesByType($CompanyID,RateTable::RATE_TABLE_TYPE_TERMINATION);
-//
+            $rateTable = RateTable::getRateTableList([
+                'types' => [RateTable::RATE_TABLE_TYPE_TERMINATION],
+                'NotVendor' => true,
+                'CompanyID' => $CompanyID
+            ]);
             $outboundDiscountPlan = DiscountPlan::lists('Name','DiscountPlanID');
             $inbounddiscountplan =   DiscountPlan::lists('Name','DiscountPlanID');
             $BillingSubsForSrvTemplate = BillingSubscription::lists('Name','SubscriptionID');
