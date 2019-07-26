@@ -165,10 +165,15 @@ class RateTable extends \Eloquent
         return $RateTables;
     }
 
-    public static function getRateTablesForPackage($CompanyID,$Type){
+    public static function getRateTablesByType($CompanyID,$Type){
         $RateTables = RateTable::select(['RateTableName','RateTableId'])
-            ->where('AppliedTo','<>', 2)
-            ->where(['CompanyID' => $CompanyID,'Type' => $Type])->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        ->where(['CompanyID' => $CompanyID,'Type' => $Type]);
+        if(is_reseller())
+            $RateTables->where('AppliedTo', self::APPLIED_TO_RESELLER);
+        else
+            $RateTables->where('AppliedTo','<>', 2);
+
+        $RateTables = $RateTables->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
         if(!empty($RateTables)){
             $RateTables = [''=>'Select'] + $RateTables;
         }

@@ -106,7 +106,8 @@ class Account extends \Eloquent {
         'PostCode'=>'PostCode',
         'Country'=>'Country',
         'IsCustomer'=>'IsCustomer',
-        'IsVendor'=>'IsVendor'
+        'IsVendor'=>'IsVendor',
+        'Status' => 'Status'
     ];
 
     public static function boot(){

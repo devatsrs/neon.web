@@ -905,9 +905,29 @@ class AccountsController extends \BaseController {
         $Packages = Package::getDropdownIDListByCompany($companyID);
         $AffiliateAccount = Account::getAffiliateAccount();
 
+        $AccountRateTable = AccountRateTable::where(['AccountID' => $id])->first();
+
+        $AccountAccessRateTableID = isset($AccountRateTable->AccessRateTableID) ? $AccountRateTable->AccessRateTableID : '';
+        $AccountPackageRateTableID = isset($AccountRateTable->PackageRateTableID) ? $AccountRateTable->PackageRateTableID : '';
+        $AccountTerminationRateTableID = isset($AccountRateTable->TerminationRateTableID) ? $AccountRateTable->TerminationRateTableID : '';
+        $rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::DID],
+            'NotVendor' => true,
+            'CompanyID' => $companyID
+        ]);
+        $termination_rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::VoiceCall],
+            'NotVendor' => true,
+            'CompanyID' => $companyID
+        ]);
+        $package_rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::Package],
+            'NotVendor' => true,
+            'CompanyID' => $companyID
+        ]);
         $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$companyID)->first():[];
         return View::make('accounts.edit', compact('account','AffiliateAccount', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
-            'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller'));
+            'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table'));
     }
 
     /**
@@ -1418,12 +1438,15 @@ class AccountsController extends \BaseController {
                 }
             }
 
+            AccountRateTable::addAccountRateTable($id,$data);
+
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
         }
         //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Updated');;
     }
+
 
     public function getAccountPartnerInfo($id){
         $Reseller = Reseller::getResellerDetails($id);
