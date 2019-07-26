@@ -20,7 +20,6 @@ class RateTablesController extends \BaseController {
         if(!empty($data['ResellerPage'])) {
             $ResellerID = Reseller::getResellerID();
             $rate_tables->where("tblRateTable.CompanyId",1);
-            $rate_tables->where("tblRateTable.Reseller",-1)->orWhere("tblRateTable.Reseller",$ResellerID);
             $rate_tables->where(function ($query) use ($ResellerID) {
                 $query->where("tblRateTable.Reseller",-1)->orWhere("tblRateTable.Reseller",$ResellerID);
             });
