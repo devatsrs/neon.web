@@ -83,7 +83,7 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">LCR Policy</label>
-                    {{ Form::select('Policy', LCR::$policy, LCR::LCR_PREFIX , array("class"=>"select2")) }}
+                    {{ Form::select('Policy', LCR::$policy, LCR::LCR , array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Show Positions</label>

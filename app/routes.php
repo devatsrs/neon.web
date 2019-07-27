@@ -399,6 +399,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('email_template', 'EmailTemplateController@index');
 	Route::any('email_template/{id}/update', 'EmailTemplateController@update');
+	Route::any('email_template/clone', 'EmailTemplateController@clone_email');
 	Route::any('email_template/{id}/edit', 'EmailTemplateController@edit');
 	Route::any('email_template/{id}/delete', 'EmailTemplateController@delete');
 	Route::any('email_template/store', 'EmailTemplateController@store');
@@ -997,11 +998,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_subscription/dynamicField/update_bulk_itemtypes_status', 'BillingSubscriptionController@UpdateBulkItemTypeStatus');
 	Route::any('/billing_subscription/dynamicField/typesAccess/{data}', 'BillingSubscriptionController@getSubscritionsType');
 	Route::any('/billing_subscription/dynamicField/fieldAccess', 'BillingSubscriptionController@getSubscritionsField');
-	
+
 	//ActiveCall	
 	Route::any('/ActiveCalls', 'ActiveCallController@index');
 	Route::any('/ActiveCalls/ajax_datagrid/{type}', 'ActiveCallController@ajax_datagrid');	
-
 
 	//InvoiceTemplate
 	Route::any('/invoice_template/ajax_datagrid/{type}', 'InvoiceTemplatesController@ajax_datagrid');

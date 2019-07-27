@@ -76,15 +76,15 @@
 <table class="table table-bordered datatable" id="table-4">
   <thead>
     <tr>
-      <th width="15%">Type</th>
+      <th width="10%">Type</th>
       <th width="10%">Language</th>
-      <th width="20%">Partner</th>
-      <th width="20%">Template Name</th>
-      <th width="20%">Subject</th>
-      <th width="15%">Created By</th>
-      <th width="15%">Last Updated</th>
+      <th width="10%">Partner</th>
+      <th width="10%">Template Name</th>
+      <th width="10%">Subject</th>
+      <th width="10%">Created By</th>
+      <th width="10%">Last Updated</th>
       <th width="10%">Status</th>
-      <th width="10%">Action</th>
+      <th width="12%">Action</th>
     </tr>
   </thead>
   <tbody>
@@ -162,6 +162,7 @@ var popup_type  = 0;
                          action += '</div>';
                         <?php if(User::checkCategoryPermission('EmailTemplate','Edit')) { ?>
                             action += ' <a data-name = "'+full[3]+'" data-id="'+ id +'" title="Edit" class="edit-template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                            action += ' <a data-name = "'+full[3]+'" data-id="'+ id +'" title="Clone" class="clone-template btn btn-default btn-sm"><i class="fa fa-clone"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
             if(full[9]==0){
@@ -361,6 +362,90 @@ var popup_type  = 0;
         $(".email_from").show();
        
     });
+
+    $('table tbody').on('click','.clone-template',function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        $('#clone-template-form').trigger("reset");
+
+        templateID = $(this).prev().prev("div.hiddenRowData").find("input[name='templateID']").val();
+        var url = baseurl + '/email_template/'+templateID+'/edit';
+        $.get(url, function(data, status){
+            if(Status="success"){
+                popup_type = data['Type'];
+                $('#clone-template-form').trigger("reset");
+                $("#clone-template-form [name='TemplateID']").val(data['TemplateID']);
+                $("#clone-template-form [name='TemplateName']").val('');
+                $("#clone-template-form [name='Subject']").val(data['Subject']);
+                $("#clone-template-form [name='TemplateBody']").val(data['TemplateBody']);
+                $("#clone-template-form [name='ResellerOwner']").select2('val', data['ResellerOwner']);
+                $("#clone-template-form [name='ResellerOwner']").select2('enable', true);
+                $("#clone-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', true);
+                //$("#add-new-template-form [name='Type']").val(data['Type']).trigger("change");
+        $("#clone-template-form [name='Type']").val(data['Type']);
+        if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;}
+                $("#clone-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
+                $("#clone-template-form [name='LanguageID']").select2('val', data['LanguageID']);
+                $("#clone-template-form #SystemType").select2('val', data['SystemType']);
+        if(data['StaticType']){
+          $("#clone-template-form #email_from").val(data['email_from']).trigger('change');
+          $("#clone-template-form .email_from").removeClass('hidden');  
+        //   $("#add-new-template-form #TemplateName").attr('readonly','readonly');
+          //$("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', false);
+
+          if(data['TicketTemplate']){
+            $("#clone-template-form .email_from").addClass('hidden');
+          } 
+        }else{
+          //$("#add-new-template-form .email_from").hide();     
+          $("#clone-template-form .email_from").addClass('hidden');  
+        //   $("#add-new-template-form #TemplateName").removeAttr('readonly');
+          //$("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', true);
+        }
+        if(data['StatusDisabled'])
+        {   
+          $('.status_switch').addClass('deactivate');
+          $('.status_switch').attr('title','Cannot deactivate');
+
+        }else{ 
+          $('.status_switch').removeClass('deactivate');
+          $('.status_switch').attr('title','');
+        }
+        
+        if(data['Status'])
+        {   
+          $('.status_switch').bootstrapSwitch('setState', true);
+
+        }else{ 
+          $('.status_switch').bootstrapSwitch('setState', false);
+        }
+
+        if(data['IsReseller']==1 && data['ResellerOwner']=='-1'){
+            $("#template-update").hide();
+        }else{
+            $("#template-update").show();
+        }
+
+            $('#clone-modal-template h4').html('Add template');
+            template_type_val = $('#add-new-modal-template').find('.template_type').val();        
+            //  $('#add-new-modal-template').modal('show');
+
+            $("#clone-template-form [name='templateID']").val($(this).attr('data-id'));
+            $('#clone-modal-template h4').html('Add template');
+            $('#clone-modal-template').modal('show');
+            replaceCheckboxes();
+
+            }else{
+                toastr.error(status, "Error", toastr_opts);
+            }
+        });
+         
+        $(".email_from").show();
+
+        // $("#clone-modal-template").modal('show');
+    });
+    
   $('.unclick').click(function(e) {
     e.preventDefault();
     console.log('unclick');
@@ -386,4 +471,5 @@ var popup_type  = 0;
 }
 </style>
 @include('emailtemplate.emailtemplatemodal')
+@include('emailtemplate.cloneemailtemplatemodal')
 @stop 
