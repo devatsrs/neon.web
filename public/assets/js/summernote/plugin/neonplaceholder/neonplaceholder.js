@@ -421,7 +421,7 @@ var dropdown_text =  {
 
 var neon_summernote_dropdown_tpl = {
     "leadoptions": function () {
-        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        return "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.leadoptions.AccountName + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.leadoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.leadoptions.LastName + "</a></li>" +
@@ -453,7 +453,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{AccountBalance}}'>" + dropdown_text.accountbalanceemailreminder.AccountBalance + "</a></li>" +
             "<li><a data-value='{{AccountExposure}}'>" + dropdown_text.accountbalanceemailreminder.AccountExposure + "</a></li>" +
             "<li><a data-value='{{AccountBlocked}}'>" + dropdown_text.leadoptions.AccountBlocked + "</a></li>" +
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -475,7 +475,7 @@ var neon_summernote_dropdown_tpl = {
             ;
     },
     "ratetemplateoptions": function () {
-        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        return "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.ratetemplateoptions.AccountName + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.ratetemplateoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.ratetemplateoptions.LastName + "</a></li>" +
@@ -497,7 +497,7 @@ var neon_summernote_dropdown_tpl = {
             //"<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
             //"<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.ratetemplateoptions.BalanceThreshold + "</a></li>" +
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -523,7 +523,7 @@ var neon_summernote_dropdown_tpl = {
     },
     "invoiceoptions": function () {
 
-        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        return "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.invoiceoptions.AccountName + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.invoiceoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.invoiceoptions.LastName + "</a></li>" +
@@ -559,7 +559,7 @@ var neon_summernote_dropdown_tpl = {
                 /* "<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.invoiceoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
                  "<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.invoiceoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
                  "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.invoiceoptions.BalanceThreshold + "</a></li>" +*/
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -578,7 +578,7 @@ var neon_summernote_dropdown_tpl = {
     },
     "autopaymentoptions": function () {
 
-        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        return "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.autopaymentoptions.AccountName + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.autopaymentoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.autopaymentoptions.LastName + "</a></li>" +
@@ -614,7 +614,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{InvoiceGrandTotal}}'>" + dropdown_text.autopaymentoptions.InvoiceGrandTotal + "</a></li>" +
             "<li><a data-value='{{InvoiceOutstanding}}'>" + dropdown_text.autopaymentoptions.InvoiceOutstanding + "</a></li>" +
             "<li><a data-value='{{InvoiceLink}}'>" + dropdown_text.autopaymentoptions.InvoiceLink + "</a></li>" +
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -636,7 +636,7 @@ var neon_summernote_dropdown_tpl = {
         "<li><a data-value='{{ServiceName}}'>" + dropdown_text.contractoptions.ServiceName + "</a></li>" +
         "<li><a data-value='{{ContractStartDate}}'>" + dropdown_text.contractexpireoptions.ContractStartDate + "</a></li>" +
         "<li><a data-value='{{ContractEndDate}}'>" + dropdown_text.contractexpireoptions.ContractEndDate + "</a></li>" +
-        "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
         "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractexpireoptions.AccountName + "</a></li>" +
         "<li><a data-value='{{FirstName}}'>" + dropdown_text.contractexpireoptions.FirstName + "</a></li>" +
         "<li><a data-value='{{LastName}}'>" + dropdown_text.contractexpireoptions.LastName + "</a></li>" +
@@ -660,7 +660,7 @@ var neon_summernote_dropdown_tpl = {
         "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
         "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
         "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
-        "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+        "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
         "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
         "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
         "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -683,7 +683,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{ContractStartDate}}'>" + dropdown_text.contractexpireoptions.ContractStartDate + "</a></li>" +
             "<li><a data-value='{{ContractEndDate}}'>" + dropdown_text.contractexpireoptions.ContractEndDate + "</a></li>" +
 
-            "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.contractexpireoptions.AccountName + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.contractexpireoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.contractexpireoptions.LastName + "</a></li>" +
@@ -707,7 +707,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{RegisterDutchFoundation}}'>" + dropdown_text.dynamicfields.RegisterDutchFoundation + "</a></li>" +
             "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
             "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -726,7 +726,7 @@ var neon_summernote_dropdown_tpl = {
     },
     "outpaymentoptions": function () {
 
-        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        return "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.outpaymentoptions.AccountName + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.outpaymentoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.outpaymentoptions.LastName + "</a></li>" +
@@ -754,7 +754,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
             "<li class='unclick'><a ><b>Out Payment Fields</b></a></li>" +
             "<li><a data-value='{{OutPaymentAmount}}'>" + dropdown_text.outpaymentoptions.OutPaymentAmount + "</a></li>" +
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -769,7 +769,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>";
     },
     "tasks": function () {
-        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        return "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.leadoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.leadoptions.LastName + "</a></li>" +
             "<li><a data-value='{{Email}}'>" + dropdown_text.leadoptions.Email + "</a></li>" +
@@ -797,7 +797,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{subject}}'>" + dropdown_text.tasks.Subject + "</a></li>" +
             "<li><a data-value='{{User}}'>" + dropdown_text.tasks.User + "</a></li>" +
             "<li><a data-value='{{Comment}}'>" + dropdown_text.tasks.Comment + "</a></li>" +
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -812,7 +812,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>";
     },
     "opportunities": function () {
-        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        return "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.leadoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.leadoptions.LastName + "</a></li>" +
             "<li><a data-value='{{Email}}'>" + dropdown_text.leadoptions.Email + "</a></li>" +
@@ -841,7 +841,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{User}}'>" + dropdown_text.opportunities.User + "</a></li>" +
             "<li><a data-value='{{Comment}}'>" + dropdown_text.opportunities.Comment + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.opportunities.Logo + "</a></li>" +
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -864,7 +864,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.ratesheetoptions.CompanyName + "</a></li>" ;
     },
     "estimateoptions": function () {
-        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+        return "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.estimateoptions.AccountName + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.estimateoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.estimateoptions.LastName + "</a></li>" +
@@ -897,7 +897,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Comment}}'>" + dropdown_text.estimateoptions.Comment + "</a></li>" +
             "<li><a data-value='{{User}}'>" + dropdown_text.estimateoptions.User + "</a></li>" +
 
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -938,7 +938,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{COCNumber}}'>" + dropdown_text.dynamicfields.COCNumber + "</a></li>" +
             "<li><a data-value='{{DutchProvider}}'>" + dropdown_text.dynamicfields.DutchProvider + "</a></li>" +
 
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -972,7 +972,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Comment}}'>" + dropdown_text.TicketsSingle.Comment + "</a></li>" +
             "<li><a data-value='{{Notebody}}'>" + dropdown_text.TicketsSingle.Notebody + "</a></li>" +
             "<li><a data-value='{{NoteUser}}'>" + dropdown_text.TicketsSingle.NoteUser + "</a></li>" +
-            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Partner Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
             "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
@@ -1019,7 +1019,7 @@ var neon_summernote_dropdown_tpl = {
         }
 
         return  tickets_data +
-            "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+            "<li class='unclick'><a ><b>Customer Fields</b></a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.Tickets.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.Tickets.LastName + "</a></li>" +
             "<li><a data-value='{{Email}}'>" + dropdown_text.Tickets.Email + "</a></li>" +
