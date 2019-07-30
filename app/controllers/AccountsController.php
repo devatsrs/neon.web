@@ -940,7 +940,33 @@ class AccountsController extends \BaseController {
         $data['AccountID'] 		= 	$id;
         $data['created_by'] 	=	$user_name;
         $data["Note"] 			= 	nl2br($data["Note"]);
-		$key 					= 	$data['scrol']!=""?$data['scrol']:0;	
+		$key 					= 	$data['scrol']!=""?$data['scrol']:0;
+        $attachmentsinfo        =	$data['attachmentsinfo'];
+        if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+            $files_array = json_decode($attachmentsinfo,true);
+        }
+
+        if(!empty($files_array) && count($files_array)>0) {
+            $FilesArray = array();
+            foreach($files_array as $key=> $array_file_data){
+                $file_name  = basename($array_file_data['filepath']);
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['NOTE_ATTACHMENTS']);
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+                copy($array_file_data['filepath'], $destinationPath . $file_name);
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                }
+                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+                @unlink($array_file_data['filepath']);
+            }
+            $data['file']		=	json_encode($FilesArray);
+
+        }
+
 		unset($data["scrol"]);		
  		$response 				= 	NeonAPI::request('account/add_note',$data);
 		

@@ -186,6 +186,14 @@
               <div class="form-group ">
                 <textarea name="Note" id="note-content" class="form-control autogrow editor-note"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
               </div>
+              <p class="comment-box-options-activity"> <a id="addNoteTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
+              <div class="form-group note_attachment">
+                <input type="hidden" value="1" name="note_send" id="note_send"  />
+                <!--   <input id="filecontrole" type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />-->
+
+                <input id="noteattachment_sent" type="hidden" name="noteattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
+                <input id="info6" type="hidden" name="attachmentsinfo" />
+                <span class="file-input-names"></span> </div>
               <div class="form-group end-buttons-timeline">
                 <button value="save" id="save-note" class="pull-right save btn btn-primary btn-sm btn-icon icon-left save-note-btn hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
                 @if(count($boards)>0)
@@ -557,12 +565,21 @@
   </ul>
 </div>
 <form id="emai_attachments_form" class="hidden" name="emai_attachments_form">
-  <span class="emai_attachments_span">
+  <span class="email_attachments_span">
   <input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple id="filecontrole1">
   </span>
   <input  hidden="" name="account_id" value="{{$account->AccountID}}" />
   <input  hidden="" name="token_attachment" value="{{$random_token}}" />
   <input id="info1" type="hidden" name="attachmentsinfo" />
+  <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
+</form>
+<form id="note_attachments_form" class="hidden" name="note_attachments_form">
+  <span class="note_attachments_span">
+  <input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple id="filecontrole3">
+  </span>
+  <input  hidden="" name="account_id" value="{{$account->AccountID}}" />
+  <input  hidden="" name="token_attachment" value="{{$random_token}}" />
+  <input id="info5" type="hidden" name="attachmentsinfo" />
   <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 </form>
 <form id="emai_attachments_reply_form" class="hidden" name="emai_attachments_form">

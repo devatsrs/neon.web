@@ -547,6 +547,14 @@ setTimeout(function() {
 				$('#filecontrole1').click();
 				
             });
+
+			$('#addNoteTtachment').click(function(){
+				file_count++;
+				//var html_img = '<input id="filecontrole'+file_count+'" multiple type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
+				//$('.emai_attachments_span').html(html_img);
+				$('#filecontrole3').click();
+
+			});
 			
 			 $(document).on("click","#addReplyTtachment",function(ee){
 			 file_count++;                
@@ -677,6 +685,36 @@ $('#emai_attachments_form').submit(function(e) {
         contentType: false,
         processData: false
     });
+	});
+
+		$('#note_attachments_form').submit(function(e) {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+
+			var formData = new FormData(this);
+			var url = 	baseurl + '/account/upload_file';
+			$.ajax({
+				url: url,  //Server script to process data
+				type: 'POST',
+				dataType: 'json',
+				success: function (response) {
+					console.log(response);
+					if(response.status =='success'){
+						$('.file-input-names').html(response.data.text);
+						$('#info5').val(JSON.stringify(response.data.attachmentsinfo));
+						$('#info6').val(JSON.stringify(response.data.attachmentsinfo));
+
+					}else{
+						toastr.error(response.message, "Error", toastr_opts);
+					}
+				},
+				// Form data
+				data: formData,
+				//Options to tell jQuery not to process data or worry about content-type.
+				cache: false,
+				contentType: false,
+				processData: false
+			});
 	
 });
 
@@ -729,6 +767,50 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 
             });
+			$(document).on('change','#filecontrole3',function(e){
+				e.stopImmediatePropagation();
+				e.preventDefault();
+				var files 			 = e.target.files;
+				var fileText 		 = new Array();
+				var file_check		 =	1;
+				var local_array		 =  new Array();
+				///////
+				var filesArr = Array.prototype.slice.call(files);
+
+				filesArr.forEach(function(f) {
+					var ext_current_file  = f.name.split('.').pop();
+					if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 )
+					{
+						var name_file = f.name;
+						var index_file = emailFileList.indexOf(f.name);
+						if(index_file >-1 )
+						{
+							ShowToastr("error",f.name+" file already selected.");
+						}
+						else if(bytesToSize(f.size))
+						{
+							ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");
+							file_check = 0;
+							return false;
+
+						}else
+						{
+							//emailFileList.push(f.name);
+							local_array.push(f.name);
+						}
+					}
+					else
+					{
+						ShowToastr("error",ext_current_file+" file type not allowed.");
+
+					}
+				});
+				if(local_array.length>0 && file_check==1)
+				{	 emailFileList = emailFileList.concat(local_array);
+					$('#note_attachments_form').submit();
+				}
+
+			});
 			
 		 $(document).on('change','#filecontrole2',function(e){
 				e.stopImmediatePropagation();
