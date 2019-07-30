@@ -502,35 +502,6 @@
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
                 <p>{{$rows['Note']}}</p>
-                <?php
-                if($rows['NoteAttachmentPaths']!='')
-                {
-                  $attachments = unserialize($rows['NoteAttachmentPaths']);
-                  if(count($attachments)>0 && is_array($attachments))
-                  {
-                    echo "<p>Attachments: ";
-                    foreach($attachments as $key => $attachments_data)
-                    {
-                      //
-                      /* if(is_amazon() == true)
-                      {
-                          $Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
-                      }
-                      else
-                      {
-                          $Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
-                      }*/
-                      $Attachmenturl = URL::to('notes/'.$rows['NoteID'].'/getattachment/'.$key);
-                      if($key==(count($attachments)-1)){
-                        echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";
-                      }else{
-                        echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br>";
-                      }
-                    }
-                    echo "</p>";
-                  }
-                }
-                ?>
               </div>
             </div>
             
