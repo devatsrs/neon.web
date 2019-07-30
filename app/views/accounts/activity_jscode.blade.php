@@ -934,6 +934,8 @@ $('#emai_attachments_form').submit(function(e) {
 				{
 					ShowToastr("success","Note Successfully Created");
 					document.getElementById('notes-from').reset();
+					$("#notes-from").find('#noteattachment_sent').val('');
+					$("#notes-from").find('.file_upload_span').remove();
 					var empty_ul = 0;
 					if($("#timeline-ul").length == 0) {
 						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
