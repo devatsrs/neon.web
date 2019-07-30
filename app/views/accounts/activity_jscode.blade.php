@@ -474,8 +474,6 @@ setTimeout(function() {
     });
 
         function showDiv(divName, ctrl) {
-
-			alert(divName);
 			
 			if(divName== current_tab)
 			{return false;}
@@ -520,7 +518,6 @@ setTimeout(function() {
 			}
 
 			if(divName=='box-2'){
-				alert('hi');
 				$('#info5').val('');
 				$('#info6').val('');
 				$('#info1').val('');
