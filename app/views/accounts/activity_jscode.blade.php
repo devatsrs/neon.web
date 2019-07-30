@@ -18,6 +18,7 @@ Not_ask_delete_Note   = 		0;
 var account_id		  =			'{{$AccountID}}';
 var emailFileList	  =  		new Array();
 var emailFileListReply  =  		new Array();
+var noteFileList  =  		new Array();
 var token			  =			'{{$token}}';
 var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
@@ -636,9 +637,9 @@ setTimeout(function() {
 				}
 				attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
 				$(this).parent().remove();
-				var fileIndex = emailFileListReply.indexOf(fileName);
+				var fileIndex = noteFileList.indexOf(fileName);
 				var fileinfo = attachmentsinfo[fileIndex];
-				emailFileListReply.splice(fileIndex, 1);
+				noteFileList.splice(fileIndex, 1);
 				attachmentsinfo.splice(fileIndex, 1);
 				$('#info5').val(JSON.stringify(attachmentsinfo));
 				$('#info6').val(JSON.stringify(attachmentsinfo));
@@ -730,7 +731,6 @@ $('#emai_attachments_form').submit(function(e) {
 				type: 'POST',
 				dataType: 'json',
 				success: function (response) {
-					console.log(response);
 					if(response.status =='success'){
 						$('.file-input-names').html(response.data.text);
 						$('#info5').val(JSON.stringify(response.data.attachmentsinfo));
@@ -814,7 +814,7 @@ $('#emai_attachments_form').submit(function(e) {
 					if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 )
 					{
 						var name_file = f.name;
-						var index_file = emailFileList.indexOf(f.name);
+						var index_file = noteFileList.indexOf(f.name);
 						if(index_file >-1 )
 						{
 							ShowToastr("error",f.name+" file already selected.");
@@ -838,7 +838,7 @@ $('#emai_attachments_form').submit(function(e) {
 					}
 				});
 				if(local_array.length>0 && file_check==1)
-				{	 emailFileList = emailFileList.concat(local_array);
+				{	 noteFileList = noteFileList.concat(local_array);
 					$('#note_attachments_form').submit();
 				}
 
