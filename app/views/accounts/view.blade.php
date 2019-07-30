@@ -521,7 +521,7 @@
                       {
                           $Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
                       }*/
-                      $Attachmenturl = URL::to('notes/'.$response->NoteID.'/getattachment/'.$key);
+                      $Attachmenturl = URL::to('notes/'.$rows['NoteID'].'/getattachment/'.$key);
                       if($key==(count($attachments)-1)){
                         echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";
                       }else{
