@@ -1038,6 +1038,23 @@ class AccountsController extends \BaseController {
 		}     
     }
 
+    public function getAttachment($noteID,$attachmentID){
+        $response = NeonAPI::request('noteattachment/'.$noteID.'/getattachment/'.$attachmentID,[],true,true,true);
+
+        if($response['status']=='failed'){
+            return json_response_api($response,false);
+        }else{
+            $Comment  = 	json_response_api($response,true,false,false);
+            $FilePath =  	AmazonS3::preSignedUrl($Comment['filepath']);
+            if(file_exists($FilePath)){
+                download_file($FilePath);
+            }else{
+                header('Location: '.$FilePath);
+            }
+            exit;
+        }
+    }
+
     public  function  upload($id){
         if (Input::hasFile('excel')) {
             $data = Input::all();

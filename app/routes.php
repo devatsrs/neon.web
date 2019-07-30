@@ -337,6 +337,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/{log_id}/delete_email_log', 'AccountActivityController@delete_email_log')->where('activity_id', '(.[09]*)+');
     Route::any('emails/{id}/getattachment/{attachmentID}', 'AccountActivityController@getAttachment');
 	Route::any('emails/{id}/getreplyattachment/{attachmentID}', 'AccountActivityController@GetReplyAttachment');
+	Route::any('notes/{id}/getattachment/{attachmentID}', 'AccountsController@getAttachment');
 	Route::post('emails/email_action', 'AccountActivityController@EmailAction');
 
 
