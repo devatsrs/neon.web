@@ -955,7 +955,6 @@ $('#emai_attachments_form').submit(function(e) {
 				{
 					ShowToastr("success","Note Successfully Created");
 					$('#note-content').summernote("reset");
-					$('#note-content').val('');
 					$('#info5').val('');
 					$('#info6').val('');
 					$("#notes-from").find('#noteattachment_sent').val('');
