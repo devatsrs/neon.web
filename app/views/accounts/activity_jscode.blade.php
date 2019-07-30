@@ -474,6 +474,8 @@ setTimeout(function() {
     });
 
         function showDiv(divName, ctrl) {
+
+			alert(divName);
 			
 			if(divName== current_tab)
 			{return false;}
@@ -500,12 +502,34 @@ setTimeout(function() {
 			{	
 				var doc = $('#box-1');
 				show_summernote(doc.find("#note-content"),editor_options);
+				$('#info1').val('');
+				$('#info2').val('');
+				$('#info5').val('');
+				$('#info6').val('');
+				$('#emailattachment_sent').val('');
+				$('.file_upload_span').remove();
+				emailFileList = [];
+				emailFileListReply = [];
+				noteFileList = [];
 			}
 			else
 			{
 				var doc = $('#box-1');
         		doc.find('#note-content').show();
 			
+			}
+
+			if(divName=='box-2'){
+				alert('hi');
+				$('#info5').val('');
+				$('#info6').val('');
+				$('#info1').val('');
+				$('#info2').val('');
+				$("#notes-from").find('#noteattachment_sent').val('');
+				$('.file_upload_span').remove();
+				emailFileList = [];
+				emailFileListReply = [];
+				noteFileList = [];
 			}
 			current_tab = divName;
 			
@@ -934,6 +958,8 @@ $('#emai_attachments_form').submit(function(e) {
 				{
 					ShowToastr("success","Note Successfully Created");
 					document.getElementById('notes-from').reset();
+					$('#info5').val('');
+					$('#info6').val('');
 					$("#notes-from").find('#noteattachment_sent').val('');
 					$("#notes-from").find('.file_upload_span').remove();
 					var empty_ul = 0;
