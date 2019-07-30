@@ -625,6 +625,38 @@ setTimeout(function() {
 						}
 					});
             });
+
+
+			$(document).on("click",".note_del_attachment",function(ee){
+				var url  =  baseurl + '/account/delete_actvity_attachment_file';
+				var fileName   =  $(this).attr('del_file_name');
+				var attachmentsinfo = $('#info5').val();
+				if(!attachmentsinfo){
+					return true;
+				}
+				attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
+				$(this).parent().remove();
+				var fileIndex = emailFileListReply.indexOf(fileName);
+				var fileinfo = attachmentsinfo[fileIndex];
+				emailFileListReply.splice(fileIndex, 1);
+				attachmentsinfo.splice(fileIndex, 1);
+				$('#info5').val(JSON.stringify(attachmentsinfo));
+				$('#info6').val(JSON.stringify(attachmentsinfo));
+				$.ajax({
+					url: url,
+					type: 'POST',
+					dataType: 'json',
+					data:{file:fileinfo},
+					async :false,
+					success: function(response) {
+						if(response.status =='success'){
+
+						}else{
+							toastr.error(response.message, "Error", toastr_opts);
+						}
+					}
+				});
+			});
 			
 
 
@@ -692,7 +724,7 @@ $('#emai_attachments_form').submit(function(e) {
 			e.preventDefault();
 
 			var formData = new FormData(this);
-			var url = 	baseurl + '/account/upload_file';
+			var url = 	baseurl + '/account/upload_file?add_note=true';
 			$.ajax({
 				url: url,  //Server script to process data
 				type: 'POST',
