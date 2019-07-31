@@ -29,13 +29,13 @@ class PackageController extends BaseController {
             ])
             
             ->where('tblRateTable.Type',RateTable::RATE_TABLE_TYPE_PACKAGE)
-            ->where('tblRateTable.AppliedTo','<>', RateTable::APPLIED_TO_VENDOR);
+            ->where('tblRateTable.AppliedTo','<>', RateTable::APPLIED_TO_VENDOR)
+            ->where('tblPackage.CompanyId',$CompanyID);;
             
             
 
 
         if(is_reseller()){
-            $packages->where('tblPackage.CompanyId',$CompanyID);
             $packages->where(function($query) use($CompanyID, $resellerID){
                 $query->where([
                     'tblRateTable.Reseller' => '0'
