@@ -405,13 +405,13 @@ class Payment extends \Eloquent {
             }
         }
 
-        $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+        $paymentdata['PaymentDate']     = date('Y-m-d H:i:s');
         $paymentdata['PaymentMethod'] = $data['PaymentMethod'];
         $paymentdata['CurrencyID'] = $account->CurrencyId;
         $paymentdata['PaymentType'] = 'Payment In';
         $paymentdata['Notes'] = $data['transaction_notes'];
         $paymentdata['Amount'] = floatval($data['Amount']);
-        $paymentdata['Status'] = 'Approved';
+        $paymentdata['Status'] = isset($data['PaymentStatus']) ? $data['PaymentStatus'] : 'Approved';
         $paymentdata['CreatedBy'] = $data['CreatedBy'];
         $paymentdata['ModifyBy'] = $data['CreatedBy'];
         $paymentdata['created_at'] = date('Y-m-d H:i:s');
@@ -443,7 +443,10 @@ class Payment extends \Eloquent {
         $transactiondata['Response'] = json_encode($data['Response']);
         TransactionLog::insert($transactiondata);
         if(!empty($Invoice) && $isInvoicePay){
-            $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+            if(isset($data['PaymentStatus']) && $data['PaymentStatus'] == "Pending Approval")
+                $Invoice->update(array('InvoiceStatus' => Invoice::AWAITING));
+            else
+                $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
 
             $EmailTemplate = EmailTemplate::getSystemEmailTemplate($paymentdata['CompanyID'], EmailTemplate::InvoicePaidNotificationTemplate, $account->LanguageID);
             if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){

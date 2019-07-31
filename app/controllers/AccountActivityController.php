@@ -20,6 +20,7 @@ class AccountActivityController extends \BaseController {
             $activities->where('Title','like','%'.$data['Title'].'%');
         }
         $activities->select($select);
+        $UserActilead = UserActivity::UserActivitySaved($data,'Account Activity','Account');
         return Datatables::of($activities)->make();
     }
 
@@ -50,6 +51,7 @@ class AccountActivityController extends \BaseController {
             return json_validator_response($validator);
         }
         if (AccountActivity::create($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add Activity','Account');
             return Response::json(array("status" => "success", "message" => "Activity Successfully Created"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Activity."));
@@ -77,6 +79,7 @@ class AccountActivityController extends \BaseController {
             return json_validator_response($validator);
         }
         if ($AccountActivity->update($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit Activity','Account');
             return Response::json(array("status" => "success", "message" => "Activity Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Activity."));
@@ -91,6 +94,8 @@ class AccountActivityController extends \BaseController {
                 $AccountActivity = AccountActivity::find($ActivityID);
                 $result = $AccountActivity->delete();
                 if ($result) {
+                    $data['ActivityID']=$ActivityID; $data['AccountID']=$AccountID;
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Delete Activity','Account');
                     return Response::json(array("status" => "success", "message" => "Activity Successfully Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Activity."));
@@ -108,6 +113,8 @@ class AccountActivityController extends \BaseController {
         $where['CompanyID'] = $CompanyID;
         $select = ["Emailfrom","EmailTo","Subject","created_at","CreatedBy","AccountEmailLogID"];
         $emaillog = AccountEmailLog::where(array('AccountID'=>$AccountID,'CompanyID'=>$CompanyID));
+        
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Email Log','Account');
         $emaillog->select($select);
         return Datatables::of($emaillog)->make();
     }
@@ -133,6 +140,7 @@ class AccountActivityController extends \BaseController {
         try{
             $status = sendMail('emails.account.AccountEmailSend',$data);
             if($status['status'] == 1){
+                 $UserActilead = UserActivity::UserActivitySaved($data,'Send Email','Account');
                 $data['AccountID'] 		=  $account->AccountID;
 				$data['message_id'] 	=  isset($status['message_id'])?$status['message_id']:"";
                 email_log($data);
@@ -214,6 +222,7 @@ class AccountActivityController extends \BaseController {
 			
 			$key 			= $data['scrol']!=""?$data['scrol']:0;	
 			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Send Email API','Account',$current_user_title);
 			if($usertype){
 				return View::make('contacts.timeline.show_ajax_single', compact('response','current_user_title','key'));  
 			}else{
@@ -255,6 +264,7 @@ class AccountActivityController extends \BaseController {
 			if($action_type=='forward'){ //attach current email attachments
 			$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths'],'reply');
 			}
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Email API','Account');
 			if($usertype){
 			return View::make('contacts.timeline.emailaction', compact('data','response_data','action_type','parent_data','emailTemplates','AccountName','AccountEmail','uploadtext','FromEmails')); 
 			}else{
@@ -270,6 +280,8 @@ class AccountActivityController extends \BaseController {
                 $accountemaillog = AccountEmailLog::find($logID);
                 $result = $accountemaillog->delete();
                 if ($result) {
+                    $data['ContactID']   =   $AccountID;$data['logID']   =   $logID;
+                    $UserActilead = UserActivity::UserActivitySaved($data,'Delete Email Log','Account');
                     return Response::json(array("status" => "success", "message" => "Email log Successfully Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Email log."));

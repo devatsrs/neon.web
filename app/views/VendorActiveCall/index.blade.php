@@ -26,6 +26,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Total Current Calls</label>
+                    <input type="text" name="TotalCurrentCalls" class="form-control mid_fld "   />
+                </div>
+
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -57,7 +62,7 @@
     @if(User::checkCategoryPermission('ActiveCall','View') && CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1')
         <li >
             <a href="{{ URL::to('ActiveCalls') }}" >
-                <span class="hidden-xs">Customer</span>
+                <span class="hidden-xs">Active Calls</span>
             </a>
         </li>
     @endif
@@ -65,16 +70,25 @@
     @if(User::checkCategoryPermission('VOSActiveCall','View') &&  CompanyConfiguration::getValueConfigurationByKey('VOS_ACTIVECALL_MENU',User::get_companyID()) == '1')
         <li>
             <a href="{{ URL::to('/VOS_ActiveCalls') }}" >
-                <span class="hidden-xs">Customer</span>
+                <span class="hidden-xs">Active Calls</span>
             </a>
         </li>
     @endif
 
     <li class="active">
         <a href="{{ URL::to('/Vendor_ActiveCalls') }}" >
-            <span class="hidden-xs">Vendor</span>
+            <span class="hidden-xs">Online Routing Gateway</span>
         </a>
     </li>
+
+    @if(User::checkCategoryPermission('VOSOnlineGatewayMapping','View') && CompanyConfiguration::getValueConfigurationByKey('VOS_ONLINE_GATEWAY_MAPPING_MENU',User::get_companyID()) == '1')
+
+    <li>
+        <a href="{{ URL::to('/GatewayMappingOnline') }}" >
+            <span class="hidden-xs">Online Mapping Gateway</span>
+        </a>
+    </li>
+    @endif
 
 
 </ul>
@@ -131,6 +145,7 @@
                             aoData.push(
                                     {"name": "GatewayName", "value": $searchFilter.GatewayName},
                                     {"name": "CallPrefix","value": $searchFilter.CallPrefix},
+                                    {"name": "TotalCurrentCalls","value": $searchFilter.TotalCurrentCalls},
                                     {"name": "CompanyGatewayID","value": $searchFilter.CompanyGatewayID}
 
                             );
@@ -139,6 +154,7 @@
                                     {"name": "GatewayName", "value": $searchFilter.GatewayName},
                                     {"name": "CallPrefix","value": $searchFilter.CallPrefix},
                                     {"name": "CompanyGatewayID","value": $searchFilter.CompanyGatewayID},
+                                    {"name": "TotalCurrentCalls","value": $searchFilter.TotalCurrentCalls},
                                     {"name":"Export","value":1}
                             );
 
@@ -544,6 +560,7 @@
                         $searchFilter.GatewayName = $("#vendor-activecall-table-search [name='GatewayName']").val();
                         $searchFilter.CallPrefix = $("#vendor-activecall-table-search [name='CallPrefix']").val();
                         $searchFilter.CompanyGatewayID = $("#vendor-activecall-table-search [name='CompanyGatewayID']").val();
+                        $searchFilter.TotalCurrentCalls = $("#vendor-activecall-table-search [name='TotalCurrentCalls']").val();
 
                         data_table.fnFilter('', 0);
                         return false;

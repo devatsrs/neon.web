@@ -503,6 +503,7 @@ class ItemTypeController extends \BaseController {
             $query = "call prc_UpdateItemTypeStatus (".$CompanyID.",'".$UserName."','".$data['title']."',".$data['Active'].",".$data['status_set'].")";
 
             $result = DB::connection('sqlsrv2')->select($query);
+            $ItemTypesActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Item Types');
             return Response::json(array("status" => "success", "message" => "Item Types Status Updated"));
         }
 
@@ -512,6 +513,7 @@ class ItemTypeController extends \BaseController {
                     ItemType::whereIn('ItemTypeID',$data['SelectedIDs'])->where('Active','!=',$data['status_set'])->update(["Active"=>intval($data['status_set'])]);
 //                    Product::find($SelectedID)->where('Active','!=',$data['status_set'])->update(["Active"=>intval($data['status_set']),'ModifiedBy'=>$UserName,'updated_at'=>date('Y-m-d H:i:s')]);
 //                }
+                $ItemTypesActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Item Types');
                 return Response::json(array("status" => "success", "message" => "Item Types Status Updated"));
             }else{
                 return Response::json(array("status" => "failed", "message" => "No Item Types selected"));

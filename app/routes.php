@@ -76,6 +76,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/Vendor_ActiveCalls/ajax_datagrid/{type}', 'VendorActiveCallController@ajax_datagrid');
 	Route::any('/Vendor_ActiveCalls/API/GetGatewayRoutingOnline', 'VendorActiveCallController@GetGatewayRoutingOnline');
 
+	//GetGatewayMappingOnline
+	Route::any('/GatewayMappingOnline', 'GatewayMappingOnlineController@index');
+	Route::any('/GatewayMappingOnline/ajax_datagrid/{type}', 'GatewayMappingOnlineController@ajax_datagrid');
+	Route::any('/GatewayMappingOnline/API/GetGatewayMappingOnline', 'GatewayMappingOnlineController@GetGatewayMappingOnline');
+
 	//VOS ActiveCall
 	Route::any('/VOS_ActiveCalls', 'VOSActiveCallController@index');
 	Route::any('/VOS_ActiveCalls/ajax_datagrid/{type}', 'VOSActiveCallController@ajax_datagrid');
@@ -332,6 +337,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/{log_id}/delete_email_log', 'AccountActivityController@delete_email_log')->where('activity_id', '(.[09]*)+');
     Route::any('emails/{id}/getattachment/{attachmentID}', 'AccountActivityController@getAttachment');
 	Route::any('emails/{id}/getreplyattachment/{attachmentID}', 'AccountActivityController@GetReplyAttachment');
+	Route::any('notes/{id}/getattachment/{attachmentID}', 'AccountsController@getAttachment');
 	Route::post('emails/email_action', 'AccountActivityController@EmailAction');
 
 
@@ -806,6 +812,16 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('lcr/margin-rate-export/{type}/{id}', 'LCRController@marginRateExport');
 	Route::any('lcr/ajax_customer_rate_export/{type}', 'LCRController@ajax_customer_rate_export');
 	Route::any('lcr/edit_preference', 'LCRController@editPreference');
+
+	//Deal Management
+	Route::any('/dealmanagement', 'DealManagementController@index');
+	Route::any('dealmanagement/ajax_datagrid', 'DealManagementController@ajax_datagrid');
+	Route::any('dealmanagement/exports/{type}', 'DealManagementController@ajax_datagrid');
+	Route::any('dealmanagement/create', "DealManagementController@create");
+	Route::any('dealmanagement/store','DealManagementController@store');
+	Route::any('dealmanagement/{id}/delete', 'DealManagementController@delete');
+	Route::any('dealmanagement/{id}/edit', 'DealManagementController@edit');
+	Route::any('dealmanagement/{id}/update', "DealManagementController@update");
 
 	//Pages
 	Route::any('/about', 'PagesController@about');
@@ -1292,9 +1308,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/VOS/AccountBalance', 'VOSAccountBalanceController@index');
 	Route::any('/VOS/AccountBalance/ajax_datagrid/{type}', 'VOSAccountBalanceController@ajax_datagrid');
 
-	//VOS AccountIP
-	Route::any('/VOS/AccountIP', 'VOSAccountIPController@index');
-	Route::any('/VOS/AccountIP/ajax_datagrid/{type}', 'VOSAccountIPController@ajax_datagrid');
+	//VOS MappingGateway
+	Route::any('/VOS/mapping_gateway', 'VOSAccountIPController@index');
+	Route::any('/VOS/mapping_gateway/ajax_datagrid/{type}', 'VOSAccountIPController@ajax_datagrid');
+
+	Route::any('/VOS/RoutingGateway', 'VOSRoutingGatewayController@index');
+	Route::any('/VOS/RoutingGateway/ajax_datagrid/{type}', 'VOSRoutingGatewayController@ajax_datagrid');
 
     //AccountPaymentProfile
     Route::any('/paymentprofile/create', 'AccountsPaymentProfileController@create');
@@ -1597,7 +1616,9 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
 	Route::any('/report/export/{id}','ReportController@getdatagrid');
-	
+
+	Route::any('/gocardless_confirmation', array("as" => "gocardless_confirmation", "uses" => "PaymentProfileCustomerController@GoCardLess_Confirmation"));
+	Route::post('/gocardless_webhook_check', array("as" => "gocardless", "uses" => "PaymentProfileCustomerController@GoCardLess_Webhook"));
     /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');

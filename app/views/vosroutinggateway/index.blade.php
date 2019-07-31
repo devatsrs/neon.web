@@ -62,7 +62,7 @@
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li class="active"> <a href="javascript:void(0)">Account</a> </li>
 </ol>
-<h3>Mapping Gateways</h3>
+<h3>Routing Gateways</h3>
 
     <div class="clear"></div>
 
@@ -70,14 +70,14 @@
 
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
     @if(User::checkCategoryPermission('AccountIP','View'))
-        <li class="active">
-            <a href="" >
+        <li>
+            <a href="{{ URL::to('VOS/mapping_gateway') }}" >
                 <span class="hidden-xs">Mapping Gateways</span>
             </a>
         </li>
     @endif
 
-    <li>
+    <li class="active">
         <a href="{{ URL::to('VOS/RoutingGateway') }}" >
             <span class="hidden-xs">Routing Gateways</span>
         </a>
@@ -98,10 +98,13 @@
             <th>Account Name</th>
             <th>Gateway Name</th>
             <th>Lock Type</th>
-            <th>Route Prefix</th>
             <th>Line Limit</th>
-            <th>Routing GatewayGroups</th>
+            <th>Route Prefix</th>
+            <th>Number Prefix</th>
+            <th>Softswtich IP’s</th>
             <th>IPs</th>
+
+
 
         </tr>
         </thead>
@@ -112,7 +115,7 @@
     <script type="text/javascript">
         var toFixed = '{{get_round_decimal_places()}}';
 
-                var list_fields  = ['AccountName','Name','LockType','RemoteIps','RoutePrefix','LineLimit','routingGatewayGroups'];
+                var list_fields  = ['AccountName','Name','LockType','LineLimit','RoutePrefix','NumberPrefix','LocalIP','RemoteIps'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -130,7 +133,7 @@
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,
-                        "sAjaxSource": baseurl + "/VOS/mapping_gateway/ajax_datagrid/type",
+                        "sAjaxSource": baseurl + "/VOS/RoutingGateway/ajax_datagrid/type",
                         "fnServerParams": function (aoData) {
                             aoData.push(
                                     {"name": "AccountName", "value": $searchFilter.AccountName},
@@ -175,16 +178,19 @@
                                 "bSortable": true //LockType
                             },
                             {
-                                "bSortable": true //RoutePrefix
-                            },
-                            {
                                 "bSortable": true //LineLimit
                             },
                             {
-                                "bSortable": true //RoutingGatewayGroup
+                                "bSortable": true //Route Prefix
                             },
                             {
-                                "bSortable": true //AccountIP
+                                "bSortable": true //Number Prefix
+                            },
+                            {
+                                "bSortable": true //LocalIP
+                            },
+                            {
+                                "bSortable": true //RemoteIps
                             },
 
 
@@ -194,13 +200,13 @@
                                 {
                                     "sExtends": "download",
                                     "sButtonText": "EXCEL",
-                                    "sUrl": baseurl + "/VOS/mapping_gateway/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                                    "sUrl": baseurl + "/VOS/RoutingGateway/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                                     sButtonClass: "save-collection"
                                 },
                                 {
                                     "sExtends": "download",
                                     "sButtonText": "CSV",
-                                    "sUrl": baseurl + "/VOS/mapping_gateway/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                                    "sUrl": baseurl + "/VOS/RoutingGateway/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                                     sButtonClass: "save-collection"
                                 }
                             ]

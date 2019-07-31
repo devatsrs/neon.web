@@ -91,6 +91,8 @@ class TaskController extends \BaseController {
             }
             $data['file']		=	json_encode($FilesArray);
             $response = NeonAPI::request('task/'.$id.'/save_attachment',$data,true,false,true);
+            
+            $UserActilead = UserActivity::UserActivitySaved($data,'Save Attachment','Task');
             return json_response_api($response);
         }else{
             return Response::json(array("status" => "failed", "message" => "No attachment found."));
@@ -148,7 +150,7 @@ class TaskController extends \BaseController {
 
         if($response->status!='failed'){
             if(isset($data['Task_view'])){
-                $TaskActilead = UserActivity::UserActivitySaved($data,'Add','Task',$data['Subject']);
+                $TaskActilead = UserActivity::UserActivitySaved($data,'Failed Add','Task',$data['Subject']);
                 return  json_response_api($response);
             }
             $response = $response->data;
@@ -156,7 +158,7 @@ class TaskController extends \BaseController {
             $response->type = Task::Tasks;
 
         }else{
-           
+           $UserActilead = UserActivity::UserActivitySaved($data,'Add','Task');
             return json_response_api($response,false,true);
         }
 
@@ -210,7 +212,8 @@ class TaskController extends \BaseController {
 				$response = $response->data;
 				$response = $response[0];
 				$response->type = Task::Tasks;
-                $current_user_title = User::get_user_full_name();				
+                $current_user_title = User::get_user_full_name();
+                $TaskActilead = UserActivity::UserActivitySaved($data,'Edit','Task',$data['Subject']);
 				return View::make('accounts.show_ajax_single_update', compact('response','key','current_user_title'));  
 			}else{
             $TaskActilead = UserActivity::UserActivitySaved($data,'Edit','Task',$data['Subject']);

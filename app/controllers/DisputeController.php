@@ -179,6 +179,7 @@ class DisputeController extends \BaseController {
 		$Dispute->Status = $data["Status"];
 
 		if ($Dispute->update()) {
+			$data['Action'] = 'Dispute Status Changed';
 			$disputesActilead = UserActivity::UserActivitySaved($data,'Edit','Disputes',$data['DisputeID']);
 			return Response::json(array("status" => "success", "message" => "Dispute Status Successfully Updated"));
 		} else {
@@ -302,6 +303,7 @@ class DisputeController extends \BaseController {
 		$jobdata["updated_at"] = date('Y-m-d H:i:s');
 		$JobID = Job::insertGetId($jobdata);
 		if($JobID){
+			$disputesActilead = UserActivity::UserActivitySaved($data,'Bulk Send','Disputes');
 			return Response::json(array("status" => "success", "message" => "Bulk Dispute Send Job Added in queue to process.You will be notified once job is completed. "));
 		}else{
 			return Response::json(array("status" => "success", "message" => "Problem Creating Job Bulk Dispute Send."));

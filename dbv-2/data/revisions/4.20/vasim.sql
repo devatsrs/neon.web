@@ -1,5 +1,17 @@
 USE `RMBilling3`;
 
+CREATE TABLE IF NOT EXISTS `tblClarityPBXPayment` (
+  `ClarityPBXPaymentID` int(11) NOT NULL AUTO_INCREMENT,
+  `PaymentID` int(11) NOT NULL,
+  `CompanyID` int(11) NOT NULL,
+  `AccountID` int(11) NOT NULL,
+  `Amount` decimal(18,8) NOT NULL,
+  `Recall` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ClarityPBXPaymentID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
 
 
 DROP PROCEDURE IF EXISTS `prc_updateTempCDRTimeZones`;
@@ -171,5 +183,137 @@ ThisSP:BEGIN
 			
 	END IF;
 	
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getClarityPBXExportPayment`;
+DELIMITER //
+CREATE PROCEDURE `prc_getClarityPBXExportPayment`(
+	IN `p_CompanyID` INT,
+	IN `p_start_date` DATETIME,
+	IN `p_Recall` INT
+)
+BEGIN
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	IF p_Recall=0
+	THEN
+
+		SELECT
+			ac.AccountID,
+			ac.AccountName,
+			tblPayment.PaymentID,
+			tblPayment.CompanyID,
+			tblPayment.Amount,
+			tblPayment.Recall
+		FROM
+			tblPayment
+		INNER JOIN
+			Ratemanagement3.tblAccount AS ac ON ac.AccountID=tblPayment.AccountID
+		LEFT JOIN
+			tblClarityPBXPayment AS CPP ON CPP.PaymentID = tblPayment.PaymentID
+		WHERE
+			CPP.PaymentID IS NULL
+			AND PaymentType='Payment In'
+			AND ac.CompanyId = p_CompanyID
+			AND tblPayment.Status='Approved'
+			AND tblPayment.Recall=p_Recall
+			AND tblPayment.PaymentDate>p_start_date;
+
+	END IF;
+
+	IF p_Recall=1
+	THEN
+
+		SELECT
+			ac.AccountID,
+			ac.AccountName,
+			tblPayment.PaymentID,
+			tblPayment.CompanyID,
+			tblPayment.Amount,
+			tblPayment.Recall
+		FROM
+			tblPayment
+		INNER JOIN
+			Ratemanagement3.tblAccount AS ac ON ac.AccountID=tblPayment.AccountID
+		LEFT JOIN
+			tblClarityPBXPayment AS CPP ON CPP.PaymentID = tblPayment.PaymentID AND CPP.Recall = tblPayment.Recall AND CPP.Recall = p_Recall
+		LEFT JOIN
+			tblClarityPBXPayment AS CPP2 ON CPP2.PaymentID = tblPayment.PaymentID AND CPP2.Recall = 0
+		WHERE
+			CPP.PaymentID IS NULL
+			AND CPP2.PaymentID IS NOT NULL
+			AND PaymentType='Payment In'
+			AND ac.CompanyId = p_CompanyID
+			AND tblPayment.Status='Approved'
+			AND tblPayment.Recall=p_Recall
+			AND tblPayment.PaymentDate>p_start_date;
+
+	END IF;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_UpdateCDRRounding`;
+DELIMITER //
+CREATE PROCEDURE `prc_UpdateCDRRounding`(
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_processId` INT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+	-- trunk based
+	SET @stm = CONCAT('
+		UPDATE
+			RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		LEFT JOIN
+			Ratemanagement3.`tblCustomerTrunk` ct ON ct.AccountID = ud.AccountID AND ct.TrunkID = ud.TrunkID AND ct.Status =1
+		INNER JOIN
+			Ratemanagement3.`tblRateTable` rt ON rt.RateTableID = ct.RateTableID
+		SET
+			cost = ROUND((CEIL(cost * POWER(10,IFNULL(rt.RoundChargedAmount,6)))/POWER(10,IFNULL(rt.RoundChargedAmount,6))),IFNULL(rt.RoundChargedAmount,6))
+		WHERE
+			ct.AccountID IS NOT NULL AND
+			rt.RoundChargedAmount IS NOT NULL AND
+			ud.ProcessID="' , p_processId , '";
+	');
+
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
+
+	-- service based
+	SET @stm = CONCAT('
+		UPDATE
+			RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		LEFT JOIN
+			Ratemanagement3.`tblAccountTariff` t ON t.AccountID = ud.AccountID AND t.ServiceID = ud.ServiceID and ((t.`Type`=1 and ud.is_inbound=0) or (t.`Type`=2 and ud.is_inbound=1))
+		INNER JOIN
+			Ratemanagement3.`tblRateTable` rt ON rt.RateTableID = t.RateTableID
+		SET
+			cost = ROUND((CEIL(cost * POWER(10,IFNULL(rt.RoundChargedAmount,6)))/POWER(10,IFNULL(rt.RoundChargedAmount,6))),IFNULL(rt.RoundChargedAmount,6))
+		WHERE
+			t.AccountID IS NOT NULL AND
+			rt.RoundChargedAmount IS NOT NULL AND
+			ud.ProcessID="' , p_processId , '" AND
+			ud.is_rerated=1;
+	');
+
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
 END//
 DELIMITER ;

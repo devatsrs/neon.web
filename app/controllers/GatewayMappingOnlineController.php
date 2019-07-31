@@ -1,6 +1,6 @@
 <?php
 
-class VendorActiveCallController extends \BaseController {
+class GatewayMappingOnlineController extends \BaseController {
 
     public function index()
     {
@@ -13,7 +13,7 @@ class VendorActiveCallController extends \BaseController {
         $Services = Service::getDropdownIDList($companyID);
         $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
 
-        return View::make('VendorActiveCall.index', compact('accounts','trunks','Services','gateway'));
+        return View::make('GatewayMappingOnline.index', compact('accounts','trunks','Services','gateway'));
     }
 
     public function ajax_datagrid($type)
@@ -21,28 +21,30 @@ class VendorActiveCallController extends \BaseController {
         $data 							 = 		Input::all();
 
         $CompanyID 						 = 		User::get_companyID();
-        $UserActilead                    =       UserActivity::UserActivitySaved($data,'View','Vendor Active Calls');
+        $UserActilead                    =       UserActivity::UserActivitySaved($data,'View','Gateway Mapping Online');
         $data['iDisplayStart'] 			+=		1;
         $data['GatewayName'] 				 = 		$data['GatewayName']?$data['GatewayName']:'';
-        $data['CallPrefix']				 =		$data['CallPrefix']!= ''?$data['CallPrefix']:'';
+
         $data['CompanyGatewayID']				 =		$data['CompanyGatewayID']!= ''?$data['CompanyGatewayID']:0;
         $data['TotalCurrentCalls']				 =		$data['TotalCurrentCalls']!= ''?$data['TotalCurrentCalls']:0;
 
-        $columns = array('GatewayName','CallPrefix','TotalCurrentCalls','Asr','Acd','RemoteIP','CompanyGatewayID');
+        $columns = array('GatewayName','TotalCurrentCalls','Asr','Acd','RemoteIP','CompanyGatewayID');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_getVOSVendorActiveCall(".$CompanyID.",'".$data['GatewayName']."','".$data['CallPrefix']."','".$data['TotalCurrentCalls']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['CompanyGatewayID']."";
+
+        $query = "call prc_getVOSGatewayMappingOnline(".$CompanyID.",'".$data['GatewayName']."',".$data['TotalCurrentCalls'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['CompanyGatewayID']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $export_type['type'] = $type;
-            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Vendor Active Calls');
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','GatewayMappingOnline');
+
             $excel_data  = DB::connection('sqlsrvcdr')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ActiveCall.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/GatewayMappingOnline.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ActiveCall.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/GatewayMappingOnline.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -53,7 +55,8 @@ class VendorActiveCallController extends \BaseController {
     }
 
 
-    public function GetGatewayRoutingOnline(){
+    public function GetGatewayMappingOnline(){
+
         $GatewayID = Gateway::getGatewayID(Gateway::GATEWAY_VOS5000);
         $CompanyID=User::get_companyID();
         $CompanyGateways = CompanyGateway::where(['GatewayID'=>$GatewayID,'Status'=>1])->get();
@@ -64,22 +67,23 @@ class VendorActiveCallController extends \BaseController {
             $CompanyGatewayID=$CompanyGateway->CompanyGatewayID;
             $CompanyGatewayTitle=$CompanyGateway->Title;
 
-            $Res=VOS5000API::request('GetGatewayRoutingOnline',$CompanyGatewayID,$CompanyGatewayTitle,$PostData);
+            $Res=VOS5000API::request('GetGatewayMappingOnline',$CompanyGatewayID,$CompanyGatewayTitle,$PostData);
 
-            if(!empty($Res->infoGatewayRoutingOnlines)){
-                Log::info("Total Record=".count($Res->infoGatewayRoutingOnlines));
+            if(!empty($Res->infoGatewayMappingOnlines)){
+                Log::info("Total Record=".count($Res->infoGatewayMappingOnlines));
+
                 $VendorActiveCall=array();
                 try{
 
-                    foreach($Res->infoGatewayRoutingOnlines as $val){
+                    foreach($Res->infoGatewayMappingOnlines as $val){
                         $data=array();
                         //Log::info(print_r($val->callerE164,true));die;
                         $data['GatewayName'] = $val->name;
-                        $data['CallPrefix'] = $val->prefix;
+                        //$data['CallPrefix'] = $val->prefix;
                         $data['TotalCurrentCalls'] = $val->currentCall;
                         $data['Asr'] = $val->asr;
                         $data['Acd'] = $val->acd;
-                        $data['RemoteIP'] = $val->remoteIp;
+                        $data['RemoteIP'] = $val->remoteIps;
                         $data['CompanyGatewayID'] = $CompanyGatewayID;
                         $data['CompanyID'] = $CompanyID;
                         $data['created_at'] = date('Y-m-d H:i:s');
@@ -91,12 +95,12 @@ class VendorActiveCallController extends \BaseController {
                     if(!empty($VendorActiveCall) && count($VendorActiveCall) > 0){
                         DB::connection('sqlsrvcdr')->beginTransaction();
 
-                        VOSVendorActiveCall::where('CompanyID',$CompanyID)->delete();
+                        VOSGatewayMappingOnline::where('CompanyID',$CompanyID)->delete();
                         Log::info("Count Insert=".count($VendorActiveCall));
                         //Log::info(print_r($VendorActiveCall,true));
 
                         foreach (array_chunk($VendorActiveCall,1500) as $vac) {
-                            VOSVendorActiveCall::insert($vac);
+                            VOSGatewayMappingOnline::insert($vac);
                         }
 
                         DB::connection('sqlsrvcdr')->commit();
