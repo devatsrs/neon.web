@@ -21,7 +21,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="control-label" for="field-1">Route Prefix</label>
+                    <label class="control-label" for="field-1">Route and Number Prefix</label>
                     <input type="text" name="RoutePrefix" class="form-control mid_fld "  value=""  />
                 </div>
 
@@ -32,7 +32,7 @@
 
                 <div class="form-group">
                     <label class="control-label small_label" for="field-1">Lock Type</label>
-                    {{ Form::select('LockType',array('-1'=>'Select','0' => "No Lock", '3' => "Bar all" ),'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                    {{ Form::select('LockType',array('-1'=>'Select','0' => "No Lock", '3' => "Bar all calls or Locked" ),'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
 
                 <div class="form-group">
@@ -57,6 +57,12 @@
 #selectcheckbox{
     padding: 15px 10px;
 }
+
+td {
+       max-width: 150px;
+       word-wrap:break-word;
+}
+
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -98,7 +104,7 @@
             <th>Account Name</th>
             <th>Gateway Name</th>
             <th>Lock Type</th>
-            <th>Route Prefix</th>
+            <th>Route and Number Prefix</th>
             <th>Line Limit</th>
             <th>Routing GatewayGroups</th>
             <th>IPs</th>
