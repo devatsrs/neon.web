@@ -69,11 +69,11 @@ class LCRDIDController extends \BaseController {
                     }
 
                     if($type=='csv'){
-                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DID_LCR.csv';
+                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$fileName.'csv';
                         $NeonExcel = new NeonExcelIO($file_path);
                         $NeonExcel->download_csv($excel_data);
                     }elseif($type=='xlsx'){
-                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DID_LCR.xls';
+                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$fileName.'xls';
                         $NeonExcel = new NeonExcelIO($file_path);
                         $NeonExcel->download_excel($excel_data);
                     }
