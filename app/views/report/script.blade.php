@@ -21,8 +21,53 @@
     var dimesions = {{json_encode($dimensions)}};
     var measures = {{json_encode($measures)}};
     var column_function = {'top5':'Top 5', 'top10':'Top 10','bottom5':'Bottom 5','bottom10':'Bottom 10','':'Actual','min':'Min','max':'Max','sum':'Sum','avg':'Average','count':'Count','count_distinct':'Count Distinct'};
+    function getLastDates(duration) {
+        var today = new Date();
+        if(duration == '1Week'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+        }
+        if(duration == '2Week'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 14);
+        }
+        if(duration == '1Month'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate()); 
+        }
+        if(duration == '2Month'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth() - 2, today.getDate()); 
+        }
+        if(duration == '4Month'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth() - 4, today.getDate()); 
+        }
+        if(duration == '6Month'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate()); 
+        }
+        if(duration == '1Year'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth() - 12, today.getDate()); 
+        }
+        if(duration == 'Custom'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate()); 
+        }
+        return lastWeek;
+    }
     $( function() {
+        //
+    $("#add-new-filter-form [name='date_range_filter']").on('change', function () {
+        if($(this).val() == 'Custom'){
+            $('#custom_date_range_filter').show();
+        }else {
+            $('#custom_date_range_filter').hide();
+        }
+        var lastWeek = getLastDates($(this).val());
+        var lastWeekMonth = lastWeek.getMonth() + 1;
+        var lastWeekDay = lastWeek.getDate();
+        var lastWeekYear = lastWeek.getFullYear();
 
+        var lastWeekDisplay = lastWeekMonth + "-" + lastWeekDay + "-" + lastWeekYear;
+        var lastWeekDisplayPadded = ("0000" + lastWeekYear.toString()).slice(-4) + "-" +("00" + lastWeekMonth.toString()).slice(-2) + "-" + ("00" + lastWeekDay.toString()).slice(-2) ;
+        //console.log(lastWeekDisplay);
+        console.log(lastWeekDisplayPadded);
+        $('#field-sdate').val(lastWeekDisplayPadded);
+    });
         // There's the Dimension and the Measures
         var $Dimension = $( "#Dimension" ),
                 $Measures = $( "#Measures" ),
