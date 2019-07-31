@@ -8,7 +8,7 @@ class LCRDIDController extends \BaseController {
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
-        $fileName = !empty($data['lcr_type']) && $data['lcr_type'] == 'Y'?"Package":"Access";
+        $fileName = !empty($data['lcr_type']) && $data['lcr_type'] == 'Y'?"Package_LCR":"Access_LCR";
         Log::info('LCRDIDController:search_ajax_datagrid' . print_r($data, true));
         $data['ComponentAction']=empty($data['ComponentAction'])?'':$data['ComponentAction'];
         $data['DIDCategoryID']=empty($data['DIDCategoryID'])?0:$data['DIDCategoryID'];
