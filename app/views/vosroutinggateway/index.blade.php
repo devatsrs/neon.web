@@ -36,6 +36,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Number Prefix</label>
+                    <input type="text" name="NumberPrefix" class="form-control mid_fld "  value=""  />
+                </div>
+
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -57,6 +62,12 @@
 #selectcheckbox{
     padding: 15px 10px;
 }
+
+td {
+    max-width: 150px;
+    word-wrap:break-word;
+}
+
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -128,6 +139,7 @@
                     $searchFilter.RoutePrefix = $("#vos-account-balance [name='RoutePrefix']").val();
                     $searchFilter.GatewayName = $("#vos-account-balance [name='GatewayName']").val();
                     $searchFilter.LockType = $("#vos-account-balance [name='LockType']").val();
+                    $searchFilter.NumberPrefix = $("#vos-account-balance [name='NumberPrefix']").val();
 
                     data_table = $("#table-4").dataTable({
                         "bDestroy": true,
@@ -140,6 +152,7 @@
                                     {"name": "RemoteIps","value": $searchFilter.RemoteIps},
                                     {"name": "RoutePrefix","value": $searchFilter.RoutePrefix},
                                     {"name": "LockType","value": $searchFilter.LockType},
+                                    {"name": "NumberPrefix","value": $searchFilter.NumberPrefix},
                                     {"name": "GatewayName","value": $searchFilter.GatewayName}
                             );
                             data_table_extra_params.length = 0;
@@ -149,6 +162,7 @@
                                     {"name": "RoutePrefix","value": $searchFilter.RoutePrefix},
                                     {"name": "GatewayName","value": $searchFilter.GatewayName},
                                     {"name": "LockType","value": $searchFilter.LockType},
+                                    {"name": "NumberPrefix","value": $searchFilter.NumberPrefix},
                                     {"name":"Export","value":1}
                             );
 
@@ -312,6 +326,7 @@
                         $searchFilter.RoutePrefix = $("#vos-account-balance [name='RoutePrefix']").val();
                         $searchFilter.GatewayName = $("#vos-account-balance [name='GatewayName']").val();
                         $searchFilter.LockType = $("#vos-account-balance [name='LockType']").val();
+                        $searchFilter.NumberPrefix = $("#vos-account-balance [name='NumberPrefix']").val();
 
                         data_table.fnFilter('', 0);
                         return false;

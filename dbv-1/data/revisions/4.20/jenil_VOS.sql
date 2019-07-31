@@ -232,6 +232,7 @@ CREATE TABLE IF NOT EXISTS `tblVOSVendorActiveCall` (
 
 
 
+
 DROP PROCEDURE IF EXISTS `prc_getVOSVendorActiveCall`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSVendorActiveCall`(
@@ -245,6 +246,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSVendorActiveCall`(
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_CompanyGatewayID` INT,
 	IN `p_Export` INT
+
 
 )
 BEGIN
@@ -326,6 +328,7 @@ BEGIN
 	
 END//
 DELIMITER ;
+
 
 
 
@@ -1070,9 +1073,9 @@ BEGIN
 			
 			vi.AccountName,
 			vi.Name,
-			vi.LockType,
+			CASE WHEN vi.LockType = 0 THEN 'No Lock' WHEN vi.LockType = 3 THEN 'Locked'  END as LockType,
 			vi.RoutePrefix,
-			vi.LineLimit,
+			CASE WHEN vi.LineLimit = '2147483647' THEN 'None' ELSE vi.LineLimit END as LineLimit,
 			vi.routingGatewayGroups,
 			vi.RemoteIps
 			
@@ -1083,7 +1086,7 @@ BEGIN
         AND vi.AccountName!=''
         AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
         AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
-        AND(p_RoutePrefix ='' OR (vi.RoutePrefix like Concat(p_RoutePrefix,'%')))
+        AND(p_RoutePrefix ='' OR vi.RoutePrefix like REPLACE(p_RoutePrefix, '*', '%'))
 		  AND(p_GatewayName ='' OR (vi.Name like Concat(p_GatewayName,'%')))	
 		  AND(p_LockType = -1 OR (vi.LockType = p_LockType))	
         AND vi.IPType = 0
@@ -1096,25 +1099,31 @@ BEGIN
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN vi.AccountName
                 END ASC,
-
-				
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameDESC') THEN vi.Name
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameASC') THEN vi.Name
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LockTypeDESC') THEN vi.LockType
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LockTypeASC') THEN vi.LockType
+                END ASC,
 					CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutePrefixDESC') THEN vi.RoutePrefix
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutePrefixASC') THEN vi.RoutePrefix
                 END ASC,
-                
-                
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'routingGatewayGroupsDESC') THEN vi.routingGatewayGroups
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'routingGatewayGroupsASC') THEN vi.routingGatewayGroups
                 END ASC,
-				
-				
-				CASE
+					 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LineLimitDESC') THEN vi.LineLimit
                 END DESC,
                 CASE
@@ -1129,7 +1138,7 @@ BEGIN
 				WHERE vi.CompanyID = p_CompanyID
 				AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
 	        AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
-	        AND(p_RoutePrefix ='' OR (vi.RoutePrefix like Concat(p_RoutePrefix,'%')))
+	        AND(p_RoutePrefix ='' OR vi.RoutePrefix like REPLACE(p_RoutePrefix, '*', '%'))
 	        AND(p_GatewayName ='' OR (vi.Name like Concat(p_GatewayName,'%')))
 	        AND(p_LockType = -1 OR (vi.LockType = p_LockType))
 	        AND vi.IPType = 0
@@ -1145,9 +1154,9 @@ BEGIN
 			SELECT   
 				vi.AccountName,
 				vi.Name,
-				vi.LockType,
+				CASE WHEN vi.LockType = 0 THEN 'No Lock' WHEN vi.LockType = 3 THEN 'Locked'  END as LockType,
 				vi.RoutePrefix,
-				vi.LineLimit,
+				CASE WHEN vi.LineLimit = '2147483647' THEN 'None' ELSE vi.LineLimit END as LineLimit,
 				vi.routingGatewayGroups,
 				vi.RemoteIps
 				
@@ -1157,7 +1166,7 @@ BEGIN
 			WHERE vi.CompanyID = p_CompanyID
 			AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
         AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
-        AND(p_RoutePrefix ='' OR (vi.RoutePrefix like Concat(p_RoutePrefix,'%')))
+        AND(p_RoutePrefix ='' OR vi.RoutePrefix like REPLACE(p_RoutePrefix, '*', '%'))
         AND(p_GatewayName ='' OR (vi.Name like Concat(p_GatewayName,'%')))
         AND(p_LockType = -1 OR (vi.LockType = p_LockType))
         AND vi.IPType = 0
@@ -1169,6 +1178,8 @@ BEGIN
 	
 END//
 DELIMITER ;
+
+
 
 
 
@@ -3889,18 +3900,22 @@ ALTER TABLE `tblVOSVendorFeeRateGroup`
 	
 DROP PROCEDURE IF EXISTS `prc_getVOSGatewayRouting`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSGatewayRouting`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getVOSGatewayRouting`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountName` VARCHAR(255),
 	IN `p_RemoteIps` VARCHAR(255),
 	IN `p_RoutePrefix` VARCHAR(255),
 	IN `p_GatewayName` VARCHAR(255),
 	IN `p_LockType` INT,
+	IN `p_NumberPrefix` VARCHAR(255),
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_Export` INT
+
+
+
 
 )
 BEGIN
@@ -3925,8 +3940,8 @@ BEGIN
 			
 			vi.AccountName,
 			vi.Name,
-			vi.LockType,
-			vi.LineLimit,
+			CASE WHEN vi.LockType = 0 THEN 'No Lock' WHEN vi.LockType = 3 THEN 'Locked'  END as LockType,
+			CASE WHEN vi.LineLimit = '2147483647' THEN 'None' ELSE vi.LineLimit END as LineLimit,
 			vi.RoutePrefix,
 			vi.NumberPrefix,
 			vi.LocalIP,
@@ -3939,11 +3954,12 @@ BEGIN
         AND vi.AccountName!=''
         AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
         AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
-        AND(p_RoutePrefix ='' OR (vi.RoutePrefix like Concat(p_RoutePrefix,'%')))
+        AND(p_RoutePrefix ='' OR (vi.RoutePrefix like Concat('%',p_RoutePrefix,'%')))
         AND(p_GatewayName ='' OR (vi.Name like Concat(p_GatewayName,'%')))
         AND(p_LockType = -1 OR (vi.LockType = p_LockType ))
+        AND(p_NumberPrefix ='' OR vi.NumberPrefix like REPLACE(p_NumberPrefix, '*', '%'))
         AND vi.IPType = 1
-		  group by  vi.AccountName,vi.RemoteIps,vi.IPType	
+		 -- group by  vi.AccountName,vi.RemoteIps,vi.IPType	
 		  
          ORDER BY
 				CASE
@@ -3952,13 +3968,49 @@ BEGIN
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN vi.AccountName
                 END ASC,
-				
-				CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IPTypeDESC') THEN vi.IPType
-                END DESC,
-                CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IPTypeASC') THEN vi.IPType
-                END ASC
+            
+					CASE
+	               	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameDESC') THEN vi.Name
+	            END DESC,
+	         	CASE
+	                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameASC') THEN vi.Name
+	            END ASC,
+					CASE
+	               	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LockTypeDESC') THEN vi.LockType
+	            END DESC,
+	         	CASE
+	                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LockTypeASC') THEN vi.LockType
+	            END ASC,  
+					CASE
+	               	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutePrefixDESC') THEN vi.RoutePrefix
+	            END DESC,
+	         	CASE
+	                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RoutePrefixASC') THEN vi.RoutePrefix
+	            END ASC,    
+	            CASE
+	               	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LineLimitDESC') THEN vi.LineLimit
+	            END DESC,
+	         	CASE
+	                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LineLimitASC') THEN vi.LineLimit
+	            END ASC,
+					CASE
+	               	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NumberPrefixDESC') THEN vi.NumberPrefix
+	            END DESC,
+	         	CASE
+	                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NumberPrefixASC') THEN vi.NumberPrefix
+	            END ASC, 
+					CASE
+	               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LocalIPDESC') THEN vi.LocalIP
+	            END DESC,
+	         	CASE
+	               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LocalIPASC') THEN vi.LocalIP
+	            END ASC,    				
+					CASE
+	               WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RemoteIpsDESC') THEN vi.RemoteIps
+	            END DESC,
+	            CASE
+	                WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RemoteIpsASC') THEN vi.RemoteIps
+	            END ASC
             LIMIT p_RowspPage OFFSET v_OffSet_;
             
             INSERT INTO tmp_VOSIPCount
@@ -3968,11 +4020,12 @@ BEGIN
 			WHERE vi.CompanyID = p_CompanyID
 			AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
         AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
-        AND(p_RoutePrefix ='' OR (vi.RoutePrefix like Concat(p_RoutePrefix,'%')))
+        AND(p_RoutePrefix ='' OR (vi.RoutePrefix like Concat('%',p_RoutePrefix,'%')))
         AND(p_GatewayName ='' OR (vi.Name like Concat(p_GatewayName,'%')))
         AND(p_LockType = -1 OR (vi.LockType = p_LockType ))
-         AND vi.IPType = 1
-		  GROUP BY  vi.AccountName,vi.RemoteIps,vi.IPType;
+        AND(p_NumberPrefix ='' OR vi.NumberPrefix like REPLACE(p_NumberPrefix, '*', '%'))
+         AND vi.IPType = 1;
+		--  GROUP BY  vi.AccountName,vi.RemoteIps,vi.IPType;
             
 
 			SELECT
@@ -3984,8 +4037,8 @@ BEGIN
 			SELECT   
 				vi.AccountName,
 				vi.Name,
-				vi.LockType,
-				vi.LineLimit,
+				CASE WHEN vi.LockType = 0 THEN 'No Lock' WHEN vi.LockType = 3 THEN 'Locked'  END as LockType,
+				CASE WHEN vi.LineLimit = '2147483647' THEN 'None' ELSE vi.LineLimit END as LineLimit,
 				vi.RoutePrefix,
 				vi.NumberPrefix,
 				vi.LocalIP,
@@ -3997,18 +4050,36 @@ BEGIN
 			WHERE vi.CompanyID = p_CompanyID
 			AND(p_AccountName ='' OR (vi.AccountName like Concat(p_AccountName,'%')))
         AND(p_RemoteIps ='' OR (vi.RemoteIps like Concat(p_RemoteIps,'%')))
-        AND(p_RoutePrefix ='' OR (vi.RoutePrefix like Concat(p_RoutePrefix,'%')))
+        AND(p_RoutePrefix ='' OR (vi.RoutePrefix like Concat('%',p_RoutePrefix,'%')))
         AND(p_GatewayName ='' OR (vi.Name like Concat(p_GatewayName,'%')))
         AND(p_LockType = -1 OR (vi.LockType = p_LockType ))
-        AND vi.IPType = 1
-		  GROUP BY  vi.AccountName,vi.RemoteIps,vi.IPType;
+        AND(p_NumberPrefix ='' OR vi.NumberPrefix like REPLACE(p_NumberPrefix, '*', '%'))
+        AND vi.IPType = 1;
+		 -- GROUP BY  vi.AccountName,vi.RemoteIps,vi.IPType;
 
 	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 	
 END//
-DELIMITER ;	
-	
+DELIMITER ;
+
 
 	
+
+
+	
+ALTER TABLE tblVosIP 
+	ADD COLUMN `LockType` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER updated_by,
+	ADD COLUMN `NumberPrefix` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER LockType,
+	ADD COLUMN `LineLimit` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER NumberPrefix,
+	ADD COLUMN `RoutePrefix` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER LineLimit,
+	ADD COLUMN `routingGatewayGroups` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER RoutePrefix;
+	
+/* Latest Changes */
+/*
+ 
+prc_getVOSAccountIP
+prc_getVOSGatewayRouting
+
+*/
