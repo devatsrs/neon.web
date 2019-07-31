@@ -47,7 +47,6 @@ END//
 DELIMITER ;
 
 
-
 DROP PROCEDURE IF EXISTS `prc_InvoiceManagementReport`;
 DELIMITER //
 CREATE PROCEDURE `prc_InvoiceManagementReport`(
@@ -55,7 +54,6 @@ CREATE PROCEDURE `prc_InvoiceManagementReport`(
 	IN `p_AccountID` INT,
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME
-
 
 
 )
@@ -77,8 +75,9 @@ BEGIN
 	SELECT
 		cli as col1,
 		cld as col2,
-		ROUND(billed_duration/60) as col3,
-		cost as col4
+		CONCAT( FLOOR(billed_duration  / 60),':' , billed_duration  % 60) AS col3,
+		cost as col4,
+		billed_duration AS BillDurationInSec
 	FROM tblUsageDetails  ud
 	INNER JOIN tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -93,8 +92,9 @@ BEGIN
 	SELECT
 		cli as col1,
 		cld as col2,
-		ROUND(billed_duration/60) as col3,
-		cost as col4
+		CONCAT( FLOOR(billed_duration  / 60),':' , billed_duration  % 60) AS col3,
+		cost as col4,
+		billed_duration AS BillDurationInSec
 	FROM tblUsageDetails  ud
 	INNER JOIN tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -109,8 +109,9 @@ BEGIN
 	SELECT
 		cld as col1,
 		count(*) AS col2,
-		ROUND(SUM(billed_duration)/60) AS col3,
-		SUM(cost) AS col4
+		CONCAT( FLOOR(SUM(billed_duration ) / 60),':' , SUM(billed_duration ) % 60) AS col3,
+		SUM(cost) AS col4,
+		SUM(billed_duration ) AS BillDurationInSec
 	FROM tblUsageDetails  ud
 	INNER JOIN tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -127,8 +128,9 @@ BEGIN
 	SELECT
 		DATE(StartDate) as col1,
 		count(*) AS col2,
-		ROUND(SUM(billed_duration)/60) AS col3,
-		SUM(cost) AS col4
+		CONCAT( FLOOR(SUM(billed_duration ) / 60),':' , SUM(billed_duration ) % 60) AS col3,
+		SUM(cost) AS col4,
+		SUM(billed_duration ) AS BillDurationInSec
 	FROM tblUsageDetails  ud
 	INNER JOIN tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -150,7 +152,8 @@ BEGIN
 		AS col1,
 		COUNT(UsageDetailID) AS col2,
 		CONCAT( FLOOR(SUM(billed_duration ) / 60),':' , SUM(billed_duration ) % 60) AS col3,
-		SUM(cost) AS col4
+		SUM(cost) AS col4,
+		SUM(billed_duration ) AS BillDurationInSec
 	FROM tblUsageDetails  ud
 	INNER JOIN tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID

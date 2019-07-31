@@ -14,7 +14,10 @@ class LeadsController extends \BaseController {
        $companyID = User::get_companyID();
        $userID = User::get_userID();
         $data = Input::all();
-        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.AccountID","IsCustomer","IsVendor",'tblAccount.Address1','tblAccount.Address2','tblAccount.Address3','tblAccount.City','tblAccount.Country','Picture','tblAccount.PostCode'];
+        $columns = array('AccountID','AccountName','FirstName','Phone','Email','created_at');
+        $sort_column = $columns[$data['iSortCol_0']];
+
+        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.created_at","tblAccount.AccountID","IsCustomer","IsVendor",'tblAccount.Address1','tblAccount.Address2','tblAccount.Address3','tblAccount.City','tblAccount.Country','Picture','tblAccount.PostCode'];
         //$leads = Account::leftjoin('tblUser', 'tblAccount.Owner', '=', 'tblUser.UserID')->select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
 		$leads = Account::select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
 
@@ -43,6 +46,9 @@ class LeadsController extends \BaseController {
         if(trim($data['tag']) != '') {
             $leads->where('tblAccount.tags', 'like','%'.trim($data['tag']).'%');
         }
+
+        $leads->orderBy($sort_column,$data['sSortDir_0']);
+
         return Datatables::of($leads)->make();
     }
 
