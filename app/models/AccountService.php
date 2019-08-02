@@ -377,4 +377,15 @@ class AccountService extends \Eloquent {
         return $AccountServiceID;
     }
 
+    public static function getAccountServicePackage($AccountID) {
+        // $DropdownIDList = AccountServicePackage::where(array("Status"=>1,"AccountID"=>$AccountID))->lists('AccountServicePackageID', 'AccountServicePackageID');
+        // return $DropdownIDList;
+
+        $country = AccountServicePackage::Join('tblPackage', function($join) {
+            $join->on('tblAccountServicePackage.PackageId','=','tblPackage.PackageId');
+            })->select(DB::raw("CONCAT(tblPackage.Name,'-',tblAccountServicePackage.ContractID) As Name"),'tblAccountServicePackage.AccountServicePackageID As ID')->where("tblAccountServicePackage.Status",1)->where("tblAccountServicePackage.AccountID",$AccountID)
+            ->lists('Name','ID');
+        return $country;
+    }
+
 }
