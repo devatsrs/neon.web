@@ -1177,7 +1177,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-225" class="control-label">Package</label>
-                                    {{ Form::select('AccountServicePackageID', AccountService::getAccountServicePackage($account->AccountID) , '' , array("class"=>"select2")) }}
+                                    {{ Form::select('AccountServicePackageID', AccountService::getAccountServicePackage($AccountServiceID) , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>
