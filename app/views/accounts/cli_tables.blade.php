@@ -867,7 +867,7 @@
             $('#clitable-form input[name=CLIRateTableID]').val("");
             $('#clitable-form input[name=CLIRateTableIDs]').val("");
             $('#clitable-form input[name=criteria]').val("");
-            $('#clitable-form input[name=AccountServicePackageID]').val("");
+            $('#clitable-form input[name=AccountServicePackageID]').select2().select2('val', "");
             $('#clitable-form').attr("action", clitable_add_url);
             $('#clitable-form .edit_hide').show().find(".cli-field").attr("name", "CLI");
             $('#clitable-form .edit_show').hide().find(".cli-field").attr("name", "");
