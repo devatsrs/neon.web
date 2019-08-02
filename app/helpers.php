@@ -2267,11 +2267,11 @@ function table_html($data,$table_data){
         }
         $key_count = count($data['column']);
         foreach ($table_data['columns'][$key_count] as $row_val) {
-            foreach ($row_val['name'] as $rowkeys => $row_name) {
+            foreach ($row_val['name'] as $row_name) {
                 if(array_key_exists($row_name,Report::$measures[$cube])){
                     $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . (isset($setting_rename[$row_name])?$setting_rename[$row_name]:Report::$measures[$cube][$row_name])  . '</th>';
                 }else{
-                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $rowkeys . '</th>';
+                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $row_name . '</th>';
                 }
             }
         }
