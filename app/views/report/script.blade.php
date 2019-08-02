@@ -29,6 +29,9 @@
         if(duration == '2Days'){
             var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 2);
         }
+        if(duration == '4Days'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 4);
+        }
         if(duration == '1Week'){
             var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
         }

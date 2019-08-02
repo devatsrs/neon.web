@@ -2260,7 +2260,7 @@ function table_html($data,$table_data){
                 if(isset($setting_rename[$blankrow_name]) || isset(Report::$measures[$cube][$blankrow_name])){
                     $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '">' . (isset($setting_rename[$blankrow_name])?$setting_rename[$blankrow_name]:Report::$measures[$cube][$blankrow_name])  . '</td>';
                 }else{
-                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '">'.$blankrow_name.'</td>';
                 }
             }
         }
