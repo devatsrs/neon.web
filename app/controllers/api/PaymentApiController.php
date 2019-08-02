@@ -543,13 +543,15 @@ class PaymentApiController extends ApiController {
 				}
 			}
 
+			$AmountWithoutTax = (float)$Amount - (float)$TotalTax;
+
 			$InvoiceData["InvoiceNumber"] 	= $LastInvoiceNumber;
 			$InvoiceData["CompanyID"] 		= $CompanyID;
 			$InvoiceData["AccountID"] 		= intval($AccountID);
 			$InvoiceData["Address"] 		= $InvoiceToAddress;        //change
 			$InvoiceData["IssueDate"] 		= date('Y-m-d');  //today
 			$InvoiceData["PONumber"] 		= ''; //blank
-			$InvoiceData["SubTotal"] 		= str_replace(",", "", ($Amount - $TotalTax));
+			$InvoiceData["SubTotal"] 		= $AmountWithoutTax;
 			$InvoiceData["TotalDiscount"] 	= 0;
 			$InvoiceData["TotalTax"] 		= $TotalTax;
 			$InvoiceData["GrandTotal"] 		= floatval(str_replace(",", "", $Amount));
@@ -602,10 +604,10 @@ class PaymentApiController extends ApiController {
 				$InvoiceDetailData['InvoiceID'] 	= $InvoiceID;
 				$InvoiceDetailData['ProductID'] 	= $ProductID;
 				$InvoiceDetailData['Description'] 	= 'TopUp';
-				$InvoiceDetailData['Price'] 		= $Amount;
+				$InvoiceDetailData['Price'] 		= $AmountWithoutTax;
 				$InvoiceDetailData['Qty'] 			= 1;
 				$InvoiceDetailData['TaxAmount'] 	= $TotalTax;
-				$InvoiceDetailData['LineTotal'] 	= $Amount;
+				$InvoiceDetailData['LineTotal'] 	= $AmountWithoutTax;
 				$InvoiceDetailData['StartDate'] 	= '';
 				$InvoiceDetailData['EndDate'] 		= '';
 				$InvoiceDetailData['Discount'] 		= 0;
