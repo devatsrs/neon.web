@@ -2199,6 +2199,7 @@ function recursive($array, $level = 1){
         }
         $table_header_filter=rtrim($table_header_filter, ', ');
     }
+    $table_header_filter=rtrim($table_header_filter, ', ');
     return $table_header_filter;
 }
 function table_html($data,$table_data){
