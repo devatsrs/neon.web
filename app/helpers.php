@@ -2148,6 +2148,59 @@ function table_array($data,$response,$all_data_list){
     //echo '<pre>';print_r($table_data);exit;
     return $table_data;
 }
+function removeElementWithValue($array, $key, $value){
+     foreach($array as $subKey => $subArray){
+          if($subArray[$key] == $value){
+               unset($array[$subKey]);
+          }
+     }
+     return $array;
+}
+function recursive($array, $level = 1){
+    $table_header_filter='';
+    foreach($array as $key => $value){
+        $table_header_filter .= '<br /><b>'.$key . ":</b> " ; 
+        //If $value is an array.
+        if(is_array($value)){
+            //We need to loop through it.
+            foreach($value as $key1 => $value1){
+                if(is_array($value1)){
+                    foreach($value1 as $key2 => $value2){
+                        if(is_array($value2)){
+                            foreach($value2 as $key3 => $value3){
+                                if(is_array($value3)){
+                                    foreach($value3 as $key4 => $value4){
+                                        
+                                    }
+                                }else{
+                                    if(!empty($value3) && $value1!='none' && $value1!='='){
+                                       // $table_header_filter .= $key3 . ": " . $value3.', ';
+                                         $table_header_filter .= $value3.', ';
+                                    }
+                                }
+                            }
+                        }else{
+                            if(!empty($value2) && $value1!='none' && $value1!='='){
+                               // $table_header_filter .= $key2 . ": " . $value2.', ';
+                                 $table_header_filter .= $value2.', ';
+                            }
+                        }
+                    }
+                }else{
+                    if(!empty($value1) && $value1!='none' && $value1!='='){
+                        //$table_header_filter .= $key1 . ": " . $value1.', ';
+                        $table_header_filter .= $value1.', ';
+                    }
+                }
+            }
+        } else{
+            //It is not an array, so print it out.
+            $table_header_filter .= $value.'';
+        }
+        $table_header_filter=rtrim($table_header_filter, ', ');
+    }
+    return $table_header_filter;
+}
 function table_html($data,$table_data){
     $index_col = 1;
     $cube = $data['Cube'];
@@ -2160,6 +2213,14 @@ function table_html($data,$table_data){
     if($row_count) {
         $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
     }
+    //Show Filter in Files
+    $filters = json_decode($data['filter_settings'],true);
+    $table_header .= '<tr>';
+    $table_header .= '<td colspan="20" style="background-color:#fff"><b>Filter: </b>';
+    $table_header_filter=recursive($filters);
+     $table_header .=$table_header_filter;
+     $table_header .= '</td></tr>';
+     //-----------------------------------------------------------------------
     if(count($data['column'])) {
         foreach ($data['column'] as $key => $col_name) {
             $table_header .= '<tr>';
@@ -2196,7 +2257,11 @@ function table_html($data,$table_data){
         $table_header .= '<tr>';
         if (count($data['column']) == 0) {
             foreach ($data['row'] as $rowkey => $blankrow_name) {
-                $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+                if(isset($setting_rename[$blankrow_name]) || isset(Report::$measures[$cube][$blankrow_name])){
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '">' . (isset($setting_rename[$blankrow_name])?$setting_rename[$blankrow_name]:Report::$measures[$cube][$blankrow_name])  . '</td>';
+                }else{
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+                }
             }
         }
         $key_count = count($data['column']);

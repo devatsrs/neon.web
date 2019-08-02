@@ -18,14 +18,15 @@ class VOSRoutingGatewayController extends \BaseController {
         $data['RemoteIps'] = !empty($data['RemoteIps'])?$data['RemoteIps']:'';
         $data['RoutePrefix'] = !empty($data['RoutePrefix'])?$data['RoutePrefix']:'';
         $data['GatewayName'] = !empty($data['GatewayName'])?$data['GatewayName']:'';
+        $data['NumberPrefix'] = !empty($data['NumberPrefix'])?$data['NumberPrefix']:'';
 
         $columns = array('AccountName','Name','LockType','LineLimit','RoutePrefix','NumberPrefix','LocalIP','RemoteIps');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_getVOSGatewayRouting(".$CompanyID.",'".$data['AccountName']."','".$data['RemoteIps']."','".$data['RoutePrefix']."','".$data['GatewayName']."',".$data['LockType'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_getVOSGatewayRouting(".$CompanyID.",'".$data['AccountName']."','".$data['RemoteIps']."','".$data['RoutePrefix']."','".$data['GatewayName']."',".$data['LockType'].",'".$data['NumberPrefix']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $export_type['type'] = $type;
-            $AccountIPActilead = UserActivity::UserActivitySaved($export_type,'Export','AccountIP');
+            //$AccountIPActilead = UserActivity::UserActivitySaved($export_type,'Export','AccountIP');
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
