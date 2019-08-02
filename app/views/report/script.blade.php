@@ -23,6 +23,12 @@
     var column_function = {'top5':'Top 5', 'top10':'Top 10','bottom5':'Bottom 5','bottom10':'Bottom 10','':'Actual','min':'Min','max':'Max','sum':'Sum','avg':'Average','count':'Count','count_distinct':'Count Distinct'};
     function getLastDates(duration) {
         var today = new Date();
+        if(duration == '1Days'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+        }
+        if(duration == '2Days'){
+            var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 2);
+        }
         if(duration == '1Week'){
             var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
         }
@@ -44,7 +50,7 @@
         if(duration == '1Year'){
             var lastWeek = new Date(today.getFullYear(), today.getMonth() - 12, today.getDate()); 
         }
-        if(duration == 'Custom'){
+        if(duration == 'Custom' || duration == 'Today'){
             var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate()); 
         }
         return lastWeek;
