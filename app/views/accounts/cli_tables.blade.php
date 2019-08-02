@@ -776,7 +776,7 @@
                             console.log(full);
                             var action , edit_ , show_ , delete_;
                             //console.log(id);
-                            if(full[16] == 1){
+                            if(full[17] == 1){
                                 action='<i class="entypo-check" style="font-size:22px;color:green"></i>';
                             }else{
                                 action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
