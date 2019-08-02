@@ -2159,7 +2159,7 @@ function removeElementWithValue($array, $key, $value){
 function recursive($array, $level = 1){
     $table_header_filter='';
     foreach($array as $key => $value){
-        $table_header_filter .= '<br /><b>'.$key . ":</b> " ; 
+        $table_header_filter .= '<b>'.$key . ":</b> " ; 
         //If $value is an array.
         if(is_array($value)){
             //We need to loop through it.
