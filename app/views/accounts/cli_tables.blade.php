@@ -855,6 +855,7 @@
             $("#clitable-form [name=NumberEndDate]").val("");
             $("#clitable-form [name=ContractID]").val("");
             $("#clitable-form [name=City]").select2().select2('val', "");
+            $("#clitable-form [name=AccountServicePackageID]").select2().select2('val', "");
             $("#clitable-form [name=Tariff]").select2().select2('val', "");
             $("#clitable-form [name=PrefixWithoutCountry]").select2().select2('val', "");
             $("#clitable-form [name=NoType]").select2().select2('val', "");
@@ -867,7 +868,6 @@
             $('#clitable-form input[name=CLIRateTableID]').val("");
             $('#clitable-form input[name=CLIRateTableIDs]').val("");
             $('#clitable-form input[name=criteria]').val("");
-            $('#clitable-form input[name=AccountServicePackageID]').select2().select2('val', "");
             $('#clitable-form').attr("action", clitable_add_url);
             $('#clitable-form .edit_hide').show().find(".cli-field").attr("name", "CLI");
             $('#clitable-form .edit_show').hide().find(".cli-field").attr("name", "");
