@@ -13,7 +13,7 @@ class RateGeneratorRuleController extends \BaseController {
                 "RateGeneratorId" => $id
             ]) ->orderBy("Order", "asc")->get();
 
-            $Timezones = Timezones::getTimezonesIDList();
+            $Timezones = array('' => 'All') + Timezones::getTimezonesIDList();
             $companyID = User::get_companyID();
             $vendors = Account::select([
                 "AccountName",
@@ -105,7 +105,7 @@ class RateGeneratorRuleController extends \BaseController {
             $Tariff = array('' => "All") + $Tariff;
             $countryForRule = array('' => "All") + $countryForRule;
 
-            $Timezones = Timezones::getTimezonesIDList();
+            $Timezones = array('' => 'All') + Timezones::getTimezonesIDList();
             //source
             $rategenerator_sources = RateRuleSource::where(["RateRuleID" => $RateRuleID])->lists('AccountID', 'AccountId');
             $rategenerator = RateGenerator::find($id);
@@ -182,7 +182,6 @@ class RateGeneratorRuleController extends \BaseController {
             if($rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
                 $rules = array(
                     'Component'  => 'required',
-                    'TimezonesID'  => 'required',
                     'CreatedBy'  => 'required',
                 );
 
@@ -221,6 +220,9 @@ class RateGeneratorRuleController extends \BaseController {
             }
             if(isset($data['PackageID']) && $data['PackageID'] == ''){
                 $data['PackageID'] = null;
+            }
+            if(isset($data['TimezonesID']) && $data['TimezonesID'] == ''){
+                $data['TimezonesID'] = null;
             }
 
             // Checking if any other rule exist with same condition
@@ -293,7 +295,6 @@ class RateGeneratorRuleController extends \BaseController {
             if($rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $rateGenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
                 $rules = array(
                     'Component'   => 'required',
-                    'TimezonesID'   => 'required',
                     'ModifiedBy'  => 'required',
                 );
             }
@@ -315,6 +316,9 @@ class RateGeneratorRuleController extends \BaseController {
             }
             if(isset($data['PackageID']) && $data['PackageID'] == ''){
                 $data['PackageID'] = null;
+            }
+            if(isset($data['TimezonesID']) && $data['TimezonesID'] == ''){
+                $data['TimezonesID'] = null;
             }
 
             // Checking if any other rule exist with same condition

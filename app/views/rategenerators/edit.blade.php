@@ -691,6 +691,8 @@
                                             <td>
                                                 @if(isset($rategenerator_rule->TimezonesID))
                                                     {{ $Timezones[$rategenerator_rule->TimezonesID] }}
+                                                @else
+                                                    ALL     
                                                 @endif
                                             </td>
                                         @else
