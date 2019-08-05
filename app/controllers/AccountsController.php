@@ -2289,6 +2289,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['CountryID']              = 'required'; // Country
         $rules['NoType']                 = 'required'; // Type
         $rules['PrefixWithoutCountry']   = 'required'; // Prefix
+        $rules['AccountServicePackageID'] = 'required';
 
 
         $validator = Validator::make($data, $rules, [
@@ -2298,6 +2299,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CountryID.required'              => "The country is required.",
             'NoType.required'                 => "The type is required.",
             'PrefixWithoutCountry.required'   => "The prefix is required.",
+            'AccountServicePackageID.required' => 'The package is required.'
         ]);
 
         if ($validator->fails()) {
@@ -2616,6 +2618,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['CountryID']              = 'required'; // Country
         $rules['NoType']                 = 'required'; // Type
         $rules['PrefixWithoutCountry']   = 'required'; // Prefix
+        $rules['AccountServicePackageID'] = 'required';
         // Log::info("clitable_store " . print_r($data,true));
 
         $zeroPrefix = 0;
@@ -2630,6 +2633,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CountryID.required'              => "The country is required.",
             'NoType.required'                 => "The type is required.",
             'PrefixWithoutCountry.required'   => "The prefix is required.",
+            'AccountServicePackageID.required' => 'The package is required.'
         ]);
 
         if ($validator->fails()) {

@@ -1128,6 +1128,14 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
+                                    <label for="field-225" class="control-label">Package</label>
+                                    {{ Form::select('AccountServicePackageID', AccountService::getAccountServicePackage($AccountServiceID) , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
                                     <label for="field-225" class="control-label">Default Access RateTable*</label>
                                     {{ Form::select('RateTableID', $rate_table , '' , array("class"=>"select2")) }}
                                 </div>
@@ -1170,14 +1178,6 @@
                                 <div class="form-group">
                                     <label for="field-225" class="control-label">Special Termination Rate Table</label>
                                     {{ Form::select('SpecialTerminationRateTableID', $termination_rate_table , '' , array("class"=>"select2")) }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-225" class="control-label">Package</label>
-                                    {{ Form::select('AccountServicePackageID', AccountService::getAccountServicePackage($AccountServiceID) , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>
                         </div>
