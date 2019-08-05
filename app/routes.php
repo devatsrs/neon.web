@@ -337,6 +337,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/{log_id}/delete_email_log', 'AccountActivityController@delete_email_log')->where('activity_id', '(.[09]*)+');
     Route::any('emails/{id}/getattachment/{attachmentID}', 'AccountActivityController@getAttachment');
 	Route::any('emails/{id}/getreplyattachment/{attachmentID}', 'AccountActivityController@GetReplyAttachment');
+	Route::any('notes/{id}/getattachment/{attachmentID}', 'AccountsController@getAttachment');
 	Route::post('emails/email_action', 'AccountActivityController@EmailAction');
 
 
@@ -811,6 +812,16 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('lcr/margin-rate-export/{type}/{id}', 'LCRController@marginRateExport');
 	Route::any('lcr/ajax_customer_rate_export/{type}', 'LCRController@ajax_customer_rate_export');
 	Route::any('lcr/edit_preference', 'LCRController@editPreference');
+
+	//Deal Management
+	Route::any('/dealmanagement', 'DealManagementController@index');
+	Route::any('dealmanagement/ajax_datagrid', 'DealManagementController@ajax_datagrid');
+	Route::any('dealmanagement/exports/{type}', 'DealManagementController@ajax_datagrid');
+	Route::any('dealmanagement/create', "DealManagementController@create");
+	Route::any('dealmanagement/store','DealManagementController@store');
+	Route::any('dealmanagement/{id}/delete', 'DealManagementController@delete');
+	Route::any('dealmanagement/{id}/edit', 'DealManagementController@edit');
+	Route::any('dealmanagement/{id}/update', "DealManagementController@update");
 
 	//Pages
 	Route::any('/about', 'PagesController@about');

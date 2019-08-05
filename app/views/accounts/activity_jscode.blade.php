@@ -18,6 +18,7 @@ Not_ask_delete_Note   = 		0;
 var account_id		  =			'{{$AccountID}}';
 var emailFileList	  =  		new Array();
 var emailFileListReply  =  		new Array();
+var noteFileList  =  		new Array();
 var token			  =			'{{$token}}';
 var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
@@ -499,12 +500,33 @@ setTimeout(function() {
 			{	
 				var doc = $('#box-1');
 				show_summernote(doc.find("#note-content"),editor_options);
+				$('#info1').val('');
+				$('#info2').val('');
+				$('#info5').val('');
+				$('#info6').val('');
+				$('#emailattachment_sent').val('');
+				$('.file_upload_span').remove();
+				emailFileList = [];
+				emailFileListReply = [];
+				noteFileList = [];
 			}
 			else
 			{
 				var doc = $('#box-1');
         		doc.find('#note-content').show();
 			
+			}
+
+			if(divName=='box-2'){
+				$('#info5').val('');
+				$('#info6').val('');
+				$('#info1').val('');
+				$('#info2').val('');
+				$("#notes-from").find('#noteattachment_sent').val('');
+				$('.file_upload_span').remove();
+				emailFileList = [];
+				emailFileListReply = [];
+				noteFileList = [];
 			}
 			current_tab = divName;
 			
@@ -547,6 +569,14 @@ setTimeout(function() {
 				$('#filecontrole1').click();
 				
             });
+
+			$('#addNoteTtachment').click(function(){
+				file_count++;
+				//var html_img = '<input id="filecontrole'+file_count+'" multiple type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
+				//$('.emai_attachments_span').html(html_img);
+				$('#filecontrole3').click();
+
+			});
 			
 			 $(document).on("click","#addReplyTtachment",function(ee){
 			 file_count++;                
@@ -617,6 +647,38 @@ setTimeout(function() {
 						}
 					});
             });
+
+
+			$(document).on("click",".note_del_attachment",function(ee){
+				var url  =  baseurl + '/account/delete_actvity_attachment_file';
+				var fileName   =  $(this).attr('del_file_name');
+				var attachmentsinfo = $('#info5').val();
+				if(!attachmentsinfo){
+					return true;
+				}
+				attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
+				$(this).parent().remove();
+				var fileIndex = noteFileList.indexOf(fileName);
+				var fileinfo = attachmentsinfo[fileIndex];
+				noteFileList.splice(fileIndex, 1);
+				attachmentsinfo.splice(fileIndex, 1);
+				$('#info5').val(JSON.stringify(attachmentsinfo));
+				$('#info6').val(JSON.stringify(attachmentsinfo));
+				$.ajax({
+					url: url,
+					type: 'POST',
+					dataType: 'json',
+					data:{file:fileinfo},
+					async :false,
+					success: function(response) {
+						if(response.status =='success'){
+
+						}else{
+							toastr.error(response.message, "Error", toastr_opts);
+						}
+					}
+				});
+			});
 			
 
 
@@ -677,6 +739,35 @@ $('#emai_attachments_form').submit(function(e) {
         contentType: false,
         processData: false
     });
+	});
+
+		$('#note_attachments_form').submit(function(e) {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+
+			var formData = new FormData(this);
+			var url = 	baseurl + '/account/upload_file?add_note=true';
+			$.ajax({
+				url: url,  //Server script to process data
+				type: 'POST',
+				dataType: 'json',
+				success: function (response) {
+					if(response.status =='success'){
+						$('.file-input-names').html(response.data.text);
+						$('#info5').val(JSON.stringify(response.data.attachmentsinfo));
+						$('#info6').val(JSON.stringify(response.data.attachmentsinfo));
+
+					}else{
+						toastr.error(response.message, "Error", toastr_opts);
+					}
+				},
+				// Form data
+				data: formData,
+				//Options to tell jQuery not to process data or worry about content-type.
+				cache: false,
+				contentType: false,
+				processData: false
+			});
 	
 });
 
@@ -729,6 +820,50 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 
             });
+			$(document).on('change','#filecontrole3',function(e){
+				e.stopImmediatePropagation();
+				e.preventDefault();
+				var files 			 = e.target.files;
+				var fileText 		 = new Array();
+				var file_check		 =	1;
+				var local_array		 =  new Array();
+				///////
+				var filesArr = Array.prototype.slice.call(files);
+
+				filesArr.forEach(function(f) {
+					var ext_current_file  = f.name.split('.').pop();
+					if(allow_extensions.indexOf(ext_current_file.toLowerCase()) > -1 )
+					{
+						var name_file = f.name;
+						var index_file = noteFileList.indexOf(f.name);
+						if(index_file >-1 )
+						{
+							ShowToastr("error",f.name+" file already selected.");
+						}
+						else if(bytesToSize(f.size))
+						{
+							ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");
+							file_check = 0;
+							return false;
+
+						}else
+						{
+							//emailFileList.push(f.name);
+							local_array.push(f.name);
+						}
+					}
+					else
+					{
+						ShowToastr("error",ext_current_file+" file type not allowed.");
+
+					}
+				});
+				if(local_array.length>0 && file_check==1)
+				{	 noteFileList = noteFileList.concat(local_array);
+					$('#note_attachments_form').submit();
+				}
+
+			});
 			
 		 $(document).on('change','#filecontrole2',function(e){
 				e.stopImmediatePropagation();
@@ -819,7 +954,12 @@ $('#emai_attachments_form').submit(function(e) {
 				else
 				{
 					ShowToastr("success","Note Successfully Created");
-					document.getElementById('notes-from').reset();
+					$('#note-content').summernote("reset");
+					$('#note-content').val('');
+					$('#info5').val('');
+					$('#info6').val('');
+					$("#notes-from").find('#noteattachment_sent').val('');
+					$("#notes-from").find('.file_upload_span').remove();
 					var empty_ul = 0;
 					if($("#timeline-ul").length == 0) {
 						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
