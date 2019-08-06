@@ -20,7 +20,6 @@ class ActiveCallController extends \BaseController {
     public function ajax_datagrid($type)
 	{
         $data 							 = 		Input::all();
-
         $CompanyID 						 = 		User::get_companyID();
         $data['iDisplayStart'] 			+=		1;
         $data['AccountID'] 				 = 		$data['AccountID']!= ''?$data['AccountID']:0;
@@ -32,7 +31,7 @@ class ActiveCallController extends \BaseController {
         // $data['ServiceID'] 				 = 		$data['ServiceID']!= ''?$data['ServiceID']:0;
         // $data['CompanyGatewayID']		 =		$data['CompanyGatewayID']!= ''?$data['CompanyGatewayID']:0;
 
-        $columns = array('ActiveCallID','AccountName','CLI','CLD','CLDPrefix','ConnectTime','Cost','CompanyGatewayID');
+        $columns = array('ActiveCallID','AccountName','ConnectTime','CLI','CLD','CLDPrefix','Cost','CompanyGatewayID');
         $sort_column = $columns[$data['iSortCol_0']];
 
         $query = "call prc_getActiveCalls(".$CompanyID.",".$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."','".$data['CLDPrefix']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','".$data['CallType']."'";
