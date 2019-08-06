@@ -2,6 +2,58 @@ USE `RMCDR3`;
 
 
 
+CREATE TABLE `tblUsageDetailsFileLog` (
+	`UsageDetailFileLogID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`FileName` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`UsageDetailID` BIGINT(20) NOT NULL DEFAULT '0',
+	`ID` BIGINT(20) NOT NULL DEFAULT '0',
+	`ProcessID` BIGINT(20) NOT NULL DEFAULT '0',
+	PRIMARY KEY (`UsageDetailFileLogID`),
+	INDEX `IX_tblUsageDetailsFileLog_UsageDetailID` (`UsageDetailID`),
+	INDEX `IX_tblUsageDetailsFileLog_FileName` (`FileName`),
+	INDEX `IX_tblUsageDetailsFileLog_ProcessID_ID` (`ProcessID`, `ID`)
+) COLLATE='utf8_unicode_ci';
+
+
+CREATE TABLE `tblVendorCDRFileLog` (
+	`VendorCDRFileLogID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`FileName` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`VendorCDRID` BIGINT(20) NOT NULL DEFAULT '0',
+	`ID` BIGINT(20) NOT NULL DEFAULT '0',
+	`ProcessID` BIGINT(20) NOT NULL DEFAULT '0',
+	PRIMARY KEY (`VendorCDRFileLogID`),
+	INDEX `IX_tblVendorCDRFileLog_VendorCDRID` (`VendorCDRID`),
+	INDEX `IX_tblVendorCDRFileLog_FileName` (`FileName`),
+	INDEX `IX_tblVendorCDRFileLog_ProcessID_ID` (`ProcessID`, `ID`)
+) COLLATE='utf8_unicode_ci';
+
+
+CREATE TABLE `tblUsageDetailFailedCallFileLog` (
+	`UsageDetailFailedCallFileLogID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`FileName` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`UsageDetailFailedCallID` BIGINT(20) NOT NULL DEFAULT '0',
+	`ID` BIGINT(20) NOT NULL DEFAULT '0',
+	`ProcessID` BIGINT(20) NOT NULL DEFAULT '0',
+	PRIMARY KEY (`UsageDetailFailedCallFileLogID`),
+	INDEX `IX_tblUsageDetailFailedCallFileLog_UsageDetailFailedCallID` (`UsageDetailFailedCallID`),
+	INDEX `IX_tblUsageDetailFailedCallFileLog_FileName` (`FileName`),
+	INDEX `IX_tblUsageDetailFailedCallFileLog_ProcessID_ID` (`ProcessID`, `ID`)
+) COLLATE='utf8_unicode_ci';
+
+
+CREATE TABLE `tblVendorCDRFailedFileLog` (
+	`VendorCDRFailedFileLogID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`FileName` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`VendorCDRFailedID` BIGINT(20) NOT NULL DEFAULT '0',
+	`ID` BIGINT(20) NOT NULL DEFAULT '0',
+	`ProcessID` BIGINT(20) NOT NULL DEFAULT '0',
+	PRIMARY KEY (`VendorCDRFailedFileLogID`),
+	INDEX `IX_tblVendorCDRFailedFileLog_VendorCDRFailedID` (`VendorCDRFailedID`),
+	INDEX `IX_tblVendorCDRFailedFileLog_FileName` (`FileName`),
+	INDEX `IX_tblVendorCDRFailedFileLog_ProcessID_ID` (`ProcessID`, `ID`)
+) COLLATE='utf8_unicode_ci';
+
+
 
 DROP PROCEDURE IF EXISTS `prc_insertCDR`;
 DELIMITER //
