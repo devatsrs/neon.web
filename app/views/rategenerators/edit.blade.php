@@ -199,36 +199,36 @@
                                         <input type="hidden" name="codedeckid" readonly  value="{{$rategenerators->CodeDeckId}}">
                                     @endif
                                 </div>
-                                <label for="field-1" class="col-sm-2 control-label">Time Of Day*</label>
+                                {{-- <label for="field-1" class="col-sm-2 control-label">Time Of Day*</label>
                                 <div class="col-sm-4">
                                     {{ Form::select('Timezones[]', $Timezones, explode(',',$rategenerators->Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
-                                </div>
+                                </div> --}}
                             </div>
-                            <div class="form-group NonDID-Div">
-                                <label class="col-sm-3 control-label">Merge Rate By Time Of Day</label>
+                            {{-- <div class="form-group NonDID-Div"> --}}
+                                {{-- <label class="col-sm-3 control-label">Merge Rate By Time Of Day</label>
                                 <div class="col-sm-4">
                                     <div class="make-switch switch-small">
                                         {{Form::checkbox('IsMerge', 1,  $rategenerators->IsMerge, array('id' => 'IsMerge') );}}
                                     </div>
-                                </div>
-                                <label class="col-sm-2 control-label IsMerge">Take Price</label>
+                                </div> --}}
+                                {{-- <label class="col-sm-2 control-label IsMerge">Take Price</label>
                                 <div class="col-sm-4 IsMerge">
                                     {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), $rategenerators->TakePrice , array("class"=>"select2")) }}
-                                </div>
-                            </div>
-                            <div class="form-group NonDID-Div">
-                                <label class="col-sm-2 control-label IsMerge">Merge Into</label>
+                                </div> --}}
+                            {{-- </div>
+                            <div class="form-group NonDID-Div"> --}}
+                                {{-- <label class="col-sm-2 control-label IsMerge">Merge Into</label>
                                 <div class="col-sm-4 IsMerge">
                                     {{ Form::select('MergeInto', $Timezones, $rategenerators->MergeInto , array("class"=>"select2")) }}
-                                </div>
-                                <div id="hide-components">
+                                </div> --}}
+                                {{-- <div id="hide-components">
                                     <label for="field-1" class="col-sm-2 control-label">Components</label>
                                     <div class="col-sm-4">
                                         {{ Form::select('AllComponent[]', RateGenerator::$Component, explode("," ,$rategenerators->SelectedComponents) , array("class"=>"select2 multiselect" , "multiple"=>"multiple", "id"=>"AllComponent" )) }}
                                     </div>
 
-                                </div>
-                            </div>
+                                </div> --}}
+                            {{-- </div> --}}
                         @endif
 
                         @if($rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $rategenerator->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
@@ -691,6 +691,8 @@
                                             <td>
                                                 @if(isset($rategenerator_rule->TimezonesID))
                                                     {{ $Timezones[$rategenerator_rule->TimezonesID] }}
+                                                @else
+                                                    ALL     
                                                 @endif
                                             </td>
                                         @else

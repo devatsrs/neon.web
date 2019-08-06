@@ -27,17 +27,15 @@
                     <table width="100%">
                         <tr>
                             <td><label for="field-1" class="col-sm-1 control-label">Package</label></td>
-                            <td width="15%">{{ Form::select('PackageName', $Packages , '' , array("class"=>"select2")) }}</td>
+                            <td width="10%">{{ Form::select('PackageName', $Packages , '' , array("class"=>"select2")) }}</td>
                             <td><label for="field-1" class="col-sm-1 control-label">ContractID</label></td>
-                            <td><input type="text" name="PackageContractID" class="form-control" value="" /></td>
+                            <td width="10%"><input type="text" name="PackageContractID" class="form-control" value="" /></td>
                             <td><label for="field-1" class="col-sm-1 control-label">Start Date</label></td>
-                            <td><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="PackageStartDate" name="PackageStartDate"></td>
+                            <td width="10%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="PackageStartDate" name="PackageStartDate"></td>
                             <td><label for="field-1" class="col-sm-1 control-label">End Date</label></td>
-                            <td><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="PackageEndDate" name="PackageEndDate"></td>
+                            <td width="10%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="PackageEndDate" name="PackageEndDate"></td>
                             <td><label for="field-1" class="col-sm-1 control-label">Status</label></td>
-                            <td><p class="make-switch switch-small">
-                                    <input id="PackageStatus" name="PackageStatus" type="checkbox" value="1" checked="checked">
-                                </p></td>
+                            <td width="12%">{{ Form::select('PackageStatus', [""=>"All",1=>"Active",0=>"Inactive"], '', array("class"=>"form-control select2 small")) }}</td>
                         </tr>
                         <tr>
                             <td colspan="10" align="right">
@@ -313,7 +311,7 @@
             $searchcli.PackageContractID = $("#packagetable_filter").find('[name="PackageContractID"]').val();
             $searchcli.PackageStartDate = $("#packagetable_filter").find('[name="PackageStartDate"]').val();
             $searchcli.PackageEndDate = $("#packagetable_filter").find('[name="PackageEndDate"]').val();
-            $searchcli.PackageStatus = $("#packagetable_filter").find('[name="PackageStatus"]').is(":checked") ? 1 : 0;
+            $searchcli.PackageStatus = $("#packagetable_filter").find('[name="PackageStatus"]').val();
 
             if((typeof $searchcli.PackageEndDate  != 'undefined' && $searchcli.PackageEndDate != '')
                     && (typeof $searchcli.PackageStartDate  != 'undefined' && $searchcli.PackageStartDate != '')

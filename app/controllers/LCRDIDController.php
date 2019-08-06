@@ -8,7 +8,7 @@ class LCRDIDController extends \BaseController {
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
-        $fileName = !empty($data['lcr_type']) && $data['lcr_type'] == 'Y'?"Package":"DID_LCR";
+        $fileName = !empty($data['lcr_type']) && $data['lcr_type'] == 'Y'?"Package_LCR":"Access_LCR";
         Log::info('LCRDIDController:search_ajax_datagrid' . print_r($data, true));
         $data['ComponentAction']=empty($data['ComponentAction'])?'':$data['ComponentAction'];
         $data['DIDCategoryID']=empty($data['DIDCategoryID'])?0:$data['DIDCategoryID'];
@@ -69,11 +69,11 @@ class LCRDIDController extends \BaseController {
                     }
 
                     if($type=='csv'){
-                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DID_LCR.csv';
+                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$fileName.'.csv';
                         $NeonExcel = new NeonExcelIO($file_path);
                         $NeonExcel->download_csv($excel_data);
                     }elseif($type=='xlsx'){
-                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DID_LCR.xls';
+                        $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$fileName.'.xls';
                         $NeonExcel = new NeonExcelIO($file_path);
                         $NeonExcel->download_excel($excel_data);
                     }
