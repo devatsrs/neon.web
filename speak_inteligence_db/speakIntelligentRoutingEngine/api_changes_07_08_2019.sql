@@ -132,9 +132,7 @@ PRC:BEGIN
 	DECLARE V_Cost DECIMAL(18,6);
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;	
-	
-	SET p_DisconnectTime = NOW();
-	
+		
 	DROP TEMPORARY TABLE IF EXISTS tmp_Error_;
 		CREATE TEMPORARY TABLE tmp_Error_ (
 			ErrorMessage longtext
@@ -172,6 +170,8 @@ PRC:BEGIN
 		SELECT * FROM tmp_Error_;
 		LEAVE PRC;
 	END IF;			
+	
+	SET p_DisconnectTime = NOW();
 
 	CALL prc_insertActiveCallCost(V_ActiveCallID,1,p_DisconnectTime,'');
 	
@@ -206,7 +206,6 @@ PRC:BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;	
 	
-	SET p_CallRecordingStartTime = NOW();
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_Error_;
 		CREATE TEMPORARY TABLE tmp_Error_ (
@@ -255,7 +254,8 @@ PRC:BEGIN
 		LEAVE PRC;
 	END IF;			
 
-
+	SET p_CallRecordingStartTime = NOW();
+	
 	UPDATE tblActiveCall
 	SET CallRecordingStartTime = p_CallRecordingStartTime,CallRecording = 1,updated_by = 'API',updated_at = NOW()
 	WHERE UUID = p_UUID AND AccountID = p_AccountID;
@@ -301,7 +301,6 @@ DECLARE v_ActiveCallID INT;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;	
 	
-	SET p_ConnectTime = NOW();
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_Error_;
 	CREATE TEMPORARY TABLE tmp_Error_ (
@@ -366,6 +365,8 @@ DECLARE v_ActiveCallID INT;
 	END IF;
 		
 	/** Check Account Balance is sufficent or not -end **/	
+	
+	SET p_ConnectTime = NOW();
 	
 	INSERT INTO tblActiveCall(AccountID,CompanyID,ConnectTime,CLI,CLD,ServiceNumber,CallType,UUID,VendorID,VendorConnectionName,OriginType,OriginProvider,VendorRate,VendorCLIPrefix,VendorCLDPrefix,CallRecording,Cost,Duration,billed_duration,EndCall,created_by,created_at,updated_at)
 	VALUES(v_AccountID,v_CompanyID,p_ConnectTime,p_CLI,p_CLD,p_ServiceNumber,p_CallType,p_UUID,p_VendorID,p_VendorConnectionName,REPLACE(p_OriginType,'-',''),REPLACE(p_OriginProvider,'-',''),p_VendorRate,p_VendorCLIPrefix,p_VendorCLDPrefix,0,0,0,0,0,'API',NOW(),NOW());
