@@ -445,17 +445,49 @@
                                 </div>
                             </div>
                             <div class="tab-pane" id="date_filter" >
+                                
                                 <div class="row margin-top">
                                     <div class="col-md-6 clear">
                                         <div class="form-group ">
-                                            <label for="field-5" class="control-label">Start Date</label>
-                                            <input type="text"  name="start_date" class="form-control datepicker" id="field-5" placeholder="" data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}">
+                                            <?php 
+                                            if(isset($report->Settings)){
+                                                $dataArray = json_decode($report->Settings,true);
+                                                $filter_settings = json_decode($dataArray['filter_settings'],true);
+                                            }
+                                           //echo ($filter_settings['date']['date_range_filter']);die();
+                                            ?>
+                                            <label for="field-5" class="control-label">Date Selection</label>
+                                            <select class="select2 small" name="date_range_filter" id="date_range_filter">
+                                                <option value="Today" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='Today'){echo 'selected';}?>>Today</option>
+                                                <option value="1Day" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='1Day'){echo 'selected';}?>>1 Day</option>
+                                                <option value="2Days" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='2Days'){echo 'selected';}?>>2 Days</option>
+                                                <option value="4Days" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='4Days'){echo 'selected';}?>>4 Days</option>
+                                                
+                                                <option value="1Week" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='1Week'){echo 'selected';}?>>1 Week</option>
+                                                <option value="2Week" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='2Week'){echo 'selected';}?>>2 Week</option>
+                                                <option value="1Month" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='1Month'){echo 'selected';}?>>1 Month</option>
+                                                <option value="2Month" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='2Month'){echo 'selected';}?>>2 Months</option>
+                                                <option value="4Month" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='4Month'){echo 'selected';}?>>4 Months</option>
+                                                <option value="6Month" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='6Month'){echo 'selected';}?>>6 Months</option>
+                                                <option value="1Year" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='1Year'){echo 'selected';}?>>1 Year</option>
+                                                <option value="Custom" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='Custom'){echo 'selected';}?>>Custom</option>
+                                        
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row margin-top" id="custom_date_range_filter" style="<?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='Custom'){}else{echo 'display:none;';}?>">
+                                    <div class="col-md-6 clear">
+                                        <div class="form-group ">
+                                            <label for="field-sdate" class="control-label">Start Date</label>
+                                            <input type="text"  name="start_date" class="form-control datepicker" id="field-sdate" placeholder="" data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group ">
-                                            <label for="field-5" class="control-label">End Date</label>
-                                            <input type="text"  name="end_date" class="form-control datepicker" id="field-5" placeholder="" data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}">
+                                            <label for="field-edate" class="control-label">End Date</label>
+                                            <input type="text"  name="end_date" class="form-control datepicker" id="field-edate" placeholder="" data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}">
                                         </div>
                                     </div>
                                 </div>

@@ -50,12 +50,12 @@
                             {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2")) }}
                         </div>
                     </div>
-                    <div id="trunk_dropdown" class="form-group hidden">
+                    {{--<div id="trunk_dropdown" class="form-group hidden">
                         <label class="col-sm-2 control-label" for="field-1">Trunk</label>
                         <div class="col-sm-3">
                             {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
                         </div>
-                    </div>
+                    </div>--}}
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
                         <div class="col-sm-4">
@@ -245,9 +245,26 @@
                         <div class="form-group">
                             <br />
                             <br />
+                            <label class="col-sm-2 control-label">ID</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[ID]', array(),'',array("class"=>"select2 small"))}}
+                            </div>
+
+                            <label class="col-sm-2 control-label">Remote IP</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[remote_ip]', array(),'',array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
                             <label for=" field-1" class="col-sm-2 control-label">Area Prefix</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[area_prefix]',array(),'',array("class"=>"select2 small"))}}
+                            </div>
+                            <label class="col-sm-2 control-label">Trunk</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('selection[TrunkID]',$trunks,'', array("class"=>"select2")) }}
                             </div>
                         </div>
                     </div>
@@ -459,12 +476,12 @@ var click_btn;
             });
         $('#RateCDR').change(function(){
             if($('#RateCDR').is(":checked")){
-                $('select[name=TrunkID]').select2("val","");
+                //$('select[name=TrunkID]').select2("val","");
                 $('select[name=RateFormat]').select2("val","");
-                $("#trunk_dropdown").removeClass("hidden");
+                //$("#trunk_dropdown").removeClass("hidden");
                 $("#rate_dropdown").removeClass("hidden");
             }else{
-                $("#trunk_dropdown").addClass("hidden");
+                //$("#trunk_dropdown").addClass("hidden");
                 $("#rate_dropdown").addClass("hidden");
             }
         });
@@ -489,7 +506,11 @@ var click_btn;
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]'){
+            if(el.name == 'selection[TrunkID]') {
+                var self = $('#add-template-form [name="'+el.name+'"]');
+                var label = 'Map From File';
+                rebuildSelectComposite(self,data.columns,label);
+            } else if (el.name !='selection[DateFormat]') {
                 var self = $('#add-template-form [name="'+el.name+'"]');
                 rebuildSelect2(self,data.columns,'Skip loading');
             }
