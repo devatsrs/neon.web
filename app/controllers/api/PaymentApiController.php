@@ -422,7 +422,6 @@ class PaymentApiController extends ApiController {
 								]);
 							}
 
-
 							if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 							{
 								$data['EmailFrom']	= $postdata['email_from'];
