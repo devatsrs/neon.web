@@ -298,7 +298,6 @@ class PaymentApiController extends ApiController {
 
 		$AccountID	= 0;
 		$errors		= [];
-
 		if(!empty($data['AccountID'])) {
 			$AccountID = $data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
@@ -359,7 +358,6 @@ class PaymentApiController extends ApiController {
 				Log::info("Amount Excluded Tax = ".$data['Amount']);
 
 			}*/
-
 			$PaymentData=array();
 			$CompanyID=$Account->CompanyID;
 			$PaymentMethod=$Account->PaymentMethod;
@@ -413,8 +411,16 @@ class PaymentApiController extends ApiController {
 							$data['Subject']		= $Subject;
 							//$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
 
-							$invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
-
+							
+							$invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend',$CompanyID);
+							
+							
+							if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
+								$data['AttachmentPaths']= array([
+									"filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+									"filepath"=>$Invoice->PDF
+								]);
+							}
 
 							if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 							{
