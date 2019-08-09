@@ -1,5 +1,104 @@
 USE `speakIntelligentRoutingEngine`;
 
+DROP FUNCTION IF EXISTS `FnGetPreActiveCallCost`;
+DELIMITER //
+CREATE FUNCTION `FnGetPreActiveCallCost`(
+	`p_ActiveCallID` INT
+) RETURNS decimal(18,6)
+BEGIN
+
+DECLARE V_AccountID INT DEFAULT 0;
+	DECLARE V_CompanyID INT DEFAULT 0;
+	
+	DECLARE V_CompanyCurrency INT DEFAULT 0;
+	DECLARE V_AccountCurrency INT DEFAULT 0;
+	DECLARE V_CallType VARCHAR(50) DEFAULT ''; 
+	
+	DECLARE V_Cost DECIMAL(18,6) DEFAULT 0;	
+	
+	DECLARE V_OutBoundRateTableRateID INT DEFAULT 0;
+	DECLARE V_InboundRateTableDIDRateID INT DEFAULT 0;
+		
+	DECLARE V_CostPerCall DECIMAL(18,6) DEFAULT 0; 
+	DECLARE V_CostPerCallCurrency INT DEFAULT 0;
+	DECLARE V_SurchargePerCall DECIMAL(18,6) DEFAULT 0;
+	DECLARE V_SurchargePerCallCurrency INT DEFAULT 0;
+    DECLARE V_CollectionCostAmount DECIMAL(18,6) DEFAULT 0;
+	DECLARE V_CollectionCostAmountCurrency INT DEFAULT 0; 	
+	
+	DECLARE V_ConnectionFee DECIMAL(18,6) DEFAULT 0;
+	DECLARE V_ConnectionFeeCurrency INT DEFAULT 0;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+		
+	SELECT AccountID,CompanyID,CallType,RateTableRateID,RateTableDIDRateID
+	INTO V_AccountID,V_CompanyID,V_CallType,V_OutBoundRateTableRateID,V_InboundRateTableDIDRateID
+	FROM tblActiveCall WHERE ActiveCallID = p_ActiveCallID;	
+
+	SELECT CurrencyId INTO V_CompanyCurrency FROM tblBaseCurrency LIMIT 1;
+	SELECT CurrencyId INTO V_AccountCurrency FROM tblAccount WHERE AccountID = V_AccountID;
+	
+	IF(V_CallType = 'Outbound')
+	THEN
+		SELECT IFNULL(Cust_ConnectionFee,0),IFNULL(Cust_ConnectionFeeCurrency,0)
+			INTO V_ConnectionFee,V_ConnectionFeeCurrency
+		FROM tblRateTableDetails WHERE Cust_RateTableRateID = V_OutBoundRateTableRateID AND ActiveCallID = p_ActiveCallID;
+				
+		IF(V_ConnectionFee > 0 && V_ConnectionFeeCurrency > 0)
+		THEN
+			SELECT FnConvertCurrencyRate(V_CompanyCurrency,V_AccountCurrency,V_ConnectionFeeCurrency,V_ConnectionFee) INTO V_ConnectionFee;
+		END IF;
+		
+		SET V_Cost = IFNULL(V_ConnectionFee,0);
+		
+	END IF;
+	
+	IF(V_CallType = 'Inbound')
+	THEN
+		IF(V_InboundRateTableDIDRateID > 0)
+		THEN
+				SELECT DID_CostPerCall,IFNULL(DID_CostPerCallCurrency,0),DID_SurchargePerCall,IFNULL(DID_SurchargePerCallCurrency,0),DID_CollectionCostAmount,IFNULL(DID_CollectionCostAmountCurrency,0)
+					INTO V_CostPerCall,V_CostPerCallCurrency,V_SurchargePerCall,V_SurchargePerCallCurrency,V_CollectionCostAmount,V_CollectionCostAmountCurrency
+				FROM tblRateTableDetails WHERE DID_RateTableDIDRateID = V_InboundRateTableDIDRateID AND ActiveCallID = p_ActiveCallID;
+				
+				IF(V_CostPerCall IS NOT NULL)
+				THEN
+					IF(V_CostPerCallCurrency > 0)
+					THEN						
+						SELECT FnConvertCurrencyRate(V_CompanyCurrency,V_AccountCurrency,V_CostPerCallCurrency,V_CostPerCall) INTO V_CostPerCall;
+					END IF;			
+				END IF;
+								
+				IF(V_SurchargePerCall IS NOT NULL)
+				THEN
+					IF(V_SurchargePerCallCurrency > 0)
+					THEN						
+						SELECT FnConvertCurrencyRate(V_CompanyCurrency,V_AccountCurrency,V_SurchargePerCallCurrency,V_SurchargePerCall) INTO V_SurchargePerCall;
+					END IF;		
+				END IF;
+
+				
+				IF(V_CollectionCostAmount IS NOT NULL)
+				THEN
+					IF(V_CollectionCostAmountCurrency > 0)
+					THEN						
+						SELECT FnConvertCurrencyRate(V_CompanyCurrency,V_AccountCurrency,V_CollectionCostAmountCurrency,V_CollectionCostAmount) INTO V_CollectionCostAmount;
+					END IF;		
+				END IF;
+				
+				SET V_Cost = IFNULL(V_CostPerCall,0) + IFNULL(V_SurchargePerCall,0) + IFNULL(V_CollectionCostAmount,0);
+				
+			END IF;
+					
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+RETURN V_Cost;
+END//
+DELIMITER ;
+
 DROP PROCEDURE IF EXISTS `prc_blockApiCall`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_blockApiCall`(
@@ -267,7 +366,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_startCall`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_startCall`(
+CREATE PROCEDURE `prc_startCall`(
 	IN `p_AccountID` INT,
 	IN `p_AccountNo` VARCHAR(200),
 	IN `p_AccountDynamicField` VARCHAR(200),
@@ -275,7 +374,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_startCall`(
 	IN `p_UUID` VARCHAR(250),
 	IN `p_CLI` VARCHAR(50),
 	IN `p_CLD` VARCHAR(50),
-	IN `p_ServiceNumber` INT,
+	IN `p_ServiceNumber` VARCHAR(50),
 	IN `p_CallType` VARCHAR(50),
 	IN `p_VendorID` INT,
 	IN `p_VendorConnectionName` VARCHAR(50),
@@ -295,6 +394,7 @@ DECLARE v_BillingType INT DEFAULT 0;
 DECLARE V_Balance DECIMAL(18,6) DEFAULT 0;
 DECLARE V_AccountBalance DECIMAL(18,6) DEFAULT 0;
 DECLARE V_ActiveCallCost DECIMAL(18,6) DEFAULT 0;
+DECLARE V_PreActiveCallCost DECIMAL(18,6) DEFAULT 0;
 DECLARE p_ConnectTime DATETIME;
 
 DECLARE v_ActiveCallID INT;
@@ -381,6 +481,18 @@ DECLARE v_ActiveCallID INT;
 	END IF;
 	
 	CALL prc_updatestartCall(v_ActiveCallID,1);
+	
+	SELECT FnGetPreActiveCallCost(v_ActiveCallID) INTO V_PreActiveCallCost;
+	
+	SET V_Balance = V_Balance - V_PreActiveCallCost;	
+	
+	IF(V_Balance <= 0)
+	THEN
+		INSERT INTO tmp_Error_ (ErrorMessage) VALUES ('Account has not sufficient balance.');
+		SELECT * FROM tmp_Error_;
+		LEAVE PRC;
+	
+	END IF;
 	
 	SELECT v_ActiveCallID as ActiveCallID;
 
