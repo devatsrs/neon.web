@@ -330,13 +330,9 @@ END//
 DELIMITER ;
 
 
-
-
-
-
 DROP PROCEDURE IF EXISTS `prc_getVOSActiveCalls`;
 DELIMITER //
-CREATE PROCEDURE `prc_getVOSActiveCalls`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getVOSActiveCalls`(
 	IN `p_CompanyID` INT,
 	IN `p_CLI` VARCHAR(255),
 	IN `p_CLD` VARCHAR(255),
@@ -347,6 +343,7 @@ CREATE PROCEDURE `prc_getVOSActiveCalls`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_Export` INT
+
 
 )
 BEGIN
@@ -412,7 +409,43 @@ BEGIN
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectTimeASC') THEN vac.ConnectTime
-                END ASC
+                END ASC,
+             CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallerPDDDESC') THEN vac.CallerPDD
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallerPDDASC') THEN vac.CallerPDD
+                END ASC,    
+            CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CalleePDDDESC') THEN vac.CalleePDD
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CalleePDDASC') THEN vac.CalleePDD
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DurationDESC') THEN vac.Duration
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DurationASC') THEN vac.Duration
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodecDESC') THEN vac.Codec
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodecASC') THEN vac.Codec
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CustomerIPDESC') THEN vac.CustomerIP
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CustomerIPASC') THEN vac.CustomerIP
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SupplierIPRTPDESC') THEN vac.SupplierIPRTP
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SupplierIPRTPASC') THEN vac.SupplierIPRTP
+                END ASC   
             LIMIT p_RowspPage OFFSET v_OffSet_;
 
 			SELECT
