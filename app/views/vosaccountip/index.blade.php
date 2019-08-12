@@ -32,7 +32,7 @@
 
                 <div class="form-group">
                     <label class="control-label small_label" for="field-1">Lock Type</label>
-                    {{ Form::select('LockType',array('-1'=>'Select','0' => "No Lock", '3' => "Bar all calls or Locked" ),'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                    {{ Form::select('LockType',array('-1'=>'Select','0' => "No Lock", '3' => "Locked" ),'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
 
                 <div class="form-group">
