@@ -84,7 +84,7 @@
       <th width="10%">Created By</th>
       <th width="10%">Last Updated</th>
       <th width="10%">Status</th>
-      <th width="12%">Action</th>
+      <th width="10%">Action</th>
     </tr>
   </thead>
   <tbody>
@@ -161,12 +161,14 @@ var popup_type  = 0;
                          action += '<input type = "hidden"  name = "templateID" value = "' + id + '" / >';
                          action += '</div>';
                         <?php if(User::checkCategoryPermission('EmailTemplate','Edit')) { ?>
-                            action += ' <a data-name = "'+full[3]+'" data-id="'+ id +'" title="Edit" class="edit-template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                            action += ' <a data-name = "'+full[3]+'" data-id="'+ id +'" title="Clone" class="clone-template btn btn-default btn-sm"><i class="fa fa-clone"></i>&nbsp;</a>';
+                            action += ' <a data-name = "'+full[3]+'" data-id="'+ id +'" title="Edit" class="edit-template btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>';
+                        <?php } ?>
+                        <?php if(!is_Reseller()) { ?>
+                            action += ' <a data-name = "'+full[3]+'" data-id="'+ id +'" title="Clone" class="clone-template btn btn-default btn-xs"><i class="fa fa-clone"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
             if(full[9]==0){
-                            action += ' <a data-id="'+id+'"  title="Delete" class="delete-template btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>'; }
+                            action += ' <a data-id="'+id+'"  title="Delete" class="delete-template btn delete btn-danger btn-xs"><i class="entypo-trash"></i></a>'; }
                         <?php } ?>
                         return action;
                       }

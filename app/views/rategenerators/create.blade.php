@@ -142,23 +142,23 @@
 
                             </div>
 
-                            <label for="field-1" class="col-sm-2 control-label">Time Of Day*</label>
+                            {{-- <label for="field-1" class="col-sm-2 control-label">Time Of Day*</label>
                             <div class="col-sm-4">
                                 {{ Form::select('Timezones[]', $Timezones, array_keys($Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
-                            </div>
+                            </div> --}}
                         </div>
-                        <div class="form-group NonDID-Div">
-                            <label class="col-sm-3 control-label text-center">Merge Rate By Time Of Day</label>
+                        {{-- <div class="form-group NonDID-Div">
+                            {{-- <label class="col-sm-3 control-label text-center">Merge Rate By Time Of Day</label>
                             <div class="col-sm-4">
                                 <div class="make-switch switch-small">
                                     {{Form::checkbox('IsMerge', 1,  null, array('id' => 'IsMerge') );}}
                                 </div>
-                            </div>
-                            <label class="col-sm-2 control-label IsMerge">Take Price</label>
+                            </div> --}}
+                            {{-- <label class="col-sm-2 control-label IsMerge">Take Price</label>
                             <div class="col-sm-4 IsMerge">
                                 {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), null , array("class"=>"select2")) }}
-                            </div>
-                        </div>
+                            </div> --}}
+                        {{-- </div> --}}
                         <div class="form-group">
                             <label class="col-sm-2 control-label">
                                 Applied To

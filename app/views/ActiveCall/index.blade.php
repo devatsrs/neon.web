@@ -116,13 +116,17 @@
         <tr>
 
             <th width="10%">Account Name</th>
+            <th width="10%">UUID</th>
+            <th width="12%">Connect Time</th>
+            <th width="13%">Disconnect Time</th>
+            <th width="10%">Duration</th>
+            <th width="10%">Cost</th>
             <th width="10%">CLI</th>
             <th width="9%">CLD</th>
             <th width="8%">Prefix</th>
-            <th width="10%">Connect Time</th>
-            <th width="10%">Cost</th>
-            <th width="10%">Duration</th>
-            <th width="10%">Type</th>
+            <th width="7%">Type</th>
+           
+           
 
         </tr>
         </thead>
@@ -148,7 +152,6 @@
                     $searchFilter.TrunkID = $("#activecall-table-search select[name='TrunkID']").val();
                     $searchFilter.ServiceID = $("#activecall-table-search select[name='ServiceID']").val();
                     $searchFilter.CompanyGatewayID = $("#activecall-table-search select[name='CompanyGatewayID']").val();
-
                     data_table = $("#table-4").dataTable({
                         "bDestroy": true,
                         "bProcessing": true,
@@ -184,7 +187,7 @@
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox1.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[1, 'desc']],
+                        "aaSorting": [[2, 'DESC']],
                         "aoColumns": [
                            /* {
                                 "bSortable": false, //checkbox
@@ -213,6 +216,12 @@
                             },
                             {
                                 "bSortable": false // Cost
+                            },
+                            {
+                                "bSortable": false // Duration
+                            },
+                            {
+                                "bSortable": false // Type
                             },
                             {
                                 "bSortable": false // Duration

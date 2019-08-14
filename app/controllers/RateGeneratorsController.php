@@ -124,7 +124,6 @@ class RateGeneratorsController extends \BaseController {
             $rules = array(
                 'CompanyID' => 'required',
                 'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,' . $data['CompanyID'],
-                'Timezones' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
                 'LessThenRate' => 'numeric',
@@ -711,7 +710,6 @@ class RateGeneratorsController extends \BaseController {
             $rules = array(
                 'CompanyID' => 'required',
                 'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
-                'Timezones' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
                 'LessThenRate' => 'numeric',

@@ -298,7 +298,6 @@ class PaymentApiController extends ApiController {
 
 		$AccountID	= 0;
 		$errors		= [];
-
 		if(!empty($data['AccountID'])) {
 			$AccountID = $data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
@@ -359,7 +358,6 @@ class PaymentApiController extends ApiController {
 				Log::info("Amount Excluded Tax = ".$data['Amount']);
 
 			}*/
-
 			$PaymentData=array();
 			$CompanyID=$Account->CompanyID;
 			$PaymentMethod=$Account->PaymentMethod;
@@ -413,8 +411,16 @@ class PaymentApiController extends ApiController {
 							$data['Subject']		= $Subject;
 							//$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
 
-							$invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
-
+							
+							$invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend',$CompanyID);
+							
+							
+							if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
+								$data['AttachmentPaths']= array([
+									"filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+									"filepath"=>$Invoice->PDF
+								]);
+							}
 
 							if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 							{
@@ -543,13 +549,15 @@ class PaymentApiController extends ApiController {
 				}
 			}
 
+			$AmountWithoutTax = (float)$Amount - (float)$TotalTax;
+
 			$InvoiceData["InvoiceNumber"] 	= $LastInvoiceNumber;
 			$InvoiceData["CompanyID"] 		= $CompanyID;
 			$InvoiceData["AccountID"] 		= intval($AccountID);
 			$InvoiceData["Address"] 		= $InvoiceToAddress;        //change
 			$InvoiceData["IssueDate"] 		= date('Y-m-d');  //today
 			$InvoiceData["PONumber"] 		= ''; //blank
-			$InvoiceData["SubTotal"] 		= str_replace(",", "", ($Amount - $TotalTax));
+			$InvoiceData["SubTotal"] 		= $AmountWithoutTax;
 			$InvoiceData["TotalDiscount"] 	= 0;
 			$InvoiceData["TotalTax"] 		= $TotalTax;
 			$InvoiceData["GrandTotal"] 		= floatval(str_replace(",", "", $Amount));
@@ -602,10 +610,10 @@ class PaymentApiController extends ApiController {
 				$InvoiceDetailData['InvoiceID'] 	= $InvoiceID;
 				$InvoiceDetailData['ProductID'] 	= $ProductID;
 				$InvoiceDetailData['Description'] 	= 'TopUp';
-				$InvoiceDetailData['Price'] 		= $Amount;
+				$InvoiceDetailData['Price'] 		= $AmountWithoutTax;
 				$InvoiceDetailData['Qty'] 			= 1;
 				$InvoiceDetailData['TaxAmount'] 	= $TotalTax;
-				$InvoiceDetailData['LineTotal'] 	= $Amount;
+				$InvoiceDetailData['LineTotal'] 	= $AmountWithoutTax;
 				$InvoiceDetailData['StartDate'] 	= '';
 				$InvoiceDetailData['EndDate'] 		= '';
 				$InvoiceDetailData['Discount'] 		= 0;

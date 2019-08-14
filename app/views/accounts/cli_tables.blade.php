@@ -27,17 +27,15 @@
                     <table width="100%">
                         <tr>
                             <td><label for="field-1" class="col-sm-1 control-label">Number</label></td>
-                            <td><input type="text" name="CLIName" class="form-control" value="" /></td>
+                            <td width="10%"><input type="text" name="CLIName" class="form-control" value="" /></td>
                             <td><label for="field-1" class="col-sm-1 control-label">ContractID</label></td>
-                            <td><input type="text" name="NumberContractID" class="form-control" value="" /></td>
+                            <td width="10%"><input type="text" name="NumberContractID" class="form-control" value="" /></td>
                             <td><label for="field-1" class="col-sm-1 control-label">Start Date</label></td>
-                            <td><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="NumberStartDate" name="NumberStartDate"></td>
+                            <td width="10%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="NumberStartDate" name="NumberStartDate"></td>
                             <td><label for="field-1" class="col-sm-1 control-label">End Date</label></td>
-                            <td><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="NumberEndDate" name="NumberEndDate"></td>
+                            <td width="10%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="NumberEndDate" name="NumberEndDate"></td>
                             <td><label for="field-1" class="col-sm-1 control-label">Status</label></td>
-                            <td><p class="make-switch switch-small">
-                                    <input id="CLIStatus1" name="CLIStatus" type="checkbox" value="1" checked="checked">
-                                </p></td>
+                            <td width="12%">{{ Form::select('CLIStatus', [""=>"All",1=>"Active",0=>"Inactive"], '', array("class"=>"form-control select2 small")) }}</td>
                         </tr>
                         <tr>
                             <td colspan="10" align="right">
@@ -99,6 +97,7 @@
             <tr>
                 <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
                 <th width="12%">Number</th>
+                <th width="12%">Package</th>
                 <th width="15%">Default Access Rate Table</th>
                 <th width="15%">Access Discount Plan</th>
                 <th width="15%">Default Termination Rate Table</th>
@@ -514,9 +513,9 @@
     }
 
     jQuery(document).ready(function ($) {
-        var cli_list_fields = ["CLIRateTableID", "CLI", "AccessRateTable", 'AccessDicountPlan', 'TerminationRateTable',
+        var cli_list_fields = ["CLIRateTableID", "CLI",'PackageName' ,"AccessRateTable", 'AccessDicountPlan', 'TerminationRateTable',
             'TerminationDiscountPlan','SpecialRateTable','SpecialTerminationRateTable','ContractID', 'Type','Country', 'PrefixWithoutCountry', 'City','Tariff','NumberStartDate','NumberEndDate', 'Status',
-            'RateTableID','AccessDiscountPlanID','TerminationRateTableID','TerminationDiscountPlanID','CountryID','SpecialRateTableID','SpecialTerminationRateTableID','Prefix'];
+            'RateTableID','AccessDiscountPlanID','TerminationRateTableID','TerminationDiscountPlanID','CountryID','SpecialRateTableID','SpecialTerminationRateTableID','Prefix','AccountServicePackageID'];
         public_vars.$body = $("body");
         var $searchcli = {};
         var data_table_clitable;
@@ -535,7 +534,7 @@
             $searchcli.NumberEndDate = $("#clitable_filter").find('[name="NumberEndDate"]').val();
             $searchcli.NumberStartDate = $("#clitable_filter").find('[name="NumberStartDate"]').val();
             $searchcli.AccountServiceOrderID = $("#clitable_filter").find('[name="AccountServiceOrderID"]').val();
-            $searchcli.CLIStatus = $("#clitable_filter").find('[name="CLIStatus"]').is(":checked") ? 1 : 0;
+            $searchcli.CLIStatus = $("#clitable_filter").find('[name="CLIStatus"]').val();
 
             if((typeof $searchcli.NumberEndDate  != 'undefined' && $searchcli.NumberEndDate != '')
                     && (typeof $searchcli.NumberStartDate  != 'undefined' && $searchcli.NumberStartDate != '')
@@ -635,6 +634,7 @@
                         }
                     },
                     {"bSortable": true},    // 1 Number
+                    {"bSortable": true},
                     {
                         mRender: function(id, type, full) {
                             action = '';
@@ -643,7 +643,7 @@
                                 action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
                             }
                             action +='</div>';
-                            action += "<div class='text-overflow: ellipsis;'>" + full[2] + "</div>";
+                            action += "<div class='text-overflow: ellipsis;'>" + full[3] + "</div>";
                             action += '<a title="Access Table" href="javascript:;" class="history-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
                             return action;
                         },
@@ -662,8 +662,8 @@
                         }
                         action +='</div>';
 
-                            if(full[18] != undefined && full[18] != '' && full[18] != 0) {
-                                action += "<div class='text-overflow: ellipsis;'>" + full[3] + "</div>";
+                            if(full[18] != undefined && full[19] != '' && full[19] != 0) {
+                                action += "<div class='text-overflow: ellipsis;'>" + full[4] + "</div>";
                                 //action += full[3];
                                 action += '<a title="Access Discount Table" href="javascript:;" class="access-discount-plan btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
                             }
@@ -683,7 +683,7 @@
                             action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"  value = "' + (full[i] != null ? full[i] : '') + '" / >';
                         }
                         action +='</div>';
-                        action += "<div class='text-overflow: ellipsis;'>" + full[4] + "</div>";
+                        action += "<div class='text-overflow: ellipsis;'>" + full[5] + "</div>";
                          //action += full[4];
                                 action += '<a title="Termination Table" href="javascript:;" class="history-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
 
@@ -703,8 +703,8 @@
                         }
                         action +='</div>';
 
-                            if(full[20] != undefined && full[20] != '' && full[20] != 0) {
-                                action += "<div class='text-overflow: ellipsis;'>" + full[5] + "</div>";
+                            if(full[20] != undefined && full[21] != '' && full[21] != 0) {
+                                action += "<div class='text-overflow: ellipsis;'>" + full[6] + "</div>";
                                 //action += full[5];
                                 action += '<a title="Termination Discount Plan" href="javascript:;" class="Termination-discount-plan btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
                             }
@@ -726,8 +726,8 @@
                         }
                         action +='</div>';
 
-                        if(full[22] != undefined && full[22] != '' && full[22] != 0) {
-                            action += "<div class='text-overflow: ellipsis;'>" + full[6] + "</div>";
+                        if(full[22] != undefined && full[23] != '' && full[23] != 0) {
+                            action += "<div class='text-overflow: ellipsis;'>" + full[7] + "</div>";
                             //action += full[6];
                                 action += '<a title="Special Access Table" href="javascript:;" class="special-Access-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
                         }
@@ -748,8 +748,8 @@
                         }
                         action +='</div>';
 
-                        if(full[23] != undefined && full[23] != '' && full[23] != 0) {
-                            action += "<div class='text-overflow: ellipsis;'>" + full[7] + "</div>";
+                        if(full[23] != undefined && full[24] != '' && full[24] != 0) {
+                            action += "<div class='text-overflow: ellipsis;'>" + full[8] + "</div>";
                            // action += full[7];
                                 action += '<a title="Special Termination Table" href="javascript:;" class="special-Termination-clitable btn btn-default btn-sm1"><i class="fa fa-eye"></i></a>&nbsp;';
                         }
@@ -776,7 +776,7 @@
                             console.log(full);
                             var action , edit_ , show_ , delete_;
                             //console.log(id);
-                            if(full[16] == 1){
+                            if(full[17] == 1){
                                 action='<i class="entypo-check" style="font-size:22px;color:green"></i>';
                             }else{
                                 action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
@@ -855,6 +855,7 @@
             $("#clitable-form [name=NumberEndDate]").val("");
             $("#clitable-form [name=ContractID]").val("");
             $("#clitable-form [name=City]").select2().select2('val', "");
+            $("#clitable-form [name=AccountServicePackageID]").select2().select2('val', "");
             $("#clitable-form [name=Tariff]").select2().select2('val', "");
             $("#clitable-form [name=PrefixWithoutCountry]").select2().select2('val', "");
             $("#clitable-form [name=NoType]").select2().select2('val', "");
@@ -899,6 +900,7 @@
             var AccessDiscountPlanID = fields.find("[name='AccessDiscountPlanID']").val();
             var TerminationDiscountPlanID = fields.find("[name='TerminationDiscountPlanID']").val();
             var CountryID = fields.find("[name='CountryID']").val();
+            var AccountServicePackageID = fields.find("[name='AccountServicePackageID']").val();
             var CLIRateTableID = fields.find("[name='CLIRateTableID']").val();
 
             RateTableID = RateTableID == 0 ? '' : RateTableID;
@@ -927,6 +929,7 @@
             $("#clitable-form [name=SpecialTerminationRateTableID]").select2().select2('val', SpecialTerminationRateTableID);
             $("#clitable-form [name=AccessDiscountPlanID]").select2().select2('val', AccessDiscountPlanID);
             $("#clitable-form [name=TerminationDiscountPlanID]").select2().select2('val', TerminationDiscountPlanID);
+            $("#clitable-form [name=AccountServicePackageID]").select2().select2('val', AccountServicePackageID);
             $("#clitable-form [name=CountryID]").select2().select2('val', CountryID);
             $('#clitable-form input[name=CLIRateTableID]').val(CLIRateTableID);
             $('#clitable-form input[name=CLIRateTableIDs]').val("");
@@ -1125,6 +1128,14 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
+                                    <label for="field-225" class="control-label">Package</label>
+                                    {{ Form::select('AccountServicePackageID', AccountService::getAccountServicePackage($AccountServiceID) , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
                                     <label for="field-225" class="control-label">Default Access RateTable*</label>
                                     {{ Form::select('RateTableID', $rate_table , '' , array("class"=>"select2")) }}
                                 </div>
@@ -1254,7 +1265,7 @@
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" name="AccountID" value="{{$account->AccountID}}">
+                    <input type="hidden" name="AccountID" value="{{ $account->AccountID }}">
                     <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
                     <input type="hidden" name="AccountServiceID" value="{{$AccountServiceID}}">
                     <input type="hidden" name="CLIRateTableIDs" value="">

@@ -604,6 +604,7 @@ class CompanyGateway extends \Eloquent {
         }
         log::info('-- Auto Invoice Generator END--');*/
         log::info('-- Create Summary --');
+        /*
         $CreateSummaryCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummary',$CompanyID);
         $CreateSummary_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CreateSummaryCommandID])->count();
         if($CreateSummary_Count == 0) {
@@ -620,8 +621,10 @@ class CompanyGateway extends \Eloquent {
             log::info($CreateSummarydata);
             CronJob::create($CreateSummarydata);
         }
+        */
         log::info('-- Create Summary END--');
         log::info('-- Create Summary Live --');
+        /*
         $CreateSummaryLiveCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummarylive',$CompanyID);
         $CreateSummaryLive_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CreateSummaryLiveCommandID])->count();
         if($CreateSummaryLive_Count == 0) {
@@ -637,7 +640,7 @@ class CompanyGateway extends \Eloquent {
             $CreateSummaryLivedata['JobTitle'] = $CreateSummaryLiveJobTitle;
             log::info($CreateSummaryLivedata);
             CronJob::create($CreateSummaryLivedata);
-        }
+        }*/
         log::info('-- Create Summary Live END--');
 
         /*

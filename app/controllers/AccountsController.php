@@ -2193,11 +2193,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             ->leftJoin('tblRateTable as termination','termination.RateTableId','=','tblCLIRateTable.TerminationRateTableID')
             ->leftJoin('tblRateTable as specialRT','specialRT.RateTableId','=','tblCLIRateTable.SpecialRateTableID')
             ->leftJoin('tblRateTable as specialTerminationRT','specialTerminationRT.RateTableId','=','tblCLIRateTable.SpecialTerminationRateTableID')
+            ->leftJoin('tblAccountServicePackage','tblAccountServicePackage.AccountServicePackageID','=','tblCLIRateTable.AccountServicePackageID')
+            ->leftJoin('tblPackage','tblPackage.PackageID','=','tblAccountServicePackage.PackageID')
             ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
             ->leftJoin('tblCountry','tblCountry.CountryID','=','tblCLIRateTable.CountryID')
-            ->select(['CLIRateTableID', 'CLI', 'rt.RateTableName as AccessRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.AccessDiscountPlanID ) as AccessDiscountPlan"), 'termination.RateTableName as TerminationRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.TerminationDiscountPlanID ) as TerminationDiscountPlan"), 'specialRT.RateTableName as SpecialRateTable', 'specialTerminationRT.RateTableName as SpecialTerminationRateTable', 'tblCLIRateTable.ContractID', 'tblCLIRateTable.NoType',
+            ->select(['CLIRateTableID', 'CLI','tblPackage.Name','rt.RateTableName as AccessRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.AccessDiscountPlanID ) as AccessDiscountPlan"), 'termination.RateTableName as TerminationRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.TerminationDiscountPlanID ) as TerminationDiscountPlan"), 'specialRT.RateTableName as SpecialRateTable', 'specialTerminationRT.RateTableName as SpecialTerminationRateTable', 'tblCLIRateTable.ContractID', 'tblCLIRateTable.NoType',
                 'tblCountry.Country as Country', 'tblCLIRateTable.PrefixWithoutCountry', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
-                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID','tblCLIRateTable.SpecialRateTableID','tblCLIRateTable.SpecialTerminationRateTableID','tblCLIRateTable.Prefix'])
+                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID','tblCLIRateTable.SpecialRateTableID','tblCLIRateTable.SpecialTerminationRateTableID','tblCLIRateTable.Prefix','tblCLIRateTable.AccountServicePackageID'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountServiceID",$data['AccountServiceID'])
             ->where("tblCLIRateTable.AccountID",$id);
@@ -2231,7 +2233,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 
     public function packagetable_ajax_datagrid($id){
-
+        
         $data = Input::all();
         $account = Account::find($data['AccountID']);
         $CompanyID = $account->CompanyId;
@@ -2287,6 +2289,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['CountryID']              = 'required'; // Country
         $rules['NoType']                 = 'required'; // Type
         $rules['PrefixWithoutCountry']   = 'required'; // Prefix
+        $rules['AccountServicePackageID'] = 'required';
 
 
         $validator = Validator::make($data, $rules, [
@@ -2296,6 +2299,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CountryID.required'              => "The country is required.",
             'NoType.required'                 => "The type is required.",
             'PrefixWithoutCountry.required'   => "The prefix is required.",
+            'AccountServicePackageID.required' => 'The package is required.'
         ]);
 
         if ($validator->fails()) {
@@ -2362,6 +2366,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $rate_tables['PrefixWithoutCountry'] = !empty($data['PrefixWithoutCountry'])?$data['PrefixWithoutCountry']:'';
             $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
             $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
+            $rate_tables['AccountServicePackageID'] = !empty($data['AccountServicePackageID'])?$data['AccountServicePackageID']:'';
             $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
             $rate_tables['AccountID'] = $data['AccountID'];
             $rate_tables['CompanyID'] = $CompanyID;
@@ -2613,6 +2618,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['CountryID']              = 'required'; // Country
         $rules['NoType']                 = 'required'; // Type
         $rules['PrefixWithoutCountry']   = 'required'; // Prefix
+        $rules['AccountServicePackageID'] = 'required';
         // Log::info("clitable_store " . print_r($data,true));
 
         $zeroPrefix = 0;
@@ -2627,6 +2633,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CountryID.required'              => "The country is required.",
             'NoType.required'                 => "The type is required.",
             'PrefixWithoutCountry.required'   => "The prefix is required.",
+            'AccountServicePackageID.required' => 'The package is required.'
         ]);
 
         if ($validator->fails()) {
@@ -2664,6 +2671,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rate_tables['PrefixWithoutCountry'] = !empty($data['PrefixWithoutCountry'])?$data['PrefixWithoutCountry']:'';
         $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
         $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
+        $rate_tables['AccountServicePackageID'] = !empty($data['AccountServicePackageID'])?$data['AccountServicePackageID']:'';
         $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
         $rate_tables['AccountID'] = $data['AccountID'];
         $rate_tables['CompanyID'] = $CompanyID;
