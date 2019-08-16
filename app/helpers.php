@@ -2159,7 +2159,7 @@ function removeElementWithValue($array, $key, $value){
 function recursive($array, $level = 1){
     $table_header_filter='';
     foreach($array as $key => $value){
-        $table_header_filter .= '<br /><b>'.$key . ":</b> " ; 
+        $table_header_filter .= ', <b>'.$key . ":</b> " ; 
         //If $value is an array.
         if(is_array($value)){
             //We need to loop through it.
@@ -2199,6 +2199,7 @@ function recursive($array, $level = 1){
         }
         $table_header_filter=rtrim($table_header_filter, ', ');
     }
+    $table_header_filter=rtrim($table_header_filter, ', ');
     return $table_header_filter;
 }
 function table_html($data,$table_data){
@@ -2260,7 +2261,7 @@ function table_html($data,$table_data){
                 if(isset($setting_rename[$blankrow_name]) || isset(Report::$measures[$cube][$blankrow_name])){
                     $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '">' . (isset($setting_rename[$blankrow_name])?$setting_rename[$blankrow_name]:Report::$measures[$cube][$blankrow_name])  . '</td>';
                 }else{
-                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '">'.$blankrow_name.'</td>';
                 }
             }
         }
@@ -3129,11 +3130,6 @@ function getCompanyDecimalPlaces($CompanyID=0, $value=""){
     }
 }
 
-function terminateMysqlProcess($pid){
-    $cmd="KILL ".$pid;
-    DB::connection('sqlsrv2')->select($cmd);
-
-}
 
 function getItemType($id){
     return ItemType::where('ItemTypeID',$id)->pluck('title');

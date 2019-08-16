@@ -458,6 +458,11 @@
                                             ?>
                                             <label for="field-5" class="control-label">Date Selection</label>
                                             <select class="select2 small" name="date_range_filter" id="date_range_filter">
+                                                <option value="Today" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='Today'){echo 'selected';}?>>Today</option>
+                                                <option value="1Day" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='1Day'){echo 'selected';}?>>1 Day</option>
+                                                <option value="2Days" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='2Days'){echo 'selected';}?>>2 Days</option>
+                                                <option value="4Days" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='4Days'){echo 'selected';}?>>4 Days</option>
+                                                
                                                 <option value="1Week" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='1Week'){echo 'selected';}?>>1 Week</option>
                                                 <option value="2Week" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='2Week'){echo 'selected';}?>>2 Week</option>
                                                 <option value="1Month" <?php if(isset($filter_settings['date']['date_range_filter']) && $filter_settings['date']['date_range_filter']=='1Month'){echo 'selected';}?>>1 Month</option>
