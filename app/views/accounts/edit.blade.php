@@ -808,7 +808,12 @@
     var ResellerCount = '{{$ResellerCount}}';
     var AccountResellerCount = '{{$accountreseller}}';
     var BillingChangeStatus = 0;
+    var hiden_class = '{{$hiden_class}}';
     jQuery(document).ready(function ($) {
+        if(hiden_class == ''){
+            BillingChangeStatus=1;
+        }
+
         if(AccountResellerCount>0 || ResellerCount>0){
             $("#desablereseller").addClass('deactivate');
             $('#disableresellerowner select').attr("disabled", "disabled");

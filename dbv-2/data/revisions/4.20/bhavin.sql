@@ -2,7 +2,7 @@ USE `RMBilling3`;
 
 DROP PROCEDURE IF EXISTS `prc_getPBXExportPayment`;
 DELIMITER //
-CREATE PROCEDURE `prc_getPBXExportPayment`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPBXExportPayment`(
 	IN `p_CompanyID` INT,
 	IN `p_start_date` DATETIME,
 	IN `p_Recall` INT
@@ -21,7 +21,7 @@ BEGIN
 			INNER JOIN Ratemanagement3.tblAccount as ac ON ac.AccountID=tblPayment.AccountID
 		WHERE
 			PaymentType='Payment In'
-			AND ac.CompanyId = p_CompanyID
+			-- AND ac.CompanyId = p_CompanyID
 			AND tblPayment.Status='Approved'
 			AND Recall=p_Recall
 			AND PaymentDate>p_start_date
@@ -35,8 +35,9 @@ BEGIN
 			FROM Ratemanagement3.tblAccountBalanceSubscriptionLog sl 
 				INNER JOIN Ratemanagement3.tblAccountBalanceLog bl ON bl.AccountBalanceLogID=sl.AccountBalanceLogID
 				INNER JOIN Ratemanagement3.tblAccount a ON a.AccountID=bl.AccountID
-			WHERE a.CompanyId=p_CompanyID
-			AND sl.IssueDate > p_start_date;
+			WHERE 
+			-- a.CompanyId=p_CompanyID	AND 
+			sl.IssueDate > p_start_date;
 			
 	END IF;		
 	IF p_Recall=1
@@ -51,7 +52,7 @@ BEGIN
 			INNER JOIN Ratemanagement3.tblAccount as ac ON ac.AccountID=tblPayment.AccountID
 		WHERE
 			PaymentType='Payment In'
-			AND ac.CompanyId = p_CompanyID
+			-- AND ac.CompanyId = p_CompanyID
 			AND tblPayment.Status='Approved'
 			AND Recall=p_Recall
 			AND PaymentDate>p_start_date;
