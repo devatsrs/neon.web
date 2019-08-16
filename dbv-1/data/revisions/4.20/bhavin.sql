@@ -419,7 +419,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_updatePrepaidAccountBalance`;
 DELIMITER //
-CREATE PROCEDURE `prc_updatePrepaidAccountBalance`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_updatePrepaidAccountBalance`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT
 )
@@ -474,7 +474,7 @@ BEGIN
 		'1' as TopUpType
 	FROM RMBilling3.tblInvoiceDetail id 
 			INNER JOIN RMBilling3.tblInvoice i ON id.InvoiceID=i.InvoiceID					
-			INNER JOIN RMBilling3.tblProduct p ON id.ProductID=p.ProductID AND p.Code='topup'
+			INNER JOIN RMBilling3.tblProduct p ON id.ProductID=p.ProductID AND p.Code='topup' AND id.ProductType=1
 			INNER JOIN tblAccountBalanceLog bl ON bl.AccountID=i.AccountID
 	WHERE bl.CompanyID = p_CompanyID 
 		AND ( (i.InvoiceType = 2) OR ( i.InvoiceType = 1 AND i.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
@@ -489,7 +489,7 @@ BEGIN
 	FROM  RMBilling3.tblInvoiceTaxRate itr
 			INNER JOIN RMBilling3.tblInvoiceDetail id ON itr.InvoiceDetailID = id.InvoiceDetailID
 			INNER JOIN RMBilling3.tblInvoice i ON id.InvoiceID=i.InvoiceID					
-			INNER JOIN RMBilling3.tblProduct p ON id.ProductID=p.ProductID AND p.Code='topup'
+			INNER JOIN RMBilling3.tblProduct p ON id.ProductID=p.ProductID AND p.Code='topup' AND id.ProductType=1
 			INNER JOIN tblAccountBalanceLog bl ON bl.AccountID=i.AccountID
 	WHERE bl.CompanyID = p_CompanyID 
 		AND ( (i.InvoiceType = 2) OR ( i.InvoiceType = 1 AND i.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
@@ -597,7 +597,7 @@ BEGIN
 		i.IssueDate
 	FROM RMBilling3.tblInvoiceDetail id 
 			INNER JOIN RMBilling3.tblInvoice i ON id.InvoiceID=i.InvoiceID					
-			INNER JOIN RMBilling3.tblProduct p ON id.ProductID=p.ProductID AND p.Code='topup'
+			INNER JOIN RMBilling3.tblProduct p ON id.ProductID=p.ProductID AND p.Code='topup' AND id.ProductType=1
 			LEFT JOIN RMBilling3.tblInvoiceTaxRate r on id.InvoiceDetailID = r.InvoiceDetailID
 	WHERE i.AccountID = p_AccountID
 		AND ( (i.InvoiceType = 2) OR ( i.InvoiceType = 1 AND i.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
@@ -2433,5 +2433,129 @@ BEGIN
 
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_insertResellerData`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertResellerData`(
+	IN `p_companyid` INT,
+	IN `p_childcompanyid` INT,
+	IN `p_accountname` VARCHAR(100),
+	IN `p_firstname` VARCHAR(100),
+	IN `p_lastname` VARCHAR(100),
+	IN `p_accountid` INT,
+	IN `p_email` VARCHAR(100),
+	IN `p_password` TEXT,
+	IN `p_is_product` INT,
+	IN `p_product` TEXT,
+	IN `p_is_subscription` INT,
+	IN `p_subscription` TEXT,
+	IN `p_is_trunk` INT,
+	IN `p_trunk` TEXT,
+	IN `p_allowwhitelabel` INT
+
+)
+BEGIN
+
+	DECLARE companycodedeckid int;
+	DECLARE resellercodedeckid int;
+
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		GET DIAGNOSTICS CONDITION 1
+		@p2 = MESSAGE_TEXT;
+		SELECT @p2 as Message;
+		
+	END;		
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_currency;
+	CREATE TEMPORARY TABLE tmp_currency (
+		`CompanyId` INT,
+		`Code` VARCHAR(50),
+		`CurrencyID` INT,
+		`NewCurrencyID` INT
+	) ENGINE=InnoDB;
+
+	
+
+	INSERT INTO	tblUser(CompanyID,FirstName,LastName,EmailAddress,password,AdminUser,updated_at,created_at,created_by,Status,JobNotification)	
+	SELECT p_childcompanyid as CompanyID,p_firstname as FirstName,p_lastname as LastName , p_email as EmailAddress,p_password as password, 1 as AdminUser, Now(),Now(),'system' as created_by, '1' as Status, '1' as JobNotification;
+
+	INSERT INTO tblEmailTemplate (CompanyID,TemplateName,Subject,TemplateBody,created_at,CreatedBy,updated_at,`Type`,EmailFrom,StaticType,SystemType,Status,StatusDisabled,TicketTemplate)
+	SELECT DISTINCT p_childcompanyid as `CompanyID`,TemplateName,Subject,TemplateBody,NOW(),'system' as CreatedBy,NOW(),`Type`, p_email as `EmailFrom`,StaticType,SystemType,Status,StatusDisabled,TicketTemplate	
+	FROM tblEmailTemplate
+	WHERE StaticType=1 AND CompanyID = p_companyid ;
+
+	INSERT INTO tblCompanyConfiguration (`CompanyID`,`Key`,`Value`)
+	SELECT DISTINCT p_childcompanyid as `CompanyID`,`Key`,`Value`	
+	FROM tblCompanyConfiguration
+	WHERE CompanyID = p_companyid;
+
+	INSERT INTO tblCronJobCommand (`CompanyID`,GatewayID,Title,Command,Settings,Status,created_at,created_by)
+	SELECT DISTINCT p_childcompanyid as `CompanyID`,GatewayID,Title,Command,Settings,Status,created_at,created_by	
+	FROM tblCronJobCommand
+	WHERE CompanyID = p_companyid;
+
+	INSERT INTO tblTaxRate (CompanyId,Title,Amount,TaxType,FlatStatus,Status,created_at,updated_at)
+	SELECT DISTINCT p_childcompanyid as `CompanyId`,Title,Amount,TaxType,FlatStatus,Status,NOW(),NOW()
+	FROM tblTaxRate
+	WHERE CompanyId = p_companyid;
+
+	
+
+	IF p_is_product =1
+	THEN	
+
+		INSERT INTO RMBilling3.tblProduct (CompanyId,Name,Code,Description,Amount,Active,Note,CreatedBy,ModifiedBy,created_at,updated_at)
+		SELECT DISTINCT p_childcompanyid as `CompanyId`,Name,Code,Description,Amount,Active,Note,'system' as CreatedBy,'system' as ModifiedBy,NOW(),NOW()
+		FROM RMBilling3.tblProduct
+		WHERE CompanyId = p_companyid AND FIND_IN_SET(ProductID,p_product);
+
+	END IF;
+
+	IF p_is_subscription = 1
+	THEN
+
+		
+
+		INSERT INTO RMBilling3.tblBillingSubscription(`CompanyID`,Name,Description,InvoiceLineDescription,ActivationFee,created_at,updated_at,ModifiedBy,CreatedBy,CurrencyID,AnnuallyFee,QuarterlyFee,MonthlyFee,WeeklyFee,DailyFee,Advance)
+		SELECT DISTINCT p_childcompanyid as `CompanyID`,Name,Description,InvoiceLineDescription,ActivationFee,created_at,updated_at,ModifiedBy,CreatedBy,CurrencyID,AnnuallyFee,QuarterlyFee,MonthlyFee,WeeklyFee,DailyFee,Advance
+		FROM RMBilling3.tblBillingSubscription
+		WHERE CompanyID = p_companyid AND FIND_IN_SET(SubscriptionID,p_subscription);
+
+	END IF;
+
+	
+
+	INSERT INTO tblReseller(ResellerName,CompanyID,ChildCompanyID,AccountID,FirstName,LastName,Email,Password,Status,AllowWhiteLabel,created_at,updated_at,created_by)
+	SELECT p_accountname as ResellerName,p_companyid as CompanyID,p_childcompanyid as ChildCompanyID,p_accountid as AccountID,p_firstname as FirstName,p_lastname as LastName,p_email as Email,p_password as Password,'1' as Status,p_allowwhitelabel as AllowWhiteLabel,Now(),Now(),'system' as created_by;
+
+	INSERT INTO tblCompanySetting(`CompanyID`,`Key`,`Value`)
+	SELECT p_childcompanyid as `CompanyID`,`Key`,`Value` 
+	FROM tblCompanySetting
+	WHERE CompanyID = p_companyid AND `Key`='RoundChargesAmount';
+	
+	INSERT INTO RMBilling3.tblProduct (CompanyId,Name,Code,Description,Amount,Active,Note,CreatedBy,ModifiedBy,created_at,updated_at)
+	VALUES(p_childcompanyid,'TopUp','topup','TopUp',0,1,'Do Not Delete','system','system',NOW(),NOW());
+
+	SELECT CodeDeckId INTO companycodedeckid  FROM tblCodeDeck WHERE CompanyId=p_companyid AND DefaultCodedeck=1;
+
+	IF companycodedeckid > 0 THEN
+		INSERT INTO tblCodeDeck (CompanyId, CodeDeckName, created_at, CreatedBy, updated_at, ModifiedBy, `Type`, DefaultCodedeck) 
+		VALUES (p_childcompanyid, 'Default Codedeck', Now(), 'Dev', Now(), NULL, NULL, 1);
+
+		SELECT CodeDeckId INTO resellercodedeckid  FROM tblCodeDeck WHERE CompanyId=p_childcompanyid AND DefaultCodedeck=1;
+
+		INSERT INTO tblRate(CountryID,CompanyID,CodeDeckId,Code,Description,Interval1,IntervalN,created_at)
+		SELECT CountryID,p_childcompanyid as CompanyID,resellercodedeckid as CodeDeckId,Code,Description,Interval1,IntervalN,Now() as created_at FROM tblRate where CodeDeckId=companycodedeckid;
+
+
+	END IF;
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
 END//
 DELIMITER ;
