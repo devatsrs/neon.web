@@ -674,6 +674,26 @@ class CompanyGateway extends \Eloquent {
         }
         log::info('-- System Alert END--');
 
+        log::info('-- Account Balance Generator --');
+        $AccountBalanceGeneratorCommandID = CronJobCommand::getCronJobCommandIDByCommand('accountbalancegenerator',$CompanyID);
+        $AccountBalanceGenerator_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$AccountBalanceGeneratorCommandID])->count();
+        if($AccountBalanceGenerator_Count == 0) {
+            $AccountBalanceGeneratorJobTitle = 'Account Balance Generator';
+            $AccountBalanceGeneratorSetting = '{"ThresholdTime":"120","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"15","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}';
+            $AccountBalanceGeneratorLivedata = array();
+            $AccountBalanceGeneratorLivedata['CompanyID'] = $CompanyID;
+            $AccountBalanceGeneratorLivedata['CronJobCommandID'] = $AccountBalanceGeneratorCommandID;
+            $AccountBalanceGeneratorLivedata['Settings'] = $AccountBalanceGeneratorSetting;
+            $AccountBalanceGeneratorLivedata['Status'] = 1;
+            $AccountBalanceGeneratorLivedata['created_by'] = 'system';
+            $AccountBalanceGeneratorLivedata['created_at'] = $today;
+            $AccountBalanceGeneratorLivedata['JobTitle'] = $AccountBalanceGeneratorJobTitle;
+            log::info($AccountBalanceGeneratorLivedata);
+            CronJob::create($AccountBalanceGeneratorLivedata);
+        }
+        log::info('-- Account Balance Generator--');
+
+
     }
 
     public static function getSettingFieldByCompanyGateWayID($Field,$CompanyGatewayID){
