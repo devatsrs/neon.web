@@ -456,7 +456,7 @@ BEGIN
 				ON uh.AccountID = a.AccountID
 			LEFT JOIN tblGatewayAccount ga
 				ON ga.GatewayAccountPKID = uh.GatewayAccountPKID
-			LEFT JOIN tblUsageDetailsFileLog udfl
+			LEFT JOIN RMCDR3.tblUsageDetailsFileLog udfl
 				ON udfl.UsageDetailID = ud.UsageDetailID
 			WHERE
 				( "' , p_CDRType , '" = "" OR  ("' , p_CDRType , '" = "inbound" AND ud.is_inbound = 1) OR  ("' , p_CDRType , '" = "outbound" AND ud.is_inbound = 0))
@@ -599,8 +599,8 @@ BEGIN
 				ON uh.AccountID = a.AccountID
 			LEFT JOIN tblGatewayAccount ga
 				ON ga.GatewayAccountPKID = uh.GatewayAccountPKID
-			LEFT JOIN tblVendorCDRFileLog vcfl
-				ON vcfl.VendorCDRID = uh.VendorCDRID
+			LEFT JOIN RMCDR3.tblVendorCDRFileLog vcfl
+				ON vcfl.VendorCDRID = ud.VendorCDRID
 			WHERE
 				StartDate >= DATE_ADD( "' , p_StartDate , '",INTERVAL -1 DAY)
 				AND StartDate <= DATE_ADD( "' , p_EndDate , '",INTERVAL 1 DAY)

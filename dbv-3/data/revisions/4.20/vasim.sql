@@ -185,6 +185,19 @@ BEGIN
 	EXECUTE stmtFL;
 	DEALLOCATE PREPARE stmtFL;
 
+
+	-- remove old file log when rerating cdr
+	SET @stmFL = CONCAT('
+	DELETE udfl FROM tblUsageDetailsFileLog udfl
+	JOIN `' , p_tbltempusagedetail_name , '` rd ON rd.ID=udfl.ID AND rd.FileName=udfl.FileName
+	INNER JOIN tblUsageDetails d
+	ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
+	WHERE d.ProcessID = "' , p_processId , '" AND rd.FileName IS NOT NULL;
+	');
+	PREPARE stmtFL FROM @stmFL;
+	EXECUTE stmtFL;
+	DEALLOCATE PREPARE stmtFL;
+
 	-- add file name log against cdr
 	SET @stmFL = CONCAT('
 	INSERT INTO  tblUsageDetailsFileLog (UsageDetailID,ID,FileName,ProcessID)
@@ -300,6 +313,19 @@ BEGIN
 	SELECT DISTINCT d.VendorCDRFailedID,rd.ID,rd.FileName,rd.ProcessID
 	FROM `' , p_tbltempusagedetail_name , '` rd
 	INNER JOIN tblVendorCDRFailed d
+	ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
+	WHERE d.ProcessID = "' , p_processId , '" AND rd.FileName IS NOT NULL;
+	');
+	PREPARE stmtFL FROM @stmFL;
+	EXECUTE stmtFL;
+	DEALLOCATE PREPARE stmtFL;
+
+
+	-- remove old file log when rerating cdr
+	SET @stmFL = CONCAT('
+	DELETE udfl FROM tblVendorCDRFileLog udfl
+	JOIN `' , p_tbltempusagedetail_name , '` rd ON rd.ID=udfl.ID AND rd.FileName=udfl.FileName
+	INNER JOIN tblVendorCDR d
 	ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
 	WHERE d.ProcessID = "' , p_processId , '" AND rd.FileName IS NOT NULL;
 	');

@@ -171,13 +171,13 @@
                                 "bSortable": true //GatewayName
                             },
                             {
-                                "bSortable": false // TotalCurrentCall
+                                "bSortable": true // TotalCurrentCall
                             },
                             {
-                                "bSortable": false // ASR
+                                "bSortable": true // ASR
                             },
                             {
-                                "bSortable": false // ACD
+                                "bSortable": true // ACD
                             },
                             {
                                 "bSortable": true // RemoteIP

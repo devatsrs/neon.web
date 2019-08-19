@@ -3130,11 +3130,6 @@ function getCompanyDecimalPlaces($CompanyID=0, $value=""){
     }
 }
 
-function terminateMysqlProcess($pid){
-    $cmd="KILL ".$pid;
-    DB::connection('sqlsrv2')->select($cmd);
-
-}
 
 function getItemType($id){
     return ItemType::where('ItemTypeID',$id)->pluck('title');

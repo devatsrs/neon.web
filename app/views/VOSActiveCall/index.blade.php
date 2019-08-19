@@ -193,25 +193,25 @@
                                 "bSortable": true // Routing Gateway
                             },
                             {
-                                "bSortable": false // Caller PDD
+                                "bSortable": true // Caller PDD
                             },
                             {
-                                "bSortable": false // Callee PDD
+                                "bSortable": true // Callee PDD
                             },
                             {
                                 "bSortable": true // Connect Time
                             },
                             {
-                                "bSortable": false // Duration
+                                "bSortable": true // Duration
                             },
                             {
-                                "bSortable": false // Codec
+                                "bSortable": true // Codec
                             },
                             {
-                                "bSortable": false // Customer IP
+                                "bSortable": true // Customer IP
                             },
                             {
-                                "bSortable": false // Supplier IP and RTP
+                                "bSortable": true // Supplier IP and RTP
                             }
 
                         ],
