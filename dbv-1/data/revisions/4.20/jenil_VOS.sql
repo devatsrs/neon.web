@@ -232,7 +232,6 @@ CREATE TABLE IF NOT EXISTS `tblVOSVendorActiveCall` (
 
 
 
-
 DROP PROCEDURE IF EXISTS `prc_getVOSVendorActiveCall`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSVendorActiveCall`(
@@ -246,7 +245,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSVendorActiveCall`(
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_CompanyGatewayID` INT,
 	IN `p_Export` INT
-
 
 )
 BEGIN
@@ -264,16 +262,16 @@ BEGIN
 			vac.GatewayName,
 			vac.CallPrefix,
 			vac.TotalCurrentCalls,
-			vac.Asr,
-			vac.Acd,
+			(vac.Asr*100) as Asr,
+			(vac.Acd/60) as Acd,
 			vac.RemoteIP
 			
     FROM tblVOSVendorActiveCall vac			
         WHERE vac.CompanyID = p_CompanyID
-		AND(p_GatewayName ='' OR vac.GatewayName like Concat('%',p_GatewayName,'%'))
+		AND(p_GatewayName ='' OR vac.GatewayName like REPLACE(p_GatewayName, '*', '%'))
 		AND(p_CompanyGatewayID = 0 OR vac.CompanyGatewayID = p_CompanyGatewayID)
 		AND(p_TotalCurrentCalls = 0 OR vac.TotalCurrentCalls = p_TotalCurrentCalls)
-		AND(p_CallPrefix ='' OR vac.CallPrefix like Concat(p_CallPrefix,'%'))
+		AND(p_CallPrefix ='' OR vac.CallPrefix like REPLACE(p_CallPrefix, '*', '%'))
 			
          ORDER BY
 				CASE
@@ -294,17 +292,35 @@ BEGIN
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RemoteIPASC') THEN vac.RemoteIP
-                END ASC
+                END ASC,
+             CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCurrentCallsDESC') THEN vac.TotalCurrentCalls
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCurrentCallsASC') THEN vac.TotalCurrentCalls
+                END ASC,
+					CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AsrDESC') THEN vac.Asr
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AsrASC') THEN vac.Asr
+                END ASC,
+					CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AcdDESC') THEN vac.Acd
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AcdASC') THEN vac.Acd
+                END ASC     
             LIMIT p_RowspPage OFFSET v_OffSet_;
 
 			SELECT
 				COUNT(vac.VOSVendorActiveCallID) AS totalcount
 			FROM tblVOSVendorActiveCall vac
 			WHERE vac.CompanyID = p_CompanyID
-			AND(p_GatewayName ='' OR vac.GatewayName like Concat('%',p_GatewayName,'%'))
+			AND(p_GatewayName ='' OR vac.GatewayName like REPLACE(p_GatewayName, '*', '%'))
 			AND(p_CompanyGatewayID = 0 OR vac.CompanyGatewayID = p_CompanyGatewayID)
 			AND(p_TotalCurrentCalls = 0 OR vac.TotalCurrentCalls = p_TotalCurrentCalls)
-			AND(p_CallPrefix ='' OR vac.CallPrefix like Concat(p_CallPrefix,'%'));
+			AND(p_CallPrefix ='' OR vac.CallPrefix like REPLACE(p_CallPrefix, '*', '%'));
 
 	ELSE
 
@@ -312,15 +328,15 @@ BEGIN
 				vac.GatewayName,
 				vac.CallPrefix,
 				vac.TotalCurrentCalls,
-				vac.Asr,
-				vac.Acd,
+				(vac.Asr*100) as Asr,
+				(vac.Acd/60) as Acd,
 				vac.RemoteIP
          FROM tblVOSVendorActiveCall vac
 			WHERE vac.CompanyID = p_CompanyID
-			AND(p_GatewayName ='' OR vac.GatewayName like Concat('%',p_GatewayName,'%'))
+			AND(p_GatewayName ='' OR vac.GatewayName like REPLACE(p_GatewayName, '*', '%'))
 			AND(p_CompanyGatewayID = 0 OR vac.CompanyGatewayID = p_CompanyGatewayID)
 			AND(p_TotalCurrentCalls = 0 OR vac.TotalCurrentCalls = p_TotalCurrentCalls)
-			AND(p_CallPrefix ='' OR vac.CallPrefix like Concat(p_CallPrefix,'%'));
+			AND(p_CallPrefix ='' OR vac.CallPrefix like REPLACE(p_CallPrefix, '*', '%'));
 
 	END IF;
 
@@ -328,6 +344,9 @@ BEGIN
 	
 END//
 DELIMITER ;
+
+
+
 
 
 DROP PROCEDURE IF EXISTS `prc_getVOSActiveCalls`;
@@ -1234,11 +1253,18 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'BillingDashboard@VOSIP_ajax_datagrid', 'BillingDashboard.VOSIP_ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-02-26 16:00:13.000', '2019-02-26 16:00:13.000', 1379);
 
 
-
 /* Above Done ON LIVE */
 
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1382, 'VOSAccountIP.View', 1, 7);
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1381, 'VOSAccountBalance.View', 1, 7);
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1382, 'VOSRoutingGateway.View', 1, 7);
+
+
+INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2740, 'VOSRoutingGateway.ajax_datagrid', 'VOSRoutingGatewayController.ajax_datagrid', 1, 'badal solanki', NULL, '2019-08-02 15:28:15.000', '2019-08-02 15:28:15.000', 1386);
+INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2739, 'VOSRoutingGateway.*', 'VOSRoutingGatewayController.*', 1, 'badal solanki', NULL, '2019-08-02 15:28:15.000', '2019-08-02 15:28:15.000', 1386);
+INSERT INTO `tblresource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2738, 'VOSRoutingGateway.index', 'VOSRoutingGatewayController.index', 1, 'badal solanki', NULL, '2019-08-02 15:28:15.000', '2019-08-02 15:28:15.000', 1386);
+
 
 
 INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2726, 'VOSAccountIP.ajax_datagrid', 'VOSAccountIPController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2019-03-05 12:01:58.000', '2019-03-05 12:01:58.000', 1382);
@@ -1979,6 +2005,69 @@ CREATE TABLE IF NOT EXISTS `tblVOSVendorFeeRateGroup` (
 /* Tickets Changes */
 	
 use Ratemanagement3;	
+
+DROP PROCEDURE IF EXISTS `prc_ArchiveOldVendorRate`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ArchiveOldVendorRate`(
+	IN `p_AccountIds` LONGTEXT,
+	IN `p_TrunkIds` LONGTEXT,
+	IN `p_TimezonesIDs` LONGTEXT,
+	IN `p_DeletedBy` TEXT
+
+)
+BEGIN
+ 	 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+
+	 
+
+
+	INSERT INTO tblVendorRateArchive
+   SELECT DISTINCT  null , 
+							`VendorRateID`,
+							`AccountId`,
+							`TrunkID`,
+							`TimezonesID`,
+							`RateId`,
+							`Rate`,
+							`RateN`,
+							`EffectiveDate`,
+							IFNULL(`EndDate`,date(now())) as EndDate,
+							`updated_at`,
+							now() as `created_at`,
+							p_DeletedBy AS `created_by`,
+							`updated_by`,
+							`Interval1`,
+							`IntervalN`,
+							`ConnectionFee`,
+							`MinimumCost`,
+	  concat('Ends Today rates @ ' , now() ) as `Notes`,
+	  `RatePrefix`
+      FROM tblVendorRate
+      WHERE  FIND_IN_SET(AccountId,p_AccountIds) != 0 AND FIND_IN_SET(TrunkID,p_TrunkIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(TimezonesID,p_TimezonesIDs) != 0) AND EndDate <= NOW();
+
+
+
+
+
+
+	DELETE  vr
+	FROM tblVendorRate vr
+   inner join tblVendorRateArchive vra
+   on vr.VendorRateID = vra.VendorRateID
+	WHERE  FIND_IN_SET(vr.AccountId,p_AccountIds) != 0 AND FIND_IN_SET(vr.TrunkID,p_TrunkIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(vr.TimezonesID,p_TimezonesIDs) != 0);
+
+
+	
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+
+END//
+DELIMITER ;
+
+
+
 DROP PROCEDURE prc_GetSystemTicket;
 DELIMITER //
 CREATE PROCEDURE `prc_GetSystemTicket`(
@@ -3832,7 +3921,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVOSGatewayMappingOnline`(
 	IN `p_Export` INT
 
 
-
 )
 BEGIN
      DECLARE v_OffSet_ int;
@@ -3848,13 +3936,13 @@ BEGIN
     SELECT   
 			vgmo.GatewayName,
 			vgmo.TotalCurrentCalls,
-			vgmo.Asr,
-			vgmo.Acd,
+			(vgmo.Asr*100) as Asr,
+			(vgmo.Acd/60) as Acd,
 			vgmo.RemoteIP
 			
     FROM tblVOSGatewayMappingOnline vgmo			
         WHERE vgmo.CompanyID = p_CompanyID
-		AND(p_GatewayName ='' OR vgmo.GatewayName like Concat('%',p_GatewayName,'%'))
+		AND(p_GatewayName ='' OR vgmo.GatewayName like REPLACE(p_GatewayName,'*','%'))
 		AND(p_CompanyGatewayID = 0 OR vgmo.CompanyGatewayID = p_CompanyGatewayID)
 		AND(p_TotalCurrentCalls = 0 OR vgmo.TotalCurrentCalls = p_TotalCurrentCalls)
 			
@@ -3871,14 +3959,32 @@ BEGIN
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RemoteIPASC') THEN vgmo.RemoteIP
-                END ASC
+                END ASC,
+            CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCurrentCallsDESC') THEN vgmo.TotalCurrentCalls
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCurrentCallsASC') THEN vgmo.TotalCurrentCalls
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AsrDESC') THEN vgmo.Asr
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AsrASC') THEN vgmo.Asr
+                END ASC,
+					 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AcdDESC') THEN vgmo.Acd
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AcdASC') THEN vgmo.Acd
+                END ASC	     
             LIMIT p_RowspPage OFFSET v_OffSet_;
 
 			SELECT
 				COUNT(vgmo.VOSGatewayMappingOnlineID) AS totalcount
 			FROM tblVOSGatewayMappingOnline vgmo
 			WHERE vgmo.CompanyID = p_CompanyID
-			AND(p_GatewayName ='' OR vgmo.GatewayName like Concat('%',p_GatewayName,'%'))
+			AND(p_GatewayName ='' OR vgmo.GatewayName like REPLACE(p_GatewayName,'*','%'))
 			AND(p_CompanyGatewayID = 0 OR vgmo.CompanyGatewayID = p_CompanyGatewayID)
 			AND(p_TotalCurrentCalls = 0 OR vgmo.TotalCurrentCalls = p_TotalCurrentCalls)
 			;
@@ -3888,12 +3994,12 @@ BEGIN
 			SELECT
 				vgmo.GatewayName,
 				vgmo.TotalCurrentCalls,
-				vgmo.Asr,
-				vgmo.Acd,
+				(vgmo.Asr*100) as Asr,
+				(vgmo.Acd/60) as Acd,
 				vgmo.RemoteIP
          FROM tblVOSGatewayMappingOnline vgmo
 			WHERE vgmo.CompanyID = p_CompanyID
-			AND(p_GatewayName ='' OR vgmo.GatewayName like Concat('%',p_GatewayName,'%'))
+			AND(p_GatewayName ='' OR vgmo.GatewayName like REPLACE(p_GatewayName,'*','%'))
 			AND(p_CompanyGatewayID = 0 OR vgmo.CompanyGatewayID = p_CompanyGatewayID)
 			AND(p_TotalCurrentCalls = 0 OR vgmo.TotalCurrentCalls = p_TotalCurrentCalls)
 			;
@@ -3904,6 +4010,8 @@ BEGIN
 	
 END//
 DELIMITER ;
+
+
 
 
 
@@ -4109,10 +4217,12 @@ ALTER TABLE tblVosIP
 	ADD COLUMN `RoutePrefix` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER LineLimit,
 	ADD COLUMN `routingGatewayGroups` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER RoutePrefix;
 	
-/* Latest Changes */
+/* Latest Changes in local remain in staging-Live*/
 /*
  
 prc_getVOSAccountIP
 prc_getVOSGatewayRouting
+prc_getVOSVendorActiveCall
+prc_getVOSGatewayMappingOnline
 
 */
