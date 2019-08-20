@@ -1093,7 +1093,8 @@ ThisSP:BEGIN
 	END IF;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_split_RateTableRate_2;
-	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_split_RateTableRate_2 as (SELECT * FROM tmp_split_RateTableRate_);
+	CREATE TEMPORARY TABLE tmp_split_RateTableRate_2 LIKE tmp_split_RateTableRate_;
+	INSERT INTO tmp_split_RateTableRate_2 SELECT * FROM tmp_split_RateTableRate_;
 
 	DELETE n1 FROM tmp_split_RateTableRate_ n1
 	INNER JOIN
@@ -1876,6 +1877,7 @@ ThisSP:BEGIN
 		`RateCurrency` INT(11) NULL DEFAULT NULL,
 		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
 		`DialStringPrefix` varchar(500) ,
+		INDEX tmp_Code_OCode_Effective_DP_Timezon_Rate_TempRateID (`Code`,`OriginationCode`,`EffectiveDate`,`DialStringPrefix`,`TimezonesID`,`Rate`,`TempRateTableRateID`),
 		INDEX tmp_EffectiveDate (`EffectiveDate`),
 		INDEX tmp_OriginationCode (`OriginationCode`),
 		INDEX tmp_Code (`Code`),
@@ -2707,6 +2709,7 @@ ThisSP:BEGIN
 		`RateCurrency` INT(11) NULL DEFAULT NULL,
 		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
 		`DialStringPrefix` varchar(500) ,
+		INDEX tmp_Code_OCode_Effective_DP_Timezon_Rate_TempRateID (`Code`,`OriginationCode`,`EffectiveDate`,`DialStringPrefix`,`TimezonesID`,`Rate`,`TempRateTableRateID`),
 		INDEX tmp_EffectiveDate (`EffectiveDate`),
 		INDEX tmp_OriginationCode (`OriginationCode`),
 		INDEX tmp_Code (`Code`),
