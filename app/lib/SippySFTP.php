@@ -17,10 +17,8 @@ class SippySFTP {
    public function __construct($CompanyGatewayID){
        $setting = GatewayAPI::getSetting($CompanyGatewayID,'SippySFTP');
        foreach((array)$setting as $configkey => $configval){
-           if($configkey == 'api_password'){
-               self::$config['password'] = Crypt::decrypt($configval);
-           }else if($configkey == 'api_username'){
-               self::$config['username'] = $configval;
+           if($configkey == 'password' || $configkey == 'api_password' || $configkey == 'dbpassword'){
+               self::$config[$configkey] = !empty($configval) ? Crypt::decrypt($configval) : '';
            }else{
                self::$config[$configkey] = $configval;
            }
@@ -31,11 +29,36 @@ class SippySFTP {
            //self::$cli->debug =2;
            self::$cli->setSSLVerifyPeer(false);
            self::$cli->setSSLVerifyHost(2);
-           self::$cli->setCredentials(self::$config['username'], self::$config['password'], CURLAUTH_DIGEST);
+           self::$cli->setCredentials(self::$config['api_username'], self::$config['api_password'], CURLAUTH_DIGEST);
+       }
+       if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['username']) && isset(self::$config['password'])){
+           Config::set('remote.connections.sippy',self::$config);
        }
     }
    public static function testConnection(){
-        if(count(self::$config)>0) {
+       if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['username']) && isset(self::$config['password'])){
+           try {
+               $response = ['result'=>'OK'];
+               SSH::into('sippy')->run('ls -l', function ($line) {
+                   //echo $line;
+               });
+               return $response;
+           } catch (Exception $ex) {
+               $response['result'] = 'false';
+               $response['faultString'] = $ex->getMessage();
+               $response['faultCode']  = $ex->getCode();
+               return $response;
+           }
+       } else {
+           $response['result'] = 'false';
+           $response['faultString'] = 'No Credentials Set';
+           $response['faultCode']  = '00';
+           return $response;
+       }
+   }
+    public static function testAPIConnection(){
+        $response = array();
+        if (count(self::$config) && isset(self::$config['api_url']) && isset(self::$config['api_username']) && isset(self::$config['api_password'])) {
             $params = array(new xmlrpcval(array(
                 "offset" => new xmlrpcval('0', "int"),
                 "limit" => new xmlrpcval('1', "int"),
@@ -48,9 +71,13 @@ class SippySFTP {
                 Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
                 return array('faultCode'=>$r->faultCode(),'faultString'=>$r->faultString());
             }
-            return $r->value();
+            $response = ['result'=>'OK'];
+        } else {
+            $response['faultCode'] = "Error";
+            $response['faultString'] = "No API Settings defined.";
         }
-   }
+        return $response;
+    }
     public static function listAccounts($addparams=array()){
         if(count(self::$config)>0) {
             $params = array(new xmlrpcval($addparams,'struct'));

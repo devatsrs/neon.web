@@ -17,6 +17,7 @@ class TranslateController extends \BaseController {
     public function search_ajax_datagrid() {
 
         $data = Input::all();
+        $TranslationActilead = UserActivity::UserActivitySaved($data,'View','Translation');
         $all_langs = DB::table('tblLanguage')
             ->select("tblLanguage.LanguageID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
@@ -74,14 +75,16 @@ class TranslateController extends \BaseController {
         $request = Input::all();
         $language = $request["language"];
         $listLabels = $request["listLabels"];
-
         Translation::multi_update_labels($language, $listLabels);
+        unset($request['listLabels']);
+        $TranslationActilead = UserActivity::UserActivitySaved($request,'Bulk Edit','Translation');
         return json_encode(["status" => "success", "message" => ""]);
     }
 
     function process_singleDelete(){
         $request = Input::all();
         Translation::delete_label($request["language"], $request["system_name"]);
+        $TranslationActilead = UserActivity::UserActivitySaved($request,'Delete','Translation');
 
         return json_encode(["status" => "success", "message" => "Deleted - ".$request["system_name"]]);
     }
@@ -95,7 +98,8 @@ class TranslateController extends \BaseController {
         foreach($translation_data as $key=>$value){
             $json_file[]=array("System Name"=>$key, "Language"=> $value);
         }
-
+        $export_type['type'] = $type;
+        $TranslationActilead = UserActivity::UserActivitySaved($export_type,'Export','Translation');
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/language_'.$data_langs->Language.'.csv';
             $NeonExcel = new NeonExcelIO($file_path);
@@ -111,6 +115,7 @@ class TranslateController extends \BaseController {
         $request = Input::all();
 
         if(Translation::add_system_name($request["system_name"], $request["en_word"])){
+            $TranslationActilead = UserActivity::UserActivitySaved($request,'Add','Translation',$request['system_name']);
             return json_encode(["status" => "success", "message" => "Add Successfully"]);
         }else{
             return json_encode(["status" => "fail", "message" => "System Name already exist."]);
@@ -150,15 +155,30 @@ class TranslateController extends \BaseController {
                         $translation_data[strtoupper("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$TicketPriority->PriorityValue)]=$TicketPriority->PriorityValue;
                     }
 
-                    $themes_data = Themes::all();
-                    foreach($themes_data as $theme){
-                        $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $theme->DomainUrl);
+                    //$themes_data = Themes::all();
+                    $CompanyID 				= 	User::get_companyID();
+                    $themes = Themes::where(['CompanyID'=>$CompanyID,'ThemeStatus'=>'active']);
+                    $CountTheme=$themes->count();
+                    $themes_data=$themes->get();
+                    if($CountTheme > 0){
+                        foreach($themes_data as $theme){
+                            $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $theme->DomainUrl);
+                            $domainUrl_key = strtoupper(preg_replace('/-+/', '_',$domainUrl_key));
+
+                            $translation_data["THEMES_".$domainUrl_key."_FOOTERTEXT"]=$theme->FooterText;
+                            $translation_data["THEMES_".$domainUrl_key."_LOGIN_MSG"]=isset($theme->LoginMessage)?$theme->LoginMessage:'';
+                            $translation_data["THEMES_".$domainUrl_key."_TITLE"]=$theme->Title;
+                        }
+                    }else{
+                        $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $_SERVER['HTTP_HOST']);
                         $domainUrl_key = strtoupper(preg_replace('/-+/', '_',$domainUrl_key));
 
-                        $translation_data["THEMES_".$domainUrl_key."_FOOTERTEXT"]=$theme->FooterText;
-                        $translation_data["THEMES_".$domainUrl_key."_LOGIN_MSG"]=$theme->LoginMessage;
-                        $translation_data["THEMES_".$domainUrl_key."_TITLE"]=$theme->Title;
+                        $translation_data["THEMES_".$domainUrl_key."_FOOTERTEXT"]='';
+                        $translation_data["THEMES_".$domainUrl_key."_LOGIN_MSG"]='Dear user, Please login below!';
+                        $translation_data["THEMES_".$domainUrl_key."_TITLE"]='';
                     }
+
+
                 }
 
                 ksort($translation_data);

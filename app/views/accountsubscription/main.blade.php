@@ -135,7 +135,7 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["AID","SequenceNo","AccountName","ServiceName", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","AccountID",'ServiceID','Status'];
+            var list_fields  = ["AID","SequenceNo","AccountName","ServiceName", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","AccountID",'ServiceID','Status','tblBillingSubscription.DiscountAmount','tblBillingSubscription.DiscountType'];
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/account_subscription/{id}/store";            
@@ -895,6 +895,20 @@
               </div>
             </div>
           </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-5" class="control-label">Discount</label>
+                        <input type="text" name="DiscountAmount" class="form-control" value=""  />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-5" class="control-label">Discount Type</label>
+                        {{ Form::select('DiscountType', array('Flat' => 'Flat', 'Percentage' => 'Percentage') ,'', array("class"=>"form-control") ) }}
+                    </div>
+                </div>
+            </div>
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
@@ -1034,6 +1048,20 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label">End Date</label>
                                 <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""  />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Discount</label>
+                                <input type="text" name="DiscountAmount" class="form-control" value=""  />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Discount Type</label>
+                                {{ Form::select('DiscountType', array('Flat' => 'Flat', 'Percentage' => 'Percentage') ,'', array("class"=>"form-control") ) }}
                             </div>
                         </div>
                     </div>

@@ -14,6 +14,7 @@ class DynamiclinkController extends \BaseController {
     public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
+        $DynamiclinkdActilead = UserActivity::UserActivitySaved($data,'View','Dynamiclink');
         $data['iDisplayStart'] +=1;
         $columns = ['DynamicLinkID','Title','Link','CurrencyID','created_at'];
         $sort_column = $columns[$data['iSortCol_0']];
@@ -23,6 +24,8 @@ class DynamiclinkController extends \BaseController {
         $query = "call prc_getDynamiclinks (".$CompanyID.", '".$data['Title']."','".$data['CurrencyID']."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_data['type'] = $type;
+            $DynamiclinkdActilead = UserActivity::UserActivitySaved($export_data,'Export','Dynamiclink');
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
@@ -90,6 +93,7 @@ class DynamiclinkController extends \BaseController {
         }
 
         if ($dynamicfield = Dynamiclink::create($data)) {
+            $DynamiclinkdActilead = UserActivity::UserActivitySaved($data,'Add','Dynamiclink',$data['Title']);
             return Response::json(array("status" => "success", "message" => "Dynamic Link Successfully Created"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Dynamic Link."));
@@ -133,6 +137,7 @@ class DynamiclinkController extends \BaseController {
             }
             
             if ($dynamiclink->update($data)) {
+                $DynamiclinkdActilead = UserActivity::UserActivitySaved($data,'Edit','Dynamiclink',$data['Title']);
                 return Response::json(array("status" => "success", "message" => "Dynamic Link Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Dynamic Link."));
@@ -150,11 +155,13 @@ class DynamiclinkController extends \BaseController {
 	 * @return Response
 	 */
     public function delete($id) {
+        $data['id'] = $id;
         if( intval($id) > 0){
             try{
                 $DynamicLink = Dynamiclink::find($id);
                 $result = $DynamicLink->delete();
                 if ($result) {
+                    $DynamiclinkdActilead = UserActivity::UserActivitySaved($data,'Delete','Dynamiclink');
                     return Response::json(array("status" => "success", "message" => "Dynamic Link Successfully Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Dynamic Link."));

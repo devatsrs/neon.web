@@ -3,8 +3,10 @@
 class ReportController extends \BaseController {
 
     public function index(){
+        $data = array();
         $CompanyID = User::get_companyID();
         $reports = Report::getDropdownIDList($CompanyID);
+        $reportActilead = UserActivity::UserActivitySaved($data,'View','Report');
         return View::make('report.index', compact('reports'));
     }
 
@@ -66,6 +68,7 @@ class ReportController extends \BaseController {
         $postdata = Input::all();
         $response =  NeonAPI::request('report/store',$postdata,true,false,false);
         if(!empty($response->data)) {
+            $reportActilead = UserActivity::UserActivitySaved($postdata,'Add','Report');
             return Response::json(array("status" => $response->status, "message" => $response->message, 'LastID' => $response->data->ReportID, 'redirect' => URL::to('/report/edit/' . $response->data->ReportID)));
         }
         return json_response_api($response);
@@ -201,7 +204,7 @@ class ReportController extends \BaseController {
             if($Type == Report::PDF) {
                 $file = $data['Name'] . ".html";
                 $file2 = $data['Name'] . ".pdf";
-                $table = '<h2 style="text-align: center;">'.$data['Name'].'</h2>'.$table;
+                $table = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><h2 style="text-align: center;">'.$data['Name'].'</h2>'.$table;
                 $temp_path = CompanyConfiguration::get('TEMP_PATH') . '/';
                 $local_htmlfile = $temp_path . $file;
                 $local_file = $temp_path . $file2;

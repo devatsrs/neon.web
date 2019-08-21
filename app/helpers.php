@@ -217,6 +217,11 @@ function invoicetemplate_dropbox($id=0,$data=array()){
     $all_invoicetemplates = InvoiceTemplate::getInvoiceTemplateList();
     return Form::select('invoicetemplate', $all_invoicetemplates, $id ,array("id"=>"drp_invoicetemplate_jump" ,"class"=>"selectboxit1 form-control1"));
 }
+function sippygatewaylist_dropbox($id=0){
+    $CompanyID = User::get_companyID();
+    $SippyGatewayList = CompanyGateway::where(['Status'=>1,'CompanyID'=>$CompanyID])->whereIN("GatewayID",[6,15])->lists('Title', 'CompanyGatewayID');
+    return Form::select('CompanyGatewayID', $SippyGatewayList, $id ,array("id"=>"CompanyGatewayID" ,"class"=>"selectboxit1 form-control1"));
+}
 
 function sendMail($view,$data,$ViewType=1){
     
@@ -498,6 +503,15 @@ function is_paypal($CompanyID){
     return false;
 }
 
+function is_GoCardLess($CompanyID){
+
+    $gocardless = new GoCardLess($CompanyID);
+    if($gocardless->status){
+        return true;
+    }
+    return false;
+}
+
 function is_pelecard($CompanyID){
 
     $pelecard = new PeleCard($CompanyID);
@@ -704,6 +718,9 @@ function bulk_mail($type,$data){
         }
         if ($data['message'] == "") {
             return Response::json(array("status" => "error", "message" => "Message should not empty."));
+        }
+        if($type=='CD' && (!isset($data['Timezones']) || empty($data['Timezones']))){
+            return Response::json(array("status" => "error", "message" => "Timezone field is required."));
         }
 
         if (Input::hasFile('attachment')) {
@@ -1084,8 +1101,11 @@ function formatSmallDate($date,$dateformat='d-m-y') {
 function SortBillingType($account=0){
     ksort(Company::$BillingCycleType);
     ksort(Company::$BillingCycleType2);
+    ksort(Company::$BillingCycleType3);
     if($account == 0) {
         return Company::$BillingCycleType;
+    }elseif($account == 3){
+        return Company::$BillingCycleType3;
     }else{
         return Company::$BillingCycleType2;
     }
@@ -1713,6 +1733,9 @@ function is_Xero($CompanyID){
 function is_merchantwarrior($CompanyID){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$MerchantWarriorSlug,$CompanyID);
 }
+function is_FastPay($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfigurationFastPay(false,SiteIntegration::$FastPaySlug,$CompanyID);
+}
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
         date_default_timezone_set($billing_timezone);
@@ -2125,6 +2148,60 @@ function table_array($data,$response,$all_data_list){
     //echo '<pre>';print_r($table_data);exit;
     return $table_data;
 }
+function removeElementWithValue($array, $key, $value){
+     foreach($array as $subKey => $subArray){
+          if($subArray[$key] == $value){
+               unset($array[$subKey]);
+          }
+     }
+     return $array;
+}
+function recursive($array, $level = 1){
+    $table_header_filter='';
+    foreach($array as $key => $value){
+        $table_header_filter .= ', <b>'.$key . ":</b> " ; 
+        //If $value is an array.
+        if(is_array($value)){
+            //We need to loop through it.
+            foreach($value as $key1 => $value1){
+                if(is_array($value1)){
+                    foreach($value1 as $key2 => $value2){
+                        if(is_array($value2)){
+                            foreach($value2 as $key3 => $value3){
+                                if(is_array($value3)){
+                                    foreach($value3 as $key4 => $value4){
+                                        
+                                    }
+                                }else{
+                                    if(!empty($value3) && $value1!='none' && $value1!='='){
+                                       // $table_header_filter .= $key3 . ": " . $value3.', ';
+                                         $table_header_filter .= $value3.', ';
+                                    }
+                                }
+                            }
+                        }else{
+                            if(!empty($value2) && $value1!='none' && $value1!='='){
+                               // $table_header_filter .= $key2 . ": " . $value2.', ';
+                                 $table_header_filter .= $value2.', ';
+                            }
+                        }
+                    }
+                }else{
+                    if(!empty($value1) && $value1!='none' && $value1!='='){
+                        //$table_header_filter .= $key1 . ": " . $value1.', ';
+                        $table_header_filter .= $value1.', ';
+                    }
+                }
+            }
+        } else{
+            //It is not an array, so print it out.
+            $table_header_filter .= $value.'';
+        }
+        $table_header_filter=rtrim($table_header_filter, ', ');
+    }
+    $table_header_filter=rtrim($table_header_filter, ', ');
+    return $table_header_filter;
+}
 function table_html($data,$table_data){
     $index_col = 1;
     $cube = $data['Cube'];
@@ -2137,6 +2214,14 @@ function table_html($data,$table_data){
     if($row_count) {
         $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
     }
+    //Show Filter in Files
+    $filters = json_decode($data['filter_settings'],true);
+    $table_header .= '<tr>';
+    $table_header .= '<td colspan="20" style="background-color:#fff"><b>Filter: </b>';
+    $table_header_filter=recursive($filters);
+     $table_header .=$table_header_filter;
+     $table_header .= '</td></tr>';
+     //-----------------------------------------------------------------------
     if(count($data['column'])) {
         foreach ($data['column'] as $key => $col_name) {
             $table_header .= '<tr>';
@@ -2173,7 +2258,11 @@ function table_html($data,$table_data){
         $table_header .= '<tr>';
         if (count($data['column']) == 0) {
             foreach ($data['row'] as $rowkey => $blankrow_name) {
-                $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+                if(isset($setting_rename[$blankrow_name]) || isset(Report::$measures[$cube][$blankrow_name])){
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '">' . (isset($setting_rename[$blankrow_name])?$setting_rename[$blankrow_name]:Report::$measures[$cube][$blankrow_name])  . '</td>';
+                }else{
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '">'.$blankrow_name.'</td>';
+                }
             }
         }
         $key_count = count($data['column']);
@@ -3041,11 +3130,6 @@ function getCompanyDecimalPlaces($CompanyID=0, $value=""){
     }
 }
 
-function terminateMysqlProcess($pid){
-    $cmd="KILL ".$pid;
-    DB::connection('sqlsrv2')->select($cmd);
-
-}
 
 function getItemType($id){
     return ItemType::where('ItemTypeID',$id)->pluck('title');

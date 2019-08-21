@@ -11,9 +11,12 @@ class FTP{
 
     public function __construct($CompanyGatewayID){
         $setting = GatewayAPI::getSetting($CompanyGatewayID,'FTP');
+        $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
         foreach((array)$setting as $configkey => $configval){
             if($configkey == 'password'){
                 self::$config[$configkey] = Crypt::decrypt($configval);
+            }else if($configkey == 'key' || $configkey == 'oldkey'){
+                self::$config[$configkey] = $upload_path.'/'.$configval;
             }else{
                 self::$config[$configkey] = $configval;
             }

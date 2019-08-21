@@ -78,6 +78,10 @@
                     <label class="control-label">Account Tag</label>
                     <input class="form-control tags" name="tag" type="text" >
                 </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Extension</label>
+                    <input type="text" name="extension" class="form-control mid_fld "  value="{{Input::get('extension')}}"  />
+                </div>
                 <!--
                 <div class="form-group">
                     <label class="control-label" for="field-1">Reseller</label>
@@ -186,6 +190,7 @@
                         <th width="8%" >Trunk</th>
                         <th width="10%" >Service</th>
                         <th width="10%" >Type</th>
+                        <th width="10%" >Extension</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -255,6 +260,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
             $searchFilter.tag 			        = 		$("#cdr_filter [name='tag']").val();
+            $searchFilter.extension 	        = 		$("#cdr_filter [name='extension']").val();
 
 
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
@@ -289,7 +295,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"area_prefix","value":$searchFilter.area_prefix},
                             {"name":"Trunk","value":$searchFilter.Trunk},
                             {"name":"CurrencyID","value":$searchFilter.CurrencyID},
-                            {"name":"tag","value":$searchFilter.tag}
+                            {"name":"tag","value":$searchFilter.tag},
+                            {"name":"extension","value":$searchFilter.extension}
                     );
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push(
@@ -306,7 +313,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"area_prefix","value":$searchFilter.area_prefix},
                             {"name":"Trunk","value":$searchFilter.Trunk},
                             {"name":"CurrencyID","value":$searchFilter.CurrencyID},
-                            {"name":"tag","value":$searchFilter.tag}
+                            {"name":"tag","value":$searchFilter.tag},
+                            {"name":"extension","value":$searchFilter.extension}
                     );
                 },
                 "sPaginationType": "bootstrap",
@@ -359,6 +367,12 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             }
 
                         }
+                    },
+                    { "bSortable": false,
+                        mRender: function(id, type, full) {
+                            return full[17];
+                        }
+
                     }
                 ],
                 "fnDrawCallback": function() {

@@ -38,7 +38,8 @@ class CreditNotes extends \Eloquent {
                                             '{NominalCode}'=>'Nominal Code',
                                             '{Email}'=>'Email',
                                             '{Phone}'=>'Phone',
-                                            '{AccountBalance}'=>'Account Balance');
+                                            '{AccountBalance}'=>'Account Balance',
+                                            '{AccountOwner}'=>'Account Owner');
 
     public static function multiLang_init(){
         Invoice::$invoice_type_customer = array(''=>cus_lang("DROPDOWN_OPTION_SELECT") ,self::INVOICE_OUT => cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_RECEIVED"),self::INVOICE_IN=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_SENT"),'All'=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_BOTH"));
@@ -131,8 +132,8 @@ class CreditNotes extends \Eloquent {
             file_put_contents($logo, file_get_contents($as3url));
 
             $CreditNotesTemplate->DateFormat 	= 	invoice_date_fomat($CreditNotesTemplate->DateFormat);
-            $file_name 						= 	'CreditNotes--' .$Account->AccountName.'-' .date($CreditNotesTemplate->DateFormat) . '.pdf';
-            $htmlfile_name 					= 	'CreditNotes--' .$Account->AccountName.'-' .date($CreditNotesTemplate->DateFormat) . '.html';
+            $file_name 						= 	'CreditNotes--' .$Account->AccountID.'-' .date($CreditNotesTemplate->DateFormat) . '.pdf';
+            $htmlfile_name 					= 	'CreditNotes--' .$Account->AccountID.'-' .date($CreditNotesTemplate->DateFormat) . '.html';
             $MultiCurrencies=array();
             $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
             if($CreditNotesTemplate->ShowTotalInMultiCurrency==1){
@@ -205,12 +206,14 @@ class CreditNotes extends \Eloquent {
     /**
      * not in use
     */
-    public static function getFullCreditNotesNumber($Invoice,$AccountBilling){
-        $InvoiceNumberPrefix = '';
-        if(!empty($AccountBilling->InvoiceTemplateID)) {
-            $InvoiceNumberPrefix = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID)->InvoiceNumberPrefix;
+    public static function getFullCreditNotesNumber($CreditNotes,$InvoiceTemplateID)
+    {
+        $CreditNotesNumberPrefix = '';
+        if(!empty($InvoiceTemplateID))
+        {
+            $CreditNotesNumberPrefix = InvoiceTemplate::find($InvoiceTemplateID)->CreditNotesNumberPrefix;
         }
-        return $InvoiceNumberPrefix.$Invoice->InvoiceNumber;
+        return $CreditNotesNumberPrefix.$CreditNotes->CreditNotesNumber;
     }
 
     public static function getCookie($name,$val=''){
@@ -253,6 +256,7 @@ class CreditNotes extends \Eloquent {
         $replace_array['Phone'] = $Account->Phone;
         $replace_array['Fax'] = $Account->Fax;
         $replace_array['Website'] = $Account->Website;
+        $replace_array['AccountOwner'] = User::get_owner_by_id($Account->Owner);
         $replace_array['Currency'] = Currency::getCurrencySymbol($Account->CurrencyId);
         $replace_array['CompanyName'] = Company::getName($Account->CompanyId);
         $replace_array['CompanyVAT'] = Company::getCompanyField($Account->CompanyId,"VAT");
@@ -285,7 +289,8 @@ class CreditNotes extends \Eloquent {
             '{Currency}',
             '{CompanyName}',
             '{CompanyVAT}',
-            '{CompanyAddress}'
+            '{CompanyAddress}',
+            '{AccountOwner}'
         ];
 
         foreach($extra as $item){

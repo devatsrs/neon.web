@@ -45,6 +45,7 @@ var dropdown_text =  {
         OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
         OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
         BalanceThreshold:"BalanceThreshold",
+        CreditLimit:"CreditLimit",
         AccountBlocked:"AccountBlocked",
         DisputeAmount:"DisputeAmount",
         InvoiceNumber:"InvoiceNumber"
@@ -282,6 +283,11 @@ var dropdown_text =  {
         CompanyName:"CompanyName",
         AccountName:"AccountName",
     },
+    datetime:{
+        Date:"Date",
+        Time:"Time",
+
+    },
 };
 
 
@@ -304,6 +310,7 @@ var neon_summernote_dropdown_tpl = {
             //"<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.leadoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
             //"<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.leadoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.leadoptions.BalanceThreshold + "</a></li>" +
+            "<li><a data-value='{{CreditLimit}}'>" + dropdown_text.leadoptions.CreditLimit + "</a></li>" +
             "<li><a data-value='{{AccountBalance}}'>" + dropdown_text.accountbalanceemailreminder.AccountBalance + "</a></li>" +
             "<li><a data-value='{{AccountExposure}}'>" + dropdown_text.accountbalanceemailreminder.AccountExposure + "</a></li>" +
             "<li><a data-value='{{AccountBlocked}}'>" + dropdown_text.leadoptions.AccountBlocked + "</a></li>" +
@@ -319,9 +326,13 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
             "<li><a data-value='{{Signature}}'>" + dropdown_text.leadoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" +
             "<li class='unclick'><a ><b>Disputes</b></a></li>" +
             "<li><a data-value='{{DisputeAmount}}'>" + dropdown_text.leadoptions.DisputeAmount + "</a></li>" +
-            "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.leadoptions.InvoiceNumber + "</a></li>"
+            "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.leadoptions.InvoiceNumber + "</a></li>" +
+            "<li class='unclick'><a ><b>Invoice</b></a></li>" +
+            "<li><a data-value='{{InvoiceLink}}'>" + dropdown_text.autopaymentoptions.InvoiceLink + "</a></li>"
             ;
     },
     "ratetemplateoptions": function () {
@@ -342,6 +353,7 @@ var neon_summernote_dropdown_tpl = {
             //"<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
             //"<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.ratetemplateoptions.BalanceThreshold + "</a></li>" +
+            "<li><a data-value='{{CreditLimit}}'>" + dropdown_text.leadoptions.CreditLimit + "</a></li>" +
             "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
@@ -356,7 +368,9 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{TrunkPrefix}}'>" + dropdown_text.ratetemplateoptions.TrunkPrefix + "</a></li>"+
             "<li><a data-value='{{TrunkName}}'>" + dropdown_text.ratetemplateoptions.TrunkName + "</a></li>"+
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.ratetemplateoptions.Signature + "</a></li>";
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.ratetemplateoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
     },
     "invoiceoptions": function () {
 
@@ -395,7 +409,9 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.invoiceoptions.Signature + "</a></li>" ;
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.invoiceoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
     },
     "autopaymentoptions": function () {
 
@@ -434,7 +450,9 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.autopaymentoptions.Signature + "</a></li>" ;
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.autopaymentoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
     },
     "tasks": function () {
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
@@ -531,7 +549,9 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.estimateoptions.Signature + "</a></li>" ;
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.estimateoptions.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
 
     },
     "Crm": function () {
@@ -557,7 +577,9 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.Crm.Signature + "</a></li>";
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.Crm.Signature + "</a></li>" +
+            "<li><a data-value='{{Date}}'>" + dropdown_text.datetime.Date + "</a></li>" +
+            "<li><a data-value='{{Time}}'>" + dropdown_text.datetime.Time + "</a></li>" ;
     },
     "TicketsSingle": function () {
         return "<li class='unclick'><a ><b>Ticket Fields</b></a></li>" +
@@ -635,6 +657,7 @@ var neon_summernote_dropdown_tpl = {
             //"<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.Tickets.OutstandingExcludeUnbilledAmount + "</a></li>" +
             //"<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.Tickets.OutstandingIncludeUnbilledAmount + "</a></li>" +
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.Tickets.BalanceThreshold + "</a></li>" +
+            "<li><a data-value='{{CreditLimit}}'>" + dropdown_text.leadoptions.CreditLimit + "</a></li>" +
             "<li class='unclick'><a ><b>Invoice Fields</b></a></li>" +
             "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.Tickets.InvoiceNumber + "</a></li>" +
             "<li><a data-value='{{InvoiceGrandTotal}}'>" + dropdown_text.Tickets.InvoiceGrandTotal + "</a></li>" +

@@ -39,6 +39,7 @@ class TaskController extends \BaseController {
             $data['AccountOwner'] = User::get_userID();
         }
         $response = NeonAPI::request('task/'.$id.'/get_tasks',$data,true);
+        $UserActilead = UserActivity::UserActivitySaved($data,'Sort','Task');
         return json_response_api($response,true,true,true);
     }
 
@@ -90,6 +91,8 @@ class TaskController extends \BaseController {
             }
             $data['file']		=	json_encode($FilesArray);
             $response = NeonAPI::request('task/'.$id.'/save_attachment',$data,true,false,true);
+            
+            $UserActilead = UserActivity::UserActivitySaved($data,'Save Attachment','Task');
             return json_response_api($response);
         }else{
             return Response::json(array("status" => "failed", "message" => "No attachment found."));
@@ -130,6 +133,8 @@ class TaskController extends \BaseController {
         }
         $token    = get_random_number();
         $max_file_size = get_max_file_size();
+        $data = array();
+        $TaskActilead = UserActivity::UserActivitySaved($data,'View','Task');
         return View::make('taskboards.manage', compact('Board','priority','account_owners','leadOrAccount','tasktags','taskStatus','response_extensions','token','max_file_size','message'));
     }
 	/**
@@ -145,6 +150,7 @@ class TaskController extends \BaseController {
 
         if($response->status!='failed'){
             if(isset($data['Task_view'])){
+                $TaskActilead = UserActivity::UserActivitySaved($data,'Failed Add','Task',$data['Subject']);
                 return  json_response_api($response);
             }
             $response = $response->data;
@@ -152,6 +158,7 @@ class TaskController extends \BaseController {
             $response->type = Task::Tasks;
 
         }else{
+           $UserActilead = UserActivity::UserActivitySaved($data,'Add','Task');
             return json_response_api($response,false,true);
         }
 
@@ -186,6 +193,7 @@ class TaskController extends \BaseController {
     //@clarification:will not update attribute against leads
     public function update($id)
     {
+        
         if( $id > 0 ) {
             $data 					= 	Input::all();
 			$required_data  		= 	0;
@@ -198,14 +206,17 @@ class TaskController extends \BaseController {
             $response = NeonAPI::request('task/'.$id.'/update_task',$data); 
 			if(isset($data['required_data']) && $data['required_data']!=''){
 					$required_data = 1;
-			}
+            }
+            
 			if($required_data==1 && $response->status=='success'){ 			
 				$response = $response->data;
 				$response = $response[0];
 				$response->type = Task::Tasks;
-				$current_user_title = User::get_user_full_name();				
+                $current_user_title = User::get_user_full_name();
+                $TaskActilead = UserActivity::UserActivitySaved($data,'Edit','Task',$data['Subject']);
 				return View::make('accounts.show_ajax_single_update', compact('response','key','current_user_title'));  
 			}else{
+            $TaskActilead = UserActivity::UserActivitySaved($data,'Edit','Task',$data['Subject']);
             return json_response_api($response);
 			}
         }else {
@@ -235,6 +246,7 @@ class TaskController extends \BaseController {
 		if($response->status=='failed'){
 			return json_response_api($response,false,true);
 		}else{ 
+            $TaskActilead = UserActivity::UserActivitySaved($data,'Delete','Task');
 			return Response::json(array("status" => "success", "message" => "Task Successfully Deleted", "TaskID" => $id));
 		}     
     }

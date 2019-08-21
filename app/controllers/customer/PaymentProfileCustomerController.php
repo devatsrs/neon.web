@@ -23,26 +23,24 @@ class PaymentProfileCustomerController extends \BaseController {
 
         return Datatables::of($carddetail)->make();
     }
-	/**
-	 * Display a listing of the resource.
-	 * GET /payments
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
+    /**
+     * Display a listing of the resource.
+     * GET /payments
+     *
+     * @return Response
+     */
+    public function index()
+    {
         Payment::multiLang_init();
         $currentmonth = date("n");
         $currentyear = date("Y");
         $CustomerID = Customer::get_accountID();
         $account = Account::find($CustomerID);
         return View::make('customer.paymentprofile.index',compact('currentmonth','currentyear','account'));
-	}
+    }
 
     public function paynow($AccountID)
     {
-
-
         $PaymentGatewayID = '';
         $Account = Account::find($AccountID);
         $PaymentMethod = '';
@@ -53,12 +51,12 @@ class PaymentProfileCustomerController extends \BaseController {
         return View::make('customer.paymentprofile.paynow',compact('AccountID','PaymentGatewayID','PaymentMethod'));
     }
 
-	/**
-	 * Show the form for creating a new resource.
-	 * GET /payments/create
-	 *
-	 * @return Response
-	 */
+    /**
+     * Show the form for creating a new resource.
+     * GET /payments/create
+     *
+     * @return Response
+     */
     public function create()
     {
         $data = Input::all();
@@ -75,6 +73,7 @@ class PaymentProfileCustomerController extends \BaseController {
             $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
             $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
             $Response = $PaymentIntegration->doValidation($data);
+
             if($Response['status']=='failed'){
                 return  Response::json(array("status" => "failed", "message" => $Response['message']));
             }elseif($Response['status']=='success'){
@@ -87,12 +86,12 @@ class PaymentProfileCustomerController extends \BaseController {
     public function update(){
 
         $data = Input::all();
-		$CompanyID = Customer::get_companyID();
-		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug,$CompanyID);
-		if(!$isAuthorizedNet){
-			return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PAYMENT_METHOD_NOT_INTEGRATED')));
-		}
-		
+        $CompanyID = Customer::get_companyID();
+        $isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug,$CompanyID);
+        if(!$isAuthorizedNet){
+            return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PAYMENT_METHOD_NOT_INTEGRATED')));
+        }
+
         $AuthorizeNet = new AuthorizeNet();
         $ProfileID = "";
         $PaymentProfile = AccountPaymentProfile::find($data['cardID']);
@@ -295,6 +294,106 @@ class PaymentProfileCustomerController extends \BaseController {
 
         }else{
             return Response::json(array("status" => "failed", "message" => $SageResponse['error']));
+        }
+    }
+
+    public function GoCardLess_Confirmation()
+    {
+        $data = Input::all();
+        if(isset($data['redirect_flow_id']) && Session::has($data['redirect_flow_id'])){
+
+            $RedirectFlowID = $data['redirect_flow_id'];
+            $data                = Session::get($RedirectFlowID);
+            $CustomerID          = $data['AccountID'];
+            $CompanyID           = $data['CompanyID'];
+            $PaymentGatewayID    = $data['PaymentGatewayID'];
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            $PaymentIntegration  = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
+            $output = $PaymentIntegration->doVerify($data);
+            $msgType = $output['status'] == 'success' ? 'info_message': 'error';
+            Session::forget($RedirectFlowID);
+            return Redirect::to("accounts/$CustomerID/edit")->with([$msgType => $output['message']]);
+        }
+    }
+
+
+    public function GoCardLess_Webhook()
+    {
+        Log::useFiles(storage_path() . '/logs/gocardless-' . '-' . date('Y-m-d') . '.log');
+        $raw_payload = file_get_contents('php://input');
+        $headers = getallheaders();
+        $signature_header = $headers["Webhook-Signature"];
+
+        $computed_signature = hash_hmac("sha256", $raw_payload, $signature_header);
+        Log::info("Signature: " .$computed_signature);
+
+        $payload = json_decode($raw_payload, true);
+
+        foreach ($payload["events"] as $event) {
+
+            Log::info(print_r($event, true));
+
+            $links = $event["links"];
+
+            if ($event["resource_type"] == "mandates") {
+
+                $mandate = $links["mandate"];
+                Log::info("MandateID: " . $mandate);
+                $PaymentProfile = AccountPaymentProfile::where('Options', 'LIKE', '%"MandateID":"' . $mandate . '"%')->where('PaymentGatewayID', PaymentGateway::GoCardLess)->first();
+
+                //Log::info(print_r($PaymentProfile, true));
+                if ($PaymentProfile != false) {
+                    $Options = json_decode($PaymentProfile->Options, true);
+                    if (in_array($event["action"], ['confirmed','active','created'])) {
+
+                        $Options['VerifyStatus'] = "verified";
+                        $PaymentProfile->update(array('Options' => json_encode($Options)));
+                        Log::info("verified");
+                    } elseif(in_array($event["action"], ["cancelled", 'expired'])) {
+
+                        $Options['VerifyStatus'] = "";
+                        $PaymentProfile->update(array('Options' => json_encode($Options)));
+                    } elseif(in_array($event["action"], ["replaced"]) && isset($links['new_mandate'])) {
+
+                        $Options['MandateID'] = $links['new_mandate'];
+                        $PaymentProfile->update(array('Options' => json_encode($Options)));
+                    }
+                }
+
+            } elseif ($event["resource_type"] == "payments") {
+                $PaymentID = $links["payment"];
+                Log::info("PaymentID: " . $PaymentID);
+                $payment = Payment::where([
+                    'PaymentMethod' => 'Bank Transfer',
+                    'Status' => 'Pending Approval',
+                ])->where('Notes','LIKE', '%'.$PaymentID)->first();
+
+                //Log::info(print_r($payment, true));
+
+                if ($payment != false) {
+
+                    $InvoiceID = $payment->InvoiceID;
+                    $Invoice = Invoice::find($InvoiceID);
+
+                    Log::info("InvoiceID: " . $InvoiceID);
+                    //Log::info(print_r($Invoice, true));
+
+                    if ($Invoice != false) {
+                        if (in_array($event["action"], ['confirmed'])) {
+
+                            $payment->update(['Status' => 'Approved']);
+                            $Invoice->update(['InvoiceStatus' => Invoice::PAID]);
+                            Log::info("Payment Approved!");
+
+                        } elseif (in_array($event["action"], ["mandate_is_inactive", 'retry_failed', 'failed','cancelled','charged_back'])) {
+
+                            $payment->update(['Status' => 'Rejected']);
+                            Log::info("Payment Rejected!");
+                        }
+                    }
+
+                }
+            }
         }
     }
 }

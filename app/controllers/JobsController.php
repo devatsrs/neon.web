@@ -198,11 +198,6 @@ class JobsController extends \BaseController {
 
     }
 
-    //active job termination added by abubakar
-    public function activejob(){
-        $JobStatus = JobStatus::getJobStatusPendingFailed();//@TODO: to show only Pending and Failed Status
-        return View::make('activejob.activejob',compact('JobStatus'));
-    }
 
     public function jobactive_ajax_datagrid(){
         $data = Input::all();

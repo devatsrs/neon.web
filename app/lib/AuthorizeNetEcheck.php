@@ -118,18 +118,17 @@ class AuthorizeNetEcheck {
 
     public function CreatePaymentProfile($customerProfileId,$data){
         try{
-            $data["ExpirationDate"] = $data["ExpirationYear"]."-".$data["ExpirationMonth"];
             $paymentProfile = new AuthorizeNetPaymentProfile;
-            $paymentProfile->customerType = "individual";
-            $paymentProfile->payment->creditCard->cardNumber = $data["CardNumber"];
-            $paymentProfile->payment->creditCard->expirationDate = $data["ExpirationDate"]; 
+            $paymentProfile->customerType = strtolower($data['AccountHolderType']);
+            $paymentProfile->payment->bankAccount->nameOnAccount = $data["AccountHolderName"];
+            $paymentProfile->payment->bankAccount->accountNumber = $data["AccountNumber"];
+            $paymentProfile->payment->bankAccount->routingNumber = $data["RoutingNumber"];
             $response = $this->request->createCustomerPaymentProfile($customerProfileId, $paymentProfile);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = cus_lang("PAYMENT_MSG_PAYMENT_PROFILE_CREATED_ON_AUTHORIZE_NET");
                 $result["ID"] = (int) $response->xml->customerPaymentProfileId;
-            }
-            else {
+            } else {
                 $result["status"] = "failed";
                 $result["message"] = $response->xml->messages->message->text;
             }
@@ -146,9 +145,10 @@ class AuthorizeNetEcheck {
         try{
             $data["ExpirationDate"] = $data["ExpirationYear"]."-".$data["ExpirationMonth"];
             $paymentProfile = new AuthorizeNetPaymentProfile;
-            $paymentProfile->customerType = "individual";
-            $paymentProfile->payment->creditCard->cardNumber = $data["CardNumber"];
-            $paymentProfile->payment->creditCard->expirationDate = $data["ExpirationDate"];
+            $paymentProfile->customerType = strtolower($data['AccountHolderType']);
+            $paymentProfile->payment->bankAccount->nameOnAccount = $data["AccountHolderName"];
+            $paymentProfile->payment->bankAccount->accountNumber = $data["AccountNumber"];
+            $paymentProfile->payment->bankAccount->routingNumber = $data["RoutingNumber"];
             $response = $this->request->updateCustomerPaymentProfile($customerProfileId,$paymentProfileId,$paymentProfile);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
@@ -335,43 +335,49 @@ class AuthorizeNetEcheck {
     }
 
     public function doValidation($data){
-        $ValidationResponse = array();
-        $rules = array(
-            'CardNumber' => 'required|digits_between:13,19',
-            'ExpirationMonth' => 'required',
-            'ExpirationYear' => 'required',
-            'NameOnCard' => 'required',
-            'CVVNumber' => 'required',
-            //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
-        );
+		$ValidationResponse = array();
+		// $rules = array(
+		// 	'AccountNumber' => 'required|digits_between:6,19',
+		// 	'RoutingNumber' => 'required',
+		// 	'AccountHolderType' => 'required',
+		// 	'AccountHolderName' => 'required',
+		// 	//'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
+		// );
 
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            $errors = "";
-            foreach ($validator->messages()->all() as $error){
-                $errors .= $error."<br>";
-            }
+		// $validator = Validator::make($data, $rules);
+		// if ($validator->fails()) {
+		// 	$errors = "";
+		// 	foreach ($validator->messages()->all() as $error){
+		// 		$errors .= $error."<br>";
+		// 	}
 
-            $ValidationResponse['status'] = 'failed';
-            $ValidationResponse['message'] = $errors;
-            return $ValidationResponse;
-        }
-        if (date("Y") == $data['ExpirationYear'] && date("m") > $data['ExpirationMonth']) {
-
-            $ValidationResponse['status'] = 'failed';
-            $ValidationResponse['message'] = cus_lang("PAYMENT_MSG_MONTH_MUST_BE_AFTER") . date("F");
-            return $ValidationResponse;
-        }
-        $card = CreditCard::validCreditCard($data['CardNumber']);
-        if ($card['valid'] == 0) {
-            $ValidationResponse['status'] = 'failed';
-            $ValidationResponse['message'] = cus_lang("PAYMENT_MSG_ENTER_VALID_CARD_NUMBER");
-            return $ValidationResponse;
-        }
-
-        $ValidationResponse['status'] = 'success';
-        return $ValidationResponse;
-    }
+		// 	$ValidationResponse['status'] = 'failed';
+		// 	$ValidationResponse['message'] = $errors;
+		// 	return $ValidationResponse;
+		// }
+		$CustomerID = $data['AccountID'];
+		$account = Account::find($CustomerID);
+		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
+		if(empty($CurrencyCode)){
+			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
+			return $ValidationResponse;
+		}
+		$data['currency'] = strtolower($CurrencyCode);
+		$Country = $account->Country;
+		if(!empty($Country)){
+			$CountryCode = Country::where(['Country'=>$Country])->pluck('ISO2');
+		}else{
+			$CountryCode = '';
+		}
+		if(empty($CountryCode)){
+			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_COUNTRY_AVAILABLE");
+			return $ValidationResponse;
+		}
+		$ValidationResponse['status'] = 'success';
+		return $ValidationResponse;
+	}
 
     public function createProfile($data){
         $ProfileID = "";
@@ -423,10 +429,12 @@ class AuthorizeNetEcheck {
             $PaymentProfileID = $result["ID"];
             /**  @TODO save this field NameOnCard and CCV */
             $option = array(
-                'ProfileID' => $ProfileID,
+                'ProfileID'         => $ProfileID,
                 'ShippingProfileID' => $ShippingProfileID,
-                'PaymentProfileID' => $PaymentProfileID
+                'PaymentProfileID'  => $PaymentProfileID,
+                'VerifyStatus'      => 'verified',
             );
+
             $CardDetail = array('Title' => $title,
                 'Options' => json_encode($option),
                 'Status' => 1,
@@ -435,6 +443,7 @@ class AuthorizeNetEcheck {
                 'CompanyID' => $CompanyID,
                 'AccountID' => $CustomerID,
                 'PaymentGatewayID' => $PaymentGatewayID);
+            
             if (AccountPaymentProfile::create($CardDetail)) {
                 return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_CREATED")));
             } else {
@@ -621,9 +630,9 @@ class AuthorizeNetEcheck {
         );*/
         $response = $sale->authorizeAndCapture();
         log::info('pcheck end');
-//log::info(print_r($response,true));        log::info(print_r($response,true));
-        $test='{"approved":true,"declined":false,"error":false,"held":false,"response_code":"1","response_subcode":"1","response_reason_code":"1","response_reason_text":"This transaction has been approved.","authorization_code":"T45T7F","avs_response":"Y","transaction_id":"60107039735","invoice_number":"GIRISH1248","description":"","amount":"5.20","method":"ECHECK","transaction_type":"auth_capture","customer_id":"","first_name":"","last_name":"","company":"","address":"","city":"","state":"","zip_code":"","country":"","phone":"","fax":"","email_address":"","ship_to_first_name":"","ship_to_last_name":"","ship_to_company":"","ship_to_address":"","ship_to_city":"","ship_to_state":"","ship_to_zip_code":"","ship_to_country":"","tax":"","duty":"","freight":"","tax_exempt":"","purchase_order_number":"","md5_hash":"58D207E574EB6A173A66A72F6CD2C7F4","card_code_response":"P","cavv_response":"2","account_number":"XXXX1111","card_type":"Visa","split_tender_id":"","requested_amount":"","balance_on_card":"","response":"|1|,|1|,|1|,|This transaction has been approved.|,|T45T7F|,|Y|,|60107039735|,|GIRISH1248|,||,|162.75|,|CC|,|auth_capture|,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,|58D207E574EB6A173A66A72F6CD2C7F4|,|P|,|2|,||,||,||,||,||,||,||,||,||,||,|XXXX1111|,|Visa|,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||"}';
-        $response = json_decode($test);
+        //log::info(print_r($response,true));
+        //$test='{"approved":true,"declined":false,"error":false,"held":false,"response_code":"1","response_subcode":"1","response_reason_code":"1","response_reason_text":"This transaction has been approved.","authorization_code":"T45T7F","avs_response":"Y","transaction_id":"60107039735","invoice_number":"GIRISH1248","description":"","amount":"5.20","method":"ECHECK","transaction_type":"auth_capture","customer_id":"","first_name":"","last_name":"","company":"","address":"","city":"","state":"","zip_code":"","country":"","phone":"","fax":"","email_address":"","ship_to_first_name":"","ship_to_last_name":"","ship_to_company":"","ship_to_address":"","ship_to_city":"","ship_to_state":"","ship_to_zip_code":"","ship_to_country":"","tax":"","duty":"","freight":"","tax_exempt":"","purchase_order_number":"","md5_hash":"58D207E574EB6A173A66A72F6CD2C7F4","card_code_response":"P","cavv_response":"2","account_number":"XXXX1111","card_type":"Visa","split_tender_id":"","requested_amount":"","balance_on_card":"","response":"|1|,|1|,|1|,|This transaction has been approved.|,|T45T7F|,|Y|,|60107039735|,|GIRISH1248|,||,|162.75|,|CC|,|auth_capture|,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,|58D207E574EB6A173A66A72F6CD2C7F4|,|P|,|2|,||,||,||,||,||,||,||,||,||,||,|XXXX1111|,|Visa|,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||,||"}';
+        //$response = json_decode($test);
         return $response;
     }
 

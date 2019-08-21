@@ -36,6 +36,16 @@
             </div>
         @endif
 
+        @if(isset($rateTableList) && count($rateTableList) > 0)
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">Rate Table</label>
+
+                    {{Form::select('rateTables', $rateTableList,(isset($commandconfigval)? @$commandconfigval->rateTables:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"select2 small form-control"))}}
+                </div>
+            </div>
+        @endif
+
         @if (isset($rateGenerators) && count($rateGenerators) > 0 && isset($rateTables) && count($rateTables) > 0 )
             <div class="col-md-6">
                 <div class="form-group">
@@ -84,6 +94,14 @@
                 </div>
             </div>
         @endif
+        @if (isset($vendorList) && count($vendorList) > 0)
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">Vendor</label>
+                    {{Form::select('vendors', $vendorList, (isset($commandconfigval->vendors)?$commandconfigval->vendors:'') ,array("id"=>"vendors" ,"class"=>"select2","data-placeholder"=>"Select Vendor"))}}
+                </div>
+            </div>
+        @endif
         @if (isset($gateway) && count($gateway) > 0)
             <div class="col-md-6">
                 <div class="form-group">
@@ -115,6 +133,7 @@
             @if($configtitle['name'] == 'ImportDays') <span data-original-title="Import Payments Day" data-content="if blank then system will import payments from last 7 days." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             @if($configtitle['name'] == 'AlertEmailInterval') <span data-original-title="What is Alert Active Email Time?" data-content="It is interval time to send Email If any cron job is running out of its threshold time" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             @if($configtitle['name'] == 'StartDate' && $StartDateMessage!='') <span data-original-title="Dates" data-content="{{$StartDateMessage}}" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
+            @if($configtitle['name'] == 'CDRImportStartDate') <span data-original-title="CDR Import Start Date" data-content="Trigger Summary for same date if you Re-Import Previous date data." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             </label>
             @if($configtitle['type'] == 'select' && isset($configtitle['multiple']) &&  $configtitle['multiple'] == 'multiple')
             {{Form::select('Setting['.$configtitle['name'].'][]',$configtitle['value'],$selectd_val, array( "class"=>"select2",'multiple',"data-placeholder"=>$configtitle['placeholder']))}}

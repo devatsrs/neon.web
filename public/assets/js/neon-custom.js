@@ -3373,3 +3373,29 @@ function setCookie(cname,cvalue,exdays) {
     var expires = "expires=" + d.toGMTString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
+
+
+function CDRrebuildSelect2(el,data,defualtText){
+    el.empty();
+
+    if(defualtText.length > 0){
+        $('<option />').val('').html(defualtText).appendTo(el);
+    }
+
+    $.each(data,function(key,value){
+        if(typeof value == 'object'){
+            var group = $('<optgroup label="' + key + '" />');
+            $.each(value, function(key2,value2){
+                $('<option />').val(key2).html(value2).appendTo(group);
+            });
+            group.appendTo(el);
+        }else{
+            $('<option />').val(key).html(value).appendTo(el);
+        }
+    });
+
+    if(el.hasClass('select2add')){
+        el.prepend('<option value="select2-add" disabled="disabled">Add</option>');
+    }
+    el.trigger('change');
+}

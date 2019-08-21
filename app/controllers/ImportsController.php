@@ -252,13 +252,17 @@ class ImportsController extends \BaseController {
 			}elseif($gateway == 'VoipMS'){
                 $voipMS = new VoipMS($CompanyGatewayID);
                 $response1 = $voipMS->getAccountsDetail($param);
+			}elseif($gateway == 'ClarityPBX'){
+                $clarityPBX = new ClarityPBX($CompanyGatewayID);
+                $response1 = $clarityPBX->getAccountsDetail($param);
+                $response2 = $clarityPBX->getVendorsDetail($param);
 			}
             //$pbx = new PBX($CompanyGatewayID);
 
             if(isset($response1['result']) && $response1['result'] =='OK'){
-                if(isset($response1['Gateway']) && $response1['Gateway'] == 'Sippy') {
+                if(isset($response1['Gateway']) && ($response1['Gateway'] == 'Sippy' || $response1['Gateway'] == 'ClarityPBX')) {
                     if(isset($response2['result']) && $response2['result'] =='OK') {
-                        return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway", "processid" => $ProcessID, "Gateway" => "Sippy"));
+                        return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway", "processid" => $ProcessID, "Gateway" => $response1['Gateway']));
                     }else if(isset($response2['faultCode']) && isset($response2['faultString'])){
                         return Response::json(array("status" => "failed", "message" => "Access Denied."));
                     }else{
@@ -497,6 +501,7 @@ class ImportsController extends \BaseController {
                     $grid['AccountFileUploadTemplate'] = json_decode(json_encode($AccountFileUploadTemplate), true);
                     $grid['AccountFileUploadTemplate']['Options'] = json_decode($AccountFileUploadTemplate->Options, true);
                 }
+                $UserActilead = UserActivity::UserActivitySaved($data,'Import Leads','Lead');
                 return Response::json(array("status" => "success", "data" => $grid));
             }
         }catch(Exception $ex) {
@@ -589,6 +594,7 @@ class ImportsController extends \BaseController {
             }
             DB::commit();
             @unlink($temp_path . $file_name);
+            $UserActilead = UserActivity::UserActivitySaved($data,'Mapping Template','Lead');
             return json_encode(["status" => "success", "message" => "File Uploaded, File is added to queue for processing. You will be notified once file upload is completed. "]);
         } catch (Exception $ex) {
             DB::rollback();

@@ -25,6 +25,24 @@
                 @endif
                 @endforeach </div>
             </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-1" class="col-sm-2 control-label">Timezones</label>
+                @foreach ($rate_timezones as $index=>$timezone)
+                @if(!empty($timezone) && !empty($index))
+                <div class="col-sm-2">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" name="Timezones[]" value="{{$index}}" >
+                      {{$timezone}} </label>
+                  </div>
+                </div>
+                @endif
+                @endforeach
+              </div>
+            </div>
+
           </div>
           <div class="row CD">
             <div class="col-md-12">
@@ -40,7 +58,22 @@
               </div>
             </div>
           </div>
+
+            @if(!empty($VOS_RATEPREFIX_RATESHEET) && $VOS_RATEPREFIX_RATESHEET!='')
+              <div class="row">
+                <div class="form-group">
+                  <label for="field-1" class="col-sm-2 control-label">Rate Prefix</label>
+                  <div class="desc col-sm-4 ">
+                   {{-- <input type="text" class="form-control" name="RatePrefix" value="">--}}
+                    {{Form::select('RatePrefix[]',$RatePrefixes,'',array("class"=>"select2 ",'multiple'))}}
+                  </div>
+                </div>
+              </div>
+            @endif
+
           @endif
+
+
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">

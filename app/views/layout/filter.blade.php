@@ -47,15 +47,22 @@
         $("body").on('click', '.filter-close', function(ev)
         {
             ev.preventDefault();
-
+			$('.page-container').removeClass('hidden-body');
+			$('.sidebar-menu').removeClass('sidebar-menu-hidden');
             hideFilter();
-        });
+        });				
 
         $("body").on('click', '.filter-open', function(ev)
         {
             ev.preventDefault();
 
             showFilter();
+        });
+		
+		$("body").on('click', '#filter-button-toggle', function(ev)
+        {
+             $('.page-container').addClass('hidden-body');
+             $('.sidebar-menu').addClass('sidebar-menu-hidden');
         });
         $(".top_filter").click(function(ev)
         {

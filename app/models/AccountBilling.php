@@ -339,7 +339,7 @@ class AccountBilling extends \Eloquent {
     }
 
     public static function getBillingClassID($AccountID){
-        return AccountBilling::where('AccountID',$AccountID)->pluck('BillingClassID');
+        return AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingClassID');
     }
     public static function getPaymentDueInDays($AccountID){
         $BillingClassID = self::getBillingClassID($AccountID);

@@ -19,7 +19,11 @@ class ContactsController extends \BaseController {
             $contacts = Contact::leftjoin('tblAccount', 'tblAccount.AccountID', '=', 'tblContact.Owner')
                 ->select([DB::raw("  concat(IFNULL(tblContact.FirstName,''),' ' ,IFNULL(tblContact.LastName,''))  AS FullName "), "tblAccount.AccountName","tblContact.Phone", "tblContact.Email", "tblContact.ContactID"])->where(["tblContact.CompanyID" => $companyID]);
         }
-
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $data=array();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Contact');
+        
         return Datatables::of($contacts)->make();
     }
 
@@ -68,8 +72,12 @@ class ContactsController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        
+        //----------------------------------------------------------------------
         if ($contact = Contact::create($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Contact',$data['FirstName'].' '.$data['LastName']);
             return Response::json(array("status" => "success", "message" => "Contact Successfully Created",'LastID'=>$contact->ContactID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Contact."));
@@ -84,9 +92,12 @@ class ContactsController extends \BaseController {
      * @return Response
      */
     public function show($id) {
+            $data['id']=$id;
+            $UserActilead = UserActivity::UserActivitySaved($data,'Show','Contact');
             $contact = Contact::find($id);
             $companyID = User::get_companyID();
             $contact_owner = Account::find($contact->AccountID);
+            
             $notes = ContactNote::where(["CompanyID" => $companyID, "ContactID" => $id])->orderBy('NoteID', 'desc')->get();
             return View::make('contacts.show', compact('contact', 'contact_owner', 'notes'));
     }
@@ -104,6 +115,9 @@ class ContactsController extends \BaseController {
             $lead_owners = Lead::getLeadOwnersByRole();
             $account_owners = Account::getAccountsOwnersByRole();
             $countries = $this->countries;
+            
+            $data['id']=$id;
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Contact');
             return View::make('contacts.edit', compact('contact', 'lead_owners', 'account_owners', 'countries'));
     }
 
@@ -128,7 +142,9 @@ class ContactsController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+       
         if ($lead->update($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Contact',$data['FirstName'].' '.$data['LastName']);
             return Response::json(array("status" => "success", "message" => "Contact Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Contact."));
@@ -156,8 +172,9 @@ class ContactsController extends \BaseController {
 			$response = $response->data;
 			$response->type = Task::Note;
 		}
-				
+                		
 		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+                $UserActilead = UserActivity::UserActivitySaved($data,'Add Note','Contact',$current_user_title);
 		return View::make('contacts.timeline.show_ajax_single', compact('response','current_user_title','key'));      
 	}
 	
@@ -194,6 +211,7 @@ class ContactsController extends \BaseController {
 		}
 			
 		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+                $UserActilead = UserActivity::UserActivitySaved($data,'Edit Note','Contact',$current_user_title);
 		return View::make('contacts.timeline.show_ajax_single_update', compact('response','current_user_title','key'));   
 	}
 
@@ -208,6 +226,7 @@ class ContactsController extends \BaseController {
 		if($response->status=='failed'){
 			return json_response_api($response,false,true);
 		}else{ 
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Delete Note','Contact');
 			return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
 		}     
     }
@@ -221,6 +240,12 @@ class ContactsController extends \BaseController {
      */
     public function destroy($id) {
         //$contact = Contact::find($id);
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $companyID 				= 	User::get_companyID();
+        $data['id']=$id;
+        $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Contact');
+        //----------------------------------------------------------------------
         if (Contact::destroy($id)) {
             return Response::json(array("status" => "success", "message" => "Contact Successfully Deleted"));
         } else {
@@ -254,6 +279,8 @@ class ContactsController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
+            $data['type']=$type;
+            $UserActilead = UserActivity::UserActivitySaved($data,'Exports','Contact');
             /*Excel::create('Contacts', function ($excel) use ($contacts) {
                 $excel->sheet('Contacts', function ($sheet) use ($contacts) {
                     $sheet->fromArray($contacts);
@@ -266,7 +293,7 @@ class ContactsController extends \BaseController {
         $postdata 				= 	Input::all();
         $lead 					= 	Contact::find($id);
         $data['updated_by'] 	= 	User::get_user_full_name();
-		$data['Owner'] 			= 	$postdata['Owner'];
+	$data['Owner'] 			= 	$postdata['Owner'];
         $messages 				= 	array('Owner.required' => 'The Contact Owner is required');
 		
 		 $rules = array(
@@ -278,6 +305,7 @@ class ContactsController extends \BaseController {
             return json_validator_response($validator);
         }
         if ($lead->update($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit Contact Owner','Contact');
             return Response::json(array("status" => "success", "message" => "Contact Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Contact."));
@@ -339,8 +367,9 @@ class ContactsController extends \BaseController {
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug,$companyID); //freshdesk
-			$SystemTickets				=   Tickets::CheckTicketLicense();		
-	        return View::make('contacts.timeline.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets')); 	
+			$SystemTickets				=   Tickets::CheckTicketLicense();
+                        $UserActilead = UserActivity::UserActivitySaved($data,'View Timeline','Contact');
+                        return View::make('contacts.timeline.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets')); 	
 		}
 	
 	  public function ajax_getEmailTemplate($privacy, $type){
@@ -381,6 +410,7 @@ class ContactsController extends \BaseController {
 					
 			$key 					= 	$data['scrol'];
 			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+                        $UserActilead = UserActivity::UserActivitySaved($data,'View Timeline','Contact',$current_user_title);
 			return View::make('contacts.timeline..show_ajax', compact('response','current_user_title','key'));
 	}
 	

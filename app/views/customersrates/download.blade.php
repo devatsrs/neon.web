@@ -95,6 +95,19 @@
                     @endforeach
                 </div>
             </div>
+
+            @if(!empty($VOS_RATEPREFIX_RATESHEET) && $VOS_RATEPREFIX_RATESHEET!='')
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-3 control-label">Rate Prefix</label>
+                    <div class="col-sm-5">
+                        {{--<input type="text" class="form-control" name="RatePrefix" id="RatePrefix">--}}
+                        {{ Form::select('RatePrefix', [''=>'Select']+$RatePrefixes, '' , array("class"=>"select2 small","id"=>"RatePrefix")) }}
+                    </div>
+
+                </div>
+
+            @endif
+
             <div class="form-group">
                 <label for="field-1" class="col-sm-3 control-label">Output format</label>
                 <div class="col-sm-5">

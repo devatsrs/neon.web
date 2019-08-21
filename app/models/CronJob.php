@@ -146,6 +146,14 @@ class CronJob extends \Eloquent {
                 unset($data['EffectiveRate']);
 
             }
+            if(isset($data['rateTables'])){
+                $data['Setting']['rateTables'] = $data['rateTables'];
+                unset($data['rateTables']);
+            }
+            if(isset($data['vendors'])){
+                $data['Setting']['vendors'] = $data['vendors'];
+                unset($data['vendors']);
+            }
             if(isset($data['CompanyGatewayID'])){
                 $data['Setting']['CompanyGatewayID'] = $data['CompanyGatewayID'];
                 unset($data['CompanyGatewayID']);
@@ -182,7 +190,6 @@ class CronJob extends \Eloquent {
         $LastRunTime = $CronJob->LastRunTime;
         $ComanyName = Company::getName($CompanyID);
         $PID = $CronJob->PID;
-        $MysqlPID=$CronJob->MysqlPID;
 
         $minute = CronJob::calcTimeDiff($LastRunTime);
 
@@ -190,20 +197,9 @@ class CronJob extends \Eloquent {
         $ActiveCronJobEmailTo = isset($cronsetting['ErrorEmail']) ? $cronsetting['ErrorEmail'] : '';
 
         $ReturnStatus = terminate_process($PID);
-        if($MysqlPID!=''){
-            try{
-                $MysqlProcess=DB::select("SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST where ID=".$MysqlPID);
-                if(!empty($MysqlProcess)){
-                    terminateMysqlProcess($MysqlPID);
-                }
-            }catch (\Exception $err) {
-                Log::error($err);
-            }
-
-        }
 
         //Kill the process.
-        $CronJob->update([ "PID"=>"", "Active"=>0,"LastRunTime" => date('Y-m-d H:i:00'),"MysqlPID"=>"","ProcessID"=>""]);
+        $CronJob->update([ "PID"=>"", "Active"=>0,"LastRunTime" => date('Y-m-d H:i:00')]);
 
         CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_FAIL, "Message"=> "Terminated by " . User::get_user_full_name()]);
 
@@ -242,7 +238,7 @@ class CronJob extends \Eloquent {
     public static function checkCDRDownloadFiles(){
         $CompanyID = User::get_companyID();
         $CronJonCommandsIds = array();
-        $rows = CronJobCommand::where(["Status"=> 1,'CompanyID'=>$CompanyID])->whereIn('Command',array('sippydownloadcdr','vosdownloadcdr'))->get()->toArray();
+        $rows = CronJobCommand::where(["Status"=> 1,'CompanyID'=>$CompanyID])->whereIn('Command',array('sippydownloadcdr','vosdownloadcdr','vos5000downloadcdr'))->get()->toArray();
         if(count($rows)>0){
             foreach($rows as $row){
                 if(!empty($row['CronJobCommandID'])){
