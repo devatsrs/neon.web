@@ -253,6 +253,19 @@ class RecurringInvoiceController extends \BaseController {
                     DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->insert($RecurringInvoiceAllTaxRates);
                 }
 
+                //unset discount amount & type if not selected
+                $i=0;
+                foreach($RecurringInvoiceDetailData as $idata)
+                {
+                    if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                    {
+                        $RecurringInvoiceDetailData[$i]["DiscountAmount"] = "";
+                        $RecurringInvoiceDetailData[$i]["DiscountType"] = null;
+                    }
+                    $RecurringInvoiceDetailData[$i]["DiscountLineAmount"] = ($RecurringInvoiceDetailData[$i]["Price"] * $RecurringInvoiceDetailData[$i]["Qty"]) - $RecurringInvoiceDetailData[$i]["LineTotal"];
+                    $i++;
+                }
+
                 if (!empty($RecurringInvoiceDetailData) && RecurringInvoiceDetail::insert($RecurringInvoiceDetailData))
 				{
                     $InvoiceTaxRates1=RecurringTaxRate::getRecurringInvoiceTaxRateByProductDetail($RecurringInvoice->RecurringInvoiceID);
@@ -438,6 +451,20 @@ class RecurringInvoiceController extends \BaseController {
 						if(!empty($RecurringInvoiceAllTaxRates)) {
                             DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->insert($RecurringInvoiceAllTaxRates);
                         }
+
+                        //unset discount amount & type if not selected
+                        $i=0;
+                        foreach($RecurringInvoiceDetailData as $idata)
+                        {
+                            if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                            {
+                                $RecurringInvoiceDetailData[$i]["DiscountAmount"] = "";
+                                $RecurringInvoiceDetailData[$i]["DiscountType"] = null;
+                            }
+                            $RecurringInvoiceDetailData[$i]["DiscountLineAmount"] = ($RecurringInvoiceDetailData[$i]["Price"] * $RecurringInvoiceDetailData[$i]["Qty"]) - $RecurringInvoiceDetailData[$i]["LineTotal"];
+                            $i++;
+                        }
+
                         if (RecurringInvoiceDetail::insert($RecurringInvoiceDetailData)) {
                             $InvoiceTaxRates1=RecurringTaxRate::getRecurringInvoiceTaxRateByProductDetail($RecurringInvoice->RecurringInvoiceID);
                             if(!empty($InvoiceTaxRates1)) { //Invoice tax

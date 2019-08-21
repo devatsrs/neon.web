@@ -769,6 +769,14 @@
                                 <label for="minimal-radio-6-11">Stripe ACH</label>
                             </li>
                             <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-6-133" name="PaymentMethod" value="GoCardLess" @if( $account->PaymentMethod == 'GoCardLess' ) checked="" @endif />
+                                <label for="minimal-radio-6-133">GoCardLess</label>
+                            </li>
+                            <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-13-11" name="PaymentMethod" value="FastPay" @if( $account->PaymentMethod == 'FastPay' ) checked="" @endif />
+                                <label for="minimal-radio-13-11">Fast Pay</label>
+                            </li>
+                            <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-11-11" name="PaymentMethod" value="MerchantWarrior" @if( $account->PaymentMethod == 'MerchantWarrior' ) checked="" @endif />
                                 <label for="minimal-radio-11-11">MerchantWarrior</label>
                             </li>
@@ -799,7 +807,13 @@
     var FirstTimeTrigger = true;
     var ResellerCount = '{{$ResellerCount}}';
     var AccountResellerCount = '{{$accountreseller}}';
+    var BillingChangeStatus = 0;
+    var hiden_class = '{{$hiden_class}}';
     jQuery(document).ready(function ($) {
+        if(hiden_class == ''){
+            BillingChangeStatus=1;
+        }
+
         if(AccountResellerCount>0 || ResellerCount>0){
             $("#desablereseller").addClass('deactivate');
             $('#disableresellerowner select').attr("disabled", "disabled");
@@ -1003,6 +1017,7 @@
 
         $('#billing_edit').on( "click",function(e){
             e.preventDefault();
+            BillingChangeStatus = 1;
             $('[name="BillingCycleType"]').removeClass('hidden');
             $('body').find(".billing_options_active").removeClass('hidden');
             $('.billing_edit_text').addClass('hidden');
@@ -1016,6 +1031,7 @@
 
         $('#next_invoice_edit').on( "click",function(e){
             e.preventDefault();
+            BillingChangeStatus = 1;
             $('[name="NextInvoiceDate"]').removeClass('hidden');
             $('.next_invoice_edit_text').addClass('hidden');
             $(this).addClass('hidden');
@@ -1179,9 +1195,11 @@
                 type: 'POST',
                 dataType: 'json',
                 success: function(response) {
-                    $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
-                    if(updatenextchargedate==1) {
-                        $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                    if(BillingChangeStatus==1) {
+                        $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
+                        if (updatenextchargedate == 1) {
+                            $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                        }
                     }
                 },
                 data: {

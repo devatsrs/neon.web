@@ -52,13 +52,21 @@ class FusionPBX{
                     $batch_insert_array = array();
                     if(count($addparams)>0){
                         $CompanyGatewayID = $addparams['CompanyGatewayID'];
+                        $CompanyGateway = CompanyGateway::find($CompanyGatewayID);
+                        $Settings = json_decode($CompanyGateway->Settings, true);
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
                             $count = DB::table('tblAccount')->where(["Number" => $temp_row->domain_name, "AccountType" => 1])->count();
                             if($count==0){
                                 $tempItemData['AccountName'] = !empty($temp_row->domain_description)?$temp_row->domain_description:$temp_row->domain_name;
-                                $tempItemData['Number'] = $temp_row->domain_name;
+
+                                if(isset($Settings['NameFormat']) && $Settings['NameFormat'] == 'NAME') {
+                                    //$tempItemData['Number'] = "";
+                                } else {
+                                    $tempItemData['Number'] = $temp_row->domain_name;
+                                }
+
                                 /*$tempItemData['FirstName'] = $temp_row->first_name;
                                 $tempItemData['LastName'] = $temp_row->last_name;
                                 $tempItemData['VatNumber'] = $temp_row->vat_number;

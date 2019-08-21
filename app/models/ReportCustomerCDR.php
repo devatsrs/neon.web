@@ -84,7 +84,7 @@ class ReportCustomerCDR extends \Eloquent{
             if($column == 'CountryID'){
                 $final_query->groupby(self::$DetailTable.'.'.$column);
             }else if(isset(self::$database_columns[$column])){
-                $final_query->groupby($column);
+                $final_query->groupby(self::$database_columns[$column]);
             }else {
                 $columnname = report_col_name($column);
                 $final_query->groupby($columnname);
@@ -128,6 +128,7 @@ class ReportCustomerCDR extends \Eloquent{
             }
 
             foreach ($data['sum'] as $colname) {
+                $measure_name  = get_measure_name($colname,self::$DetailTable);
                 if(!empty($measure_name)) {
                     $select_columns2[] = DB::Raw($measure_name." as " . $colname);
                 } else {

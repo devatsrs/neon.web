@@ -7,7 +7,9 @@ class DialStringController extends \BaseController {
      *
      * @return Response
      */
-    public function index() {					
+    public function index() {
+        $data = array();				
+        $DialStringsActilead = UserActivity::UserActivitySaved($data,'View','Dial Strings');	
 		return View::make('dialstring.index');
     }
 
@@ -20,10 +22,10 @@ class DialStringController extends \BaseController {
 
     // dial String export
     public function exports($type) {
-
+        $data['export'] = $type;
         $CompanyID = User::get_companyID();
         $dialstring = DialString::where(["CompanyID" => $CompanyID])->select(["Name","created_at","CreatedBy"])->get()->toArray();
-
+        $DialStringsActilead = UserActivity::UserActivitySaved($data,'Export','Dial Strings');
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Dial String.csv';
             $NeonExcel = new NeonExcelIO($file_path);
@@ -52,6 +54,7 @@ class DialStringController extends \BaseController {
         $data['CreatedBy'] = User::get_user_full_name();
 
         if ($dialstring = DialString::create($data)) {
+            $DialStringsActilead = UserActivity::UserActivitySaved($data,'Add','Dial Strings',$data['Name']);
             return Response::json(array("status" => "success", "message" => "Dial String Successfully Created",'LastID'=>$dialstring->DialStringID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Dial String."));
@@ -76,6 +79,7 @@ class DialStringController extends \BaseController {
         $data['ModifiedBy'] = User::get_user_full_name();
 
         if ($dialstring->update($data)) {
+            $DialStringsActilead = UserActivity::UserActivitySaved($data,'Edit','Dial Strings',$data['Name']);
             return Response::json(array("status" => "success", "message" => "Dial String Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Dial String."));
@@ -84,16 +88,19 @@ class DialStringController extends \BaseController {
     }
 
     public function delete_dialstring($id){
+        $data['id'] = $id;
         if( intval($id) > 0){
             try{
                 if(DialStringCode::where(["DialStringID"=>$id])->count()>0){
                     if (DialStringCode::where(["DialStringID" => $id])->delete() && DialString::where(["DialStringID" => $id])->delete()) {
+                        $DialStringsActilead = UserActivity::UserActivitySaved($data,'Delete','Dial Strings');
                         return Response::json(array("status" => "success", "message" => "Dial String Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Dial String."));
                     }
                 }else{
                     if (DialString::where(["DialStringID" => $id])->delete()) {
+                        $DialStringsActilead = UserActivity::UserActivitySaved($data,'Delete','Dial Strings');
                         return Response::json(array("status" => "success", "message" => "Dial String Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Dial String."));
@@ -109,7 +116,11 @@ class DialStringController extends \BaseController {
 
     //dial string detail view
     public function dialstringcode($id){
+       
         $DialStringName = DialString::getDialStringName($id);
+        $data['dialstring_id'] = $id;
+        $data['DialStringName'] = $DialStringName;
+        $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'View','Dial Strings Code');
         return View::make('dialstring.dialstringcode', compact('id','DialStringName'));
 
     }
@@ -119,6 +130,7 @@ class DialStringController extends \BaseController {
 
         $companyID = User::get_companyID();
         $data = Input::all();
+        $export_type['type'] = $type;
 
         $data['ft_dialstring'] = $data['ft_dialstring'] != ''?"'".$data['ft_dialstring']."'":'null';
         $data['ft_chargecode'] = $data['ft_chargecode'] != ''?"'".$data['ft_chargecode']."'":'null';
@@ -128,11 +140,12 @@ class DialStringController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $columns = array('DialStringCodeID','DialString','ChargeCode','Description','Forbidden');
         $sort_column = $columns[$data['iSortCol_0']];
-
+        $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Search','Dial Strings Code');
         $query = "call prc_GetDialStrings (".$data['ft_dialstringid'].",".$data['ft_dialstring'].",".$data['ft_chargecode'].",".$data['ft_description'].",".$data['ft_forbidden'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
+            $DialStringsCodeActilead = UserActivity::UserActivitySaved($export_type,'Export','Dial Strings Code');
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DialStrings.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
@@ -168,6 +181,7 @@ class DialStringController extends \BaseController {
         $data['created_by'] = User::get_user_full_name();
 
         if ($DialStringCode = DialStringCode::create($data)) {
+            $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Add','Dial Strings Code',$data['DialString']);
             return Response::json(array("status" => "success", "message" => "Dial String Successfully Created",'LastID'=>$DialStringCode->DialStringCodeID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Dial String."));
@@ -198,6 +212,7 @@ class DialStringController extends \BaseController {
         $data['updated_by'] = User::get_user_full_name();
 
         if ($DialStringCode->update($data)) {
+            $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Edit','Dial Strings Code',$data['DialString']);
             return Response::json(array("status" => "success", "message" => "Dial Strings Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Dial Strings."));
@@ -207,10 +222,12 @@ class DialStringController extends \BaseController {
 
     //delete single Dial String
     public function deletecode($id){
+        $data['id'] = $id;
         if( intval($id) > 0){
             try{
                 $result = DialStringCode::find($id)->delete();
                 if ($result) {
+                    $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Delete','Dial Strings Code');
                     return Response::json(array("status" => "success", "message" => "Dial String Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Dial String."));
@@ -286,6 +303,7 @@ class DialStringController extends \BaseController {
 
             $result = DB::statement($query);
             if ($result) {
+                $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Dial Strings Code');
                 return Response::json(array("status" => "success", "message" => "Dial Strings Updated Successfully."));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Dial Strings."));
@@ -319,6 +337,7 @@ class DialStringController extends \BaseController {
 
             $result = DB::statement($query);
             if ($result) {
+                $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Bulk Delete','Dial Strings Code');
                 return Response::json(array("status" => "success", "message" => "Dial Strings Deleted Successfully."));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem deleting Dial Strings."));
@@ -330,6 +349,7 @@ class DialStringController extends \BaseController {
 
             $result = DB::statement($query);
             if ($result) {
+                $DialStringsCodeActilead = UserActivity::UserActivitySaved($data,'Bulk Delete','Dial Strings Code');
                 return Response::json(array("status" => "success", "message" => "Dial Strings Updated Successfully."));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Dial Strings."));

@@ -42,6 +42,14 @@ class Company extends \Eloquent {
             "manual" => "Manual",
         );
 
+    public static $BillingCycleType3 =
+        array(
+            ""=>"Select",
+            "daily"=>"Daily",
+            "fortnightly"=>"Fortnightly",
+            "monthly"=>"Monthly" ,
+        );
+
     // CDR Rerate Based on Charge code or Prefix
     const CHARGECODE =1;
     const PREFIX =2;

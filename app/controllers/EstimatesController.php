@@ -48,6 +48,7 @@ class EstimatesController extends \BaseController {
         $data 						 = 	Input::all();
         $data['iDisplayStart'] 		+=	1;
         $companyID 					 =  User::get_companyID();
+        $EstimatesActilead           =  UserActivity::UserActivitySaved($data,'View','Estimates');
         $columns 					 =  ['EstimateID','AccountName','EstimateNumber','EstimateID','GrandTotal','EstimateStatus','EstimateID','converted'];   
         $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
@@ -58,9 +59,11 @@ class EstimatesController extends \BaseController {
 		
         if(isset($data['Export']) && $data['Export'] == 1)
 		{
+            $export_type['type'] = $type; 
+            $EstimatesActilead = UserActivity::UserActivitySaved($export_type,'Export','Estimates');
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
-			
             $excel_data = json_decode(json_encode($excel_data),true);
+            
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Estimate.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
@@ -339,6 +342,19 @@ class EstimatesController extends \BaseController {
 				if(!empty($EstimateSubscriptionTaxRates)) { //product subscription tax
                     DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateSubscriptionTaxRates);
                 }*/
+
+                //unset discount amount & type if not selected
+                $i=0;
+                foreach($EstimateDetailData as $idata)
+                {
+                    if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                    {
+                        $EstimateDetailData[$i]["DiscountAmount"] = "";
+                        $EstimateDetailData[$i]["DiscountType"] = null;
+                    }
+                    $EstimateDetailData[$i]["DiscountLineAmount"] = ($EstimateDetailData[$i]["Price"] * $EstimateDetailData[$i]["Qty"]) - $EstimateDetailData[$i]["LineTotal"];
+                    $i++;
+                }
 				
 				 if(!empty($EstimateAllTaxRates)) { //estimate tax
                      EstimateTaxRate::insert($EstimateAllTaxRates);
@@ -365,7 +381,7 @@ class EstimatesController extends \BaseController {
 
 
                     DB::connection('sqlsrv2')->commit();
-
+                    $EstimatesActilead = UserActivity::UserActivitySaved($EstimateData,'Add','Estimates');	
                     return Response::json(array("status" => "success", "message" => "Estimate Successfully Created",'LastID'=>$Estimate->EstimateID,'redirect' => URL::to('/estimate/'.$Estimate->EstimateID.'/edit')));
                 }
 				else
@@ -376,6 +392,7 @@ class EstimatesController extends \BaseController {
             }
 			catch (Exception $e)
 			{
+                Log::info('error_estimate'.' '.$e->getMessage());
                 DB::connection('sqlsrv2')->rollback();
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Estimate. \n" . $e->getMessage()));
             }
@@ -448,8 +465,9 @@ class EstimatesController extends \BaseController {
 					{
                         $Extralognote = ' Total '.$Estimate->GrandTotal.' To '.$EstimateData['GrandTotal'];
                     }
-					
+                    
                     $Estimate->update($EstimateData);
+                   
 					
                      $EstimateDetailData = $EstimateItemTaxRates = $EstimateSubscriptionTaxRates = $EstimateAllTaxRates = array();
 					
@@ -562,6 +580,19 @@ class EstimatesController extends \BaseController {
 						if(!empty($EstimateSubscriptionTaxRates)) { //product subscription tax
 							DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateSubscriptionTaxRates);
 						}*/
+
+                        //unset discount amount & type if not selected
+                        $i=0;
+                        foreach($EstimateDetailData as $idata)
+                        {
+                            if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                            {
+                                $EstimateDetailData[$i]["DiscountAmount"] = "";
+                                $EstimateDetailData[$i]["DiscountType"] = null;
+                            }
+                            $EstimateDetailData[$i]["DiscountLineAmount"] = ($EstimateDetailData[$i]["Price"] * $EstimateDetailData[$i]["Qty"]) - $EstimateDetailData[$i]["LineTotal"];
+                            $i++;
+                        }
 						
 						if(!empty($EstimateAllTaxRates)) {
                             EstimateTaxRate::insert($EstimateAllTaxRates);
@@ -587,6 +618,7 @@ class EstimatesController extends \BaseController {
                             }
 
                             DB::connection('sqlsrv2')->commit();
+                            $EstimatesActilead = UserActivity::UserActivitySaved($EstimateData,'Edit','Estimates');
                             return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated", 'LastID' => $Estimate->EstimateID));
                         }
                         else
@@ -828,6 +860,7 @@ class EstimatesController extends \BaseController {
 
     public function delete($id)
     {
+        $data['id'] = $id;
         if( $id > 0)
 		{
             try
@@ -838,6 +871,7 @@ class EstimatesController extends \BaseController {
                 EstimateLog::where(["EstimateID"=>$id])->delete();
                 Estimate::find($id)->delete();
                 DB::connection('sqlsrv2')->commit();
+                $EstimatesActilead = UserActivity::UserActivitySaved($data,'Delete','Estimates');
                 return Response::json(array("status" => "success", "message" => "Estimate Successfully Deleted"));
 
             }
@@ -866,6 +900,7 @@ class EstimatesController extends \BaseController {
                 EstimateLog::whereIn("EstimateID",$EstimateIDs)->delete();
 				Estimate::whereIn('EstimateID',$EstimateIDs)->delete();
                 DB::connection('sqlsrv2')->commit();
+                $EstimatesActilead = UserActivity::UserActivitySaved($data,'Bulk Delete','Estimates');
                 return Response::json(array("status" => "success", "message" => "Estimate(s) Successfully Deleted"));
             }
 			catch (Exception $e)
@@ -896,7 +931,7 @@ class EstimatesController extends \BaseController {
     }
     public function estimate_preview($id)
 	{
-
+        $data['estimate_view_id'] = $id;
         $Estimate = Estimate::find($id);
         if(!empty($Estimate))
 		{
@@ -908,6 +943,7 @@ class EstimatesController extends \BaseController {
             $estimate_status 	= 	 Estimate::get_estimate_status();
             $EstimateStatus =   $estimate_status[$Estimate->EstimateStatus];
             $EstimateComments =   EstimateLog::get_comments_count($id);
+            $EstimatesActilead = UserActivity::UserActivitySaved($data,'View','Estimates');
             return View::make('estimates.estimates_preview', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','EstimateStatus','EstimateComments'));
         }
     }
@@ -1109,6 +1145,7 @@ class EstimatesController extends \BaseController {
     }
     public function send($id)
 	{
+
         if($id)
 		{
             set_time_limit(600); // 10 min time limit.
@@ -1264,6 +1301,7 @@ class EstimatesController extends \BaseController {
             
 			if($StaffStatus['status']==0)
 			{
+                $EstimatesActilead = UserActivity::UserActivitySaved($data,'Send','Estimates');
                 $status['message'] .= ', Enable to send email to staff : ' . $StaffStatus['message'];
             }
 
@@ -1318,7 +1356,7 @@ class EstimatesController extends \BaseController {
 						$InvoiceTemplateID = Invoice::GetInvoiceTemplateID($Invoice);
                         InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 		}
-			
+        $EstimatesActilead = UserActivity::UserActivitySaved($data,'Edit','Estimates');	
 		return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated"));			
 	}
 
@@ -1335,6 +1373,7 @@ class EstimatesController extends \BaseController {
 		{
 			if (Estimate::where('EstimateID',$data['EstimateIDs'])->update([ 'ModifiedBy'=>$username,'EstimateStatus' => $data['EstimateStatus']]))
 			{
+                $EstimatesActilead = UserActivity::UserActivitySaved($data,'Edit','Estimates');
 				return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated"));
 			}
 			else
@@ -1402,7 +1441,7 @@ class EstimatesController extends \BaseController {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating Estimate(s)."));
 			}
 			else
-			{				
+			{	 $EstimatesActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Estimates');			
 				return Response::json(array("status" => "success", "message" => "Estimate(s) Successfully Updated"));
 			}
        

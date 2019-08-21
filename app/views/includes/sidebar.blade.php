@@ -226,6 +226,7 @@
         <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
         @endif
 
+
         <!--<li>
 <a href="{{URL::to('/cdr_recal')}}">
   <i class="entypo-pencil"></i>
@@ -241,6 +242,37 @@
       </ul>
     </li>
     @endif
+
+      <?php
+      $ActiveCallPath='';
+
+      if(CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+        $ActiveCallPath=URL::to('/Vendor_ActiveCalls');
+      }
+      if(CompanyConfiguration::getValueConfigurationByKey('VOS_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+        $ActiveCallPath=URL::to('/VOS_ActiveCalls');
+      }
+      if(CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+        $ActiveCallPath=URL::to('/ActiveCalls');
+      }
+
+      ?>
+
+
+    @if(User::checkCategoryPermission('VOSAccountIP','View') || ((CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1' || CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1') && User::checkCategoryPermission('ActiveCall','View') ))
+      <li class=""> <a href="#"> <i class="fa fa-credit-card" ></i> <span>API</span> </a>
+        <ul>
+          {{--<li >  <a href="{{Url::to('/VOS/AccountBalance')}}"> <span>Account Balance</span> </a> </li>--}}
+          <li >  <a href="{{Url::to('/VOS/mapping_gateway')}}"> <span>Account</span> </a> </li>
+
+          @if((CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1' || CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1') && User::checkCategoryPermission('ActiveCall','View'))
+            <li >  <a href="{{$ActiveCallPath}}"> <span>Active Calls</span> </a> </li>
+          @endif
+
+        </ul>
+      </li>
+    @endif
+
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('Analysis','All') || User::checkCategoryPermission('Analysis','Customer')  || User::checkCategoryPermission('Analysis','Vendor')  || User::checkCategoryPermission('Analysis','AccountManager') )
@@ -260,7 +292,7 @@
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
         @if( User::checkCategoryPermission('Report','Add'))
           <li class="two-links"> <a href="{{Url::to('/report')}}" class="first"> <i class="fa fa-line-chart"></i><span>Reports</span></a> <a href="{{URL::to('report/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
-        @elseif( User::checkCategoryPermission('Report','All'))
+        @elseif( User::checkCategoryPermission('Report','View'))
           <li> <a href="{{Url::to('/report')}}"> <i class="fa fa-line-chart"></i><span>Reports</span></a></li>
         @endif
     @endif
@@ -321,7 +353,10 @@
         @endif
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
-    	@endif
+        @endif
+        @if( User::checkCategoryPermission('ActivityFeed','View'))
+        <li> <a href="{{URL::to('/activity')}}">  <span>Activity Feed</span> </a> </li>
+    	  @endif
           @if( User::checkCategoryPermission('NoticeBoardPost','View'))
             <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li>
           @endif

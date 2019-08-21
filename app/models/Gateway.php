@@ -19,7 +19,7 @@ class Gateway extends \Eloquent {
 
     public static $protocol_type = [self::FTP_CLASSIC=>"FTP CLASSIC",self::FTP_OVER_TLS_SSL=>"FTP OVER TLS/SSL",self::SSH_FILE_TRANSFER=>"SSH"];
 
-    public static $ftp_array = [self::GATEWAY_VOS,self::GATEWAY_SippySFTP,self::GATEWAY_FTP,self::GATEWAY_VOS5000];
+    public static $ftp_array = [self::GATEWAY_FTP];
 
     public  static  function getGatewayListID(){
         $row = Gateway::where(array('Status'=>1))->lists('Title', 'GatewayID');

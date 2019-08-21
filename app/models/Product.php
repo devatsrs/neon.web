@@ -37,6 +37,16 @@ class Product extends \Eloquent {
         }
     }
 
+    public static function getAllProductName($CompanyID){
+        $products = [];
+        $items = Product::select(['ProductID','Name'])->where('CompanyId',$CompanyID)->lists('Name','ProductID');
+        $products[Product::ITEM] = $items;
+        //  $products[Product::ONEOFFCHARGE] = $items;
+        $products[Product::USAGE] = array("Usage");
+        $products[Product::SUBSCRIPTION] = BillingSubscription::getAllSubscriptionsNames($CompanyID);
+        return $products;
+    }
+
     public static function getProductDropdownList($CompanyID=0,$AppliedTo=0){
 
         //Items

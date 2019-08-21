@@ -43,6 +43,11 @@ class BillingSubscription extends \Eloquent {
         return $subscription;
     }
 
+    public static function getAllSubscriptionsNames($CompanyID){
+        $subscriptions = BillingSubscription::select(['SubscriptionID','Name'])->where('CompanyID',$CompanyID)->lists('Name','SubscriptionID');
+        return $subscriptions;
+    }
+
     public static function getSubscriptionsList($CompanyID=0,$AppliedTo=0){
 
         if (self::$enable_cache && Cache::has('subscription_dropdown1_cache')) {

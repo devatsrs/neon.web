@@ -39,6 +39,8 @@
             $NameFormat = GatewayConfig::$SippySQL_NameFormat;
         }else if($GatewayName == 'VoipMS'){
             $NameFormat = GatewayConfig::$VoipMS_NameFormat;
+        }else if($GatewayName == 'ClarityPBX'){
+            $NameFormat = GatewayConfig::$ClarityPBX_NameFormat;
         }
     ?>
 
@@ -57,7 +59,9 @@
      <div class="col-md-6 " @if($configkey == 'RateFormat') id="rate_dropdown" @endif>
         <div class="form-group" id="{{$configkey}}Box">
             @if($configkey != 'AllowAccountImport' && $configkey != 'AllowAccountIPImport')
-            <label  class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}} @if($configkey=='AutoAddIP') <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Auto Add IP" data-content="IP will be automatically added to the account if account name matches to the switch account name. Turn ON Auto Add IP notification from Admin > Notifications.">?</span> @endif
+            <label  class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}}
+                @if($configkey=='AutoAddIP') <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Auto Add IP" data-content="IP will be automatically added to the account if account name matches to the switch account name. Turn ON Auto Add IP notification from Admin > Notifications.">?</span> @endif
+                @if($configkey=='NameFormat' && $GatewayName == 'FusionPBX') <span type="button" class="label label-info popover-primary" data-html="true" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Authentication Rule" data-content="Account Name will be match with domain_description. <br/> Account Number will match with domain_name.">?</span> @endif
            </label>
             @endif
 

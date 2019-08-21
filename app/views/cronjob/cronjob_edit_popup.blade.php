@@ -303,7 +303,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Job Day</label>
-                                {{Form::select('Setting[JobDay][]',array("SUN"=>"Sunday","MON"=>"Monday","TUE"=>"Tuesday","WED"=>"Wednesday","THU"=>"Thursday","FRI"=>"Friday","SAT"=>"Saturday"),'',array( "class"=>"select2",'multiple',"data-placeholder"=>"Select day"))}}
+                                {{Form::select('Setting[JobDay][]',array("DAILY"=>"Daily","SUN"=>"Sunday","MON"=>"Monday","TUE"=>"Tuesday","WED"=>"Wednesday","THU"=>"Thursday","FRI"=>"Friday","SAT"=>"Saturday"),'',array( "class"=>"select2",'multiple',"data-placeholder"=>"Select day"))}}
                             </div>
                         </div>
                         <div class="col-md-6">

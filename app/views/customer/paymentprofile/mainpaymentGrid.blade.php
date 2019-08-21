@@ -6,9 +6,14 @@
 		@include('customer.paymentprofile.paymentGrid')
 	@endif
 @endif
-@if( $account->PaymentMethod == 'StripeACH')
+@if( $account->PaymentMethod == 'StripeACH' || $account->PaymentMethod == "GoCardLess" || $account->PaymentMethod == "AuthorizeNetEcheck")
 	@if(is_StripeACH($account->CompanyId))
 		@include('customer.paymentprofile.bankpaymentGrid')
+	@endif
+@endif
+@if( $account->PaymentMethod == 'FastPay')
+	@if(is_FastPay($account->CompanyId))
+		@include('customer.paymentprofile.bankpaymentGridFastPay')
 	@endif
 @endif
 @if( $account->PaymentMethod == 'SagePayDirectDebit')

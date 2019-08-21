@@ -26,6 +26,7 @@ class TicketsTable extends \Eloquent
 	
 	static  $DueFilter					=	array("Overdue"=>"Overdue","Today"=>"Today","Tomorrow"=>"Tomorrow","Next_8_hours"=>"Next 8 hours");
 
+	static $LastReply					= array("0"=>"Select","1"=>"1 Days ago","2"=>"2 Days ago","3"=>"3 Days ago","4"=>"4 Days ago","5"=>"5 Days ago","6"=>"6 Days ago","7"=>"7 Days Before");
     public static function boot()
     {
         parent::boot();
@@ -326,6 +327,11 @@ class TicketsTable extends \Eloquent
 		$row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
 			->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD,'tblTicketfieldsValues.FieldSlaTime'=>0])
 			->lists('FieldValueAgent','ValuesID');
+		return $row;
+	}
+
+	static function getTicketsRequester(){
+		$row=TicketsTable::whereRaw('Requester != ""')->distinct('Requester')->lists('Requester','Requester');
 		return $row;
 	}
 

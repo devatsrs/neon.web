@@ -7,7 +7,9 @@ class NoticeBoardController extends BaseController{
     }
 
     public function index(){
+        $data = array();
         $CompanyID = User::get_companyID();
+        $NoticeboardActilead = UserActivity::UserActivitySaved($data,'View','Noticeboard');
         $LastUpdated = NoticeBoardPost::where("CompanyID", $CompanyID)->limit(1)->orderBy('NoticeBoardPostID','Desc')->pluck('updated_at');
         $extends = 'layout.main_only_sidebar';
 
@@ -36,6 +38,7 @@ class NoticeBoardController extends BaseController{
         if($data['NoticeBoardPostID'] && NoticeBoardPost::where('NoticeBoardPostID',$data['NoticeBoardPostID'])->count()){
             $NoticeBoardPost = NoticeBoardPost::find($data['NoticeBoardPostID']);
             if($NoticeBoardPost->update($data)){
+                $NoticeboardActilead = UserActivity::UserActivitySaved($data,'Edit','Noticeboard',$data['Title']);
                 $message = 'Post Successfully Updated';
                 $status = 'success';
             }else{
@@ -44,6 +47,7 @@ class NoticeBoardController extends BaseController{
             }
         }else{
             if($NoticeBoardPost = NoticeBoardPost::create($data)){
+                $NoticeboardActilead = UserActivity::UserActivitySaved($data,'Add','Noticeboard',$data['Title']);
                 $message = 'Post Successfully Created';
                 $status = 'success';
                 $html = View::make('noticeboard.single', compact('NoticeBoardPost'))->render();
@@ -59,7 +63,9 @@ class NoticeBoardController extends BaseController{
 
 
     public function delete($id){
+        $data['id'] = $id;
         if(NoticeBoardPost::where('NoticeBoardPostID',$id)->delete()){
+            $NoticeboardActilead = UserActivity::UserActivitySaved($data,'Delete','Noticeboard');
             return Response::json(array("status" => 'success', "message" => 'Post Successfully Deleted'));
         }else{
             return Response::json(array("status" => 'failed', "message" => 'Problem Deleting Post'));

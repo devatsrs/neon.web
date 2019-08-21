@@ -7,7 +7,8 @@ class TicketsBusinessHoursController extends \BaseController {
 	 } 	 
 	 
     public function ajax_datagrid($type='') { 
-		$data 		= 	Input::all();  
+		$data 		= 	Input::all(); 
+                $UserActilead = UserActivity::UserActivitySaved($data,'View','Business Hours');
 		if($type)
 		{
 			$data['Export']		=	1; 
@@ -69,13 +70,16 @@ class TicketsBusinessHoursController extends \BaseController {
         $response 				= 		NeonAPI::request('tickets/businesshours/store',$postdata,true,false,false);
 		
         if(!empty($response) && $response->status == 'success'){
+            $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Business Hours');
             $response->redirect =  URL::to('/businesshours/');
         }
         return json_response_api($response);     
 	
 	}
 	
-	public function delete($id) {		
+	public function delete($id) {	
+            $postdata['id']=$id;
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Delete','Business Hours');
 		$response 		= 		NeonAPI::request('tickets/businesshours/delete/'.$id,array(),true,false,false); 
 		return json_response_api($response);
     }
@@ -94,6 +98,7 @@ class TicketsBusinessHoursController extends \BaseController {
 	
 	function update($id){
 		$postdata 				= 		Input::all();
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Edit','Business Hours');
         $response 				= 		NeonAPI::request('tickets/businesshours/update/'.$id,$postdata,true,false,false); 
         return json_response_api($response);
 	}

@@ -14,6 +14,7 @@ class ServerInfoController extends \BaseController {
     public function ajax_getdata() {
         $data = Input::all();
         $CompanyID = User::get_companyID();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Server Monitor');
         $ServerInfo = ServerInfo::where(['CompanyID'=>$CompanyID])->select(['ServerInfoID','ServerInfoTitle','ServerInfoUrl'])->get();
         return Response::json(array("status" => "success", "data" => $ServerInfo));
     }
@@ -48,6 +49,7 @@ class ServerInfoController extends \BaseController {
         }
         unset($data['ServerInfoID']);
         if (ServerInfo::create($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Server Monitor',$data['ServerInfoTitle']);
             return Response::json(array("status" => "success", "message" => "Server info Successfully Created"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Server info."));
@@ -80,6 +82,7 @@ class ServerInfoController extends \BaseController {
             }
             unset($data['ServerInfoID']);
             if (ServerInfo::where(['ServerInfoID'=>$id])->update($data)) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Server Monitor',$data['ServerInfoTitle']);
                 return Response::json(array("status" => "success", "message" => "Server info Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Server info."));
@@ -97,10 +100,12 @@ class ServerInfoController extends \BaseController {
 	 * @return Response
 	 */
     public function delete($id) {
+        $data['id'] = $id;
         if($id>0){
                 try {
                     $result = ServerInfo::where(['ServerInfoID'=>$id])->delete();
                     if ($result) {
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Server Monitor');
                         return Response::json(array("status" => "success", "message" => "Server Info Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Server Info."));

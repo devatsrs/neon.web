@@ -120,6 +120,7 @@
     <th width="15%">Name</th>
     <th width="15%">Phone</th>
     <th width="15%">Email</th>
+    <th width="15%">Created At</th>
     <th width="30%">Actions</th>
 </tr>
 </thead>
@@ -162,7 +163,7 @@
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "oTableTools": {},
-                "aaSorting": [[0, 'asc']],
+                "aaSorting": [[1, 'asc']],
                 "aoColumns": [
                     {"bSortable": false,
                         mRender: function(id, type, full) {
@@ -189,11 +190,16 @@
                             return full[3];
                         }
                     },
+                    {"bSortable": true,
+                        mRender: function(id, type, full) {
+                            return full[4];
+                        }
+                    },
                     {
-                        "bSortable": true,
+                        "bSortable": false,
                         mRender: function (id, type, full) {
                             var action, edit_, show_;
-                            id = full[4];
+                            id = full[5];
                             edit_ = "{{ URL::to('leads/{id}/edit')}}";
                             clone_ = "{{ URL::to('leads/{id}/clone')}}";
 							show_ = "{{ URL::to('leads/{id}/show')}}";
@@ -214,13 +220,13 @@
                             action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View" data-id="'+full[0]+'" type="button"> <i class="fa fa-eye"></i> </button>';//entypo-info
 
                             action +='<input type="hidden" name="accountid" value="'+id+'"/>';
-                            action +='<input type="hidden" name="address1" value="'+full[7]+'"/>';
-                            action +='<input type="hidden" name="address2" value="'+full[8]+'"/>';
-                            action +='<input type="hidden" name="address3" value="'+full[9]+'"/>';
-                            action +='<input type="hidden" name="city" value="'+full[10]+'"/>';
-                            action +='<input type="hidden" name="country" value="'+full[11]+'"/>';
-                            action +='<input type="hidden" name="picture" value="'+full[12]+'"/>';
-							action +='<input type="hidden" name="PostCode" value="'+full[13]+'"/>';
+                            action +='<input type="hidden" name="address1" value="'+full[8]+'"/>';
+                            action +='<input type="hidden" name="address2" value="'+full[9]+'"/>';
+                            action +='<input type="hidden" name="address3" value="'+full[10]+'"/>';
+                            action +='<input type="hidden" name="city" value="'+full[11]+'"/>';
+                            action +='<input type="hidden" name="country" value="'+full[12]+'"/>';
+                            action +='<input type="hidden" name="picture" value="'+full[13]+'"/>';
+							action +='<input type="hidden" name="PostCode" value="'+full[14]+'"/>';
                             return action;
                         }
                     },

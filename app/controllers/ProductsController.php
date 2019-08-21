@@ -13,6 +13,7 @@ class ProductsController extends \BaseController {
 
     public function ajax_datagrid($type) {
         $data = Input::all();
+        $productsActilead = UserActivity::UserActivitySaved($data,'View','Products');
         $data['SearchStock']=!empty($data['SearchStock'])?$data['SearchStock']:'';
         $data['SearchDynamicFields']=!empty($data['SearchDynamicFields'])?$data['SearchDynamicFields']:'';
         $CompanyID = User::get_companyID();
@@ -28,6 +29,8 @@ class ProductsController extends \BaseController {
         $DynamicFields = $this->getDynamicFields($CompanyID,$Type);
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Products');
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1,"'.$data['SearchStock'].'","'.$data['SearchDynamicFields'].'")');
             if($DynamicFields['totalfields'] > 0){
                 foreach ($excel_data as $key => $value) {
@@ -235,10 +238,13 @@ class ProductsController extends \BaseController {
             }
             if(isset($DynamicFields) && count($DynamicFields)>0) {
                 for($k=0; $k<count($DynamicFields); $k++) {
-                    $DynamicFields[$k]['ParentID'] = $product->ProductID;
-                    DB::table('tblDynamicFieldsValue')->insert($DynamicFields[$k]);
+                    if(trim($DynamicFields[$k]['FieldValue'])!='') {
+                        $DynamicFields[$k]['ParentID'] = $product->ProductID;
+                        DB::table('tblDynamicFieldsValue')->insert($DynamicFields[$k]);
+                    }
                 }
             }
+            $productsActilead = UserActivity::UserActivitySaved($data,'Add','Products',$data['Name']);
             return Response::json(array("status" => "success", "message" => "Product Successfully Created",'newcreated'=>$product));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Product."));
@@ -338,21 +344,23 @@ class ProductsController extends \BaseController {
                                 ->update(['FieldValue' => $value, 'updated_at' => date('Y-m-d H:i:s.000'), 'updated_by' => $user]);
                         }
                     } else {
-                        $DynamicFields['CompanyID'] = $companyID;
-                        $DynamicFields['ParentID'] = $data['ProductID'];
-                        $DynamicFields['DynamicFieldsID'] = $key;
-                        $DynamicFields['FieldValue'] = $value;
-                        $DynamicFields['DynamicFieldsValueID'] = 'NULL';
-                        $DynamicFields['created_at'] = date('Y-m-d H:i:s.000');
-                        $DynamicFields['created_by'] = $user;
-                        $DynamicFields['updated_at'] = date('Y-m-d H:i:s.000');
-                        $DynamicFields['updated_by'] = $user;
+                        if(trim($value)!='') {
+                            $DynamicFields['CompanyID'] = $companyID;
+                            $DynamicFields['ParentID'] = $data['ProductID'];
+                            $DynamicFields['DynamicFieldsID'] = $key;
+                            $DynamicFields['FieldValue'] = $value;
+                            $DynamicFields['DynamicFieldsValueID'] = 'NULL';
+                            $DynamicFields['created_at'] = date('Y-m-d H:i:s.000');
+                            $DynamicFields['created_by'] = $user;
+                            $DynamicFields['updated_at'] = date('Y-m-d H:i:s.000');
+                            $DynamicFields['updated_by'] = $user;
 
-                        if($error = DynamicFieldsValue::validateOnUpdate($DynamicFields)){
-                            return $error;
+                            if ($error = DynamicFieldsValue::validateOnUpdate($DynamicFields)) {
+                                return $error;
+                            }
+
+                            DynamicFieldsValue::insert($DynamicFields);
                         }
-
-                        DynamicFieldsValue::insert($DynamicFields);
                     }
                 }
                 unset($data['DynamicFields']);
@@ -425,6 +433,7 @@ class ProductsController extends \BaseController {
                     );
                     StockHistory::create($historyData);
                 }
+                $productsActilead = UserActivity::UserActivitySaved($data,'Edit','Products',$data['Name']);
                 return Response::json(array("status" => "success", "message" => "Product Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Product."));
@@ -476,6 +485,8 @@ class ProductsController extends \BaseController {
                         }
                         Log::info("==Delete StockHistory productId=".$id);
                         StockHistory::where('ProductID',$id)->delete();
+                        $data['id'] = $id;
+                        $productsActilead = UserActivity::UserActivitySaved($data,'Delete','Products');
                         return Response::json(array("status" => "success", "message" => "Product Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Product."));
@@ -563,6 +574,7 @@ class ProductsController extends \BaseController {
                     $grid['FileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
                     $grid['FileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
                 }
+                $productsActilead = UserActivity::UserActivitySaved($data,'Upload','Products');
                 return Response::json(array("status" => "success", "message" => "file uploaded", "data" => $grid));
             }
         } catch (Exception $e) {
@@ -814,6 +826,7 @@ class ProductsController extends \BaseController {
             $query = "call prc_UpdateProductsStatus (".$CompanyID.",'".$UserName."','".$data['Name']."','".$data['Code']."',".$data['Active'].",".$data['AppliedTo'].",".$data['status_set'].")";
 
             $result = DB::connection('sqlsrv2')->select($query);
+            $productsActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Products');
             return Response::json(array("status" => "success", "message" => "Items Status Updated"));
         }
 
@@ -823,6 +836,7 @@ class ProductsController extends \BaseController {
                     Product::whereIn('ProductID',$data['SelectedIDs'])->where('Active','!=',$data['status_set'])->update(["Active"=>intval($data['status_set'])]);
 //                    Product::find($SelectedID)->where('Active','!=',$data['status_set'])->update(["Active"=>intval($data['status_set']),'ModifiedBy'=>$UserName,'updated_at'=>date('Y-m-d H:i:s')]);
 //                }
+                $productsActilead = UserActivity::UserActivitySaved($data,'Bulk Edit','Products');
                 return Response::json(array("status" => "success", "message" => "Items Status Updated"));
             }else{
                 return Response::json(array("status" => "failed", "message" => "No Items selected"));

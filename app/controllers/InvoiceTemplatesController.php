@@ -5,8 +5,11 @@ class InvoiceTemplatesController extends \BaseController {
     public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Invoice Template');
         $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $export_type['type'] = $type;
+            $UserActilead = UserActivity::UserActivitySaved($export_type,'Export','Invoice Template');
             $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency')->get();
             $invoiceCompanies = json_decode(json_encode($invoiceCompanies),true);
             if($type=='csv'){
@@ -42,11 +45,13 @@ class InvoiceTemplatesController extends \BaseController {
         $data = Input::all();
         $type = $data['Type'];
         if($type==1){
+            $UserActilead = UserActivity::UserActivitySaved($data,'View','Invoice Template Periodic');
             return View::make('invoicetemplates.showservice', compact('InvoiceTemplate','logo'));
         }elseif($type==2){
+            $UserActilead = UserActivity::UserActivitySaved($data,'View','Invoice Template Item');
             return View::make('invoicetemplates.showitem', compact('InvoiceTemplate','logo'));
         }elseif($type==3){
-
+            $UserActilead = UserActivity::UserActivitySaved($data,'View','Invoice Template Usage Column');
             /* Default Value */
             $test_detail='[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"CLI","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"CLD","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"ConnectTime","ValuesID":"4","UsageName":"Connect Time","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"BillDuration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7},{"Title":"BillDurationMinutes","ValuesID":"8","UsageName":"DurationMinutes","Status":false,"FieldOrder":8},{"Title":"Country","ValuesID":"9","UsageName":"Country","Status":false,"FieldOrder":9},{"Title":"CallType","ValuesID":"10","UsageName":"CallType","Status":false,"FieldOrder":10},{"Title":"Description","ValuesID":"11","UsageName":"Description","Status":false,"FieldOrder":11}]';
 
@@ -81,6 +86,7 @@ class InvoiceTemplatesController extends \BaseController {
 
             return View::make('invoicetemplates.showusagecdr', compact('InvoiceTemplate','logo','detail_values','summary_values'));
         }elseif($type==4){
+            $UserActilead = UserActivity::UserActivitySaved($data,'View','Invoice Template Management Reports');
             /* Default Value */
             $test_detail='[{"Title":"Longest Calls","ValuesID":"1","UsageName":"Longest Calls","Status":true,"FieldOrder":1},{"Title":"Most Expensive Calls","ValuesID":"2","UsageName":"Most Expensive Calls","Status":true,"FieldOrder":2},{"Title":"Frequently Called Numbers","ValuesID":"3","UsageName":"Frequently Called Numbers","Status":true,"FieldOrder":3},{"Title":"Daily Summary","ValuesID":"4","UsageName":"Daily Summary","Status":true,"FieldOrder":4},{"Title":"Usage by Category","ValuesID":"4","UsageName":"Usage by Category","Status":true,"FieldOrder":5}]';
             $detail_values  =  json_decode($test_detail,true);
@@ -209,6 +215,7 @@ class InvoiceTemplatesController extends \BaseController {
             }
 
             if ($InvoiceTemplates->update($data)) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Invoice Template',$data['Name']);
                 return Response::json(array("status" => "success", "message" => "Invoice Template Successfully Updated",'LastID'=>$id));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Invoice Template."));
@@ -303,7 +310,7 @@ class InvoiceTemplatesController extends \BaseController {
             if(isset($data['CompanyLogoAS3Key']) && !empty($data['CompanyLogoAS3Key'])){
                 $data['CompanyLogoUrl'] = URL::to("/invoice_templates/".$invoiceCompany->InvoiceTemplateID) ."/get_logo";
             }
-
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Invoice Template',$data['Name']);
             return Response::json(array("status" => "success", "message" => "Invoice Template Successfully Created",'newcreated'=>$invoiceCompany,'LastID'=>$invoiceCompany->InvoiceTemplateID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Invoice Template."));
@@ -313,6 +320,7 @@ class InvoiceTemplatesController extends \BaseController {
 
     public function delete($id)
     {
+        $data['id'] = $id;
         if( intval($id) > 0){
 
             if(!InvoiceTemplate::checkForeignKeyById($id)){
@@ -321,6 +329,7 @@ class InvoiceTemplatesController extends \BaseController {
                     AmazonS3::delete($InvoiceTemplate->CompanyLogoAS3Key);
                     $result = $InvoiceTemplate->delete();
                     if ($result) {
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Invoice Template');
                         return Response::json(array("status" => "success", "message" => "Invoice Template Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Invoice Template."));

@@ -72,7 +72,7 @@
             </div>            
           </div>
             <div class="form-group">
-                <label for="GroupName" class="col-sm-3 control-label">Prot</label>
+                <label for="GroupName" class="col-sm-3 control-label">Port</label>
                 <div class="col-sm-9">
                     <input type="text" name='GroupEmailPort' class="form-control" id="imapport" placeholder="IMAP Server Port" value="{{$ticketdata->GroupEmailPort}}">
                 </div>

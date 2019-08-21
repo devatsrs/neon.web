@@ -14,7 +14,10 @@ class LeadsController extends \BaseController {
        $companyID = User::get_companyID();
        $userID = User::get_userID();
         $data = Input::all();
-        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.AccountID","IsCustomer","IsVendor",'tblAccount.Address1','tblAccount.Address2','tblAccount.Address3','tblAccount.City','tblAccount.Country','Picture','tblAccount.PostCode'];
+        $columns = array('AccountID','AccountName','FirstName','Phone','Email','created_at');
+        $sort_column = $columns[$data['iSortCol_0']];
+
+        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.created_at","tblAccount.AccountID","IsCustomer","IsVendor",'tblAccount.Address1','tblAccount.Address2','tblAccount.Address3','tblAccount.City','tblAccount.Country','Picture','tblAccount.PostCode'];
         //$leads = Account::leftjoin('tblUser', 'tblAccount.Owner', '=', 'tblUser.UserID')->select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
 		$leads = Account::select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
 
@@ -27,7 +30,10 @@ class LeadsController extends \BaseController {
         }else{
             $leads->where('tblAccount.Status', 0);
         }
-
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Lead');
+        
         if(User::is_admin() && isset($data['account_owners'])  && trim($data['account_owners']) > 0) {
             $leads->where('tblAccount.Owner', (int)$data['account_owners']);
         }
@@ -40,6 +46,9 @@ class LeadsController extends \BaseController {
         if(trim($data['tag']) != '') {
             $leads->where('tblAccount.tags', 'like','%'.trim($data['tag']).'%');
         }
+
+        $leads->orderBy($sort_column,$data['sSortDir_0']);
+
         return Datatables::of($leads)->make();
     }
 
@@ -100,7 +109,8 @@ class LeadsController extends \BaseController {
             $companyID = User::get_companyID();
             $account_owners = User::getOwnerUsersbyRole();
             $countries = $this->countries;
-            return View::make('leads.create', compact('account_owners', 'update_url', 'countries'));
+            $company = Company::find($companyID);
+            return View::make('leads.create', compact('account_owners', 'update_url', 'countries','company'));
     }
 
     /**
@@ -123,13 +133,17 @@ class LeadsController extends \BaseController {
         Lead::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,'.$data['CompanyID'].'';
         $validator = Validator::make($data, Lead::$rules);
         $data['created_by'] =  User::get_user_full_name();
-
-
+        
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-
+        
+        
+        
+        
+        
         if($lead = Lead::create($data)){
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Lead',$data['FirstName'].' '.$data['LastName']);
             return  Response::json(array("status" => "success", "message" => "Lead Successfully Created",'LastID'=>$lead->AccountID,'redirect' => URL::to('/leads/'.$lead->AccountID.'/show')));
         } else {
             return  Response::json(array("status" => "failed", "message" => "Problem Creating Lead."));
@@ -243,7 +257,8 @@ class LeadsController extends \BaseController {
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug,$companyID); //freshdesk
 			$SystemTickets				=   Tickets::CheckTicketLicense();			
-			$FromEmails	 				= 	TicketGroups::GetGroupsFrom();			
+			$FromEmails	 				= 	TicketGroups::GetGroupsFrom();		
+                        $UserActilead = UserActivity::UserActivitySaved($data,'Show','Lead');
             return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets','FromEmails'));
     	}
 
@@ -272,6 +287,8 @@ class LeadsController extends \BaseController {
         $leadOrAccount = $leads;
         $leadOrAccountCheck = 'lead';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
+        $data['id']=$id;
+        $UserActilead = UserActivity::UserActivitySaved($data,'Edit Tag','Lead');
         return View::make('leads.edit', compact('lead', 'account_owners', 'countries', 'tags', 'text', 'url', 'url2','opportunityTags','leads','boards','opportunitytags','leadOrAccountCheck','leadOrAccount','leadOrAccountID'));
     }
 
@@ -298,14 +315,20 @@ class LeadsController extends \BaseController {
             'Owner' =>      'required',
             'CompanyID' =>  'required',
             'AccountName' => 'required|unique:tblAccount,AccountName,'.$lead->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'],
+            'CurrencyId' =>  'required',
         );
-
+        
         $validator = Validator::make($data, $rules);
-
+     
+        
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        
+        
+        
         if($lead->update($data)){
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Lead',$data['FirstName'].' '.$data['LastName']);
             return  Response::json(array("status" => "success", "message" => "Lead Successfully Updated"));
         } else {
             return  Response::json(array("status" => "failed", "message" => "Problem Updating Lead."));
@@ -355,6 +378,7 @@ class LeadsController extends \BaseController {
         }
 
         if($result){
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit Note','Lead',$result);
             if(empty($data["NoteID"])){
                 return  Response::json(array("status" => "success", "message" => "Note Successfully Updated", "NoteID"=>$NoteID, "Note" => $result  ));
             }
@@ -373,6 +397,8 @@ class LeadsController extends \BaseController {
 
         $result = Note::find($id)->delete();
         if($result){
+            $data['id']=$id;
+            $UserActilead = UserActivity::UserActivitySaved($data,'Delete Note','Lead');
             return  Response::json(array("status" => "success", "message" => "Note Successfully Deleted",   "NoteID" => $id ));
         }else{
             return  Response::json(array("status" => "failed", "message" => "Problem Deleting Note."));
@@ -422,7 +448,7 @@ class LeadsController extends \BaseController {
             }
 
             $account->update($data);
-
+            $UserActilead = UserActivity::UserActivitySaved($data,'Convert','Lead');
             return Redirect::to('accounts/' . $id . '/show')->with('is_converted', 'Lead Successfully Converted to Account');
     }
 
@@ -466,6 +492,7 @@ class LeadsController extends \BaseController {
             $criteria['account_owners'] = $userID = User::get_userID();
             $data['criteria'] = json_encode($criteria);
         }
+        $UserActilead = UserActivity::UserActivitySaved($data,'Bulk Email','Lead');
         return bulk_mail('BLE', $data);
     }
 
@@ -491,6 +518,7 @@ class LeadsController extends \BaseController {
             $SelectedIDs = $data['SelectedIDs'];
             unset($data['SelectedIDs']);
             if (Lead::whereIn('AccountID', explode(',', $SelectedIDs))->update($data)) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Bulk Tags','Lead');
                 return Response::json(array("status" => "success", "message" => "Lead Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Lead."));
@@ -505,6 +533,8 @@ class LeadsController extends \BaseController {
             $text = 'New Lead';
             $url = URL::to('leads/store');
             $url2 = 'leads/store';
+            $data['id']=$id;
+            $UserActilead = UserActivity::UserActivitySaved($data,'Clone','Lead');
             return View::make('leads.edit', compact('lead', 'account_owners', 'countries', 'tags','text','url','url2'));
     }
 

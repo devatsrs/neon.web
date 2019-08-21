@@ -7,7 +7,11 @@ class TicketDashboardController extends \BaseController {
   	}
 
     public function ticketSummaryWidget(){
+        
         $data['AccessPermission'] = TicketsTable::GetTicketAccessPermission();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Ticket dashboard');
         $response 				= 	NeonAPI::request('tickets/get_ticket_dashboard_summary',$data);
         return json_response_api($response);
     }

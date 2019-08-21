@@ -19,8 +19,9 @@ class CustomersRatesController extends \BaseController {
         $data['Code'] = $data['Code'] != ''?"'".$data['Code']."'":'null';
         $data['Description'] = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $columns = array('RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlan','Rate','RateN','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId');
+        $columns = array('RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlan','Rate','RateN','EffectiveDate','RatePrefix','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId');
         $sort_column = $columns[$data['iSortCol_0']];
+        //echo $sort_column;die;
         $companyID = User::get_companyID();
 
         if($data['Effective'] == 'CustomDate') {
@@ -33,6 +34,7 @@ class CustomersRatesController extends \BaseController {
             $query = "call prc_getDiscontinuedCustomerRateGrid (" . $companyID . "," . $id . "," . $data['Trunk'] . ",".$data['Timezones']."," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
         } else {
             $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+
         }
 
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -54,6 +56,7 @@ class CustomersRatesController extends \BaseController {
             })->download('xls');*/
         }
         $query .=',0)';
+        //echo "==".$query;die;
         //Log::info($query);
 
         return DataTableSql::of($query)->make();
@@ -287,8 +290,11 @@ class CustomersRatesController extends \BaseController {
         }
         $bulk_type = 'customers_rates';
         $Timezones = Timezones::getTimezonesIDList();
+        $RatePrefixes=CustomerRate::getRatePrefix($id);
 
-        return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype','bulk_type','Timezones'));
+        $VOS_RATEPREFIX_RATESHEET = CompanyConfiguration::get('VOS_RATEPREFIX_RATESHEET');
+
+        return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype','bulk_type','Timezones','VOS_RATEPREFIX_RATESHEET','RatePrefixes'));
     }
 
     public function process_download($id) {

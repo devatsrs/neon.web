@@ -13,6 +13,8 @@ class PaymentGateway extends \Eloquent {
     const  PeleCard	    =	6;
     const  MerchantWarrior	    =	7;
     const  AuthorizeNetEcheck	=	8;
+    const  FastPay	=	9;
+    const  GoCardLess	=	10;
     public static $paymentgateway_name = array(''=>'' ,
         self::AuthorizeNet => 'AuthorizeNet',
         self::Stripe=>'Stripe',
@@ -21,7 +23,9 @@ class PaymentGateway extends \Eloquent {
         self::FideliPay=>'FideliPay',
         self::PeleCard=>'PeleCard',
         self::MerchantWarrior=>'MerchantWarrior',
-        self::AuthorizeNetEcheck=>'AuthorizeNetEcheck'
+        self::AuthorizeNetEcheck=>'AuthorizeNetEcheck',
+        self::FastPay=>'FastPay',
+        self::GoCardLess=>'GoCardLess'
     );
 
     public static function getName($PaymentGatewayID)

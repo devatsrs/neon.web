@@ -150,6 +150,9 @@
             @if(is_SagePayDirectDebit($CompanyID))
             <li> <a class="sagepost create" id="sage-post" href="javascript:;"> Sage Pay Direct Debit Export </a> </li>
             @endif
+            @if(is_FastPay($CompanyID))
+            <li> <a class="create" id="fastpay-export" href="javascript:;"> FastPay Export </a> </li>
+            @endif
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
@@ -1537,6 +1540,82 @@
                 }
             });
 
+            $("#fastpay-export").click(function (ev){
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+
+                if (InvoiceIDs.length) {
+                    if (!confirm('Are you sure you want to Export Selected Invoices Account Information?')) {
+                        return;
+                    }
+                    var url = baseurl + '/invoice/invoice_fastpayexport';
+                    var data = '?InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria;
+
+                    window.location.href = url + data;
+                    setTimeout(function () {
+                        data_table.fnFilter('', 0);
+                    }, 1000);
+                    //submit_ajax(baseurl + '/invoice/invoice_fastpayexport', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria)
+                }
+                else{
+                    toastr.error("Please Select Invoices to Export", "Error", toastr_opts);
+                }
+            });
+
+            $('#Account_ID').change(function() {
+                $('#PaymentMethod').change();
+            });
+
+            $('#PaymentMethod').on('change', function() {
+                if(this.value == 'CREDIT NOTE')
+                {
+                    var formData = new FormData($('#add-edit-payment-form')[0]);
+                    $.ajax({
+                        url:'{{URL::to('payments/getcreditnotes')}}',
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            //alert(JSON.stringify(response.data));
+                            if (response.status == 'success') {
+                                var data = response.data;
+                                var options = '<option value="">Select Credit Note</option>';
+                                Object.keys(data).forEach(function(key) {
+                                    var total = data[key].GrandTotal - data[key].PaidAmount;
+                                    if(total != 0)
+                                    {
+                                        options += '<option value='+data[key].CreditNotesID+'>No.' +data[key].CreditNotesNumber+' - '+ total.toFixed(2)+'</option>';
+                                    }
+                                });
+                                $("#CreditNotesList").select2("destroy").select2();
+                                $('#CreditNotesList').html(options);
+                                $('#creditnotebox').removeClass('hidden');
+                            } else {
+                                toastr.error(response.message, "Credit Note Not Available For this Account", toastr_opts);
+                            }
+                            //$('#table-4_processing').addClass('hidden');
+                        },
+                        data: formData,
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                }
+                else{
+                    $('#creditnotebox').addClass('hidden');
+                }
+            });
+
         });
 
     </script>
@@ -2006,7 +2085,7 @@
               <div class="form-group">
                 <label for="field-5" class="control-label">Account Name * <span
                                                 id="AccountID_currency"></span></label>
-                {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","id"=>"Account_ID","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                 <input type="hidden" name="AccountName"/>
               </div>
             </div>
@@ -2021,8 +2100,17 @@
             <div class="col-md-12">
               <div class="form-group">
                 <label for="field-5" class="control-label">Payment Method *</label>
-                {{ Form::select('PaymentMethod',Payment::$method, '', array("class"=>"select2 small")) }} </div>
+                {{ Form::select('PaymentMethod',Payment::$method, '', array("class"=>"select2 small","id"=>"PaymentMethod")) }} </div>
             </div>
+
+              <div class="hidden" id="creditnotebox">
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="field-5" class="control-label">Credit Notes *</label>
+                          {{ Form::select('CreditNotesList', ['' => 'Select Credit Note'] , '', array("class"=>"select2 small","id"=>"CreditNotesList")) }} </div>
+                  </div>
+              </div>
+
             <div class="col-md-12">
               <div class="form-group">
                 <label for="field-5" class="control-label">Action *</label>

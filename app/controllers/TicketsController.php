@@ -62,14 +62,19 @@ class TicketsController extends \BaseController {
 		{
 			$overdueVal = TicketsTable::$DueFilter['Today'];
 		}
-		//echo $overdueVal;exit;
-        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus",'OpenTicketStatus','overdueVal'));  
+		 $Requester=TicketsTable::getTicketsRequester();
+		 //echo "<pre>";print_r($Requester);die;
+		 //echo $overdueVal;exit;
+        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus",'OpenTicketStatus','overdueVal','Requester'));
 
 	}	
 	  
 	  public function ajex_result() {
 	
-	    $data 						= 	Input::all(); 
+	    $data 						= 	Input::all();
+            //https://codedesk.atlassian.net/browse/NEON-1591
+                //Audit Trails of user activity
+                $UserActilead = UserActivity::UserActivitySaved($data,'View','Ticket');
 		$data['currentpages']		=	$data['currentpage'];
 		if($data['clicktype']=='next'){
 			$data['iDisplayStart']  	= 	($data['currentpage']+1)*$data['per_page'];
@@ -91,10 +96,15 @@ class TicketsController extends \BaseController {
 		$data['priority']	 		= 	 isset($data['formData']['priority'])?$data['formData']['priority']:'';
 		$data['group'] 				= 	 isset($data['formData']['group'])?$data['formData']['group']:'';		
 		$data['agent']				= 	 isset($data['formData']['agent'])?$data['formData']['agent']:'';
-		$data['DueBy']				= 	 isset($data['formData']['DueBy'])?$data['formData']['DueBy']:'';		
+		$data['requester']			= 	 isset($data['formData']['requester'])?$data['formData']['requester']:'';
+		$data['LastReply']			= 	 isset($data['formData']['LastReply'])?$data['formData']['LastReply']:'';
+		$data['DueBy']				= 	 isset($data['formData']['DueBy'])?$data['formData']['DueBy']:'';
 		$data['iSortCol_0']			= 	 $data['sort_fld'];
 		$data['sSortDir_0']			= 	 $data['sort_type'];
 		$data['iDisplayLength'] 	= 	 $data['per_page'];
+	  	$data['StartDate'] 			= 	 $data['formData']['StartDate'];
+	  	$data['EndDate'] 			= 	 $data['formData']['EndDate'];
+
 		$companyID					= 	 User::get_companyID();
 		$array						=  	 $this->GetResult($data);
 
@@ -107,9 +117,9 @@ class TicketsController extends \BaseController {
 			\Illuminate\Support\Facades\Log::info("Ticket token_expired");
 			\Illuminate\Support\Facades\Log::info(print_r($array,true));
 			return json_response_api($array);  
-		}	
+		}
 		
-		$resultpage  				=  	 $array->resultpage;			
+		$resultpage  				=  	 $array->resultpage;
 		$result 					= 	 $array->ResultCurrentPage;
 		$totalResults 				=    $array->totalcount; 
 		$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
@@ -161,6 +171,16 @@ class TicketsController extends \BaseController {
 		{
 			$data['DueBy'] 			= 	 $postdata['DueBy'];		
 		}
+
+		if(isset($postdata['StartDate']) && $postdata['StartDate']!='null')
+		{
+			$data['StartDate'] 			= 	 $postdata['StartDate'];
+		}
+
+		if(isset($postdata['EndDate']) && $postdata['EndDate']!='null')
+		{
+			$data['EndDate'] 			= 	 $postdata['EndDate'];
+		}
 		
 		$data['iSortCol_0']			= 	 $postdata['sort_fld'];
 		$data['sSortDir_0']			= 	 $postdata['sort_type'];
@@ -207,11 +227,15 @@ class TicketsController extends \BaseController {
 		
 		 if(User::is_admin())	{		
 		   	$data['agent']					=	isset($data['agent'])?is_array($data['agent'])?implode(",",$data['agent']):'':'';
+		   	$data['requester']					=	isset($data['requester'])?is_array($data['requester'])?implode(",",$data['requester']):'':'';
+
 		 }else{
 			 if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)	{
 			 	$data['agent']				=	user::get_userID();
+			 	$data['requester']				=	user::get_userID();
 			 }else{
 				 $data['agent']					=	'';
+				 $data['requester']					=	'';
 			 }
 		 }
 		
@@ -259,7 +283,8 @@ class TicketsController extends \BaseController {
             ->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()          
             ->select('tblUser.UserID', 'tblUser.FirstName', 'tblUser.LastName')
             ->get();
-			$AllEmailsccbcc  =   json_encode(Messages::GetAllSystemEmails());				
+			$AllEmailsccbcc  =   json_encode(Messages::GetAllSystemEmails());
+
 			return View::make('tickets.create', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','default_status',"AllEmailsccbcc"));  
 	  }	
 	  
@@ -302,7 +327,11 @@ class TicketsController extends \BaseController {
 	  
 	  function Store(){		  
 		$postdata 			= 	Input::all();  
-
+                
+                //https://codedesk.atlassian.net/browse/NEON-1591
+                //Audit Trails of user activity
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','Tickets');
+                
 		if(!isset($postdata['Ticket'])){
 			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
 		}
@@ -614,9 +643,10 @@ class TicketsController extends \BaseController {
 	
 	function CloseTicket($ticketID)
 	{
-		$data 				= 		Input::all();
-		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,$data,true,true); 
-		return json_response_api($response);    		
+            $data 				= 		Input::all();
+            $UserActilead = UserActivity::UserActivitySaved($data,'CloseTicket','Ticket');
+            $response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,$data,true,true); 
+            return json_response_api($response);    		
 	}
 	
 	function ComposeEmail(){		 
@@ -653,6 +683,9 @@ class TicketsController extends \BaseController {
 	
 	function SendMail(){		   
 		$postdata 			= 	Input::all();  
+                //https://codedesk.atlassian.net/browse/NEON-1591
+                //Audit Trails of user activity
+                $UserActilead = UserActivity::UserActivitySaved($postdata,'Add','SendMail');
 		if(!isset($postdata['Ticket'])){
 			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
 		}
@@ -719,12 +752,14 @@ class TicketsController extends \BaseController {
 
     function BulkAction(){
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'BulkAction','Ticket');
         $response  		    =  	  NeonAPI::request('tickets/bulkactions',$data,true,true);
         return json_response_api($response);
     }
 
     function BulkDelete(){
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'BulkDelete','Ticket');
         $response  		    =  	  NeonAPI::request('tickets/bulkdelete',$data,true,true);
         return json_response_api($response);
     }
@@ -737,7 +772,7 @@ class TicketsController extends \BaseController {
 	function BulkPickup()
 	{
 		$data = Input::all();
-
+                $UserActilead = UserActivity::UserActivitySaved($data,'BulkPickup','Ticket');
 		if(!empty($data["SelectedIDs"]))
 		{
 			$Userid = User::get_userID();

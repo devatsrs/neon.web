@@ -165,19 +165,25 @@
             </div>
         @endif
         @endif
-        <?php
-            if (isset($Options->Timezones)) {
-                $Timezones = $Options->Timezones;
+
+        @if(isset($Options->Timezones) && !empty($Options->Timezones))
+            <?php
+                $Timezones = array();
                 $TimezonesName = '';
-                $TimezonesName = Timezones::getTimezonesName($Timezones);
-            }
-        ?>
-        @if(isset($Timezones) && !empty($Timezones))
+                if(is_array($Options->Timezones)) {
+                    $Timezones = $Options->Timezones;
+                } else {
+                    $Timezones[] = $Options->Timezones;
+                }
+                foreach ($Timezones as $Timezone) {
+                    $TimezonesName .= Timezones::getTimezonesName($Timezone) . ', ';
+                }
+            ?>
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
                         <label for="field-1" class="control-label  bold">Timezones</label>
-                        <div >{{$TimezonesName}}</div>
+                        <div >{{trim(trim($TimezonesName),',')}}</div>
                     </div>
                 </div>
             </div>

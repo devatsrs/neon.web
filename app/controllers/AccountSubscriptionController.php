@@ -18,7 +18,8 @@ public function main() {
     public function ajax_datagrid($id){
         $data = Input::all();        
         $id=$data['account_id'];
-        $select = ["tblAccountSubscription.AccountSubscriptionID as AID","tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax","tblAccountSubscription.Status"];
+        $select = ["tblAccountSubscription.AccountSubscriptionID as AID","tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax","tblAccountSubscription.Status","tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType"];
+
         $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);        
         if(!empty($data['SubscriptionName'])){
             $subscriptions->where('tblBillingSubscription.Name','Like','%'.trim($data['SubscriptionName']).'%');
@@ -38,7 +39,9 @@ public function main() {
             $subscriptions->where('tblAccountSubscription.Status','=',0);
         }
         $subscriptions->select($select);
-
+        
+        $TaskActilead = UserActivity::UserActivitySaved($data,'Edit','Account');
+        
         return Datatables::of($subscriptions)->make();
     }
 
@@ -47,7 +50,7 @@ public function main() {
         $data 						 = 	Input::all(); //Log::info(print_r($data,true));
         $data['iDisplayStart'] 		+=	1;
         $companyID 					 =  User::get_companyID(); 
-        $columns 					 =  ['SequenceNo','AccountName','ServiceName','Name','Qty','StartDate','EndDate','ActivationFee','DailyFee','WeeklyFee','MonthlyFee','QuarterlyFee','AnnuallyFee'];   
+        $columns 					 =  ['SequenceNo','AccountName','ServiceName','Name','Qty','StartDate','EndDate','ActivationFee','DailyFee','WeeklyFee','MonthlyFee','QuarterlyFee','AnnuallyFee','DiscountAmount','DiscountType'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['AccountID'] 			 =  empty($data['AccountID'])?'0':$data['AccountID'];
 		if($data['Active'] == 'true'){
@@ -74,7 +77,7 @@ public function main() {
             }         
         }
 		
-
+$TaskActilead = UserActivity::UserActivitySaved($data,'View Subscriptions','Account');
         $query .=',0)'; Log::info($query);
        // echo $query;exit;
         $result =  DataTableSql::of($query,'sqlsrv2')->make();
@@ -128,6 +131,7 @@ public function main() {
             $data['SequenceNo'] = $SequenceNo;
         }
         if ($AccountSubscription = AccountSubscription::create($data)) {
+                $TaskActilead = UserActivity::UserActivitySaved($data,'Add Subscriptions','Account');
             return Response::json(array("status" => "success", "message" => "Subscription Successfully Created",'LastID'=>$AccountSubscription->AccountSubscriptionID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Subscription."));
@@ -173,6 +177,7 @@ public function main() {
             }
             unset($data['Status_name']);
             if ($AccountSubscription->update($data)) {
+                $TaskActilead = UserActivity::UserActivitySaved($data,'Edit Subscriptions','Account');
                 return Response::json(array("status" => "success", "message" => "Subscription Successfully Created", 'LastID' => $AccountSubscription->AccountSubscriptionID));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Subscription."));
@@ -196,6 +201,8 @@ public function main() {
                     }
                     $result = $AccountSubscription->delete();
                     if ($result) {
+                        $data['AccountID']=$AccountID;$data['AccountSubscriptionID']=$AccountSubscriptionID;
+                        $TaskActilead = UserActivity::UserActivitySaved($data,'Delete Subscriptions','Account');
                         return Response::json(array("status" => "success", "message" => "Subscription Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Subscription."));
@@ -260,6 +267,7 @@ public function main() {
                 AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlan->SubscriptionDiscountPlanID);
                 AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlan->SubscriptionDiscountPlanID);
                 DB::commit();
+                $TaskActilead = UserActivity::UserActivitySaved($data,'Add Discount Plan','Account');
                 return Response::json(array("status" => "success", "message" => "Subscription Account Added", 'LastID' => $SubscriptionDiscountPlan->SubscriptionDiscountPlanID));
 
             } else {
@@ -285,6 +293,7 @@ public function main() {
 
     function edit_discountplan(){
         $data = Input::all();
+        $TaskActilead = UserActivity::UserActivitySaved($data,'Edit Discount Plan','Account');
         $SubscriptionDiscountPlan =  SubscriptionDiscountPlan::getSubscriptionDiscountPlanById($data['SubscriptionDiscountPlanID']);
         return $SubscriptionDiscountPlan;
     }
@@ -342,6 +351,7 @@ public function main() {
                 AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
                 AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
                 DB::commit();
+                $TaskActilead = UserActivity::UserActivitySaved($data,'Subscription Updated','Account');
                 return Response::json(array("status" => "success", "message" => "Subscription Account Updated", 'LastID' => $SubscriptionDiscountPlanID));
 
             } else {
@@ -397,6 +407,7 @@ public function main() {
         //SubscriptionDiscountPlan::whereIn('SubscriptionDiscountPlanID',$AllSubscriptionDiscountPlanID)->update($data);
         $AllSubscriptionDiscountPlanID = explode(",",$AllSubscriptionDiscountPlanID);
         if (SubscriptionDiscountPlan::whereIn('SubscriptionDiscountPlanID',$AllSubscriptionDiscountPlanID)->update($data)) {
+            $TaskActilead = UserActivity::UserActivitySaved($data,'Subscription Bulk Updated','Account');
             return Response::json(array("status" => "success", "message" => "Subscription Bulk Account Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Subscription Account."));
@@ -410,6 +421,7 @@ public function main() {
         $SubscriptionDiscountPlanID  = $data["SubscriptionDiscountPlanID"];
         $SubscriptionDiscountPlanID = explode(",",$SubscriptionDiscountPlanID);
         if (SubscriptionDiscountPlan::whereIn('SubscriptionDiscountPlanID',$SubscriptionDiscountPlanID)->delete()) {
+            $TaskActilead = UserActivity::UserActivitySaved($data,'Subscription Bulk Accounts Deleted','Account');
             return Response::json(array("status" => "success", "message" => "Subscription Bulk Accounts Deleted"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Deleting Subscription Accounts."));
@@ -418,6 +430,7 @@ public function main() {
 
     function get_discountplan($AccountID){
         $data = Input::all();
+        $TaskActilead = UserActivity::UserActivitySaved($data,'View Discount Plan ','Account');
         $SubscriptionDiscountPlan =  SubscriptionDiscountPlan::getSubscriptionDiscountPlanArray($AccountID,$data['AccountSubscriptionID'],$data['ServiceID']);
         return $SubscriptionDiscountPlan;
     }
@@ -446,6 +459,7 @@ public function main() {
                     AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
                     AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
                     DB::commit();
+                     $TaskActilead = UserActivity::UserActivitySaved($data,'Subscription Account Deleted','Account');
                     return Response::json(array("status" => "success", "message" => "Subscription Account Successfully Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Subscription Account."));
@@ -471,7 +485,7 @@ public function main() {
         $services->select($select);
 		$ServicesDataDb =  $services->get();
 		$servicesArray = array();
-		
+		$TaskActilead = UserActivity::UserActivitySaved($data,'Get Account Services','Account');
 		//
 		foreach($ServicesDataDb as $ServicesData){				
 			$servicesArray[$ServicesData->ServiceName] =	$ServicesData->ServiceID; 						
@@ -488,6 +502,7 @@ public function main() {
     public function getDiscountPlanByAccount(){
         $data = Input::all();
         $AccountID = $data['AccountID'];
+        $TaskActilead = UserActivity::UserActivitySaved($data,'Get Discount Plan','Account');
         $Response = DiscountPlan::getDropdownIDListByAccount($AccountID);
         return Response::json(array("status" => "success", "data" => $Response));
     }

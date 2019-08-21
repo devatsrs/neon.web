@@ -22,12 +22,14 @@ class SiteIntegration{
  static    $QuickBookDesktopSlug=	'quickbookdesktop';
  static    $StripeSlug			=	'stripe';
  static    $StripeACHSlug		=	'stripeach';
+ static    $GoCardLessSlug		=	'gocardless';
  static    $SagePaySlug			=	'sagepay';
  static    $SagePayDirectDebitSlug=	'sagepaydirectdebit';
  static    $FideliPaySlug =	'fidelipay';
  static    $XeroSlug =	'xero';
  static    $PeleCardSlug		=	'pelecard';
  static    $MerchantWarriorSlug		=	'merchantwarrior';
+ static    $FastPaySlug		=	'fastpay';
 
  	public function __construct(){
 	
@@ -170,6 +172,44 @@ class SiteIntegration{
 			 }
 		}
 		return false;		
+	}
+
+	public static function  CheckIntegrationConfigurationFastPay($data=false,$slug,$companyID = 0){
+		if (!Auth::guest()){
+			$companyID = !empty($companyID)?$companyID:User::get_companyID();
+		}
+		if(!$companyID){
+			$companyID = SiteIntegration::GetComapnyIdByKey();
+		}
+		$Integration	 =	Integration::where(["Slug"=>$slug])->first();
+		//$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();
+
+		if(count($Integration)>0)
+		{
+			$IntegrationSubcategory = Integration::select("*");
+			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join) use($companyID)
+			{
+				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
+				$join->where('tblIntegrationConfiguration.CompanyID', '=', $companyID);
+
+			})->where(["tblIntegration.IntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+			$result = $IntegrationSubcategory->first();
+			if(count($result)>0)
+			{
+				$IntegrationData =  isset($result->Settings)?json_decode($result->Settings):array();
+				if(count($IntegrationData)>0){
+					if($data ==true){
+						return $IntegrationData;
+					}else{
+						return true;
+					}
+				}
+				else{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	/*

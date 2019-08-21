@@ -67,6 +67,25 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/cdr', 'CDRCustomerController@index');
 	Route::any('customer/cdr/ajax_datagrid/{type}', 'CDRCustomerController@ajax_datagrid');
 
+	//ActiveCall
+	Route::any('/ActiveCalls', 'ActiveCallController@index');
+	Route::any('/ActiveCalls/ajax_datagrid/{type}', 'ActiveCallController@ajax_datagrid');
+
+	//vendorActiveCall
+	Route::any('/Vendor_ActiveCalls', 'VendorActiveCallController@index');
+	Route::any('/Vendor_ActiveCalls/ajax_datagrid/{type}', 'VendorActiveCallController@ajax_datagrid');
+	Route::any('/Vendor_ActiveCalls/API/GetGatewayRoutingOnline', 'VendorActiveCallController@GetGatewayRoutingOnline');
+
+	//GetGatewayMappingOnline
+	Route::any('/GatewayMappingOnline', 'GatewayMappingOnlineController@index');
+	Route::any('/GatewayMappingOnline/ajax_datagrid/{type}', 'GatewayMappingOnlineController@ajax_datagrid');
+	Route::any('/GatewayMappingOnline/API/GetGatewayMappingOnline', 'GatewayMappingOnlineController@GetGatewayMappingOnline');
+
+	//VOS ActiveCall
+	Route::any('/VOS_ActiveCalls', 'VOSActiveCallController@index');
+	Route::any('/VOS_ActiveCalls/ajax_datagrid/{type}', 'VOSActiveCallController@ajax_datagrid');
+	Route::any('/VOS_ActiveCalls/API/GetCurrentCall', 'VOSActiveCallController@GetCurrentCall');
+
 	//commercial
 
 	Route::any('customer/customers_rates', 'RateCustomerController@settings');
@@ -267,6 +286,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/expense_chart', 'AccountsController@expense_chart');
 	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');
 	Route::any('accounts/unbilledreport/{id}', 'AccountsController@unbilledreport');
+	Route::any('accounts/prepaidunbilledreport/{id}', 'AccountsController@prepaidunbilledreport');
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 	Route::any('accounts/getNextBillingDate', 'AccountsController@getNextBillingDate');
 
@@ -317,6 +337,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/{log_id}/delete_email_log', 'AccountActivityController@delete_email_log')->where('activity_id', '(.[09]*)+');
     Route::any('emails/{id}/getattachment/{attachmentID}', 'AccountActivityController@getAttachment');
 	Route::any('emails/{id}/getreplyattachment/{attachmentID}', 'AccountActivityController@GetReplyAttachment');
+	Route::any('notes/{id}/getattachment/{attachmentID}', 'AccountsController@getAttachment');
 	Route::post('emails/email_action', 'AccountActivityController@EmailAction');
 
 
@@ -450,6 +471,13 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::resource('customers_rates', 'CustomersRatesController');
 	Route::controller('customers_rates', 'CustomersRatesController');
+
+	//sippy vendor rate pushing - destination set mapping
+	Route::any('/sippy_rate_push/{id}/destinationsetmapping', 'SippyRatePushController@index');
+	Route::any('/sippy_rate_push/{id}/getdestinationsetlist', 'SippyRatePushController@getDestinationSetList');
+	Route::any('/sippy_rate_push/updatedestinationsetlist/{id}', 'SippyRatePushController@updateDestinationSetList');
+	/*Route::resource('sippy_rate_push', 'SippyRatePushController');
+	Route::controller('sippy_rate_push', 'SippyRatePushController');*/
 
 	//VendoerBlocking
 	Route::any('/vendor_blocking/{id}', array('as' => 'vendor_blocking', 'uses' => 'VendorBlockingsController@index'));
@@ -764,6 +792,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/auto_rate_import/account_setting','AutoRateImportController@accountSetting');
 	Route::any('/auto_rate_import/account_setting/store','AutoRateImportController@accountSettingStore');
 
+	Route::any('/sippy_vendor_destination/','SippyVendorDestiController@index');
+	Route::any('/sippy_vendor_destination/store','SippyVendorDestiController@Store');
+	Route::any('/sippy_vendor_destination/ajax_datagrid/{type}','SippyVendorDestiController@ajax_datagrid');
+	Route::any('/sippy_vendor_destination/{id}/update','SippyVendorDestiController@update');
+	Route::any('/sippy_vendor_destination/{id}/delete','SippyVendorDestiController@delete');
+
 	Route::any('/auto_rate_import/rateTable_setting/store','AutoRateImportController@RateTableSettingStore');
 	Route::any('/auto_rate_import/ratetable_setting','AutoRateImportController@ratetableSetting');
 	Route::any('/auto_rate_import/{id}/delete','AutoRateImportController@Delete');
@@ -778,6 +812,16 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('lcr/margin-rate-export/{type}/{id}', 'LCRController@marginRateExport');
 	Route::any('lcr/ajax_customer_rate_export/{type}', 'LCRController@ajax_customer_rate_export');
 	Route::any('lcr/edit_preference', 'LCRController@editPreference');
+
+	//Deal Management
+	Route::any('/dealmanagement', 'DealManagementController@index');
+	Route::any('dealmanagement/ajax_datagrid', 'DealManagementController@ajax_datagrid');
+	Route::any('dealmanagement/exports/{type}', 'DealManagementController@ajax_datagrid');
+	Route::any('dealmanagement/create', "DealManagementController@create");
+	Route::any('dealmanagement/store','DealManagementController@store');
+	Route::any('dealmanagement/{id}/delete', 'DealManagementController@delete');
+	Route::any('dealmanagement/{id}/edit', 'DealManagementController@edit');
+	Route::any('dealmanagement/{id}/update', "DealManagementController@update");
 
 	//Pages
 	Route::any('/about', 'PagesController@about');
@@ -878,6 +922,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/payments/ajaxfilegrid', 'PaymentsController@ajaxfilegrid');
 	Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
 	Route::any('/payments/payments_quickbookpost', 'PaymentsController@payments_quickbookpost');
+	Route::any('/payments/getcreditnotes', 'PaymentsController@getcreditnotes');
 
 	//Currency
 	Route::any('/currency/ajax_datagrid', 'CurrenciesController@ajax_datagrid');
@@ -952,12 +997,23 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_upload/storeVendorTemplate', 'CDRController@storeVendorTemplate');
 
 
-	//CDR Template - FTP Gateway cdr mapping
+	//CDR Template - FTP Gateway cdr mapping for customer
 	Route::any('/cdr_template/gateway/{id}', 'CDRTemplateController@index');
 	Route::any('/cdr_template/upload', 'CDRTemplateController@upload');
 	Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
 	Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
 	Route::any('/cdr_template/storeTemplate', 'CDRTemplateController@storeTemplate');
+	Route::any('/cdr_template/edittemplate/{id}', 'CDRTemplateController@editTemplate');
+	Route::any('/cdr_template/updateTemplate', 'CDRTemplateController@updateTemplate');
+
+	//CDR Template - FTP Gateway cdr mapping for vendor
+	Route::any('/vendor_cdr_template/gateway/{id}', 'VendorCDRTemplateController@index');
+	Route::any('/vendor_cdr_template/upload', 'VendorCDRTemplateController@upload');
+	Route::any('/vendor_cdr_template/check_upload', 'VendorCDRTemplateController@check_upload');
+	Route::any('/vendor_cdr_template/ajaxfilegrid', 'VendorCDRTemplateController@ajaxfilegrid');
+	Route::any('/vendor_cdr_template/storeTemplate', 'VendorCDRTemplateController@storeTemplate');
+	Route::any('/vendor_cdr_template/edittemplate/{id}', 'VendorCDRTemplateController@editTemplate');
+	Route::any('/vendor_cdr_template/updateTemplate', 'VendorCDRTemplateController@updateTemplate');
 
 	/////////////////
 	//Estimates
@@ -1046,6 +1102,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/calculate_total', 'CreditNotesController@calculate_total');
 	Route::any('/creditnotes/get_account_info', 'CreditNotesController@getAccountInfo');
 	Route::any('/creditnotes/get_billingclass_info', 'CreditNotesController@getBillingclassInfo');
+	Route::any('/creditnotes/allocate_payment', 'CreditNotesController@allocate_payment');
+	Route::any('/creditnotes/bulk_allocate_creditnote_payment', 'CreditNotesController@bulk_allocate_creditnote_payment');
 
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');
@@ -1094,6 +1152,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
 	Route::any('/invoice/invoice_sagepayexport', 'InvoicesController@invoice_sagepayexport');
 	Route::any('/invoice/invoice_xeropost', 'InvoicesController@invoice_xeropost');
+	Route::any('/invoice/invoice_fastpayexport', 'InvoicesController@invoice_fastpayexport');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');
@@ -1245,6 +1304,16 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_dashboard/GetDashboardPR', 'BillingDashboard@GetDashboardPR');
 	Route::any('/billing_dashboard/GetDashboardPL', 'BillingDashboard@GetDashboardPL');
 
+	//VOS AccountBalance
+	Route::any('/VOS/AccountBalance', 'VOSAccountBalanceController@index');
+	Route::any('/VOS/AccountBalance/ajax_datagrid/{type}', 'VOSAccountBalanceController@ajax_datagrid');
+
+	//VOS MappingGateway
+	Route::any('/VOS/mapping_gateway', 'VOSAccountIPController@index');
+	Route::any('/VOS/mapping_gateway/ajax_datagrid/{type}', 'VOSAccountIPController@ajax_datagrid');
+
+	Route::any('/VOS/RoutingGateway', 'VOSRoutingGatewayController@index');
+	Route::any('/VOS/RoutingGateway/ajax_datagrid/{type}', 'VOSRoutingGatewayController@ajax_datagrid');
 
     //AccountPaymentProfile
     Route::any('/paymentprofile/create', 'AccountsPaymentProfileController@create');
@@ -1444,6 +1513,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/bulk_change_status', 'AccountServiceController@bulk_change_status');
 	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
 
+	//Activity Feeds
+	Route::any('activity', 'ActivityFeedsController@index');
+	Route::any('activity/ajax_datagrid', 'ActivityFeedsController@ajax_datagrid');
+	Route::any('activity/get_details/{id}', 'ActivityFeedsController@get_details');
+	Route::any('activity/exports', 'ActivityFeedsController@exports');
+
+	
+	
+
 	//noticeboard
 	Route::any('/noticeboard', 'NoticeBoardController@index');
 	Route::any('/get_mor_updates', 'NoticeBoardController@get_mor_updates');
@@ -1538,7 +1616,9 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
 	Route::any('/report/export/{id}','ReportController@getdatagrid');
-	
+
+	Route::any('/gocardless_confirmation', array("as" => "gocardless_confirmation", "uses" => "PaymentProfileCustomerController@GoCardLess_Confirmation"));
+	Route::post('/gocardless_webhook_check', array("as" => "gocardless", "uses" => "PaymentProfileCustomerController@GoCardLess_Webhook"));
     /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');

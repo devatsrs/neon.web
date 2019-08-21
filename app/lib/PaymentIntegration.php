@@ -39,7 +39,7 @@ class PaymentIntegration {
 
 	public function paymentValidateWithProfile($data){
 		$response = array();
-		if($data['PaymentGateway']=='Stripe' || $data['PaymentGateway']=='StripeACH'){
+		if($data['PaymentGateway']=='Stripe' || $data['PaymentGateway']=='StripeACH' || $data['PaymentGateway']=='GoCardLess' || $data['PaymentGateway']=='AuthorizeNetEcheck'){
 			return $this->request->paymentValidateWithProfile($data);
 		}
 		$response['status'] = 'success';
@@ -176,7 +176,7 @@ class PaymentIntegration {
 		if($response['status']=='failed'){
 			return $response;
 		}
-		log::info('Payment Validate sucessfully');
+		log::info('Payment Validate successfully');
 		$transactionResponse =  $this->request->paymentWithApiCreditCard($data);
 		return $transactionResponse;
 	}

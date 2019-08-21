@@ -12,6 +12,7 @@ class RateTablesController extends \BaseController {
             ->where("tblRateTable.CompanyId",$CompanyID);
         //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
         $data = Input::all();
+        $UserActilead = UserActivity::UserActivitySaved($data,'View','Rate Table');
         if($data['TrunkID']){
             $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
         }
@@ -129,6 +130,7 @@ class RateTablesController extends \BaseController {
         }
 
         if (RateTable::insert($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Add','Rate Table',$data['RateTableName']);
             return Response::json(array("status" => "success", "message" => "RateTable Successfully Created"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating RateTable."));
@@ -168,12 +170,16 @@ class RateTablesController extends \BaseController {
                 if(RateTable::checkRateTableInCronjob($id)){
                     if(RateTableRate::where(["RateTableId" => $id])->count()>0){
                         if (RateTableRate::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
+                            $data['id']=$id;
+                            $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Rate Table');
                             return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
                         } else {
                             return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
                         }
                     }else{
                         if (RateTable::where(["RateTableId" => $id])->delete()) {
+                            $data['id']=$id;
+                            $UserActilead = UserActivity::UserActivitySaved($data,'Delete','Rate Table');
                             return Response::json(array("status" => "success", "message" => "RateTable Successfully Deleted"));
                         } else {
                             return Response::json(array("status" => "failed", "message" => "Problem Deleting RateTable."));
@@ -411,7 +417,11 @@ class RateTablesController extends \BaseController {
         $data['Code']           = $data['Code'] != ''?"'".$data['Code']."'":'null';
         $data['Description']    = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",null,null,null,null,1)";
+        if(!empty($data['DiscontinuedRates'])) {
+            $query = " call prc_getDiscontinuedRateTableRateGrid (".$companyID.",".$id.",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",".$view.",null,null,null,null,1)";
+        } else {
+            $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",null,null,null,null,1)";
+        }
 
         DB::setFetchMode( PDO::FETCH_ASSOC );
         $rate_table_rates  = DB::select($query);
@@ -690,6 +700,7 @@ class RateTablesController extends \BaseController {
 
         $data['ModifiedBy'] = User::get_user_full_name();
         if ($rateTableId->update($data)) {
+            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Rate Table',$data['RateTableName']);
             return Response::json(array("status" => "success", "message" => "Rate Table Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table."));

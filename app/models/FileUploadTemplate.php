@@ -22,6 +22,8 @@ class FileUploadTemplate extends \Eloquent {
     const TEMPLATE_PAYMENT          = 'Payment';
     const TEMPLATE_RATETABLE_RATE   = 'RatetableRate';
     const TEMPLATE_CUSTOMER_RATE    = 'CustomerRate';
+    const TEMPLATE_FTPCDR           = 'FTPCDR';
+    const TEMPLATE_VENDORFTPCDR     = 'VENDORFTPCDR';
 
     public static function getTemplateIDList($Type){
         if(!empty($Type)) {
@@ -117,8 +119,10 @@ class FileUploadTemplate extends \Eloquent {
             }
         } else { //update template
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
-            
+
             if($template) {
+                $ExistingOptions=json_decode($template->Options);
+
                 $rules["TemplateName"]  = 'required|unique:tblFileUploadTemplate,Title,' . $data['FileUploadTemplateID'] . ',FileUploadTemplateID';
                 $rules['TemplateType']  = 'required';
 
@@ -158,6 +162,11 @@ class FileUploadTemplate extends \Eloquent {
                 //$option["Sheet"]          = !empty($data['Sheet']) ? $data['Sheet'] : '';
                 $option["option"]           = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
                 $option["selection"]        = filterArrayRemoveNewLines($data['selection']);//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+
+                if(!empty($ExistingOptions->CompanyGatewayID)){
+                    $option["CompanyGatewayID"]=$ExistingOptions->CompanyGatewayID;
+                }
+
                 if(isset($data['RateUploadType']) && ($data['RateUploadType'] == RateUpload::ratetable || $data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer)) {
                     $option["skipRows"]         = array( "start_row"=>!empty($data["start_row"]) ? $data["start_row"] : 0, "end_row"=>!empty($data["end_row"]) ? $data["end_row"] : 0 );
                     $option["importratesheet"] = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
@@ -208,7 +217,7 @@ class FileUploadTemplate extends \Eloquent {
     public static function prepareTemplateValidations($data) {
         $rules_for_type = $message_for_type = [];
         $data = json_decode(str_replace('Skip loading','',json_encode($data,true)),true);
-        if($data['TemplateType'] == 1) { //customer cdr
+        if($data['TemplateType'] == 1 || $data['TemplateType'] == 12) { //customer cdr
             $rules_for_type['selection.Account']                            = 'required';
             $rules_for_type['selection.connect_datetime']                   = 'required';
             $rules_for_type['selection.billed_duration']                    = 'required';

@@ -31,7 +31,7 @@ class RateUploadController extends \BaseController {
 
     public function getUploadTemplates($RateUploadType) {
         $response = array();
-
+        $UserActilead = UserActivity::UserActivitySaved($response,'View','Upload Rates');
         if($RateUploadType == RateUpload::vendor) {
             $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
         } else if($RateUploadType == RateUpload::customer) {
@@ -132,7 +132,8 @@ class RateUploadController extends \BaseController {
         try {
             $Sheet  = '';
             $data   = Input::all();
-
+            
+            
            /* if(!empty($data['Sheet'])) {
                 $Sheet = $data['Sheet'];
             }*/
@@ -213,6 +214,7 @@ class RateUploadController extends \BaseController {
                         $grid2['FileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
                     }
                 }
+                $UserActilead = UserActivity::UserActivitySaved($data,'Upload Template','Upload Rates');
                 return Response::json(array("status" => "success", "data" => $grid, "data2" => $grid2));
             }
         } catch (Exception $ex) {
@@ -1297,6 +1299,7 @@ class RateUploadController extends \BaseController {
     public function getSheetNamesFromExcel() {
         try {
             $data = Input::all();
+            
             if (Input::hasFile('excel')) {
                 $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
@@ -1317,6 +1320,7 @@ class RateUploadController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Please select a file."));
             }
             if (!empty($file_name)) {
+                $UserActilead = UserActivity::UserActivitySaved($data,'Upload','Upload Rates');
                 $SheetNames = NeonExcelIO::getSheetNamesFromExcel($file_name);
                 return Response::json(array("status" => "success", "SheetNames" => $SheetNames , "FileExtesion" => strtolower($excel->getClientOriginalExtension())));
             }

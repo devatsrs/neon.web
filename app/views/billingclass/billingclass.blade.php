@@ -274,37 +274,45 @@ $pbxaccountblock_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommand
                                 </div>
                             </div>
                             <div class="form-group">
+                                    <label class="col-sm-2 control-label">Send To Account</label>
+                                    <div class="col-sm-4">
+                                        <div class="make-switch switch-small">
+                                            <input type="checkbox" @if( isset($LowBalanceReminder->AccountManager) && $LowBalanceReminder->AccountManager == 1 )checked="" @endif name="LowBalanceReminder[ToAccount]" value="1">
+                                        </div>
+                                    </div>
                                 <label class="col-sm-2 control-label">Send Copy To</label>
                                 <div class="col-sm-4">
                                     <input type="text" name="LowBalanceReminder[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="{{$LowBalanceReminder->ReminderEmail or ''}}" />
                                 </div>
+                               
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-2 control-label">Email Template</label>
                                 <div class="col-sm-4">
                                     {{Form::select('LowBalanceReminder[TemplateID]', $emailTemplates, (isset($LowBalanceReminder->TemplateID)?$LowBalanceReminder->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
                                 </div>
-                            </div>
-                            <div class="form-group">
                                 <label for="field-5" class="col-sm-2 control-label">Period</label>
                                 <div class="col-sm-4">
                                     {{Form::select('LowBalanceReminder[Time]',array(""=>"Select","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($LowBalanceReminder->Time)?$LowBalanceReminder->Time:''),array( "class"=>"select2 small"))}}
                                 </div>
-
+                            </div>
+                            <div class="form-group">
                                 <label for="field-5" class="col-sm-2 control-label">Interval</label>
                                 <div class="col-sm-4">
                                     {{Form::select('LowBalanceReminder[Interval]',array(),'',array( "class"=>"select2 small"))}}
                                 </div>
-                            </div>
-                            <div class="form-group">
                                 <label for="field-5" class="col-sm-2 control-label">Day</label>
                                 <div class="col-sm-4">
                                     {{Form::select('LowBalanceReminder[Day][]',array("SUN"=>"Sunday","MON"=>"Monday","TUE"=>"Tuesday","WED"=>"Wednesday","THU"=>"Thursday","FRI"=>"Friday","SAT"=>"Saturday"),(isset($LowBalanceReminder->Day)?$LowBalanceReminder->Day:''),array( "class"=>"select2",'multiple',"data-placeholder"=>"Select day"))}}
                                 </div>
-
+                            </div>
+                            
+                            <div class="form-group">
                                 <label for="field-5" class="col-sm-2 control-label">Start Time</label>
                                 <div class="col-sm-4">
                                     <input name="LowBalanceReminder[StartTime]" type="text" data-template="dropdown" data-show-seconds="true" data-default-time="12:00:00 AM" data-show-meridian="true" data-minute-step="5" class="form-control timepicker starttime2" value="{{(isset($LowBalanceReminder->StartTime)?$LowBalanceReminder->StartTime:'')}}" >
                                 </div>
-                            </div>
+                            </div>    
                             <div class="form-group LowBalanceReminderDay">
                                 <label for="field-5" class="col-sm-2 control-label">Start Day</label>
                                 <div class="col-sm-4">

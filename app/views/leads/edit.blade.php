@@ -186,6 +186,13 @@
                         </div>
                     </div>
                    <div class="form-group">
+                       <label class="col-md-2 control-label">Currency</label>
+                       <div class="col-md-4">
+
+                           {{Form::SelectControl('currency',0,$lead->CurrencyId,0,'CurrencyId')}}
+
+                       </div>
+
                        <label for="field-1" class="col-sm-2 control-label">Leads Tags</label>
                        <div class="col-sm-4">
                            <input type="text" class="form-control" id="tags" name="tags" value="{{$lead->tags}}" />

@@ -11,6 +11,10 @@ class CompaniesController extends \BaseController {
 	 * @return Response
 	 */
 	public function edit(){
+        $data = array();
+        //https://codedesk.atlassian.net/browse/NEON-1591
+        //Audit Trails of user activity
+        $CompanyActilead = UserActivity::UserActivitySaved($data,'View','Company');
         $LicenceApiResponse = Company::ValidateLicenceKey();
         $company_id = User::get_companyID();
         $company = Company::find($company_id);
@@ -79,6 +83,7 @@ class CompaniesController extends \BaseController {
 	public function update()
 	{
         $data = Input::all();
+    
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
@@ -239,7 +244,7 @@ class CompaniesController extends \BaseController {
                         'openssl pkcs12 -inkey '.$signaturePath.'digitalsignature.key -in '.$signaturePath.'digitalsignature.crt -export -out '.$signaturePath.'digitalsignature.pfx -password pass:Welcome100'
                     ]);
             }
-
+            $CompanyActilead = UserActivity::UserActivitySaved($data,'Edit','Company',$data['CompanyName']);
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Company."));
@@ -248,7 +253,9 @@ class CompaniesController extends \BaseController {
     }
 
     public function DownloadRateSheetTemplate(){
+        $data = array();
         $fileTemplate =  CompanySetting::getKeyVal('RateSheetTemplate');
+        $CompanyActilead = UserActivity::UserActivitySaved($data,'Download','Company','Rate Sheet Template');
         if($fileTemplate != 'Invalid Key') {
             $fileTemplate = json_decode($fileTemplate);
             $FilePath = $fileTemplate->Excel;
@@ -263,7 +270,9 @@ class CompaniesController extends \BaseController {
     }
 
     public function DownloadRateSheetTemplateDefault(){
+        $data = array();
         $filePath = public_path() .'/uploads/sample_upload/RateSheetTemplateDefault.xls';
+        $CompanyActilead = UserActivity::UserActivitySaved($data,'Download','Company','Sample Rate Sheet Template');
         download_file($filePath);
     }
 
@@ -297,13 +306,14 @@ class CompaniesController extends \BaseController {
         }
 		
 		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$ssl,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
-		
+		$CompanyActilead = UserActivity::UserActivitySaved($data,'Test','Company','Mail Test');
 		$ResponseArray= array("response"=>$checkValidation,"status"=>"success");
 		return json_encode($ResponseArray);
 		
 	}
 
     public function DownloadDigitalSignature($file){
+        $data = array();
         $companyID = User::get_companyID();
         $upload_path = CompanyConfiguration::get('UPLOAD_PATH')."/";
         $signaturePath =$upload_path . AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
@@ -312,6 +322,7 @@ class CompaniesController extends \BaseController {
         $DigitalSignature=json_decode($DigitalSignature, true);
         if(isset($DigitalSignature[$file])){
             $filePath = $signaturePath . $DigitalSignature[$file];
+            $CompanyActilead = UserActivity::UserActivitySaved($data,'Download','Company','Digital Signature PDF');
             download_file($filePath);
         }
     }

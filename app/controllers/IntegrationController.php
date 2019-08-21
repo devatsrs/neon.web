@@ -15,9 +15,11 @@ class IntegrationController extends \BaseController
      */
     public function index()
 	{
+		$data = array();
 		$companyID  			= 	User::get_companyID();
 		$GatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration();
 		$Gateway 				= 	Gateway::getGatWayList();
+		$IntegrationActilead = UserActivity::UserActivitySaved($data,'View','Integration');
 		if(is_reseller()){
 			$categories 			= 	Integration::where(["Slug"=>SiteIntegration::$PaymentSlug])
 													->orWhere(["Slug"=>SiteIntegration::$AccountingSlug])
@@ -26,8 +28,9 @@ class IntegrationController extends \BaseController
 			$categories 			= 	Integration::where(["ParentID"=>0])->orderBy('Title', 'asc')->get();
 		}
 		$TaxLists =  TaxRate::where(["CompanyId" => $companyID, "Status" => 1])->get();
+		$Products =  Product::getAllProductName($companyID);
 		//$companyID = 1;
-		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists"));
+		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists","Products"));
     }
 	
 	function Update(){
@@ -283,6 +286,54 @@ class IntegrationController extends \BaseController
 				return Response::json(array("status" => "success", "message" => "Stripe ACH Settings Successfully Updated"));
 			}
 
+
+			if($data['secondcategory']=='GoCardLess')
+			{
+				$rules = array(
+					'AccessKey'	 		=> 'required',
+					'EndPointSecret'	=> 'required',
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] = isset($data['Status'])?1:0;
+				$data['isLive'] = isset($data['isLive'])?1:0;
+				/*
+				if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+				}*/
+
+				$GoCardLessData = array(
+					"AccessKey"			=> $data['AccessKey'],
+					"EndPointSecret"	=> $data['EndPointSecret'],
+					"isLive"			=> $data['isLive'],
+				);
+
+				$GoCardLessDbData = IntegrationConfiguration::where(array(
+					'CompanyId'		=> $companyID,
+					"IntegrationID"	=> $data['secondcategoryid']
+				))->first();
+
+				if(count($GoCardLessDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($GoCardLessData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$GoCardLessDbData->IntegrationConfigurationID))->update($SaveData);
+
+					return Response::json(array("status" => "success", "message" => "GoCardLess Settings Successfully Updated"));
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($GoCardLessData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "GoCardLess Settings Successfully Saved"));
+			}
+
 			if($data['secondcategory']=='SagePay')
 			{
 				$rules = array(
@@ -456,6 +507,26 @@ class IntegrationController extends \BaseController
 					IntegrationConfiguration::create($SaveData);
 				}
 				return Response::json(array("status" => "success", "message" => "MerchantWarrior Settings Successfully Updated"));
+			}
+
+			if($data['secondcategory']=='FastPay')
+			{
+
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				$FastPayDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($FastPayDbData)>0)
+				{
+					$SaveData = array("updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$FastPayDbData->IntegrationConfigurationID))->update($SaveData);
+				}
+				else
+				{
+					$SaveData = array("IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "FastPay Settings Successfully Updated"));
 			}
 
 			if($data['secondcategory']=='PeleCard')

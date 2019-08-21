@@ -300,6 +300,34 @@
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Pincode</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[pincode]', array(),'',array("class"=>"select2 small"))}}
+                            </div>
+
+                            <label class="col-sm-2 control-label">Remote IP</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[remote_ip]', array(),'',array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">ID</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[ID]', array(),'',array("class"=>"select2 small"))}}
+                            </div>
+
+                            <label class="col-sm-2 control-label">Disposition</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[disposition]', array(),'',array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Userfield</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[userfield]', array(),'',array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="panel panel-primary" data-collapsed="0">

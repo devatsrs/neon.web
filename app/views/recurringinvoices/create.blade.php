@@ -20,7 +20,19 @@
 
     @include('includes.errors')
     @include('includes.success')
-
+    <style>
+        .DiscountType{
+            width:40%;
+            text-align:left;
+        }
+        .DiscountType .select2-arrow{
+            width:30% !important;
+        }
+        .DiscountAmount{
+            width:40%;
+            display:inline;
+        }
+    </style>
     <form class="form-horizontal form-groups-bordered" action="{{URL::to('/recurringprofiles/store')}}" method="post"
           id="recurringinvoice-from" role="form">
 
@@ -134,7 +146,7 @@
                                     <th width="15%">Description</th>
                                     <th width="10%">Unit Price</th>
                                     <th width="10%">Quantity</th>
-                                    <!-- <th width="10%" >Discount</th>-->
+                                    <th width="10%" >Discount</th>
                                     <th width="15%">Tax 1</th>
                                     <th width="15%">Tax 2</th>
                                     <th class="hidden" width="10%">Total Tax</th>
@@ -152,6 +164,7 @@
                                     <td class="text-center">{{Form::text('RecurringInvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>
                                     <td style="display:none;"
                                         class="text-center">{{Form::text('RecurringInvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>
+                                    <td class="text-center">{{Form::text('RecurringInvoiceDetail[DiscountAmount][]',0,array("class"=>"form-control DiscountAmount","data-min"=>"1", "data-mask"=>"fdecimal"))}} {{Form::Select("RecurringInvoiceDetail[DiscountType][]",array("Percentage"=>"%","Flat"=>"Flat"),'%',array("class"=>"select2 small DiscountType"))}}</td>
                                     <td>{{Form::SelectExt(
                                             [
                                             "name"=>"RecurringInvoiceDetail[TaxRateID][]",
@@ -294,6 +307,7 @@
 
         var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{addslashes(Form::select('RecurringInvoiceDetail[ProductID][]',$products,'',array("class"=>"select2 product_dropdown")))}}</td><td>{{Form::textarea('RecurringInvoiceDetail[Description][]','',array("class"=>"form-control invoice_recurringinvoice_textarea autogrow descriptions","rows"=>1))}}</td><td class="text-center">{{Form::text('RecurringInvoiceDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('RecurringInvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
         add_row_html += '<td class="text-center hidden">{{Form::text('RecurringInvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
+        add_row_html += '<td class="text-center">{{Form::text('RecurringInvoiceDetail[DiscountAmount][]',0,array("class"=>"form-control DiscountAmount","data-min"=>"1", "data-mask"=>"fdecimal"))}} {{Form::Select("RecurringInvoiceDetail[DiscountType][]",array("Percentage"=>"%","Flat"=>"Flat"),'%',array("class"=>"select2 small DiscountType"))}}</td>';
         add_row_html += '<td>{{addslashes(Form::SelectExt(["name"=>"RecurringInvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small TaxRateID"]))}}</td>';
         add_row_html += '<td>{{addslashes(Form::SelectExt(["name"=>"RecurringInvoiceDetail[TaxRateID2][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small TaxRateID2"]))}}</td>';
 

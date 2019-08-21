@@ -101,7 +101,8 @@ class InvoicesController extends \BaseController {
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"",'.$userID.',"'.$data['tag'].'")');
             }
             $excel_data = json_decode(json_encode($excel_data),true);
-
+            $export_type['type'] = $type; 
+            $InvoiceActilead = UserActivity::UserActivitySaved($export_type,'Export','Invoice');
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
@@ -149,7 +150,9 @@ class InvoicesController extends \BaseController {
         $Quickbook = new BillingAPI($CompanyID);
         $check_quickbook = $Quickbook->check_quickbook($CompanyID);
         $check_quickbook_desktop = $Quickbook->check_quickbook_desktop($CompanyID);
-		$bulk_type = 'invoices';
+        $bulk_type = 'invoices';
+        $view_data = array();
+        $InvoiceActilead = UserActivity::UserActivitySaved($view_data,'View','Invoice');
         //print_r($_COOKIE);exit;
         return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID'));
 
@@ -213,6 +216,8 @@ class InvoicesController extends \BaseController {
             $productsControllerObj = new ProductsController();
             $DynamicFields = $productsControllerObj->getDynamicFields($CompanyID,$Type);
             $itemtypes 	= 	ItemType::getItemTypeDropdownList($CompanyID);
+            $view_data['editviewid'] = $id;
+            $InvoiceActilead = UserActivity::UserActivitySaved($view_data,'View','Invoice');
 			
             return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','BillingClass','InvoiceBillingClass','DynamicFields','itemtypes'));
         }
@@ -344,6 +349,22 @@ class InvoicesController extends \BaseController {
                     }
                 }
 
+                //unset discount amount & type if not selected
+                $i=0;
+                foreach($InvoiceDetailData as $idata)
+                {
+                    if(isset($idata["DiscountAmount"]))
+                    {
+                        if($idata["DiscountAmount"] == 0)
+                        {
+                            $InvoiceDetailData[$i]["DiscountAmount"] = "";
+                            $InvoiceDetailData[$i]["DiscountType"] = null;
+                        }
+                        $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
+                    }
+                    $i++;
+                }
+
                 //StockHistory
                 $StockHistory=array();
                 $temparray=array();
@@ -435,6 +456,7 @@ class InvoicesController extends \BaseController {
                             $message.="\n\r";
                         }
                     }
+                    $InvoiceActilead = UserActivity::UserActivitySaved($InvoiceData,'Add','Invoice');
                     return Response::json(array("status" => "success","warning"=>$message, "message" => $SuccessMsg,'LastID'=>$Invoice->InvoiceID,'redirect' => URL::to('/invoice/'.$Invoice->InvoiceID.'/edit')));
                 } else {
                     DB::connection('sqlsrv2')->rollback();
@@ -617,10 +639,24 @@ class InvoicesController extends \BaseController {
                             InvoiceTaxRate::insert($InvoiceTaxRates);
                         }*/
 
+                        $i=0;
+                        foreach($InvoiceDetailData as $idata)
+                        {
+                            if(isset($idata["DiscountAmount"]))
+                            {
+                                if($idata["DiscountAmount"] == 0)
+                                {
+                                    $InvoiceDetailData[$i]["DiscountAmount"] = "";
+                                    $InvoiceDetailData[$i]["DiscountType"] = null;
+                                }
+                                $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
+                            }
+                            $i++;
+                        }
+
 						 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                  		   InvoiceTaxRate::insert($InvoiceAllTaxRates);
                          }
-						
                         if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
                             $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($Invoice->InvoiceID);
                             if(!empty($InvoiceTaxRates1)) { //Invoice tax
@@ -719,6 +755,7 @@ class InvoicesController extends \BaseController {
                                     $message.="\n";
                                 }
                             }
+                            $InvoiceActilead = UserActivity::UserActivitySaved($InvoiceData,'Edit','Invoice');
                             return Response::json(array("status" => "success","warning"=>$message, "message" => "Invoice Successfully Updated", 'LastID' => $Invoice->InvoiceID));
                         } else {
                             DB::connection('sqlsrv2')->rollback();
@@ -974,12 +1011,14 @@ class InvoicesController extends \BaseController {
 
     public function delete($id)
     {
+        $data['id'] = $id;
         if( $id > 0){
             try{
                 DB::connection('sqlsrv2')->beginTransaction();
                 InvoiceDetail::where(["InvoiceID"=>$id])->delete();
                 Invoice::find($id)->delete();
                 DB::connection('sqlsrv2')->commit();
+                $InvoiceActilead = UserActivity::UserActivitySaved($data,'Delete','Invoice');
                 return Response::json(array("status" => "success", "message" => "Invoice Successfully Deleted"));
 
             }catch (Exception $e){
@@ -1010,6 +1049,7 @@ class InvoicesController extends \BaseController {
     }
     public function invoice_preview($id)
 	{
+        $data['invoice_view_id'] = $id;
         $Invoice = Invoice::find($id);
 		
         if(!empty($Invoice))
@@ -1080,7 +1120,7 @@ class InvoicesController extends \BaseController {
                 $sagepay_button = $SagePay->get_paynow_button($Invoice->AccountID,$Invoice->InvoiceID);
 
             }
-
+            $InvoiceActilead = UserActivity::UserActivitySaved($data,'View','Invoice');
             return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount','ShowAllPaymentMethod','PaymentMethod','InvoiceTemplate'));
         }
     }
@@ -2258,6 +2298,146 @@ class InvoicesController extends \BaseController {
 
     }
 
+    public function invoice_fastpayexport(){
+        $data = Input::all();
+
+        $userID = 0;
+        if(User::is('AccountManager')) {
+            $userID = User::get_userID();
+        }
+        $companyID = User::get_companyID();
+        if(!empty($data['InvoiceIDs'])){
+            $invoiceidarray = explode(",",$data['InvoiceIDs']);
+
+            $AccountInvoices = Invoice::select(DB::raw("GROUP_CONCAT(FullInvoiceNumber) as FullInvoiceNumber"),'AccountID',DB::raw("SUM(GrandTotal) as Amount"))
+                ->whereIn('tblInvoice.InvoiceID', $invoiceidarray)
+                ->groupBy('AccountID')
+                ->get()->toArray();
+
+            //map amount to accountid from array
+            $result = array_map(function($v){
+                return [$v['AccountID'] => $v['Amount']];
+            }, $AccountInvoices);
+            //convert amount multidimensional array to single array dynamically with id
+            $amountarray = array();
+            foreach($result as $array) {
+                foreach($array as $k=>$v) {
+                    $amountarray[$k] = $v;
+                }
+            }
+
+            //map invoicenumber to accountid from array
+            $result2 = array_map(function($v){
+                return [$v['AccountID'] => $v['FullInvoiceNumber']];
+            }, $AccountInvoices);
+            //convert invoicenumber multidimensional array to single array dynamically with id
+            $invnum_array = array();
+            foreach($result2 as $array) {
+                foreach($array as $k=>$v) {
+                    $invnum_array[$k] = $v;
+                }
+            }
+
+            //convert multidimensional array to single array
+            $AccountIdList = array_column($AccountInvoices, 'AccountID');
+
+            $AccountPaymentProfile = AccountPaymentProfile::where(array('CompanyID' => $companyID))
+                ->where('PaymentGatewayID',PaymentGateway::FastPay)
+                ->where('isDefault',1)
+                ->whereIn('AccountID', $AccountIdList)
+                ->select('*')
+                ->get()->toArray();
+
+            //make accountid's array to check accountid is available in accountpaymentprofile table or not
+            $AccountPaymentProfileIdArray = array_column($AccountPaymentProfile, 'AccountID');
+
+            $Account = Account::where(array('CompanyID' => $companyID))
+                ->whereIn('AccountID', $AccountIdList)
+                ->select('*')
+                ->get()->toArray();
+
+            //map invoicenumber to accountid from array
+            $result3 = array_map(function($v){
+                return [$v['AccountID'] => $v];
+            }, $Account);
+            //convert accountdetails multidimensional array to single array dynamically with id
+            $AccountDetails = array();
+            foreach($result3 as $array) {
+                foreach($array as $k=>$v) {
+                    $AccountDetails[$k] = $v;
+                }
+            }
+
+            $excel_data = array();
+            $i=0;
+            foreach($AccountIdList as $list)
+            {
+                if(in_array($list,$AccountPaymentProfileIdArray)){
+
+                    foreach($AccountPaymentProfile as $adata)
+                    {
+                        if($adata['AccountID'] == $list) {
+                            $options = json_decode($adata['Options']);
+                            $excel_data[$i]['DD REFERENCE']         = $options->dd_reference;
+                            $excel_data[$i]['Sort Code']            = $options->sortcode;
+                            $excel_data[$i]['Account No']           = $options->account_number;
+                            $excel_data[$i]['Account Name']         = $AccountDetails[$list]['AccountName'];
+                            $excel_data[$i]['Amount']               = $amountarray[$list];
+                            $excel_data[$i]['BACS Code']            = '01';
+                            $excel_data[$i]['Invoice No (Optional)']= $invnum_array[$list];
+                            $excel_data[$i]['Title']                = $AccountDetails[$list]['Title'];
+                            $excel_data[$i]['Initial']              = '';
+                            $excel_data[$i]['Forename']             = $AccountDetails[$list]['FirstName'];
+                            $excel_data[$i]['Surname']              = $AccountDetails[$list]['LastName'];
+                            $excel_data[$i]['Salutation 1']         = '';
+                            $excel_data[$i]['Salutation 2']         = '';
+                            $excel_data[$i]['Address 1']            = $AccountDetails[$list]['Address1'];
+                            $excel_data[$i]['Address 2']            = $AccountDetails[$list]['Address2'];
+                            $excel_data[$i]['Area']                 = '';
+                            $excel_data[$i]['Town']                 = $AccountDetails[$list]['City'];
+                            $excel_data[$i]['Postcode']             = $AccountDetails[$list]['PostCode'];;
+                            $excel_data[$i]['Phone']                = $AccountDetails[$list]['Phone'];;
+                            $excel_data[$i]['Mobile']               = $AccountDetails[$list]['Mobile'];;
+                            $excel_data[$i]['Email']                = $AccountDetails[$list]['Email'];;
+                            $excel_data[$i]['Notes (Optional)']     = '';
+                            $i++;
+
+                        }
+                    }
+                }
+                else{
+                        $excel_data[$i]['DD REFERENCE']         = '';
+                        $excel_data[$i]['Sort Code']            = '';
+                        $excel_data[$i]['Account No']           = '';
+                        $excel_data[$i]['Account Name']         = $AccountDetails[$list]['AccountName'];
+                        $excel_data[$i]['Amount']               = $amountarray[$list];
+                        $excel_data[$i]['BACS Code']            = '';
+                        $excel_data[$i]['Invoice No (Optional)']= $invnum_array[$list];
+                        $excel_data[$i]['Title']                = $AccountDetails[$list]['Title'];
+                        $excel_data[$i]['Initial']              = '';
+                        $excel_data[$i]['Forename']             = $AccountDetails[$list]['FirstName'];
+                        $excel_data[$i]['Surname']              = $AccountDetails[$list]['LastName'];
+                        $excel_data[$i]['Salutation 1']         = '';
+                        $excel_data[$i]['Salutation 2']         = '';
+                        $excel_data[$i]['Address 1']            = $AccountDetails[$list]['Address1'];
+                        $excel_data[$i]['Address 2']            = $AccountDetails[$list]['Address2'];
+                        $excel_data[$i]['Area']                 = '';
+                        $excel_data[$i]['Town']                 = $AccountDetails[$list]['City'];
+                        $excel_data[$i]['Postcode']             = $AccountDetails[$list]['PostCode'];;
+                        $excel_data[$i]['Phone']                = $AccountDetails[$list]['Phone'];;
+                        $excel_data[$i]['Mobile']               = $AccountDetails[$list]['Mobile'];;
+                        $excel_data[$i]['Email']                = $AccountDetails[$list]['Email'];;
+                        $excel_data[$i]['Notes (Optional)']     = '';
+                        $i++;
+                }
+            }
+
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/FastPayExport.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($excel_data);
+        }
+    }
+
     public function getInvoiceDetail(){
         $data = Input::all();
         $result = array();
@@ -2479,21 +2659,23 @@ class InvoicesController extends \BaseController {
         //$data['type'] = 'journal';
         if($data['type'] == 'journal'){
             $msgtype = 'Journal';
+            $jobdata["Title"] =  'QuickBook Journal Post';
+            $jobdata["Description"] = 'QuickBook Journal Post';
         }
         else{
             $msgtype = 'Invoice';
+            $jobdata["Title"] =  $jobType->Title;
+            $jobdata["Description"] = $jobType->Title ;
         }
         $CompanyID = User::get_companyID();
         $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
-            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
             $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
+            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
             $jobdata["CompanyID"] = $CompanyID;
             $jobdata["JobTypeID"] = $jobType->JobTypeID ;
             $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
             $jobdata["JobLoggedUserID"] = User::get_userID();
-            $jobdata["Title"] =  $jobType->Title;
-            $jobdata["Description"] = $jobType->Title ;
             $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
             $jobdata["created_at"] = date('Y-m-d H:i:s');
@@ -3508,6 +3690,7 @@ class InvoicesController extends \BaseController {
 
 
         $PaymentResponse =array();
+        /*
         if(isset($data["Success"])){
             $PaymentResponse['PaymentMethod'] = $data["PaymentMethod"];
             $PaymentResponse['transaction_notes'] = 'SagePay transaction_id '.$data["Transaction"];
@@ -3520,6 +3703,28 @@ class InvoicesController extends \BaseController {
             $PaymentResponse['transaction_notes'] = 'SagePay transaction_id '.$data['tx'];
             $PaymentResponse['Amount'] = floatval($data["amt"]);
             $PaymentResponse['Transaction'] = $data["tx"];
+            $PaymentResponse['Response'] = '';
+            $PaymentResponse['status'] = 'success';
+        }*/
+        if(isset($data["TransactionAccepted"]) && strtolower($data["TransactionAccepted"]) == "true"  ){
+            /** Example response
+             * (
+            [TransactionAccepted] => true
+            [CardHolderIpAddr] => 154.117.133.170
+            [RequestTrace] => 23793.64966948
+            [Reference] => 1:20190327173838
+            [Extra1] =>
+            [Extra2] => m10=1
+            [Extra3] =>
+            [Amount] => 345.57
+            [Method] => 1
+            [m10] => 1
+            )
+             */
+            $PaymentResponse['PaymentMethod'] = 'SagePay';
+            $PaymentResponse['transaction_notes'] = 'SagePay transaction_id '.$data["RequestTrace"];
+            $PaymentResponse['Amount'] = floatval($data["Amount"]);
+            $PaymentResponse['Transaction'] = $data["RequestTrace"];
             $PaymentResponse['Response'] = '';
             $PaymentResponse['status'] = 'success';
         }
