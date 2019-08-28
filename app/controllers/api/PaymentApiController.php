@@ -268,6 +268,7 @@ class PaymentApiController extends ApiController {
 				$data['Notes'] 	 	  = $note;
 				$data['InvoiceID'] 	  = $resp['LastID'];
 				$data['IsOutPayment'] = 1;
+				$data['Amount'] 	  = -$data['Amount'];
 
 				unset($data['AccountNo']);
 				unset($data['Approved']);
