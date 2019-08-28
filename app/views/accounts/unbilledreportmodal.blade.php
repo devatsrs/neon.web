@@ -114,9 +114,9 @@
                         <td><label for="field-1" class="col-sm-1 control-label">Date</label></td>
                         <td width="20%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" name="Date"></td>
                         <td><label for="field-1" class="col-sm-1 control-label">Type</label></td>
-                        <td width="20%">{{ Form::select('Type', [""=>"All","Oneofcharge" => "One Of Charge","PRSEarnings"=>"PRS Earnings","Subscription" => "Subscription","TopUp"=>"Top Up","Usage"=>"Usage"], '', array("class"=>"form-control select2 small")) }}</td>
+                        <td width="20%">{{ Form::select('Type', [""=>"All","Oneofcharge" => "One Of Charge","PRS Earnings"=>"PRS Earnings","Subscription" => "Subscription","TopUp"=>"Top Up","Usage"=>"Usage"], '', array("class"=>"form-control select2 small")) }}</td>
                         <td><label for="field-1" class="col-sm-1 control-label">Description</label></td>
-                        <td width="20%"><input type="text" class="form-control" name="Description"></td>
+                        <td width="20%">{{ Form::select('Description', [""=>"All","Awaiting Approval" => "Awaiting Approval","Approved"=>"Approved","Paid" => "Paid","TopUp"=>"Top Up","Usage"=>"Usage"], '', array("class"=>"form-control select2 small")) }}</td>
                         <td colspan="10" align="right">
                                 <button class="btn btn-primary btn-sm btn-icon icon-left" data-id="{{$account->AccountID}}" id="reports-search">
                                     <i class="entypo-search"></i>
