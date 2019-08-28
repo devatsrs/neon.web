@@ -2133,6 +2133,20 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function prepaidunbilledreport($id){
         $data = Input::all();
+        $date = '';
+        $type = '';
+        $description = '';
+        if(isset($data["searchreport"]))
+            if(isset($data["searchreport"]["Date"])){
+                $date = $data["searchreport"]["Date"];
+            }
+            if(isset($data["searchreport"]["Type"])){
+                $type = $data["searchreport"]["Type"];
+            }
+            if(isset($data["searchreport"]["Description"])){
+                $description = $data["searchreport"]["Description"];
+            }
+        
         // $companyID = User::get_companyID();
         // @TODO: ServiceID need to fix for show
         $AccountBilling = AccountBilling::getBilling($id,0);
@@ -2141,8 +2155,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $today = date('Y-m-d 23:59:59');
         $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
-        $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?)";
-        $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1));
+        $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?,?,?,?)";
+        $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1,$date,$type,$description));
+       
         return View::make('accounts.prepaid_unbilled_table', compact('UnbilledResult','CurrencySymbol','account'));
     }
 

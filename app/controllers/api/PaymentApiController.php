@@ -216,8 +216,9 @@ class PaymentApiController extends ApiController {
 			$data['AccountID']=$AccountID;
 
 			$AccountBalance = AccountBalance::where('AccountID', $AccountID)->first();
-			if($AccountBalance != false && $AccountBalance->OutPaymentAvailable >= $data['Amount']){
+			if($AccountBalance != false && $AccountBalance->BalanceAmount >= $data['Amount']){
 
+				//$newBalance = $AccountBalance->BalanceAmount - (float)$data['Amount'];
 				$newAvailable = $AccountBalance->OutPaymentAvailable - (float)$data['Amount'];
 				$newPaid = $AccountBalance->OutPaymentPaid + (float)$data['Amount'];
 
@@ -226,6 +227,7 @@ class PaymentApiController extends ApiController {
 					return Response::json(array("ErrorMessage" => $resp['message']),Codes::$Code500[0]);
 
 				$AccountBalance::where('AccountID', $AccountID)->update([
+					//'BalanceAmount' => $newBalance,
 					'OutPaymentAvailable' => $newAvailable,
 					'OutPaymentPaid' 	  => $newPaid,
 				]);
