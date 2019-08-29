@@ -13,7 +13,6 @@ else{
 ?>
 <script>
     jQuery(document).ready(function ($) {
-
         $(document).on('click','.unbilled_report',function(e){
             e.preventDefault();
             $('#unbilled_report').button('loading');
@@ -39,9 +38,31 @@ else{
         });
         $("#reports-search").click(function (e) {
             e.preventDefault();
+
+            startDate = $('#DateFrom').val();
+            endDate = $('#DateTo').val();
+            if(startDate == '' && endDate == ''){
+                toastr.error("Date from and date to field required", "Error", toastr_opts);
+                return false;
+            }
+            if(startDate != '' || endDate != ''){
+                if(startDate == ''){
+                    toastr.error("Date from field required", "Error", toastr_opts);
+                    return false;
+                }
+                if(endDate == ''){
+                    toastr.error("Date to field required", "Error", toastr_opts);
+                    return false;
+                }
+                if(startDate == endDate){
+                    toastr.error("Date to field always greater than date from field", "Error", toastr_opts);
+                    return false;
+                }
+            }
             var searchreport = {};
 
-            searchreport.Date = $("#report_filter").find('[name="Date"]').val();
+            searchreport.DateFrom = $("#report_filter").find('[name="DateFrom"]').val();
+            searchreport.DateTo = $("#report_filter").find('[name="DateTo"]').val();
             searchreport.Type = $("#report_filter").find('[name="Type"]').val();
             searchreport.Description = $("#report_filter").find('[name="Description"]').val();
             var update_new_url 	= 	baseurl + '/accounts/prepaidunbilledreport/'+$(this).attr('data-id');
@@ -63,8 +84,18 @@ else{
         });
         $(document).on('click','.prepaid_billed_report',function(e){
             e.preventDefault();
-            $("#report_filter").find('[name="Date"]').val('');
-            $("#report_filter").find('[name="Type"]').val('').trigger('change');
+            var d = new Date();
+            var firstDay = new Date(d.getFullYear(), d.getMonth(),d.getDate() - 31);
+            var lastDay = new Date(d.getFullYear(), d.getMonth() , d.getDate())
+            
+            $("#DateFrom").datepicker("setDate", firstDay);
+            $("#DateTo").datepicker("setDate", lastDay);
+            var searchreport = {};
+
+            searchreport.DateFrom = $("#report_filter").find('[name="DateFrom"]').val();
+            searchreport.DateTo = $("#report_filter").find('[name="DateTo"]').val();
+            searchreport.Type = $("#report_filter").find('[name="Type"]').val();
+            searchreport.Description = $("#report_filter").find('[name="Description"]').val();
              $("#report_filter").find('[name="Description"]').val('');
             $('#prepaid_billed_report').button('loading');
             var update_new_url 	= 	baseurl + '/accounts/prepaidunbilledreport/'+$(this).attr('data-id');
@@ -76,15 +107,12 @@ else{
                 url: update_new_url,  //Server script to process data
                 type: 'POST',
                 dataType: 'html',
+                data: {searchreport},
                 success: function (response) {
                     $('#prepaid_billed_report').button('reset');
                     $('#prepaidunbilledreport-modal').modal('show');
                     $('#prepaidunbilled_report_day').html(response);
                 },
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
             });
         });
     });
@@ -118,27 +146,23 @@ else{
             <div id="report_filter" method="get" action="#">
                 <table width="100%">
                     <tr>                                     
-                        <td><label for="field-1" class="col-sm-1 control-label">Date</label></td>
-                        <td width="20%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" name="Date"></td>
+                        <td><label for="field-1" class="col-sm-1 control-label">Date From</label></td>
+                        <td width="20%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="DateFrom" name="DateFrom"></td>
+                        <td><label for="field-1" class="col-sm-1 control-label">Date To</label></td>
+                        <td width="20%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="DateTo" name="DateTo"></td>
                         <td><label for="field-1" class="col-sm-1 control-label">Type</label></td>
                         <td width="20%">{{ Form::select('Type', [""=>"All","Oneofcharge" => "One Of Charge","PRS Earnings"=>"PRS Earnings","Subscription" => "Subscription","TopUp"=>"Top Up","Usage"=>"Usage"], '', array("class"=>"form-control select2 small")) }}</td>
                         <td><label for="field-1" class="col-sm-1 control-label">Description</label></td>
-                        <td width="20%">{{ Form::select('Description', [""=>"All","Awaiting Approval" => "Awaiting Approval","Approved"=>"Approved","Paid" => "Paid","TopUp"=>"Top Up","Usage"=>"Usage"], '', array("class"=>"form-control select2 small")) }}</td>
-                        <td colspan="10" align="right">
-                                <button class="btn btn-primary btn-sm btn-icon icon-left" data-id="{{ $data_id}}" id="reports-search">
-                                    <i class="entypo-search"></i>
-                                    Search
-                                </button>
-                        </td>
+                        <td width="20%"><input type="text" class="form-control" name="Description"></td>
                     </tr>
-                    {{-- <tr>
+                    <tr>
                         <td colspan="10" align="right">
-                            <button class="btn btn-primary btn-sm btn-icon icon-left" data-id="{{$account->AccountID}}" id="reports-search">
+                            <button class="btn btn-primary btn-sm btn-icon icon-left" data-id="{{ $data_id}}" id="reports-search">
                                 <i class="entypo-search"></i>
                                 Search
                             </button>
                         </td>
-                    </tr> --}}
+                    </tr>
                 </table>                              
             </div>    
             <form id="add-prepaidunbilledreport-form" method="post">
