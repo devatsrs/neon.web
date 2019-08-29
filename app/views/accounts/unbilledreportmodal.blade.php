@@ -54,10 +54,12 @@ else{
                     toastr.error("Date to field required", "Error", toastr_opts);
                     return false;
                 }
-                if(startDate == endDate){
+                if(startDate >= endDate){
                     toastr.error("Date to field always greater than date from field", "Error", toastr_opts);
                     return false;
                 }
+                
+
             }
             var searchreport = {};
 
