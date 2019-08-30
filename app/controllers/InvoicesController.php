@@ -258,13 +258,14 @@ public function edit_inv_in($id){
             $taxes =  TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
             $invoicelog =  InVoiceLog::where(array('InvoiceID'=>$id))->get();
             $InvoiceAllTax =  InvoiceTaxRate::where(["InvoiceID"=>$id,"InvoiceTaxType"=>1])->get();
+            $currencies =   Currency::getCurrencyDropdownIDList();
 
             $Type =  Product::DYNAMIC_TYPE;
             $productsControllerObj = new ProductsController();
             $DynamicFields = $productsControllerObj->getDynamicFields($CompanyID,$Type);
             $itemtypes  =   ItemType::getItemTypeDropdownList($CompanyID);
             
-            return View::make('invoices.edit_inv_in', compact( 'id', 'Invoice','InvoiceDetail', 'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','DynamicFields','itemtypes','InvoiceDetailFirst'));
+            return View::make('invoices.edit_inv_in', compact( 'id', 'Invoice','InvoiceDetail', 'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','DynamicFields','itemtypes','InvoiceDetailFirst','currencies'));
         }
     }
     /**
