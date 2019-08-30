@@ -62,7 +62,7 @@
                 <thead>
                 <tr>
                     <th width="5%">No</th>
-                    <th width="5%">Subscription</th>
+                    <th width="15%">Subscription</th>
                     <th width="15%">Invoice Description</th>
                     <th width="7%">Frequency</th>
                     <th width="5%">Qty</th>
