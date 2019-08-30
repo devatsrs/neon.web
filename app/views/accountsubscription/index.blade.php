@@ -64,6 +64,7 @@
                     <th width="5%">No</th>
                     <th width="5%">Subscription</th>
                     <th width="15%">Invoice Description</th>
+                    <th width="7%">Frequency</th>
                     <th width="5%">Qty</th>
                     <th width="10%">Start Date</th>
                     <th width="10%">End Date</th>
@@ -136,7 +137,7 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["AID", "Name", "InvoiceDescription", "Qty",
+            var list_fields  = ["AID", "Name", "InvoiceDescription", "Frequency" ,"Qty",
                 "StartDate", "EndDate" , "tblBillingSubscription.ActivationFee",
             "tblBillingSubscription.MonthlyFee","AccountSubscriptionID","SubscriptionID",
             "SequenceNo",  "OneOffCurrency","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee",
@@ -198,27 +199,28 @@
                         {                        // 14 Action
                            "bSortable": true,
                             mRender: function ( id, type, full ) {
-                                 action = full[10];
+                                 action = full[11];
                                 return action;
                             }
                         },  // 0 Sequence NO
                         {  "bSortable": true },  // 1 Subscription Name
                         
                         {  "bSortable": true },  // 2 InvoiceDescription
-                        {  "bSortable": true },  // 3 Qty
-                        {  "bSortable": true },  // 4 StartDate
-                        {  "bSortable": true },  // 5 EndDate
-                        {                        // 14 Action
+                        {  "bSortable": true },  // 3 Frequency
+                        {  "bSortable": true },  // 4 Qty
+                        {  "bSortable": true },  // 5 StartDate
+                        {  "bSortable": true },  // 6 EndDate
+                        {                        // 15 Action
                            "bSortable": true,
                             mRender: function ( id, type, full ) {
-                                 action = full[23]+full[6];
+                                 action = full[24]+full[7];
                                 return action;
                             }
                         },
                         {                        // 14 Action
                            "bSortable": true,
                             mRender: function ( id, type, full ) {
-                                 action = full[24]+full[7];
+                                 action = full[25]+full[8];
                                 return action;
                             }
                           },
@@ -369,7 +371,10 @@
                             $("#subscription-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             if(list_fields[i] == 'SubscriptionID'){
                                 $("#subscription-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
-                            } else if(list_fields[i] == 'OneOffCurrencyID' || list_fields[i] == 'RecurringCurrencyID'){
+                            }else if(list_fields[i] == 'Frequency'){
+                                $("#subscription-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                            }
+                             else if(list_fields[i] == 'OneOffCurrencyID' || list_fields[i] == 'RecurringCurrencyID'){
                                 var CurrencyID = cur_obj.find("input[name='"+list_fields[i]+"']").val();
                                 if(CurrencyID == 0) CurrencyID = '';
                                 $("#subscription-form [name='"+list_fields[i]+"']").select2().select2('val', CurrencyID);

@@ -46,6 +46,7 @@
                                     </div>
                                 </div>
                             </div>
+                            
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
@@ -87,10 +88,18 @@
                                 </div>
                             </div>
                             <div class="row">
-                            <div class="col-md-12">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label for="field-5" class="control-label">Discount</label>
                                         <input type="text" name="DiscountAmount" class="form-control" value=""  />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">Frequency</label>
+                                        {{ Form::select('Frequency',$frequency,'',['class' => 'form-control select2 small']) }}
                                     </div>
                                 </div>
                             </div>    
