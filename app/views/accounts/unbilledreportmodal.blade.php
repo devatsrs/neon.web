@@ -1,6 +1,6 @@
 <style>
 #report_filter{
-    width: 90%;
+    width: 100%;
     margin: auto;
 }
 </style>
@@ -144,35 +144,35 @@ else{
 <div class="modal fade" id="prepaidunbilledreport-modal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <br>
-            <div id="report_filter" method="get" action="#">
-                <table width="100%">
-                    <tr>                                     
-                        <td><label for="field-1" class="col-sm-1 control-label">Date From</label></td>
-                        <td width="20%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="DateFrom" name="DateFrom"></td>
-                        <td><label for="field-1" class="col-sm-1 control-label">Date To</label></td>
-                        <td width="20%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="DateTo" name="DateTo"></td>
-                        <td><label for="field-1" class="col-sm-1 control-label">Type</label></td>
-                        <td width="20%">{{ Form::select('Type', [""=>"All","Oneofcharge" => "One Of Charge","PRS Earnings"=>"PRS Earnings","Subscription" => "Subscription","TopUp"=>"Top Up","Usage"=>"Usage"], '', array("class"=>"form-control select2 small")) }}</td>
-                        <td><label for="field-1" class="col-sm-1 control-label">Description</label></td>
-                        <td width="20%"><input type="text" class="form-control" name="Description"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="10" align="right">
-                            <button class="btn btn-primary btn-sm btn-icon icon-left" data-id="{{ $data_id}}" id="reports-search">
-                                <i class="entypo-search"></i>
-                                Search
-                            </button>
-                        </td>
-                    </tr>
-                </table>                              
-            </div>    
             <form id="add-prepaidunbilledreport-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title"><strong>Account Balance Report By Day</strong></h4>
+                    <h4 class="modal-title"><strong>Account Balance Report</strong></h4>
                 </div>
                 <div class="modal-body">
+                    <div id="report_filter" method="get" action="#">
+                        <table width="100%">
+                            <tr>
+                                <td width="11%"><label for="field-1" class="col-sm-12 control-label">Date From</label></td>
+                                <td width="14%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="DateFrom" name="DateFrom"></td>
+                                <td width="10%"><label for="field-1" class="col-sm-12 control-label">Date To</label></td>
+                                <td width="15%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="DateTo" name="DateTo"></td>
+                                <td width="5%"><label for="field-1" class="col-sm-12 control-label">Type</label></td>
+                                <td width="20%">{{ Form::select('Type', [""=>"All","Oneofcharge" => "One Of Charge","PRS Earnings"=>"PRS Earnings","Subscription" => "Subscription","TopUp"=>"Top Up","Usage"=>"Usage"], '', array("class"=>"form-control select2 small")) }}</td>
+                                <td width="5%"><label for="field-1" class="col-sm-12 control-label">Description</label></td>
+                                <td width="20%"><input type="text" class="form-control" name="Description"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="10" align="right" style="padding-top: 10px">
+                                    <button class="btn btn-primary btn-sm btn-icon icon-left" data-id="{{ $data_id}}" id="reports-search">
+                                        <i class="entypo-search"></i>
+                                        Search
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br>
                     <div class="row" id="prepaidunbilled_report_day">
 
                     </div>
