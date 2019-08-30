@@ -108,7 +108,7 @@
                                             <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
                                             <td>{{Form::SelectControl('item_and_Subscription',0,['Type'=>$ProductRow->ProductType,'ID'=>$ProductRow->ProductID],0,'InvoiceDetail[ProductID][]')}}</td>
                                             <td>{{Form::textarea('InvoiceDetail[Description][]',$ProductRow->Description,array("class"=>"form-control autogrow invoice_estimate_textarea descriptions","rows"=>1))}}</td>
-                                            <td>{{Form::select('InvoiceDetail[CurrencyID][]', $currencies, '' ,array("class"=>"select2 CurrencyID"))}}</td>
+                                            <td>{{Form::select('InvoiceDetail[CurrencyID][]', $currencies, $ProductRow->CurrencyID ,array("class"=>"select2 CurrencyID"))}}</td>
                                             <td class="text-center">{{Form::text('InvoiceDetail[Price][]', number_format($ProductRow->Price,$RoundChargesAmount),array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
                                             <td class="text-center">{{Form::text('InvoiceDetail[Qty][]',$ProductRow->Qty,array("class"=>"form-control Qty"))}}</td>
                                             <td class="text-center hidden">{{Form::text('InvoiceDetail[Discount][]',number_format($ProductRow->Discount,$RoundChargesAmount),array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>
