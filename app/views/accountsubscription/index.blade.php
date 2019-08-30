@@ -279,6 +279,7 @@
                         $("#subscription-form [name=SubscriptionID]").select2().select2('val',"");
                         $("#subscription-form [name=OneOffCurrencyID]").select2().select2('val',"");
                         $("#subscription-form [name=RecurringCurrencyID]").select2().select2('val',"");
+                        $("#subscription-form [name=Frequency]").select2().select2('val',"");
 
                         $('#subscription-form').attr("action",subscription_add_url);
                         $('#modal-subscription').modal('show');
