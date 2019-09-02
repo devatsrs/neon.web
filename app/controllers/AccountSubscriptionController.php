@@ -25,7 +25,7 @@ public function main() {
         $select = [
             "tblAccountSubscription.AccountSubscriptionID as AID",
             "tblBillingSubscription.Name",
-            "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",
+            "InvoiceDescription", "Frequency" ,"Qty" ,"tblAccountSubscription.StartDate",
             DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),            
             "tblAccountSubscription.ActivationFee",
             
@@ -138,6 +138,7 @@ public function main() {
         $rules = array(
            // 'AccountID'         =>      'required',
             'SubscriptionID'    =>  'required',
+            'Frequency'         =>   'required',
             'ActivationFee' => 'required|numeric',
             'DailyFee' => 'required|numeric',
             'WeeklyFee' => 'required|numeric',
@@ -309,6 +310,7 @@ public function main() {
             $rules = array(
                 // 'AccountID'         =>      'required',
                  'SubscriptionID'    =>  'required',
+                 'Frequency'         =>   'required',
                  'ActivationFee' => 'required|numeric',
                  'DailyFee' => 'required|numeric',
                  'WeeklyFee' => 'required|numeric',

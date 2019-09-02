@@ -216,8 +216,15 @@ class PaymentApiController extends ApiController {
 			$data['AccountID']=$AccountID;
 
 			$AccountBalance = AccountBalance::where('AccountID', $AccountID)->first();
-			if($AccountBalance != false && $AccountBalance->OutPaymentAvailable >= $data['Amount']){
 
+			$BillingType=AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
+			$BalanceAmount = AccountBalance::getNewAccountBalance($CompanyID, $AccountID);
+			if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+				$BalanceAmount = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
+			}
+			if($AccountBalance != false && $BalanceAmount >= $data['Amount']){
+
+				//$newBalance = $AccountBalance->BalanceAmount - (float)$data['Amount'];
 				$newAvailable = $AccountBalance->OutPaymentAvailable - (float)$data['Amount'];
 				$newPaid = $AccountBalance->OutPaymentPaid + (float)$data['Amount'];
 
@@ -226,6 +233,7 @@ class PaymentApiController extends ApiController {
 					return Response::json(array("ErrorMessage" => $resp['message']),Codes::$Code500[0]);
 
 				$AccountBalance::where('AccountID', $AccountID)->update([
+					//'BalanceAmount' => $newBalance,
 					'OutPaymentAvailable' => $newAvailable,
 					'OutPaymentPaid' 	  => $newPaid,
 				]);
@@ -260,6 +268,7 @@ class PaymentApiController extends ApiController {
 				$data['Notes'] 	 	  = $note;
 				$data['InvoiceID'] 	  = $resp['LastID'];
 				$data['IsOutPayment'] = 1;
+				$data['Amount'] 	  = -$data['Amount'];
 
 				unset($data['AccountNo']);
 				unset($data['Approved']);

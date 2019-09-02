@@ -64,7 +64,7 @@ class RateGeneratorsController extends \BaseController {
         $codedecklist = BaseCodeDeck::getCodedeckIDList();
         $companyID = User::get_companyID();
         $currencylist = Currency::getCurrencyDropdownIDList();
-        $Timezones = Timezones::getTimezonesIDList();
+        $Timezones = array("" => 'All') + Timezones::getTimezonesIDList();
         $AllTypes =  RateType::getRateTypeDropDownList();
         
         // $country = ServiceTemplate::Join('tblCountry', function($join) {
@@ -216,10 +216,8 @@ class RateGeneratorsController extends \BaseController {
 
                 for ($i; $i < sizeof($numberArray) - 1; $i++) {
                      if(empty($data['Component-'. $numberArray[$i]]) ||
-                        empty($data['TimeOfDay-'. $numberArray[$i]]) ||
                         empty($data['Action-'. $numberArray[$i]]) ||
-                        empty($data['MergeTo-'. $numberArray[$i]]) ||
-                        empty($data['ToTimeOfDay-'. $numberArray[$i]])){
+                        empty($data['MergeTo-'. $numberArray[$i]])){
                             return Response::json(array(
                                 "status" => "failed",
                                 "message" => "Merge components Value is missing."
@@ -320,7 +318,6 @@ class RateGeneratorsController extends \BaseController {
                             unset($data['Package1-' . $calculatedRates[$i]]);
                         } else {
                             if (!isset($data['RateComponent-' . $calculatedRates[$i]]) ||
-                                empty($data['RateTimeOfDay-' . $calculatedRates[$i]]) ||
                                 !isset($data['RateLessThen-' . $calculatedRates[$i]]) ||
                                 !is_numeric($data['RateLessThen-' . $calculatedRates[$i]]) ||
                                 !isset($data['ChangeRateTo-' . $calculatedRates[$i]]) ||
@@ -482,6 +479,12 @@ class RateGeneratorsController extends \BaseController {
                         if($addComponents['PackageID'] == ''){
                             $addComponents['PackageID'] = Null;
                         }
+                        if($addComponents['TimezonesID'] == ''){
+                            $addComponents['TimezonesID'] = Null;
+                        }
+                        if($addComponents['ToTimezonesID'] == ''){
+                            $addComponents['ToTimezonesID'] = Null;
+                        }
                         if($addComponents['Origination'] == ''){
                             $addComponents['Origination'] = Null;
                         }
@@ -545,6 +548,9 @@ class RateGeneratorsController extends \BaseController {
 
                         if($addCalRate['PackageID'] == ''){
                             $addCalRate['PackageID'] = Null;
+                        }
+                        if($addCalRate['TimezonesID'] == ''){
+                            $addCalRate['TimezonesID'] = Null;
                         }
                         if($addCalRate['CountryID'] == ''){
                             $addCalRate['CountryID'] = Null;
@@ -629,7 +635,7 @@ class RateGeneratorsController extends \BaseController {
                 $array_op['disabled'] = "disabled";
             }
             $rategenerator = RateGenerator::find($id);
-            $Timezones = Timezones::getTimezonesIDList();
+            $Timezones = array("" => 'All') + Timezones::getTimezonesIDList();
 
             $AllTypes =  RateType::getRateTypeDropDownList();
 
@@ -805,10 +811,8 @@ class RateGeneratorsController extends \BaseController {
 
                 for ($i; $i < sizeof($numberArray) - 1; $i++) {
                     if(empty($data['Component-'. $numberArray[$i]]) ||
-                        empty($data['TimeOfDay-'. $numberArray[$i]]) ||
                         empty($data['Action-'. $numberArray[$i]]) ||
-                        empty($data['MergeTo-'. $numberArray[$i]]) ||
-                        empty($data['ToTimeOfDay-'. $numberArray[$i]])){
+                        empty($data['MergeTo-'. $numberArray[$i]])){
                         return Response::json(array(
                             "status" => "failed",
                             "message" => "Merge components Value is missing."
@@ -903,7 +907,6 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['Package1-' . $calculatedRates[$i]]);
                     } else {
                         if(!isset($data['RateComponent-'. $calculatedRates[$i]]) ||
-                            empty($data['RateTimeOfDay-'. $calculatedRates[$i]]) ||
                             !isset($data['RateLessThen-'. $calculatedRates[$i]]) ||
                             !is_numeric($data['RateLessThen-'. $calculatedRates[$i]]) ||
                             !isset($data['ChangeRateTo-'. $calculatedRates[$i]]) ||
@@ -1056,6 +1059,12 @@ class RateGeneratorsController extends \BaseController {
                         if($addComponents['PackageID'] == ''){
                             $addComponents['PackageID'] = Null;
                         }
+                        if($addComponents['TimezonesID'] == ''){
+                            $addComponents['TimezonesID'] = Null;
+                        }
+                        if($addComponents['ToTimezonesID'] == ''){
+                            $addComponents['ToTimezonesID'] = Null;
+                        }
                         if($addComponents['Origination'] == ''){
                             $addComponents['Origination'] = Null;
                         }
@@ -1120,6 +1129,9 @@ class RateGeneratorsController extends \BaseController {
 
                         if($addCalRate['PackageID'] == ''){
                             $addCalRate['PackageID'] = Null;
+                        }
+                        if($addCalRate['TimezonesID'] == ''){
+                            $addCalRate['TimezonesID'] = Null;
                         }
                         if($addCalRate['CountryID'] == ''){
                             $addCalRate['CountryID'] = Null;

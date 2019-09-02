@@ -65,6 +65,13 @@ class AccountSubscription extends \Eloquent {
         'EndDate'               =>'required'
     );
 
+    public static $frequency = array(
+        'Daily'     =>  'Daily',
+        'Weekly'    =>  'Weekly',
+        'Monthly'   =>  'Monthly',
+        
+    );
+
     public static function  checkForeignKeyById($id){
 
         if($id>0){

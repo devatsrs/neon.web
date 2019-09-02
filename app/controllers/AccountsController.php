@@ -881,7 +881,7 @@ class AccountsController extends \BaseController {
                 $AccountBilling->BillingStartDate = $AccountBilling->LastInvoiceDate;
             }
         }
-
+        $frequency = array('' => "Select") + AccountSubscription::$frequency;
         $ResellerCount = Reseller::where(['AccountID'=>$id,'Status'=>1])->count();
 
         $dynamicfields = Account::getDynamicfields('account',$id);
@@ -927,7 +927,7 @@ class AccountsController extends \BaseController {
         ]);
         $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$companyID)->first():[];
         return View::make('accounts.edit', compact('account','AffiliateAccount', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
-            'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table'));
+            'frequency','Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table'));
     }
 
     /**
@@ -2132,17 +2132,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 
     public function prepaidunbilledreport($id){
-        $data = Input::all();
+        $input = Input::all();
+        $data = $input["searchreport"];
+        $type = $data["Type"];
+        $description = $data["Description"];
         // $companyID = User::get_companyID();
         // @TODO: ServiceID need to fix for show
         $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
         $companyID = $account->CompanyId;
-        $today = date('Y-m-d 23:59:59');
-        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
+        $today = $data["DateTo"];
+        $CustomerLastInvoiceDate = $data["DateFrom"];
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
-        $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?)";
-        $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1));
+        $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?,?,?)";
+        $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1,$type,$description));
+       
         return View::make('accounts.prepaid_unbilled_table', compact('UnbilledResult','CurrencySymbol','account'));
     }
 
