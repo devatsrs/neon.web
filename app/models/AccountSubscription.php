@@ -67,8 +67,8 @@ class AccountSubscription extends \Eloquent {
 
     public static $frequency = array(
         'Daily'     =>  'Daily',
-        'Weekly'    =>  'Weekly',
-        'Monthly'   =>  'Monthly',
+        // 'Weekly'    =>  'Weekly',
+        'Monthly'   =>  'Monthly'
         
     );
 
