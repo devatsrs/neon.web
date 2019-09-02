@@ -67,6 +67,8 @@ class Report extends \Eloquent {
                 'area_prefix'=>'Area Prefix',
                 'pincode'=>'Pin Code',
                 'extension'=>'Extension',
+                "ex_name" => "Extension Name",
+                "ex_pincode" => "Extension Pincode",
                 'cli'=>'CLI',
                 'cld'=>'CLD',
                 'remote_ip'=>'Remote IP',
