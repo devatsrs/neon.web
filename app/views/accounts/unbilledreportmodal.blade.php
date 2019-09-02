@@ -90,7 +90,7 @@ else{
             var firstDay = new Date(d.getFullYear(), d.getMonth(),d.getDate() - 31);
             var lastDay = new Date(d.getFullYear(), d.getMonth() , d.getDate())
             
-            $("#DateFrom").datepicker({"setDate": firstDay, "defaultDate": firstDay});
+            $("#DateFrom").datepicker({setDate: firstDay, defaultDate: firstDay});
             $("#DateTo").datepicker("setDate", lastDay);
             var searchreport = {};
 
