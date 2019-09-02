@@ -98,7 +98,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="field-5" class="control-label">Frequency</label>
+                                        <label for="field-5" class="control-label">Frequency*</label>
                                         {{ Form::select('Frequency',$frequency,'',['class' => 'form-control select2 small']) }}
                                     </div>
                                 </div>
