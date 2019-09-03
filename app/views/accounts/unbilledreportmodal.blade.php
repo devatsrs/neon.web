@@ -158,7 +158,7 @@ else{
                                 <td width="10%"><label for="field-1" class="col-sm-12 control-label">Date To</label></td>
                                 <td width="15%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="DateTo" name="DateTo"></td>
                                 <td width="5%"><label for="field-1" class="col-sm-12 control-label">Type</label></td>
-                                <td width="20%">{{ Form::select('Type', [""=>"All","Oneofcharge" => "One Of Charge","PRS Earnings"=>"PRS Earnings","Subscription" => "Subscription","TopUp"=>"Top Up","Usage"=>"Usage"], '', array("class"=>"form-control select2 small")) }}</td>
+                                <td width="20%">{{ Form::select('Type', [""=>"All","Oneofcharge" => "One Of Charge","PRS Earnings"=>"PRS Earnings", "Out Payment"=>"Out Payment","Subscription" => "Subscription","TopUp"=>"Top Up","Usage"=>"Usage"], '', array("class"=>"form-control select2 small")) }}</td>
                                 <td width="5%"><label for="field-1" class="col-sm-12 control-label">Description</label></td>
                                 <td width="20%"><input type="text" class="form-control" name="Description"></td>
                             </tr>

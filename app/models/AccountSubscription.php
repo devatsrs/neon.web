@@ -69,7 +69,8 @@ class AccountSubscription extends \Eloquent {
         'Daily'     =>  'Daily',
         'Weekly'    =>  'Weekly',
         'Monthly'   =>  'Monthly',
-        
+        'Yearly'    =>  'Yearly',
+
     );
 
     public static function  checkForeignKeyById($id){

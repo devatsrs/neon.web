@@ -191,13 +191,13 @@
                 <input type="text" class="form-control" readonly value="{{$OutPaymentAwaiting}}">
             </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-4 hide">
             <div class="form-group">
                 <label for="field-2" class="control-label">Approved</label>
                 <input type="text" class="form-control" readonly value="{{$OutPaymentAvailable}}">
             </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-4 hide">
             <div class="form-group">
                 <label for="field-3" class="control-label">Paid</label>
                 <input type="text" class="form-control" readonly value="{{$OutPaymentPaid}}">
