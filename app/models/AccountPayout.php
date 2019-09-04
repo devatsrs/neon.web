@@ -55,20 +55,42 @@ class AccountPayout extends \Eloquent
         $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
 
         $prefix = Company::getCompanyField($CompanyID, "InvoiceNumberPrefix");
+        $Amount = $data["Amount"];
+        //For Tax Rate
+        $TotalTax = 0;
+        $TaxRateArr = [];
+        $TaxRates = isset($Account->TaxRateID) && $Account->TaxRateID != null ? explode(",",$Account->TaxRateID) : [];
+        if(!empty($TaxRates)){
+            foreach ($TaxRates as $TaxRateID) {
+                $TaxRateData = TaxRate::find($TaxRateID);
+                if(!empty($TaxRateData)){
+                    $InvoiceTaxRates = array();
+                    $InvoiceTaxRates['TaxRateID'] 		= $TaxRateID;
+                    $TaxAmount = TaxRate::calculateProductTaxAmount($TaxRateID,$Amount);
+                    $TotalTax += (float)$TaxAmount;
+                    $InvoiceTaxRates['TaxAmount'] 		= $TaxAmount;
+                    $InvoiceTaxRates['Title'] 			= $TaxRateData->Title;
+                    $InvoiceTaxRates['InvoiceTaxType'] 	= 0;
+                    $TaxRateArr[] = $InvoiceTaxRates;
+                }
+            }
+        }
+
+        $AmountWithoutTax = (float)$Amount - (float)$TotalTax;
 
         $InvoiceData["InvoiceNumber"] = Invoice::getNextInvoiceNumber($CompanyID);
         $InvoiceData["FullInvoiceNumber"] = $prefix . $InvoiceData["InvoiceNumber"];
         $InvoiceData["Address"]       = $InvoiceToAddress;
         $InvoiceData["Description"]   = "Out Payment";
         $InvoiceData["IssueDate"]     = date('Y-m-d');
-        $InvoiceData["SubTotal"]      = -floatval($data["Amount"]);
+        $InvoiceData["SubTotal"]      = -floatval($AmountWithoutTax);
         $InvoiceData["TotalDiscount"] = 0;
-        $InvoiceData["TotalTax"]      = 0;
+        $InvoiceData["TotalTax"]      = $TotalTax;
         $InvoiceData["ItemInvoice"]   = Invoice::ITEM_INVOICE;
         $InvoiceData["BillingClassID"]= $BillingClassID;
         $InvoiceData["InvoiceStatus"] = Invoice::SEND;
-        $InvoiceData["GrandTotal"]    = -floatval($data["Amount"]);
-        $InvoiceData['InvoiceTotal']  = -floatval($data["Amount"]);
+        $InvoiceData["GrandTotal"]    = -floatval($Amount);
+        $InvoiceData['InvoiceTotal']  = -floatval($Amount);
         $InvoiceData["CurrencyID"]    = $Account->CurrencyId;
         $InvoiceData["InvoiceType"]   = Invoice::INVOICE_OUT;
         $InvoiceData["Note"]          = $CreatedBy;
@@ -98,19 +120,19 @@ class AccountPayout extends \Eloquent
 
             $InvoiceID = $Invoice->InvoiceID;
 
-            $InvoiceDetailData = $InvoiceTaxRates = array();
+            $InvoiceDetailData = array();
             $InvoiceDetailData['InvoiceID']     = $InvoiceID;
             $InvoiceDetailData['ProductID']     = $ProductID;
             $InvoiceDetailData['Description']   = 'Out Payment';
-            $InvoiceDetailData['Price']         = -floatval($data["Amount"]);
+            $InvoiceDetailData['Price']         = -floatval($AmountWithoutTax);
             $InvoiceDetailData['Qty']           = 1;
-            $InvoiceDetailData['TaxAmount']     = 0;
-            $InvoiceDetailData['LineTotal']     = -floatval($data["Amount"]);
+            $InvoiceDetailData['TaxAmount']     = -$TotalTax;
+            $InvoiceDetailData['LineTotal']     = -floatval($AmountWithoutTax);
             $InvoiceDetailData['StartDate']     = '';
             $InvoiceDetailData['EndDate']       = '';
             $InvoiceDetailData['Discount']      = 0;
-            $InvoiceDetailData['TaxRateID']     = 0;
-            $InvoiceDetailData['TaxRateID2']    = 0;
+            $InvoiceDetailData['TaxRateID'] 	= isset($TaxRates[0]) ? $TaxRates[0] : 0;
+            $InvoiceDetailData['TaxRateID2'] 	= isset($TaxRates[1]) ? $TaxRates[1] : 0;
             $InvoiceDetailData['TotalMinutes']  = 0;
             $InvoiceDetailData["CreatedBy"]     = $CreatedBy;
             $InvoiceDetailData["ModifiedBy"]    = $CreatedBy;
@@ -118,7 +140,8 @@ class AccountPayout extends \Eloquent
             $InvoiceDetailData['ProductType']   = Product::ITEM;
             $InvoiceDetailData['ServiceID']     = 0;
             $InvoiceDetailData['AccountSubscriptionID'] = 0;
-            InvoiceDetail::insert($InvoiceDetailData);
+            $InvoiceDetails  = InvoiceDetail::create($InvoiceDetailData);
+            $InvoiceDetailID = $InvoiceDetails != false ? $InvoiceDetails->InvoiceDetailID : 0;
 
             $invoiceloddata = array();
             $invoiceloddata['InvoiceID']        = $InvoiceID;
@@ -127,9 +150,13 @@ class AccountPayout extends \Eloquent
             $invoiceloddata['InvoiceLogStatus'] = InVoiceLog::CREATED;
             InVoiceLog::insert($invoiceloddata);
 
-            $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($InvoiceID);
-            if(!empty($InvoiceTaxRates1)) { //Invoice tax
-                InvoiceTaxRate::insert($InvoiceTaxRates1);
+            //Inserting VAT Rates
+            if(!empty($TaxRateArr)){
+                foreach($TaxRateArr as $TaxRateInsert){
+                    $TaxRateInsert['InvoiceID'] = $InvoiceID;
+                    $TaxRateInsert['InvoiceDetailID'] = $InvoiceDetailID;
+                    InvoiceTaxRate::create($TaxRateInsert);
+                }
             }
 
             //Store Last Invoice Number.
