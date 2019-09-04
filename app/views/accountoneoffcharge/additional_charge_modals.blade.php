@@ -59,7 +59,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Price*</label>
-                                <input type="number" name="Price" min="0" class="form-control" value="0"   />
+                                <input type="text" name="Price" min="0" class="form-control" value="0"   />
                             </div>
                         </div>
                     </div>
