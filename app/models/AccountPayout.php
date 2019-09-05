@@ -70,6 +70,7 @@ class AccountPayout extends \Eloquent
                     $TotalTax += (float)$TaxAmount;
                     $InvoiceTaxRates['TaxAmount'] 		= $TaxAmount;
                     $InvoiceTaxRates['Title'] 			= $TaxRateData->Title;
+                    $InvoiceTaxRates['Title']           .= $TaxRateData->FlatStatus != 1 ? " " . $TaxRateData->Amount . "%" : "";
                     $InvoiceTaxRates['InvoiceTaxType'] 	= 0;
                     $TaxRateArr[] = $InvoiceTaxRates;
                 }
