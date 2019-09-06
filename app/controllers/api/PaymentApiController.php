@@ -552,6 +552,7 @@ class PaymentApiController extends ApiController {
 						$TotalTax += (float)$TaxAmount;
 						$InvoiceTaxRates['TaxAmount'] 		= $TaxAmount;
 						$InvoiceTaxRates['Title'] 			= $TaxRateData->Title;
+						$InvoiceTaxRates['Title'] 			.= $TaxRateData->FlatStatus != 1 ? " " . round($TaxRateData->Amount) . "%" : "";
 						$InvoiceTaxRates['InvoiceTaxType'] 	= 0;
 						$TaxRateArr[] = $InvoiceTaxRates;
 					}
