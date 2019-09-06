@@ -690,6 +690,10 @@
             width:1900px;
             overflow-x: auto;
         }
+        #ratetableVendorBox{
+            width:1600px;
+            overflow-x: auto;
+        }
     </style>
     <script type="text/javascript">
 
@@ -873,6 +877,7 @@
                 $(".DID-Div").show();
                 $(".NonDID-Div").hide();$(".Package-Div").hide();
                 $('#servicetableSubBox').css('width','3200px');
+                $('#ratetableVendorBox').css('width','1600px');
                 $('#getRateVendorIDs').val('');
                 $('#getIDs').val('');
                 $('#getRateIDs').val('');
@@ -911,6 +916,7 @@
                 $("#Vendors").show();
 //              $('#servicetableSubBox thead th').css('width','50px');
                 $('#servicetableSubBox').css('width','1225px');
+                $('#ratetableVendorBox').css('width','1030px');
                 $("#Vendors tbody").empty();
                 $('#servicetableSubBox tbody').empty();
                 $('#ratetableSubBox tbody').empty();

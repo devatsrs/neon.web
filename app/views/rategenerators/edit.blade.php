@@ -1022,6 +1022,10 @@
             width:1900px;
             overflow-x: auto;
         }
+        #ratetableVendorBox{
+            width:1600px;
+            overflow-x: auto;
+        }
     </style>
     <script type="text/javascript">
 
@@ -1221,6 +1225,7 @@
                 $("#Merge-components").show();
                 $('#servicetableSubBox').css('width','1225px');
                 $('#ratetableSubBox').css('width','1025px');
+                $('#ratetableVendorBox').css('width','1030px');
                 $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "id"=>"MergeTo-1")) }}');
