@@ -476,7 +476,7 @@
                                         <td>
                                             {{ Form::select('ToTimeOfDay-'.$a, $Timezones, $Component->ToTimezonesID, array("class"=>"select2")) }}
                                         </td>
-                                        <td>
+                                        <td width="4%">
 
                                             <a onclick="deleteRow(this.id,'servicetableSubBox','getIDs')" id="merge-{{$a}}" class="btn btn-danger btn-sm" data-loading-text="Loading...">
                                                 <i></i>
@@ -589,7 +589,7 @@
                                             <td>
                                                 <input type="number" min="0" value="{{$calculatedRate->ChangeRateTo}}" class="form-control" name="ChangeRateTo-{{$a}}"/>
                                             </td>
-                                            <td>
+                                            <td width="4%">
                                                 {{--<button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">--}}
                                                     {{--<i></i>--}}
                                                     {{--+--}}
@@ -605,6 +605,96 @@
                                     </tbody>
                                 </table>
 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-primary" data-collapsed="0" id="Vendors">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                Vendors
+                            </div>
+                            <div class="panel-options">
+                                <button type="button" onclick="createCloneRow('ratetableVendorBox','getRateVendorIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
+                                    <i></i>
+                                    +
+                                </button>
+                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="" style=" overflow: auto;">
+                                <br/>
+                                <input type="hidden" id="getRateVendorIDs" name="getRateVendorIDs" value=""/>
+                                <table id="ratetableVendorBox" class="table table-bordered datatable">
+                                    <thead>
+                                    <tr>
+                                        <th style="width:250px;" class="Package-Div">Package</th>
+                                        <th style="width:250px;">Vendors</th>
+                                        <th style="width:250px !important;" class="DID-Div">Country</th>
+                                        <th style="width:250px !important;" class="DID-Div">Access Type</th>
+                                        <th style="width:250px !important;" class="DID-Div">Prefix</th>
+                                        <th style="width:250px !important;" class="DID-Div">City</th>
+                                        <th style="width:250px !important;" class="DID-Div">Tariff</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="ratetbody">
+                                        <?php
+                                        $CalculatedVendorArr=array();
+                                        if (isset($rateGeneratorVendors) && count($rateGeneratorVendors) > 0)
+                                        {
+                                        $a = 0;
+                                        $hiddenClass='';
+                                        ?>
+    
+                                        @foreach ($rateGeneratorVendors as $calculatedVendor)
+                                            <?php
+                                            $a++;
+                                            if($a==1){
+                                                $hiddenClass='hidden';
+                                            }else{
+                                                $hiddenClass='';
+                                            }
+                                            ?>
+                                            <tr id="selectedRateRow-{{$a}}">
+                                                <td class="Package-Div">
+                                                    {{ Form::select('Package2-'.$a, $Package, $calculatedVendor->PackageID, array("class"=>"select2")) }}
+                                                </td>
+                                                <td>
+                                                   
+                                                    {{ Form::select('Vendor2-'.$a.'[]',$Vendors, explode("," ,$calculatedVendor->Vendors), array("class"=>"select2 selected-RComponents" ,'multiple', "id"=>"RateComponent-".$a)) }}
+                                                    
+                                                </td>
+                                                <td  class="DID-Div">
+                                                    {{ Form::select('Country2-'.$a, $country, $calculatedVendor->CountryID, array("class"=>"select2")) }}
+                                                </td>
+                                                <td  class="DID-Div">
+                                                    {{ Form::select('AccessType2-'.$a, $AccessType, $calculatedVendor->AccessType, array("class"=>"select2")) }}
+                                                </td>
+                                                <td  class="DID-Div">
+                                                    {{ Form::select('Prefix2-'.$a, $Prefix, $calculatedVendor->Prefix, array("class"=>"select2")) }}
+                                                </td>
+                                                <td  class="DID-Div">
+                                                    {{ Form::select('City2-'.$a, $City, $calculatedVendor->City, array("class"=>"select2")) }}
+                                                </td>
+                                                <td  class="DID-Div">
+                                                    {{ Form::select('Tariff2-'.$a, $Tariff, $calculatedVendor->Tariff, array("class"=>"select2")) }}
+                                                </td>
+                                                
+                                                <td width="4%">
+                                                    {{--<button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">--}}
+                                                        {{--<i></i>--}}
+                                                        {{--+--}}
+                                                    {{--</button>--}}
+                                                    <a onclick="deleteRow(this.id,'ratetableVendorBox','getRateVendorIDs')" id="rateVendorCal-{{$a}}" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
+                                                        <i></i>
+                                                        -
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        <?php }?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -773,7 +863,7 @@
     </div>
     <div class="hidden">
         <table id="table-1">
-            <tr id="selectedRow-">
+            <tr id="selectedRow-0">
                 <td class="Package-Div">
                     {{ Form::select('Package-1', $Package, '', array("class"=>"select2")) }}
                 </td>
@@ -831,7 +921,7 @@
                 <td>
                     {{ Form::select('ToTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                 </td>
-                <td>
+                <td width="4%">
 
                     <a onclick="deleteRow(this.id, 'servicetableSubBox','getIDs')" id="merge-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
                         <i></i>
@@ -875,8 +965,40 @@
                 <td>
                     <input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>
                 </td>
-                <td>
+                <td width="4%">
                     <a onclick="deleteRow(this.id,'ratetableSubBox','getRateIDs')" id="rateCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
+                        <i></i>
+                        -
+                    </a>
+                </td>
+            </tr>
+        </table>
+        <table id="table-3">
+            <tr id="selectedRateVendorRow-0">
+                <td class="Package-Div">
+                    {{ Form::select('Package2-1', $Package, '', array("class"=>"select2")) }}
+                </td>
+                <td>
+                    {{ Form::select('Vendors2-1[]', $Vendors, '', array("class"=>"select2" , "multiple")) }}
+                </td>
+                
+                <td class="DID-Div">
+                    {{ Form::select('Country2-1', $country, '', array("class"=>"select2")) }}
+                </td>
+                <td class="DID-Div">
+                    {{ Form::select('AccessType2-1', $AccessType, '', array("class"=>"select2")) }}
+                </td>
+                <td class="DID-Div">
+                    {{ Form::select('Prefix2-1', $Prefix, '', array("class"=>"select2")) }}
+                </td>
+                <td class="DID-Div">
+                    {{ Form::select('City2-1', $City, null, array("class"=>"select2")) }}
+                </td>
+                <td class="DID-Div">
+                    {{ Form::select('Tariff2-1', $Tariff, null, array("class"=>"select2")) }}
+                </td>
+                <td width="4%">
+                    <a onclick="deleteRow(this.id,'ratetableVendorBox','getRateVendorIDs')" id="rateVendorCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
                         <i></i>
                         -
                     </a>
@@ -900,6 +1022,10 @@
             width:1900px;
             overflow-x: auto;
         }
+        #ratetableVendorBox{
+            width:1600px;
+            overflow-x: auto;
+        }
     </style>
     <script type="text/javascript">
 
@@ -907,7 +1033,14 @@
             $('#'+idInp).val("");
             $('#' + tblID + ' tbody tr').each(function() {
 
-                var row = tblID == "servicetableSubBox" ? "selectedRow-0" : "selectedRateRow-0";
+                var row = "";
+                if(tblID == "servicetableSubBox"){
+                    row = "selectedRow-0";
+                }else if(tblID == "ratetableVendorBox"){
+                    row = "selectedRateVendorRow-0";
+                }else{
+                    row = "selectedRateRow-0";
+                }
                 var id = 0;
                 if(this.id != row)
                     id = getNumber(this.id);
@@ -995,6 +1128,7 @@
             $(window).load(function() {
                 getIds("servicetableSubBox", "getIDs");
                 getIds("ratetableSubBox", "getRateIDs");
+                getIds("ratetableVendorBox", "getRateVendorIDs");
             });
 
 
@@ -1091,6 +1225,7 @@
                 $("#Merge-components").show();
                 $('#servicetableSubBox').css('width','1225px');
                 $('#ratetableSubBox').css('width','1025px');
+                $('#ratetableVendorBox').css('width','1030px');
                 $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "id"=>"MergeTo-1")) }}');
@@ -1554,11 +1689,23 @@
             if(tblID == 'servicetableSubBox'){
                 $("#table-1 tr").clone().appendTo('#' + tblID + ' tbody');
                 $("#table-1 tr").attr('id', 'selectedRow-'+numb);
+            }else if(tblID == 'ratetableVendorBox'){
+                $("#table-3 tr").clone().appendTo('#' + tblID + ' tbody');
+                $("#table-3 tr").attr('id', 'selectedRateVendorRow-'+numb);
             }else{
                 $("#table-2 tr").clone().appendTo('#' + tblID + ' tbody');
             }
+           
 
-            var row = tblID == "servicetableSubBox" ? "selectedRow" : "selectedRateRow";
+            var row = "";
+
+            if(tblID == "servicetableSubBox"){
+                 row = "selectedRow";
+            }else if(tblID == "ratetableVendorBox"){
+                 row = "selectedRateVendorRow";
+            }else{
+                row = "selectedRateRow";
+            }
 
             $('#' + tblID + ' tr:last').attr('id', row + '-' + numb);
             if (tblID == "servicetableSubBox") {
@@ -1582,6 +1729,14 @@
                 $('#' + tblID + ' tr:last').children('td:eq(17)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
 
 
+            }else if (tblID == "ratetableVendorBox") { 
+                $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Package2-' + numb).attr('id', 'Package2-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'Vendor2-' + numb + '[]').attr('id', 'Vendor2-' + numb ).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'Country2-' + numb).attr('id', 'Country2-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'AccessType2-' + numb).attr('id', 'AccessType2-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'Prefix2-' + numb).attr('id', 'Prefix2-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'City2-' + numb).attr('id', 'City_Tariff2-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'Tariff2-' + numb).attr('id', 'Tariff2-' + numb).select2();
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Package1-' + numb).attr('id', 'Package1-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
@@ -1612,8 +1767,10 @@
              $(this).remove();
              });
              }*/
-            if (tblID == "servicetableSubBox") {
+             if (tblID == "servicetableSubBox") {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(18)').children('a').attr('id', "merge-" + numb);
+            }else if (tblID == "ratetableVendorBox") {
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').children('a').attr('id', "merge-" + numb);
             } else {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(11)').children('a').attr('id', "rateCal-" + numb);
             }
@@ -1640,6 +1797,10 @@
                 $('#' + tblID + ' tr:last').children('td:eq(16)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(17)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(18)').find('a').removeClass('hidden');
+            }else if(tblID == "ratetableVendorBox") {
+                $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').find('a').removeClass('hidden');
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
