@@ -76,6 +76,19 @@
         //console.log(lastWeekDisplay);
         console.log(lastWeekDisplayPadded);
         $('#field-sdate').val(lastWeekDisplayPadded);
+        
+        //End Date
+        var lastWeek = getLastDates('Today');
+        var lastWeekMonth = lastWeek.getMonth() + 1;
+        var lastWeekDay = lastWeek.getDate();
+        var lastWeekYear = lastWeek.getFullYear();
+
+        var lastWeekDisplay = lastWeekMonth + "-" + lastWeekDay + "-" + lastWeekYear;
+        var lastWeekDisplayPadded = ("0000" + lastWeekYear.toString()).slice(-4) + "-" +("00" + lastWeekMonth.toString()).slice(-2) + "-" + ("00" + lastWeekDay.toString()).slice(-2) ;
+        console.log(lastWeekDisplayPadded);
+        $('#field-edate').val(lastWeekDisplayPadded);
+        
+        
     });
         // There's the Dimension and the Measures
         var $Dimension = $( "#Dimension" ),
