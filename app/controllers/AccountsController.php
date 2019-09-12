@@ -871,6 +871,8 @@ class AccountsController extends \BaseController {
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $services = Service::getAllServices($companyID);
 
+        $CustomerServices = Service::getDropdownIDList($companyID);
+
         $billing_disable = $hiden_class= '';
         if($invoice_count > 0 || AccountDiscountPlan::checkDiscountPlan($id) > 0){
             $billing_disable = 'disabled';
@@ -897,6 +899,17 @@ class AccountsController extends \BaseController {
         //As per new question call the routing profile model for fetch the routing profile list.
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
+        $customers = array('' => 'Select');
+        if($account->IsReseller == 1){
+            $resellers = Reseller::where('AccountID',$id)->first();
+            if($resellers){
+                $customers = array('' => 'Select') + Account::where('CompanyID',$resellers->ChildCompanyID)->lists('AccountName','AccountID');
+            }
+        }
+
+        $CustomerRatetable = AccountCustomerRatetable::where('AccountID',$id)->get();
+        $CustomerServiceRatetable = AccountCustomerServiceRatetable::where('AccountID',$id)->get();
+
 
         $UserCompanyID = User::get_companyID();
         $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
@@ -927,7 +940,7 @@ class AccountsController extends \BaseController {
         ]);
         $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$companyID)->first():[];
         return View::make('accounts.edit', compact('account','AffiliateAccount', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
-            'frequency','Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table'));
+            'CustomerServiceRatetable','CustomerRatetable','CustomerServices','customers','frequency','Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table'));
     }
 
     /**
@@ -940,9 +953,15 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $ServiceID = 0;
         $data = Input::all();
+        // dd($data);
         $account = Account::find($id);
         //$companyID = User::get_companyID();
         $companyID = $account->CompanyId;
+        $getRateCustomerIDs = isset($data['getRateCustomerIDs']) ? $data['getRateCustomerIDs'] : '';
+        $getRateServiceIDs = isset($data['getRateServiceIDs']) ? $data['getRateServiceIDs'] : '';
+        
+        unset($data['getRateCustomerIDs']);
+        unset($data['getRateServiceIDs']);
         //$ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
 
 
@@ -1179,6 +1198,67 @@ class AccountsController extends \BaseController {
         }else{
             $DirectDebit = 0;
         }
+
+                                //Customer Rates     
+        $calculatedCustomerRates = array_unique(explode(",", $getRateCustomerIDs));
+                for ($i = 0; $i < sizeof($calculatedCustomerRates) - 1; $i++) {
+
+                        if ($data['Customer-' . $calculatedCustomerRates[$i]] == '' || $data['Access-' . $calculatedCustomerRates[$i]] == '' || $data['Access-' . $calculatedCustomerRates[$i]] == '') {
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Missing customer ratetable values."
+                            ));
+                        } else {
+   
+                            $rcCustomer[]    = $data['Customer-' . $calculatedCustomerRates[$i]];
+                            $rcAccess[]  = $data['Access-' . $calculatedCustomerRates[$i]];
+                            $rcPackage[] = $data['Package-' . $calculatedCustomerRates[$i]];
+                            $rcTermination[] = $data['Termination-' . $calculatedCustomerRates[$i]];
+                            $rcAccessD[]      = $data['AccessD-' . $calculatedCustomerRates[$i]];
+                            $rcPackageD[]   = $data['PackageD-' . $calculatedCustomerRates[$i]];
+                            $rcTerminationD[]   = $data['TerminationD-' . $calculatedCustomerRates[$i]];
+                          
+                        }
+                    unset($data['Customer-'. $calculatedCustomerRates[$i]]);
+                    unset($data['Access-'. $calculatedCustomerRates[$i]]);
+                    unset($data['Package-'. $calculatedCustomerRates[$i]]);
+                    unset($data['City2-'. $calculatedCustomerRates[$i]]);
+                    unset($data['Termination-'. $calculatedCustomerRates[$i]]);
+                    unset($data['AccessD-'. $calculatedCustomerRates[$i]]);
+                    unset($data['PackageD-'. $calculatedCustomerRates[$i]]); 
+                    unset($data['TerminationD-'. $calculatedCustomerRates[$i]]); 
+                }
+
+
+                $calculatedCustomerRateService = array_unique(explode(",", $getRateServiceIDs));
+                for ($i = 0; $i < sizeof($calculatedCustomerRateService) - 1; $i++) {
+
+                        if ($data['Customer1-' . $calculatedCustomerRateService[$i]] == '' || $data['Service1-' . $calculatedCustomerRateService[$i]] == '' || $data['Access1-' . $calculatedCustomerRateService[$i]] == '' || $data['Package1-' . $calculatedCustomerRateService[$i]] == '') {
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Missing customer service ratetable values."
+                            ));
+                        } else {
+   
+                            $rsCustomer[]    = $data['Customer1-' . $calculatedCustomerRateService[$i]];
+                            $rsService[]    = $data['Service1-' . $calculatedCustomerRateService[$i]];
+                            $rsAccess[]  = $data['Access1-' . $calculatedCustomerRateService[$i]];
+                            $rsPackage[] = $data['Package1-' . $calculatedCustomerRateService[$i]];
+                            $rsTermination[] = $data['Termination1-' . $calculatedCustomerRateService[$i]];
+                            $rsAccessD[]      = $data['AccessD1-' . $calculatedCustomerRateService[$i]];
+                            $rsPackageD[]   = $data['PackageD1-' . $calculatedCustomerRateService[$i]];
+                            $rsTerminationD[]   = $data['TerminationD1-' . $calculatedCustomerRateService[$i]];
+                          
+                        }
+                    unset($data['Customer1-'. $calculatedCustomerRateService[$i]]);
+                    unset($data['Service1-'. $calculatedCustomerRateService[$i]]);
+                    unset($data['Access1-'. $calculatedCustomerRateService[$i]]);
+                    unset($data['Package1-'. $calculatedCustomerRateService[$i]]);
+                    unset($data['Termination1-'. $calculatedCustomerRateService[$i]]);
+                    unset($data['AccessD1-'. $calculatedCustomerRateService[$i]]);
+                    unset($data['PackageD1-'. $calculatedCustomerRateService[$i]]); 
+                    unset($data['TerminationD1-'. $calculatedCustomerRateService[$i]]); 
+                }
 
         /*$test=array();
         $test['BillingStartDate']=$data['BillingStartDate'];
@@ -1439,6 +1519,72 @@ class AccountsController extends \BaseController {
             }
 
             AccountRateTable::addAccountRateTable($id,$data);
+
+            AccountCustomerRatetable::where("AccountID", $id)->delete();
+            AccountCustomerServiceRatetable::where("AccountID", $id)->delete();
+            
+            $calculatedCustomerRates = explode(",", $getRateCustomerIDs);
+                $addCustomerRate = array();
+                for ($i = 0; $i < sizeof($calculatedCustomerRates) - 1; $i++) {
+                    if (!isset($rcCustomer[$i])) {
+                        break;
+                    }
+                   
+                    $addCustomerRate['AccountID']                               = $id;
+                    $addCustomerRate['CustomerID']                              = $rcCustomer[$i];
+                    $addCustomerRate['AccessRatetableID']                       = $rcAccess[$i];
+                    $addCustomerRate['PackageRatetableID']                      = $rcPackage[$i];
+                    $addCustomerRate['TerminationRatetableID']                  = $rcTermination[$i];
+                    $addCustomerRate['AccessDiscountPlanID']                    = $rcAccessD[$i];
+                    $addCustomerRate['PackageDiscountPlanID']                   = $rcPackageD[$i];
+                    $addCustomerRate['TerminationDiscountPlanID']               = $rcTerminationD[$i];
+
+                    if($addCustomerRate['AccessDiscountPlanID'] == ''){
+                        $addCustomerRate['AccessDiscountPlanID'] = Null;
+                    }
+                    
+                    if($addCustomerRate['PackageDiscountPlanID'] == ''){
+                        $addCustomerRate['PackageDiscountPlanID'] = Null;
+                    }
+                    
+                    if($addCustomerRate['TerminationDiscountPlanID'] == ''){
+                        $addCustomerRate['TerminationDiscountPlanID'] = Null;
+                    }
+                    
+                    AccountCustomerRatetable::create($addCustomerRate);
+                }
+                
+                $calculatedCustomerRates = explode(",", $getRateServiceIDs);
+                $addCustomerServiceRate = array();
+                for ($i = 0; $i < sizeof($calculatedCustomerRates) - 1; $i++) {
+                    if (!isset($rsCustomer[$i])) {
+                        break;
+                    }
+                   
+                    $addCustomerServiceRate['AccountID']                               = $id;
+                    $addCustomerServiceRate['CustomerID']                              = $rsCustomer[$i];
+                    $addCustomerServiceRate['ServiceID']                               = $rsService[$i];
+                    $addCustomerServiceRate['AccessRatetableID']                       = $rsAccess[$i];
+                    $addCustomerServiceRate['PackageRatetableID']                      = $rsPackage[$i];
+                    $addCustomerServiceRate['TerminationRatetableID']                  = $rsTermination[$i];
+                    $addCustomerServiceRate['AccessDiscountPlanID']                    = $rsAccessD[$i];
+                    $addCustomerServiceRate['PackageDiscountPlanID']                   = $rsPackageD[$i];
+                    $addCustomerServiceRate['TerminationDiscountPlanID']               = $rsTerminationD[$i];
+
+                    if($addCustomerServiceRate['AccessDiscountPlanID'] == ''){
+                        $addCustomerServiceRate['AccessDiscountPlanID'] = Null;
+                    }
+                    
+                    if($addCustomerServiceRate['PackageDiscountPlanID'] == ''){
+                        $addCustomerServiceRate['PackageDiscountPlanID'] = Null;
+                    }
+                    
+                    if($addCustomerServiceRate['TerminationDiscountPlanID'] == ''){
+                        $addCustomerServiceRate['TerminationDiscountPlanID'] = Null;
+                    }
+
+                    AccountCustomerServiceRatetable::create($addCustomerServiceRate);            
+                } 
 
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
@@ -3271,4 +3417,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         return Response::json(array("status" => "success", "Taxes" => $Taxes));
     }
+
+    public function customerservices($id){
+
+        $accountService = AccountService::leftJoin('tblService',function($join){
+            $join->on('tblAccountService.ServiceID','=','tblService.ServiceID');
+        })           
+        ->select([
+            "tblService.ServiceName as name",
+            "tblAccountService.AccountServiceID as id",
+        ])
+        ->where('AccountID',$id)
+        ->get();
+
+        return $accountService;
+        }
 }
