@@ -1233,7 +1233,7 @@ class AccountsController extends \BaseController {
         $calculatedCustomerRateService = array_unique(explode(",", $getRateServiceIDs));
         for ($i = 0; $i < sizeof($calculatedCustomerRateService) - 1; $i++) {
 
-                if ($data['Customer1-' . $calculatedCustomerRateService[$i]] == '') {
+                if ($data['Customer1-' . $calculatedCustomerRateService[$i]] == '' || $data['Service1-' . $calculatedCustomerRateService[$i]] == '') {
                     return Response::json(array(
                         "status" => "failed",
                         "message" => "Missing customer service ratetable values."
