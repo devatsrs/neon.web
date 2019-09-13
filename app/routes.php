@@ -699,7 +699,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/contacts/{id}/GetTimeLineSrollData/{scroll}', 'ContactsController@GetTimeLineSrollData');
 
 
-
+	Route::any('customer/Services/{id}', 'AccountsController@customerservices');
 	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
 	Route::any('/users/exports/{type}', 'UsersController@exports');

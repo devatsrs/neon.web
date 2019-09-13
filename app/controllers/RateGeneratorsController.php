@@ -66,6 +66,8 @@ class RateGeneratorsController extends \BaseController {
         $currencylist = Currency::getCurrencyDropdownIDList();
         $Timezones = array("" => 'All') + Timezones::getTimezonesIDList();
         $AllTypes =  RateType::getRateTypeDropDownList();
+        $Vendors = Account::getVendorIDList();
+        unset($Vendors['']);
         
         // $country = ServiceTemplate::Join('tblCountry', function($join) {
         //     $join->on('tblServiceTemplate.country','=','tblCountry.country');
@@ -104,11 +106,12 @@ class RateGeneratorsController extends \BaseController {
 
         $ResellerDD  = RateTable::getResellerDropdownIDList();
 
-        return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones','country','AccessType','Prefix','City','Tariff','ResellerDD'));
+        return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones','country','AccessType','Prefix','City','Tariff','ResellerDD','Vendors'));
     }
 
     public function store() {
         $data = Input::all();
+        //dd($data);
         $companyID = User::get_companyID();
         $data ['CompanyID'] = $companyID;
         $data ['UseAverage'] = isset($data ['UseAverage']) ? 1 : 0;
@@ -118,6 +121,12 @@ class RateGeneratorsController extends \BaseController {
         $data['VendorPositionPercentage'] = $data['percentageRate'];
         $getNumberString = isset($data['getIDs']) ? $data['getIDs'] : '' ;
         $getRateNumberString = isset($data['getRateIDs']) ? $data['getRateIDs'] : '';
+        $getRateVendorNumberString = isset($data['getRateVendorIDs']) ? $data['getRateVendorIDs'] : '';
+        
+        unset($data['getIDs']);
+        unset($data['getRateIDs']);
+        unset($data['getRateVendorIDs']);
+
         $SelectType = $data['SelectType'];
         
         if($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
@@ -290,14 +299,12 @@ class RateGeneratorsController extends \BaseController {
                     unset($data['Package-' . $numberArray[$i]]);
 
                 }
-
-                unset($data['getIDs']);
                 unset($data['Category']);
                 if (!empty($data['AllComponent'])) {
                     $data['SelectedComponents'] = implode(",", $data['AllComponent']);
 
                 }
-
+                
                 $calculatedRates = array_unique(explode(",", $getRateNumberString));
 
                 for ($i = 0; $i < sizeof($calculatedRates) - 1; $i++) {
@@ -358,22 +365,41 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['Package1-' . $calculatedRates[$i]]);
                     }
                 }
-                unset($data['RateComponent-1']);
-                unset($data['RateOrigination-1']);
-                unset($data['RateTimeOfDay-1']);
-                unset($data['RateLessThen-1']);
-                unset($data['ChangeRateTo-1']);
-                unset($data['Country1-1']);
-                unset($data['AccessType1-1']);
-                unset($data['Prefix1-1' ]);
-                unset($data['City1-1']);
-                unset($data['Tariff1-1']);
-                unset($data['getRateIDs']);
-                unset($data['Package1-1']);
+
+                
+                $calculatedVendorRates = array_unique(explode(",", $getRateVendorNumberString));
+                for ($i = 0; $i < sizeof($calculatedVendorRates) - 1; $i++) {
+
+                        if (!isset($data['Vendor2-' . $calculatedVendorRates[$i]])) {
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Please select vendors first."
+                            ));
+                        } else {
+   
+                            $rvVendor[]    = $data['Vendor2-' . $calculatedVendorRates[$i]];
+                            $rvCountry[]  = $data['Country2-' . $calculatedVendorRates[$i]];
+                            $rvAccessType[]    = $data['AccessType2-' . $calculatedVendorRates[$i]];
+                            $rvPrefix[] = $data['Prefix2-' . $calculatedVendorRates[$i]];
+                            $rvTariff[] = $data['Tariff2-' . $calculatedVendorRates[$i]];
+                            $rvPackage[]      = $data['Package2-' . $calculatedVendorRates[$i]];
+                            $rvCity[]   = $data['City2-' . $calculatedVendorRates[$i]];
+                          
+                        }
+                    unset($data['Vendor2-'. $calculatedVendorRates[$i]]);
+                    unset($data['AccessType2-'. $calculatedVendorRates[$i]]);
+                    unset($data['Prefix2-'. $calculatedVendorRates[$i]]);
+                    unset($data['City2-'. $calculatedVendorRates[$i]]);
+                    unset($data['Tariff2-'. $calculatedVendorRates[$i]]);
+                    unset($data['Package2-'. $calculatedVendorRates[$i]]);
+                    unset($data['Country2-'. $calculatedVendorRates[$i]]); 
+                }
+
+
+               
                
             } else {
 
-                unset($data['getIDs']);
                 unset($data['Component-1']);
                 unset($data['Origination-1']);
                 unset($data['TimeOfDay-1']);
@@ -387,7 +413,6 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['RateTimeOfDay-1']);
                 unset($data['RateLessThen-1']);
                 unset($data['ChangeRateTo-1']);
-                unset($data['getRateIDs']);
                 unset($data['FCountry-1']);
                 unset($data['TCountry-1']);
                 unset($data['FAccessType-1']);
@@ -405,6 +430,12 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['Tariff1-1']);
                 unset($data['Package1-1']);
                 unset($data['Package-1']);
+                unset($data['Country2-1']);
+                unset($data['AccessType2-1']);
+                unset($data['Prefix2-1' ]);
+                unset($data['City2-1']);
+                unset($data['Tariff2-1']);
+                unset($data['Package2-1']);
             }
             if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) || $SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
                  unset($data['PackageID']);
@@ -418,7 +449,6 @@ class RateGeneratorsController extends \BaseController {
             }
 
             unset($data['AllComponent']);
-            unset($data['getIDs']);
             unset($data['Category']);
             $rateg = RateGenerator::create($data);
             if (isset($rateg->RateGeneratorId) && !empty($rateg->RateGeneratorId)) {
@@ -532,7 +562,6 @@ class RateGeneratorsController extends \BaseController {
                         if (!isset($rComponent[$i])) {
                             break;
                         }
-
                         $addCalRate['Component']       = implode(",", $rComponent[$i]);
                         $addCalRate['Origination']     = $rOrigination[$i];
                         $addCalRate['TimezonesID']     = $rTimeOfDay[$i];
@@ -573,6 +602,48 @@ class RateGeneratorsController extends \BaseController {
 
                         if (RateGeneratorCalculatedRate::create($addCalRate)) {
                             $CostComponentSaved = "and Calculated Rate Updated";
+                        }
+                    }
+
+                    $calculatedVendorRates = explode(",", $getRateVendorNumberString);
+                    $addVendorCalRate = array();
+                    for ($i = 0; $i < sizeof($calculatedVendorRates) - 1; $i++) {
+                        if (!isset($rvVendor[$i])) {
+                            break;
+                        }
+                       
+                        $addVendorCalRate['Vendors']       = implode(",", $rvVendor[$i]);
+                        $addVendorCalRate['RateGeneratorId'] = $rateg->RateGeneratorId;
+                        $addVendorCalRate['CountryID']       = $rvCountry[$i];
+                        $addVendorCalRate['AccessType']      = $rvAccessType[$i];
+                        $addVendorCalRate['Prefix']          = $rvPrefix[$i];
+                        $addVendorCalRate['City']            = $rvCity[$i];
+                        $addVendorCalRate['Tariff']          = $rvTariff[$i];
+                        $addVendorCalRate['PackageID']       = $rvPackage[$i];
+
+                        if($addVendorCalRate['PackageID'] == ''){
+                            $addVendorCalRate['PackageID'] = Null;
+                        }
+                        
+                        if($addVendorCalRate['CountryID'] == ''){
+                            $addVendorCalRate['CountryID'] = Null;
+                        }
+                        
+                        if($addVendorCalRate['AccessType'] == ''){
+                            $addVendorCalRate['AccessType'] = Null;
+                        }
+                        if($addVendorCalRate['Prefix'] == ''){
+                            $addVendorCalRate['Prefix'] = Null;
+                        }
+                        if($addVendorCalRate['City'] == ''){
+                            $addVendorCalRate['City'] = Null;
+                        }
+                        if($addVendorCalRate['Tariff'] == ''){
+                            $addVendorCalRate['Tariff'] = Null;
+                        }
+
+                        if (RateGeneratorVendors::create($addVendorCalRate)) {
+                            $CostComponentSaved = "and Vendors Updated";
                         }
                     }
                 }
@@ -628,6 +699,7 @@ class RateGeneratorsController extends \BaseController {
             //dd($rategenerator_rules);
             $rategeneratorComponents = RateGeneratorComponent::where('RateGeneratorID',$id )->get();
             $rateGeneratorCalculatedRate = RateGeneratorCalculatedRate::where('RateGeneratorID',$id )->get();
+            $rateGeneratorVendors = RateGeneratorVendors::where('RateGeneratorID',$id )->get();
             $array_op= array();
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $currencylist = Currency::getCurrencyDropdownIDList();
@@ -638,6 +710,8 @@ class RateGeneratorsController extends \BaseController {
             $Timezones = array("" => 'All') + Timezones::getTimezonesIDList();
 
             $AllTypes =  RateType::getRateTypeDropDownList();
+            $Vendors = Account::getVendorIDList();
+            unset($Vendors['']);
 
             // $country = ServiceTemplate::Join('tblCountry', function($join) {
             //     $join->on('tblServiceTemplate.country','=','tblCountry.country');
@@ -672,7 +746,7 @@ class RateGeneratorsController extends \BaseController {
 
             $ResellerDD  = RateTable::getResellerDropdownIDList();
             // Debugbar::info($rategenerator_rules);
-            return View::make('rategenerators.edit', compact('id', 'Products','Package', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones','country','AccessType','Prefix','City','country_rule','Tariff','ResellerDD'));
+            return View::make('rategenerators.edit', compact('id', 'Products','Package', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rateGeneratorCalculatedRate', 'rateGeneratorVendors' ,'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones','country','AccessType','Prefix','City','country_rule','Tariff','ResellerDD','Vendors'));
         }
     }
 
@@ -698,6 +772,11 @@ class RateGeneratorsController extends \BaseController {
         $data['VendorPositionPercentage'] = $data['percentageRate'];
         $getNumberString = isset($data['getIDs']) ? $data['getIDs'] : '' ;
         $getRateNumberString = isset($data['getRateIDs']) ? $data['getRateIDs'] : '';
+        $getRateVendorNumberString = isset($data['getRateVendorIDs']) ? $data['getRateVendorIDs'] : '';
+        
+        unset($data['getIDs']);
+        unset($data['getRateIDs']);
+        unset($data['getRateVendorIDs']);
 
         unset($data['SelectType']);
 
@@ -882,7 +961,6 @@ class RateGeneratorsController extends \BaseController {
                     unset($data['Package-' . $numberArray[$i]]);
                 }
 
-                unset($data['getIDs']);
                 unset($data['Category']);
                 if (!empty($data['AllComponent'])) {
                     $data['SelectedComponents'] = implode(",", $data['AllComponent']);
@@ -945,18 +1023,34 @@ class RateGeneratorsController extends \BaseController {
                     unset($data['Package1-' . $calculatedRates[$i]]);
                 }
 
-                unset($data['getRateIDs']);
-                unset($data['RateComponent-1']);
-                unset($data['RateOrigination-1']);
-                unset($data['RateTimeOfDay-1']);
-                unset($data['RateLessThen-1']);
-                unset($data['ChangeRateTo-1']);
-                unset($data['Country1-1']);
-                unset($data['AccessType1-1']);
-                unset($data['Prefix1-1' ]);
-                unset($data['City1-1']);
-                unset($data['Tariff1-1']);
-                unset($data['Package1-1']);
+                $calculatedVendorRates = array_unique(explode(",", $getRateVendorNumberString));
+                for ($i = 0; $i < sizeof($calculatedVendorRates) - 1; $i++) {
+
+                        if (!isset($data['Vendor2-' . $calculatedVendorRates[$i]])) {
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Please select vendors first."
+                            ));
+                        } else {
+   
+                            $rvVendor[]    = $data['Vendor2-' . $calculatedVendorRates[$i]];
+                            $rvCountry[]  = $data['Country2-' . $calculatedVendorRates[$i]];
+                            $rvAccessType[]    = $data['AccessType2-' . $calculatedVendorRates[$i]];
+                            $rvPrefix[] = $data['Prefix2-' . $calculatedVendorRates[$i]];
+                            $rvTariff[] = $data['Tariff2-' . $calculatedVendorRates[$i]];
+                            $rvPackage[]      = $data['Package2-' . $calculatedVendorRates[$i]];
+                            $rvCity[]   = $data['City2-' . $calculatedVendorRates[$i]];
+                          
+                        }
+                    unset($data['Vendor2-'. $calculatedVendorRates[$i]]);
+                    unset($data['AccessType2-'. $calculatedVendorRates[$i]]);
+                    unset($data['Prefix2-'. $calculatedVendorRates[$i]]);
+                    unset($data['City2-'. $calculatedVendorRates[$i]]);
+                    unset($data['Tariff2-'. $calculatedVendorRates[$i]]);
+                    unset($data['Package2-'. $calculatedVendorRates[$i]]);
+                    unset($data['Country2-'. $calculatedVendorRates[$i]]); 
+                }
+
             } else {
                 unset($data['getIDs']);
                 unset($data['Component-1']);
@@ -990,6 +1084,13 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['Tariff1-1']);
                 unset($data['Package1-1']);
                 unset($data['Package-1']);
+                unset($data['Vendor2-1']);
+                unset($data['AccessType2-1']);
+                unset($data['Prefix2-1']);
+                unset($data['City2-1']);
+                unset($data['Tariff2-1']);
+                unset($data['Package2-1']);
+                unset($data['Country2-1']); 
                 
             }
 
@@ -1005,6 +1106,7 @@ class RateGeneratorsController extends \BaseController {
 
                 RateGeneratorComponent::where("RateGeneratorId", $id)->delete();
                 RateGeneratorCalculatedRate::where("RateGeneratorId", $id)->delete();
+                RateGeneratorVendors::where("RateGeneratorId", $id)->delete();
 
                 if ($SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID) ||$SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE)) {
 
@@ -1155,6 +1257,48 @@ class RateGeneratorsController extends \BaseController {
                             $CostComponentSaved = "and Calculated Rate Updated";
                         }
                     }
+
+                    $calculatedVendorRates = explode(",", $getRateVendorNumberString);
+                    $addVendorCalRate = array();
+                    for ($i = 0; $i < sizeof($calculatedVendorRates) - 1; $i++) {
+                        if (!isset($rvVendor[$i])) {
+                            break;
+                        }
+                       
+                        $addVendorCalRate['Vendors']       = implode(",", $rvVendor[$i]);
+                        $addVendorCalRate['RateGeneratorId'] = $RateGeneratorID;
+                        $addVendorCalRate['CountryID']       = $rvCountry[$i];
+                        $addVendorCalRate['AccessType']      = $rvAccessType[$i];
+                        $addVendorCalRate['Prefix']          = $rvPrefix[$i];
+                        $addVendorCalRate['City']            = $rvCity[$i];
+                        $addVendorCalRate['Tariff']          = $rvTariff[$i];
+                        $addVendorCalRate['PackageID']       = $rvPackage[$i];
+
+                        if($addVendorCalRate['PackageID'] == ''){
+                            $addVendorCalRate['PackageID'] = Null;
+                        }
+                        
+                        if($addVendorCalRate['CountryID'] == ''){
+                            $addVendorCalRate['CountryID'] = Null;
+                        }
+                        
+                        if($addVendorCalRate['AccessType'] == ''){
+                            $addVendorCalRate['AccessType'] = Null;
+                        }
+                        if($addVendorCalRate['Prefix'] == ''){
+                            $addVendorCalRate['Prefix'] = Null;
+                        }
+                        if($addVendorCalRate['City'] == ''){
+                            $addVendorCalRate['City'] = Null;
+                        }
+                        if($addVendorCalRate['Tariff'] == ''){
+                            $addVendorCalRate['Tariff'] = Null;
+                        }
+
+                        if (RateGeneratorVendors::create($addVendorCalRate)) {
+                            $CostComponentSaved = "and Vendors Updated";
+                        }
+                    }
                 }
 
                 DB::commit();
@@ -1202,6 +1346,7 @@ class RateGeneratorsController extends \BaseController {
 
                 RateGeneratorComponent::where('RateGeneratorId',$id)->delete();
                 RateGeneratorCalculatedRate::where('RateGeneratorId',$id)->delete();
+                RateGeneratorVendors::where('RateGeneratorId',$id)->delete();
                 $Raterule = RateRule::where('RateGeneratorId',$id);
                 if(count($Raterule->get()) > 0)
                 {

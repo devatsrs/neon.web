@@ -20,7 +20,7 @@
                             <td>{{$UnbilledResultRaw->Description}}</td>
                             <td>{{$UnbilledResultRaw->Period}}</td>
                             <td>{{$CurrencySymbol.$UnbilledResultRaw->Amount}}</td>
-                            <td>{{$UnbilledResultRaw->IssueDate}}</td>
+                            <td>{{$UnbilledResultRaw->created_at}}</td>
                         </tr>
                     @endforeach
                 @else
