@@ -50,7 +50,7 @@
                             <td class="Package-Div">
                                 {{ Form::select('Customer1-'.$a, $customers, $calculatedVendor->CustomerID, array("class"=>"select2 customer-get")) }}
                             </td>
-                            <td data-id="{{ $calculatedVendor->ServiceID }}">
+                            <td data-id="{{ $calculatedVendor->AccountServiceID }}">
                                 {{-- {{ Form::select('Service1-'.$a, $CustomerServices, $calculatedVendor->ServiceID, array("class"=>"select2 service-customer")) }} --}}
                                 <select name="Service1-{{ $a }}"  id="" class="select2 service-customer"></select>
                             </td>
