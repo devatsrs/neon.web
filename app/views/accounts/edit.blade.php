@@ -1756,7 +1756,6 @@
                 url : baseurl + '/customer/Services/' + cusID ,
                 type: 'get',
                 success:function(response){
-                    console.log(response)
                     var options = that.closest('tr').find("select.service-customer");
                     options.empty();
                     options.append("<option value=''>Select</option>")
