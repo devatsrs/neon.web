@@ -1,4 +1,4 @@
-<div class="panel panel-primary" data-collapsed="0" id="Merge-components">
+<div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
             Customer Rate Tables
