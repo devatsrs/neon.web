@@ -84,7 +84,7 @@
                     </div>
                 @endif
 
-                <div class="form-group filter_naa">
+                <div class="form-group filter_naa hidden">
                     <label for="field-1" class="control-label">Group By</label>
                     <select class="select2" name="GroupBy" id="GroupBy">
                         <option value="GroupByCode">Code</option>
@@ -192,9 +192,12 @@
             <th width="3%">Interval 1/N</th>
             <th width="3%" style="display: none;">Interval N</th>
             <th width="5%">Connection Fee</th>
+            <th width="5%">Connection Fee Margin</th>
             <th width="5%">Previous Rate ({{$code}})</th>
             <th width="5%">Rate1 ({{$code}})</th>
+            <th width="5%">Rate1 Margin</th>
             <th width="5%">RateN ({{$code}})</th>
+            <th width="5%">RateN Margin</th>
             <th width="8%">Effective Date</th>
             <th width="8%" style="display: none">End Date</th>
             <th width="8%">Modified By/Date</th>
@@ -636,6 +639,8 @@
 
     function rateDataTable() {
         var GroupBy = $('#rate-table-search #GroupBy').val();
+        var ApproveStatus = $("#rate-table-search [name='ApprovedStatus']").val();
+
         if(GroupBy == 'GroupByDesc'){
             setCookie('ratetableview','GroupByDesc','30');
             view = 2;
@@ -644,6 +649,7 @@
             view = 1;
         }
         var bVisible = false;
+        var bVisiblePreviousRate = false;
         ratetablepageview = getCookie('ratetablepageview');
         if(ratetablepageview == 'AdvanceView') {
             bVisible = true;
@@ -651,11 +657,19 @@
             bVisible = false;
         }
 
+        var bVisibleComparisonView = false;
+        if(ApproveStatus != 1) {
+            bVisibleComparisonView = bVisible;
+            bVisiblePreviousRate = false;
+        } else {
+            bVisiblePreviousRate = bVisible;
+        }
+
         var bVisibleApprovedStatus  = false;
         var bVisibleRoutingCategory = false;
         var bVisiblePreferenceBlock = false;
         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-            bVisibleApprovedStatus = bVisible;
+                bVisibleApprovedStatus = bVisible;
         @endif
         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
             @if($ROUTING_PROFILE == 1)
@@ -705,7 +719,7 @@
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[view==2 ? 1 : 4, "asc"]],
+            "aaSorting": [[view==2 ? 1 : 5, "asc"]],
             "aoColumns":
                     [
                         {"bSortable": false,
@@ -745,7 +759,8 @@
                                     return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
                             },
                             "className":      'details-control',
-                            "orderable":      false,
+//                            "orderable":      false,
+                            "bSortable" : view == 1 ? true : false,
                             "data": null,
                             "defaultContent": ''
                         }, //3 Origination Code
@@ -757,40 +772,118 @@
                             }
                         }, //5 Destination Code
                         {}, //6 Destination description
-                        {}, //7 Min. Duration
+                        {"bSortable" : false}, //7 Min. Duration
                         {
+                            "bSortable" : false,
                             mRender: function(id, type, full) {
                                 return full[8] + '/' + full[9]; // interval1/intervalN
                             }
                         }, //8 interval 1
                         {
+                            "bSortable" : false,
                             "bVisible" : false
                         }, //9 interval n
                         {
+                            "bSortable" : false,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[31] + col; else return '';  //ConnectionFeeCurrency+ConnectionFee
+                                var cf_html = '';
+                                if(bVisibleComparisonView) {
+                                    cf_html = (full[33] != null && full[33] != '') ? full[36] + full[33] : '-';
+                                    cf_html += '<br/>';
+                                    cf_html += (full[10] != null && full[10] != '') ? full[30] + full[10] : '-';
+                                } else {
+                                    cf_html = (full[10] != null && full[10] != '') ? full[30] + full[10] : '';  //ConnectionFeeCurrency+ConnectionFee
+                                }
+                                return cf_html;
                             }
                         }, //10 ConnectionFee
                         {
-                            "bVisible" : bVisible
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[38] != 0 && full[38] != null ? full[38] + ' ('+full[41]+'%)' : '- (-)';
+                                if(full[38] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[38] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 38/41 ConnectionFee Margin/Margin Percentage
+                        {
+                            "bSortable" : false,
+                            "bVisible" : bVisiblePreviousRate,
+                            mRender: function(col, type, full) {
+                                return full[11];
+                            }
                         }, //11 PreviousRate
                         {
+                            "bSortable" : false,
                             mRender: function(col, type, full) {
-                                var rate_html = full[30] + col; //RateCurrency+Rate
-                                if(col > full[11])
-                                    rate_html = rate_html+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
-                                else if(col < full[11])
-                                    rate_html = rate_html+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                var rate_html = '';
+                                if(bVisibleComparisonView) {
+                                    rate_html = (full[34] != null && full[34] != '') ? full[37] + full[34] : '-'; //CurrentRateCurrency+Rate for awaiting approval
+                                    rate_html += '<br/>';
+                                    rate_html += full[31] + full[12]; //RateCurrency+Rate
+                                } else {
+                                    rate_html = full[31] + full[12]; //RateCurrency+Rate
+                                    if(full[12] > full[11])
+                                        rate_html = rate_html+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                    else if(col < Prev_Rate)
+                                        rate_html = rate_html+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                }
+
                                 return rate_html;
                             }
                         }, //12 Rate
                         {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[30] + col; else return '';  //RateCurrency+RateN
+                                rate_html = full[39] != 0 && full[39] != null ? full[39] + ' ('+full[42]+'%)' : '- (-)';
+                                if(full[39] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[39] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 39/42 Rate Margin/Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var raten_html = '';
+                                if(bVisibleComparisonView) {
+                                    raten_html = (full[35] != null && full[35] != '') ? full[37] + full[35] : '-';
+                                    raten_html += '<br/>';
+                                    raten_html += (full[13] != null && full[13] != '') ? full[31] + full[13] : '-';
+                                } else {
+                                    raten_html = (full[13] != null && full[13] != '') ? full[31] + full[13] : '';  //RateCurrency+RateN
+                                }
+                                return raten_html;
                             }
                         }, //13 RateN
-                        {}, //14 Effective Date
-                        {"bVisible" : false}, //15 End Date
+                        {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[40] != 0 && full[40] != null ? full[40] + ' ('+full[43]+'%)' : '- (-)';
+                                if(full[40] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[40] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 40/43 RateN Margin/Margin Percentage
+                        {
+                            mRender: function(col, type, full) {
+                                return full[14];
+                            }
+                        }, //14 Effective Date
+                        {
+                            "bVisible" : false,
+                            mRender: function(col, type, full) {
+                                return full[15];
+                            }
+                        }, //15 End Date
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
@@ -820,6 +913,7 @@
                             }
                         }, //22 RoutingCategoryName
                         {
+                            "bSortable" : false,
                             "bVisible" : bVisiblePreferenceBlock,
                             mRender: function(id, type, full) {
                                 return full[23]

@@ -79,9 +79,10 @@ class RateTablesController extends \BaseController {
         $TypeVoiceCall  = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
         $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
 
-        $columns_voicecall  = array('RateTableRateID', 'DestinationType', 'TimezoneTitle', 'OriginationCode', 'OriginationDescription', 'Code', 'Description', 'MinimumDuration', 'Interval1', 'IntervalN', 'ConnectionFee', 'PreviousRate', 'Rate', 'RateN', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy', 'RoutingCategoryName', 'Preference');
-        $columns_did        = array('RateTableRateID', 'AccessType', 'Country', 'OriginationCode', 'Code', 'City', 'Tariff', 'TimezoneTitle', 'OneOffCost', 'MonthlyCost', 'CostPerCall', 'CostPerMinute', 'SurchargePerCall', 'SurchargePerMinute', 'OutpaymentPerCall', 'OutpaymentPerMinute', 'Surcharges', 'Chargeback', 'CollectionCostAmount', 'CollectionCostPercentage', 'RegistrationCostPerNumber', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
-        $columns_pkg        = array('RateTableRateID', 'TimezoneTitle', 'Code', 'OneOffCost', 'MonthlyCost', 'PackageCostPerMinute', 'RecordingCostPerMinute', 'EffectiveDate', 'EndDate', 'ModifiedBy', 'ApprovedBy');
+        // column index from data table grid for sorting
+        $columns_voicecall  = array(1=>'DestinationType', 2=>'TimezoneTitle', 3=>'OriginationCode', 4=>'OriginationDescription', 5=>'Code', 6=>'Description', 17=>'EffectiveDate', 18=>'EndDate', 19=>'ModifiedBy', 20=>'ApprovedBy', 21=>'RoutingCategoryName');
+        $columns_did        = array(1=>'AccessType', 2=>'Country', 3=>'OriginationCode', 4=>'Code', 5=>'City', 6=>'Tariff', 7=>'TimezoneTitle', 34=>'EffectiveDate', 35=>'EndDate', 36=>'ModifiedBy', 37=>'ApprovedBy');
+        $columns_pkg        = array(1=>'TimezoneTitle', 2=>'Code', 11=>'EffectiveDate', 12=>'EndDate', 13=>'ModifiedBy', 14=>'ApprovedBy');
 
         $sort_column_voicecall  = @$columns_voicecall[$data['iSortCol_0']];
         $sort_column_did        = @$columns_did[$data['iSortCol_0']];
