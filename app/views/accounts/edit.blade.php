@@ -1750,28 +1750,29 @@
         
         function getCustomerServiceDropdown(ele){
             var that = $(ele);
-                var check = that.closest('tr').children('td:eq(1)').data('id');
-                $.ajax({
-                    url : baseurl + '/customer/Services/' + that.val() ,
-                    type: 'get',
-                    success:function(response){
-                        var options = that.closest('tr').find("select.service-customer");
-                        options.empty();
-                        options.append("<option value=''>Select</option>")
-                        $.map( response, function( val, i ) {
-                            if(check != ''){
-                                if(check == val.id){
-                                    options.append("<option value='"+ val.id +"' selected>"+val.name+"</option>");
-                                }else{
-                                    options.append("<option value='"+ val.id +"'>"+val.name+"</option>");
-                                }
+            var cusID = that.val() != '' ? that.val() : 0;
+            var check = that.closest('tr').children('td:eq(1)').data('id');
+            $.ajax({
+                url : baseurl + '/customer/Services/' + cusID ,
+                type: 'get',
+                success:function(response){
+                    var options = that.closest('tr').find("select.service-customer");
+                    options.empty();
+                    options.append("<option value=''>Select</option>")
+                    $.map( response, function( val, i ) {
+                        if(check != ''){
+                            if(check == val.id){
+                                options.append("<option value='"+ val.id +"' selected>"+val.name+"</option>");
                             }else{
                                 options.append("<option value='"+ val.id +"'>"+val.name+"</option>");
-                            }                                                      
-                        });
-                        options.select2();
-                    }
-                })
+                            }
+                        }else{
+                            options.append("<option value='"+ val.id +"'>"+val.name+"</option>");
+                        }                                                      
+                    });
+                    options.select2();
+                }
+            })
          }     
 
         $(document).ready(function() {
