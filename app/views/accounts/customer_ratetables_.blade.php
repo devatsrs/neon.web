@@ -19,7 +19,7 @@
                 <thead>
                 <tr>
                     <th style="width:250px;">Customer</th>
-                    <th style="width:250px !important;">Service</th>
+                    <th style="width:600px !important;">Service</th>
                     <th style="width:350px !important;">Access Rate Table</th>
                     <th style="width:350px !important;">Package Rate Table</th>
                     <th style="width:350px !important;">Termination Rate Table</th>
