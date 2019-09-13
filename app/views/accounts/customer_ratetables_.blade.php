@@ -20,9 +20,9 @@
                 <tr>
                     <th style="width:250px;">Customer</th>
                     <th style="width:250px !important;">Service</th>
-                    <th style="width:310px !important;">Access Rate Table</th>
-                    <th style="width:250px !important;">Package Rate Table</th>
-                    <th style="width:320px !important;">Termination Rate Table</th>
+                    <th style="width:350px !important;">Access Rate Table</th>
+                    <th style="width:350px !important;">Package Rate Table</th>
+                    <th style="width:350px !important;">Termination Rate Table</th>
                     <th style="width:250px !important;">Access Discount Plan</th>
                     <th style="width:250px !important;">Package Discount Plan</th>
                     <th style="width:250px !important;">Termination Discount Plan</th>
