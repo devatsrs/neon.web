@@ -1,7 +1,7 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            Customer Service Rate Tables
+            Customer Service Rate Table
         </div>
         <div class="panel-options">
             <button type="button" onclick="createCloneRow('ratetableCustomerService','getRateServiceIDs')" id="Service-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
