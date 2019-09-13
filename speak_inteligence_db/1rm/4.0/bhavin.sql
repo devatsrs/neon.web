@@ -288,7 +288,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prcGetAccountServiceNumberData`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prcGetAccountServiceNumberData`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prcGetAccountServiceNumberData`(
   IN `p_AccountServiceID` INT
 )
 BEGIN
@@ -564,7 +564,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getPrepaidUnbilledReport`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPrepaidUnbilledReport`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getPrepaidUnbilledReport`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_StartDate` DATETIME,
@@ -754,7 +754,7 @@ DELIMITER ;
 
 DROP FUNCTION IF EXISTS `FnConvertCurrencyRate`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` FUNCTION `FnConvertCurrencyRate`(
+CREATE DEFINER=`neon-user`@`localhost` FUNCTION `FnConvertCurrencyRate`(
   `p_CompanyCurrency` INT,
   `p_AccountCurrency` INT,
   `p_FileCurrency` INT,
