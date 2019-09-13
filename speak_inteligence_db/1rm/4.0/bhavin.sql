@@ -286,10 +286,14 @@ DELIMITER ;
 
 -- 13-09-2019 Prepaid Task Changes
 
+ALTER TABLE `tblServiceBilling`
+	ADD COLUMN `CLIRateTableID` INT(11) NOT NULL DEFAULT '0' AFTER `AccountSubscriptionID`;
+
 DROP PROCEDURE IF EXISTS `prcGetAccountServiceNumberData`;
 DELIMITER //
 CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prcGetAccountServiceNumberData`(
-  IN `p_AccountServiceID` INT
+	IN `p_AccountServiceID` INT,
+	IN `p_CLIRateTableID` INT
 )
 BEGIN
 
@@ -405,7 +409,7 @@ BEGIN
   INSERT INTO tmp_NumberServices_(CLIRateTableID,CLI,AccountServicePackageID,RateTableID,SpecialRateTableID,PackageRateTableID,SpecialPackageRateTableID,NoType,CountryID,City,Tariff,Prefix)
   SELECT CLIRateTableID,CLI,AccountServicePackageID,RateTableID,SpecialRateTableID,0,0,NoType,CountryID,City,Tariff,Prefix
   FROM tblCLIRateTable 
-  WHERE AccountServiceID=p_AccountServiceID;
+  WHERE AccountServiceID=p_AccountServiceID AND CLIRateTableID = p_CLIRateTableID;
     
   SELECT COUNT(*) INTO v_count  from tmp_NumberServices_;
     
@@ -561,6 +565,7 @@ BEGIN
 
 END//
 DELIMITER ;
+
 
 DROP PROCEDURE IF EXISTS `prc_getPrepaidUnbilledReport`;
 DELIMITER //
