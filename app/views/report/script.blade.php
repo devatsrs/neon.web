@@ -23,7 +23,7 @@
     var column_function = {'top5':'Top 5', 'top10':'Top 10','bottom5':'Bottom 5','bottom10':'Bottom 10','':'Actual','min':'Min','max':'Max','sum':'Sum','avg':'Average','count':'Count','count_distinct':'Count Distinct'};
     function getLastDates(duration) {
         var today = new Date();
-        if(duration == '1Days'){
+        if(duration == '1Days' || duration=='1Day'){
             var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
         }
         if(duration == '2Days'){
