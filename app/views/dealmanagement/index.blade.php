@@ -105,9 +105,16 @@
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/dealmanagement/ajax_datagrid",
                 "fnServerParams": function (aoData) {
-                    aoData.push({"name": "Title", "value": $search.ActivityTitle},
-                            {"name": "activityType", "value": $search.activityType},
-                            {"name": "activityStatus", "value": $search.activityStatus});
+                    aoData.push(
+                            {"name": "Title", "value": $search.Title},
+                            {"name": "Search", "value": $search.Search},
+                            {"name": "AccountID", "value": $search.AccountID},
+                            {"name": "DealType", "value": $search.DealType},
+                            {"name": "StartDate", "value": $search.StartDate},
+                            {"name": "EndDate", "value": $search.EndDate},
+                            {"name": "Status", "value": $search.Status},
+                            {"name": "Export", "value": 0}
+                    );
 
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push(
