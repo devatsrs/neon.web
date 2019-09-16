@@ -7,7 +7,7 @@ class DealManagementController extends \BaseController {
      * @param $type
      * @return array|\Illuminate\Http\JsonResponse
      */
-    public function ajax_datagrid($type) {
+    public function ajax_datagrid($type = "") {
         $data       = Input::all();
         $CompanyID  = User::get_companyID();
 
@@ -52,20 +52,43 @@ class DealManagementController extends \BaseController {
             "CompanyID"       => $CompanyID,
             "DefaultCodedeck" => 1
         ])->pluck("CodeDeckId");
+        $status_json = "";
+        $accounts = Account::getAccountIDList();
         return View::make('dealmanagement.index', get_defined_vars());
     }
 
 
     public function create(){
-
+        $CompanyID          = User::get_companyID();
+        $codedecklist       = BaseCodeDeck::getCodedeckIDList();
+        $DefaultCodedeck    = BaseCodeDeck::where([
+            "CompanyID"       => $CompanyID,
+            "DefaultCodedeck" => 1
+        ])->pluck("CodeDeckId");
+        $accounts = Account::getAccountIDList();
+        return View::make('dealmanagement.create', get_defined_vars());
     }
 
     public function store(){
 
+
+        $data = Input::all();
+        unset($data['BarCode']);
+        if($data){
+
+        }
     }
 
     public function edit($id){
 
+        $CompanyID          = User::get_companyID();
+        $codedecklist       = BaseCodeDeck::getCodedeckIDList();
+        $DefaultCodedeck    = BaseCodeDeck::where([
+            "CompanyID"       => $CompanyID,
+            "DefaultCodedeck" => 1
+        ])->pluck("CodeDeckId");
+        $accounts = Account::getAccountIDList();
+        return View::make('dealmanagement.edit', get_defined_vars());
     }
 
     public function update($id){
