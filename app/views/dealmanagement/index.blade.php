@@ -64,7 +64,7 @@
         <div class="clear"></div>
     </div>
     <br>
-    <table class="table table-bordered" id="table-deal">
+    <table class="table table-bordered datatable" id="table-deal">
         <thead>
         <tr>
             <th width="5%">
