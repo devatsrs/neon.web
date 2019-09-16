@@ -1118,7 +1118,7 @@
             if (tblID == "servicetableSubBox") {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(18)').children('a').attr('id', "merge-" + numb);
             }else if (tblID == "ratetableVendorBox") {
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').children('a').attr('id', "merge-" + numb);
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').children('a').attr('id', "rateVendorCal-" + numb);
             } else {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(11)').children('a').attr('id', "rateCal-" + numb);
             }
@@ -1162,6 +1162,7 @@
         }
         function deleteRow(id, tblID, idInp)
         {
+            
             if(confirm("Are You Sure?")) {
                 var selectedSubscription = $('#'+idInp).val();
                 var removeValue = id + ",";
