@@ -593,7 +593,7 @@
                 <td>
                     {{ Form::select('ToTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                 </td>
-                <td width="4%">
+                <td class="w-del">
 
                     <a onclick="deleteRow(this.id, 'servicetableSubBox','getIDs')" id="merge-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
                         <i></i>
@@ -636,7 +636,7 @@
                 <td>
                     <input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>
                 </td>
-                <td width="4%">
+                <td class="w-del">
                     <a onclick="deleteRow(this.id,'ratetableSubBox','getRateIDs')" id="rateCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
                         <i></i>
                         -
@@ -668,7 +668,7 @@
                 <td class="DID-Div">
                     {{ Form::select('Tariff2-1', $Tariff, null, array("class"=>"select2")) }}
                 </td>
-                <td width="4%">
+                <td class="w-del">
                     <a onclick="deleteRow(this.id,'ratetableVendorBox','getRateVendorIDs')" id="rateVendorCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
                         <i></i>
                         -
@@ -878,6 +878,7 @@
                 $(".NonDID-Div").hide();$(".Package-Div").hide();
                 $('#servicetableSubBox').css('width','3200px');
                 $('#ratetableVendorBox').css('width','1600px');
+                $('.w-del').css('width','1%');
                 $('#getRateVendorIDs').val('');
                 $('#getIDs').val('');
                 $('#getRateIDs').val('');
@@ -917,6 +918,7 @@
 //              $('#servicetableSubBox thead th').css('width','50px');
                 $('#servicetableSubBox').css('width','1225px');
                 $('#ratetableVendorBox').css('width','1030px');
+                $('.w-del').css('width','3%');
                 $("#Vendors tbody").empty();
                 $('#servicetableSubBox tbody').empty();
                 $('#ratetableSubBox tbody').empty();
@@ -1116,7 +1118,7 @@
             if (tblID == "servicetableSubBox") {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(18)').children('a').attr('id', "merge-" + numb);
             }else if (tblID == "ratetableVendorBox") {
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').children('a').attr('id', "merge-" + numb);
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').children('a').attr('id', "rateVendorCal-" + numb);
             } else {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(11)').children('a').attr('id', "rateCal-" + numb);
             }
@@ -1160,6 +1162,7 @@
         }
         function deleteRow(id, tblID, idInp)
         {
+            
             if(confirm("Are You Sure?")) {
                 var selectedSubscription = $('#'+idInp).val();
                 var removeValue = id + ",";

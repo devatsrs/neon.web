@@ -806,3 +806,328 @@ BEGIN
 
 END//
 DELIMITER ;
+
+-- Outpayment tax task 16-09-2019
+
+DROP PROCEDURE IF EXISTS `prc_ProcessActiveCallCost`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ProcessActiveCallCost`(
+	IN `p_ProcessID` VARCHAR(50)
+)
+PRC:BEGIN
+
+	DECLARE V_Count_ INT DEFAULT 0;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	TRUNCATE TABLE tblTempActiveCall;
+	INSERT tblTempActiveCall SELECT * FROM `speakintelligentRoutingEngine`.`tblActiveCall` WHERE EndCall=1;
+
+	INSERT INTO `speakintelligentCDR`.`tblUsageHeader`(AccountID,CompanyID,CompanyGatewayID,GatewayAccountID,StartDate,ServiceID,AccountServiceID,GatewayAccountPKID,created_at,updated_at)
+	SELECT 
+		DISTINCT
+		a.AccountID,
+		a.CompanyID,
+		a.CompanyGatewayID,
+		a.ServiceNumber AS GatewayAccountID,
+		DATE_FORMAT(a.ConnectTime, "%Y-%m-%d") AS StartDate,
+		a.ServiceID,
+		a.AccountServiceID,
+		0 as GatewayAccountPKID, 
+		NOW() AS created_at,
+		NOW() AS updated_at 
+	FROM tblTempActiveCall a 
+	LEFT JOIN `speakintelligentCDR`.`tblUsageHeader` h 
+		ON h.CompanyGatewayID=a.CompanyGatewayID 
+			AND h.StartDate = DATE_FORMAT(a.ConnectTime, "%Y-%m-%d")
+			AND h.AccountID = a.AccountID 
+			AND h.AccountServiceID = a.AccountServiceID  
+			AND h.GatewayAccountID=a.ServiceNumber
+	WHERE h.UsageHeaderID IS NULL;
+	
+		INSERT INTO `speakintelligentCDR`.`tblUsageDetails`(
+			UsageHeaderID,
+			connect_time,
+			disconnect_time,
+			duration,
+			billed_duration,
+			billed_second,
+			area_prefix,
+			CLIPrefix,
+			cli,
+			cld,
+			cost,
+			ProcessID,
+			ID,
+			UUID,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RecordingCostPerMinute,
+			PackageCostPerMinute,
+			AccountServicePackageID,
+			CallRecording,CallRecordingStartTime,
+			OriginType,
+			OriginProvider,
+			TimezonesID,
+			PackageTimezonesID,
+			City,
+			Tariff,
+			NoType,
+			is_inbound,
+			disposition,
+			BlockReason,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			MinimumCallCharge,
+			MinimumDuration
+		)
+		SELECT 
+			DISTINCT 
+			h.UsageHeaderID,
+			a.ConnectTime,
+			a.DisconnectTime,
+			a.Duration,
+			a.billed_duration,
+			a.Duration,
+			a.CLDPrefix,
+			a.CLIPrefix,
+			a.CLI,
+			a.CLD,
+			a.Cost,
+			p_ProcessID AS ProcessID,
+			0 AS ID,
+			a.UUID,
+			a.OutpaymentPerCall,
+			a.OutpaymentPerMinute,
+			a.Surcharges,
+			a.Chargeback,
+			a.CollectionCostAmount,
+			a.CollectionCostPercentage,
+			a.RecordingCostPerMinute,
+			a.PackageCostPerMinute,
+			a.AccountServicePackageID,
+			a.CallRecording,
+			a.CallRecordingStartTime,
+			a.OriginType,
+			a.OriginProvider,
+			a.TimezonesID,
+			a.PackageTimezonesID,
+			a.City,
+			a.Tariff,
+			a.NoType,
+			( CASE WHEN(a.CallType = 'Inbound') THEN 1 ELSE 0 END) AS is_inbound,
+			( CASE WHEN(a.IsBlock = '1') THEN 'Blocked' ELSE '' END) AS disposition,
+			a.BlockReason,
+			a.CostPerCall,
+			a.CostPerMinute,
+			a.SurchargePerCall,
+			a.SurchargePerMinute,
+			a.MinimumCallCharge,
+			a.MinimumDuration
+		FROM tblTempActiveCall a 
+			INNER JOIN `speakintelligentCDR`.`tblUsageHeader` h
+				ON h.CompanyGatewayID=a.CompanyGatewayID 
+					AND h.StartDate = DATE_FORMAT(a.ConnectTime, "%Y-%m-%d")
+					AND h.AccountID = a.AccountID 
+					AND h.AccountServiceID = a.AccountServiceID 
+					AND h.GatewayAccountPKID=a.GatewayAccountPKID 
+					AND h.GatewayAccountID=a.ServiceNumber
+		;	
+		
+		
+		UPDATE `speakintelligentCDR`.`tblUsageDetails`
+			SET ID = UsageDetailID
+		WHERE ProcessID = p_ProcessID;		
+		
+		
+		SELECT COUNT(*) INTO V_Count_ FROM tblTempActiveCall WHERE VendorID > 0 AND CallType='Outbound';
+		
+		IF V_Count_ > 0
+		THEN
+		
+			INSERT INTO `speakintelligentCDR`.`tblVendorCDRHeader`(
+				AccountID,
+				CompanyID,
+				CompanyGatewayID,
+				GatewayAccountID,
+				StartDate,
+				ServiceID,
+				AccountServiceID,
+				GatewayAccountPKID,
+				created_at,
+				updated_at
+			)
+			SELECT 
+				DISTINCT
+				a.VendorID,
+				a.CompanyID,
+				a.CompanyGatewayID,
+				ta.AccountName AS GatewayAccountID,
+				DATE_FORMAT(ConnectTime, "%Y-%m-%d") AS StartDate,
+				0 as ServiceID,
+				0 as AccountServiceID,
+				0 as GatewayAccountPKID,
+				NOW() AS created_at,
+				NOW() AS updated_at
+			FROM tblTempActiveCall a 
+				INNER JOIN tblAccount ta ON ta.AccountID = a.VendorID
+				LEFT JOIN `speakintelligentCDR`.`tblVendorCDRHeader` h 
+					ON h.CompanyGatewayID=a.CompanyGatewayID 
+						AND h.StartDate = DATE_FORMAT(a.ConnectTime, "%Y-%m-%d")
+						AND h.AccountID = a.VendorID 
+						AND h.GatewayAccountID=ta.AccountName
+				WHERE a.VendorID > 0 AND a.CallType='Outbound' AND h.VendorCDRHeaderID IS NULL;
+				
+				INSERT INTO `speakintelligentCDR`.`tblVendorCDR`(
+					VendorCDRHeaderID,
+					connect_time,
+					disconnect_time,
+					duration,
+					billed_duration,
+					billed_second,
+					area_prefix,
+					CLIPrefix,
+					cli,
+					cld,
+					selling_cost,
+					buying_cost,
+					ProcessID,
+					ID,
+					UUID,
+					trunk
+				)
+				SELECT 
+					DISTINCT
+					h.VendorCDRHeaderID AS VendorCDRHeaderID,
+					a.ConnectTime,
+					a.DisconnectTime,
+					a.Duration,
+					a.billed_duration,
+					a.Duration,
+					a.VendorCLDPrefix,
+					a.VendorCLIPrefix,
+					a.CLI,
+					a.CLD,
+					a.Cost,
+					(a.billed_duration * (a.VendorRate/60)) AS buying_cost,
+					p_ProcessID AS ProcessID,
+					0 as ID,
+					a.UUID,
+					a.VendorConnectionName AS trunk
+				FROM tblTempActiveCall a 
+					INNER JOIN tblAccount ta ON ta.AccountID = a.VendorID
+					INNER JOIN `speakintelligentCDR`.`tblVendorCDRHeader` h 
+						ON h.CompanyGatewayID=a.CompanyGatewayID 
+							AND h.StartDate = DATE_FORMAT(a.ConnectTime, "%Y-%m-%d")
+							AND h.AccountID = a.VendorID 
+							AND h.GatewayAccountID=ta.AccountName
+					WHERE a.VendorID > 0 AND a.CallType='Outbound' AND h.AccountServiceID = 0 AND h.GatewayAccountPKID = 0;
+	
+			UPDATE `speakintelligentCDR`.`tblVendorCDR` v INNER JOIN `speakintelligentCDR`.`tblUsageDetails` ud ON ud.UUID = v.UUID AND ud.ProcessID = p_ProcessID
+			SET v.ID = ud.ID
+			WHERE v.ProcessID = p_ProcessID;
+		
+		END IF;
+			
+		SET V_Count_ = 0;	
+		SELECT COUNT(*) INTO V_Count_ FROM tblTempActiveCall WHERE OutPaymentVendorID > 0 AND CallType='Inbound';
+		
+		IF V_Count_ > 0
+		THEN
+		
+			INSERT INTO tblOutPaymentLog(CompanyID,AccountID,VendorID,CLI,Date,Amount,Status,created_at)
+			SELECT DISTINCT  a.CompanyID,a.AccountID,a.OutPaymentVendorID AS VendorID,a.ServiceNumber AS CLI,DATE_FORMAT(ConnectTime, "%Y-%m-%d") AS Date,0 AS Amount,0 AS Status,NOW()
+			FROM tblTempActiveCall a 
+				LEFT JOIN tblOutPaymentLog op 
+					ON op.AccountID = a.AccountID 
+						AND op.VendorID = a.OutPaymentVendorID 
+						AND op.DATE = DATE_FORMAT(a.ConnectTime, "%Y-%m-%d") 
+						AND op.CLI = a.ServiceNumber
+			WHERE a.OutPaymentVendorID > 0 AND a.CallType='Inbound' AND op.OutPaymentLogID IS NULL;
+			
+			DROP TEMPORARY TABLE IF EXISTS `outpayment_table1`;
+			CREATE TEMPORARY TABLE `outpayment_table1` (
+			  CompanyID INT,
+			  AccountID INT,
+			  VendorID INT,
+			  CLI VARCHAR(50),
+			  Amount DECIMAL(18,6),
+			  `Date` DATETIME,
+			  TaxRateID TEXT,
+			  NewAmount DECIMAL(18,6)
+			);
+			
+			INSERT INTO outpayment_table1(CompanyID,AccountID,VendorID,CLI,Date,Amount,TaxRateID,NewAmount)
+			SELECT CompanyID,AccountID,VendorID,CLI,Date,SUM(Amount),0 as TaxRateID, SUM(Amount) as NewAmount FROM (
+						SELECT CompanyID,AccountID,OutPaymentVendorID AS VendorID,ServiceNumber AS CLI,DATE_FORMAT(ConnectTime, "%Y-%m-%d") AS Date,(OutpaymentPerCall + OutpaymentPerMinute) AS Amount
+			FROM tblTempActiveCall WHERE OutPaymentVendorID > 0 AND CallType='Inbound'
+			)TBL group by CompanyID,AccountID,VendorID,CLI,Date;
+			
+			UPDATE outpayment_table1 t1
+			  INNER JOIN tblAccount a
+			    ON a.AccountID = t1.AccountID AND a.Billing = 1
+			SET t1.TaxRateID = a.TaxRateID,NewAmount = FnGetCostWithTaxes(Amount,a.TaxRateID);		    
+			
+			UPDATE tblOutPaymentLog op 
+				INNER JOIN outpayment_table1 t 
+					ON op.AccountID = t.AccountID 
+						AND op.VendorID = t.VendorID 
+						AND op.DATE = t.Date
+						AND op.CLI = t.CLI
+			SET op.Amount = (op.Amount + t.NewAmount);						
+			
+		END IF;
+		
+		DELETE a FROM `speakintelligentRoutingEngine`.`tblActiveCall` a INNER JOIN tblTempActiveCall ta ON ta.ActiveCallID = a.ActiveCallID;
+		
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS `FnGetCostWithTaxes`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` FUNCTION `FnGetCostWithTaxes`(
+	`p_Rate` DECIMAL(18,6),
+	`p_TaxRateIDs` TEXT	
+) RETURNS decimal(18,6)
+BEGIN
+
+	DECLARE V_NewRate DECIMAL(18,6) DEFAULT 0;
+	DECLARE i INT;
+
+	DROP TEMPORARY TABLE IF EXISTS `table1`;
+	CREATE TEMPORARY TABLE `table1` (
+	  `TaxRateID` INT NOT NULL,
+	  `Amount` DECIMAL(18,6) DEFAULT NULL,
+	  `TotalAmount` DECIMAL(18,6) DEFAULT NULL
+	);
+
+	SET i=1;
+	REPEAT
+
+		INSERT INTO table1(TaxRateID)
+		SELECT FnStringSplit(p_TaxRateIDs, ',', i) WHERE FnStringSplit(p_TaxRateIDs, ',', i) IS NOT NULL LIMIT 1;
+		SET i = i + 1;
+		UNTIL ROW_COUNT() = 0
+
+	END REPEAT;
+
+
+	UPDATE table1 t INNER JOIN tblTaxRate tr ON t.TaxRateID = tr.TaxRateId
+	SET t.Amount = tr.Amount, t.TotalAmount = IF(tr.FlatStatus=1,tr.Amount,((p_Rate*tr.Amount)/100))
+	;
+
+	SELECT SUM(IFNULL(TotalAmount,0)) INTO V_NewRate FROM table1;
+
+	RETURN V_NewRate + p_Rate;
+
+END//
+DELIMITER ;
