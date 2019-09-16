@@ -1866,9 +1866,9 @@
 
            
             if (tblID == "ratetableCustomer") {
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').children('a').attr('id', "merge-" + numb);
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').children('a').attr('id', "CustomerCal-" + numb);
             } else {
-                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(8)').children('a').attr('id', "rateCal-" + numb);
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(8)').children('a').attr('id', "serviceCal-" + numb);
             }
 
             $('#' + tblID + ' tr:last').children('td:eq(0)').find('div:first').remove();
