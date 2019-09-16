@@ -17,8 +17,8 @@ class DealManagementController extends \BaseController {
         $data['sSortDir_0']			 	 =  	'desc';
         $deals = Deal::join("tblAccount", "tblAccount.AccountID","=","tblDeal.AccountID")
             ->join("tblCodeDeck", "tblCodeDeck.CodeDeckId","=","tblDeal.CodeDeckID")
-            ->select('tblDeal.DealID,tblDeal.Title,tblAccount.AccountName,tblCodeDeck.CodeDeckName,tblDeal.StartDate,tblDeal.EndDate,tblDeal.AlertEmail,tblDeal.DealType,tblDeal.Status')
-            ->where(['Status' => $data['Status']]);
+            ->select(['tblDeal.DealID', 'tblDeal.Title','tblAccount.AccountName','tblCodeDeck.CodeDeckName','tblDeal.StartDate','tblDeal.EndDate','tblDeal.AlertEmail','tblDeal.DealType','tblDeal.Status'])
+            ->where(['tblDeal.Status' => $data['Status']]);
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data = $deals->get();
@@ -35,7 +35,7 @@ class DealManagementController extends \BaseController {
             }
         }
 
-        return DataTableSql::of($deals)->make();
+        return Datatables::of($deals)->make();
     }
 
 

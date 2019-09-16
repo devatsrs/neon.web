@@ -157,8 +157,8 @@
 
                             var edit_ = "{{ URL::to('/dealmanagement/{id}/edit/')}}";
                             var delete_ = "{{ URL::to('/dealmanagement/{id}/delete/')}}";
-                            edit_ = edit_.replace('{id}', id);
-                            delete_ = delete_.replace('{id}', id);
+                            edit_ = edit_.replace('{id}', full[0]);
+                            delete_ = delete_.replace('{id}', full[0]);
 
                             action = '<div class = "hiddenRowData" >';
                             for (var i = 0; i < list_fields_activity.length; i++) {
