@@ -4507,28 +4507,28 @@ ThisSP:BEGIN
     IF p_isExport = 10
     THEN
         SELECT
-			AccessType,
+			AccessType AS `Access Type`,
 			Country,
 			OriginationCode AS Origination,
 			Code AS Prefix,
 			City,
 			Tariff,
         	TimezoneTitle AS `Time of Day`,
-			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
-			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
-			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
-			CONCAT(CostPerMinuteCurrencySymbol,CostPerMinute) AS CostPerMinute,
-			CONCAT(SurchargePerCallCurrencySymbol,SurchargePerCall) AS SurchargePerCall,
-			CONCAT(SurchargePerMinuteCurrencySymbol,SurchargePerMinute) AS SurchargePerMinute,
-			CONCAT(OutpaymentPerCallCurrencySymbol,OutpaymentPerCall) AS OutpaymentPerCall,
-			CONCAT(OutpaymentPerMinuteCurrencySymbol,OutpaymentPerMinute) AS OutpaymentPerMinute,
-			CONCAT(SurchargesCurrencySymbol,Surcharges) AS Surcharges,
-			CONCAT(ChargebackCurrencySymbol,Chargeback) AS Chargeback,
-			CONCAT(CollectionCostAmountCurrencySymbol,CollectionCostAmount) AS CollectionCostAmount,
-			CollectionCostPercentage,
-			CONCAT(RegistrationCostPerNumberCurrencySymbol,RegistrationCostPerNumber) AS RegistrationCostPerNumber,
-			EffectiveDate,
-			ApprovedStatus
+			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS `One-Off Cost`,
+			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS `Monthly Cost`,
+			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS `Cost Per Call`,
+			CONCAT(CostPerMinuteCurrencySymbol,CostPerMinute) AS `Cost Per Minute`,
+			CONCAT(SurchargePerCallCurrencySymbol,SurchargePerCall) AS `Surcharge Per Call`,
+			CONCAT(SurchargePerMinuteCurrencySymbol,SurchargePerMinute) AS `Surcharge Per Minute`,
+			CONCAT(OutpaymentPerCallCurrencySymbol,OutpaymentPerCall) AS `Outpayment Per Call`,
+			CONCAT(OutpaymentPerMinuteCurrencySymbol,OutpaymentPerMinute) AS `Outpayment Per Minute`,
+			CONCAT(SurchargesCurrencySymbol,Surcharges) AS `Surcharges`,
+			CONCAT(ChargebackCurrencySymbol,Chargeback) AS `Chargeback`,
+			CONCAT(CollectionCostAmountCurrencySymbol,CollectionCostAmount) AS `Collection Cost Amount`,
+			CollectionCostPercentage AS `Collection Cost Percentage`,
+			CONCAT(RegistrationCostPerNumberCurrencySymbol,RegistrationCostPerNumber) AS `Registration Cost Per Number`,
+			EffectiveDate AS `Effective Date`,
+			ApprovedStatus AS `Approved Status`
         FROM
 			tmp_RateTableDIDRate_;
     END IF;
@@ -4537,30 +4537,58 @@ ThisSP:BEGIN
     IF p_isExport = 11
     THEN
         SELECT
-        	AccessType,
+        	AccessType AS `Access Type`,
 			Country,
 			OriginationCode AS Origination,
 			Code AS Prefix,
 			City,
 			Tariff,
         	TimezoneTitle AS `Time of Day`,
-			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
-			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
-			CONCAT(CostPerCallCurrencySymbol,CostPerCall) AS CostPerCall,
-			CONCAT(CostPerMinuteCurrencySymbol,CostPerMinute) AS CostPerMinute,
-			CONCAT(SurchargePerCallCurrencySymbol,SurchargePerCall) AS SurchargePerCall,
-			CONCAT(SurchargePerMinuteCurrencySymbol,SurchargePerMinute) AS SurchargePerMinute,
-			CONCAT(OutpaymentPerCallCurrencySymbol,OutpaymentPerCall) AS OutpaymentPerCall,
-			CONCAT(OutpaymentPerMinuteCurrencySymbol,OutpaymentPerMinute) AS OutpaymentPerMinute,
-			CONCAT(SurchargesCurrencySymbol,Surcharges) AS Surcharges,
-			CONCAT(ChargebackCurrencySymbol,Chargeback) AS Chargeback,
-			CONCAT(CollectionCostAmountCurrencySymbol,CollectionCostAmount) AS CollectionCostAmount,
-			CollectionCostPercentage,
-			CONCAT(RegistrationCostPerNumberCurrencySymbol,RegistrationCostPerNumber) AS RegistrationCostPerNumber,
-			EffectiveDate,
+--			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+
+			CONCAT(IF(CurrentOneOffCost IS NULL,'',CurrentOneOffCostCurrencySymbol),IFNULL(CurrentOneOffCost,'-'),'\n',IF(OneOffCost IS NULL,'',OneOffCostCurrencySymbol),IFNULL(OneOffCost,'-')) AS `One-Off Cost`,
+			IF(OneOffCostMargin IS NULL OR OneOffCostMarginPercent IS NULL, '- (-)',CONCAT(OneOffCostMargin,' (',OneOffCostMarginPercent,'%)')) AS `One-Off Cost Margin`,
+
+			CONCAT(IF(CurrentMonthlyCost IS NULL,'',CurrentMonthlyCostCurrencySymbol),IFNULL(CurrentMonthlyCost,'-'),'\n',IF(MonthlyCost IS NULL,'',MonthlyCostCurrencySymbol),IFNULL(MonthlyCost,'-')) AS `Monthly Cost`,
+			IF(MonthlyCostMargin IS NULL OR MonthlyCostMarginPercent IS NULL, '- (-)',CONCAT(MonthlyCostMargin,' (',MonthlyCostMarginPercent,'%)')) AS `Monthly Cost Margin`,
+
+			CONCAT(IF(CurrentCostPerCall IS NULL,'',CurrentCostPerCallCurrencySymbol),IFNULL(CurrentCostPerCall,'-'),'\n',IF(CostPerCall IS NULL,'',CostPerCallCurrencySymbol),IFNULL(CostPerCall,'-')) AS `Cost Per Call`,
+			IF(CostPerCallMargin IS NULL OR CostPerCallMarginPercent IS NULL, '- (-)',CONCAT(CostPerCallMargin,' (',CostPerCallMarginPercent,'%)')) AS `Cost Per Call Margin`,
+
+			CONCAT(IF(CurrentCostPerMinute IS NULL,'',CurrentCostPerMinuteCurrencySymbol),IFNULL(CurrentCostPerMinute,'-'),'\n',IF(CostPerMinute IS NULL,'',CostPerMinuteCurrencySymbol),IFNULL(CostPerMinute,'-')) AS `Cost Per Minute`,
+			IF(CostPerMinuteMargin IS NULL OR CostPerMinuteMarginPercent IS NULL, '- (-)',CONCAT(CostPerMinuteMargin,' (',CostPerMinuteMarginPercent,'%)')) AS `Cost Per Minute Margin`,
+
+			CONCAT(IF(CurrentSurchargePerCall IS NULL,'',CurrentSurchargePerCallCurrencySymbol),IFNULL(CurrentSurchargePerCall,'-'),'\n',IF(SurchargePerCall IS NULL,'',SurchargePerCallCurrencySymbol),IFNULL(SurchargePerCall,'-')) AS `Surcharge Per Call`,
+			IF(SurchargePerCallMargin IS NULL OR SurchargePerCallMarginPercent IS NULL, '- (-)',CONCAT(SurchargePerCallMargin,' (',SurchargePerCallMarginPercent,'%)')) AS `Surcharge Per Call Margin`,
+
+			CONCAT(IF(CurrentSurchargePerMinute IS NULL,'',CurrentSurchargePerMinuteCurrencySymbol),IFNULL(CurrentSurchargePerMinute,'-'),'\n',IF(SurchargePerMinute IS NULL,'',SurchargePerMinuteCurrencySymbol),IFNULL(SurchargePerMinute,'-')) AS `Surcharge Per Minute`,
+			IF(SurchargePerMinuteMargin IS NULL OR SurchargePerMinuteMarginPercent IS NULL, '- (-)',CONCAT(SurchargePerMinuteMargin,' (',SurchargePerMinuteMarginPercent,'%)')) AS `Surcharge Per Minute Margin`,
+
+			CONCAT(IF(CurrentOutpaymentPerCall IS NULL,'',CurrentOutpaymentPerCallCurrencySymbol),IFNULL(CurrentOutpaymentPerCall,'-'),'\n',IF(OutpaymentPerCall IS NULL,'',OutpaymentPerCallCurrencySymbol),IFNULL(OutpaymentPerCall,'-')) AS `Outpayment Per Call`,
+			IF(OutpaymentPerCallMargin IS NULL OR OutpaymentPerCallMarginPercent IS NULL, '- (-)',CONCAT(OutpaymentPerCallMargin,' (',OutpaymentPerCallMarginPercent,'%)')) AS `Outpayment Per Call Margin`,
+
+			CONCAT(IF(CurrentOutpaymentPerMinute IS NULL,'',CurrentOutpaymentPerMinuteCurrencySymbol),IFNULL(CurrentOutpaymentPerMinute,'-'),'\n',IF(OutpaymentPerMinute IS NULL,'',OutpaymentPerMinuteCurrencySymbol),IFNULL(OutpaymentPerMinute,'-')) AS `Outpayment Per Minute`,
+			IF(OutpaymentPerMinuteMargin IS NULL OR OutpaymentPerMinuteMarginPercent IS NULL, '- (-)',CONCAT(OutpaymentPerMinuteMargin,' (',OutpaymentPerMinuteMarginPercent,'%)')) AS `Outpayment Per Minute Margin`,
+
+			CONCAT(IF(CurrentSurcharges IS NULL,'',CurrentSurchargesCurrencySymbol),IFNULL(CurrentSurcharges,'-'),'\n',IF(Surcharges IS NULL,'',SurchargesCurrencySymbol),IFNULL(Surcharges,'-')) AS `Surcharges`,
+			IF(SurchargesMargin IS NULL OR SurchargesMarginPercent IS NULL, '- (-)',CONCAT(SurchargesMargin,' (',SurchargesMarginPercent,'%)')) AS `Surcharges Margin`,
+
+			CONCAT(IF(CurrentChargeback IS NULL,'',CurrentChargebackCurrencySymbol),IFNULL(CurrentChargeback,'-'),'\n',IF(Chargeback IS NULL,'',ChargebackCurrencySymbol),IFNULL(Chargeback,'-')) AS `Chargeback`,
+			IF(ChargebackMargin IS NULL OR ChargebackMarginPercent IS NULL, '- (-)',CONCAT(ChargebackMargin,' (',ChargebackMarginPercent,'%)')) AS `Chargeback Margin`,
+
+			CONCAT(IF(CurrentCollectionCostAmount IS NULL,'',CurrentCollectionCostAmountCurrencySymbol),IFNULL(CurrentCollectionCostAmount,'-'),'\n',IF(CollectionCostAmount IS NULL,'',CollectionCostAmountCurrencySymbol),IFNULL(CollectionCostAmount,'-')) AS `Collection Cost Amount`,
+			IF(CollectionCostAmountMargin IS NULL OR CollectionCostAmountMarginPercent IS NULL, '- (-)',CONCAT(CollectionCostAmountMargin,' (',CollectionCostAmountMarginPercent,'%)')) AS `Collection Cost Amount Margin`,
+
+			CONCAT(IFNULL(CurrentCollectionCostPercentage,'-'),'\n',IFNULL(CollectionCostPercentage,'-')) AS `Collection Cost Percentage`,
+			IF(CollectionCostPercentageMargin IS NULL OR CollectionCostPercentageMarginPercent IS NULL, '- (-)',CONCAT(CollectionCostPercentageMargin,' (',CollectionCostPercentageMarginPercent,'%)')) AS `Collection Cost Percentage Margin`,
+
+			CONCAT(IF(CurrentRegistrationCostPerNumber IS NULL,'',CurrentRegistrationCostPerNumberCurrencySymbol),IFNULL(CurrentRegistrationCostPerNumber,'-'),'\n',IF(RegistrationCostPerNumber IS NULL,'',RegistrationCostPerNumberCurrencySymbol),IFNULL(RegistrationCostPerNumber,'-')) AS `Registration Cost Per Number`,
+			IF(RegistrationCostPerNumberMargin IS NULL OR RegistrationCostPerNumberMarginPercent IS NULL, '- (-)',CONCAT(RegistrationCostPerNumberMargin,' (',RegistrationCostPerNumberMarginPercent,'%)')) AS `Registration Cost Per Number Margin`,
+
+			EffectiveDate AS `Effective Date`,
 			CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
 			CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`,
-			ApprovedStatus
+			ApprovedStatus AS `Approved Status`
         FROM
 			tmp_RateTableDIDRate_;
     END IF;
@@ -5087,12 +5115,22 @@ ThisSP:BEGIN
 	THEN
 		SELECT
 			TimezoneTitle AS `Time of Day`,
-			Code AS PackageName,
-			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
-			CONCAT(MonthlyCostCurrencySymbol,MonthlyCost) AS MonthlyCost,
-			CONCAT(PackageCostPerMinuteCurrencySymbol,PackageCostPerMinute) AS PackageCostPerMinute,
-			CONCAT(RecordingCostPerMinuteCurrencySymbol,RecordingCostPerMinute) AS RecordingCostPerMinute,
-			EffectiveDate,
+			Code AS `Package Name`,
+
+			CONCAT(IF(CurrentOneOffCost IS NULL,'',CurrentOneOffCostCurrencySymbol),IFNULL(CurrentOneOffCost,'-'),'\n',IF(OneOffCost IS NULL,'',OneOffCostCurrencySymbol),IFNULL(OneOffCost,'-')) AS `One-Off Cost`,
+			IF(OneOffCostMargin IS NULL OR OneOffCostMarginPercent IS NULL, '- (-)',CONCAT(OneOffCostMargin,' (',OneOffCostMarginPercent,'%)')) AS `One-Off Cost Margin`,
+
+			CONCAT(IF(CurrentMonthlyCost IS NULL,'',CurrentMonthlyCostCurrencySymbol),IFNULL(CurrentMonthlyCost,'-'),'\n',IF(MonthlyCost IS NULL,'',MonthlyCostCurrencySymbol),IFNULL(MonthlyCost,'-')) AS `Monthly Cost`,
+			IF(MonthlyCostMargin IS NULL OR MonthlyCostMarginPercent IS NULL, '- (-)',CONCAT(MonthlyCostMargin,' (',MonthlyCostMarginPercent,'%)')) AS `Monthly Cost Margin`,
+
+			CONCAT(IF(CurrentPackageCostPerMinute IS NULL,'',CurrentPackageCostPerMinuteCurrencySymbol),IFNULL(CurrentPackageCostPerMinute,'-'),'\n',IF(PackageCostPerMinute IS NULL,'',PackageCostPerMinuteCurrencySymbol),IFNULL(PackageCostPerMinute,'-')) AS `Package Cost Per Minute`,
+			IF(PackageCostPerMinuteMargin IS NULL OR PackageCostPerMinuteMarginPercent IS NULL, '- (-)',CONCAT(PackageCostPerMinuteMargin,' (',PackageCostPerMinuteMarginPercent,'%)')) AS `Package Cost Per Minute Margin`,
+
+			CONCAT(IF(CurrentRecordingCostPerMinute IS NULL,'',CurrentRecordingCostPerMinuteCurrencySymbol),IFNULL(CurrentRecordingCostPerMinute,'-'),'\n',IF(RecordingCostPerMinute IS NULL,'',RecordingCostPerMinuteCurrencySymbol),IFNULL(RecordingCostPerMinute,'-')) AS `Recording Cost Per Minute`,
+			IF(RecordingCostPerMinuteMargin IS NULL OR RecordingCostPerMinuteMarginPercent IS NULL, '- (-)',CONCAT(RecordingCostPerMinuteMargin,' (',RecordingCostPerMinuteMarginPercent,'%)')) AS `Recording Cost Per Minute Margin`,
+
+--			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
+			EffectiveDate AS `Effective Date`,
 			CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
 			CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`,
 			ApprovedStatus
@@ -5783,7 +5821,7 @@ BEGIN
 	-- export
 	IF p_isExport <> 0
 	THEN
-		SET @stm1='',@stm2='';
+		SET @stm1='',@stm2='',@stm3='',@stm4='';
 
 		SET @stm1 = "
 			SELECT
@@ -5794,21 +5832,36 @@ BEGIN
 				Code AS `Destination Code`,
 				Description AS `Destination Description`,
 				MinimumDuration AS `Min. Duration`,
-				CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
-				CONCAT(ConnectionFeeCurrencySymbol,ConnectionFee) AS `Connection Fee`,
-				CONCAT(RateCurrencySymbol,Rate) AS Rate,
-				CONCAT(RateCurrencySymbol,RateN) AS RateN,
-				EffectiveDate AS `Effective Date`
+				CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`
 		";
+
+		SET @stm3 = ", EffectiveDate AS `Effective Date`";
 
 		-- advance view
 		IF p_isExport = 11
 		THEN
-			SET @stm2 = ", PreviousRate AS `Previous Rate`, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
-			SET @stm2 = CONCAT(@stm2,", CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`, ApprovedStatus");
+			SET @stm2 = ",
+				CONCAT(IF(CurrentConnectionFee IS NULL,'',CurrentConnectionFeeCurrencySymbol),IFNULL(CurrentConnectionFee,'-'),'\n',IF(ConnectionFee IS NULL,'',ConnectionFeeCurrencySymbol),IFNULL(ConnectionFee,'-')) AS `Connection Fee`,
+				IF(ConnectionFeeMargin IS NULL OR ConnectionFeeMarginPercent IS NULL, '- (-)',CONCAT(ConnectionFeeMargin,' (',ConnectionFeeMarginPercent,'%)')) AS `Connection Fee Margin`,
+
+				CONCAT(CurrentRateCurrencySymbol,IFNULL(CurrentRate,'-'),'\n',RateCurrencySymbol,IFNULL(Rate,'-')) AS `Rate`,
+				IF(RateMargin IS NULL OR RateMarginPercent IS NULL, '- (-)',CONCAT(RateMargin,' (',RateMarginPercent,'%)')) AS `Rate Margin`,
+
+				CONCAT(CurrentRateCurrencySymbol,IFNULL(CurrentRateN,'-'),'\n',RateCurrencySymbol,IFNULL(RateN,'-')) AS `RateN`,
+				IF(RateNMargin IS NULL OR RateNMarginPercent IS NULL, '- (-)',CONCAT(RateNMargin,' (',RateNMarginPercent,'%)')) AS `RateN Margin`
+			";
+			-- SET @stm4 = ", PreviousRate AS `Previous Rate`, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
+			SET @stm4 = ", CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
+			SET @stm4 = CONCAT(@stm4,", CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`, ApprovedStatus");
+		ELSE
+			SET @stm2 = ",
+				CONCAT(ConnectionFeeCurrencySymbol,ConnectionFee) AS `Connection Fee`,
+				CONCAT(RateCurrencySymbol,Rate) AS Rate,
+				CONCAT(RateCurrencySymbol,RateN) AS RateN
+			";
 		END IF;
 
-		SET @stm = CONCAT(@stm1,@stm2,' FROM tmp_RateTableRate_;');
+		SET @stm = CONCAT(@stm1,@stm2,@stm3,@stm4,' FROM tmp_RateTableRate_;');
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
