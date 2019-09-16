@@ -15,25 +15,58 @@ class DealManagementController extends \BaseController {
         $data['iDisplayStart'] 			+=		1;
         $data['iSortCol_0']			 	 =  	0;
         $data['sSortDir_0']			 	 =  	'desc';
+        $select = [
+            'tblDeal.DealID',
+            'tblDeal.Title',
+            'tblAccount.AccountName',
+            'tblCodeDeck.CodeDeckName',
+            'tblDeal.StartDate',
+            'tblDeal.EndDate',
+            'tblDeal.AlertEmail',
+            'tblDeal.DealType',
+            'tblDeal.Status'
+        ];
         $deals = Deal::join("tblAccount", "tblAccount.AccountID","=","tblDeal.AccountID")
             ->join("tblCodeDeck", "tblCodeDeck.CodeDeckId","=","tblDeal.CodeDeckID")
-            ->select(['tblDeal.DealID', 'tblDeal.Title','tblAccount.AccountName','tblCodeDeck.CodeDeckName','tblDeal.StartDate','tblDeal.EndDate','tblDeal.AlertEmail','tblDeal.DealType','tblDeal.Status'])
             ->where(['tblDeal.Status' => $data['Status']]);
 
+        if(isset($data['Search']) && $data['Search'] != ""){
+            $deals->where('tblDeal.Title','like','%'.$data['Search'].'%');
+        }
+
+        if(isset($data['AccountID']) && $data['AccountID'] != ""){
+            $deals->where('tblDeal.AccountID', $data['AccountID']);
+        }
+
+        if(isset($data['DealType']) && $data['DealType'] != ""){
+            $deals->where('tblDeal.DealType', $data['DealType']);
+        }
+
+        if(isset($data['StartDate']) && $data['StartDate'] != ""){
+            $deals->where('tblDeal.StartDate','>=',$data['StartDate']);
+        }
+
+        if(isset($data['EndDate']) && $data['EndDate'] != ""){
+            $deals->where('tblDeal.EndDate','<=',$data['EndDate']);
+        }
+
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data = $deals->get();
+            unset($select[0]);
+            $excel_data = $deals->select($select)->get();
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Accounts.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DealManagement.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Accounts.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DealManagement.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
         }
+
+        $deals->select($select);
 
         return Datatables::of($deals)->make();
     }

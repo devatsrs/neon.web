@@ -91,6 +91,7 @@
         var update_new_url;
         var postdata;
         jQuery(document).ready(function ($) {
+            $('#filter-button-toggle').show();
             public_vars.$body = $("body");
             var $search = {};
             $search.Search      = $("#deal_filter").find('[name="Search"]').val();
@@ -130,7 +131,7 @@
                 },
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
-                "sDom": "<'row'r>",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[0, 'asc']],
                 "aoColumns": [
                     {
@@ -165,8 +166,8 @@
                                 action += '<input type = "hidden"  name = "' + list_fields_activity[i] + '"       value = "' + (full[i] != null ? full[i] : '') + '" / >';
                             }
                             action += '</div>';
-                            action += ' <a href="' + edit_ + '" data-redirect="{{ URL::to('dealmanagement')}}" title="Delete" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                            action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('dealmanagement')}}" title="Delete" class="btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>'
+                            action += ' <a href="' + edit_ + '" data-redirect="{{ URL::to('dealmanagement')}}" title="Edit" class="btn btn-default btn-sm tooltip-primary" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                            action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('dealmanagement')}}" title="Delete" class="btn delete btn-danger btn-sm tooltip-primary" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>'
                             return action;
                         }
                     }
@@ -175,8 +176,14 @@
                     "aButtons": [
                         {
                             "sExtends": "download",
-                            "sButtonText": "Export Data",
-                            "sUrl": baseurl + "/dealmanagement/ajax_datagrid", //baseurl + "/generate_xls.php",
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/dealmanagement/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                            sButtonClass: "save-collection"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/dealmanagement/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                             sButtonClass: "save-collection"
                         }
                     ]
@@ -186,7 +193,7 @@
                         minimumResultsForSearch: -1
                     });
 
-                    $("#table-service tbody input[type=checkbox]").each(function (i, el) {
+                    $("#table-deal tbody input[type=checkbox]").each(function (i, el) {
                         var $this = $(el),
                                 $p = $this.closest('tr');
 
@@ -205,7 +212,7 @@
                         if($('#selectallbutton').is(':checked')){
                             checked = 'checked=checked disabled';
                             $("#selectall").prop("checked", true).prop('disabled', true);
-                            $('#table-service tbody tr').each(function (i, el) {
+                            $('#table-deal tbody tr').each(function (i, el) {
                                 $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
                                 $(this).addClass('selected');
                             });
@@ -221,6 +228,7 @@
                 }
 
             });
+
             $("#deal_filter").submit(function(e) {
                 e.preventDefault();
                 $search.Search      = $("#deal_filter").find('[name="Search"]').val();
@@ -229,7 +237,33 @@
                 $search.StartDate   = $("#deal_filter").find('[name="StartDate"]').val();
                 $search.EndDate     = $("#deal_filter").find('[name="EndDate"]').val();
                 $search.Status      = $("#deal_filter").find('[name="Status"]').val();
-                data_table_activity.fnFilter('', 0);
+                data_table_deal.fnFilter('', 0);
+            });
+
+
+            // Select all
+            $("#selectall").click(function(ev) {
+                var is_checked = $(this).is(':checked');
+                $('#table-deal tbody tr').each(function(i, el) {
+                    if (is_checked) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                        $(this).removeClass('selected');
+                    }
+                });
+            });
+
+            $(document).on('click', '#table-deal tbody tr', function () {
+                var self = $(this);
+                if (self.hasClass('selected')) {
+                    $(this).find('input[type="checkbox"]').prop("checked", false);
+                    $(this).removeClass('selected');
+                } else {
+                    $(this).find('input[type="checkbox"]').prop("checked", true);
+                    $(this).addClass('selected');
+                }
             });
 
             // Replace Checboxes
@@ -243,6 +277,7 @@
         $(".pagination a").click(function (ev) {
             replaceCheckboxes();
         });
+
 
         $('body').on('click', '.btn.delete', function (e) {
             e.preventDefault();
