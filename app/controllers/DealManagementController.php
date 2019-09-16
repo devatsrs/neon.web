@@ -102,12 +102,11 @@ class DealManagementController extends \BaseController {
             "CompanyID"       => $CompanyID,
             "DefaultCodedeck" => 1
         ])->pluck("CodeDeckId");
-        $accounts = Account::getAccountIDList();
+        $Accounts = Account::getAccountIDList();
         return View::make('dealmanagement.create', get_defined_vars());
     }
 
     public function store(){
-
 
         $data = Input::all();
         unset($data['BarCode']);
@@ -117,14 +116,16 @@ class DealManagementController extends \BaseController {
     }
 
     public function edit($id){
-
         $CompanyID          = User::get_companyID();
         $codedecklist       = BaseCodeDeck::getCodedeckIDList();
         $DefaultCodedeck    = BaseCodeDeck::where([
             "CompanyID"       => $CompanyID,
             "DefaultCodedeck" => 1
         ])->pluck("CodeDeckId");
-        $accounts = Account::getAccountIDList();
+        $Accounts = Account::getAccountIDList();
+        $Deal = Deal::find($id);
+        $DealDetails = DealDetail::where('DealID',$id)->get();
+        $DealNotes = DealNote::where('DealID',$id)->get();
         return View::make('dealmanagement.edit', get_defined_vars());
     }
 

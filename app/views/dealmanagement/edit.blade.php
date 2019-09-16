@@ -39,41 +39,41 @@
                         <div class="form-group">
                             <label class="col-md-2 control-label">Title*</label>
                             <div class="col-md-4">
-                                <input type="text" name="Title" class="form-control" id="field-1" placeholder="" value="{{Input::old('Title')}}" />
+                                <input type="text" name="Title" class="form-control" id="field-1" placeholder="" value="{{ $Deal->Title }}" />
                             </div>
                             <label class="col-md-2 control-label">Deal Type*</label>
                             <div class="col-md-4">
-                                {{Form::select('DealType',Deal::$TypeDropDown, 'Revenue',array("class"=>"select2","disabled"=>"disabled"))}}
+                                {{Form::select('DealType',Deal::$TypeDropDown, $Deal->DealType,array("class"=>"select2","disabled"=>"disabled"))}}
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-2 control-label">Account*</label>
                             <div class="col-md-4">
-                                {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}}
+                                {{Form::select('AccountID',$Accounts, $Deal->AccountID,array("class"=>"select2"))}}
                             </div>
                             <label class="col-md-2 control-label">Codedeck*</label>
                             <div class="col-md-4">
-                                {{Form::select('CodeDeckID',$codedecklist,'',array("class"=>"select2","disabled"=>"disabled"))}}
+                                {{Form::select('CodedeckID',$codedecklist,$Deal->CodedeckID,array("class"=>"select2","disabled"=>"disabled"))}}
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-2 control-label">Status*</label>
                             <div class="col-md-4">
-                                {{Form::select('Status',Deal::$StatusDropDown, 'Active',array("class"=>"select2"))}}
+                                {{Form::select('Status',Deal::$StatusDropDown, $Deal->Status,array("class"=>"select2"))}}
                             </div>
                             <label class="col-md-2 control-label">Alert Email</label>
                             <div class="col-md-4">
-                                <input type="text" name="AlertEmail" class="form-control" id="field-1" placeholder="" value="" />
+                                <input type="text" name="AlertEmail" class="form-control" id="field-1" placeholder="" value="{{ $Deal->AlertEmail }}" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-2 control-label">Start Date*</label>
                             <div class="col-md-4">
-                                {{ Form::text('StartDate','', array("class"=>"form-control small-date-input datepicker", 'id' => 'StartDate', "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                                {{ Form::text('StartDate', date("Y-m-d", strtotime($Deal->StartDate)), array("class"=>"form-control small-date-input datepicker", 'id' => 'StartDate', "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                             </div>
                             <label class="col-md-2 control-label">End Date*</label>
                             <div class="col-md-4">
-                                {{ Form::text('EndDate', '', array("class"=>"form-control small-date-input datepicker", 'id' => 'EndDate',"data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                                {{ Form::text('EndDate', date("Y-m-d", strtotime($Deal->EndDate)), array("class"=>"form-control small-date-input datepicker", 'id' => 'EndDate',"data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                             </div>
                         </div>
                     </div>
@@ -246,11 +246,23 @@
                 $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
             }
 
+            disableFieldsOnAddDetails();
+
         });
 
         function ajax_form_success(response){
             if(typeof response.redirect != 'undefined' && response.redirect != ''){
                 window.location = response.redirect;
+            }
+        }
+
+        function disableFieldsOnAddDetails(){
+            var rowLength = $(".dealTable tbody tr");
+            var fields = $("select[name='DealType'], select[name='CodedeckID']");
+            if(rowLength.length > 0){
+                fields.attr("disabled","disabled").trigger("change")
+            } else {
+                fields.removeAttr("disabled").trigger("change")
             }
         }
 
@@ -260,6 +272,7 @@
             tbody.append(row);
             var lastRow = $(".dealTable tbody tr:last");
             lastRow.find(".selectOpt").select2();
+            disableFieldsOnAddDetails();
         }
 
         function countTotalPL(){
@@ -307,6 +320,7 @@
             var row = that.parent().parent();
             row.remove();
             countTotalPL();
+            disableFieldsOnAddDetails();
         }
 
         function addNote(){
@@ -316,6 +330,7 @@
             var time = new Date();
             $(".noteTable tbody tr:last td.dateTime").append(" " + time.toLocaleTimeString().toLowerCase());
         }
+
 
         function deleteNote(ele){
             var that = $(ele);

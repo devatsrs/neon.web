@@ -49,7 +49,7 @@
             <div class="form-group">
               <label class="col-md-2 control-label">Account*</label>
               <div class="col-md-4">
-                {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}}
+                {{Form::select('AccountID',$Accounts,'',array("class"=>"select2"))}}
               </div>
               <label class="col-md-2 control-label">Codedeck*</label>
               <div class="col-md-4">
