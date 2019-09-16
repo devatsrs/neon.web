@@ -67,11 +67,11 @@
     <table class="table table-bordered datatable" id="table-deal">
         <thead>
         <tr>
-            <th width="5%">
+{{--            <th width="5%">
                 <div class="pull-left">
                     <input type="checkbox" id="selectall" name="checkbox[]" class="" />
                 </div>
-            </th>
+            </th>--}}
             <th width="10%">Title</th>
             <th width="10%">Account</th>
             <th width="10%">Codedeck</th>
@@ -87,7 +87,7 @@
         </tbody>
     </table>
     <script type="text/javascript">
-        var list_fields_activity  = ['Search','AccountID','DealType','StartDate','EndDate','Status'];
+        var list_fields_deal  = ['Search','AccountID','DealType','StartDate','EndDate','Status'];
         var update_new_url;
         var postdata;
         jQuery(document).ready(function ($) {
@@ -134,7 +134,7 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[0, 'asc']],
                 "aoColumns": [
-                    {
+                    /*{
                         "bSortable": false, //Account
                         mRender: function (id, type, full) {
                             var chackbox = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
@@ -143,7 +143,7 @@
                             }
                             return chackbox;
                         }
-                    },
+                    },*/
                     {"bSortable": true},  // 1 Title
                     {"bSortable": true},  // 2 Account
                     {"bSortable": true},  // 3 Codedeck
@@ -158,12 +158,12 @@
 
                             var edit_ = "{{ URL::to('/dealmanagement/{id}/edit/')}}";
                             var delete_ = "{{ URL::to('/dealmanagement/{id}/delete/')}}";
-                            edit_ = edit_.replace('{id}', full[0]);
-                            delete_ = delete_.replace('{id}', full[0]);
+                            edit_ = edit_.replace('{id}', id);
+                            delete_ = delete_.replace('{id}', id);
 
                             action = '<div class = "hiddenRowData" >';
-                            for (var i = 0; i < list_fields_activity.length; i++) {
-                                action += '<input type = "hidden"  name = "' + list_fields_activity[i] + '"       value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                            for (var i = 0; i < list_fields_deal.length; i++) {
+                                action += '<input type = "hidden"  name = "' + list_fields_deal[i] + '"       value = "' + (full[i] != null ? full[i] : '') + '" / >';
                             }
                             action += '</div>';
                             action += ' <a href="' + edit_ + '" data-redirect="{{ URL::to('dealmanagement')}}" title="Edit" class="btn btn-default btn-sm tooltip-primary" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
@@ -297,7 +297,7 @@
                         $(".btn.delete").button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
-                            data_table_activity.fnFilter('', 0);
+                            data_table_deal.fnFilter('', 0);
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }

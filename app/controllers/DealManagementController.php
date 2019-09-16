@@ -16,7 +16,6 @@ class DealManagementController extends \BaseController {
         $data['iSortCol_0']			 	 =  	0;
         $data['sSortDir_0']			 	 =  	'desc';
         $select = [
-            'tblDeal.DealID',
             'tblDeal.Title',
             'tblAccount.AccountName',
             'tblCodeDeck.CodeDeckName',
@@ -51,7 +50,6 @@ class DealManagementController extends \BaseController {
         }
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            unset($select[0]);
             $excel_data = $deals->select($select)->get();
             $excel_data = json_decode(json_encode($excel_data),true);
 
@@ -66,6 +64,7 @@ class DealManagementController extends \BaseController {
             }
         }
 
+        $select[] = 'tblDeal.DealID';
         $deals->select($select);
 
         return Datatables::of($deals)->make();
@@ -98,6 +97,7 @@ class DealManagementController extends \BaseController {
     public function create(){
         $CompanyID          = User::get_companyID();
         $codedecklist       = BaseCodeDeck::getCodedeckIDList();
+        unset($codedecklist['']);
         $DefaultCodedeck    = BaseCodeDeck::where([
             "CompanyID"       => $CompanyID,
             "DefaultCodedeck" => 1
@@ -118,6 +118,7 @@ class DealManagementController extends \BaseController {
     public function edit($id){
         $CompanyID          = User::get_companyID();
         $codedecklist       = BaseCodeDeck::getCodedeckIDList();
+        unset($codedecklist['']);
         $DefaultCodedeck    = BaseCodeDeck::where([
             "CompanyID"       => $CompanyID,
             "DefaultCodedeck" => 1
@@ -133,8 +134,27 @@ class DealManagementController extends \BaseController {
 
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
+        $data['id'] = $id;
+        $res = array("status" => "failed", "message" => "Invalid Request.");
+        if( $id > 0){
+            try{
+                DB::beginTransaction();
+                DealDetail::where(["DealID"=>$id])->delete();
+                DealNote::where(["DealID"=>$id])->delete();
+                Deal::find($id)->delete();
+                DB::commit();
 
+                UserActivity::UserActivitySaved($data,'Delete','Deal');
+                $res = array("status" => "success", "message" => "Deal Successfully Deleted");
+            }catch (Exception $e){
+                DB::rollback();
+                $res = array("status" => "failed", "message" => "Something Went Wrong." . $e->getMessage());
+            }
+        }
+
+        return Response::json($res);
     }
 
 }
