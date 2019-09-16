@@ -1717,7 +1717,7 @@
                 overflow-x: auto;
             }
             #ratetableCustomerService{
-                width:2000px;
+                width:2400px;
                 overflow-x: auto;
             }
     </style>        
@@ -1760,14 +1760,16 @@
                     options.empty();
                     options.append("<option value=''>Select</option>")
                     $.map( response, function( val, i ) {
+                        var dash = "-";
+                        var orderID =  val.ServiceOrderID == undefined ? '' : dash+val.ServiceOrderID;
                         if(check != ''){
-                            if(check == val.id){
-                                options.append("<option value='"+ val.id +"' selected>"+val.name+"</option>");
+                            if(check == val.AccountServiceID){
+                                options.append("<option value='"+ val.AccountServiceID +"' selected>"+val.numbers+orderID+"</option>");
                             }else{
-                                options.append("<option value='"+ val.id +"'>"+val.name+"</option>");
+                                options.append("<option value='"+ val.AccountServiceID +"'>"+val.numbers+orderID+"</option>");
                             }
                         }else{
-                            options.append("<option value='"+ val.id +"'>"+val.name+"</option>");
+                            options.append("<option value='"+ val.AccountServiceID +"'>"+val.numbers+orderID+"</option>");
                         }                                                      
                     });
                     options.select2();

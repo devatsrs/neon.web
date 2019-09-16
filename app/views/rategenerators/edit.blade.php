@@ -476,7 +476,7 @@
                                         <td>
                                             {{ Form::select('ToTimeOfDay-'.$a, $Timezones, $Component->ToTimezonesID, array("class"=>"select2")) }}
                                         </td>
-                                        <td width="4%">
+                                        <td class="w-del">
 
                                             <a onclick="deleteRow(this.id,'servicetableSubBox','getIDs')" id="merge-{{$a}}" class="btn btn-danger btn-sm" data-loading-text="Loading...">
                                                 <i></i>
@@ -589,7 +589,7 @@
                                             <td>
                                                 <input type="number" min="0" value="{{$calculatedRate->ChangeRateTo}}" class="form-control" name="ChangeRateTo-{{$a}}"/>
                                             </td>
-                                            <td width="4%">
+                                            <td class="w-del">
                                                 {{--<button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">--}}
                                                     {{--<i></i>--}}
                                                     {{--+--}}
@@ -680,7 +680,7 @@
                                                     {{ Form::select('Tariff2-'.$a, $Tariff, $calculatedVendor->Tariff, array("class"=>"select2")) }}
                                                 </td>
                                                 
-                                                <td width="4%">
+                                                <td class="w-del">
                                                     {{--<button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">--}}
                                                         {{--<i></i>--}}
                                                         {{--+--}}
@@ -921,7 +921,7 @@
                 <td>
                     {{ Form::select('ToTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                 </td>
-                <td width="4%">
+                <td class="w-del">
 
                     <a onclick="deleteRow(this.id, 'servicetableSubBox','getIDs')" id="merge-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
                         <i></i>
@@ -965,7 +965,7 @@
                 <td>
                     <input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>
                 </td>
-                <td width="4%">
+                <td class="w-del">
                     <a onclick="deleteRow(this.id,'ratetableSubBox','getRateIDs')" id="rateCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
                         <i></i>
                         -
@@ -997,7 +997,7 @@
                 <td class="DID-Div">
                     {{ Form::select('Tariff2-1', $Tariff, null, array("class"=>"select2")) }}
                 </td>
-                <td width="4%">
+                <td class="w-del">
                     <a onclick="deleteRow(this.id,'ratetableVendorBox','getRateVendorIDs')" id="rateVendorCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
                         <i></i>
                         -
@@ -1023,7 +1023,7 @@
             overflow-x: auto;
         }
         #ratetableVendorBox{
-            width:1600px;
+            width:1500px;
             overflow-x: auto;
         }
     </style>
@@ -1200,6 +1200,7 @@
                 $(".DID-Div").show();
                 $(".NonDID-Div").hide();
                 $(".Package-Div").hide();
+                $('.w-del').css('width','');
                 $('#testValuess').html('{{ Form::select("Component-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID", "id"=>"MergeTo-1")) }}');
@@ -1226,6 +1227,7 @@
                 $('#servicetableSubBox').css('width','1225px');
                 $('#ratetableSubBox').css('width','1025px');
                 $('#ratetableVendorBox').css('width','1030px');
+                $('.w-del').css('width','4%');
                 $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "id"=>"MergeTo-1")) }}');

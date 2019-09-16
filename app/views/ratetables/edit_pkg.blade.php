@@ -137,9 +137,13 @@
             <th width="10%">Time of Day</th>
             <th width="10%">Package Name</th>
             <th width="5%">One-Off Cost</th>
+            <th width="5%">One-Off Cost Margin</th>
             <th width="5%">Monthly Cost</th>
+            <th width="5%">Monthly Cost Margin</th>
             <th width="5%">Package Cost Per Minute</th>
+            <th width="5%">Package Cost Per Minute Margin</th>
             <th width="5%">Recording Cost Per Minute</th>
+            <th width="5%">Recording Cost Per Minute Margin</th>
             <th width="5%">Effective Date</th>
             <th width="9%" style="display: none;">End Date</th>
             <th width="8%">Modified By/Date</th>
@@ -509,7 +513,12 @@
     });
 
     function rateDataTable() {
-        var bVisible = false;
+        var ApproveStatus = $("#rate-table-search [name='ApprovedStatus']").val();
+
+        var bVisibleComparisonView = false;
+        if(ApproveStatus != 1) {
+            bVisibleComparisonView = true;
+        }
 
         $searchFilter.Code = $("#rate-table-search input[name='Code']").val();
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
@@ -562,28 +571,119 @@
                         {}, //1 Timezones Title
                         {}, //2 Package Name
                         {
+                            "bSortable" : false,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[20] + col; else return '';
+                                var oc_html = '';
+                                if(bVisibleComparisonView) {
+                                    oc_html = (full[25] != null && full[25] != '') ? full[29] + full[25] : '-';
+                                    oc_html += '<br/>';
+                                    oc_html += (full[3] != null && full[3] != '') ? full[20] + full[3] : '-';
+                                } else {
+                                    oc_html = (full[3] != null && full[3] != '') ? full[20] + full[3] : '';  //OneOffCostCurrency+OneOffCost
+                                }
+                                return oc_html;
                             }
                         }, //3 OneOffCost,
                         {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[21] + col; else return '';
+                                var rate_html = full[33] != 0 && full[33] != null ? full[33] + ' ('+full[37]+'%)' : '- (-)';
+                                if(full[33] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[33] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 33/37 OneOffCost Margin/Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var mc_html = '';
+                                if(bVisibleComparisonView) {
+                                    mc_html = (full[26] != null && full[26] != '') ? full[30] + full[26] : '-';
+                                    mc_html += '<br/>';
+                                    mc_html += (full[4] != null && full[4] != '') ? full[21] + full[4] : '-';
+                                } else {
+                                    mc_html = (full[4] != null && full[4] != '') ? full[21] + full[4] : '';  //MonthlyCostCurrency+MonthlyCost
+                                }
+                                return mc_html;
                             }
                         }, //4 MonthlyCost,
                         {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[22] + col; else return '';
+                                var rate_html = full[34] != 0 && full[34] != null ? full[34] + ' ('+full[38]+'%)' : '- (-)';
+                                if(full[34] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[34] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 33/37 MonthlyCost Margin/Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var pc_html = '';
+                                if(bVisibleComparisonView) {
+                                    pc_html = (full[27] != null && full[27] != '') ? full[31] + full[27] : '-';
+                                    pc_html += '<br/>';
+                                    pc_html += (full[5] != null && full[5] != '') ? full[22] + full[5] : '-';
+                                } else {
+                                    pc_html = (full[5] != null && full[5] != '') ? full[22] + full[5] : '';  //PackageCostPerMinuteCurrency+PackageCostPerMinute
+                                }
+                                return pc_html;
                             }
                         }, //5 PackageCostPerMinute,
                         {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[23] + col; else return '';
+                                var rate_html = full[35] != 0 && full[35] != null ? full[35] + ' ('+full[39]+'%)' : '- (-)';
+                                if(full[35] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[35] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 33/37 PackageCostPerMinute Margin/Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var rc_html = '';
+                                if(bVisibleComparisonView) {
+                                    rc_html = (full[28] != null && full[28] != '') ? full[32] + full[28] : '-';
+                                    rc_html += '<br/>';
+                                    rc_html += (full[6] != null && full[6] != '') ? full[23] + full[6] : '-';
+                                } else {
+                                    rc_html = (full[6] != null && full[6] != '') ? full[23] + full[6] : '';  //RecordingCostPerMinuteCurrency+RecordingCostPerMinute
+                                }
+                                return rc_html;
                             }
                         }, //6 RecordingCostPerMinute,
-                        {}, //7 Effective Date
                         {
-                            "bVisible" : false
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[36] != 0 && full[36] != null ? full[36] + ' ('+full[40]+'%)' : '- (-)';
+                                if(full[36] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[36] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 33/37 RecordingCostPerMinute Margin/Margin Percentage
+                        {
+                            mRender: function(col, type, full) {
+                                return full[7];
+                            }
+                        }, //7 Effective Date
+                        {
+                            "bVisible" : false,
+                            mRender: function(col, type, full) {
+                                return full[8];
+                            }
                         }, //8 End Date
                         {
                             "bVisible" : true,

@@ -1,7 +1,7 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            Customer Service Rate Tables
+            Customer Service Rate Table
         </div>
         <div class="panel-options">
             <button type="button" onclick="createCloneRow('ratetableCustomerService','getRateServiceIDs')" id="Service-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
@@ -19,7 +19,7 @@
                 <thead>
                 <tr>
                     <th style="width:250px;">Customer</th>
-                    <th style="width:250px !important;">Service</th>
+                    <th style="width:600px !important;">Service</th>
                     <th style="width:350px !important;">Access Rate Table</th>
                     <th style="width:350px !important;">Package Rate Table</th>
                     <th style="width:350px !important;">Termination Rate Table</th>
@@ -50,7 +50,7 @@
                             <td class="Package-Div">
                                 {{ Form::select('Customer1-'.$a, $customers, $calculatedVendor->CustomerID, array("class"=>"select2 customer-get")) }}
                             </td>
-                            <td data-id="{{ $calculatedVendor->ServiceID }}">
+                            <td data-id="{{ $calculatedVendor->AccountServiceID }}">
                                 {{-- {{ Form::select('Service1-'.$a, $CustomerServices, $calculatedVendor->ServiceID, array("class"=>"select2 service-customer")) }} --}}
                                 <select name="Service1-{{ $a }}"  id="" class="select2 service-customer"></select>
                             </td>
