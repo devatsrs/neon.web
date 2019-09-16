@@ -15,10 +15,13 @@ class DealManagementController extends \BaseController {
         $data['iDisplayStart'] 			+=		1;
         $data['iSortCol_0']			 	 =  	0;
         $data['sSortDir_0']			 	 =  	'desc';
-        $query = "";
+        $deals = Deal::join("tblAccount", "tblAccount.AccountID","=","tblDeal.AccountID")
+            ->join("tblCodeDeck", "tblCodeDeck.CodeDeckId","=","tblDeal.CodeDeckID")
+            ->select('tblDeal.DealID,tblDeal.Title,tblAccount.AccountName,tblCodeDeck.CodeDeckName,tblDeal.StartDate,tblDeal.EndDate,tblDeal.AlertEmail,tblDeal.DealType,tblDeal.Status')
+            ->where(['Status' => $data['Status']]);
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data = DB::select($query.',1)');
+            $excel_data = $deals->get();
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
@@ -32,7 +35,7 @@ class DealManagementController extends \BaseController {
             }
         }
 
-        return DataTableSql::of($query)->make();
+        return DataTableSql::of($deals)->make();
     }
 
 
@@ -54,6 +57,7 @@ class DealManagementController extends \BaseController {
         ])->pluck("CodeDeckId");
         $status_json = "";
         $accounts = Account::getAccountIDList();
+        $dealTypes = Deal::$TypeDropDown + ['' => "Both"];
         return View::make('dealmanagement.index', get_defined_vars());
     }
 
