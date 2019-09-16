@@ -11,7 +11,7 @@
             <form id="deal_filter" method="get" class="form-horizontal form-groups-bordered validate" novalidate>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Search</label>
-                    {{ Form::text('searchText', '', array("class"=>"form-control")) }}
+                    {{ Form::text('Search', '', array("class"=>"form-control")) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Account</label>
@@ -19,26 +19,19 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Deal Type</label>
-                    <select class="select2" name="DealType">
-                        <option value="Revenue">Revenue</option>
-                        <option value="Payment">Payment</option>
-                    </select>
+                    {{Form::select('DealType',$dealTypes, '',array("class"=>"select2"))}}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Start Date</label>
-                    {{ Form::text('StartDate', !empty(Input::get('StartDate'))?Input::get('StartDate'):'', array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                    {{ Form::text('StartDate', '', array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">End Date</label>
-                    {{ Form::text('EndDate', !empty(Input::get('EndDate'))?Input::get('EndDate'):'', array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                    {{ Form::text('EndDate', '', array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Status</label>
-                    <select class="select2" name="Status">
-                        <option value="Active">Active</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Closed">Closed</option>
-                    </select>
+                    {{Form::select('Status',Deal::$StatusDropDown, 'Active',array("class"=>"select2"))}}
                 </div>
                 <div class="form-group">
                     <br/>
@@ -71,7 +64,7 @@
         <div class="clear"></div>
     </div>
     <br>
-    <table class="table table-bordered datatable" id="table-4">
+    <table class="table table-bordered" id="table-deal">
         <thead>
         <tr>
             <th width="5%">
@@ -84,7 +77,6 @@
             <th width="10%">Codedeck</th>
             <th width="10%">Start Date</th>
             <th width="10%">End Date</th>
-            <th width="10%">Notes</th>
             <th width="10%">Alert Email</th>
             <th width="10%">Deal Type</th>
             <th width="7%">Status</th>
@@ -95,208 +87,195 @@
         </tbody>
     </table>
     <script type="text/javascript">
-        var $searchFilter 	= 	{};
-        var checked			=	'';
+        var list_fields_activity  = ['Search','AccountID','DealType','StartDate','EndDate','Status'];
         var update_new_url;
         var postdata;
         jQuery(document).ready(function ($) {
+            public_vars.$body = $("body");
+            var $search = {};
+            $search.Search      = $("#deal_filter").find('[name="Search"]').val();
+            $search.AccountID   = $("#deal_filter").find('[name="AccountID"]').val();
+            $search.DealType    = $("#deal_filter").find('[name="DealType"]').val();
+            $search.StartDate   = $("#deal_filter").find('[name="StartDate"]').val();
+            $search.EndDate     = $("#deal_filter").find('[name="EndDate"]').val();
+            $search.Status      = $("#deal_filter").find('[name="Status"]').val();
+            data_table_deal = $("#table-deal").dataTable({
+                "bDestroy": true,
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": baseurl + "/dealmanagement/ajax_datagrid",
+                "fnServerParams": function (aoData) {
+                    aoData.push(
+                            {"name": "Title", "value": $search.Title},
+                            {"name": "Search", "value": $search.Search},
+                            {"name": "AccountID", "value": $search.AccountID},
+                            {"name": "DealType", "value": $search.DealType},
+                            {"name": "StartDate", "value": $search.StartDate},
+                            {"name": "EndDate", "value": $search.EndDate},
+                            {"name": "Status", "value": $search.Status},
+                            {"name": "Export", "value": 0}
+                    );
 
-            $('#filter-button-toggle').show();
+                    data_table_extra_params.length = 0;
+                    data_table_extra_params.push(
+                            {"name": "Title", "value": $search.Title},
+                            {"name": "Search", "value": $search.Search},
+                            {"name": "AccountID", "value": $search.AccountID},
+                            {"name": "DealType", "value": $search.DealType},
+                            {"name": "StartDate", "value": $search.StartDate},
+                            {"name": "EndDate", "value": $search.EndDate},
+                            {"name": "Status", "value": $search.Status},
+                            {"name": "Export", "value": 1});
 
-            var status 					        =	'{{$status_json}}';
-            var temp_path						=	"{{ CompanyConfiguration::get('TEMP_PATH') }}";
-            public_vars.$body 					= 	$("body");
-            var base_url_theme 					= 	"{{ URL::to('dealmanagement')}}";
-            var delete_url_bulk 				= 	"{{ URL::to('dealmanagement/deal_delete_bulk')}}";
-            var Status_Url 				        = 	"{{ URL::to('dealmanagement/deal_change_Status')}}";
-            // var list_fields  					= 	['AccountName','EstimateNumber','IssueDate','GrandTotal','EstimateStatus','EstimateID','Description','Attachment','AccountID','BillingEmail'];
-            data_table = $("#table-4").dataTable({
+                },
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+                "sPaginationType": "bootstrap",
+                "sDom": "<'row'r>",
+                "aaSorting": [[0, 'asc']],
+                "aoColumns": [
+                    {
+                        "bSortable": false, //Account
+                        mRender: function (id, type, full) {
+                            var chackbox = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
+                            if($('#Recall_on_off').prop("checked")){
+                                chackbox='';
+                            }
+                            return chackbox;
+                        }
+                    },
+                    {"bSortable": true},  // 1 Title
+                    {"bSortable": true},  // 2 Account
+                    {"bSortable": true},  // 3 Codedeck
+                    {"bSortable": true},  // 4 Start Date
+                    {"bSortable": true},  // 5 End Date
+                    {"bSortable": true},  // 6 Alter Email
+                    {"bSortable": true},  // 7 Deal Type
+                    {"bSortable": true},  // 8 Status
+                    {                       //  9  Action
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
 
-                "fnDrawCallback": function() {
+                            var edit_ = "{{ URL::to('/dealmanagement/{id}/edit/')}}";
+                            var delete_ = "{{ URL::to('/dealmanagement/{id}/delete/')}}";
+                            edit_ = edit_.replace('{id}', id);
+                            delete_ = delete_.replace('{id}', id);
+
+                            action = '<div class = "hiddenRowData" >';
+                            for (var i = 0; i < list_fields_activity.length; i++) {
+                                action += '<input type = "hidden"  name = "' + list_fields_activity[i] + '"       value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                            }
+                            action += '</div>';
+                            action += ' <a href="' + edit_ + '" data-redirect="{{ URL::to('dealmanagement')}}" title="Delete" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                            action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('dealmanagement')}}" title="Delete" class="btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>'
+                            return action;
+                        }
+                    }
+                ],
+                "oTableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "Export Data",
+                            "sUrl": baseurl + "/dealmanagement/ajax_datagrid", //baseurl + "/generate_xls.php",
+                            sButtonClass: "save-collection"
+                        }
+                    ]
+                },
+                "fnDrawCallback": function () {
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
+
+                    $("#table-service tbody input[type=checkbox]").each(function (i, el) {
+                        var $this = $(el),
+                                $p = $this.closest('tr');
+
+                        $(el).on('change', function () {
+                            var is_checked = $this.is(':checked');
+
+                            $p[is_checked ? 'addClass' : 'removeClass']('selected');
+                        });
+                    });
+
+
+                    $('#selectall').removeClass('hidden');
+
+                    //select all record
+                    $('#selectallbutton').click(function(){
+                        if($('#selectallbutton').is(':checked')){
+                            checked = 'checked=checked disabled';
+                            $("#selectall").prop("checked", true).prop('disabled', true);
+                            $('#table-service tbody tr').each(function (i, el) {
+                                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                $(this).addClass('selected');
+                            });
+                        }else{
+                            checked = '';
+                            $("#selectall").prop("checked", false).prop('disabled', false);
+                            $('#table-service tbody tr').each(function (i, el) {
+                                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                $(this).removeClass('selected');
+                            });
+                        }
+                    });
                 }
+
             });
-
-            $searchFilter.AccountID  = $("#deal_filter select[name='AccountID']").val();
-            $searchFilter.DealType 	 = $("#deal_filter select[name='DealType']").val();
-            $searchFilter.StartDate  = $("#deal_filter [name='StartDate']").val();
-            $searchFilter.EndDate 	 = $("#deal_filter [name='EndDate']").val();
-            $searchFilter.Status 	 = $("#deal_filter select[name='Status']").val() != null ? $("#deal_filter select[name='Status']").val() : '';
-
-            $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
-
-            $("#deal_filter").submit(function(e){
+            $("#deal_filter").submit(function(e) {
                 e.preventDefault();
-                $searchFilter.searchText 		= 	$("#deal_filter [name='searchText']").val();
-                $searchFilter.Status 		= 	$("#deal_filter select[name='Status']").val();
-                data_table.fnFilter('', 0);
-                return false;
+                $search.Search      = $("#deal_filter").find('[name="Search"]').val();
+                $search.AccountID   = $("#deal_filter").find('[name="AccountID"]').val();
+                $search.DealType    = $("#deal_filter").find('[name="DealType"]').val();
+                $search.StartDate   = $("#deal_filter").find('[name="StartDate"]').val();
+                $search.EndDate     = $("#deal_filter").find('[name="EndDate"]').val();
+                $search.Status      = $("#deal_filter").find('[name="Status"]').val();
+                data_table_activity.fnFilter('', 0);
             });
-
-
-
 
             // Replace Checboxes
             $(".pagination a").click(function (ev) {
                 replaceCheckboxes();
             });
 
-            $("#selectall").click(function(ev) {
-                var is_checked = $(this).is(':checked');
-                $('#table-4 tbody tr').each(function(i, el) {
-                    if($(this).find('.rowcheckbox').hasClass('rowcheckbox')){
-                        if (is_checked) {
-                            $(this).find('.rowcheckbox').prop("checked", true);
-                            $(this).addClass('selected');
-                        } else {
-                            $(this).find('.rowcheckbox').prop("checked", false);
-                            $(this).removeClass('selected');
-                        }
-                    }
-                });
-            });
-            $('#table-4 tbody').on('click', 'tr', function() {
-                if (checked =='') {
-                    if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
-                        $(this).toggleClass('selected');
-                        if ($(this).hasClass('selected')) {
-                            $(this).find('.rowcheckbox').prop("checked", true);
-                        } else {
-                            $(this).find('.rowcheckbox').prop("checked", false);
-                        }
-                    }
-                }
-            });
+        });
 
+        // Replace Checboxes
+        $(".pagination a").click(function (ev) {
+            replaceCheckboxes();
+        });
 
+        $('body').on('click', '.btn.delete', function (e) {
+            e.preventDefault();
 
-            $('#delete_bulk').click(function(e) {
+            response = confirm('Are you sure?');
+            if( typeof $(this).attr("data-redirect")=='undefined'){
+                $(this).attr("data-redirect",'{{ URL::previous() }}')
+            }
+            redirect = $(this).attr("data-redirect");
+            if (response) {
 
-                e.preventDefault();
-                var self = $(this);
-                var text = self.text();
-
-                var DealIDs = [];
-                var i = 0;
-                $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
-                    DealID = $(this).val();
-                    if(typeof DealID != 'undefined' && DealID != null && DealID != 'null'){
-                        DealIDs[i++] = DealID;
-                    }
-                });
-
-                if(DealIDs.length<1)
-                {
-                    alert("Please select atleast one theme.");
-                    return false;
-                }
-                console.log(DealIDs);
-
-                if (!confirm('Are you sure to delete selected themes?')) {
-                    return;
-                }
-
-                $.ajax({
-                    url: delete_url_bulk,
-                    type: 'POST',
-                    dataType: 'json',
-                    data:'del_ids='+DealIDs,
-                    success: function(response) {
-                        $(this).button('reset');
-                        if (response.status == 'success') {
-                            toastr.success(response.message, "Success", toastr_opts);
-                            data_table.fnFilter('', 0);
-                        } else {
-                            toastr.error(response.message, "Error", toastr_opts);
-                        }
-                    }
-
-
-                });
-                return false;
-            });
-
-            $('table tbody').on('click', '.changestatus', function (e) {
-                e.preventDefault();
-                var self = $(this);
-                var text = self.text();
-                if (!confirm('Are you sure you want to change the deal status to '+ text +'?')) {
-                    return;
-                }
-
-                $(this).button('loading');
                 $.ajax({
                     url: $(this).attr("href"),
                     type: 'POST',
                     dataType: 'json',
-                    success: function(response) {
-                        $(this).button('reset');
+                    success: function (response) {
+                        $(".btn.delete").button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
-                            data_table.fnFilter('', 0);
+                            data_table_activity.fnFilter('', 0);
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
                     },
-                    data:'Status='+$(this).attr('data-status')+'&DealIDs='+$(this).attr('data-themeid')
-
+                    // Form data
+                    //data: {},
+                    cache: false,
+                    contentType: false,
+                    processData: false
                 });
-                return false;
-            });
-
-
-            $('.alert').click(function(e){
-                e.preventDefault();
-                var email = $('#TestMail-form').find('[name="EmailAddress"]').val();
-                var accontID = $('.hiddenRowData').find('.rowcheckbox').val();
-                if(email==''){
-                    toastr.error('Email field should not empty.', "Error", toastr_opts);
-                    $(".alert").button('reset');
-                    return false;
-                }else if(accontID==''){
-                    toastr.error('Please select sample estimate', "Error", toastr_opts);
-                    $(".alert").button('reset');
-                    return false;
-                }
-                $('#BulkMail-form').find('[name="testEmail"]').val(email);
-                $('#BulkMail-form').find('[name="SelectedIDs"]').val(accontID);
-                $("#BulkMail-form").submit();
-                $('#modal-TestMail').modal('hide');
-
-            });
-
-            jQuery(document).on( 'click', '.delete_link', function(event){
-                event.preventDefault();
-                var url_del = jQuery(this).attr('href');
-
-
-                $.ajax({
-                    url: url_del,
-                    type: 'POST',
-                    dataType: 'json',
-                    data:{"del":1},
-                    success: function(response_del) {
-                        if (response_del.status == 'success')
-                        {
-                            jQuery(this).parent().parent().parent().hide('slow').remove();
-                            data_table.fnFilter('', 0);
-                        }
-                        else
-                        {
-                            ShowToastr("error",response.message);
-                        }
-
-                    },
-                });
-
-
-            });
-/////////////////
-
+            }
+            return false;
         });
-
     </script>
 
     <style>
