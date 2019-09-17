@@ -1609,7 +1609,6 @@ class InvoicesController extends \BaseController {
                     }
                 }
             }else{
-                dd('hi00');
                 $data['EmailTo'] 		= 	$CustomerEmails;
                 $data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview');
                 $body					=	$postdata['Message'];
