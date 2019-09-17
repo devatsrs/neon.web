@@ -1610,7 +1610,7 @@ class InvoicesController extends \BaseController {
                 }
             }else{
                 $data['EmailTo'] 		= 	$CustomerEmails;
-                //$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+                $data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?all');
                 $body					=	$postdata['Message'];
                 //EmailsTemplates::ReplaceEmail($singleemail,);
                 $data['Subject']		=	$postdata['Subject'];
