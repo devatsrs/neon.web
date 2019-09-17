@@ -1,38 +1,34 @@
 <table id="addRow" class="hide hidden">
     <tr>
         <td>
-            <select class="selectOpt dealer" onchange="changePrice(this)">
-                <option value="customer">Customer</option>
-                <option value="vendor">Vendor</option>
+            <select class="selectOpt dealer" name="Type[]" onchange="changePrice(this)">
+                <option value="Customer">Customer</option>
+                <option value="Vendor">Vendor</option>
             </select>
         </td>
         <td>
-            <select class="selectOpt">
-                <option value="">Select</option>
-            </select>
+            {{Form::select('Destination[]', Country::getCountryDropdownList(), '',array("class"=>"selectOpt"))}}
         </td>
         <td>
-            <select class="selectOpt">
-                <option value="">Select</option>
-            </select>
+            {{ Form::select('Trunk[]',CustomerTrunk::getTrunkDropdownIDListAll(),'', array("class"=>"selectOpt")) }}
         </td>
         <td>
-            <input type="number" value="0.00" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control revenue">
+            <input type="number" name="Revenue[]" value="0.00" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control revenue">
         </td>
         <td>
-            <input type="number" value="0.00" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control salePrice">
+            <input type="number" name="SalePrice[]" value="0.00" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control salePrice">
         </td>
         <td>
-            <input type="number" value="0.00" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control buyPrice">
+            <input type="number" name="BuyPrice[]" value="0.00" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control buyPrice">
         </td>
         <td>
-            <input readonly type="number" value="0.0000" class="form-control pl-minute">
+            <input readonly type="number" name="PLPerMinute[]" value="0.0000" class="form-control pl-minute">
         </td>
         <td>
-            <input readonly type="number" value="0" class="form-control minutes">
+            <input readonly type="number" name="Minutes[]" value="0" class="form-control minutes">
         </td>
         <td>
-            <input readonly type="number" value="0.0000" class="form-control pl-total">
+            <input readonly type="number" name="TotalPL[]" value="0.0000" class="form-control pl-total">
         </td>
         <td>
             <button type="button" title="Delete" onclick="deleteDeal(this)" class="btn btn-danger btn-xs del-deal" data-loading-text="Loading...">
@@ -45,13 +41,13 @@
 <table id="addNote" class="hide hidden">
     <tr>
         <td>
-            <textarea placeholder="Write note here..." class="form-control"></textarea>
+            <textarea name="Note[]" placeholder="Write note here..." class="form-control"></textarea>
         </td>
         <td>
             {{ User::get_user_full_name() }}
         </td>
         <td class="dateTime">
-            {{ date("d-m-Y") }}
+            {{ date("Y-m-d") }}
         </td>
         <td>
             <button type="button" title="Delete" onclick="deleteNote(this)" class="btn btn-danger btn-xs del-deal" data-loading-text="Loading...">
@@ -94,7 +90,9 @@
             $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
         }
 
+        disableFieldsOnAddDetails();
     });
+
     function ajax_form_success(response){
         if(typeof response.redirect != 'undefined' && response.redirect != ''){
             window.location = response.redirect;
@@ -105,9 +103,9 @@
         var rowLength = $(".dealTable tbody tr");
         var fields = $("select[name='DealType'], select[name='CodedeckID']");
         if(rowLength.length > 0){
-            fields.attr("disabled","disabled").trigger("change")
+            fields.attr("readonly","readonly").trigger("change")
         } else {
-            fields.removeAttr("disabled").trigger("change")
+            fields.removeAttr("readonly").trigger("change")
         }
     }
 
@@ -127,7 +125,8 @@
             var plVal = $(this).attr('data-pl');
             totalPL +=  (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
         });
-        $(".pl-grand").text(totalPL.toFixed(2));
+        $(".pl-grand").text(totalPL.toFixed(4));
+        $("[name='TotalPL']").val(totalPL.toFixed(4));
 
     }
 

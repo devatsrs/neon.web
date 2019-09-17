@@ -19,8 +19,8 @@ class DealManagementController extends \BaseController {
             'tblDeal.Title',
             'tblAccount.AccountName',
             'tblCodeDeck.CodeDeckName',
-            'tblDeal.StartDate',
-            'tblDeal.EndDate',
+            DB::raw('DATE_FORMAT(tblDeal.StartDate, "%Y-%m-%d") as StartDate'),
+            DB::raw('DATE_FORMAT(tblDeal.EndDate, "%Y-%m-%d") as EndDate'),
             'tblDeal.AlertEmail',
             'tblDeal.DealType',
             'tblDeal.Status'
@@ -42,11 +42,11 @@ class DealManagementController extends \BaseController {
         }
 
         if(isset($data['StartDate']) && $data['StartDate'] != ""){
-            $deals->where('tblDeal.StartDate','>=',$data['StartDate']);
+            $deals->where(DB::raw('DATE(tblDeal.StartDate)'),'>=',$data['StartDate']);
         }
 
         if(isset($data['EndDate']) && $data['EndDate'] != ""){
-            $deals->where('tblDeal.EndDate','<=',$data['EndDate']);
+            $deals->where(DB::raw('DATE(tblDeal.EndDate)'),'<=',$data['EndDate']);
         }
 
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -107,12 +107,37 @@ class DealManagementController extends \BaseController {
     }
 
     public function store(){
-
         $data = Input::all();
-        unset($data['BarCode']);
-        if($data){
+        $validator = Validator::make($data, Deal::$rules);
 
+        if ($validator->fails()) {
+            return json_validator_response($validator);
         }
+        try{
+
+            DB::beginTransaction();
+
+            $dealData['Title']      = $data['Title'];
+            $dealData['DealType']   = $data['DealType'];
+            $dealData['AccountID']  = $data['AccountID'];
+            $dealData['CodedeckID'] = $data['CodedeckID'];
+            $dealData['AlertEmail'] = isset($data['AlertEmail']) ? $data['AlertEmail'] : "";
+            $dealData['Status']     = $data['Status'];
+            $dealData['StartDate']  = $data['StartDate'];
+            $dealData['EndDate']    = $data['EndDate'];
+            $dealData['TotalPL']    = $data['TotalPL'];
+            $deal = Deal::create($dealData);
+            $DealID = $deal->DealID;
+
+            //$dealDetailData = Deal::dealDetailArray($DealID,$data);
+            DB::commit();
+            $res = array("status" => "success", "message" => "Deal Successfully Created.");
+        }catch (Exception $e){
+            DB::rollback();
+            $res = array("status" => "failed", "message" => "Something Went Wrong." . $e->getMessage());
+        }
+
+        return Response::json($res);
     }
 
     public function edit($id){
@@ -132,6 +157,36 @@ class DealManagementController extends \BaseController {
 
     public function update($id){
 
+        $data = Input::all();
+        $validator = Validator::make($data, Deal::$rules);
+
+        if ($validator->fails())
+            return json_validator_response($validator);
+
+        try{
+
+            DB::beginTransaction();
+
+            $dealData['Title']      = $data['Title'];
+            $dealData['DealType']   = $data['DealType'];
+            $dealData['AccountID']  = $data['AccountID'];
+            $dealData['CodedeckID'] = $data['CodedeckID'];
+            $dealData['AlertEmail'] = isset($data['AlertEmail']) ? $data['AlertEmail'] : "";
+            $dealData['Status']     = $data['Status'];
+            $dealData['StartDate']  = $data['StartDate'];
+            $dealData['EndDate']    = $data['EndDate'];
+            $dealData['TotalPL']    = $data['TotalPL'];
+            Deal::where('DealID', $id)->update($dealData);
+
+            //$dealDetailData = Deal::dealDetailArray($id,$data);
+            DB::commit();
+            $res = array("status" => "success", "message" => "Deal Successfully Updated.");
+        }catch (Exception $e){
+            DB::rollback();
+            $res = array("status" => "failed", "message" => "Something Went Wrong." . $e->getMessage());
+        }
+
+        return Response::json($res);
     }
 
     public function delete($id)

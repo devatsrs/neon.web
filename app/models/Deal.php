@@ -27,7 +27,15 @@ class Deal extends \Eloquent {
         'CodedeckID'    => 'required',
         'Status'        => 'required',
         'AlertEmail'    => 'email',
-        'StartDate'     => 'required',
-        'EndDate'       => 'required',
+        'StartDate'     => 'required|date|date_format:Y-m-d',
+        'EndDate'       => 'required|date|date_format:Y-m-d|after:StartDate',
+        'TotalPL'       => 'required',
     );
+
+
+    public static function dealDetailArray($DealID, $data){
+        $dealDetail = [];
+        $process = [];
+
+    }
 }

@@ -114,6 +114,7 @@
                   <th colspan="7"></th>
                   <th>Total</th>
                   <th class="pl-grand">0</th>
+                  <input type="hidden" name="TotalPL" value="0">
                 </tr>
                 </tfoot>
               </table>
