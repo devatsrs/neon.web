@@ -1611,7 +1611,7 @@ class InvoicesController extends \BaseController {
             }else{
                 $data['EmailTo'] 		= 	$CustomerEmails;
                 $data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview');
-                $body					=	$postdata['Message'];
+                $body					=	str_replace('?email=#email','',$postdata['Message']);
                 //EmailsTemplates::ReplaceEmail($singleemail,);
                 $data['Subject']		=	$postdata['Subject'];
                 $InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
