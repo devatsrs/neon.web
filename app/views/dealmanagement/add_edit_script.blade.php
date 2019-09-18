@@ -7,10 +7,10 @@
             </select>
         </td>
         <td>
-            {{Form::select('Destination[]', Country::getCountryDropdownList(), '',array("class"=>"selectOpt"))}}
+            {{Form::select('Destination[]', $Countries, '',array("class"=>"selectOpt"))}}
         </td>
         <td>
-            {{ Form::select('Trunk[]',CustomerTrunk::getTrunkDropdownIDListAll(),'', array("class"=>"selectOpt")) }}
+            {{ Form::select('Trunk[]', $Trunks,'', array("class"=>"selectOpt")) }}
         </td>
         <td>
             <input type="number" name="Revenue[]" value="0.00" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control revenue">
@@ -28,7 +28,7 @@
             <input readonly type="number" name="Minutes[]" value="0" class="form-control minutes">
         </td>
         <td>
-            <input readonly type="number" name="TotalPL[]" value="0.0000" class="form-control pl-total">
+            <input readonly type="number" name="PL[]" value="0.0000" class="form-control pl-total">
         </td>
         <td>
             <button type="button" title="Delete" onclick="deleteDeal(this)" class="btn btn-danger btn-xs del-deal" data-loading-text="Loading...">
@@ -91,6 +91,7 @@
         }
 
         disableFieldsOnAddDetails();
+        countTotalPL();
     });
 
     function ajax_form_success(response){
@@ -103,9 +104,16 @@
         var rowLength = $(".dealTable tbody tr");
         var fields = $("select[name='DealType'], select[name='CodedeckID']");
         if(rowLength.length > 0){
-            fields.attr("readonly","readonly").trigger("change")
+            $.each(fields, function(x,y) {
+                var ele = $(y);
+                ele.after("<input type='hidden' name='" + ele.attr('name') + "' value='" + ele.val() + "'>");
+            });
+            fields.attr("disabled","disabled").trigger("change");
         } else {
-            fields.removeAttr("readonly").trigger("change")
+            $.each(fields, function(x,y) {
+                $("[type='hidden'][name='" + $(y).attr('name') + "']").remove();
+            });
+            fields.removeAttr("disabled").trigger("change")
         }
     }
 

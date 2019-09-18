@@ -43,7 +43,7 @@
                             </div>
                             <label class="col-md-2 control-label">Deal Type*</label>
                             <div class="col-md-4">
-                                {{Form::select('DealType',Deal::$TypeDropDown, $Deal->DealType,array("class"=>"select2","disabled"=>"disabled"))}}
+                                {{Form::select('DealType',Deal::$TypeDropDown, $Deal->DealType,array("class"=>"select2"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -53,7 +53,7 @@
                             </div>
                             <label class="col-md-2 control-label">Codedeck*</label>
                             <div class="col-md-4">
-                                {{Form::select('CodedeckID',$codedecklist,$Deal->CodedeckID,array("class"=>"select2","disabled"=>"disabled"))}}
+                                {{Form::select('CodedeckID',$codedecklist,$Deal->CodedeckID,array("class"=>"select2"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -109,13 +109,53 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @foreach($DealDetails as $dealDetail)
+                                <tr data-pl="{{ $dealDetail->TotalPL }}">
+                                    <td>
+                                        <select class="select2 dealer" name="Type[]" onchange="changePrice(this)">
+                                            <option @if($dealDetail->Type == "Customer") selected @endif value="Customer">Customer</option>
+                                            <option @if($dealDetail->Type == "Vendor") selected @endif value="Vendor">Vendor</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        {{Form::select('Destination[]', $Countries, $dealDetail->DestinationCountryID, array("class"=>"select2"))}}
+                                    </td>
+                                    <td>
+                                        {{ Form::select('Trunk[]', $Trunks, $dealDetail->TrunkID, array("class"=>"select2")) }}
+                                    </td>
+                                    <td>
+                                        <input type="number" name="Revenue[]" value="{{ $dealDetail->Revenue }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control revenue">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="SalePrice[]" value="{{ $dealDetail->SalePrice }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control salePrice">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="BuyPrice[]" value="{{ $dealDetail->BuyPrice }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control buyPrice">
+                                    </td>
+                                    <td>
+                                        <input readonly type="number" name="PLPerMinute[]" value="{{ $dealDetail->PerMinutePL }}" class="form-control pl-minute">
+                                    </td>
+                                    <td>
+                                        <input readonly type="number" name="Minutes[]" value="{{ $dealDetail->Minutes }}" class="form-control minutes">
+                                    </td>
+                                    <td>
+                                        <input readonly type="number" name="PL[]" value="{{ $dealDetail->TotalPL }}" class="form-control pl-total">
+                                    </td>
+                                    <td>
+                                        <button type="button" title="Delete" onclick="deleteDeal(this)" class="btn btn-danger btn-xs del-deal" data-loading-text="Loading...">
+                                            <i></i>
+                                            -
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
                             </tbody>
                             <tfoot>
                             <tr>
                                 <th colspan="7"></th>
                                 <th>Total</th>
                                 <th class="pl-grand">0</th>
-                                <input type="hidden" name="TotalPL" value="{{ $deal->TotalPL }}">
+                                <input type="hidden" name="TotalPL" value="{{ $Deal->TotalPL }}">
                             </tr>
                             </tfoot>
                         </table>
@@ -146,6 +186,25 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @foreach($DealNotes as $dealNote)
+                                <tr>
+                                    <td>
+                                        <textarea name="Note[]" placeholder="Write note here..." class="form-control">{{ $dealNote->Note }}</textarea>
+                                    </td>
+                                    <td>
+                                        {{ $dealNote->CreatedBy }}
+                                    </td>
+                                    <td class="dateTime">
+                                        {{ date("Y-m-d", strtotime($dealNote->created_at)) }}
+                                    </td>
+                                    <td>
+                                        <button type="button" title="Delete" onclick="deleteNote(this)" class="btn btn-danger btn-xs del-deal" data-loading-text="Loading...">
+                                            <i></i>
+                                            -
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -155,7 +214,7 @@
     </div>
 
     @include('dealmanagement.add_edit_script')
-    @include('includes.ajax_submit_script', array('formID'=>'deal-from' , 'url' => 'dealmanagement/store','update_url'=>'dealmanagement/update/{id}' ))
+    @include('includes.ajax_submit_script', array('formID'=>'deal-from' , 'url' => "dealmanagement/$id/update" ))
 @stop
 @section('footer_ext')
     @parent

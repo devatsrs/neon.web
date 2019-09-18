@@ -77,7 +77,7 @@
               </div>
             </div>
           </div>
-          <div class="panel panel-primary" data-collapsed="0">
+          <div class="panel panel-primary hide" data-collapsed="0">
             <div class="panel-heading">
               <div class="panel-title">
                 Deal Detail
@@ -120,7 +120,7 @@
               </table>
             </div>
           </div>
-          <div class="panel panel-primary" data-collapsed="0">
+          <div class="panel panel-primary hide" data-collapsed="0">
             <div class="panel-heading">
               <div class="panel-title">
                 Notes

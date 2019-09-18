@@ -103,6 +103,8 @@ class DealManagementController extends \BaseController {
             "DefaultCodedeck" => 1
         ])->pluck("CodeDeckId");
         $Accounts = Account::getAccountIDList();
+        $Countries = Country::getCountryDropdownIDList();
+        $Trunks = CustomerTrunk::getTrunkDropdownIDListAll();
         return View::make('dealmanagement.create', get_defined_vars());
     }
 
@@ -110,11 +112,14 @@ class DealManagementController extends \BaseController {
         $data = Input::all();
         $validator = Validator::make($data, Deal::$rules);
 
-        if ($validator->fails()) {
+        if ($validator->fails())
             return json_validator_response($validator);
-        }
-        try{
 
+        if($data['StartDate'] > $data['EndDate']){
+            return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
+        }
+
+        try{
             DB::beginTransaction();
 
             $dealData['Title']      = $data['Title'];
@@ -126,12 +131,24 @@ class DealManagementController extends \BaseController {
             $dealData['StartDate']  = $data['StartDate'];
             $dealData['EndDate']    = $data['EndDate'];
             $dealData['TotalPL']    = $data['TotalPL'];
+            $dealData['CreatedBy']  = User::get_user_full_name();
             $deal = Deal::create($dealData);
             $DealID = $deal->DealID;
 
-            //$dealDetailData = Deal::dealDetailArray($DealID,$data);
+            $dealDetailData = Deal::dealDetailArray($DealID,$data);
+            if($dealDetailData == false)
+                return Response::json(array("status" => "failed", "message" => "Deal Details fields are empty."));
+
+            if(!empty($dealDetailData))
+                DealDetail::insert($dealDetailData);
+
+            $dealNoteData = Deal::dealNoteArray($DealID,$data);
+
+            if(!empty($dealDetailData))
+                DealNote::insert($dealNoteData);
+
             DB::commit();
-            $res = array("status" => "success", "message" => "Deal Successfully Created.");
+            $res = array("status" => "success", "message" => "Deal Successfully Created.", "redirect" => url("dealmanagement/$DealID/edit"));
         }catch (Exception $e){
             DB::rollback();
             $res = array("status" => "failed", "message" => "Something Went Wrong." . $e->getMessage());
@@ -149,6 +166,8 @@ class DealManagementController extends \BaseController {
             "DefaultCodedeck" => 1
         ])->pluck("CodeDeckId");
         $Accounts = Account::getAccountIDList();
+        $Countries = Country::getCountryDropdownIDList();
+        $Trunks = CustomerTrunk::getTrunkDropdownIDListAll();
         $Deal = Deal::find($id);
         $DealDetails = DealDetail::where('DealID',$id)->get();
         $DealNotes = DealNote::where('DealID',$id)->get();
@@ -176,9 +195,23 @@ class DealManagementController extends \BaseController {
             $dealData['StartDate']  = $data['StartDate'];
             $dealData['EndDate']    = $data['EndDate'];
             $dealData['TotalPL']    = $data['TotalPL'];
+            $dealData['ModifiedBy'] = User::get_user_full_name();
             Deal::where('DealID', $id)->update($dealData);
 
-            //$dealDetailData = Deal::dealDetailArray($id,$data);
+            $dealDetailData = Deal::dealDetailArray($id,$data);
+            if($dealDetailData == false)
+                return Response::json(array("status" => "failed", "message" => "Deal Details fields are empty."));
+
+            DealDetail::where('DealID', $id)->delete();
+            if(!empty($dealDetailData))
+                DealDetail::insert($dealDetailData);
+
+            $dealNoteData = Deal::dealNoteArray($id,$data);
+
+            DealNote::where('DealID', $id)->delete();
+            if(!empty($dealDetailData))
+                DealNote::insert($dealNoteData);
+
             DB::commit();
             $res = array("status" => "success", "message" => "Deal Successfully Updated.");
         }catch (Exception $e){

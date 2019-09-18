@@ -28,14 +28,51 @@ class Deal extends \Eloquent {
         'Status'        => 'required',
         'AlertEmail'    => 'email',
         'StartDate'     => 'required|date|date_format:Y-m-d',
-        'EndDate'       => 'required|date|date_format:Y-m-d|after:StartDate',
+        'EndDate'       => 'required|date|date_format:Y-m-d',
         'TotalPL'       => 'required',
     );
 
 
     public static function dealDetailArray($DealID, $data){
         $dealDetail = [];
-        $process = [];
+        if(isset($data['Type']) && count($data['Type']) > 0)
+            foreach($data['Type'] as $key => $item){
+                $dealDetail[$key] = [
+                    'Type' => $item,
+                    'DealID' => $DealID,
+                    'DestinationCountryID' => $data['Destination'][$key],
+                    'TrunkID' => $data['Trunk'][$key],
+                    'Revenue' => $data['Revenue'][$key],
+                    'SalePrice' => $data['SalePrice'][$key],
+                    'BuyPrice' => $data['BuyPrice'][$key],
+                    'Minutes' => $data['Minutes'][$key],
+                    'PerMinutePL' => $data['PLPerMinute'][$key],
+                    'TotalPL' => $data['PL'][$key],
+                    'created_at' => date("Y-m-d H:i:s"),
+                ];
 
+                if(in_array('',$dealDetail[$key])){
+                    $dealDetail = false;
+                    break;
+                }
+            }
+
+        return $dealDetail;
+    }
+
+    public static function dealNoteArray($DealID, $data){
+        $dealNote = [];
+        if(isset($data['Note']) && count($data['Note']) > 0)
+            foreach($data['Note'] as $key => $item){
+                if(!empty($item))
+                    $dealNote[$key] = [
+                        'Note' => $item,
+                        'DealID' => $DealID,
+                        'CreatedBy' => User::get_user_full_name(),
+                        'created_at' => date("Y-m-d H:i:s"),
+                    ];
+            }
+
+        return $dealNote;
     }
 }
