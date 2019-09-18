@@ -95,7 +95,7 @@
                     <div class="panel-body">
                         <table class="table table-bordered dealTable" id="table-4">
                             <thead>
-                            <tr>
+                            <tr class="revenueRow">
                                 <th style="width: 13%">Type</th>
                                 <th style="width: 12%">Destination</th>
                                 <th style="width: 12%">Trunk</th>
@@ -104,6 +104,18 @@
                                 <th style="width: 9%">Buy Price</th>
                                 <th style="width: 9%">(Profit/Loss) per min</th>
                                 <th style="width: 10%">Minutes</th>
+                                <th style="width: 10%">Profit/Loss</th>
+                                <th style="width: 5%">Action</th>
+                            </tr>
+                            <tr class="paymentRow">
+                                <th style="width: 13%">Type</th>
+                                <th style="width: 12%">Destination</th>
+                                <th style="width: 12%">Trunk</th>
+                                <th style="width: 10%">Minutes</th>
+                                <th style="width: 9%">Sale Price</th>
+                                <th style="width: 9%">Buy Price</th>
+                                <th style="width: 9%">(Profit/Loss) per min</th>
+                                <th style="width: 10%">Revenue</th>
                                 <th style="width: 10%">Profit/Loss</th>
                                 <th style="width: 5%">Action</th>
                             </tr>
@@ -124,7 +136,11 @@
                                         {{ Form::select('Trunk[]', $Trunks, $dealDetail->TrunkID, array("class"=>"select2")) }}
                                     </td>
                                     <td>
-                                        <input type="number" name="Revenue[]" value="{{ $dealDetail->Revenue }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control revenue">
+                                        @if($dealDetail->Type == "Revenue")
+                                            <input type="number" name="Revenue[]" value="{{ $dealDetail->Revenue }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control revenue">
+                                        @else
+                                            <input type="number" name="Minutes[]" value="{{ $dealDetail->Minutes }}" class="form-control minutes" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)">
+                                        @endif
                                     </td>
                                     <td>
                                         <input type="number" name="SalePrice[]" value="{{ $dealDetail->SalePrice }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control salePrice">
@@ -136,7 +152,11 @@
                                         <input readonly type="number" name="PLPerMinute[]" value="{{ $dealDetail->PerMinutePL }}" class="form-control pl-minute">
                                     </td>
                                     <td>
+                                        @if($dealDetail->Type == "Revenue")
                                         <input readonly type="number" name="Minutes[]" value="{{ $dealDetail->Minutes }}" class="form-control minutes">
+                                        @else
+                                            <input type="number" name="Revenue[]" value="{{ $dealDetail->Revenue }}" readonly class="form-control revenue">
+                                        @endif
                                     </td>
                                     <td>
                                         <input readonly type="number" name="PL[]" value="{{ $dealDetail->TotalPL }}" class="form-control pl-total">

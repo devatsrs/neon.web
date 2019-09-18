@@ -1,4 +1,4 @@
-<table id="addRow" class="hide hidden">
+<table id="addRevenueRow" class="hide hidden">
     <tr>
         <td>
             <select class="selectOpt dealer" name="Type[]" onchange="changePrice(this)">
@@ -26,6 +26,46 @@
         </td>
         <td>
             <input readonly type="number" name="Minutes[]" value="0" class="form-control minutes">
+        </td>
+        <td>
+            <input readonly type="number" name="PL[]" value="0.0000" class="form-control pl-total">
+        </td>
+        <td>
+            <button type="button" title="Delete" onclick="deleteDeal(this)" class="btn btn-danger btn-xs del-deal" data-loading-text="Loading...">
+                <i></i>
+                -
+            </button>
+        </td>
+    </tr>
+</table>
+<table id="addPaymentRow" class="hide hidden">
+    <tr>
+        <td>
+            <select class="selectOpt dealer" name="Type[]" onchange="changePrice(this)">
+                <option value="Customer">Customer</option>
+                <option value="Vendor">Vendor</option>
+            </select>
+        </td>
+        <td>
+            {{Form::select('Destination[]', $Countries, '',array("class"=>"selectOpt"))}}
+        </td>
+        <td>
+            {{ Form::select('Trunk[]', $Trunks,'', array("class"=>"selectOpt")) }}
+        </td>
+        <td>
+            <input type="number" name="Minutes[]" value="0" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control minutes">
+        </td>
+        <td>
+            <input type="number" name="SalePrice[]" value="0.00" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control salePrice">
+        </td>
+        <td>
+            <input type="number" name="BuyPrice[]" value="0.00" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control buyPrice">
+        </td>
+        <td>
+            <input readonly type="number" name="PLPerMinute[]" value="0.0000" class="form-control pl-minute">
+        </td>
+        <td>
+            <input readonly type="number" name="Revenue[]" value="0.00" class="form-control revenue">
         </td>
         <td>
             <input readonly type="number" name="PL[]" value="0.0000" class="form-control pl-total">
@@ -89,7 +129,10 @@
         if(new Date($('#StartDate').val()) != undefined){
             $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
         }
-
+        checkDealType();
+        $("[name='DealType']").change(function () {
+           checkDealType();
+        });
         disableFieldsOnAddDetails();
         countTotalPL();
     });
@@ -117,8 +160,20 @@
         }
     }
 
+    function checkDealType(){
+        var DealType = $("[name='DealType']").val();
+        if(DealType == "Revenue"){
+            $(".revenueRow").show();
+            $(".paymentRow").hide();
+        } else {
+            $(".revenueRow").hide();
+            $(".paymentRow").show();
+        }
+    }
+
     function addDeal(){
-        var row = $("#addRow tr:first").parent().html();
+        var DealType = $("[name='DealType']").val();
+        var row = $("#add" + DealType + "Row tr:first").parent().html();
         var tbody = $(".dealTable tbody");
         tbody.append(row);
         var lastRow = $(".dealTable tbody tr:last");
