@@ -208,10 +208,11 @@
 
 
         //Calculating values
-        var plminute = dealer == "Customer" ? salePrice - buyPrice : buyPrice - salePrice;
-        var minutes = revenue = 0;
+        var plminute = minutes = revenue = 0;
 
         if(DealType == "Revenue") {
+            plminute = dealer == "Customer" ? salePrice - buyPrice : buyPrice - salePrice;
+
             revenue = row.find(".revenue").val() == "" ? 0 : row.find(".revenue").val();
             revenue = (revenue != undefined && revenue != "NaN") ? parseFloat(revenue) : 0;
 
@@ -219,6 +220,8 @@
             minutes = (minutes != undefined && minutes != "NaN") ? minutes : 0;
             row.find(".minutes").val(minutes);
         } else {
+            plminute = salePrice - buyPrice;
+
             minutes = row.find(".minutes").val() == "" ? 0 : row.find(".minutes").val();
             minutes = (minutes != undefined && minutes != "NaN") ? parseFloat(minutes) : 0;
 
