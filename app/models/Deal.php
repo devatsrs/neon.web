@@ -21,7 +21,7 @@ class Deal extends \Eloquent {
     );
 
     public static $rules = array(
-        'Title'         => 'required',
+        'Title'         => 'required|unique:tblDeal',
         'DealType'      => 'required',
         'AccountID'     => 'required',
         'CodedeckID'    => 'required',

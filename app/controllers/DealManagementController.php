@@ -177,7 +177,9 @@ class DealManagementController extends \BaseController {
     public function update($id){
 
         $data = Input::all();
-        $validator = Validator::make($data, Deal::$rules);
+        $rules =  Deal::$rules;
+        $rules['Title'] = 'required|unique:tblDeal,Title,'.$id;
+        $validator = Validator::make($data,$rules);
 
         if ($validator->fails())
             return json_validator_response($validator);
