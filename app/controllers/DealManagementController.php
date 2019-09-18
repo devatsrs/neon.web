@@ -178,7 +178,7 @@ class DealManagementController extends \BaseController {
 
         $data = Input::all();
         $rules =  Deal::$rules;
-        $rules['Title'] = 'required|unique:tblDeal,Title,'.$id;
+        $rules['Title'] = 'required|unique:tblDeal,Title,'.$id.',DealID';
         $validator = Validator::make($data,$rules);
 
         if ($validator->fails())
