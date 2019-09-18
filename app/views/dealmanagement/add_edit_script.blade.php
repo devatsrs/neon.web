@@ -131,7 +131,7 @@
         }
         checkDealType();
         $("[name='DealType']").change(function () {
-           checkDealType();
+            checkDealType();
         });
         disableFieldsOnAddDetails();
         countTotalPL();
@@ -199,9 +199,8 @@
         var dealer = row.find("select.dealer").val();
         //console.log(dealer)
 
+        var DealType = $("[name='DealType']").val();
         //Getting Values
-        var revenue = row.find(".revenue").val() == "" ? 0 : row.find(".revenue").val();
-        revenue = (revenue != undefined && revenue != "NaN") ? parseFloat(revenue) : 0;
         var salePrice = row.find(".salePrice").val() == "" ? 0 : row.find(".salePrice").val();
         salePrice = (salePrice != undefined && salePrice != "NaN") ? parseFloat(salePrice) : 0;
         var buyPrice = row.find(".buyPrice").val() == "" ? 0 : row.find(".buyPrice").val();
@@ -210,12 +209,31 @@
 
         //Calculating values
         var plminute = dealer == "Customer" ? salePrice - buyPrice : buyPrice - salePrice;
-        var minutes = salePrice != 0 ? revenue / salePrice : 0;
-        minutes = (minutes != undefined && minutes != "NaN") ? minutes : 0;
+        var minutes = revenue = 0;
+
+        if(DealType == "Revenue") {
+            revenue = row.find(".revenue").val() == "" ? 0 : row.find(".revenue").val();
+            revenue = (revenue != undefined && revenue != "NaN") ? parseFloat(revenue) : 0;
+
+            minutes = salePrice != 0 ? revenue / salePrice : 0;
+            minutes = (minutes != undefined && minutes != "NaN") ? minutes : 0;
+            row.find(".minutes").val(minutes);
+        } else {
+            minutes = row.find(".minutes").val() == "" ? 0 : row.find(".minutes").val();
+            minutes = (minutes != undefined && minutes != "NaN") ? parseFloat(minutes) : 0;
+
+            if(dealer == "Customer")
+                revenue = buyPrice != 0 ? revenue * buyPrice : 0;
+            else
+                revenue = salePrice != 0 ? revenue * salePrice : 0;
+
+            revenue = (revenue != undefined && revenue != "NaN") ? parseFloat(revenue) : 0;
+            row.find(".revenue").val(revenue);
+        }
+
         var profileLoss = plminute * minutes;
 
         row.find(".pl-minute").val(plminute);
-        row.find(".minutes").val(minutes);
         row.find(".pl-total").val(profileLoss);
         row.attr("data-pl", profileLoss);
         countTotalPL();
