@@ -223,9 +223,9 @@
             minutes = (minutes != undefined && minutes != "NaN") ? parseFloat(minutes) : 0;
 
             if(dealer == "Customer")
-                revenue = buyPrice != 0 ? minutes * buyPrice : 0;
+                revenue = salePrice != 0 ? minutes * buyPrice : 0;
             else
-                revenue = salePrice != 0 ? minutes * salePrice : 0;
+                revenue = buyPrice != 0 ? minutes * salePrice : 0;
 
             revenue = (revenue != undefined && revenue != "NaN") ? parseFloat(revenue) : 0;
             row.find(".revenue").val(revenue);
