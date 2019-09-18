@@ -154,7 +154,7 @@
 
 
         //Calculating values
-        var plminute = dealer == "customer" ? salePrice - buyPrice : buyPrice - salePrice;
+        var plminute = dealer == "Customer" ? salePrice - buyPrice : buyPrice - salePrice;
         var minutes = salePrice != 0 ? revenue / salePrice : 0;
         minutes = (minutes != undefined && minutes != "NaN") ? minutes : 0;
         var profileLoss = plminute * minutes;

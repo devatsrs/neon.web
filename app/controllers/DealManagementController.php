@@ -134,7 +134,7 @@ class DealManagementController extends \BaseController {
             $dealData['CreatedBy']  = User::get_user_full_name();
             $deal = Deal::create($dealData);
             $DealID = $deal->DealID;
-
+/*
             $dealDetailData = Deal::dealDetailArray($DealID,$data);
             if($dealDetailData == false)
                 return Response::json(array("status" => "failed", "message" => "Deal Details fields are empty."));
@@ -145,7 +145,7 @@ class DealManagementController extends \BaseController {
             $dealNoteData = Deal::dealNoteArray($DealID,$data);
 
             if(!empty($dealDetailData))
-                DealNote::insert($dealNoteData);
+                DealNote::insert($dealNoteData);*/
 
             DB::commit();
             $res = array("status" => "success", "message" => "Deal Successfully Created.", "redirect" => url("dealmanagement/$DealID/edit"));
