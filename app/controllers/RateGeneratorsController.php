@@ -59,14 +59,14 @@ class RateGeneratorsController extends \BaseController {
 
 
     public function create() {
-        $trunks = Trunk::getTrunkDropdownIDList();
-        $trunk_keys = getDefaultTrunk($trunks);
+        $trunks       = Trunk::getTrunkDropdownIDList();
+        $trunk_keys   = getDefaultTrunk($trunks);
         $codedecklist = BaseCodeDeck::getCodedeckIDList();
-        $companyID = User::get_companyID();
+        $companyID    = User::get_companyID();
         $currencylist = Currency::getCurrencyDropdownIDList();
-        $Timezones = array("" => 'All') + Timezones::getTimezonesIDList();
-        $AllTypes =  RateType::getRateTypeDropDownList();
-        $Vendors = array('0' => 'All') + Account::getOnlyVendorIDList();
+        $Timezones    = array("" => 'All') + Timezones::getTimezonesIDList();
+        $AllTypes     = RateType::getRateTypeDropDownList();
+        $Vendors      = Account::getOnlyVendorIDList();
      
         
         // $country = ServiceTemplate::Join('tblCountry', function($join) {
@@ -74,11 +74,11 @@ class RateGeneratorsController extends \BaseController {
         //   })->select('tblServiceTemplate.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",User::get_companyID())
         //     ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
 
-        $country            = ServiceTemplate::getCountryDD($companyID);
-        $AccessType         = ServiceTemplate::getAccessTypeDD($companyID);
-        $City               = ServiceTemplate::getCityDD($companyID);
-        $Tariff             = ServiceTemplate::getTariffDD($companyID);
-        $Prefix             = ServiceTemplate::getPrefixDD($companyID);          
+        $country      = ServiceTemplate::getCountryDD($companyID);
+        $AccessType   = ServiceTemplate::getAccessTypeDD($companyID);
+        $City         = ServiceTemplate::getCityDD($companyID);
+        $Tariff       = ServiceTemplate::getTariffDD($companyID);
+        $Prefix       = ServiceTemplate::getPrefixDD($companyID);          
         
         // $CityTariffFilter = [];
         // foreach($CityTariff as $key => $City){
@@ -88,30 +88,29 @@ class RateGeneratorsController extends \BaseController {
         //     }
         // }
         //$CityTariff = array_merge($CityTariff, $CityTariffFilter);
-        $country = array('' => "All") + $country;
-        $AccessType = array('' => "All") + $AccessType;
-        $Prefix = array('' => "All") + $Prefix;
-        $City = array('' => "All") + $City;
-        $Tariff = array('' => "All") +  $Tariff;
+        $country      = array('' => "All") + $country;
+        $AccessType   = array('' => "All") + $AccessType;
+        $Prefix       = array('' => "All") + $Prefix;
+        $City         = array('' => "All") + $City;
+        $Tariff       = array('' => "All") +  $Tariff;
 
-        $Package = array('' => "All") + Package::where([
+        $Package      = array('' => "All") + Package::where([
                 "status" => 1,
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "PackageId");
-        $Categories = DidCategory::getCategoryDropdownIDList();
+        $Categories   = DidCategory::getCategoryDropdownIDList();
         
-        $Products = ServiceTemplate::where([
+        $Products     = ServiceTemplate::where([
                 "CompanyID" => User::get_companyID()
             ])->lists("Name", "ServiceTemplateId");
 
-        $ResellerDD  = RateTable::getResellerDropdownIDList();
+        $ResellerDD   = RateTable::getResellerDropdownIDList();
 
         return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones','country','AccessType','Prefix','City','Tariff','ResellerDD','Vendors'));
     }
 
     public function store() {
         $data = Input::all();
-        //dd($data);
         $companyID = User::get_companyID();
         $data ['CompanyID'] = $companyID;
         $data ['UseAverage'] = isset($data ['UseAverage']) ? 1 : 0;
@@ -693,7 +692,7 @@ class RateGeneratorsController extends \BaseController {
             $Timezones = array("" => 'All') + Timezones::getTimezonesIDList();
 
             $AllTypes =  RateType::getRateTypeDropDownList();
-            $Vendors = array('0' => 'All') + Account::getOnlyVendorIDList();
+            $Vendors  =  Account::getOnlyVendorIDList();
           
 
             // $country = ServiceTemplate::Join('tblCountry', function($join) {
