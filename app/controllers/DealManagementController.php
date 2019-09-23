@@ -171,7 +171,7 @@ class DealManagementController extends \BaseController {
         $Deal = Deal::find($id);
         $CodeDeckID  = $Deal->CodedeckID;
         $DealDetails = DealDetail::where('DealID',$id)->get();
-        $destinationBreaks = Rate::where(['CodeDeckId' => $CodeDeckID])
+        $destinationBreaks = CodeDeck::where(['CodeDeckId' => $CodeDeckID])
             ->select('Description')->distinct()->get();
         $DealNotes = DealNote::where('DealID',$id)->get();
         return View::make('dealmanagement.edit', get_defined_vars());
