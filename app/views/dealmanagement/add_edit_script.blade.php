@@ -170,12 +170,15 @@
                 var ele = $(y);
                 ele.after("<input type='hidden' name='" + ele.attr('name') + "' value='" + ele.val() + "'>");
             });
-            fields.attr("disabled","disabled").trigger("change");
+            if(fields.hasAttribute("disabled") == false)
+                fields.attr("disabled","disabled").trigger("change");
         } else {
             $.each(fields, function(x,y) {
                 $("[type='hidden'][name='" + $(y).attr('name') + "']").remove();
             });
-            fields.removeAttr("disabled").trigger("change")
+            
+            if(fields.hasAttribute("disabled") == true)
+                fields.removeAttr("disabled").trigger("change")
         }
     }
 
