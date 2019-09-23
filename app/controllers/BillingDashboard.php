@@ -290,11 +290,8 @@ class BillingDashboard extends \BaseController {
         return View::make('billingdashboard.paymentreminders', compact('InvoiceExpense','CurrencySymbol'));
     }
     public function paymentreminders_ajax_datagrid() {
-
-        $companyID = User::get_companyID();
         $data = Input::all();
 
-        //dd($data);
         if($data['Duedate']!=''){
             $Closingdate		=	explode(' - ',$data['Duedate']);
             $Startdate			=   $Closingdate[0];
@@ -305,7 +302,7 @@ class BillingDashboard extends \BaseController {
             $from = $data['Duedate'];
             $to=0;
         }
-
+     
         $countQryString="";
         if(!empty($data['accountID'])){
             $countQryString = ' (tblAccount.AccountID='.$data['accountID'].') AND ';
@@ -316,16 +313,20 @@ class BillingDashboard extends \BaseController {
             }
             $countQryString .= ' (tblAccountDetails.ResellerOwner='.$data['ResellerOwner'].') AND ';
         }
+       
         if (User::is('AccountManager')) {
             echo $userID = User::get_userID();
+          
             die();
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
             ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')        
-            ->select(["AccountEmailLog.EmailType","tblAccount.AccountName","AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to') AND  ( tblAccount.Owner = ".    $userID. " OR tblAccount.AccountType = 0 ) ")->orderBy('AccountEmailLog.created_at', 'desc');
+            ->select(["AccountEmailLog.EmailType","tblAccount.AccountName","AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to') AND  ( tblAccount.Owner = ".    $userID. " OR tblAccount.AccountType = 0 ) ")->orderBy('AccountEmailLog.created_at', 'desc');
+
         }else{
+          
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
                   ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')   
-                ->select(["AccountEmailLog.EmailType","tblAccount.AccountName", "AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->where(["AccountEmailLog.CompanyID" => $companyID])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
+                ->select(["AccountEmailLog.EmailType","tblAccount.AccountName", "AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
         }
         if(!empty($data['emailType'])){
             $emailType = $data['emailType'];
@@ -333,7 +334,7 @@ class BillingDashboard extends \BaseController {
         }else{
             $AccountEmaillog = $AccountEmaillog->whereIn('AccountEmailLog.EmailType',[1,2]);
         }
-       // dd($AccountEmaillog->toSql());
+    //    dd($AccountEmaillog->toSql());
         //( AccountEmailLog.EmailType IN (4,3) ) AND
         return Datatables::of($AccountEmaillog)->make();
     }
