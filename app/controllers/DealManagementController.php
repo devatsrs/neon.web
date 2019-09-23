@@ -169,8 +169,8 @@ class DealManagementController extends \BaseController {
         $Countries = Country::getCountryDropdownIDList();
         $Trunks = CustomerTrunk::getTrunkDropdownIDListAll();
         $Deal = Deal::find($id);
+        $CodeDeckID  = $Deal->CodedeckID;
         $DealDetails = DealDetail::where('DealID',$id)->get();
-        $CodeDeckID  = $DealDetails->CodedeckID;
         $destinationBreaks = Rate::where(['CodeDeckId' => $CodeDeckID])
             ->select('Description')->distinct()->get();
         $DealNotes = DealNote::where('DealID',$id)->get();
