@@ -822,6 +822,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('dealmanagement/{id}/delete', 'DealManagementController@delete');
 	Route::any('dealmanagement/{id}/edit', 'DealManagementController@edit');
 	Route::any('dealmanagement/{id}/update', "DealManagementController@update");
+	Route::any('dealmanagement/get_destination_breaks', "DealManagementController@getDestinationBreak");
 
 	//Pages
 	Route::any('/about', 'PagesController@about');

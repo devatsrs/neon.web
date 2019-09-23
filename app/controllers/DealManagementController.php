@@ -170,6 +170,9 @@ class DealManagementController extends \BaseController {
         $Trunks = CustomerTrunk::getTrunkDropdownIDListAll();
         $Deal = Deal::find($id);
         $DealDetails = DealDetail::where('DealID',$id)->get();
+        $CodeDeckID  = $DealDetails->CodedeckID;
+        $destinationBreaks = Rate::where(['CodeDeckId' => $CodeDeckID])
+            ->select('Description')->distinct()->get();
         $DealNotes = DealNote::where('DealID',$id)->get();
         return View::make('dealmanagement.edit', get_defined_vars());
     }
@@ -247,4 +250,20 @@ class DealManagementController extends \BaseController {
         return Response::json($res);
     }
 
+
+
+    function getDestinationBreak(){
+        $data = Input::all();
+
+        if(isset($data['id']) && !empty($data['id'])){
+            $res = ["data" => []];
+            $destinationBreaks = Rate::where(['CodeDeckId' => $data['id']])
+                ->select('Description')->distinct()->get();
+
+            if($destinationBreaks != false)
+                $res = ['data' => $destinationBreaks->toArray()];
+
+            return Response::json($res);
+        }
+    }
 }

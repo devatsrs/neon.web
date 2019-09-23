@@ -96,27 +96,31 @@
                         <table class="table table-bordered dealTable" id="table-4">
                             <thead>
                             <tr class="revenueRow">
-                                <th style="width: 13%">Type</th>
-                                <th style="width: 12%">Destination</th>
-                                <th style="width: 12%">Trunk</th>
+                                <th style="width: 10%">Type</th>
+                                <th style="width: 10%">Destination</th>
+                                <th style="width: 10%">Destination Break</th>
+                                <th style="width: 10%">Prefix</th>
+                                <th style="width: 10%">Trunk</th>
                                 <th style="width: 10%">Revenue</th>
                                 <th style="width: 9%">Sale Price</th>
                                 <th style="width: 9%">Buy Price</th>
                                 <th style="width: 9%">(Profit/Loss) per min</th>
-                                <th style="width: 10%">Minutes</th>
-                                <th style="width: 10%">Profit/Loss</th>
+                                <th style="width: 9%">Minutes</th>
+                                <th style="width: 9%">Profit/Loss</th>
                                 <th style="width: 5%">Action</th>
                             </tr>
                             <tr class="paymentRow">
-                                <th style="width: 13%">Type</th>
-                                <th style="width: 12%">Destination</th>
-                                <th style="width: 12%">Trunk</th>
+                                <th style="width: 10%">Type</th>
+                                <th style="width: 10%">Destination</th>
+                                <th style="width: 10%">Destination Break</th>
+                                <th style="width: 10%">Prefix</th>
+                                <th style="width: 10%">Trunk</th>
                                 <th style="width: 10%">Minutes</th>
                                 <th style="width: 9%">Sale Price</th>
                                 <th style="width: 9%">Buy Price</th>
                                 <th style="width: 9%">(Profit/Loss) per min</th>
-                                <th style="width: 10%">Revenue</th>
-                                <th style="width: 10%">Profit/Loss</th>
+                                <th style="width: 9%">Revenue</th>
+                                <th style="width: 9%">Profit/Loss</th>
                                 <th style="width: 5%">Action</th>
                             </tr>
                             </thead>
@@ -131,6 +135,12 @@
                                     </td>
                                     <td>
                                         {{Form::select('Destination[]', $Countries, $dealDetail->DestinationCountryID, array("class"=>"select2"))}}
+                                    </td>
+                                    <td>
+                                        {{Form::select('DestinationBreak[]', $destinationBreaks, $dealDetail->DestinationBreak,array("class"=>"select2"))}}
+                                    </td>
+                                    <td>
+                                        <input type="text" name="Prefix[]" class="form-control" value="{{ $dealDetail->Prefix }}">
                                     </td>
                                     <td>
                                         {{ Form::select('Trunk[]', $Trunks, $dealDetail->TrunkID, array("class"=>"select2")) }}

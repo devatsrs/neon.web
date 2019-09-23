@@ -10,6 +10,12 @@
             {{Form::select('Destination[]', $Countries, '',array("class"=>"selectOpt"))}}
         </td>
         <td>
+            {{Form::select('DestinationBreak[]', ['' => 'Select'], '',array("class"=>"selectOpt destinationBreaks"))}}
+        </td>
+        <td>
+            <input type="text" name="Prefix[]" class="form-control">
+        </td>
+        <td>
             {{ Form::select('Trunk[]', $Trunks,'', array("class"=>"selectOpt")) }}
         </td>
         <td>
@@ -48,6 +54,12 @@
         </td>
         <td>
             {{Form::select('Destination[]', $Countries, '',array("class"=>"selectOpt"))}}
+        </td>
+        <td>
+            {{Form::select('DestinationBreak[]', ['' => 'Select'], '',array("class"=>"selectOpt destinationBreaks"))}}
+        </td>
+        <td>
+            <input type="text" name="Prefix[]" class="form-control">
         </td>
         <td>
             {{ Form::select('Trunk[]', $Trunks,'', array("class"=>"selectOpt")) }}
@@ -99,6 +111,7 @@
 </table>
 
 <script type="text/javascript">
+    var toFixed = '{{get_round_decimal_places()}}';
     jQuery(document).ready(function ($) {
 
         $("#save_deal").click(function (ev) {
@@ -129,12 +142,18 @@
         if(new Date($('#StartDate').val()) != undefined){
             $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
         }
-        checkDealType();
         $("[name='DealType']").change(function () {
             checkDealType();
         });
         disableFieldsOnAddDetails();
         countTotalPL();
+
+
+    });
+    checkDealType();
+
+    $("select[name='CodedeckID']").change(function () {
+        getDestinationBreak();
     });
 
     function ajax_form_success(response){
@@ -181,6 +200,30 @@
         disableFieldsOnAddDetails();
     }
 
+
+    function getDestinationBreak(){
+        var CodeDeckID = $("[name='CodedeckID']").val();
+        $.ajax({
+            url:'{{URL::to('dealmanagement/get_destination_breaks')}}',
+            type: 'POST',
+            dataType: 'json',
+            data:{id:CodeDeckID},
+            success: function(response) {
+                var rawSelect = $(".selectOpt.destinationBreaks");
+                var options = "<option value=''>Select</option>";
+                $.each(response.data, function (x,y) {
+                   options += "<option value='" + y + "'>" + y + "</option>";
+                });
+                rawSelect.html(options);
+            },
+            error: function () {
+                var rawSelect = $(".selectOpt.destinationBreaks");
+                var options = "<option value=''>Select</option>";
+                rawSelect.html(options);
+            }
+        });
+    }
+
     function countTotalPL(){
 
         var totalPL = 0;
@@ -188,9 +231,8 @@
             var plVal = $(this).attr('data-pl');
             totalPL +=  (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
         });
-        $(".pl-grand").text(totalPL.toFixed(4));
-        $("[name='TotalPL']").val(totalPL.toFixed(4));
-
+        $(".pl-grand").text(totalPL.toFixed(toFixed));
+        $("[name='TotalPL']").val(totalPL.toFixed(toFixed));
     }
 
     function changePrice(ele){
@@ -237,8 +279,8 @@
         var profileLoss = plminute * minutes;
 
         row.find(".pl-minute").val(plminute);
-        row.find(".pl-total").val(profileLoss);
-        row.attr("data-pl", profileLoss);
+        row.find(".pl-total").val(profileLoss.toFixed(toFixed));
+        row.attr("data-pl", profileLoss.toFixed(toFixed));
         countTotalPL();
     }
 
