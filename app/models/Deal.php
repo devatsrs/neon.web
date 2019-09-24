@@ -41,6 +41,8 @@ class Deal extends \Eloquent {
                     'Type' => $item,
                     'DealID' => $DealID,
                     'DestinationCountryID' => $data['Destination'][$key],
+                    'DestinationBreak' => $data['DestinationBreak'][$key],
+                    'Prefix' => $data['Prefix'][$key],
                     'TrunkID' => $data['Trunk'][$key],
                     'Revenue' => $data['Revenue'][$key],
                     'SalePrice' => $data['SalePrice'][$key],
@@ -51,7 +53,12 @@ class Deal extends \Eloquent {
                     'created_at' => date("Y-m-d H:i:s"),
                 ];
 
-                if(in_array('',$dealDetail[$key])){
+                $validateArr = $dealDetail[$key];
+                // un-setting which are not required
+                unset($validateArr['DestinationBreak']);
+                unset($validateArr['Prefix']);
+
+                if(in_array('',$validateArr)){
                     $dealDetail = false;
                     break;
                 }
