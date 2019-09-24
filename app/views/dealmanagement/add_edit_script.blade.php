@@ -296,7 +296,7 @@
 
         var profileLoss = plminute * minutes;
 
-        row.find(".pl-minute").val(plminute);
+        row.find(".pl-minute").val(plminute.toFixed(toFixed));
         row.find(".pl-total").val(profileLoss.toFixed(toFixed));
         row.attr("data-pl", profileLoss.toFixed(toFixed));
         countTotalPL();
