@@ -45,6 +45,7 @@
                             <div class="col-md-4">
                                 @if($DealDetails != false && count($DealDetails) > 0)
                                     {{Form::select('DealType',Deal::$TypeDropDown, $Deal->DealType,array("class"=>"select2", "disabled" => "disabled"))}}
+                                    <input type='hidden' name='DealType' value='{{ $Deal->DealType }}'>
                                 @else
                                     {{Form::select('DealType',Deal::$TypeDropDown, $Deal->DealType,array("class"=>"select2"))}}
                                 @endif
@@ -59,6 +60,7 @@
                             <div class="col-md-4">
                                 @if($DealDetails != false && count($DealDetails) > 0)
                                     {{Form::select('CodedeckID',$codedecklist,$Deal->CodedeckID,array("class"=>"select2", "disabled" => "disabled"))}}
+                                    <input type='hidden' name='CodedeckID' value='{{ $Deal->CodedeckID }}'>
                                 @else
                                     {{Form::select('CodedeckID',$codedecklist,$Deal->CodedeckID,array("class"=>"select2"))}}
                                 @endif
