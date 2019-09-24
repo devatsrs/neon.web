@@ -56,7 +56,11 @@
             {{Form::select('Destination[]', $Countries, '',array("class"=>"selectOpt"))}}
         </td>
         <td>
-            {{Form::select('DestinationBreak[]', ['' => 'Select'], '',array("class"=>"selectOpt destinationBreaks"))}}
+            @if(isset($destinationBreaks))
+                {{Form::select('DestinationBreak[]', $destinationBreaks, '',array("class"=>"selectOpt destinationBreaks"))}}
+            @else
+                {{Form::select('DestinationBreak[]', ['' => 'Select'], '',array("class"=>"selectOpt destinationBreaks"))}}
+            @endif
         </td>
         <td>
             <input type="text" name="Prefix[]" class="form-control">
@@ -215,7 +219,7 @@
                 var rawSelect = $(".selectOpt.destinationBreaks");
                 var options = "<option value=''>Select</option>";
                 $.each(response.data, function (x,y) {
-                   options += "<option value='" + y + "'>" + y + "</option>";
+                    options += "<option value='" + y + "'>" + y + "</option>";
                 });
                 rawSelect.html(options);
             },
