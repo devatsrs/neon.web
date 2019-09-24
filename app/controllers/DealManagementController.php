@@ -134,18 +134,6 @@ class DealManagementController extends \BaseController {
             $dealData['CreatedBy']  = User::get_user_full_name();
             $deal = Deal::create($dealData);
             $DealID = $deal->DealID;
-/*
-            $dealDetailData = Deal::dealDetailArray($DealID,$data);
-            if($dealDetailData == false)
-                return Response::json(array("status" => "failed", "message" => "Deal Details fields are empty."));
-
-            if(!empty($dealDetailData))
-                DealDetail::insert($dealDetailData);
-
-            $dealNoteData = Deal::dealNoteArray($DealID,$data);
-
-            if(!empty($dealDetailData))
-                DealNote::insert($dealNoteData);*/
 
             DB::commit();
             $res = array("status" => "success", "message" => "Deal Successfully Created.", "redirect" => url("dealmanagement/$DealID/edit"));
@@ -189,9 +177,7 @@ class DealManagementController extends \BaseController {
             return json_validator_response($validator);
 
         try{
-
             DB::beginTransaction();
-
             $dealData['Title']      = $data['Title'];
             $dealData['DealType']   = $data['DealType'];
             $dealData['AccountID']  = $data['AccountID'];
@@ -204,10 +190,14 @@ class DealManagementController extends \BaseController {
             $dealData['ModifiedBy'] = User::get_user_full_name();
             Deal::where('DealID', $id)->update($dealData);
 
-            $dealDetailData = Deal::dealDetailArray($id,$data);
-            if($dealDetailData == false)
-                return Response::json(array("status" => "failed", "message" => "Deal Details fields are empty."));
+            $dealDetailValid = Deal::dealDetailArray($id,$data);
+            if($dealDetailValid['status'] == false)
+                return Response::json(array(
+                    "status" => "failed",
+                    "message" => $dealDetailValid['message']
+                ));
 
+            $dealDetailData = $dealDetailValid['data'];
             DealDetail::where('DealID', $id)->delete();
             if(!empty($dealDetailData))
                 DealDetail::insert($dealDetailData);

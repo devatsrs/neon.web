@@ -34,6 +34,7 @@ class Deal extends \Eloquent {
 
 
     public static function dealDetailArray($DealID, $data){
+        $return = ['status' => true, 'message' => "Please fill all data in deal details."];
         $dealDetail = [];
         if(isset($data['Type']) && count($data['Type']) > 0)
             foreach($data['Type'] as $key => $item){
@@ -55,16 +56,26 @@ class Deal extends \Eloquent {
 
                 $validateArr = $dealDetail[$key];
                 // un-setting which are not required
+                unset($validateArr['DestinationCountryID']);
                 unset($validateArr['DestinationBreak']);
                 unset($validateArr['Prefix']);
 
+                $checkDestination = $dealDetail[$key]['DestinationCountryID'] == "" && $dealDetail[$key]['DestinationBreak'] == "" && $dealDetail[$key]['Prefix'] == "";
+
                 if(in_array('',$validateArr)){
-                    $dealDetail = false;
+                    $return['status'] = false;
+                    $return['message'] = "Deal Details fields are empty.";
+                    break;
+                } elseif ($checkDestination != false){
+                    $return['status'] = false;
+                    $return['message'] = "Please select at least one option in destination, destination break, prefix.";
                     break;
                 }
             }
 
-        return $dealDetail;
+        $return['data'] = $return['Status'] != false ? $dealDetail : [];
+
+        return $return;
     }
 
     public static function dealNoteArray($DealID, $data){
