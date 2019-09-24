@@ -29,7 +29,6 @@ class Deal extends \Eloquent {
         'AlertEmail'    => 'email',
         'StartDate'     => 'required|date|date_format:Y-m-d',
         'EndDate'       => 'required|date|date_format:Y-m-d',
-        'TotalPL'       => 'required',
     );
 
 

@@ -130,7 +130,7 @@ class DealManagementController extends \BaseController {
             $dealData['Status']     = $data['Status'];
             $dealData['StartDate']  = $data['StartDate'];
             $dealData['EndDate']    = $data['EndDate'];
-            $dealData['TotalPL']    = $data['TotalPL'];
+            $dealData['TotalPL']    = 0;
             $dealData['CreatedBy']  = User::get_user_full_name();
             $deal = Deal::create($dealData);
             $DealID = $deal->DealID;
@@ -168,9 +168,10 @@ class DealManagementController extends \BaseController {
 
     public function update($id){
 
-        $data = Input::all();
+        $data  = Input::all();
         $rules =  Deal::$rules;
-        $rules['Title'] = 'required|unique:tblDeal,Title,'.$id.',DealID';
+        $rules['Title']   = 'required|unique:tblDeal,Title,'.$id.',DealID';
+        $rules['TotalPL'] = 'required';
         $validator = Validator::make($data,$rules);
 
         if ($validator->fails())
