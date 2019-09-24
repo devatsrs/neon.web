@@ -73,7 +73,7 @@ class Deal extends \Eloquent {
                 }
             }
 
-        $return['data'] = $return['Status'] != false ? $dealDetail : [];
+        $return['data'] = $return['status'] != false ? $dealDetail : [];
 
         return $return;
     }
