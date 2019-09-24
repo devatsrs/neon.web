@@ -1591,10 +1591,19 @@ class InvoicesController extends \BaseController {
 
                             $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
                             if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
-                                $data['AttachmentPaths']= array([
-                                    "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
-                                    "filepath"=>$Invoice->PDF
-                                ]);
+                                if(!empty($data['AttachmentPaths'])){
+                                    $data['AttachmentPaths'][]= array(
+                                        "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+                                        "filepath"=>$Invoice->PDF
+                                    );
+
+                                }else{
+                                    $data['AttachmentPaths']= array([
+                                        "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+                                        "filepath"=>$Invoice->PDF
+                                    ]);
+                                }
+
                             }
                             if(isset($postdata['email_from']) && !empty($postdata['email_from']))
                             {
@@ -1618,10 +1627,19 @@ class InvoicesController extends \BaseController {
 
                 $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
                 if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
-                    $data['AttachmentPaths']= array([
-                        "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
-                        "filepath"=>$Invoice->PDF
-                    ]);
+                    if(!empty($data['AttachmentPaths'])){
+                        $data['AttachmentPaths'][]= array(
+                            "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+                            "filepath"=>$Invoice->PDF
+                        );
+
+                    }else{
+                        $data['AttachmentPaths']= array([
+                            "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+                            "filepath"=>$Invoice->PDF
+                        ]);
+                    }
+
                 }
                 if(isset($postdata['email_from']) && !empty($postdata['email_from']))
                 {
@@ -1690,10 +1708,19 @@ class InvoicesController extends \BaseController {
 
             $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
             if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
-                $data['AttachmentPaths']= array([
+                if(!empty($data['AttachmentPaths'])){
+                    $data['AttachmentPaths'][]= array(
                         "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
-                    "filepath"=>$Invoice->PDF
-                ]);
+                        "filepath"=>$Invoice->PDF
+                    );
+
+                }else{
+                    $data['AttachmentPaths']= array([
+                        "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+                        "filepath"=>$Invoice->PDF
+                    ]);
+                }
+
             }
 
 			if(isset($postdata['email_from']) && !empty($postdata['email_from']))
