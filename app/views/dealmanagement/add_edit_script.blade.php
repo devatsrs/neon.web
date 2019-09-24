@@ -276,7 +276,11 @@
             revenue = row.find(".revenue").val() == "" ? 0 : row.find(".revenue").val();
             revenue = (revenue != undefined && revenue != "NaN") ? parseFloat(revenue) : 0;
 
-            minutes = salePrice != 0 ? revenue / salePrice : 0;
+            if(dealer == "Customer")
+                minutes = salePrice != 0 ? revenue / salePrice : 0;
+            else
+                minutes = buyPrice != 0 ? revenue / buyPrice : 0;
+            
             minutes = (minutes != undefined && minutes != "NaN") ? minutes : 0;
             row.find(".minutes").val(minutes);
         } else {

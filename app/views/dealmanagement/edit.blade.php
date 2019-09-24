@@ -170,7 +170,7 @@
                                             {{ Form::select('Trunk[]', $Trunks, $dealDetail->TrunkID, array("class"=>"select2")) }}
                                         </td>
                                         <td>
-                                            @if($dealDetail->Type == "Revenue")
+                                            @if($Deal->DealType == "Revenue")
                                                 <input type="number" name="Revenue[]" value="{{ $dealDetail->Revenue }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control revenue">
                                             @else
                                                 <input type="number" name="Minutes[]" value="{{ $dealDetail->Minutes }}" class="form-control minutes" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)">
@@ -186,7 +186,7 @@
                                             <input readonly type="number" name="PLPerMinute[]" value="{{ $dealDetail->PerMinutePL }}" class="form-control pl-minute">
                                         </td>
                                         <td>
-                                            @if($dealDetail->Type == "Revenue")
+                                            @if($Deal->DealType == "Revenue")
                                                 <input readonly type="number" name="Minutes[]" value="{{ $dealDetail->Minutes }}" class="form-control minutes">
                                             @else
                                                 <input type="number" name="Revenue[]" value="{{ $dealDetail->Revenue }}" readonly class="form-control revenue">
@@ -231,7 +231,7 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <table class="table table-bordered noteTable" id="table-4">
+                        <table class="table table-bordered noteTable" id="table-44">
                             <thead>
                             <tr>
                                 <th style="width: 65%">Note</th>
