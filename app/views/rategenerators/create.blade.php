@@ -465,7 +465,7 @@
                 <div class="panel panel-primary" data-collapsed="0" id="Vendors">
                     <div class="panel-heading">
                         <div class="panel-title">
-                            Vendors
+                            Vendors &nbsp;<span class="label label-info popover-primary vendor-tooltip" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="" data-original-title="">?</span>
                         </div>
                         <div class="panel-options">
                             <button type="button" onclick="createCloneRow('ratetableVendorBox','getRateVendorIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
@@ -883,6 +883,8 @@
                 $('#getIDs').val('');
                 $('#getRateIDs').val('');
                 $("#Vendors tbody").empty();
+                $('.vendor-tooltip').attr('data-content','Keep ALL Product option at the bottom. If any condition added for any specific Product then also add ALL option for remaining Product.');
+                $('.vendor-tooltip').attr('data-original-title','Product');
                 $('#servicetableSubBox tbody').empty();
                 $('#ratetableSubBox tbody').empty();
                 $('.testValues').html('{{ Form::select("Component-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID Components1" ,"multiple", "id"=>"Component-1")) }}');
@@ -925,6 +927,8 @@
                 $('#getRateVendorIDs').val('');
                 $('#getIDs').val('');
                 $('#getRateIDs').val('');
+                $('.vendor-tooltip').attr('data-content','Keep ALL package option at the bottom. If any condition added for any specific Package then also add ALL option for remaining packages. ')
+                $('.vendor-tooltip').attr('data-original-title','Package');
                 $('.testValues').html('{{ Form::select("Component-[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('.testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" , "id"=>"MergeTo-1")) }}');
