@@ -142,10 +142,10 @@
                                         </select>
                                     </td>
                                     <td>
-                                        {{Form::select('Destination[]', $Countries, $dealDetail->DestinationCountryID, array("class"=>"select2"))}}
+                                        {{Form::select('Destination[]', $Countries, $dealDetail->DestinationCountryID, array("class"=>"select2 destination"))}}
                                     </td>
                                     <td>
-                                        {{Form::select('DestinationBreak[]', $destinationBreaks, $dealDetail->DestinationBreak,array("class"=>"select2"))}}
+                                        {{Form::select('DestinationBreak[]', $destinationBreaks, $dealDetail->DestinationBreak,array("class"=>"select2 destinationBreaks"))}}
                                     </td>
                                     <td>
                                         <input type="text" name="Prefix[]" class="form-control" value="{{ $dealDetail->Prefix }}">
