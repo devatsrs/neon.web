@@ -7,10 +7,14 @@
             </select>
         </td>
         <td>
-            {{Form::select('Destination[]', $Countries, '',array("class"=>"selectOpt"))}}
+            {{Form::select('Destination[]', $Countries, '',array("class"=>"selectOpt destination"))}}
         </td>
         <td>
-            {{Form::select('DestinationBreak[]', ['' => 'Select'], '',array("class"=>"selectOpt destinationBreaks"))}}
+            @if(isset($destinationBreaks))
+                {{Form::select('DestinationBreak[]', $destinationBreaks, '',array("class"=>"selectOpt destinationBreaks"))}}
+            @else
+                {{Form::select('DestinationBreak[]', ['' => 'Select'], '',array("class"=>"selectOpt destinationBreaks"))}}
+            @endif
         </td>
         <td>
             <input type="text" name="Prefix[]" class="form-control">
@@ -53,7 +57,7 @@
             </select>
         </td>
         <td>
-            {{Form::select('Destination[]', $Countries, '',array("class"=>"selectOpt"))}}
+            {{Form::select('Destination[]', $Countries, '',array("class"=>"selectOpt destination"))}}
         </td>
         <td>
             @if(isset($destinationBreaks))
@@ -149,15 +153,17 @@
         $("[name='DealType']").change(function () {
             checkDealType();
         });
-        disableFieldsOnAddDetails();
         countTotalPL();
-
 
     });
     checkDealType();
 
     $("select[name='CodedeckID']").change(function () {
-        getDestinationBreak();
+        getDestinationBreak(0);
+    });
+
+    $(document).on("change", "select.destination", function (e) {
+        getDestinationBreak(this)
     });
 
     function ajax_form_success(response){
@@ -208,24 +214,27 @@
     }
 
 
-    function getDestinationBreak(){
+    function getDestinationBreak(ele){
         var CodeDeckID = $("[name='CodedeckID']").val();
+        var destination = ele != 0 && $(ele).val() != "" ? $(ele).val() : 0;
         $.ajax({
             url:'{{URL::to('dealmanagement/get_destination_breaks')}}',
             type: 'POST',
             dataType: 'json',
-            data:{id:CodeDeckID},
+            data:{id:CodeDeckID,destination:destination},
             success: function(response) {
-                var rawSelect = $("select.destinationBreaks");
+                var rawSelect = ele != 0 && $(ele).val() != "" ? $(ele).parent().parent().find("select.destinationBreaks") : $("select.destinationBreaks");
+
                 var options = "<option value=''>Select</option>";
                 $.each(response.data, function (x,y) {
                     options += "<option value='" + y + "'>" + y + "</option>";
                 });
+
                 rawSelect.html(options);
                 $(".dealTable select.destinationBreaks").select2();
             },
             error: function () {
-                var rawSelect = $("select.destinationBreaks");
+                var rawSelect = ele != 0 && $(ele).val() != "" ? $(ele).parent().parent().find("select.destinationBreaks") : $("select.destinationBreaks");
                 var options = "<option value=''>Select</option>";
                 rawSelect.html(options);
                 $(".dealTable select.destinationBreaks").select2();

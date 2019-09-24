@@ -43,7 +43,11 @@
                             </div>
                             <label class="col-md-2 control-label">Deal Type*</label>
                             <div class="col-md-4">
-                                {{Form::select('DealType',Deal::$TypeDropDown, $Deal->DealType,array("class"=>"select2"))}}
+                                @if($DealDetails != false && count($DealDetails) > 0)
+                                    {{Form::select('DealType',Deal::$TypeDropDown, $Deal->DealType,array("class"=>"select2", "disabled" => "disabled"))}}
+                                @else
+                                    {{Form::select('DealType',Deal::$TypeDropDown, $Deal->DealType,array("class"=>"select2"))}}
+                                @endif
                             </div>
                         </div>
                         <div class="form-group">
@@ -53,7 +57,11 @@
                             </div>
                             <label class="col-md-2 control-label">Codedeck*</label>
                             <div class="col-md-4">
-                                {{Form::select('CodedeckID',$codedecklist,$Deal->CodedeckID,array("class"=>"select2"))}}
+                                @if($DealDetails != false && count($DealDetails) > 0)
+                                    {{Form::select('CodedeckID',$codedecklist,$Deal->CodedeckID,array("class"=>"select2", "disabled" => "disabled"))}}
+                                @else
+                                    {{Form::select('CodedeckID',$codedecklist,$Deal->CodedeckID,array("class"=>"select2"))}}
+                                @endif
                             </div>
                         </div>
                         <div class="form-group">
