@@ -174,14 +174,14 @@
                 var ele = $(y);
                 ele.after("<input type='hidden' name='" + ele.attr('name') + "' value='" + ele.val() + "'>");
             });
-            if(fields.attr("disabled") == false)
+            if(fields.attr("disabled") == false || fields.attr("disabled") == undefined)
                 fields.attr("disabled","disabled").trigger("change");
         } else {
             $.each(fields, function(x,y) {
                 $("[type='hidden'][name='" + $(y).attr('name') + "']").remove();
             });
 
-            if(fields.attr("disabled") != false)
+            if(fields.attr("disabled") != false && fields.attr("disabled") != undefined)
                 fields.removeAttr("disabled").trigger("change")
         }
     }
@@ -216,17 +216,19 @@
             dataType: 'json',
             data:{id:CodeDeckID},
             success: function(response) {
-                var rawSelect = $(".selectOpt.destinationBreaks");
+                var rawSelect = $("select.destinationBreaks");
                 var options = "<option value=''>Select</option>";
                 $.each(response.data, function (x,y) {
                     options += "<option value='" + y + "'>" + y + "</option>";
                 });
                 rawSelect.html(options);
+                $(".dealTable select.destinationBreaks").select2();
             },
             error: function () {
-                var rawSelect = $(".selectOpt.destinationBreaks");
+                var rawSelect = $("select.destinationBreaks");
                 var options = "<option value=''>Select</option>";
                 rawSelect.html(options);
+                $(".dealTable select.destinationBreaks").select2();
             }
         });
     }
