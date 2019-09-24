@@ -257,9 +257,12 @@
                 $('#modal-form-data').trigger("reset");
                 $('#modal-list .panel-title').html('Add Product Group');
                 $("#modal-form-data [name=DestinationGroupID]").val("");
-                $("#modal-form-data [name=CountryID]").select2('val',"");
-                $("#modal-form-data [name=Type]").select2('val',"");
-                $("#modal-form-data [name=PackageID]").select2('val',"");
+                $("#modal-form-data [name=CountryID]").select2('val',"").trigger('changes');
+                $("#modal-form-data [name=Type]").select2('val',"").trigger('changes');
+                $("#modal-form-data [name=Prefix]").select2('val',"").trigger('changes');
+                $("#modal-form-data [name=Tariff]").select2('val',"").trigger('changes');
+                $("#modal-form-data [name=City]").select2('val',"").trigger('changes');
+                $("#modal-form-data [name=PackageID]").select2('val',"").trigger('changes');
                 $("#modal-form-data [name=DestinationGroupSetID]").val("{{$DestinationGroupSetID}}");
                 $('#modal-form-data').attr("action",add_url);
                 $("#showmodal").hide();
