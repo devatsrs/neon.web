@@ -77,100 +77,51 @@
               </div>
             </div>
           </div>
-          <div class="panel panel-primary hide" data-collapsed="0">
-            <div class="panel-heading">
-              <div class="panel-title">
-                Deal Detail
-              </div>
-
-              <div class="panel-options">
-                <button type="button" onclick="addDeal()" class="btn btn-primary btn-xs add-deal" data-loading-text="Loading...">
-                  <i></i>
-                  +
-                </button>
-                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-              </div>
-            </div>
-            <div class="panel-body">
-              <table class="table table-bordered dealTable" id="table-4">
-                <thead>
-                <tr class="revenueRow">
-                  <th style="width: 10%">Type</th>
-                  <th style="width: 10%">Destination</th>
-                  <th style="width: 10%">Destination Break</th>
-                  <th style="width: 10%">Prefix</th>
-                  <th style="width: 10%">Trunk</th>
-                  <th style="width: 10%">Revenue</th>
-                  <th style="width: 9%">Sale Price</th>
-                  <th style="width: 9%">Buy Price</th>
-                  <th style="width: 9%">(Profit/Loss) per min</th>
-                  <th style="width: 9%">Minutes</th>
-                  <th style="width: 9%">Profit/Loss</th>
-                  <th style="width: 5%">Action</th>
-                </tr>
-                <tr class="paymentRow">
-                  <th style="width: 10%">Type</th>
-                  <th style="width: 10%">Destination</th>
-                  <th style="width: 10%">Destination Break</th>
-                  <th style="width: 10%">Prefix</th>
-                  <th style="width: 10%">Trunk</th>
-                  <th style="width: 10%">Minutes</th>
-                  <th style="width: 9%">Sale Price</th>
-                  <th style="width: 9%">Buy Price</th>
-                  <th style="width: 9%">(Profit/Loss) per min</th>
-                  <th style="width: 9%">Revenue</th>
-                  <th style="width: 9%">Profit/Loss</th>
-                  <th style="width: 5%">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-                <tfoot>
-                <tr>
-                  <th colspan="7"></th>
-                  <th>Total</th>
-                  <th class="pl-grand">0</th>
-                  <input type="hidden" name="TotalPL" value="0">
-                </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-          <div class="panel panel-primary hide" data-collapsed="0">
-            <div class="panel-heading">
-              <div class="panel-title">
-                Notes
-              </div>
-
-              <div class="panel-options">
-                <button type="button" onclick="addNote()" class="btn btn-primary btn-xs add-note" data-loading-text="Loading...">
-                  <i></i>
-                  +
-                </button>
-                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-              </div>
-            </div>
-            <div class="panel-body">
-              <table class="table table-bordered noteTable" id="table-4">
-                <thead>
-                <tr>
-                  <th style="width: 65%">Note</th>
-                  <th style="width: 15%">Created By</th>
-                  <th style="width: 15%">Created At</th>
-                  <th style="width: 5%">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
       </form>
     </div>
   </div>
 
-  @include('dealmanagement.add_edit_script')
+
+  <script type="text/javascript">
+    jQuery(document).ready(function ($) {
+      $("#save_deal").click(function (ev) {
+        $('#save_deal').button('loading');
+        $("#deal-from").submit();
+      });
+
+      $("#StartDate").datepicker({
+        todayBtn:  1,
+        autoclose: true
+      }).on('changeDate', function (selected) {
+        var minDate = new Date(selected.date.valueOf());
+        var endDate = $('#EndDate');
+        endDate.datepicker('setStartDate', minDate);
+        if(endDate.val() && new Date(endDate.val()) != undefined) {
+          if(minDate > new Date(endDate.val()))
+            endDate.datepicker("setDate", minDate)
+        }
+      });
+
+      $("#EndDate").datepicker({autoclose: true})
+              .on('changeDate', function (selected) {
+                var maxDate = new Date(selected.date.valueOf());
+                //$('#StartDate').datepicker('setEndDate', maxDate);
+              });
+
+      if(new Date($('#StartDate').val()) != undefined){
+        $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
+      }
+
+    });
+
+    function ajax_form_success(response){
+      if(typeof response.redirect != 'undefined' && response.redirect != ''){
+        window.location = response.redirect;
+      }
+    }
+  </script>
+
   @include('includes.ajax_submit_script', array('formID'=>'deal-from' , 'url' => 'dealmanagement/store','update_url'=>'dealmanagement/update/{id}' ))
 @stop
 @section('footer_ext')
