@@ -249,7 +249,11 @@ class DealManagementController extends \BaseController {
 
         if(isset($data['id']) && !empty($data['id'])){
             $res = ["data" => []];
-            $destinationBreaks = CodeDeck::where(['CodeDeckId' => $data['id']])
+            $where = ['CodeDeckId' => $data['id']];
+            if(isset($data['destination']) && $data['destination'] != 0)
+                $where['CountryID'] = $data['destination'];
+
+            $destinationBreaks = CodeDeck::where($where)
                 ->select('Description')->distinct()->lists("Description","Description");
 
             if($destinationBreaks != false)
