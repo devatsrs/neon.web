@@ -2310,8 +2310,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
         $companyID = $account->CompanyId;
-        $today = $data["DateTo"];
-        $CustomerLastInvoiceDate = $data["DateFrom"];
+        $today = $data["DateTo"] . " 00:00:00";
+        $CustomerLastInvoiceDate = $data["DateFrom"] . "23:59:59";
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
         $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?,?,?)";
         $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1,$type,$description));
