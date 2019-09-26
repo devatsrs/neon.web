@@ -151,7 +151,7 @@
                                 <tbody>
                                 <input type="hidden" name="TotalPL" value="{{ $Deal->TotalPL }}">
                                 @foreach($DealDetails as $dealDetail)
-                                    <tr data-pl="{{ $dealDetail->TotalPL }}">
+                                    <tr data-pl="{{ $dealDetail->TotalPL }}" data-rev="{{ $dealDetail->Revenue }}">
                                         <td>
                                             <select class="select2 dealer" name="Type[]" onchange="changePrice(this)">
                                                 <option @if($dealDetail->Type == "Customer") selected @endif value="Customer">Customer</option>
@@ -207,15 +207,14 @@
                                 </tbody>
                                 <tfoot>
                                 <tr class="revenueRow">
-                                    <th colspan="9"></th>
+                                    <th colspan="7"></th>
                                     <th>Total</th>
                                     <th class="pl-grand">0</th>
                                 </tr>
                                 <tr class="paymentRow">
-                                    <th colspan="7"></th>
+                                    <th colspan="8"></th>
                                     <th>Total</th>
                                     <th class="rev-grand">0</th>
-                                    <th></th>
                                     <th class="pl-grand">0</th>
                                 </tr>
                                 </tfoot>
