@@ -216,7 +216,7 @@
 
     function addDestinationBreakOnLoad(){
         var trows = $(".dealTable tbody tr");
-        if(trows > 0){
+        if(trows.length > 0){
             trows.each(function (x, y) {
                var destination = $(y).find(".destination");
                 if(destination.val() != "") {
@@ -227,42 +227,44 @@
     }
 
 
-
     function getDestinationBreak(ele){
         var CodeDeckID = $("[name='CodedeckID']").val();
-        var destination = ele != 0 && $(ele).val() != "" ? $(ele).val() : 0;
+        var that = $(ele);
+        var destination = ele != 0 && that.val() != "" ? that.val() : 0;
+        var rawSelect = $("select.destinationBreaks");
+
+        var defaultVal = "";
+        if(ele != 0 && that.val() != ""){
+            rawSelect = $(ele).parent().parent().find("select.destinationBreaks");
+            defaultVal = rawSelect.val();
+        }
+        var options = "<option value=''>Select</option>";
         $.ajax({
             url: '{{ URL::to('dealmanagement/get_destination_breaks') }}',
             type: 'POST',
             dataType: 'json',
             data:{id:CodeDeckID,destination:destination},
             success: function(response) {
-                var rawSelect = $("select.destinationBreaks");
-                var defaultVal = "";
-
-                if(ele != 0 && $(ele).val() != ""){
-                    rawSelect = $(ele).parent().parent().find("select.destinationBreaks");
-                    defaultVal = rawSelect.val();
-                }
-
-                var options = "<option value=''>Select</option>";
+                var valArr = [];
                 $.each(response.data, function (x,y) {
-                    var selected = defaultVal == y ? "selected" : "";
-                    options += "<option " + selected + " value='" + y + "'>" + y + "</option>";
+                    options += "<option value='" + y + "'>" + y + "</option>";
+                    valArr.push(y);
                 });
 
                 rawSelect.html(options);
-
-                if(ele != 0 && $(ele).val() != "")
-                    $(ele).parent().parent().find("select.destinationBreaks").select2();
-                else
+                if(ele != 0 && that.val() != ""){
+                    rawSelect.select2().select2("val", $.inArray(defaultVal,valArr) != -1 ? defaultVal : "");
+                } else
                     $(".dealTable select.destinationBreaks").select2();
+
             },
             error: function () {
-                var rawSelect = ele != 0 && $(ele).val() != "" ? $(ele).parent().parent().find("select.destinationBreaks") : $("select.destinationBreaks");
-                var options = "<option value=''>Select</option>";
                 rawSelect.html(options);
-                $(".dealTable select.destinationBreaks").select2();
+
+                if(ele != 0 && that.val() != ""){
+                    rawSelect.select2().select2("val","");
+                } else
+                    $(".dealTable select.destinationBreaks").select2();
             }
         });
     }
