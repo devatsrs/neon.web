@@ -48,6 +48,14 @@
                                     <label for="field-5" class="control-label">Server IP*</label>
                                     <input type="text" name="ServerIP" class="form-control" id="field-5" placeholder="">
                                 </div>
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Username*</label>
+                                    <input type="text" name="Username" class="form-control" id="field-5" placeholder="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Password*</label>
+                                    <input type="password" name="Password" class="form-control" id="field-5" placeholder="">
+                                </div>
                             </div>
                             <br>
                             <div class="col-md-12">
