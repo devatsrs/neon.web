@@ -38,7 +38,10 @@ class Invoice extends \Eloquent {
                                             '{Email}'=>'Email',
                                             '{Phone}'=>'Phone',
                                             '{AccountBalance}'=>'Account Balance',
-                                            '{AccountOwner}'=>'Account Owner');
+                                            '{AccountOwner}'=>'Account Owner',
+                                            '{BillingClass}'=>'Billing Class',
+                                            '{BillingTimezone}'=>'Billing Timezone'
+                                            );
 
     public static function multiLang_init(){
         Invoice::$invoice_type_customer = array(''=>cus_lang("DROPDOWN_OPTION_SELECT") ,self::INVOICE_OUT => cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_RECEIVED"),self::INVOICE_IN=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_SENT"),'All'=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_BOTH"));

@@ -1,109 +1,129 @@
 @extends('layout.main')
+
 @section('content')
-<ol class="breadcrumb bc-3">
-  <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-  <li class="active"> <strong>Create Theme</strong> </li>
-</ol>
-<h3>Create Theme</h3>
-<div class="panel-title"> @include('includes.errors')
-  @include('includes.success') </div>
-<div class="float-right">
-  <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
-  <a href="{{URL::to('/themes/')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </div>
-<br>
-<br>
-<div class="row">
-  <div class="col-md-12">
-    <form role="form" id="form-themes-add"  method="post" action="{{URL::to('/themes/create')}}"  class="form-horizontal form-groups-bordered">
-      <div class="panel panel-primary" data-collapsed="0">
-        <div class="panel-body">
-          <div class="form-group">
-            <label for="DomainUrl" class="col-sm-2 control-label">Domain Url
-              <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Domain Url example site.com" data-original-title="Domain Url" class="label label-info popover-primary">?</span>
-            </label>
-            <div class="col-sm-4">
-              <input type="text" name='DomainUrl' class="form-control" id="DomainUrl" placeholder="site.com" value="{{$sourceUrl}}" readonly>
-            </div>
-            <label for="Title" class="col-sm-2 control-label">Page Title</label>
-            <div class="col-sm-4">
-              <input type="text" name='Title' class="form-control" id="Title" placeholder="Title" value="">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="FooterText" class="col-sm-2 control-label">Footer Text</label>
-            <div class="col-sm-4">
-              <input type="text" name='FooterText' class="form-control" id="FooterText" placeholder="Footer Text" value="">
-            </div>
-            
-            <!--<label for="FooterUrl" class="col-sm-2 control-label">Footer Url</label>
-            <div class="col-sm-4">
-              <input type="text" name='FooterUrl' class="form-control" id="FooterUrl" placeholder="Footer Url" value="">
-            </div>-->
-            <label for="LoginMessage" class="col-sm-2 control-label">Login Message</label>
-            <div class="col-sm-4">
-              <input type="text" name='LoginMessage' class="form-control" id="LoginMessage" placeholder="Login Message" value="">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="Logo" class="col-sm-2 control-label">Logo</label>
-            <div class="col-sm-10">
-              <div class="col-sm-4">
-                <input id="Logo" type="file" name="Logo" class="form-control file2 inline btn btn-primary Logo-input-file"  data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+
+  <ol class="breadcrumb bc-3">
+    <li>
+      <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
+    </li>
+    <li>
+
+      <a href="{{URL::to('dealmanagement')}}">Deal Management</a>
+    </li>
+    <li class="active">
+      <strong>New Deal</strong>
+    </li>
+  </ol>
+  <h3>New Deal</h3>
+  @include('includes.errors')
+  @include('includes.success')
+
+  <p style="text-align: right;">
+    <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="save_deal">
+      <i class="entypo-floppy"></i>
+      Save
+    </button>
+
+    <a href="{{URL::to('/dealmanagement')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+      <i class="entypo-cancel"></i>
+      Close
+    </a>
+  </p>
+  <br>
+  <div class="row">
+    <div class="col-md-12">
+      <form role="form" id="deal-from" method="post" action="{{URL::to('dealmanagement/store')}}" class="form-horizontal form-groups-bordered">
+
+        <div class="panel panel-primary" data-collapsed="0">
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="col-md-2 control-label">Title*</label>
+              <div class="col-md-4">
+                <input type="text" name="Title" class="form-control" id="field-1" placeholder="" value="" />
               </div>
-              <div class="col-sm-6"> <img name="LogoUrl" src="http://placehold.it/200x58" width="200"> (Upload jpg,png file) </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="Favicon" class="col-sm-2 control-label">Favicon</label>
-            <div class="col-sm-10">
-              <div class="col-sm-4">
-                <input id="Favicon" type="file" name="Favicon" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+              <label class="col-md-2 control-label">Deal Type*</label>
+              <div class="col-md-4">
+                {{Form::select('DealType',Deal::$TypeDropDown, 'Revenue',array("class"=>"select2"))}}
               </div>
-              <div class="col-sm-6"> <img name="FaviconUrl" src="http://placehold.it/32x32" width="32"> (Only Upload .ico file) </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label for="CustomCss" class="col-sm-2 control-label">Custom Css</label>
-            <div class="col-sm-8">
-              <textarea name='CustomCss' class="form-control" rows="12"  id="CustomCss" placeholder="Custom Css"></textarea>
+            <div class="form-group">
+              <label class="col-md-2 control-label">Account*</label>
+              <div class="col-md-4">
+                {{Form::select('AccountID',$Accounts,'',array("class"=>"select2"))}}
+              </div>
+              <label class="col-md-2 control-label">Codedeck*</label>
+              <div class="col-md-4">
+                {{Form::select('CodedeckID',$codedecklist,'',array("class"=>"select2"))}}
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-2 control-label">Active</label>
-            <div class="col-sm-5">
-              <div id="label-switch" class="make-switch" data-on-label="ON" data-off-label="OFF">
-                <input type="checkbox" value="active" name="ThemeStatus" checked>
+            <div class="form-group">
+              <label class="col-md-2 control-label">Status*</label>
+              <div class="col-md-4">
+                {{Form::select('Status',Deal::$StatusDropDown, 'Active',array("class"=>"select2"))}}
+              </div>
+              <label class="col-md-2 control-label">Alert Email</label>
+              <div class="col-md-4">
+                <input type="text" name="AlertEmail" class="form-control" id="field-1" placeholder="" value="" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label">Start Date*</label>
+              <div class="col-md-4">
+                {{ Form::text('StartDate', '', array("class"=>"form-control small-date-input datepicker", 'id' => 'StartDate', "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+              </div>
+              <label class="col-md-2 control-label">End Date*</label>
+              <div class="col-md-4">
+                {{ Form::text('EndDate', '', array("class"=>"form-control small-date-input datepicker", 'id' => 'EndDate',"data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
-</div>
-<script type="text/javascript">
-    jQuery(document).ready(function ($) {
 
-        $(".save.btn").click(function (ev) {
-            $("#form-themes-add").submit();
-            $(this).button('Loading');
-        });
-		
+
+  <script type="text/javascript">
+    jQuery(document).ready(function ($) {
+      $("#save_deal").click(function (ev) {
+        $('#save_deal').button('loading');
+        $("#deal-from").submit();
+      });
+
+      $("#StartDate").datepicker({
+        todayBtn:  1,
+        autoclose: true
+      }).on('changeDate', function (selected) {
+        var minDate = new Date(selected.date.valueOf());
+        var endDate = $('#EndDate');
+        endDate.datepicker('setStartDate', minDate);
+        if(endDate.val() && new Date(endDate.val()) != undefined) {
+          if(minDate > new Date(endDate.val()))
+            endDate.datepicker("setDate", minDate)
+        }
+      });
+
+      $("#EndDate").datepicker({autoclose: true})
+              .on('changeDate', function (selected) {
+                var maxDate = new Date(selected.date.valueOf());
+                //$('#StartDate').datepicker('setEndDate', maxDate);
+              });
+
+      if(new Date($('#StartDate').val()) != undefined){
+        $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
+      }
 
     });
-	
 
-function ajax_form_success(response)
-{
-    if(typeof response.redirect != 'undefined' && response.redirect != '')
-	{
+    function ajax_form_success(response){
+      if(typeof response.redirect != 'undefined' && response.redirect != ''){
         window.location = response.redirect;
+      }
     }
-}	
+  </script>
 
-</script> 
-@include('includes.ajax_submit_script', array('formID'=>'form-themes-add' , 'url' => 'themes/store','update_url'=>'themes/{id}/update' ))
+  @include('includes.ajax_submit_script', array('formID'=>'deal-from' , 'url' => 'dealmanagement/store','update_url'=>'dealmanagement/update/{id}' ))
 @stop
 @section('footer_ext')
-@parent
+  @parent
 @stop
