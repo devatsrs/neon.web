@@ -151,7 +151,7 @@
                                 <tbody>
                                 <input type="hidden" name="TotalPL" value="{{ $Deal->TotalPL }}">
                                 @foreach($DealDetails as $dealDetail)
-                                    <tr data-pl="{{ $dealDetail->TotalPL }}" data-rev="{{ $dealDetail->Revenue }}">
+                                    <tr data-pl="{{ $dealDetail->TotalPL }}" data-rev="{{ $dealDetail->Revenue }}" data-dealer="{{ $dealDetail->Type }}">
                                         <td>
                                             <select class="select2 dealer" name="Type[]" onchange="changePrice(this)">
                                                 <option @if($dealDetail->Type == "Customer") selected @endif value="Customer">Customer</option>

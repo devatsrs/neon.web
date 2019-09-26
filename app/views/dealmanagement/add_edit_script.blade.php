@@ -1,5 +1,5 @@
 <table id="addRevenueRow" class="hide hidden">
-    <tr>
+    <tr data-deale="Customer">
         <td>
             <select class="selectOpt dealer" name="Type[]" onchange="changePrice(this)">
                 <option value="Customer">Customer</option>
@@ -49,7 +49,7 @@
     </tr>
 </table>
 <table id="addPaymentRow" class="hide hidden">
-    <tr>
+    <tr data-deale="Customer">
         <td>
             <select class="selectOpt dealer" name="Type[]" onchange="changePrice(this)">
                 <option value="Customer">Customer</option>
@@ -127,7 +127,6 @@
             $("#deal-from").submit();
         });
 
-
         $("#StartDate").datepicker({
             todayBtn:  1,
             autoclose: true
@@ -154,10 +153,9 @@
             checkDealType();
         });
         countTotalPL();
-
+        addDestinationBreakOnLoad();
     });
     checkDealType();
-    addDestinationBreakOnLoad();
 
     $("select[name='CodedeckID']").change(function () {
         getDestinationBreak(0);
@@ -165,6 +163,10 @@
 
     $(document).on("change", "select.destination", function (e) {
         getDestinationBreak(this)
+    });
+
+    $(document).on("change","select.dealer", function (e) {
+        $(this).parent().parent().attr("data-dealer", $(this).val());
     });
 
     function ajax_form_success(response){
@@ -271,20 +273,32 @@
 
     function countTotalPL(){
         var DealType = $("[name='DealType']").val();
-        var totalPL = 0;
+        var totalPL  = 0;
         var totalRev = 0;
+        var CustomerTotal = 0;
+        var VendorTotal   = 0;
         $(".dealTable tbody tr").each(function () {
             var plVal = $(this).attr('data-pl');
-            totalPL +=  (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
+
             if(DealType == "Payment") {
                 var revVal = $(this).attr('data-rev');
                 totalRev += (revVal != "" && revVal != undefined && revVal != "NaN") ? parseFloat(revVal) : 0;
+
+                if($(this).attr('data-dealer') == "Customer")
+                    CustomerTotal += (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
+                else
+                    VendorTotal += (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
+            } else {
+                totalPL += (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
             }
         });
+
+        if(DealType == "Payment") {
+            totalPL = CustomerTotal - VendorTotal;
+        }
         $(".pl-grand").text(totalPL.toFixed(toFixed));
         $(".rev-grand").text(totalRev.toFixed(toFixed));
         $("[name='TotalPL']").val(totalPL.toFixed(toFixed));
-
     }
 
     function changePrice(ele){
