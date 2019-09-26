@@ -157,6 +157,7 @@
 
     });
     checkDealType();
+    addDestinationBreakOnLoad();
 
     $("select[name='CodedeckID']").change(function () {
         getDestinationBreak(0);
@@ -213,25 +214,49 @@
         disableFieldsOnAddDetails();
     }
 
+    function addDestinationBreakOnLoad(){
+        var trows = $(".dealTable tbody tr");
+        if(trows > 0){
+            trows.each(function (x, y) {
+               var destination = $(y).find(".destination");
+                if(destination.val() != "") {
+                    getDestinationBreak(destination);
+                }
+            });
+        }
+    }
+
+
 
     function getDestinationBreak(ele){
         var CodeDeckID = $("[name='CodedeckID']").val();
         var destination = ele != 0 && $(ele).val() != "" ? $(ele).val() : 0;
         $.ajax({
-            url:'{{URL::to('dealmanagement/get_destination_breaks')}}',
+            url: '{{ URL::to('dealmanagement/get_destination_breaks') }}',
             type: 'POST',
             dataType: 'json',
             data:{id:CodeDeckID,destination:destination},
             success: function(response) {
-                var rawSelect = ele != 0 && $(ele).val() != "" ? $(ele).parent().parent().find("select.destinationBreaks") : $("select.destinationBreaks");
+                var rawSelect = $("select.destinationBreaks");
+                var defaultVal = "";
+
+                if(ele != 0 && $(ele).val() != ""){
+                    rawSelect = $(ele).parent().parent().find("select.destinationBreaks");
+                    defaultVal = rawSelect.val();
+                }
 
                 var options = "<option value=''>Select</option>";
                 $.each(response.data, function (x,y) {
-                    options += "<option value='" + y + "'>" + y + "</option>";
+                    var selected = defaultVal == y ? "selected" : "";
+                    options += "<option " + selected + " value='" + y + "'>" + y + "</option>";
                 });
 
                 rawSelect.html(options);
-                $(".dealTable select.destinationBreaks").select2();
+
+                if(ele != 0 && $(ele).val() != "")
+                    $(ele).parent().parent().find("select.destinationBreaks").select2();
+                else
+                    $(".dealTable select.destinationBreaks").select2();
             },
             error: function () {
                 var rawSelect = ele != 0 && $(ele).val() != "" ? $(ele).parent().parent().find("select.destinationBreaks") : $("select.destinationBreaks");
@@ -307,7 +332,7 @@
         row.find(".pl-minute").val(plminute.toFixed(toFixed));
         row.find(".pl-total").val(profileLoss.toFixed(toFixed));
         row.attr("data-pl", profileLoss.toFixed(toFixed));
-        row.attr(".data-rev",revenue.toFixed(toFixed));
+        row.attr("data-rev",revenue.toFixed(toFixed));
         countTotalPL();
     }
 
