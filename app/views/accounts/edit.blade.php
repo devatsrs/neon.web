@@ -169,7 +169,7 @@
                             </div>
 
                         </div>
-                        <div class="form-group hidden @if(!$account->IsAffiliateAccount == 1 ) hidden @endif" id="AffiliateDetailDiv">
+                        <div class="form-group hidden @if($account->IsAffiliateAccount != 1 ) hidden @endif" id="AffiliateDetailDiv">
                             <label class="col-md-2 control-label">Commission Percentage</label>
                             <div class="col-md-4">
                                 <input type="text" name="CommissionPercentage" class="form-control" id="field-1" placeholder="" value="{{isset($account->CommissionPercentage) ? $account->CommissionPercentage : "5" }}" />
@@ -1552,6 +1552,9 @@
             });
 
             function changeTaxes(){
+                var Partner = $("[name='IsReseller']").prop("checked");
+                var PartnerID = '{{  $accountreseller}}';
+                var Customer = $("[name='IsCustomer']").prop("checked");
                 var CompanyID = '{{$account->CompanyId}}';
                 var Country = $('select[name="Country"]').val();
                 var RegisterDutchFoundation = $('[name="RegisterDutchFoundation"]').prop("checked");
@@ -1571,7 +1574,10 @@
                             "Country":Country,
                             "RegisterDutchFoundation":RegisterDutchFoundation,
                             "DutchProvider":DutchProvider,
-                            "CompanyID":CompanyID
+                            "CompanyID":CompanyID,
+                            "Partner" : Partner,
+                            "PartnerID" : PartnerID,
+                            "Customer"  : Customer
                         }
 
                     });
