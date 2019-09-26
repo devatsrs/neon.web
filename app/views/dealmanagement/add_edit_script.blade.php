@@ -243,14 +243,21 @@
     }
 
     function countTotalPL(){
-
+        var DealType = $("[name='DealType']").val();
         var totalPL = 0;
+        var totalRev = 0;
         $(".dealTable tbody tr").each(function () {
             var plVal = $(this).attr('data-pl');
             totalPL +=  (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
+            if(DealType == "Payment") {
+                var revVal = $(this).attr('data-rev');
+                totalRev += (revVal != "" && revVal != undefined && revVal != "NaN") ? parseFloat(revVal) : 0;
+            }
         });
         $(".pl-grand").text(totalPL.toFixed(toFixed));
+        $(".rev-grand").text(totalRev.toFixed(toFixed));
         $("[name='TotalPL']").val(totalPL.toFixed(toFixed));
+
     }
 
     function changePrice(ele){
@@ -276,11 +283,8 @@
             revenue = row.find(".revenue").val() == "" ? 0 : row.find(".revenue").val();
             revenue = (revenue != undefined && revenue != "NaN") ? parseFloat(revenue) : 0;
 
-            if(dealer == "Customer")
-                minutes = salePrice != 0 ? revenue / salePrice : 0;
-            else
-                minutes = buyPrice != 0 ? revenue / buyPrice : 0;
-            
+            minutes = salePrice != 0 ? revenue / salePrice : 0;
+
             minutes = (minutes != undefined && minutes != "NaN") ? minutes : 0;
             row.find(".minutes").val(minutes);
         } else {
@@ -303,6 +307,7 @@
         row.find(".pl-minute").val(plminute.toFixed(toFixed));
         row.find(".pl-total").val(profileLoss.toFixed(toFixed));
         row.attr("data-pl", profileLoss.toFixed(toFixed));
+        row.attr(".data-rev",revenue.toFixed(toFixed));
         countTotalPL();
     }
 

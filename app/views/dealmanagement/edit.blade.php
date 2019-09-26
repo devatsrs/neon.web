@@ -125,9 +125,9 @@
                                     <th style="width: 12% !important">Destination Break</th>
                                     <th style="width: 8% !important">Prefix</th>
                                     <th style="width: 9% !important">Trunk</th>
-                                    <th style="width: 8%">Revenue</th>
-                                    <th style="width: 7%">Sale Price</th>
-                                    <th style="width: 7%">Buy Price</th>
+                                    <th style="width: 8%">Revenue/Cost</th>
+                                    <th style="width: 7%">Deal Rate</th> <!-- Sale Price -->
+                                    <th style="width: 7%">Actual Rate</th> <!-- Buy Price -->
                                     <th style="width: 8%">(Profit/Loss) per min</th>
                                     <th style="width: 7%">Minutes</th>
                                     <th style="width: 10%">Profit/Loss</th>
@@ -140,15 +140,16 @@
                                     <th style="width: 8% !important">Prefix</th>
                                     <th style="width: 9% !important">Trunk</th>
                                     <th style="width: 7%">Minutes</th>
-                                    <th style="width: 7%">Sale Price</th>
-                                    <th style="width: 7%">Buy Price</th>
+                                    <th style="width: 7%">Deal Rate</th> <!-- Sale Price -->
+                                    <th style="width: 7%">Actual Rate</th> <!-- Buy Price -->
                                     <th style="width: 8%">(Profit/Loss) per min</th>
-                                    <th style="width: 8%">Revenue</th>
+                                    <th style="width: 8%">Revenue/Cost</th>
                                     <th style="width: 10%">Profit/Loss</th>
                                     <th style="width: 5%">Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
+                                <input type="hidden" name="TotalPL" value="{{ $Deal->TotalPL }}">
                                 @foreach($DealDetails as $dealDetail)
                                     <tr data-pl="{{ $dealDetail->TotalPL }}">
                                         <td>
@@ -205,11 +206,17 @@
                                 @endforeach
                                 </tbody>
                                 <tfoot>
-                                <tr>
+                                <tr class="revenueRow">
                                     <th colspan="9"></th>
                                     <th>Total</th>
                                     <th class="pl-grand">0</th>
-                                    <input type="hidden" name="TotalPL" value="{{ $Deal->TotalPL }}">
+                                </tr>
+                                <tr class="paymentRow">
+                                    <th colspan="7"></th>
+                                    <th>Total</th>
+                                    <th class="rev-grand">0</th>
+                                    <th></th>
+                                    <th class="pl-grand">0</th>
                                 </tr>
                                 </tfoot>
                             </table>
