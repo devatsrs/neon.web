@@ -66,7 +66,7 @@ class RateGeneratorsController extends \BaseController {
         $currencylist = Currency::getCurrencyDropdownIDList();
         $Timezones    = array("" => 'All') + Timezones::getTimezonesIDList();
         $AllTypes     = RateType::getRateTypeDropDownList();
-        $Vendors      = Account::getOnlyVendorIDList();
+        $Vendors      = array('0' => 'All') + Account::getOnlyVendorIDList();
      
         
         // $country = ServiceTemplate::Join('tblCountry', function($join) {
@@ -692,7 +692,7 @@ class RateGeneratorsController extends \BaseController {
             $Timezones = array("" => 'All') + Timezones::getTimezonesIDList();
 
             $AllTypes =  RateType::getRateTypeDropDownList();
-            $Vendors  =  Account::getOnlyVendorIDList();
+            $Vendors  =  array('0' => 'All') + Account::getOnlyVendorIDList();
           
 
             // $country = ServiceTemplate::Join('tblCountry', function($join) {
@@ -1576,6 +1576,6 @@ class RateGeneratorsController extends \BaseController {
 
 
     function ComponentTable(){
-        return View::make('rategenerators.ajax.index');
+       Category::all();
     }
 }
