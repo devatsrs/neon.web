@@ -124,7 +124,7 @@
                             </div>
                         </div>
                         <div class="form-group hidden" id="AffiliateDiv">
-                            <label class="col-md-2 control-label">Affiliate</label>
+                            <label class="col-md-2 control-label hidden">Affiliate</label>
                             <div class="col-md-4">
                                 <div class="make-switch switch-small" id="desablecustomer">
                                     <input type="checkbox"  name="IsAffiliateAccount" @if(Input::old('IsAffiliateAccount') == 1 )checked=""@endif value="1">
@@ -809,6 +809,9 @@
             function changeTaxes(){
                 var CompanyID = $("[name='CompanyID']").val();
                 var Country = $('select[name="Country"]').val();
+                var Partner = $("[name='IsReseller']").prop("checked");
+                var Customer = $("[name='IsCustomer']").prop("checked");
+                var PartnerID = $('select[name="ResellerOwner"]').val()
                 var RegisterDutchFoundation = $('[name="RegisterDutchFoundation"]').prop("checked");
                 var DutchProvider = $('[name="DutchProvider"]').prop("checked");
                 if(Country=='' || RegisterDutchFoundation==undefined || DutchProvider==undefined){
@@ -827,7 +830,11 @@
                             "Country":Country,
                             "RegisterDutchFoundation":RegisterDutchFoundation,
                             "DutchProvider":DutchProvider,
-                            "CompanyID":CompanyID
+                            "CompanyID" :CompanyID,
+                            "Partner"  : Partner,
+                            "Customer"  : Customer,
+                            "PartnerID" : PartnerID
+
                         }
 
                     });

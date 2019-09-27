@@ -2310,8 +2310,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
         $companyID = $account->CompanyId;
-        $today = $data["DateTo"];
-        $CustomerLastInvoiceDate = $data["DateFrom"];
+        $today = $data["DateTo"] . " 23:59:59";
+        $CustomerLastInvoiceDate = $data["DateFrom"] . " 00:00:00";
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
         $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?,?,?)";
         $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1,$type,$description));
@@ -3414,8 +3414,26 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = $data['CompanyID'];
         $CompanyID = getParentCompanyIdIfReseller($CompanyID);
         $Country = $data['Country'];
+        $CustomerAccount = $data['Customer'] == "true" ? 1 : 0;
+        $PartnerAccount =  $data['Partner'] == "true" ? 1 : 0;
         $RegisterDutchFoundation = 0;
         $DutchProvider = 0;
+        if($PartnerAccount == 1){
+            if($Country != "NETHERLANDS"){
+                return Response::json(array("status" => "success", "Taxes" => ""));
+            }
+        }else if($CustomerAccount == 1 && $data['PartnerID'] != ""){
+            $Reseller = Reseller::where('ResellerID',$data['PartnerID'])->first();
+            $AccountCountry = Account::where('AccountID',$Reseller->AccountID)->pluck('Country');
+            if($Country != $AccountCountry){
+                return Response::json(array("status" => "success", "Taxes" => ""));
+            }
+        }else{
+            return Response::json(array("status" => "success", "Taxes" => ""));
+        }    
+
+        
+    
         if(isset($data['RegisterDutchFoundation']) && $data['RegisterDutchFoundation']=='true'){
             $RegisterDutchFoundation=1;
         }

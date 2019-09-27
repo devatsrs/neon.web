@@ -13,6 +13,7 @@ class Nodes extends \Eloquent {
     public static $rules = array(
         'ServerName' =>      'required|unique:tblNode',
         'ServerIP' =>      'required|unique:tblNode',
+        'Username' =>      'required|unique:tblNode',
     );
 
     public static function getActiveNodes(){

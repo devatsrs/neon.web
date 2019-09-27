@@ -275,6 +275,30 @@ class Account extends \Eloquent {
         return $row;
     }
 
+    public static function getCustomerAccountIDList($data=array()){
+
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        $data['isCustomer'] = 1;
+        if(!isset($data['AccountType'])) {
+            $data['AccountType'] = 1;
+            $data['VerificationStatus'] = Account::VERIFIED;
+        }
+        if(is_reseller())
+            $data['CompanyID']=User::get_companyID();
+        $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+    }
+
     public static function getAccountList($data=array()){
 
         if(User::is('AccountManager')){

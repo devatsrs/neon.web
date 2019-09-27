@@ -383,7 +383,7 @@
                     <div class="form-group form-group-border-none">
                         <label for="Closingdate" class="col-sm-1 control-label ">Account</label>
                         <div class="col-md-3">
-                            {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
+                            {{Form::select('accountID',$customers,'',array("class"=>"select2"))}}
 
                         </div>
                         <label for="Closingdate" class="col-sm-1 control-label ">Date</label>

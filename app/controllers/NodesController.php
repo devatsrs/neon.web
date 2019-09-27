@@ -11,7 +11,7 @@ class NodesController extends \BaseController {
 
 	public function ajax_datagrid(){
 		$data = Input::all();
-        $Nodes = Nodes::select('ServerName','ServerIP','Status','ServerID');
+        $Nodes = Nodes::select('ServerName','ServerIP','Username','Status','ServerID');
 		$Status = $data['status'] == 'true' ? 1 : 0;
 
         if(!empty($data['ServerName'])){
@@ -58,15 +58,17 @@ class NodesController extends \BaseController {
 		}else{
 			$data['status'] = 0;
 		}
+		
 
 		 Nodes::$rules["ServerName"] = 'required|unique:tblNode,ServerName,NULL,ServerID';
 
-		 $validator = Validator::make($data, Nodes::$rules);
+		 $validator = Validator::make($data, Nodes::$rules + array('Password' => 'required'));
 
 		 if ($validator->fails()) {
 			 return json_validator_response($validator);
 		 }
 
+		 $data['Password'] = Crypt::encrypt($data['Password']);
 		 $valid = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
 		 if(!$valid){
 			return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
@@ -112,23 +114,35 @@ class NodesController extends \BaseController {
 	 */
 	public function update($id)
 	{
+
 		$data = Input::all();
         if(isset($data['status'])){
             $data['status'] = 1;
         }else{
             $data['status'] = 0;
         }
+		
+		
 
         $CompanyID = User::get_companyID();
         $Node = Nodes::find($id);
 		Nodes::$rules["ServerName"] = 'required|unique:tblNode,ServerName,'.$id.',ServerID';
 		Nodes::$rules["ServerIP"] = 'required|unique:tblNode,ServerIP,'.$id.',ServerID';
+		Nodes::$rules["Username"] = 'required|unique:tblNode,ServerIP,'.$id.',ServerID';
 
 
         $validator = Validator::make($data, Nodes::$rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
 		}
+
+		if($data['Password'] != ''){
+
+			$data['Password'] = Crypt::encrypt($data['Password']);
+		}else{
+			unset($data['Password']);
+		}
+
 		
 		$valid = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
 		if(!$valid){
