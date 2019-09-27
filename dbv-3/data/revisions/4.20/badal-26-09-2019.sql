@@ -170,8 +170,8 @@ BEGIN
 	 IF (@gateway_name = 'PBX') THEN
    	
 			SET @stm31 = CONCAT('
-			INSERT INTO tblUsageDetailFailedCall (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield)
-			SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield
+			INSERT INTO tblUsageDetailFailedCall (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield,ExtensionName,PincodeName)
+			SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield,ExtensionName,PincodeName
 			FROM  `' , p_tbltempusagedetail_name , '` d
 			INNER JOIN tblUsageHeader h
 			ON h.GatewayAccountPKID = d.GatewayAccountPKID
@@ -232,8 +232,8 @@ BEGIN
 
 
 	SET @stm5 = CONCAT('
-	INSERT INTO tblUsageDetails (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield)
-	SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield
+	INSERT INTO tblUsageDetails (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield,ExtensionName,PincodeName)
+	SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield,ExtensionName,PincodeName
 	FROM  `' , p_tbltempusagedetail_name , '` d
 	INNER JOIN tblUsageHeader h
 	ON h.GatewayAccountPKID = d.GatewayAccountPKID
@@ -246,6 +246,41 @@ BEGIN
 	EXECUTE stmt5;
 	DEALLOCATE PREPARE stmt5;
 	
+	-- add file name log against failed cdr
+	SET @stmFL = CONCAT('
+	INSERT INTO  tblUsageDetailFailedCallFileLog (UsageDetailFailedCallID,ID,FileName,ProcessID)
+	SELECT Distinct d.UsageDetailFailedCallID,rd.ID,rd.FileName,rd.ProcessID
+	FROM `' , p_tbltempusagedetail_name , '` rd
+	INNER JOIN tblUsageDetailFailedCall d
+	ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
+	WHERE d.ProcessID = "' , p_processId , '" AND rd.FileName IS NOT NULL;
+	');
+	PREPARE stmtFL FROM @stmFL;
+	EXECUTE stmtFL;
+	DEALLOCATE PREPARE stmtFL;
+	-- remove old file log when rerating cdr
+	SET @stmFL = CONCAT('
+	DELETE udfl FROM tblUsageDetailsFileLog udfl
+	JOIN `' , p_tbltempusagedetail_name , '` rd ON rd.ID=udfl.ID AND rd.FileName=udfl.FileName
+	INNER JOIN tblUsageDetails d
+	ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
+	WHERE d.ProcessID = "' , p_processId , '" AND rd.FileName IS NOT NULL;
+	');
+	PREPARE stmtFL FROM @stmFL;
+	EXECUTE stmtFL;
+	DEALLOCATE PREPARE stmtFL;
+	-- add file name log against cdr
+	SET @stmFL = CONCAT('
+	INSERT INTO  tblUsageDetailsFileLog (UsageDetailID,ID,FileName,ProcessID)
+	SELECT Distinct d.UsageDetailID,rd.ID,rd.FileName,rd.ProcessID
+	FROM `' , p_tbltempusagedetail_name , '` rd
+	INNER JOIN tblUsageDetails d
+	ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
+	WHERE d.ProcessID = "' , p_processId , '" AND rd.FileName IS NOT NULL;
+	');
+	PREPARE stmtFL FROM @stmFL;
+	EXECUTE stmtFL;
+	DEALLOCATE PREPARE stmtFL;
 	
 	
    IF (@gateway_name = 'PBX') THEN
@@ -277,7 +312,7 @@ BEGIN
 END//
 DELIMITER ;
 
-DROP PROCDROP PROCEDURE IF EXISTS `prc_insertVendorCDR`;
+DROP PROCEDURE IF EXISTS `prc_insertVendorCDR`;
 DELIMITER //
 CREATE PROCEDURE `prc_insertVendorCDR`(
 	IN `p_processId` VARCHAR(200),
@@ -353,7 +388,7 @@ BEGIN
 	INNER JOIN tblVendorCDRHeader h
 	ON h.GatewayAccountPKID = d.GatewayAccountPKID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
-	WHERE processid = "' , p_processId , '" AND  billed_duration = 0 AND buying_cost = 0 AND selling_cost =  0  ;
+	WHERE processid = "' , p_processId , '" AND  billed_duration = 0 AND IFNULL(buying_cost,0) = 0 AND IFNULL(selling_cost,0) =  0  ;
 	');
 
 	PREPARE stmt6 FROM @stm6;
@@ -361,7 +396,7 @@ BEGIN
 	DEALLOCATE PREPARE stmt6;
 
 	SET @stm3 = CONCAT('
-	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '"  AND billed_duration = 0 AND buying_cost = 0 AND selling_cost =  0 ;
+	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '"  AND billed_duration = 0 AND IFNULL(buying_cost,0) = 0 AND IFNULL(selling_cost,0) =  0 ;
 	');
 
 	PREPARE stmt3 FROM @stm3;
@@ -381,6 +416,45 @@ BEGIN
 	PREPARE stmt4 FROM @stm4;
 	EXECUTE stmt4;
 	DEALLOCATE PREPARE stmt4;
+	
+	-- add file name log against failed cdr
+	SET @stmFL = CONCAT('
+	INSERT INTO  tblVendorCDRFailedFileLog (VendorCDRFailedID,ID,FileName,ProcessID)
+	SELECT DISTINCT d.VendorCDRFailedID,rd.ID,rd.FileName,rd.ProcessID
+	FROM `' , p_tbltempusagedetail_name , '` rd
+	INNER JOIN tblVendorCDRFailed d
+	ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
+	WHERE d.ProcessID = "' , p_processId , '" AND rd.FileName IS NOT NULL;
+	');
+	PREPARE stmtFL FROM @stmFL;
+	EXECUTE stmtFL;
+	DEALLOCATE PREPARE stmtFL;
+
+
+	-- remove old file log when rerating cdr
+	SET @stmFL = CONCAT('
+	DELETE udfl FROM tblVendorCDRFileLog udfl
+	JOIN `' , p_tbltempusagedetail_name , '` rd ON rd.ID=udfl.ID AND rd.FileName=udfl.FileName
+	INNER JOIN tblVendorCDR d
+	ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
+	WHERE d.ProcessID = "' , p_processId , '" AND rd.FileName IS NOT NULL;
+	');
+	PREPARE stmtFL FROM @stmFL;
+	EXECUTE stmtFL;
+	DEALLOCATE PREPARE stmtFL;
+
+	-- add file name log against cdr
+	SET @stmFL = CONCAT('
+	INSERT INTO  tblVendorCDRFileLog (VendorCDRID,ID,FileName,ProcessID)
+	SELECT DISTINCT d.VendorCDRID,rd.ID,rd.FileName,rd.ProcessID
+	FROM `' , p_tbltempusagedetail_name , '` rd
+	INNER JOIN tblVendorCDR d
+	ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
+	WHERE d.ProcessID = "' , p_processId , '" AND rd.FileName IS NOT NULL;
+	');
+	PREPARE stmtFL FROM @stmFL;
+	EXECUTE stmtFL;
+	DEALLOCATE PREPARE stmtFL;
 
 	SET @stm5 = CONCAT('
 	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '" ;
