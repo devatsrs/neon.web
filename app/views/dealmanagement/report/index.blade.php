@@ -135,32 +135,27 @@
     </ul>
     <div class="tab-content">
         @if( (empty($MonitorDashboardSetting)) ||  in_array('DestinationMonitor',$MonitorDashboardSetting))
-        <div class="tab-pane active" id="destination" >
-            @include('dealmanagement.report.destination')
+        <div class="tab-pane active" id="destination">
             @include('dealmanagement.report.destination_grid')
         </div>
         @endif
         @if( (empty($MonitorDashboardSetting)) ||  in_array('DestinationBreakMonitor',$MonitorDashboardSetting))
-        <div class="tab-pane" id="description" >
-            @include('dealmanagement.report.desc')
+        <div class="tab-pane" id="description">
             @include('dealmanagement.report.desc_grid')
         </div>
         @endif
         @if( (empty($MonitorDashboardSetting)) ||  in_array('PrefixMonitor',$MonitorDashboardSetting))
-        <div class="tab-pane" id="prefix" >
-            @include('dealmanagement.report.prefix')
+        <div class="tab-pane" id="prefix">
             @include('dealmanagement.report.prefix_grid')
         </div>
         @endif
         @if( (empty($MonitorDashboardSetting)) ||  in_array('TrunkMonitor',$MonitorDashboardSetting))
-        <div class="tab-pane" id="trunk" >
-            @include('dealmanagement.report.trunk')
+        <div class="tab-pane" id="trunk">
             @include('dealmanagement.report.trunk_grid')
         </div>
         @endif
         @if( (empty($MonitorDashboardSetting)) ||  in_array('AccountMonitor',$MonitorDashboardSetting))
-        <div class="tab-pane" id="account" >
-            @include('dealmanagement.report.account')
+        <div class="tab-pane" id="account">
             @include('dealmanagement.report.account_grid')
         </div>
         @endif
@@ -170,9 +165,7 @@
     </div>
     <script type="text/javascript">
         jQuery(document).ready(function() {
-
             $('#filter-button-toggle').show();
-
         });
     </script>
 
