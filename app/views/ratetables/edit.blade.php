@@ -192,12 +192,15 @@
             <th width="3%">Interval 1/N</th>
             <th width="3%" style="display: none;">Interval N</th>
             <th width="5%">Connection Fee</th>
-            <th width="5%">Connection Fee Margin</th>
+            <th width="5%">Connection Fee Diff.</th>
+            <th width="5%">Connection Fee Diff. %</th>
             <th width="5%">Previous Rate ({{$code}})</th>
             <th width="5%">Rate1 ({{$code}})</th>
-            <th width="5%">Rate1 Margin</th>
+            <th width="5%">Rate1 Diff.</th>
+            <th width="5%">Rate1 Diff. %</th>
             <th width="5%">RateN ({{$code}})</th>
-            <th width="5%">RateN Margin</th>
+            <th width="5%">RateN Diff.</th>
+            <th width="5%">RateN Diff. %</th>
             <th width="8%">Effective Date</th>
             <th width="8%" style="display: none">End Date</th>
             <th width="8%">Modified By/Date</th>
@@ -801,14 +804,26 @@
                             "bSortable" : false,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                var rate_html = full[38] != 0 && full[38] != null ? full[38] + ' ('+full[41]+'%)' : '- (-)';
+                                var rate_html = full[38] != 0 && full[38] != null ? full[38] : '-';
                                 if(full[38] > 0)
                                     rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
                                 else if(full[38] < 0)
                                     rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
                                 return rate_html;
                             }
-                        }, // 38/41 ConnectionFee Margin/Margin Percentage
+                        }, // 38 ConnectionFee Margin
+                        {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[41] != 0 && full[41] != null ? full[41]+'%' : '-';
+                                if(full[41] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[41] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 41 ConnectionFee Margin Percentage
                         {
                             "bSortable" : false,
                             "bVisible" : bVisiblePreviousRate,
@@ -839,14 +854,26 @@
                             "bSortable" : false,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                rate_html = full[39] != 0 && full[39] != null ? full[39] + ' ('+full[42]+'%)' : '- (-)';
+                                rate_html = full[39] != 0 && full[39] != null ? full[39] : '-';
                                 if(full[39] > 0)
                                     rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
                                 else if(full[39] < 0)
                                     rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
                                 return rate_html;
                             }
-                        }, // 39/42 Rate Margin/Margin Percentage
+                        }, // 39 Rate Margin
+                        {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[42] != 0 && full[42] != null ? full[42]+'%' : '-';
+                                if(full[42] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[42] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 42 Rate Margin Percentage
                         {
                             "bSortable" : false,
                             mRender: function(col, type, full) {
@@ -865,14 +892,26 @@
                             "bSortable" : false,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                var rate_html = full[40] != 0 && full[40] != null ? full[40] + ' ('+full[43]+'%)' : '- (-)';
+                                var rate_html = full[40] != 0 && full[40] != null ? full[40] : '-';
                                 if(full[40] > 0)
                                     rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
                                 else if(full[40] < 0)
                                     rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
                                 return rate_html;
                             }
-                        }, // 40/43 RateN Margin/Margin Percentage
+                        }, // 40 RateN Margin
+                        {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[43] != 0 && full[43] != null ? full[43]+'%' : '-';
+                                if(full[43] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[43] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 43 RateN Margin Percentage
                         {
                             mRender: function(col, type, full) {
                                 return full[14];
