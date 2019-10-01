@@ -5,54 +5,41 @@
     var table_name = '#report_table';
     var cdr_url = "";
     var customer_login ;
-    @if(Session::get('customer') == 1)
-            cdr_url = "{{URL::to('customer/cdr')}}";
-    customer_login = 1;
-    @else
-            cdr_url = "{{URL::to('cdr_show')}}";
-    customer_login = 0;
-    @endif
-            $searchFilter.pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
+    $searchFilter.pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
     jQuery(document).ready(function ($) {
         data_table  = $(table_name).dataTable({
             "bDestroy": true,
             "bProcessing": true,
-            "bServerSide": false,
+                "bServerSide": true,
             "bAutoWidth": false,
-            //"sAjaxSource": baseurl + "/analysis/get_account/type",
+            "sAjaxSource": baseurl + "/dealmanagement/get_customer_report",
             "fnServerParams": function (aoData) {
                 aoData.push(
-
                         {"name": "StartDate", "value": $searchFilter.StartDate},
-                        {"name": "EndDate","value": $searchFilter.EndDate},
-
-
+                        {"name": "EndDate","value": $searchFilter.EndDate}
                 );
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push(
                         {"name": "StartDate", "value": $searchFilter.StartDate},
                         {"name": "EndDate","value": $searchFilter.EndDate},
-                        {"name":"Export","value":1});
-
+                        {"name":"Export","value":1}
+                );
             },
             "iDisplayLength": '{{CompanyConfiguration::get('PAGE_SIZE')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
             "aoColumns": [
-
-
-                {  "bSortable": true },  // 3 StartDate
-                {  "bSortable": true },  // 3 StartDate
-                {  "bSortable": true }  // 3 StartDate
-                {  "bSortable": true }  // 3 StartDate
-                {  "bSortable": true }  // 3 StartDate
-                {  "bSortable": true }  // 3 StartDate
-                {  "bSortable": true }  // 3 StartDate
-                {  "bSortable": true }  // 3 StartDate
-                {  "bSortable": true }  // 3 StartDate
-                {  "bSortable": true }  // 3 StartDate
-
+                {  "bSortable": true },
+                {  "bSortable": true },
+                {  "bSortable": true },
+                {  "bSortable": true },
+                {  "bSortable": true },
+                {  "bSortable": true },
+                {  "bSortable": true },
+                {  "bSortable": true },
+                {  "bSortable": true },
+                {  "bSortable": true }  
             ],
             "oTableTools": {
                 "aButtons": [

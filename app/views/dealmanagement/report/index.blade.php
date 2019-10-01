@@ -52,10 +52,10 @@
 
     <ul class="nav nav-tabs">
         @if(User::checkCategoryPermission('DealManagement','Customer') || User::checkCategoryPermission('DealManagement','All'))
-            <li><a href="{{ URL::to('dealmanagement/report/customer') }}">Customer</a></li>
+            <li class="{{ $type == "customer" ? 'active' : '' }}"><a href="{{ $type == "customer" ? "#" : URL::to('dealmanagement/report/customer') }}">Customer</a></li>
         @endif
         @if(User::checkCategoryPermission('DealManagement','Vendor') || User::checkCategoryPermission('DealManagement','All'))
-            <li class="active"><a href="#">Vendor</a></li>
+            <li class="{{ $type == "customer" ? 'active' : '' }}"><a href="{{ $type == "vendor" ? "#" : URL::to('dealmanagement/report/vendor') }}">Vendor</a></li>
         @endif
     </ul>
     <br>
@@ -66,7 +66,7 @@
                     <table class="table table-bordered datatable" id="report_table">
                         <thead>
                         <tr>
-                            <th width="20%">Vendor</th>
+                            <th width="20%">{{ ucfirst($type) }}</th>
                             <th width="20%">Destination</th>
                             <th width="20%">Destination Break</th>
                             <th width="10%">Prefix</th>
