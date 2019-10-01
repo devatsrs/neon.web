@@ -2253,6 +2253,7 @@ function table_html($data,$table_data){
         $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
     }
     //Show Filter in Files
+    //print_r($data['filter_settings']);
     $filters = json_decode($data['filter_settings'],true);
     $table_header .= '<tr>';
     $table_header .= '<td colspan="20" style="background-color:#fff"><b>Filter: </b>';
@@ -3175,6 +3176,11 @@ function getCompanyDecimalPlaces($CompanyID=0, $value=""){
     }
 }
 
+function terminateMysqlProcess($pid){
+    $cmd="KILL ".$pid;
+    DB::connection('sqlsrv2')->select($cmd);
+
+}
 
 function getItemType($id){
     return ItemType::where('ItemTypeID',$id)->pluck('title');
