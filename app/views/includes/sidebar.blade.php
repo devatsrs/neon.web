@@ -145,7 +145,12 @@
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
       @if( User::checkCategoryPermission('DealManagement','All'))
-        <li> <a href="{{Url::to('/dealmanagement')}}"> <i class="fa fa-tag"></i> <span>&nbsp;Deal Management</span> </a> </li>
+        <li class="{{check_uri('dealmanagement')}}"> <a href="#"> <i class="fa fa-tag"></i> <span>&nbsp;Deal Management</span> </a>
+          <ul>
+            <li> <a href="{{URL::to('/dealmanagement')}}">  <span>Deals</span> </a> </li>
+            <li> <a href="{{URL::to('/dealmanagement/report/customer')}}">  <span>Reports</span> </a> </li>
+          </ul>
+        </li>
       @endif
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)

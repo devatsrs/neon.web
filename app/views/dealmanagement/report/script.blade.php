@@ -2,40 +2,82 @@
 <script>
     var $searchFilter = {};
     var toFixed = '{{get_round_decimal_places()}}';
-    var table_name = '#destination_table';
-    //var chart_type = '#destination';
+    var table_name = '#report_table';
     var cdr_url = "";
     var customer_login ;
     @if(Session::get('customer') == 1)
-        cdr_url = "{{URL::to('customer/cdr')}}";
-        customer_login = 1;
+            cdr_url = "{{URL::to('customer/cdr')}}";
+    customer_login = 1;
     @else
-        cdr_url = "{{URL::to('cdr_show')}}";
-        customer_login = 0;
+            cdr_url = "{{URL::to('cdr_show')}}";
+    customer_login = 0;
     @endif
-    $searchFilter.map_url = "{{URL::to('getWorldMap')}}";
-    $searchFilter.pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
+            $searchFilter.pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
     jQuery(document).ready(function ($) {
+        data_table  = $(table_name).dataTable({
+            "bDestroy": true,
+            "bProcessing": true,
+            "bServerSide": false,
+            "bAutoWidth": false,
+            //"sAjaxSource": baseurl + "/analysis/get_account/type",
+            "fnServerParams": function (aoData) {
+                aoData.push(
 
-        $(".refresh_tab li a").click(function(){
-            table_name = $(this).attr('href')+'_table';
-            //chart_type = $(this).attr('href');
-            //$("#customer_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
-            setTimeout(function(){
-                set_search_parameter($("#customer_analysis"));
-                //reloadCharts(table_name,'{{CompanyConfiguration::get('PAGE_SIZE')}}',$searchFilter);
-            }, 10);
-        });
-        //chart_type = $(".refresh_tab li.active a").attr('href');
-        table_name = $(".refresh_tab li.active a").attr('href')+'_table';
-        //$("#customer_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
-        $("[name='UserID']").change(function(e) {
-            if($(this).val() > 0) {
-                $("#customer_analysis").find("input[name='Admin']").val(0);
-            }else{
-                $("#customer_analysis").find("input[name='Admin']").val($("#customer_analysis").find("input[name='Admin1']").val());
+                        {"name": "StartDate", "value": $searchFilter.StartDate},
+                        {"name": "EndDate","value": $searchFilter.EndDate},
+
+
+                );
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push(
+                        {"name": "StartDate", "value": $searchFilter.StartDate},
+                        {"name": "EndDate","value": $searchFilter.EndDate},
+                        {"name":"Export","value":1});
+
+            },
+            "iDisplayLength": '{{CompanyConfiguration::get('PAGE_SIZE')}}',
+            "sPaginationType": "bootstrap",
+            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "aaSorting": [[0, 'asc']],
+            "aoColumns": [
+
+
+                {  "bSortable": true },  // 3 StartDate
+                {  "bSortable": true },  // 3 StartDate
+                {  "bSortable": true }  // 3 StartDate
+                {  "bSortable": true }  // 3 StartDate
+                {  "bSortable": true }  // 3 StartDate
+                {  "bSortable": true }  // 3 StartDate
+                {  "bSortable": true }  // 3 StartDate
+                {  "bSortable": true }  // 3 StartDate
+                {  "bSortable": true }  // 3 StartDate
+                {  "bSortable": true }  // 3 StartDate
+
+            ],
+            "oTableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/analysis/get_account/xlsx", //baseurl + "/generate_xlsx.php",
+                        sButtonClass: "save-collection"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/analysis/get_account/csv", //baseurl + "/generate_csv.php",
+                        sButtonClass: "save-collection"
+                    }
+                ]
+            },
+            "fnDrawCallback": function () {
+                $(".dataTables_wrapper select").select2({
+                    minimumResultsForSearch: -1
+                });
+
             }
         });
+
         $(".datepicker").change(function(e) {
             var start = new Date($("[name='StartDate']").val()),
                     end   = new Date($("[name='EndDate']").val()),
@@ -52,25 +94,14 @@
                 $(".select_hour").show();
             }
         });
+
         $("#customer_analysis").submit(function(e) {
             e.preventDefault();
             public_vars.$body = $("body");
-            //show_loading_bar(40);
             set_search_parameter($(this));
-            //reloadCharts(table_name,'{{CompanyConfiguration::get('PAGE_SIZE')}}',$searchFilter);
             return false;
         });
+
         set_search_parameter($("#customer_analysis"));
-        /*Highcharts.theme = {
-            colors: ['#3366cc', '#ff9900' ,'#dc3912' , '#109618', '#66aa00', '#dd4477','#0099c6', '#990099', '#143DFF']
-        };
-        // Apply the theme
-        Highcharts.setOptions(Highcharts.theme);
-        Highcharts.setOptions({
-            lang: {
-                drillUpText: '◁ Back'
-            }
-        });*/
-        //reloadCharts(table_name,'{{CompanyConfiguration::get('PAGE_SIZE')}}',$searchFilter);
     });
 </script>

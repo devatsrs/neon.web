@@ -45,11 +45,10 @@
 
 
 @section('content')
-<br />
-<style>
-    .small_fld{width:80.6667%;}
-</style>
-{{--<link rel="stylesheet" type="text/css" href="assets/js/daterangepicker/daterangepicker-bs3.css" />--}}
+    <br />
+    <style>
+        .small_fld{width:80.6667%;}
+    </style>
 
     <ul class="nav nav-tabs">
         @if(User::checkCategoryPermission('DealManagement','Customer') || User::checkCategoryPermission('DealManagement','All'))
@@ -59,12 +58,12 @@
             <li ><a href="{{ URL::to('dealmanagement/report/vendor') }}">Vendor</a></li>
         @endif
     </ul>
-<br>
+    <br>
     <div class="tab-content">
         <div class="tab-pane active" id="customer">
             <div class="row">
                 <div class="col-md-12">
-                    <table class="table table-bordered datatable" id="account_table">
+                    <table class="table table-bordered datatable" id="report_table">
                         <thead>
                         <tr>
                             <th width="20%">Customer</th>
@@ -100,5 +99,5 @@
         });
     </script>
 
-@include('dealmanagement.report.script')
+    @include('dealmanagement.report.script')
 @stop

@@ -49,7 +49,6 @@
     <style>
         .small_fld{width:80.6667%;}
     </style>
-    {{--<link rel="stylesheet" type="text/css" href="assets/js/daterangepicker/daterangepicker-bs3.css" />--}}
 
     <ul class="nav nav-tabs">
         @if(User::checkCategoryPermission('DealManagement','Customer') || User::checkCategoryPermission('DealManagement','All'))
@@ -64,10 +63,10 @@
         <div class="tab-pane active" id="customer">
             <div class="row">
                 <div class="col-md-12">
-                    <table class="table table-bordered datatable" id="account_table">
+                    <table class="table table-bordered datatable" id="report_table">
                         <thead>
                         <tr>
-                            <th width="20%">Customer</th>
+                            <th width="20%">Vendor</th>
                             <th width="20%">Destination</th>
                             <th width="20%">Destination Break</th>
                             <th width="10%">Prefix</th>
