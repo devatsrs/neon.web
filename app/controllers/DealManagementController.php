@@ -263,7 +263,7 @@ class DealManagementController extends \BaseController {
         }
     }
 
-    public function report(){
+    public function customer_report(){
         $data = array();
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
@@ -287,6 +287,33 @@ class DealManagementController extends \BaseController {
         $timezones = TimeZone::getTimeZoneDropdownList();
         $MonitorDashboardSetting = array_filter(explode(',',CompanyConfiguration::getValueConfigurationByKey('MONITOR_DASHBOARD',$companyID)));
         $reseller_owners = Reseller::getDropdownIDList($companyID);
-        return View::make('dealmanagement.report.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','MonitorDashboardSetting','account_owners','reseller_owners'));
+        return View::make('dealmanagement.report.customer_report',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','MonitorDashboardSetting','account_owners','reseller_owners'));
+    }
+
+    public function vendor_report(){
+        $data = array();
+        $companyID = User::get_companyID();
+        $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $original_startdate = date('Y-m-d', strtotime('-1 week'));
+        $original_enddate = date('Y-m-d');
+        $isAdmin = 1;
+        $UserID  = User::get_userID();
+        $where['Status'] = 1;
+        $where['VerificationStatus'] = Account::VERIFIED;
+        $where['CompanyID']=User::get_companyID();
+        if(User::is('AccountManager')){
+            $where['Owner'] = User::get_userID();
+            $isAdmin = 0;
+        }
+        $account_owners = User::getOwnerUsersbyRole();
+        $gateway   = CompanyGateway::getCompanyGatewayIdList($companyID);
+        $Country   = Country::getCountryDropdownIDList();
+        $account   = Account::getAccountIDList();
+        $trunks    = Trunk::getTrunkDropdownIDList($companyID);
+        $currency  = Currency::getCurrencyDropdownIDList($companyID);
+        $timezones = TimeZone::getTimeZoneDropdownList();
+        $MonitorDashboardSetting = array_filter(explode(',',CompanyConfiguration::getValueConfigurationByKey('MONITOR_DASHBOARD',$companyID)));
+        $reseller_owners = Reseller::getDropdownIDList($companyID);
+        return View::make('dealmanagement.report.vendor_report',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','MonitorDashboardSetting','account_owners','reseller_owners'));
     }
 }
