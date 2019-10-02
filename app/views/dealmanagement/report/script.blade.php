@@ -1,4 +1,3 @@
-<script src="{{ URL::asset('assets/js/reports.js') }}"></script>
 <script>
     var $searchFilter = {};
     var toFixed = '{{get_round_decimal_places()}}';
@@ -7,12 +6,15 @@
     var customer_login ;
     $searchFilter.pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
     jQuery(document).ready(function ($) {
+
+        $searchFilter.StartDate = $(this).find('[name="StartDate"]').val();
+        $searchFilter.EndDate   = $(this).find('[name="EndDate"]').val();
         data_table  = $(table_name).dataTable({
             "bDestroy": true,
             "bProcessing": true,
-                "bServerSide": true,
+            "bServerSide": true,
             "bAutoWidth": false,
-            "sAjaxSource": baseurl + "/dealmanagement/get_customer_report",
+            "sAjaxSource": baseurl + "/dealmanagement/get_report/{{ $type }}",
             "fnServerParams": function (aoData) {
                 aoData.push(
                         {"name": "StartDate", "value": $searchFilter.StartDate},
@@ -39,7 +41,7 @@
                 {  "bSortable": true },
                 {  "bSortable": true },
                 {  "bSortable": true },
-                {  "bSortable": true }  
+                {  "bSortable": true }
             ],
             "oTableTools": {
                 "aButtons": [
@@ -85,10 +87,11 @@
         $("#customer_analysis").submit(function(e) {
             e.preventDefault();
             public_vars.$body = $("body");
-            set_search_parameter($(this));
+
+            $searchFilter.StartDate = $(this).find('[name="StartDate"]').val();
+            $searchFilter.EndDate   = $(this).find('[name="EndDate"]').val();
+            data_table.fnFilter('', 0);
             return false;
         });
-
-        set_search_parameter($("#customer_analysis"));
     });
 </script>

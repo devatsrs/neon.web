@@ -273,4 +273,33 @@ class DealManagementController extends \BaseController {
         return View::make('dealmanagement.report.index', get_defined_vars());
     }
 
+    public function get_report($type = "customer"){
+        //double check param
+        $type = $type == "vendor" ? $type : "customer";
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $data['iDisplayStart'] +=1;
+        $columns = array('AccountName','Country','Description','AreaPrefix','Trunk','CallCount','TotalMinutes','TotalCost','TotalMargin','MarginPercentage');
+        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
+        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "CALL prc_getDealsReport($companyID,'" . $data['StartDate'] . "','" . $data['EndDate'] . "','',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::connection('neon_report')->select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+            if ($type == 'csv') {
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/'.ucfirst($type).'Reports.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            } elseif ($type == 'xlsx') {
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/'.ucfirst($type).'Reports.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+        $query .= ",0)";
+        log::info($query);
+        return DataTableSql::of($query,'neon_report')->make();
+    }
+
 }

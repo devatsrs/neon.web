@@ -55,7 +55,7 @@
             <li class="{{ $type == "customer" ? 'active' : '' }}"><a href="{{ $type == "customer" ? "#" : URL::to('dealmanagement/report/customer') }}">Customer</a></li>
         @endif
         @if(User::checkCategoryPermission('DealManagement','Vendor') || User::checkCategoryPermission('DealManagement','All'))
-            <li class="{{ $type == "customer" ? 'active' : '' }}"><a href="{{ $type == "vendor" ? "#" : URL::to('dealmanagement/report/vendor') }}">Vendor</a></li>
+            <li class="{{ $type == "vendor" ? 'active' : '' }}"><a href="{{ $type == "vendor" ? "#" : URL::to('dealmanagement/report/vendor') }}">Vendor</a></li>
         @endif
     </ul>
     <br>
