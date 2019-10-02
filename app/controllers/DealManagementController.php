@@ -264,7 +264,7 @@ class DealManagementController extends \BaseController {
     }
 
 
-    public function report($type = "customer"){
+    public function report($id, $type = "customer"){
         //double check param
         $type = $type == "vendor" ? $type : "customer";
         $data = array();
@@ -273,7 +273,7 @@ class DealManagementController extends \BaseController {
         return View::make('dealmanagement.report.index', get_defined_vars());
     }
 
-    public function get_report($type = "customer"){
+    public function get_report($id, $type = "customer"){
         //double check param
         $type = $type == "vendor" ? $type : "customer";
         $data = Input::all();
