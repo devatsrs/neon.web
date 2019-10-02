@@ -280,8 +280,8 @@ class DealManagementController extends \BaseController {
         $companyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
         $columns = array('AccountName','Country','Description','AreaPrefix','Trunk','CallCount','TotalMinutes','TotalCost','TotalMargin','MarginPercentage');
-        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
-        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
+        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00') : date('Y-m-d H:i:00', strtotime($data['StartDate']));
+        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59') : date('Y-m-d H:i:00', strtotime($data['EndDate']));
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "CALL prc_getDealsReport($companyID,'" . $data['StartDate'] . "','" . $data['EndDate'] . "','',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
