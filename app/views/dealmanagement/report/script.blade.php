@@ -7,8 +7,8 @@
     $searchFilter.pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
     jQuery(document).ready(function ($) {
 
-        $searchFilter.StartDate = $(this).find('[name="StartDate"]').val();
-        $searchFilter.EndDate   = $(this).find('[name="EndDate"]').val();
+        $searchFilter.StartDate = $("#customer_analysis").find('[name="StartDate"]').val() + " " + $(this).find('[name="StartHour"]').val();
+        $searchFilter.EndDate   = $("#customer_analysis").find('[name="EndDate"]').val() + " " + $(this).find('[name="EndHour"]').val();
         data_table  = $(table_name).dataTable({
             "bDestroy": true,
             "bProcessing": true,
@@ -88,8 +88,8 @@
             e.preventDefault();
             public_vars.$body = $("body");
 
-            $searchFilter.StartDate = $(this).find('[name="StartDate"]').val();
-            $searchFilter.EndDate   = $(this).find('[name="EndDate"]').val();
+            $searchFilter.StartDate = $(this).find('[name="StartDate"]').val() + " " + $(this).find('[name="EndHour"]').val();
+            $searchFilter.EndDate   = $(this).find('[name="EndDate"]').val() + " " + $(this).find('[name="EndHour"]').val();
             data_table.fnFilter('', 0);
             return false;
         });
