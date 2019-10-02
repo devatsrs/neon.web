@@ -17,6 +17,7 @@
         //$("#add-new-config-form [name='Setting[JobTime]']").val('');
         $("#add-new-config-form [name='Setting[JobTime]']").val('').trigger("change");
         $("#add-new-config-form [name='Setting[JobDay][]']").val('').trigger("change");
+        $("#add-new-config-form [name='Setting[Nodes][]']").val('').trigger("change");
         $("#CronJobCommandID").trigger('change');
         $("#CronJobCommandID").prop("disabled", false);
         $('#add-new-modal-config h4').html('Add New Cron Job');
