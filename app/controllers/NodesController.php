@@ -11,7 +11,7 @@ class NodesController extends \BaseController {
 
 	public function ajax_datagrid(){
 		$data = Input::all();
-        $Nodes = Nodes::select('ServerName','ServerIP','Username','Status','ServerID');
+        $Nodes = Nodes::select('ServerName','ServerIP','Username','Status','ServerID','Type','ServerStatus','MaintananceStatus');
 		$Status = $data['status'] == 'true' ? 1 : 0;
 
         if(!empty($data['ServerName'])){
@@ -57,6 +57,12 @@ class NodesController extends \BaseController {
 			$data['status'] = 1;
 		}else{
 			$data['status'] = 0;
+		}
+
+		if(isset($data['MaintananceStatus'])){
+			$data['MaintananceStatus'] = 1;
+		}else{
+			$data['MaintananceStatus'] = 0;
 		}
 		
 
@@ -120,7 +126,13 @@ class NodesController extends \BaseController {
             $data['status'] = 1;
         }else{
             $data['status'] = 0;
-        }
+		}
+		
+		if(isset($data['MaintananceStatus'])){
+			$data['MaintananceStatus'] = 1;
+		}else{
+			$data['MaintananceStatus'] = 0;
+		}
 		
 		
 

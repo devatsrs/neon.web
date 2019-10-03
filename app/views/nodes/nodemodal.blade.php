@@ -45,6 +45,10 @@
                                     <input type="hidden" name="ServerID" >
                                 </div>
                                 <div class="form-group">
+                                    <label for="field-5" class="control-label">Type*</label>
+                                    {{  Form::select('Type', ['1' => 'Web','2' => 'WebDB','3' => 'App','4' => 'App DB'], '1', ['class' => 'form-control select2']) }}                                
+                                 </div>
+                                <div class="form-group">
                                     <label for="field-5" class="control-label">Server IP*</label>
                                     <input type="text" name="ServerIP" class="form-control" id="field-5" placeholder="">
                                 </div>
@@ -59,10 +63,23 @@
                             </div>
                             <br>
                             <div class="col-md-12">
-                                <label class="control-label">Status</label>
-                                <div class="panel-options">
-                                    <div class="make-switch switch-small" >
-                                        <input type="checkbox" name="status" checked>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="control-label">Status</label>
+                                        <div class="panel-options">
+                                            <div class="make-switch switch-small" >
+                                                <input type="checkbox" name="status" checked>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5"></div>
+                                    <div class="col-md-2">
+                                        <label class="control-label">Maintanence</label>
+                                        <div class="panel-options">
+                                            <div class="make-switch switch-small" >
+                                                <input type="checkbox" name="MaintananceStatus" checked>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -54,7 +54,7 @@
     </ol>
     <h3>Nodes</h3>
     <p class="text-right">
-        <a href="#" data-action="showAddModal" data-type="Node" data-modal="add-new-modal-node" class="btn btn-primary">
+        <a href="#" id="showAddModal" class="btn btn-primary">
             <i class="entypo-plus"></i>
             Add New Node
         </a>
@@ -67,6 +67,9 @@
             <th>Server Ip</th>
             <th>Usermame</th>
             <th>Status</th>
+            <th>Type</th>
+            <th>Server Status</th>
+            <th>On Maintanance</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -127,6 +130,58 @@
 
                             },
                             {
+                                "bSortable": false,
+                                mRender: function (id, type, full) {
+
+                                    var output = full[5] ;
+                                        if(output==1){
+                                            action='<span>Web</span>';
+                                        }else if(output==2){
+                                            action='<span>Web DB</span>';
+                                        }else if(output==3){
+                                            action='<span>App</span>';
+                                        }
+                                        else{
+                                            action='<span>App DB</span>';
+                                        }
+                                        return action;
+                                    }
+
+
+                            },
+                            {
+                                "bSortable": false,
+                                mRender: function (id, type, full) {
+
+                                    var output = full[6] ;
+                                    if(output==1){
+                                            action='<span>Up</span>';
+                                        }else if(output==2){
+                                            action='<span>Down</span>';
+                                        }else{
+                                            action='<span>Maintenance</span>';
+                                        }
+                                        return action;
+                                    }
+
+
+                            },
+                            {
+                                "bSortable": false,
+                                mRender: function (id, type, full) {
+
+                                    var output = full[7] ;
+                                    if(output==1){
+                                            action='<span>Yes</span>';
+                                        }else{
+                                            action='<span>No</span>';
+                                        }
+                                        return action;
+                                    }
+
+
+                            },
+                            {
                                 "bSortable": true,
                                 mRender: function ( id, type, full ) {
                                     var action , edit_ , show_, delete_ ;
@@ -136,6 +191,8 @@
                                     action += '<input type = "hidden"  name ="ServerIP" value= "' + (full[1] != null ? full[1] : '') + '" / >';
                                     action += '<input type = "hidden"  name ="Username" value= "' + (full[2] != null ? full[2] : '') + '" / >';
                                     action += '<input type = "hidden"  name ="status" value= "' + (full[3] != null ? full[3] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="Type" value= "' + (full[5] != null ? full[5] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="MaintananceStatus" value= "' + (full[7] != null ? full[7] : '') + '" / >';
                                     action += '</div>';
                                     action += ' <a data-name = "'+full[0]+'" data-id="'+ full[4] +'" title="Edit" class="edit-package btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     action += ' <a data-id="'+ full[4] +'" title="Delete" class="delete-package btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
@@ -194,6 +251,7 @@
                 $searchFilter.ServerIP = $("#node_filter [name='ServerIP']").val();
                 $searchFilter.Status = $("#node_filter [name='Status']").prop("checked");
 
+
                 data_table.fnFilter('', 0);
                 return false;
             });
@@ -201,7 +259,24 @@
             $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
             });
-      
+            
+            $('#showAddModal').on('click',function(ev){
+                ev.preventDefault();
+                ev.stopPropagation();
+                $('#add-new-node-form').trigger("reset");
+                $("#add-new-node-form [name='ServerID']").val('');
+                $("#add-new-node-form [name='ServerName']").val('');
+                $("#add-new-node-form [name='ServerIP']").val('');
+                $("#add-new-node-form [name='Username']").val('');
+                $("#add-new-node-form [name='Type']").select2().select2('val', '1');
+                $("#add-new-node-form [name='MaintananceStatus']").val('').prop('checked',false);
+              
+                $('#add-new-modal-node h4').html('Add Node');
+             
+                $('#add-new-modal-node').modal('show');
+            });
+
+
             $('table tbody').on('click','.edit-package',function(ev){
                 ev.preventDefault();
                 ev.stopPropagation();
@@ -212,11 +287,15 @@
                 ServerIP = $(this).prev("div.hiddenRowData").find("input[name='ServerIP']").val();
                 Status  = $(this).prev("div.hiddenRowData").find("input[name='status']").val();
                 Username  = $(this).prev("div.hiddenRowData").find("input[name='Username']").val();
+                Type  = $(this).prev("div.hiddenRowData").find("input[name='Type']").val();
+                MaintananceStatus  = $(this).prev("div.hiddenRowData").find("input[name='MaintananceStatus']").val();
 
                 $("#add-new-node-form [name='ServerID']").val(ServerID);
                 $("#add-new-node-form [name='ServerName']").val(ServerName);
                 $("#add-new-node-form [name='ServerIP']").val(ServerIP);
                 $("#add-new-node-form [name='Username']").val(Username);
+                $("#add-new-node-form [name='Type']").select2().select2('val', Type);
+                $("#add-new-node-form [name='MaintananceStatus']").val(MaintananceStatus).prop('checked', MaintananceStatus == 1);
                 $("#add-new-node-form [name='status']").val(Status).prop('checked', Status == 1);
                 $('#add-new-modal-node h4').html('Edit Node');
                
