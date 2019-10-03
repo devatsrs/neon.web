@@ -24,7 +24,7 @@ class Process
             $this->runCom($serverip);
         }
     }
-    private function runCom($serverip){
+    private function runCom($serverip = ""){
         //@TODO: need to fix for Window
         $command = 'nohup '.$this->command.'  >/dev/null 2>/dev/null & printf "%u" $!';
         $op = RemoteSSH::run([$command],$serverip);
@@ -40,7 +40,7 @@ class Process
         return $this->pid;
     }
 
-    public function status($serverip){
+    public function status($serverip = ""){
         $command = 'ps -p '.$this->pid;
         //exec($command,$op);
         $op = RemoteSSH::run([$command],$serverip);
