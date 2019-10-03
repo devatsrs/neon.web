@@ -12,12 +12,31 @@ class Nodes extends \Eloquent {
 
     public static $rules = array(
         'ServerName' =>      'required|unique:tblNode',
-        'ServerIP' =>      'required|unique:tblNode',
-        'Username' =>      'required|unique:tblNode',
+        'ServerIP'   =>      'required|unique:tblNode',
+        'LocalIP'    =>      'required|unique:tblNode',
+        'Username'   =>      'required|unique:tblNode',
     );
 
     public static function getActiveNodes(){
         $Nodes = Nodes::where('Status','1')->lists('ServerName','ServerIP');
         return $Nodes;
+    }
+
+    public static function getServersFromCronJob($CronJobID,$CompanyID){
+        $Cron = CronJob::where(['CronJobID' => $CronJobID , 'CompanyID' => $CompanyID])->first();
+		$Nodes = json_decode($Cron->Settings,true);
+		$CheckServerStatus = [];
+		if(!empty($Nodes['Nodes'])){
+			return $CheckServerStatus = $Nodes['Nodes'];
+        }else{
+            return $CheckServerStatus;
+        }	
+    }
+
+    public static function getCurrentIpOfServer(){
+        $host      = gethostname();
+        $CurrentIp = gethostbyname($host);
+
+        return $CurrentIp;
     }
 }

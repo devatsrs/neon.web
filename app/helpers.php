@@ -1568,9 +1568,9 @@ function terminate_process($pid){
     return $status;
 
 }
-function run_process($command) {
-    $process = new Process($command);
-    return $status = $process->status();
+function run_process($command,$serverip = '') {
+    $process = new Process($command,$serverip);
+    return $status = $process->status($serverip);
 }
 
 function run_artisan_command($CompanyID, $Command, $extr_perams = "") {

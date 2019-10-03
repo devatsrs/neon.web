@@ -48,6 +48,10 @@
                                     <label for="field-5" class="control-label">Type*</label>
                                     {{  Form::select('Type', ['1' => 'Web','2' => 'WebDB','3' => 'App','4' => 'App DB'], '1', ['class' => 'form-control select2']) }}                                
                                  </div>
+                                 <div class="form-group">
+                                    <label for="field-5" class="control-label">Local IP*</label>
+                                    <input type="text" name="LocalIP" class="form-control" id="field-5" placeholder="">
+                                </div>
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Server IP*</label>
                                     <input type="text" name="ServerIP" class="form-control" id="field-5" placeholder="">

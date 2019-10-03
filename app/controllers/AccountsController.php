@@ -3466,7 +3466,6 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         
         
         ->where('tblCLIRateTable.AccountID',$id)
-        ->where('tblCLIRateTable.Status',1)
         ->groupBy('tblAccountService.AccountServiceID')
         ->groupBy('tblAccountService.AccountID')
         ->get();
