@@ -4,15 +4,30 @@ class RemoteSSH{
     private static $config = array();
     public static $uploadPath = '';
 
-    public static function setConfig(){
-
+    public static function setConfig($serverip){
         $Configuration = CompanyConfiguration::getConfiguration();
-        if(!empty($Configuration)){
-            self::$config = json_decode($Configuration['SSH'],true);
-            self::$uploadPath = $Configuration['UPLOAD_PATH'];
-        }
-        if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['username']) && isset(self::$config['password'])){
-            Config::set('remote.connections.production',self::$config);
+        if($serverip != ""){
+           
+            $Nodes = Nodes::where('ServerIP',$serverip)->first();
+            if(!empty($Nodes)){
+                self::$config = json_decode($Nodes,true);
+                self::$config['password'] = Crypt::decrypt(self::$config['Password']);
+                self::$config['host']     = self::$config['ServerIP'];
+                self::$config['username'] = self::$config['Username'];
+                self::$uploadPath = $Configuration['UPLOAD_PATH'];
+
+            }
+            if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['username']) && isset(self::$config['password'])){
+                Config::set('remote.connections.production',self::$config);
+            }
+        }else{
+            if(!empty($Configuration)){
+                self::$config = json_decode($Configuration['SSH'],true);
+                self::$uploadPath = $Configuration['UPLOAD_PATH'];
+            }
+            if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['username']) && isset(self::$config['password'])){
+                Config::set('remote.connections.production',self::$config);
+            }
         }
     }
 
@@ -20,9 +35,9 @@ class RemoteSSH{
      * @param array $commands
      * @return array
      */
-    public static function run($commands = array()){
+    public static function run($commands = array(),$serverip = ""){
 
-        self::setConfig();
+        self::setConfig($serverip);
 
         \Illuminate\Support\Facades\Log::info($commands);
 

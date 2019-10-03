@@ -65,6 +65,7 @@
         <tr>
             <th>Server Name</th>
             <th>Server Ip</th>
+            <th>Local Ip</th>
             <th>Usermame</th>
             <th>Status</th>
             <th>Type</th>
@@ -113,12 +114,13 @@
                         [
                             { "bSortable": true }, //ServerName
                             { "bSortable": true }, //ServerIP
+                            { "bSortable": true }, //LocalIP
                             { "bSortable": true }, //Username
                             {
                                 "bSortable": false,
                                 mRender: function (id, type, full) {
 
-                                    var output = full[3] ;
+                                    var output = full[4] ;
                                         if(output==1){
                                             action='<i class="entypo-check" style="font-size:22px;color:green"></i>';
                                         }else{
@@ -133,7 +135,7 @@
                                 "bSortable": false,
                                 mRender: function (id, type, full) {
 
-                                    var output = full[5] ;
+                                    var output = full[6] ;
                                         if(output==1){
                                             action='<span>Web</span>';
                                         }else if(output==2){
@@ -153,7 +155,7 @@
                                 "bSortable": false,
                                 mRender: function (id, type, full) {
 
-                                    var output = full[6] ;
+                                    var output = full[7] ;
                                     if(output==1){
                                             action='<span>Up</span>';
                                         }else if(output==2){
@@ -170,7 +172,7 @@
                                 "bSortable": false,
                                 mRender: function (id, type, full) {
 
-                                    var output = full[7] ;
+                                    var output = full[8] ;
                                     if(output==1){
                                             action='<span>Yes</span>';
                                         }else{
@@ -186,16 +188,17 @@
                                 mRender: function ( id, type, full ) {
                                     var action , edit_ , show_, delete_ ;
                                     action = '<div class = "hiddenRowData" >';
-                                    action += '<input type = "hidden"  name ="ServerID" value= "' + (full[4] != null ? full[4] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="ServerID" value= "' + (full[5] != null ? full[5] : '') + '" / >';
                                     action += '<input type = "hidden"  name ="ServerName" value= "' + (full[0] != null ? full[0] : '') + '" / >';
                                     action += '<input type = "hidden"  name ="ServerIP" value= "' + (full[1] != null ? full[1] : '') + '" / >';
-                                    action += '<input type = "hidden"  name ="Username" value= "' + (full[2] != null ? full[2] : '') + '" / >';
-                                    action += '<input type = "hidden"  name ="status" value= "' + (full[3] != null ? full[3] : '') + '" / >';
-                                    action += '<input type = "hidden"  name ="Type" value= "' + (full[5] != null ? full[5] : '') + '" / >';
-                                    action += '<input type = "hidden"  name ="MaintananceStatus" value= "' + (full[7] != null ? full[7] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="LocalIP" value= "' + (full[2] != null ? full[2] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="Username" value= "' + (full[3] != null ? full[3] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="status" value= "' + (full[4] != null ? full[4] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="Type" value= "' + (full[6] != null ? full[6] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="MaintananceStatus" value= "' + (full[8] != null ? full[8] : '') + '" / >';
                                     action += '</div>';
-                                    action += ' <a data-name = "'+full[0]+'" data-id="'+ full[4] +'" title="Edit" class="edit-package btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                                    action += ' <a data-id="'+ full[4] +'" title="Delete" class="delete-package btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                    action += ' <a data-name = "'+full[0]+'" data-id="'+ full[5] +'" title="Edit" class="edit-package btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    action += ' <a data-id="'+ full[5] +'" title="Delete" class="delete-package btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                                     return action;
                                 }
                             }
@@ -267,6 +270,7 @@
                 $("#add-new-node-form [name='ServerID']").val('');
                 $("#add-new-node-form [name='ServerName']").val('');
                 $("#add-new-node-form [name='ServerIP']").val('');
+                $("#add-new-node-form [name='LocalIP']").val('');
                 $("#add-new-node-form [name='Username']").val('');
                 $("#add-new-node-form [name='Type']").select2().select2('val', '1');
                 $("#add-new-node-form [name='MaintananceStatus']").val('').prop('checked',false);
@@ -285,14 +289,18 @@
                 ServerID = $(this).prev("div.hiddenRowData").find("input[name='ServerID']").val();
                 ServerName = $(this).prev("div.hiddenRowData").find("input[name='ServerName']").val();
                 ServerIP = $(this).prev("div.hiddenRowData").find("input[name='ServerIP']").val();
+                LocalIP = $(this).prev("div.hiddenRowData").find("input[name='LocalIP']").val();
                 Status  = $(this).prev("div.hiddenRowData").find("input[name='status']").val();
                 Username  = $(this).prev("div.hiddenRowData").find("input[name='Username']").val();
                 Type  = $(this).prev("div.hiddenRowData").find("input[name='Type']").val();
                 MaintananceStatus  = $(this).prev("div.hiddenRowData").find("input[name='MaintananceStatus']").val();
 
+                LocalIP
+
                 $("#add-new-node-form [name='ServerID']").val(ServerID);
                 $("#add-new-node-form [name='ServerName']").val(ServerName);
                 $("#add-new-node-form [name='ServerIP']").val(ServerIP);
+                $("#add-new-node-form [name='LocalIP']").val(LocalIP);
                 $("#add-new-node-form [name='Username']").val(Username);
                 $("#add-new-node-form [name='Type']").select2().select2('val', Type);
                 $("#add-new-node-form [name='MaintananceStatus']").val(MaintananceStatus).prop('checked', MaintananceStatus == 1);
