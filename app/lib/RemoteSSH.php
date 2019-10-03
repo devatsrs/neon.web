@@ -11,11 +11,13 @@ class RemoteSSH{
             $Nodes = Nodes::where('ServerIP',$serverip)->first();
             if(!empty($Nodes)){
                 self::$config = json_decode($Nodes,true);
-                self::$config['Password'] = Crypt::decrypt(self::$config['Password']);
+                self::$config['password'] = Crypt::decrypt(self::$config['Password']);
+                self::$config['host']     = self::$config['ServerIP'];
+                self::$config['username'] = self::$config['Username'];
                 self::$uploadPath = $Configuration['UPLOAD_PATH'];
 
             }
-            if(count(self::$config) && isset(self::$config['ServerIP']) && isset(self::$config['Username']) && isset(self::$config['Password'])){
+            if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['username']) && isset(self::$config['password'])){
                 Config::set('remote.connections.production',self::$config);
             }
         }else{
