@@ -1241,6 +1241,7 @@ function check_uri($parent_link=''){
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","FileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
     $array_summary    =    array("Summary");
+    $array_deals      =    array("DealManagement");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling","AutoRateImport");
     $array_autoImport =	   array("AutoRateImport");
 	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours","TicketImportRules");
@@ -1281,6 +1282,10 @@ function check_uri($parent_link=''){
         }
 
         if(in_array($controller,$array_rates) && $parent_link =='Rates')
+        {
+            return 'opened';
+        }
+        if(in_array($controller,$array_deals) && $parent_link =='DealManagement')
         {
             return 'opened';
         }
@@ -2159,47 +2164,80 @@ function removeElementWithValue($array, $key, $value){
 function recursive($array, $level = 1){
     $table_header_filter='';
     foreach($array as $key => $value){
-        $table_header_filter .= ', <b>'.$key . ":</b> " ; 
-        //If $value is an array.
-        if(is_array($value)){
-            //We need to loop through it.
-            foreach($value as $key1 => $value1){
-                if(is_array($value1)){
-                    foreach($value1 as $key2 => $value2){
-                        if(is_array($value2)){
-                            foreach($value2 as $key3 => $value3){
-                                if(is_array($value3)){
-                                    foreach($value3 as $key4 => $value4){
-                                        
-                                    }
-                                }else{
-                                    if(!empty($value3) && $value1!='none' && $value1!='='){
-                                       // $table_header_filter .= $key3 . ": " . $value3.', ';
-                                         $table_header_filter .= $value3.', ';
-                                    }
-                                }
-                            }
-                        }else{
-                            if(!empty($value2) && $value1!='none' && $value1!='='){
-                               // $table_header_filter .= $key2 . ": " . $value2.', ';
-                                 $table_header_filter .= $value2.', ';
-                            }
-                        }
-                    }
-                }else{
+        if($key=='date'){
+            $date_range_filter='';if(isset($value['date_range_filter'])){$value['date_range_filter'].', ';}
+            $table_header_filter .= ', <b>'.$key . ":</b> ".$date_range_filter.$value['start_date'].' - '.$value['end_date']; 
+        }else if($key=='AccountName'){
+            $table_header_filter .= ', <b>'.$key . ":</b> " ; 
+            if(is_array($value)){
+                foreach($value['AccountName'] as $key1 => $value1){
                     if(!empty($value1) && $value1!='none' && $value1!='='){
-                        //$table_header_filter .= $key1 . ": " . $value1.', ';
-                        $table_header_filter .= $value1.', ';
+                        $accounts = Account::find($value1);
+                        $accountsName=$accounts->AccountName;
+                        $table_header_filter .= $accountsName.', ';
                     }
                 }
             }
-        } else{
-            //It is not an array, so print it out.
-            $table_header_filter .= $value.'';
+        }else if($key=='CountryID'){
+            $table_header_filter .= ', <b>'.$key . ":</b> " ; 
+            if(is_array($value)){
+                foreach($value['CountryID'] as $key1 => $value1){
+                    if(!empty($value1) && $value1!='none' && $value1!='='){
+                        $accounts = Country::find($value1);
+                        $accountsName=$accounts->Country;
+                        $table_header_filter .= $accountsName.', ';
+                    }
+                }
+            }     
+        }else{
+            $table_header_filter .= ', <b>'.$key . ":</b> " ; 
+            if(isset($value['start_date'])){$value['start_date']='';}
+            if(isset($value['end_date'])){$value['end_date']='';}
+            if(isset($value['date_range_filter'])){$value['date_range_filter']='';}
+            
+            //If $value is an array.
+            if(is_array($value)){
+                //We need to loop through it.
+                foreach($value as $key1 => $value1){
+                    if(is_array($value1)){
+                        foreach($value1 as $key2 => $value2){
+                            if(is_array($value2)){
+                                foreach($value2 as $key3 => $value3){
+                                    if(is_array($value3)){
+                                        foreach($value3 as $key4 => $value4){
+
+                                        }
+                                    }else{
+                                        if(!empty($value3) && $value1!='none' && $value1!='='){
+                                           // $table_header_filter .= $key3 . ": " . $value3.', ';
+                                             $table_header_filter .= $value3.', ';
+                                        }
+                                    }
+                                }
+                            }else{
+                                if(!empty($value2) && $value1!='none' && $value1!='='){
+                                   // $table_header_filter .= $key2 . ": " . $value2.', ';
+                                     $table_header_filter .= $value2.', ';
+                                }
+                            }
+                        }
+                    }else{
+                        if(!empty($value1) && $value1!='none' && $value1!='='){
+                            //$table_header_filter .= $key1 . ": " . $value1.', ';
+                            $table_header_filter .= $value1.', ';
+                        }
+                    }
+                }
+            } else{
+                //It is not an array, so print it out.
+                $table_header_filter .= $value.'';
+            }
+            $table_header_filter=rtrim($table_header_filter, ', ');
         }
-        $table_header_filter=rtrim($table_header_filter, ', ');
     }
     $table_header_filter=rtrim($table_header_filter, ', ');
+    $table_header_filter = substr($table_header_filter, 1);
+    $table_header_filter = str_replace("on,","All", $table_header_filter);
     return $table_header_filter;
 }
 function table_html($data,$table_data){
@@ -2215,6 +2253,7 @@ function table_html($data,$table_data){
         $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
     }
     //Show Filter in Files
+    //print_r($data['filter_settings']);
     $filters = json_decode($data['filter_settings'],true);
     $table_header .= '<tr>';
     $table_header .= '<td colspan="20" style="background-color:#fff"><b>Filter: </b>';
@@ -2369,7 +2408,14 @@ function generateReportTable2($data,$response,$all_data_list)
 
         $table .= '</table>';
     }else{
-        $table = 'No Data Found Or Select at least one Measure';
+        $filters = json_decode($data['filter_settings'],true);
+        $table = '<table class="table table-bordered">';
+        $table .= '<tr>';
+        $table .= '<td colspan="20" style="background-color:#fff"><b>Filter: </b>';
+        $table_header_filter=recursive($filters);
+        $table .=$table_header_filter;
+        $table .= '</td></tr>';
+        $table .= '<tr><td colspan="20">No Data Found Or Select at least one Measure</td></tr></table>';
     }
 
     return $table;
@@ -3130,6 +3176,11 @@ function getCompanyDecimalPlaces($CompanyID=0, $value=""){
     }
 }
 
+function terminateMysqlProcess($pid){
+    $cmd="KILL ".$pid;
+    DB::connection('sqlsrv2')->select($cmd);
+
+}
 
 function getItemType($id){
     return ItemType::where('ItemTypeID',$id)->pluck('title');

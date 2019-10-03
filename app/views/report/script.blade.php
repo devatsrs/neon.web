@@ -23,7 +23,7 @@
     var column_function = {'top5':'Top 5', 'top10':'Top 10','bottom5':'Bottom 5','bottom10':'Bottom 10','':'Actual','min':'Min','max':'Max','sum':'Sum','avg':'Average','count':'Count','count_distinct':'Count Distinct'};
     function getLastDates(duration) {
         var today = new Date();
-        if(duration == '1Days'){
+        if(duration == '1Days' || duration=='1Day'){
             var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
         }
         if(duration == '2Days'){
@@ -58,15 +58,13 @@
         }
         return lastWeek;
     }
-    $( function() {
-        //
-    $("#add-new-filter-form [name='date_range_filter']").on('change', function () {
-        if($(this).val() == 'Custom'){
+    function daterangfilter(flagval){
+        if(flagval == 'Custom'){
             $('#custom_date_range_filter').show();
         }else {
             $('#custom_date_range_filter').hide();
         }
-        var lastWeek = getLastDates($(this).val());
+        var lastWeek = getLastDates(flagval);
         var lastWeekMonth = lastWeek.getMonth() + 1;
         var lastWeekDay = lastWeek.getDate();
         var lastWeekYear = lastWeek.getFullYear();
@@ -76,6 +74,22 @@
         //console.log(lastWeekDisplay);
         console.log(lastWeekDisplayPadded);
         $('#field-sdate').val(lastWeekDisplayPadded);
+        
+        //End Date
+        var lastWeek = getLastDates('Today');
+        var lastWeekMonth = lastWeek.getMonth() + 1;
+        var lastWeekDay = lastWeek.getDate();
+        var lastWeekYear = lastWeek.getFullYear();
+
+        var lastWeekDisplay = lastWeekMonth + "-" + lastWeekDay + "-" + lastWeekYear;
+        var lastWeekDisplayPadded = ("0000" + lastWeekYear.toString()).slice(-4) + "-" +("00" + lastWeekMonth.toString()).slice(-2) + "-" + ("00" + lastWeekDay.toString()).slice(-2) ;
+        console.log(lastWeekDisplayPadded);
+        $('#field-edate').val(lastWeekDisplayPadded);
+    }
+    $( function() {
+        //
+    $("#add-new-filter-form [name='date_range_filter']").on('change', function () {
+        daterangfilter($(this).val());
     });
         // There's the Dimension and the Measures
         var $Dimension = $( "#Dimension" ),
@@ -171,6 +185,11 @@
 
         $($Filter).on('click', '.dimension', function(e) {
             show_filter($(this));
+            try{
+                popupdate=$('#add-new-filter-form [name="date_range_filter"] option:selected').text();
+                console.log(popupdate);
+                daterangfilter(popupdate);
+            }catch(datefil){}
         });
         $($Filter).on('click', '.measures', function(e) {
             show_filter($(this));
@@ -434,6 +453,7 @@
 
         }
         function show_filter($items){
+            
             var col_val=  $items.attr('data-val');
             $('#hidden_filter_col').val(col_val);
             var data = $("#report-row-col").serialize();

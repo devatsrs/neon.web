@@ -816,13 +816,16 @@ Route::group(array('before' => 'auth'), function () {
 	//Deal Management
 	Route::any('/dealmanagement', 'DealManagementController@index');
 	Route::any('dealmanagement/ajax_datagrid', 'DealManagementController@ajax_datagrid');
-	Route::any('dealmanagement/exports/{type}', 'DealManagementController@ajax_datagrid');
+	Route::any('dealmanagement/ajax_datagrid/{type}', 'DealManagementController@ajax_datagrid');
 	Route::any('dealmanagement/create', "DealManagementController@create");
 	Route::any('dealmanagement/store','DealManagementController@store');
 	Route::any('dealmanagement/{id}/delete', 'DealManagementController@delete');
 	Route::any('dealmanagement/{id}/edit', 'DealManagementController@edit');
 	Route::any('dealmanagement/{id}/update', "DealManagementController@update");
+	Route::any('dealmanagement/get_destination_breaks', "DealManagementController@getDestinationBreak");
 
+	Route::any('dealmanagement/{id}/report/{type}', 'DealManagementController@report');
+	Route::any('dealmanagement/{id}/get_report/{type}', "DealManagementController@get_report");
 	//Pages
 	Route::any('/about', 'PagesController@about');
 	Route::resource('page', 'PagesController');

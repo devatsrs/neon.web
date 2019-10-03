@@ -65,7 +65,7 @@
     @if(User::checkCategoryPermission('VOSActiveCall','View') &&  CompanyConfiguration::getValueConfigurationByKey('VOS_ACTIVECALL_MENU',User::get_companyID()) == '1')
         <li>
             <a href="{{ URL::to('/VOS_ActiveCalls') }}" >
-                <span class="hidden-xs">Active Calls</span>
+                <span class="hidden-xs">Current Call</span>
             </a>
         </li>
     @endif

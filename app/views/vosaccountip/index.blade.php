@@ -75,20 +75,20 @@ td {
 <br>
 
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-    @if(User::checkCategoryPermission('AccountIP','View'))
+
         <li class="active">
             <a href="" >
                 <span class="hidden-xs">Mapping Gateways</span>
             </a>
         </li>
-    @endif
 
+    @if(User::checkCategoryPermission('VOSRoutingGateway','View'))
     <li>
         <a href="{{ URL::to('VOS/RoutingGateway') }}" >
             <span class="hidden-xs">Routing Gateways</span>
         </a>
     </li>
-
+    @endif
 
 
 

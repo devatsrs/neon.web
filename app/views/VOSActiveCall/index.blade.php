@@ -66,7 +66,7 @@
 
     <li class="active">
         <a href="{{ URL::to('/VOS_ActiveCalls') }}" >
-            <span class="hidden-xs">Active Calls</span>
+            <span class="hidden-xs">Current Call</span>
         </a>
     </li>
 
