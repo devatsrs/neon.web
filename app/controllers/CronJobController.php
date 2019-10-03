@@ -303,7 +303,8 @@ class CronJobController extends \BaseController {
                 if(count($CheckServerUp) > 0){
                     if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
                         $command = CompanyConfiguration::get("PHP_EXE_PATH"). " " .CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
-                        $Success = run_process($command,$CheckServerUp['ServerIP']);
+                        RemoteSSH::$ServerIp = $CheckServerUp['ServerIP'];
+                        $Success = run_process($command);
                         $Server = true;
                         break;
                     }   
@@ -367,7 +368,7 @@ class CronJobController extends \BaseController {
      * @return mixed
      */
     public function change_crontab_status($Status=1){
-
+       
         if($Status == 0 ){
             $Status_to = "Cron Tab Stopped";
         }else {

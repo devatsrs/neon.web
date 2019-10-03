@@ -18,16 +18,16 @@ class Process
     private $pid;
     private $command;
 
-    public function __construct($cl=false,$serverip = ""){
+    public function __construct($cl=false){
         if ($cl != false){
             $this->command = $cl;
-            $this->runCom($serverip);
+            $this->runCom();
         }
     }
-    private function runCom($serverip = ""){
+    private function runCom(){
         //@TODO: need to fix for Window
         $command = 'nohup '.$this->command.'  >/dev/null 2>/dev/null & printf "%u" $!';
-        $op = RemoteSSH::run([$command],$serverip);
+        $op = RemoteSSH::run([$command]);
         //exec($command ,$op);
         $this->pid = (int)$op;
     }
@@ -40,10 +40,10 @@ class Process
         return $this->pid;
     }
 
-    public function status($serverip = ""){
+    public function status(){
         $command = 'ps -p '.$this->pid;
         //exec($command,$op);
-        $op = RemoteSSH::run([$command],$serverip);
+        $op = RemoteSSH::run([$command]);
 
         if ($op > 0){
             return true ;
