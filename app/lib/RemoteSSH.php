@@ -35,7 +35,7 @@ class RemoteSSH{
      * @param array $commands
      * @return array
      */
-    public static function run($commands = array(),$serverip){
+    public static function run($commands = array(),$serverip = ""){
 
         self::setConfig($serverip);
 
