@@ -11,7 +11,7 @@ class NodesController extends \BaseController {
 
 	public function ajax_datagrid(){
 		$data = Input::all();
-        $Nodes = Nodes::select('ServerName','ServerIP','Username','Status','ServerID','Type','ServerStatus','MaintananceStatus');
+        $Nodes = Nodes::select('ServerName','ServerIP','LocalIP','Username','Status','ServerID','Type','ServerStatus','MaintananceStatus');
 		$Status = $data['status'] == 'true' ? 1 : 0;
 
         if(!empty($data['ServerName'])){
@@ -75,8 +75,14 @@ class NodesController extends \BaseController {
 		 }
 
 		 $data['Password'] = Crypt::encrypt($data['Password']);
-		 $valid = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
-		 if(!$valid){
+		 
+		 $validServerIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
+		 $validLocalIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['LocalIP']);
+		 
+		 if(!$validServerIp){
+			return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
+		 }
+		 if(!$validLocalIp){
 			return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
 		 }
 
@@ -140,6 +146,7 @@ class NodesController extends \BaseController {
         $Node = Nodes::find($id);
 		Nodes::$rules["ServerName"] = 'required|unique:tblNode,ServerName,'.$id.',ServerID';
 		Nodes::$rules["ServerIP"] = 'required|unique:tblNode,ServerIP,'.$id.',ServerID';
+		Nodes::$rules["LocalIP"] = 'required|unique:tblNode,LocalIP,'.$id.',ServerID';
 		Nodes::$rules["Username"] = 'required|unique:tblNode,ServerIP,'.$id.',ServerID';
 
 
@@ -156,8 +163,13 @@ class NodesController extends \BaseController {
 		}
 
 		
-		$valid = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
-		if(!$valid){
+		$validServerIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
+		$validLocalIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['LocalIP']);
+		
+		if(!$validServerIp){
+		   return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
+		}
+		if(!$validLocalIp){
 		   return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
 		}
 
