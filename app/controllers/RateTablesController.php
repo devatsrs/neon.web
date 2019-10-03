@@ -679,6 +679,7 @@ class RateTablesController extends \BaseController {
                 $criteria['ApprovedStatus']         = isset($criteria['ApprovedStatus']) && $criteria['ApprovedStatus'] != '' ? "'".$criteria['ApprovedStatus']."'" : 'NULL';
                 $criteria['City']                   = !empty($criteria['City']) && $criteria['City'] != '' ? "'" . $criteria['City'] . "'" : 'NULL';
                 $criteria['Tariff']                 = !empty($criteria['Tariff']) && $criteria['Tariff'] != '' ? "'" . $criteria['Tariff'] . "'" : 'NULL';
+                $criteria['AccessType']             = !empty($criteria['AccessType']) && $criteria['AccessType'] != '' ? "'" . $criteria['AccessType'] . "'" : 'NULL';
 
                 $RateTableID                = $id;
                 $RateTableDIDRateID         = $data['RateTableDIDRateID'];
@@ -695,7 +696,7 @@ class RateTablesController extends \BaseController {
                 $PercentageCondition        = !empty($criteria['PercentageCondition']) && $criteria['PercentageCondition'] == '>=' ? '>=' : '<=';
                 $criteria['Percentage']     = isset($criteria['Percentage']) && $criteria['Percentage'] != '' ? "'".$PercentageCondition.$criteria['Percentage']."'" : 'NULL';
 
-                $query = "call prc_RateTableDIDRateApprove (" . $RateTableID . ",'" . $RateTableDIDRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['OriginationCode'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . "," . $criteria['Percentage'] . "," . $criteria['City'] . "," . $criteria['Tariff'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableDIDRateApprove (" . $RateTableID . ",'" . $RateTableDIDRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['OriginationCode'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . "," . $criteria['Percentage'] . "," . $criteria['City'] . "," . $criteria['Tariff'] . "," . $criteria['AccessType'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 //Log::info($query);
                 $results = DB::statement($query);
 
@@ -1001,7 +1002,7 @@ class RateTablesController extends \BaseController {
             $RateTableRate['AccessType']    = !empty($data['AccessType']) ? $data['AccessType'] : '';
 
             if(!($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)) {
-                $rules['RateID'] = 'required|unique:tblRateTableDIDRate,RateID,NULL,RateTableDIDRateID,RateTableId,' . $id . ',TimezonesID,' . $RateTableRate['TimezonesID'] . ',EffectiveDate,' . $RateTableRate['EffectiveDate'] . ',OriginationRateID,' . $RateTableRate['OriginationRateID'] . ',City,' . $RateTableRate['City']. ',Tariff,' . $RateTableRate['Tariff'];
+                $rules['RateID'] = 'required|unique:tblRateTableDIDRate,RateID,NULL,RateTableDIDRateID,RateTableId,' . $id . ',TimezonesID,' . $RateTableRate['TimezonesID'] . ',EffectiveDate,' . $RateTableRate['EffectiveDate'] . ',OriginationRateID,' . $RateTableRate['OriginationRateID'] . ',City,' . $RateTableRate['City']. ',Tariff,' . $RateTableRate['Tariff']. ',AccessType,' . $RateTableRate['AccessType'];
                 $message['RateID.unique'] = 'This combination of Origination Rate and Destination Rate on given Effective Date is already exist!';
             }
         } else {
