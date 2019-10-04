@@ -3,12 +3,13 @@
 class RemoteSSH{
     private static $config = array();
     public static $uploadPath = '';
+    public static $ServerIp = '';
 
-    public static function setConfig($serverip){
+    public static function setConfig(){
         $Configuration = CompanyConfiguration::getConfiguration();
-        if($serverip != ""){
+        if(self::$ServerIp != ""){
            
-            $Nodes = Nodes::where('ServerIP',$serverip)->first();
+            $Nodes = Nodes::where('ServerIP',self::$ServerIp)->first();
             if(!empty($Nodes)){
                 self::$config = json_decode($Nodes,true);
                 self::$config['password'] = Crypt::decrypt(self::$config['Password']);
@@ -35,9 +36,9 @@ class RemoteSSH{
      * @param array $commands
      * @return array
      */
-    public static function run($commands = array(),$serverip = ""){
+    public static function run($commands = array()){
 
-        self::setConfig($serverip);
+        self::setConfig();
 
         \Illuminate\Support\Facades\Log::info($commands);
 

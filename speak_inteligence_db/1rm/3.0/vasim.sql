@@ -4594,56 +4594,56 @@ ThisSP:BEGIN
 --			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 
          CONCAT(IF(CurrentOneOffCost IS NULL,'',CurrentOneOffCostCurrencySymbol),IFNULL(CurrentOneOffCost,'-'),'\n',IF(OneOffCost IS NULL,'',OneOffCostCurrencySymbol),IFNULL(OneOffCost,'-')) AS `One-Off Cost`,
-			IF(OneOffCostMargin IS NULL, '-',OneOffCostMargin) AS `One-Off Cost Margin`,
-			IF(OneOffCostMarginPercent IS NULL, '-',CONCAT(OneOffCostMarginPercent,'%')) AS `One-Off Cost Margin %`,
+			IF(OneOffCostMargin IS NULL, '-',OneOffCostMargin) AS `One-Off Cost Diff.`,
+			IF(OneOffCostMarginPercent IS NULL, '-',CONCAT(OneOffCostMarginPercent,'%')) AS `One-Off Cost Diff. %`,
 
 			CONCAT(IF(CurrentMonthlyCost IS NULL,'',CurrentMonthlyCostCurrencySymbol),IFNULL(CurrentMonthlyCost,'-'),'\n',IF(MonthlyCost IS NULL,'',MonthlyCostCurrencySymbol),IFNULL(MonthlyCost,'-')) AS `Monthly Cost`,
-			IF(MonthlyCostMargin IS NULL, '-',MonthlyCostMargin) AS `Monthly Cost Margin`,
-			IF(MonthlyCostMarginPercent IS NULL, '-',CONCAT(MonthlyCostMarginPercent,'%')) AS `Monthly Cost Margin %`,
+			IF(MonthlyCostMargin IS NULL, '-',MonthlyCostMargin) AS `Monthly Cost Diff.`,
+			IF(MonthlyCostMarginPercent IS NULL, '-',CONCAT(MonthlyCostMarginPercent,'%')) AS `Monthly Cost Diff. %`,
 
 			CONCAT(IF(CurrentCostPerCall IS NULL,'',CurrentCostPerCallCurrencySymbol),IFNULL(CurrentCostPerCall,'-'),'\n',IF(CostPerCall IS NULL,'',CostPerCallCurrencySymbol),IFNULL(CostPerCall,'-')) AS `Cost Per Call`,
-			IF(CostPerCallMargin IS NULL, '-',CostPerCallMargin) AS `Cost Per Call Margin`,
-			IF(CostPerCallMarginPercent IS NULL, '-',CONCAT(CostPerCallMarginPercent,'%')) AS `Cost Per Call Margin %`,
+			IF(CostPerCallMargin IS NULL, '-',CostPerCallMargin) AS `Cost Per Call Diff.`,
+			IF(CostPerCallMarginPercent IS NULL, '-',CONCAT(CostPerCallMarginPercent,'%')) AS `Cost Per Call Diff. %`,
 
 			CONCAT(IF(CurrentCostPerMinute IS NULL,'',CurrentCostPerMinuteCurrencySymbol),IFNULL(CurrentCostPerMinute,'-'),'\n',IF(CostPerMinute IS NULL,'',CostPerMinuteCurrencySymbol),IFNULL(CostPerMinute,'-')) AS `Cost Per Minute`,
-			IF(CostPerMinuteMargin IS NULL, '-',CostPerMinuteMargin) AS `Cost Per Minute Margin`,
-			IF(CostPerMinuteMarginPercent IS NULL, '-',CONCAT(CostPerMinuteMarginPercent,'%')) AS `Cost Per Minute Margin %`,
+			IF(CostPerMinuteMargin IS NULL, '-',CostPerMinuteMargin) AS `Cost Per Minute Diff.`,
+			IF(CostPerMinuteMarginPercent IS NULL, '-',CONCAT(CostPerMinuteMarginPercent,'%')) AS `Cost Per Minute Diff. %`,
 
 			CONCAT(IF(CurrentSurchargePerCall IS NULL,'',CurrentSurchargePerCallCurrencySymbol),IFNULL(CurrentSurchargePerCall,'-'),'\n',IF(SurchargePerCall IS NULL,'',SurchargePerCallCurrencySymbol),IFNULL(SurchargePerCall,'-')) AS `Surcharge Per Call`,
-			IF(SurchargePerCallMargin IS NULL, '-',SurchargePerCallMargin) AS `Surcharge Per Call Margin`,
-			IF(SurchargePerCallMarginPercent IS NULL, '-',CONCAT(SurchargePerCallMarginPercent,'%')) AS `Surcharge Per Call Margin %`,
+			IF(SurchargePerCallMargin IS NULL, '-',SurchargePerCallMargin) AS `Surcharge Per Call Diff.`,
+			IF(SurchargePerCallMarginPercent IS NULL, '-',CONCAT(SurchargePerCallMarginPercent,'%')) AS `Surcharge Per Call Diff. %`,
 
 			CONCAT(IF(CurrentSurchargePerMinute IS NULL,'',CurrentSurchargePerMinuteCurrencySymbol),IFNULL(CurrentSurchargePerMinute,'-'),'\n',IF(SurchargePerMinute IS NULL,'',SurchargePerMinuteCurrencySymbol),IFNULL(SurchargePerMinute,'-')) AS `Surcharge Per Minute`,
-			IF(SurchargePerMinuteMargin IS NULL, '-',SurchargePerMinuteMargin) AS `Surcharge Per Minute Margin`,
-			IF(SurchargePerMinuteMarginPercent IS NULL, '-',CONCAT(SurchargePerMinuteMarginPercent,'%')) AS `Surcharge Per Minute Margin %`,
+			IF(SurchargePerMinuteMargin IS NULL, '-',SurchargePerMinuteMargin) AS `Surcharge Per Minute Diff.`,
+			IF(SurchargePerMinuteMarginPercent IS NULL, '-',CONCAT(SurchargePerMinuteMarginPercent,'%')) AS `Surcharge Per Minute Diff. %`,
 
 			CONCAT(IF(CurrentOutpaymentPerCall IS NULL,'',CurrentOutpaymentPerCallCurrencySymbol),IFNULL(CurrentOutpaymentPerCall,'-'),'\n',IF(OutpaymentPerCall IS NULL,'',OutpaymentPerCallCurrencySymbol),IFNULL(OutpaymentPerCall,'-')) AS `Outpayment Per Call`,
-			IF(OutpaymentPerCallMargin IS NULL, '-',OutpaymentPerCallMargin) AS `Outpayment Per Call Margin`,
-			IF(OutpaymentPerCallMarginPercent IS NULL, '-',CONCAT(OutpaymentPerCallMarginPercent,'%')) AS `Outpayment Per Call Margin %`,
+			IF(OutpaymentPerCallMargin IS NULL, '-',OutpaymentPerCallMargin) AS `Outpayment Per Call Diff.`,
+			IF(OutpaymentPerCallMarginPercent IS NULL, '-',CONCAT(OutpaymentPerCallMarginPercent,'%')) AS `Outpayment Per Call Diff. %`,
 
 			CONCAT(IF(CurrentOutpaymentPerMinute IS NULL,'',CurrentOutpaymentPerMinuteCurrencySymbol),IFNULL(CurrentOutpaymentPerMinute,'-'),'\n',IF(OutpaymentPerMinute IS NULL,'',OutpaymentPerMinuteCurrencySymbol),IFNULL(OutpaymentPerMinute,'-')) AS `Outpayment Per Minute`,
-			IF(OutpaymentPerMinuteMargin IS NULL, '-',OutpaymentPerMinuteMargin) AS `Outpayment Per Minute Margin`,
-			IF(OutpaymentPerMinuteMarginPercent IS NULL, '-',CONCAT(OutpaymentPerMinuteMarginPercent,'%')) AS `Outpayment Per Minute Margin %`,
+			IF(OutpaymentPerMinuteMargin IS NULL, '-',OutpaymentPerMinuteMargin) AS `Outpayment Per Minute Diff.`,
+			IF(OutpaymentPerMinuteMarginPercent IS NULL, '-',CONCAT(OutpaymentPerMinuteMarginPercent,'%')) AS `Outpayment Per Minute Diff. %`,
 
 			CONCAT(IF(CurrentSurcharges IS NULL,'',CurrentSurchargesCurrencySymbol),IFNULL(CurrentSurcharges,'-'),'\n',IF(Surcharges IS NULL,'',SurchargesCurrencySymbol),IFNULL(Surcharges,'-')) AS `Surcharges`,
-			IF(SurchargesMargin IS NULL, '-',SurchargesMargin) AS `Surcharges Margin`,
-			IF(SurchargesMarginPercent IS NULL, '-',CONCAT(SurchargesMarginPercent,'%')) AS `Surcharges Margin %`,
+			IF(SurchargesMargin IS NULL, '-',SurchargesMargin) AS `Surcharges Diff.`,
+			IF(SurchargesMarginPercent IS NULL, '-',CONCAT(SurchargesMarginPercent,'%')) AS `Surcharges Diff. %`,
 
 			CONCAT(IF(CurrentChargeback IS NULL,'',CurrentChargebackCurrencySymbol),IFNULL(CurrentChargeback,'-'),'\n',IF(Chargeback IS NULL,'',ChargebackCurrencySymbol),IFNULL(Chargeback,'-')) AS `Chargeback`,
-			IF(ChargebackMargin IS NULL, '-',ChargebackMargin) AS `Chargeback Margin`,
-			IF(ChargebackMarginPercent IS NULL, '-',CONCAT(ChargebackMarginPercent,'%')) AS `Chargeback Margin %`,
+			IF(ChargebackMargin IS NULL, '-',ChargebackMargin) AS `Chargeback Diff.`,
+			IF(ChargebackMarginPercent IS NULL, '-',CONCAT(ChargebackMarginPercent,'%')) AS `Chargeback Diff. %`,
 
 			CONCAT(IF(CurrentCollectionCostAmount IS NULL,'',CurrentCollectionCostAmountCurrencySymbol),IFNULL(CurrentCollectionCostAmount,'-'),'\n',IF(CollectionCostAmount IS NULL,'',CollectionCostAmountCurrencySymbol),IFNULL(CollectionCostAmount,'-')) AS `Collection Cost Amount`,
-			IF(CollectionCostAmountMargin IS NULL, '-',CollectionCostAmountMargin) AS `Collection Cost Amount Margin`,
-			IF(CollectionCostAmountMarginPercent IS NULL, '-',CONCAT(CollectionCostAmountMarginPercent,'%')) AS `Collection Cost Amount Margin %`,
+			IF(CollectionCostAmountMargin IS NULL, '-',CollectionCostAmountMargin) AS `Collection Cost Amount Diff.`,
+			IF(CollectionCostAmountMarginPercent IS NULL, '-',CONCAT(CollectionCostAmountMarginPercent,'%')) AS `Collection Cost Amount Diff. %`,
 
 			CONCAT(IFNULL(CurrentCollectionCostPercentage,'-'),'\n',IFNULL(CollectionCostPercentage,'-')) AS `Collection Cost Percentage`,
-			IF(CollectionCostPercentageMargin IS NULL, '-',CollectionCostPercentageMargin) AS `Collection Cost Percentage Margin`,
-			IF(CollectionCostPercentageMarginPercent IS NULL, '-',CONCAT(CollectionCostPercentageMarginPercent,'%')) AS `Collection Cost Percentage Margin %`,
+			IF(CollectionCostPercentageMargin IS NULL, '-',CollectionCostPercentageMargin) AS `Collection Cost Percentage Diff.`,
+			IF(CollectionCostPercentageMarginPercent IS NULL, '-',CONCAT(CollectionCostPercentageMarginPercent,'%')) AS `Collection Cost Percentage Diff. %`,
 
 			CONCAT(IF(CurrentRegistrationCostPerNumber IS NULL,'',CurrentRegistrationCostPerNumberCurrencySymbol),IFNULL(CurrentRegistrationCostPerNumber,'-'),'\n',IF(RegistrationCostPerNumber IS NULL,'',RegistrationCostPerNumberCurrencySymbol),IFNULL(RegistrationCostPerNumber,'-')) AS `Registration Cost Per Number`,
-			IF(RegistrationCostPerNumberMargin IS NULL, '-',RegistrationCostPerNumberMargin) AS `Registration Cost Per Number Margin`,
-			IF(RegistrationCostPerNumberMarginPercent IS NULL, '-',CONCAT(RegistrationCostPerNumberMarginPercent,'%')) AS `Registration Cost Per Number Margin %`,
+			IF(RegistrationCostPerNumberMargin IS NULL, '-',RegistrationCostPerNumberMargin) AS `Registration Cost Per Number Diff.`,
+			IF(RegistrationCostPerNumberMarginPercent IS NULL, '-',CONCAT(RegistrationCostPerNumberMarginPercent,'%')) AS `Registration Cost Per Number Diff. %`,
 
 			EffectiveDate AS `Effective Date`,
 			CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
@@ -5204,20 +5204,20 @@ ThisSP:BEGIN
 			Code AS `Package Name`,
 
 			CONCAT(IF(CurrentOneOffCost IS NULL,'',CurrentOneOffCostCurrencySymbol),IFNULL(CurrentOneOffCost,'-'),'\n',IF(OneOffCost IS NULL,'',OneOffCostCurrencySymbol),IFNULL(OneOffCost,'-')) AS `One-Off Cost`,
-			IF(OneOffCostMargin IS NULL, '-',OneOffCostMargin) AS `One-Off Cost Margin`,
-			IF(OneOffCostMarginPercent IS NULL, '-',CONCAT(OneOffCostMarginPercent,'%')) AS `One-Off Cost Margin %`,
+			IF(OneOffCostMargin IS NULL, '-',OneOffCostMargin) AS `One-Off Cost Diff.`,
+			IF(OneOffCostMarginPercent IS NULL, '-',CONCAT(OneOffCostMarginPercent,'%')) AS `One-Off Cost Diff. %`,
 
 			CONCAT(IF(CurrentMonthlyCost IS NULL,'',CurrentMonthlyCostCurrencySymbol),IFNULL(CurrentMonthlyCost,'-'),'\n',IF(MonthlyCost IS NULL,'',MonthlyCostCurrencySymbol),IFNULL(MonthlyCost,'-')) AS `Monthly Cost`,
-			IF(MonthlyCostMargin IS NULL, '-',MonthlyCostMargin) AS `Monthly Cost Margin`,
-			IF(MonthlyCostMarginPercent IS NULL, '-',CONCAT(MonthlyCostMarginPercent,'%')) AS `Monthly Cost Margin %`,
+			IF(MonthlyCostMargin IS NULL, '-',MonthlyCostMargin) AS `Monthly Cost Diff.`,
+			IF(MonthlyCostMarginPercent IS NULL, '-',CONCAT(MonthlyCostMarginPercent,'%')) AS `Monthly Cost Diff. %`,
 
 			CONCAT(IF(CurrentPackageCostPerMinute IS NULL,'',CurrentPackageCostPerMinuteCurrencySymbol),IFNULL(CurrentPackageCostPerMinute,'-'),'\n',IF(PackageCostPerMinute IS NULL,'',PackageCostPerMinuteCurrencySymbol),IFNULL(PackageCostPerMinute,'-')) AS `Package Cost Per Minute`,
-			IF(PackageCostPerMinuteMargin IS NULL, '-',PackageCostPerMinuteMargin) AS `Package Cost Per Minute Margin`,
-			IF(PackageCostPerMinuteMarginPercent IS NULL, '-',CONCAT(PackageCostPerMinuteMarginPercent,'%')) AS `Package Cost Per Minute Margin %`,
+			IF(PackageCostPerMinuteMargin IS NULL, '-',PackageCostPerMinuteMargin) AS `Package Cost Per Minute Diff.`,
+			IF(PackageCostPerMinuteMarginPercent IS NULL, '-',CONCAT(PackageCostPerMinuteMarginPercent,'%')) AS `Package Cost Per Minute Diff. %`,
 
 			CONCAT(IF(CurrentRecordingCostPerMinute IS NULL,'',CurrentRecordingCostPerMinuteCurrencySymbol),IFNULL(CurrentRecordingCostPerMinute,'-'),'\n',IF(RecordingCostPerMinute IS NULL,'',RecordingCostPerMinuteCurrencySymbol),IFNULL(RecordingCostPerMinute,'-')) AS `Recording Cost Per Minute`,
-			IF(RecordingCostPerMinuteMargin IS NULL, '-',RecordingCostPerMinuteMargin) AS `Recording Cost Per Minute Margin`,
-			IF(RecordingCostPerMinuteMarginPercent IS NULL, '-',CONCAT(RecordingCostPerMinuteMarginPercent,'%')) AS `Recording Cost Per Minute Margin %`,
+			IF(RecordingCostPerMinuteMargin IS NULL, '-',RecordingCostPerMinuteMargin) AS `Recording Cost Per Minute Diff.`,
+			IF(RecordingCostPerMinuteMarginPercent IS NULL, '-',CONCAT(RecordingCostPerMinuteMarginPercent,'%')) AS `Recording Cost Per Minute Diff. %`,
 
 --			CONCAT(OneOffCostCurrencySymbol,OneOffCost) AS OneOffCost,
 			EffectiveDate AS `Effective Date`,
@@ -6009,13 +6009,16 @@ ThisSP:BEGIN
 		THEN
 			SET @stm2 = ",
 				CONCAT(IF(CurrentConnectionFee IS NULL,'',CurrentConnectionFeeCurrencySymbol),IFNULL(CurrentConnectionFee,'-'),'\n',IF(ConnectionFee IS NULL,'',ConnectionFeeCurrencySymbol),IFNULL(ConnectionFee,'-')) AS `Connection Fee`,
-				IF(ConnectionFeeMargin IS NULL OR ConnectionFeeMarginPercent IS NULL, '- (-)',CONCAT(ConnectionFeeMargin,' (',ConnectionFeeMarginPercent,'%)')) AS `Connection Fee Margin`,
+				IF(ConnectionFeeMargin IS NULL, '-',ConnectionFeeMargin) AS `Connection Fee Diff.`,
+				IF(ConnectionFeeMarginPercent IS NULL, '-',CONCAT(ConnectionFeeMarginPercent,'%')) AS `Connection Fee Diff. %`,
 
 				CONCAT(CurrentRateCurrencySymbol,IFNULL(CurrentRate,'-'),'\n',RateCurrencySymbol,IFNULL(Rate,'-')) AS `Rate`,
-				IF(RateMargin IS NULL OR RateMarginPercent IS NULL, '- (-)',CONCAT(RateMargin,' (',RateMarginPercent,'%)')) AS `Rate Margin`,
+				IF(RateMargin IS NULL, '-',RateMargin) AS `Rate Diff.`,
+				IF(RateMarginPercent IS NULL, '-',CONCAT(RateMarginPercent,'%')) AS `Rate Diff. %`,
 
 				CONCAT(CurrentRateCurrencySymbol,IFNULL(CurrentRateN,'-'),'\n',RateCurrencySymbol,IFNULL(RateN,'-')) AS `RateN`,
-				IF(RateNMargin IS NULL OR RateNMarginPercent IS NULL, '- (-)',CONCAT(RateNMargin,' (',RateNMarginPercent,'%)')) AS `RateN Margin`
+				IF(RateNMargin IS NULL, '-',RateNMargin) AS `RateN Diff.`,
+				IF(RateNMarginPercent IS NULL, '-',CONCAT(RateNMarginPercent,'%')) AS `RateN Diff. %`
 			";
 			-- SET @stm4 = ", PreviousRate AS `Previous Rate`, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
 			SET @stm4 = ", CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
