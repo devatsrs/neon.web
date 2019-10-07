@@ -14,3 +14,13 @@ ALTER TABLE `tblCompany`
 )
 COLLATE='latin1_swedish_ci'
 ;
+
+CREATE TABLE `tblSessions` (
+	`id` VARCHAR(255) NOT NULL COLLATE 'utf8_unicode_ci',
+	`payload` MEDIUMTEXT NOT NULL COLLATE 'utf8_unicode_ci',
+	`last_activity` INT(11) NOT NULL,
+	UNIQUE INDEX `id` (`id`)
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB
+;
