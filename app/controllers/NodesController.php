@@ -51,6 +51,7 @@ class NodesController extends \BaseController {
 	 */
 	public function store()
 	{
+
 		$data = Input::all();
 
 		if(isset($data['status'])){
@@ -76,15 +77,15 @@ class NodesController extends \BaseController {
 
 		 $data['Password'] = Crypt::encrypt($data['Password']);
 		 
-		 $validServerIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
-		 $validLocalIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['LocalIP']);
+		//  $validServerIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
+		//  $validLocalIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['LocalIP']);
 		 
-		 if(!$validServerIp){
-			return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
-		 }
-		 if(!$validLocalIp){
-			return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
-		 }
+		//  if(!$validServerIp){
+		// 	return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
+		//  }
+		//  if(!$validLocalIp){
+		// 	return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
+		//  }
 
 		 if($Package = Nodes::create($data)){
 			 return  Response::json(array("status" => "success", "message" => "Node Successfully Created"));
@@ -163,15 +164,15 @@ class NodesController extends \BaseController {
 		}
 
 		
-		$validServerIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
-		$validLocalIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['LocalIP']);
+		// $validServerIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['ServerIP']);
+		// $validLocalIp = preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $data['LocalIP']);
 		
-		if(!$validServerIp){
-		   return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
-		}
-		if(!$validLocalIp){
-		   return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
-		}
+		// if(!$validServerIp){
+		//    return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
+		// }
+		// if(!$validLocalIp){
+		//    return  Response::json(array("status" => "failed", "message" => "Server IP Format Is Invalid"));
+		// }
 
         if($Node->update($data)){
             return  Response::json(array("status" => "success", "message" => "Node Successfully Updated"));
