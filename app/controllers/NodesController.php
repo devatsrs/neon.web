@@ -221,7 +221,18 @@ class NodesController extends \BaseController {
 	 */
 	public function delete($id)
 	{
-		$result = Nodes::find($id)->delete();
+		$result = Nodes::find($id);
+		$Crons = CronJob::where('CompanyID',1)->get();
+		foreach($Crons as $Cron){
+			$Settings = json_decode($Cron->Settings,true);
+			if(isset($Settings['Nodes'])){
+				$Nodes = json_decode($Settings['Nodes']);
+				if(in_array($result->ServerIp,$Nodes)){
+					return Response::json(array("status" => "failed", "message" => "Node can not be deleted, Its assigned to CronJob."));
+				}
+			}
+		}
+		$result->delete();
 		if ($result) {
 			return Response::json(array("status" => "success", "message" => "Node Successfully Deleted"));
 		} else {
