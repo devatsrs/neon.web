@@ -50,6 +50,7 @@ class Nodes extends \Eloquent {
 					return false;
 				}
 			}
-		}
+        }    
+        return true;
     }
 }
