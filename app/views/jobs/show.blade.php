@@ -15,6 +15,79 @@
         </div>
     </div>
 </div>
+
+<?php
+    if ($job->Type == 'Termination Rate Operation') {
+        $visible_keys = array('OriginationCode','OriginationDescription','Code','Description','Country','Effective','TimezonesID');
+        $visible_keys_vendor = array('RoutingCategoryID','Preference','Blocked');
+        $TRO_Options = json_decode($job->Options);
+?>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label class="control-label bold">Options</label>
+            @foreach($TRO_Options->params as $option_key => $option_value)
+                <?php $option_value = trim($option_value,"'"); $option_value = $option_value == 'NULL' ? '' : $option_value; ?>
+                @if(in_array($option_key,$visible_keys))
+                    @if($option_key == 'TimezonesID')
+                        <?php $TRO_Timezone = Timezones::find($option_value); ?>
+                        <div>Time Of Day : {{!empty($TRO_Timezone->Title) ? $TRO_Timezone->Title : 'ALL'}}</div>
+                    @elseif($option_key == 'Country')
+                        <?php $TRO_Country = Country::find($option_value); ?>
+                        <div>{{$option_key}} : {{!empty($TRO_Country->Country) ? $TRO_Country->Country : ''}}</div>
+                    @else
+                        <div>{{$option_key}} : {{$option_value}}</div>
+                    @endif
+                @endif
+                @if(in_array($option_key,$visible_keys_vendor))
+                    @if($option_value != '')
+                        @if($option_key == 'RoutingCategoryID')
+                            <?php $TRO_RoutingCategory = RoutingCategory::find($option_value); ?>
+                            <div>Routing Category : {{!empty($TRO_RoutingCategory->Name) ? $TRO_RoutingCategory->Name : ''}}</div>
+                        @else
+                            <div>{{$option_key}} : {{$option_value}}</div>
+                        @endif
+                    @endif
+                @endif
+            @endforeach
+        </div>
+    </div>
+</div>
+
+<?php
+        if($TRO_Options->OperationType == 'Update') {
+?>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label class="control-label bold">Update Data</label>
+            @foreach($TRO_Options->update_data as $data_key => $data_value)
+                <?php $data_value = trim($data_value,"'"); ?>
+                @if($data_value != 'NULL')
+                    <?php $data_value = $data_value == 'NULL' ? '' : $data_value; ?>
+                    @if($data_key == 'RateCurrency'|| $data_key == 'ConnectionFeeCurrency')
+                        <?php $TRO_Currency = Currency::find($data_value); ?>
+                        <div>{{$data_key}} : {{!empty($TRO_Currency->Code) ? $TRO_Currency->Code : ''}}</div>
+                    @elseif($data_key == 'RoutingCategoryID')
+                        <?php $TRO_RoutingCategory = RoutingCategory::find($data_value); ?>
+                        <div>Routing Category : {{!empty($TRO_RoutingCategory->Name) ? $TRO_RoutingCategory->Name : ''}}</div>
+                    @else
+                        <div>{{$data_key}} : {{$data_value}}</div>
+                    @endif
+                @endif
+            @endforeach
+        </div>
+    </div>
+</div>
+
+<?php
+        }
+
+    }
+?>
+
         <?php
         if ($job->Type == 'Generate Rate Table') {
 

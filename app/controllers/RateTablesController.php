@@ -420,16 +420,34 @@ class RateTablesController extends \BaseController {
                     $success_message = 'Rates Successfully Deleted';
                     $query = "call prc_RateTableRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "'," . $p_criteria . "," . $action . ")";
                 }
-
                 //Log::info($query);
-                $results = DB::statement($query);
 
-                if ($results) {
-                    DB::commit();
-                    return Response::json(array("status" => "success", "message" => $success_message));
+                if($p_criteria == 1) {
+                    $params                             = $criteria;
+                    $params['RateTableID']              = $RateTableID;
+                    $params['RateTableRateID']          = $RateTableRateID;
+                    $params['username']                 = $username;
+                    $params['p_criteria']               = $p_criteria;
+                    $params['action']                   = $action;
+
+                    $options['OperationType']   = 'Delete';
+                    $options['RateTableName']   = $data['RateTableName'];
+                    $options['query']           = $query;
+                    $options['params']          = $params;
+
+                    $results = Job::logJob('TRO', $options);
                 } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Rate Table Rates."));
+                    $results = DB::statement($query);
+                    if ($results) {
+                        $results = array("status" => "success", "message" => $success_message);
+                    } else {
+                        $results = array("status" => "failed", "message" => "Problem Deleting Rate Table Rates.");
+                    }
                 }
+
+                DB::commit();
+                return Response::json($results);
+
             } catch (Exception $ex) {
                 DB::rollback();
                 return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
@@ -444,6 +462,7 @@ class RateTablesController extends \BaseController {
             $data = Input::all();//echo "<pre>";print_r($data);exit();
             $error = 0;
 
+            $update_keys = array('EffectiveDate', 'EndDate', 'Rate', 'RateN', 'MinimumDuration', 'Interval1', 'IntervalN', 'ConnectionFee', 'OriginationRateID', 'RoutingCategoryID', 'Preference', 'Blocked', 'RateCurrency', 'ConnectionFeeCurrency');
             $EffectiveDate = $EndDate = $Rate = $RateN = $MinimumDuration = $Interval1 = $IntervalN = $ConnectionFee = $OriginationRateID = $RoutingCategoryID = $Preference = $Blocked = $RateCurrency = $ConnectionFeeCurrency = 'NULL';
 
             if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateRateN']) || !empty($data['updateMinimumDuration']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee']) || !empty($data['updateOriginationRateID']) || !empty($data['updateRoutingCategoryID']) || !empty($data['updatePreference']) || !empty($data['updateBlocked']) || !empty($data['RateCurrency']) || !empty($data['ConnectionFeeCurrency'])) {// || !empty($data['EndDate'])
@@ -586,14 +605,39 @@ class RateTablesController extends \BaseController {
                     $query = "call prc_RateTableRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "'," . $p_criteria . "," . $action . ")";
                 }
                 //Log::info($query);
-                $results = DB::statement($query);
 
-                if ($results) {
-                    DB::commit();
-                    return Response::json(array("status" => "success", "message" => "Rates Successfully Updated"));
+                if($p_criteria == 1) {
+                    $params                             = $criteria;
+                    $params['RateTableID']              = $RateTableID;
+                    $params['RateTableRateID']          = $RateTableRateID;
+                    $params['username']                 = $username;
+                    $params['p_criteria']               = $p_criteria;
+                    $params['action']                   = $action;
+
+                    $update_data = array();
+                    foreach($update_keys as $key => $value) {
+                        $update_data[$value] = ${$value};
+                    }
+
+                    $options['OperationType']   = 'Update';
+                    $options['RateTableName']   = $data['RateTableName'];
+                    $options['query']           = $query;
+                    $options['params']          = $params;
+                    $options['update_data']     = $update_data;
+
+                    $results = Job::logJob('TRO', $options);
                 } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table Rate."));
+                    $results = DB::statement($query);
+                    if ($results) {
+                        $results = array("status" => "success", "message" => "Rates Successfully Updated");
+                    } else {
+                        $results = array("status" => "failed", "message" => "Problem Updating Rate Table Rate.");
+                    }
                 }
+
+                DB::commit();
+                return Response::json($results);
+
             } catch (Exception $ex) {
                 DB::rollback();
                 return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
@@ -611,21 +655,21 @@ class RateTablesController extends \BaseController {
 
             try {
                 DB::beginTransaction();
-                $p_criteria = 0;
-                $action     = 1; //update action
-                $criteria   = json_decode($data['criteria'], true);
+                $p_criteria     = 0;
+                $action         = 1; //update action
+                $criteria_all   = json_decode($data['criteria'], true);
 
-                $criteria['OriginationCode']        = !empty($criteria['OriginationCode']) && $criteria['OriginationCode'] != '' ? "'" . $criteria['OriginationCode'] . "'" : 'NULL';
-                $criteria['OriginationDescription'] = !empty($criteria['OriginationDescription']) && $criteria['OriginationDescription'] != '' ? "'" . $criteria['OriginationDescription'] . "'" : 'NULL';
-                $criteria['Code']                   = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'NULL';
-                $criteria['Description']            = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'NULL';
-                $criteria['Country']                = !empty($criteria['Country']) && $criteria['Country'] != '' ? "'" . $criteria['Country'] . "'" : 'NULL';
-                $criteria['Effective']              = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
-                $criteria['TimezonesID']            = !empty($criteria['Timezones']) && $criteria['Timezones'] != '' ? "'" . $criteria['Timezones']."'"  : 'NULL';
-                $criteria['RoutingCategoryID']      = !empty($criteria['RoutingCategoryID']) && $criteria['RoutingCategoryID'] != '' ? "'" . $criteria['RoutingCategoryID'] . "'" : 'NULL';
-                $criteria['Preference']             = !empty($criteria['Preference']) ? "'".$criteria['Preference']."'" : 'NULL';
-                $criteria['Blocked']                = isset($criteria['Blocked']) && $criteria['Blocked'] != '' ? "'".$criteria['Blocked']."'" : 'NULL';
-                $criteria['ApprovedStatus']         = isset($criteria['ApprovedStatus']) && $criteria['ApprovedStatus'] != '' ? "'".$criteria['ApprovedStatus']."'" : 'NULL';
+                $criteria['OriginationCode']        = !empty($criteria_all['OriginationCode']) && $criteria_all['OriginationCode'] != '' ? "'" . $criteria_all['OriginationCode'] . "'" : 'NULL';
+                $criteria['OriginationDescription'] = !empty($criteria_all['OriginationDescription']) && $criteria_all['OriginationDescription'] != '' ? "'" . $criteria_all['OriginationDescription'] . "'" : 'NULL';
+                $criteria['Code']                   = !empty($criteria_all['Code']) && $criteria_all['Code'] != '' ? "'" . $criteria_all['Code'] . "'" : 'NULL';
+                $criteria['Description']            = !empty($criteria_all['Description']) && $criteria_all['Description'] != '' ? "'" . $criteria_all['Description'] . "'" : 'NULL';
+                $criteria['Country']                = !empty($criteria_all['Country']) && $criteria_all['Country'] != '' ? "'" . $criteria_all['Country'] . "'" : 'NULL';
+                $criteria['Effective']              = !empty($criteria_all['Effective']) && $criteria_all['Effective'] != '' ? "'" . $criteria_all['Effective'] . "'" : 'NULL';
+                $criteria['TimezonesID']            = !empty($criteria_all['Timezones']) && $criteria_all['Timezones'] != '' ? "'" . $criteria_all['Timezones']."'"  : 'NULL';
+                $criteria['RoutingCategoryID']      = !empty($criteria_all['RoutingCategoryID']) && $criteria_all['RoutingCategoryID'] != '' ? "'" . $criteria_all['RoutingCategoryID'] . "'" : 'NULL';
+                $criteria['Preference']             = !empty($criteria_all['Preference']) ? "'".$criteria_all['Preference']."'" : 'NULL';
+                $criteria['Blocked']                = isset($criteria_all['Blocked']) && $criteria_all['Blocked'] != '' ? "'".$criteria_all['Blocked']."'" : 'NULL';
+                $criteria['ApprovedStatus']         = isset($criteria_all['ApprovedStatus']) && $criteria_all['ApprovedStatus'] != '' ? "'".$criteria_all['ApprovedStatus']."'" : 'NULL';
 
                 $RateTableID                = $id;
                 $RateTableRateID            = $data['RateTableRateID'];
@@ -640,14 +684,35 @@ class RateTablesController extends \BaseController {
 
                 $query = "call prc_RateTableRateApprove (" . $RateTableID . ",'" . $RateTableRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 //Log::info($query);
-                $results = DB::statement($query);
 
-                if ($results) {
-                    DB::commit();
-                    return Response::json(array("status" => "success", "message" => "Rates Successfully Updated"));
+                $ApprovedStatus = $data['ApprovedStatus'] == 1 ? 'Approve' : 'Reject';
+                if($p_criteria == 1) {
+                    $params                             = $criteria;
+                    $params['RateTableID']              = $RateTableID;
+                    $params['RateTableRateID']          = $RateTableRateID;
+                    $params['ApprovedStatus']           = $data['ApprovedStatus'];
+                    $params['username']                 = $username;
+                    $params['p_criteria']               = $p_criteria;
+                    $params['action']                   = $action;
+
+                    $options['OperationType']   = $ApprovedStatus;
+                    $options['RateTableName']   = $data['RateTableName'];
+                    $options['query']           = $query;
+                    $options['params']          = $params;
+
+                    $results = Job::logJob('TRO', $options);
                 } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table Rate."));
+                    $results = DB::statement($query);
+                    if ($results) {
+                        $results = array("status" => "success", "message" => "Rates Successfully ".$ApprovedStatus);
+                    } else {
+                        $results = array("status" => "failed", "message" => "Problem while ".$ApprovedStatus." Rate Table Rate.");
+                    }
                 }
+
+                DB::commit();
+                return Response::json($results);
+
             } catch (Exception $ex) {
                 DB::rollback();
                 return Response::json(array("status" => "failed", "message" => $ex->getMessage()));

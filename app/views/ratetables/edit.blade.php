@@ -320,6 +320,7 @@
 
                     var formData = new FormData($('#clear-bulk-rate-form')[0]);
                     formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
+                    formData.append('RateTableName', "{{$rateTable->RateTableName}}");
 
                     $.ajax({
                         url: baseurl + '/rate_tables/{{$id}}/clear_rate', //Server script to process data
@@ -404,6 +405,7 @@
         $("#bulk-edit-rate-table-form,#edit-rate-table-form").submit(function() {
             var formData = new FormData($(this)[0]);
             formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
+            formData.append('RateTableName', "{{$rateTable->RateTableName}}");
             $.ajax({
                 url: baseurl + '/rate_tables/{{$id}}/update_rate_table_rate', //Server script to process data
                 type: 'POST',
@@ -463,6 +465,7 @@
                     formdata.append('RateTableRateID', RateTableRateIDs.join(","));
                     formdata.append('criteria', '');
                 }
+                formdata.append('RateTableName', "{{$rateTable->RateTableName}}");
 
                 if (RateTableRateIDs.length) {
                     $this.text('Processing...').addClass('processing');
