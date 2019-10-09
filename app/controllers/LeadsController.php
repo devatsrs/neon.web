@@ -514,7 +514,7 @@ class LeadsController extends \BaseController {
                 'tags' => 'required',
                 'SelectedIDs' => 'required',
             );
-
+            
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
@@ -530,7 +530,6 @@ class LeadsController extends \BaseController {
             $SelectedIDs = $data['SelectedIDs'];
             unset($data['SelectedIDs']);
             if (Lead::whereIn('AccountID', explode(',', $SelectedIDs))->update($data)) {
-                $UserActilead = UserActivity::UserActivitySaved($data,'Bulk Tags','Lead');
                 return Response::json(array("status" => "success", "message" => "Lead Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Lead."));
