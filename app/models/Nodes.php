@@ -39,4 +39,18 @@ class Nodes extends \Eloquent {
 
         return $CurrentIp;
     }
+
+    public static function FindNodesInCronJob($ServerIP){
+        $Crons = CronJob::where('CompanyID',1)->get();
+		foreach($Crons as $Cron){
+			$Settings = json_decode($Cron->Settings,true);
+			if(isset($Settings['Nodes'])){
+				$Nodes = $Settings['Nodes'];
+				if(in_array($ServerIP,$Nodes)){
+					return false;
+				}
+			}
+        }    
+        return true;
+    }
 }
