@@ -207,7 +207,7 @@
                                 </tbody>
                                 <tfoot>
                                 <tr class="revenueRow">
-                                    <th colspan="7"></th>
+                                    <th colspan="9"></th>
                                     <th>Total</th>
                                     <th class="pl-grand">0</th>
                                 </tr>
