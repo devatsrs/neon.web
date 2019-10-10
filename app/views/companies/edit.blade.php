@@ -484,6 +484,25 @@
                   </div>
             </div>
 
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                      <div class="panel-title">
+                              Nodes Setting
+                      </div>
+                      <div class="panel-options">
+                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                      </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="col-sm-10">
+                            <label class="control-label col-sm-2">Nodes</label>
+                            {{ Form::select('Nodes[]', $Nodes, '', array("class"=>"select2",'id'=>'nodes','multiple',"data-placeholder"=>"Select Nodes")) }}
+                        </div>    
+                    </div>
+                </div>
+            </div>
+
             @endif
 
         </form>
