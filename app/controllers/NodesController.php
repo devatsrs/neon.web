@@ -148,7 +148,6 @@ class NodesController extends \BaseController {
 		Nodes::$rules["ServerName"] = 'required|unique:tblNode,ServerName,'.$id.',ServerID';
 		Nodes::$rules["ServerIP"] = 'required|unique:tblNode,ServerIP,'.$id.',ServerID';
 		Nodes::$rules["LocalIP"] = 'required|unique:tblNode,LocalIP,'.$id.',ServerID';
-		Nodes::$rules["Username"] = 'required|unique:tblNode,ServerIP,'.$id.',ServerID';
 
 
         $validator = Validator::make($data, Nodes::$rules);

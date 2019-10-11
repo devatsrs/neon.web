@@ -14,7 +14,7 @@ class Nodes extends \Eloquent {
         'ServerName' =>      'required|unique:tblNode',
         'ServerIP'   =>      'required|unique:tblNode',
         'LocalIP'    =>      'required|unique:tblNode',
-        'Username'   =>      'required|unique:tblNode',
+        'Username'   =>      'required',
     );
 
     public static function getActiveNodes(){
