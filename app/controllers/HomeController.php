@@ -406,4 +406,10 @@ class HomeController extends BaseController {
     function terms(){
         return View::make('terms.index');
     }
+
+    function health_check(){
+
+        echo "Hello";
+    }
+
 }
