@@ -2,9 +2,11 @@
 @section('content')
 <?php
     $bVisibleRoutingCategory = "hidden";
-    if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR) {
-        if($ROUTING_PROFILE == 1) {
-            $bVisibleRoutingCategory = "";
+    if(!empty($rateTable)){
+        if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR) {
+            if($ROUTING_PROFILE == 1) {
+                $bVisibleRoutingCategory = "";
+            }
         }
     }
 ?>
