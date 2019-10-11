@@ -24,12 +24,17 @@ class TimezoneVendorController extends \BaseController {
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
+            foreach($excel_data as $key => $item) {
+                $timeofday = ['Time Of Day' => $item['TimeZone']];
+                $excel_data[$key] = array_splice($item, 0, 3, true) + $timeofday + array_slice($item, 3, count($item)-3, true);
+                unset($excel_data[$key]['TimeZone']);
+            }
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Timezones.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Time Of Day.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Timezones.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Time Of Day.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -78,8 +83,8 @@ class TimezoneVendorController extends \BaseController {
             $rules = array(
                 "Type"          => "required",
                 "TimeZoneID"    => "required",
-                "FromTime"      => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i",
-                "ToTime"        => "required_with:FromTime|date_format:H:i",
+                "FromTime"      => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i:s",
+                "ToTime"        => "required_with:FromTime|date_format:H:i:s",
                 "DaysOfWeek"    => "required_without_all:FromTime,DaysOfMonth,Months",
                 "DaysOfMonth"   => "required_without_all:DaysOfWeek,FromTime,Months",
                 "Months"        => "required_without_all:DaysOfWeek,DaysOfMonth,FromTime"
@@ -101,9 +106,9 @@ class TimezoneVendorController extends \BaseController {
                 return json_validator_response($validator);
             }
 
-            if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
+            /*if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
                 return  Response::json(array("status" => "failed", "message" => "To time always greater than from time"));
-            }
+            }*/
 
             if($data['Country'] == ''){
                 $data['Country'] = null;
@@ -184,8 +189,8 @@ class TimezoneVendorController extends \BaseController {
                     $rules = array(
                         "Type"          => "required",
                         "TimeZoneID"    => "required",
-                        "FromTime" => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i",
-                        "ToTime" => "required_with:FromTime|date_format:H:i",
+                        "FromTime" => "required_without_all:DaysOfWeek,DaysOfMonth,Months|date_format:H:i:s",
+                        "ToTime" => "required_with:FromTime|date_format:H:i:s",
                         "DaysOfWeek" => "required_without_all:FromTime,DaysOfMonth,Months",
                         "DaysOfMonth" => "required_without_all:DaysOfWeek,FromTime,Months",
                         "Months" => "required_without_all:DaysOfWeek,DaysOfMonth,FromTime"
@@ -204,9 +209,9 @@ class TimezoneVendorController extends \BaseController {
                         return json_validator_response($validator);
                     }
 
-                    if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
+                    /*if(strtotime($data["FromTime"]) >= strtotime($data["ToTime"]) && !empty($data["FromTime"]) && !empty($data["ToTime"])){
                         return  Response::json(array("status" => "failed", "message" => "To time always greater than from time"));
-                    }
+                    }*/
 
                     if($data['Country'] == ''){
                         $data['Country'] = null;

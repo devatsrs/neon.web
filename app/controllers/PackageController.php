@@ -13,7 +13,10 @@ class PackageController extends BaseController {
     public function ajax_datagrid(){
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $packages = Package::leftJoin('tblRateTable','tblPackage.RateTableId','=','tblRateTable.RateTableId')
+        $resellerID = Reseller::getResellerID();
+        $packages = Package::leftJoin('tblRateTable',function($join){
+                $join->on('tblPackage.RateTableId','=','tblRateTable.RateTableId');
+            })           
             ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
             ->select([
                 "tblPackage.PackageId",
@@ -23,9 +26,25 @@ class PackageController extends BaseController {
                 "tblPackage.RateTableId",
                 "tblPackage.CurrencyId",
                 "tblPackage.Status"
-            ])->where("tblPackage.CompanyID", $CompanyID);
+            ])
+            
+            ->where('tblRateTable.Type',RateTable::RATE_TABLE_TYPE_PACKAGE)
+            ->where('tblRateTable.AppliedTo','<>', RateTable::APPLIED_TO_VENDOR)
+            ->where('tblPackage.CompanyId',$CompanyID);;
+            
+            
 
 
+        if(is_reseller()){
+            $packages->where(function($query) use($CompanyID, $resellerID){
+                $query->where([
+                    'tblRateTable.Reseller' => '0'
+                    ])->orWhere(['tblRateTable.Reseller' => '-1']);
+
+                if(!empty($resellerID) && $resellerID != 0)
+                        $query->orWhere(['Reseller' => $resellerID]);
+            });
+        }
         if(!empty($data['PackageName'])){
             $packages->where('tblPackage.Name','like','%'.$data['PackageName'].'%');
         }
@@ -37,17 +56,20 @@ class PackageController extends BaseController {
             $packages->where("tblPackage.status" , $data['status']);
         }
 
+        log::info('package query '. $packages->toSql());
+
         return Datatables::of($packages)->make();
     }
 
     public function index() {
         $CompanyID = User::get_companyID();
-       
-        $rateTables = RateTable::getRateTablesForPackage($CompanyID,RateTable::RATE_TABLE_TYPE_PACKAGE);
+        $rateTables =RateTable::getRateTableListForPackage([
+            'types' => [RateTable::RATE_TABLE_TYPE_PACKAGE],
+            'NotVendor' => true,
+            'CompanyID' => $CompanyID
+        ]);
         $CompanyID  = User::get_companyID();
         $defaultCurrencyId = Company::getCompanyField($CompanyID, "CurrencyId");
-
-
         return View::make('package.index', compact('rateTables', 'defaultCurrencyId','currencyDropdown'));
     }
 
@@ -156,7 +178,12 @@ class PackageController extends BaseController {
 
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $query = Package::leftJoin('tblRateTable','tblPackage.RateTableId','=','tblRateTable.RateTableId')
+        $resellerID = Reseller::getResellerID();
+        $query = Package::leftJoin('tblRateTable',function($join){
+            $join->on('tblPackage.RateTableId','=','tblRateTable.RateTableId');
+            $join->on('tblRateTable.Type','=',DB::raw(RateTable::RATE_TABLE_TYPE_PACKAGE));
+            $join->on('tblRateTable.AppliedTo','<>',DB::raw(RateTable::APPLIED_TO_VENDOR));
+            })  
             ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
             ->select([
                 "tblPackage.Name",
@@ -164,7 +191,16 @@ class PackageController extends BaseController {
 //                "tblCurrency.Code as Currency",
                 "tblPackage.status"
 
-            ])->where("tblPackage.CompanyID", $CompanyID);
+            ])->where("tblPackage.CompanyID", $CompanyID)
+            ->where(function($query) use($CompanyID, $resellerID){
+                $query->where([
+                    'tblRateTable.CompanyId' => $CompanyID, 
+                    'tblRateTable.Reseller' => '0'
+                    ])->orWhere(['tblRateTable.Reseller' => '-1']);
+
+                if(!empty($resellerID) && $resellerID != 0)
+                        $query->orWhere(['Reseller' => $resellerID]);
+            });;
 
         if(!empty($data['PackageName'])){
             $query->where('tblPackage.Name','like','%'.$data['PackageName'].'%');

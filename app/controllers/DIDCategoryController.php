@@ -25,11 +25,11 @@ class DIDCategoryController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DIDCategory.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AccessCategory.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DIDCategory.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AccessCategory.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -79,13 +79,13 @@ class DIDCategoryController extends \BaseController {
         }
         $checkduplicate=DIDCategory::where('CategoryName',$data['CategoryName'])->get()->count();
         if($checkduplicate > 0){
-            return Response::json(array("status" => "failed", "message" => "CategoryName Already Exists."));
+            return Response::json(array("status" => "failed", "message" => "Category Name Already Exists."));
         }
 
         if ($itemtype = DIDCategory::create($data)) {
-            return Response::json(array("status" => "success", "message" => "DID Category Successfully Created",'newcreated'=>$itemtype));
+            return Response::json(array("status" => "success", "message" => "Access Category Successfully Created",'newcreated'=>$itemtype));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Creating DID Category."));
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Access Category."));
         }
     }
 
@@ -123,12 +123,12 @@ class DIDCategoryController extends \BaseController {
             }
 
             if ($itemtype->update($data)) {
-                return Response::json(array("status" => "success", "message" => "DID Category Successfully Updated"));
+                return Response::json(array("status" => "success", "message" => "Access Category Successfully Updated"));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Updating DID Category."));
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Access Category."));
             }
         }else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating DID Category."));
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Access Category."));
         }
     }
 
@@ -145,18 +145,18 @@ class DIDCategoryController extends \BaseController {
                 try {
                     $result = DIDCategory::find($id)->delete();
                     if ($result) {
-                        return Response::json(array("status" => "success", "message" => "DID Category Successfully Deleted"));
+                        return Response::json(array("status" => "success", "message" => "Access Category Successfully Deleted"));
                     } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Deleting DID Category."));
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Access Category."));
                     }
                 } catch (Exception $ex) {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting DID Category."));
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Access Category."));
                 }
             }else{
-                return Response::json(array("status" => "failed", "message" => "DID Category is in Use."));
+                return Response::json(array("status" => "failed", "message" => "Access Category is in Use."));
             }
         }else{
-            return Response::json(array("status" => "failed", "message" => "DID Category not Found."));
+            return Response::json(array("status" => "failed", "message" => "Access Category not Found."));
         }
     }
 

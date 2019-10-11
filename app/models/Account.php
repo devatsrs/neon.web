@@ -106,7 +106,8 @@ class Account extends \Eloquent {
         'PostCode'=>'PostCode',
         'Country'=>'Country',
         'IsCustomer'=>'IsCustomer',
-        'IsVendor'=>'IsVendor'
+        'IsVendor'=>'IsVendor',
+        'Status' => 'Status'
     ];
 
     public static function boot(){
@@ -265,7 +266,32 @@ class Account extends \Eloquent {
             $data['AccountType'] = 1;
             $data['VerificationStatus'] = Account::VERIFIED;
         }
-        $data['CompanyID']=User::get_companyID();
+        if(is_reseller())
+            $data['CompanyID']=User::get_companyID();
+        $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+    }
+
+    public static function getCustomerAccountIDList($data=array()){
+
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        $data['isCustomer'] = 1;
+        if(!isset($data['AccountType'])) {
+            $data['AccountType'] = 1;
+            $data['VerificationStatus'] = Account::VERIFIED;
+        }
+        if(is_reseller())
+            $data['CompanyID']=User::get_companyID();
         $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         if(!empty($row)){
             $row = array(""=> "Select")+$row;
@@ -751,7 +777,8 @@ class Account extends \Eloquent {
 
     public static function addUpdateAccountDynamicfield($data=array()){
         $DynamicFields = array();
-        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>$data['CompanyID'],'FieldSlug'=>$data['FieldName']])->pluck('DynamicFieldsID');
+        $CompanyID =  getParentCompanyIdIfReseller($data['CompanyID']);
+        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>$CompanyID,'FieldSlug'=>$data['FieldName']])->pluck('DynamicFieldsID');
         if(!empty($FieldsID)){
             $customer=Session::get('customer');
             $UserType = 'user';
@@ -822,7 +849,8 @@ class Account extends \Eloquent {
     public static function getDynamicfieldValue($ParentID,$FieldName){
         $FieldValue = '';
 
-        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>User::get_companyID(),'FieldSlug'=>$FieldName])->pluck('DynamicFieldsID');
+        $CompanyID = getParentCompanyIdIfReseller(User::get_companyID());
+        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>$CompanyID,'FieldSlug'=>$FieldName])->pluck('DynamicFieldsID');
         if(!empty($FieldsID)){
             $FieldValue = DynamicFieldsValue::where(['ParentID'=>$ParentID,'DynamicFieldsID'=>$FieldsID])->pluck('FieldValue');
         }
@@ -833,8 +861,9 @@ class Account extends \Eloquent {
     public static function getDynamicfields($Type,$ParentID){
         $results = array();
         $data = array();
+        $CompanyID = getParentCompanyIdIfReseller(User::get_companyID());
 
-        $Fields = DB::table('tblDynamicFields')->where(['CompanyID'=>User::get_companyID(),'Type'=>$Type,'Status'=>1])->get();
+        $Fields = DB::table('tblDynamicFields')->where(['CompanyID'=>$CompanyID,'Type'=>$Type,'Status'=>1])->get();
         Log::info("Count for Dynamic fields for Account ." . $ParentID . count($Fields));
         if(!empty($Fields) && count($Fields)>0){
             //Log::info("Count for Dynamic fields for Account ." . $ParentID . ' in side loop ');
@@ -1024,6 +1053,24 @@ class Account extends \Eloquent {
             }
         }
         return $Type;
+    }
+
+    public static function getTaxRate($AccountID){
+        return Account::where('AccountID',$AccountID)->pluck('TaxRateID');
+    }
+
+    public static function getTaxRateType($AccountID,$type){
+        $final 			=   array();
+        $result 		=   self::getTaxRate($AccountID);
+        $resultarray 	= 	explode(",",$result);
+
+        foreach($resultarray as $resultdata)	{
+            if(TaxRate::where(['TaxRateId'=>$resultdata,'TaxType'=>$type])->count()){
+                $final[]  = $resultdata;
+            }
+        }
+
+        return $final;
     }
 
 }

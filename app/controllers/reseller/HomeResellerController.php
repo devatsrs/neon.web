@@ -8,7 +8,7 @@ class HomeResellerController extends BaseController {
     public function home() {
         log::info('reseller home');
         if(Auth::check()){			
-			return Redirect::to('reseller/profile');			
+			return Redirect::to('accounts');			
         }else{
             $loginpath='reseller/dologin';
             create_site_configration_cache();
@@ -48,7 +48,7 @@ class HomeResellerController extends BaseController {
                 $query_data =  parse_url($_SERVER['HTTP_REFERER']);
                 if(isset($query_data['query'])){parse_str($query_data['query']);}
                 if(!isset($redirect_to)){
-                    $redirect_to = URL::to("/reseller/profile");
+                    $redirect_to = URL::to("/accounts");
                 }
                 if(isset($data['redirect_to'])){
                     $redirect_to = $data['redirect_to'];

@@ -258,6 +258,27 @@
     </li>
     @endif
     @endif
+
+    <?php
+      $ActiveCallPath='';
+
+      // if(CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+      //   $ActiveCallPath=URL::to('/Vendor_ActiveCalls');
+      // }
+      // if(CompanyConfiguration::getValueConfigurationByKey('VOS_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+      //   $ActiveCallPath=URL::to('/VOS_ActiveCalls');
+      // }
+      if(CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1'){
+        $ActiveCallPath=URL::to('/ActiveCalls');
+      }
+
+      ?>
+
+    @if((CompanyConfiguration::getValueConfigurationByKey('SIDEBAR_ACTIVECALL_MENU',User::get_companyID()) == '1' || CompanyConfiguration::getValueConfigurationByKey('VENDOR_ACTIVECALL_MENU',User::get_companyID()) == '1') && User::checkCategoryPermission('ActiveCall','View'))
+        <li class=""> <a href="{{ $ActiveCallPath }}"> <i class="fa fa-credit-card" ></i> <span>Active Calls</span> </a>
+        </li>
+    @endif
+
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('Analysis','All') || User::checkCategoryPermission('Analysis','Customer')  || User::checkCategoryPermission('Analysis','Vendor')  || User::checkCategoryPermission('Analysis','AccountManager') )
       <?php
@@ -330,6 +351,9 @@
         @endif
         @if(User::checkCategoryPermission('themes','View'))
         <li class="{{ active_url_class("themes") }}"> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
+        @endif
+        @if(User::checkCategoryPermission('nodes','View'))
+        <li class="{{ active_url_class("nodes") }}"> <a href="{{ Url::to('/nodes')}}">  <span>Nodes</span> </a> </li>
         @endif
         {{--@if(User::checkCategoryPermission('AccountChecklist','View'))--}}
         {{--<li class="{{ active_url_class("accountapproval") }}"> <a href="{{Url::to('accountapproval')}}">  <span>Account Checklist</span> </a> </li>--}}

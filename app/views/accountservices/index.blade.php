@@ -91,6 +91,8 @@
                     <th>Number</th>
                     <th>Package</th>
                     <th>Order ID</th>
+                    <th width="20%">Number RateTables</th>
+                    <th width="20%">Package RateTables</th>
                     <th class="hidden">Affiliate</th>
                     <th width="20%">Action</th>
                 </tr>
@@ -177,7 +179,10 @@
                                     return full[3];
                                 }
 
-                            },  // Order ID
+                            },
+                            { "bSortable": false },
+                            { "bSortable": false },
+                              // Order ID
                             /*{
                                 "bSortable": false,
                                 "visible": false,

@@ -33,10 +33,10 @@
             </a>
         @endif
         {{--@if(User::checkCategoryPermission('Opportunity','Add'))--}}
-            {{--<a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">--}}
-                {{--<i class="fa fa-line-chart"></i>--}}
-                {{--Add Opportunity--}}
-            {{--</a>--}}
+        {{--<a href="javascript:void(0)" class="btn btn-primary btn-sm btn-icon icon-left opportunity">--}}
+        {{--<i class="fa fa-line-chart"></i>--}}
+        {{--Add Opportunity--}}
+        {{--</a>--}}
 
         {{--@endif--}}
         @if($account->VerificationStatus == Account::NOT_VERIFIED)
@@ -46,12 +46,12 @@
             </a>
         @endif
         {{--@if( User::checkCategoryPermission('AuthenticationRule','View'))--}}
-            {{--@if($account->IsCustomer==1 || $account->IsVendor==1)--}}
-                {{--<a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">--}}
-                    {{--<i class="entypo-lock"></i>--}}
-                    {{--Authentication Rule--}}
-                {{--</a>--}}
-            {{--@endif--}}
+        {{--@if($account->IsCustomer==1 || $account->IsVendor==1)--}}
+        {{--<a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">--}}
+        {{--<i class="entypo-lock"></i>--}}
+        {{--Authentication Rule--}}
+        {{--</a>--}}
+        {{--@endif--}}
         {{--@endif--}}
         <button type="button" id="save_account" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
             <i class="entypo-floppy"></i>
@@ -132,19 +132,21 @@
                             </div>
 
                         </div>
-                        <div class="form-group">
-                            <label class="col-md-2 control-label">Vendor</label>
-                            <div class="col-md-4">
-                                <div class="make-switch switch-small" id="desablevendor">
-                                    <input type="checkbox" name="IsVendor"  @if($account->IsVendor == 1 )checked=""@endif value="1">
+                        @if(!is_reseller())
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Vendor</label>
+                                <div class="col-md-4">
+                                    <div class="make-switch switch-small" id="desablevendor">
+                                        <input type="checkbox" name="IsVendor"  @if($account->IsVendor == 1 )checked=""@endif value="1">
+                                    </div>
+                                </div>
+
+                                <label class="col-md-2 hide control-label">Fax</label>
+                                <div class="col-md-4 hide">
+                                    <input type="text" name="Fax" class="form-control" id="field-1" placeholder="" value="{{$account->Fax}}" />
                                 </div>
                             </div>
-
-                            <label class="col-md-2 hide control-label">Fax</label>
-                            <div class="col-md-4 hide">
-                                <input type="text" name="Fax" class="form-control" id="field-1" placeholder="" value="{{$account->Fax}}" />
-                            </div>
-                        </div>
+                        @endif
                         <div class="form-group">
                             <label class="col-md-2 control-label">Customer</label>
                             <div class="col-md-4">
@@ -167,7 +169,7 @@
                             </div>
 
                         </div>
-                        <div class="form-group hidden @if(!$account->IsAffiliateAccount == 1 ) hidden @endif" id="AffiliateDetailDiv">
+                        <div class="form-group hidden @if($account->IsAffiliateAccount != 1 ) hidden @endif" id="AffiliateDetailDiv">
                             <label class="col-md-2 control-label">Commission Percentage</label>
                             <div class="col-md-4">
                                 <input type="text" name="CommissionPercentage" class="form-control" id="field-1" placeholder="" value="{{isset($account->CommissionPercentage) ? $account->CommissionPercentage : "5" }}" />
@@ -177,8 +179,7 @@
                                 <input type="text" name="DurationMonths" class="form-control" id="field-1" placeholder="" value="{{$account->DurationMonths}}" />
                             </div>
                         </div>
-                        @if(is_reseller())
-                        @else
+                        @if(!is_reseller())
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Partner</label>
                                 <div class="col-md-4">
@@ -192,6 +193,10 @@
                                     {{Form::select('ResellerOwner',$reseller_owners, isset($accountreseller)?$accountreseller:'' ,array("class"=>"select2"))}}
                                 </div>
                             </div>
+                        @endif
+
+                        @if(is_reseller())
+                            <input type="hidden" name="ResellerOwner" value="{{ @$reseller->ResellerID }}">
                         @endif
                         <div class="form-group">
                             <label class="col-md-2 hide control-label">Email</label>
@@ -904,6 +909,14 @@
         @if(AccountBilling::where(array('AccountID'=>$account->AccountID,'BillingCycleType'=>'manual'))->count() == 0 || !empty($BillingCycleType))
             @include('accountdiscountplan.index')
         @endif
+        @include('accounts.ratetables')
+        
+           
+        @if($account->IsReseller == 1)    
+            @include('accounts.customer_ratetables')
+            @include('accounts.customer_ratetables_') 
+        @endif
+       
         @if(User::checkCategoryPermission('AccountService','View'))
             @include('accountsubscription.index')
         @endif
@@ -945,88 +958,88 @@
 
                         <ul class="icheck-list">
                             @if(is_authorize($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-3-11" name="PaymentMethod" value="AuthorizeNet" @if( $account->PaymentMethod == 'AuthorizeNet' ) checked="" @endif />
-                                <label for="minimal-radio-3-11">AuthorizeNet</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-3-11" name="PaymentMethod" value="AuthorizeNet" @if( $account->PaymentMethod == 'AuthorizeNet' ) checked="" @endif />
+                                    <label for="minimal-radio-3-11">AuthorizeNet</label>
+                                </li>
                             @endif
                             @if(is_authorize($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-12-11" name="PaymentMethod" value="AuthorizeNetEcheck" @if( $account->PaymentMethod == 'AuthorizeNetEcheck' ) checked="" @endif />
-                                <label for="minimal-radio-12-11">AuthorizeNet Echeck</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-12-11" name="PaymentMethod" value="AuthorizeNetEcheck" @if( $account->PaymentMethod == 'AuthorizeNetEcheck' ) checked="" @endif />
+                                    <label for="minimal-radio-12-11">AuthorizeNet Echeck</label>
+                                </li>
                             @endif
                             @if(is_FideliPay($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-9-11" name="PaymentMethod" value="FideliPay" @if( $account->PaymentMethod == 'FideliPay' ) checked="" @endif />
-                                <label for="minimal-radio-9-11">FideliPay</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-9-11" name="PaymentMethod" value="FideliPay" @if( $account->PaymentMethod == 'FideliPay' ) checked="" @endif />
+                                    <label for="minimal-radio-9-11">FideliPay</label>
+                                </li>
                             @endif
                             @if(is_paypal($account->CompanyId))
-                            <li>
-                                <input class="icheck-11" type="radio" id="minimal-radio-1-11" name="PaymentMethod" value="Paypal" @if( $account->PaymentMethod == 'Paypal' ) checked="" @endif />
-                                <label for="minimal-radio-1-11">Paypal</label>
-                            </li>
+                                <li>
+                                    <input class="icheck-11" type="radio" id="minimal-radio-1-11" name="PaymentMethod" value="Paypal" @if( $account->PaymentMethod == 'Paypal' ) checked="" @endif />
+                                    <label for="minimal-radio-1-11">Paypal</label>
+                                </li>
                             @endif
                             @if(is_PeleCard($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-10-11" name="PaymentMethod" value="PeleCard" @if( $account->PaymentMethod == 'PeleCard' ) checked="" @endif />
-                                <label for="minimal-radio-10-11">PeleCard</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-10-11" name="PaymentMethod" value="PeleCard" @if( $account->PaymentMethod == 'PeleCard' ) checked="" @endif />
+                                    <label for="minimal-radio-10-11">PeleCard</label>
+                                </li>
                             @endif
                             @if(is_sagepay($account->CompanyId))
-                            <li>
-                                <input class="icheck-11" type="radio" id="minimal-radio-7-11" name="PaymentMethod" value="SagePay" @if( $account->PaymentMethod == 'SagePay' ) checked="" @endif />
-                                <label for="minimal-radio-7-11">SagePay</label>
-                            </li>
+                                <li>
+                                    <input class="icheck-11" type="radio" id="minimal-radio-7-11" name="PaymentMethod" value="SagePay" @if( $account->PaymentMethod == 'SagePay' ) checked="" @endif />
+                                    <label for="minimal-radio-7-11">SagePay</label>
+                                </li>
                             @endif
                             @if(is_SagePayDirectDebit($account->CompanyId))
-                            <li>
-                                <input class="icheck-11" type="radio" id="minimal-radio-8-11" name="PaymentMethod" value="SagePayDirectDebit" @if( $account->PaymentMethod == 'SagePayDirectDebit' ) checked="" @endif />
-                                <label for="minimal-radio-8-11">SagePay Direct Debit</label>
-                            </li>
+                                <li>
+                                    <input class="icheck-11" type="radio" id="minimal-radio-8-11" name="PaymentMethod" value="SagePayDirectDebit" @if( $account->PaymentMethod == 'SagePayDirectDebit' ) checked="" @endif />
+                                    <label for="minimal-radio-8-11">SagePay Direct Debit</label>
+                                </li>
                             @endif
                             @if(is_Stripe($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-4-11" name="PaymentMethod" value="Stripe" @if( $account->PaymentMethod == 'Stripe' ) checked="" @endif />
-                                <label for="minimal-radio-4-11">Stripe</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-4-11" name="PaymentMethod" value="Stripe" @if( $account->PaymentMethod == 'Stripe' ) checked="" @endif />
+                                    <label for="minimal-radio-4-11">Stripe</label>
+                                </li>
                             @endif
                             @if(is_StripeACH($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-6-11" name="PaymentMethod" value="StripeACH" @if( $account->PaymentMethod == 'StripeACH' ) checked="" @endif />
-                                <label for="minimal-radio-6-11">Stripe ACH</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-6-11" name="PaymentMethod" value="StripeACH" @if( $account->PaymentMethod == 'StripeACH' ) checked="" @endif />
+                                    <label for="minimal-radio-6-11">Stripe ACH</label>
+                                </li>
                             @endif
                             @if(is_FastPay($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-13-11" name="PaymentMethod" value="FastPay" @if( $account->PaymentMethod == 'FastPay' ) checked="" @endif />
-                                <label for="minimal-radio-13-11">Fast Pay</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-13-11" name="PaymentMethod" value="FastPay" @if( $account->PaymentMethod == 'FastPay' ) checked="" @endif />
+                                    <label for="minimal-radio-13-11">Fast Pay</label>
+                                </li>
                             @endif
                             @if(is_merchantwarrior($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-11-11" name="PaymentMethod" value="MerchantWarrior" @if( $account->PaymentMethod == 'MerchantWarrior' ) checked="" @endif />
-                                <label for="minimal-radio-11-11">MerchantWarrior</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11" id="minimal-radio-11-11" name="PaymentMethod" value="MerchantWarrior" @if( $account->PaymentMethod == 'MerchantWarrior' ) checked="" @endif />
+                                    <label for="minimal-radio-11-11">MerchantWarrior</label>
+                                </li>
                             @endif
                             @if(is_wiretransfer($account->CompanyId))
-                            <li>
-                                <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="WireTransfer" @if( $account->PaymentMethod == 'WireTransfer' ) checked="" @endif />
-                                <label for="minimal-radio-2-11">Bank Transfer</label>
-                            </li>
+                                <li>
+                                    <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="WireTransfer" @if( $account->PaymentMethod == 'WireTransfer' ) checked="" @endif />
+                                    <label for="minimal-radio-2-11">Bank Transfer</label>
+                                </li>
                             @endif
                             @if(is_directdebit($account->CompanyId))
-                            <li>
-                                <input class="icheck-11" type="radio" id="minimal-radio-22-11" name="PaymentMethod" value="DirectDebit" @if( $account->PaymentMethod == 'DirectDebit' ) checked="" @endif />
-                                <label for="minimal-radio-22-11">Direct Debit</label>
-                            </li>
+                                <li>
+                                    <input class="icheck-11" type="radio" id="minimal-radio-22-11" name="PaymentMethod" value="DirectDebit" @if( $account->PaymentMethod == 'DirectDebit' ) checked="" @endif />
+                                    <label for="minimal-radio-22-11">Direct Debit</label>
+                                </li>
                             @endif
                             @if(is_ingenico($account->CompanyId))
-                            <li>
-                                <input type="radio" class="icheck-11 ingenico" id="minimal-radio-14-11" name="PaymentMethod" value="Ingenico" @if( $account->PaymentMethod == 'Ingenico' ) checked="" @endif />
-                                <label for="minimal-radio-14-11">Ingenico</label>
-                            </li>
+                                <li>
+                                    <input type="radio" class="icheck-11 ingenico" id="minimal-radio-14-11" name="PaymentMethod" value="Ingenico" @if( $account->PaymentMethod == 'Ingenico' ) checked="" @endif />
+                                    <label for="minimal-radio-14-11">Ingenico</label>
+                                </li>
                             @endif
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
@@ -1119,8 +1132,8 @@
                     $("#AffiliateDetailDiv").removeClass('hidden');
                 }else {
                     $("#AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
-                   // $('[name="CommissionPercentage"]').val('');
-                   // $('[name="DurationMonths"]').val(5);
+                    // $('[name="CommissionPercentage"]').val('');
+                    // $('[name="DurationMonths"]').val(5);
 
                 }
             });
@@ -1539,6 +1552,9 @@
             });
 
             function changeTaxes(){
+                var Partner = $("[name='IsReseller']").prop("checked");
+                var PartnerID = '{{  $accountreseller}}';
+                var Customer = $("[name='IsCustomer']").prop("checked");
                 var CompanyID = '{{$account->CompanyId}}';
                 var Country = $('select[name="Country"]').val();
                 var RegisterDutchFoundation = $('[name="RegisterDutchFoundation"]').prop("checked");
@@ -1558,7 +1574,10 @@
                             "Country":Country,
                             "RegisterDutchFoundation":RegisterDutchFoundation,
                             "DutchProvider":DutchProvider,
-                            "CompanyID":CompanyID
+                            "CompanyID":CompanyID,
+                            "Partner" : Partner,
+                            "PartnerID" : PartnerID,
+                            "Customer"  : Customer
                         }
 
                     });
@@ -1651,9 +1670,252 @@
     /* some changing in this file */
     @include('accountdiscountplan.discountplanmodal')
     @include('accountservices.modal')
+    <div class="hidden">
+        <table id="table-12">
+                <tr id="selectedCustomerRow-0">
+                    <td>{{ Form::select('Customer-1', $customers, '', array("class"=>"select2")) }} </td>
+                    <td>{{ Form::select('Access-1', $rate_table, '', array("class"=>"select2")) }} </td>
+                    <td>{{ Form::select('Package-1', $package_rate_table, '', array("class"=>"select2")) }} </td>
+                    <td>{{ Form::select('Termination-1', $termination_rate_table, '', array("class"=>"select2")) }} </td>
+                    <td>{{ Form::select('AccessD-1', $DiscountPlanDID, '', array("class"=>"select2")) }} </td>
+                    <td>{{ Form::select('PackageD-1', $DiscountPlanPACKAGE, '', array("class"=>"select2")) }} </td>
+                    <td>{{ Form::select('TerminationD', $DiscountPlan, '', array("class"=>"select2")) }} </td>
+                
+                    <td>
+                        <a onclick="deleteRow(this.id,'ratetableCustomer','getRateCustomerIDs')" id="CustomerCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
+                            <i></i>
+                            -
+                        </a>
+                    </td>
+                </tr>
+        </table>
+        <table id="table-13">
+            <tr id="selectedCustomerServiceRow-0">
+                <td>{{ Form::select('Customer1-1', $customers, '', array("class"=>"select2 customer-get")) }} </td>
+                {{-- <td>{{ Form::select('Service1-1', $CustomerServices, '', array("class"=>"select2")) }} </td> --}}
+                <td>
+                    <select name="Service1-1"  id="" class="select2 service-customer">
+                        <option value="">Select</option>
+                    </select>
+                </td>
+                <td>{{ Form::select('Access1-1', $rate_table, '', array("class"=>"select2")) }} </td>
+                <td>{{ Form::select('Package1-1', $package_rate_table, '', array("class"=>"select2")) }} </td>
+                <td>{{ Form::select('Termination1-1', $termination_rate_table, '', array("class"=>"select2")) }} </td>
+                <td>{{ Form::select('AccessD1-1', $DiscountPlanDID, '', array("class"=>"select2")) }} </td>
+                <td>{{ Form::select('PackageD1-1', $DiscountPlanPACKAGE, '', array("class"=>"select2")) }} </td>
+                <td>{{ Form::select('TerminationD1-1', $DiscountPlan, '', array("class"=>"select2")) }} </td>
+                        
+                <td>
+                    <a onclick="deleteRow(this.id,'ratetableCustomerService','getRateServiceIDs')" id="serviceCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
+                        <i></i>
+                        -
+                    </a>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
+    <style>
+            
+            #ratetableCustomer {
+                width:1900px;
+                overflow-x: auto;
+            }
+            #ratetableCustomerService{
+                width:2400px;
+                overflow-x: auto;
+            }
+    </style>        
     <script>
         setTimeout(function(){
             $('#CustomerPassword_hide').hide();
         },1000);
+
+        function getIds(tblID, idInp){
+            $('#'+idInp).val("");
+            $('#' + tblID + ' tbody tr').each(function() {
+
+                var row = "";
+
+                if(tblID == "ratetableCustomer"){
+                    row = "selectedCustomerRow";
+                }else{
+                    row = "selectedCustomerServiceRow";
+                }
+                var id = 0;
+                if(this.id != row)
+                    id = getNumber(this.id);
+
+                var getIDString =  $('#'+idInp).val();
+                getIDString = getIDString + id + ',';
+                $('#'+idInp).val(getIDString);
+
+            });
+        }
+        
+        function getCustomerServiceDropdown(ele){
+            var that = $(ele);
+            var cusID = that.val() != '' ? that.val() : 0;
+            var check = that.closest('tr').children('td:eq(1)').data('id');
+            $.ajax({
+                url : baseurl + '/customer/Services/' + cusID ,
+                type: 'get',
+                success:function(response){
+                    var options = that.closest('tr').find("select.service-customer");
+                    options.empty();
+                    options.append("<option value=''>Select</option>")
+                    $.map( response, function( val, i ) {
+                        var dash = "-";
+                        var orderID =  val.ServiceOrderID == undefined ? '' : dash+val.ServiceOrderID;
+                        if(check != ''){
+                            if(check == val.AccountServiceID){
+                                options.append("<option value='"+ val.AccountServiceID +"' selected>"+val.numbers+orderID+"</option>");
+                            }else{
+                                options.append("<option value='"+ val.AccountServiceID +"'>"+val.numbers+orderID+"</option>");
+                            }
+                        }else{
+                            options.append("<option value='"+ val.AccountServiceID +"'>"+val.numbers+orderID+"</option>");
+                        }                                                      
+                    });
+                    options.select2();
+                }
+            })
+         }     
+
+        $(document).ready(function() {
+
+            if(performance.navigation.type == 2)
+            {
+                $('#getRateCustomerIDs').val('');
+                $('#getRateServiceIDs').val('');
+            }
+
+              
+            $(window).load(function() {
+                getIds("ratetableCustomerService", "getRateServiceIDs");
+                getIds("ratetableCustomer", "getRateCustomerIDs");
+        
+            });
+
+            $('#ratetableCustomerService .customer-get').each(function() {
+
+                getCustomerServiceDropdown(this);
+            });
+
+  
+            $(document.body).on('change', '.customer-get' ,function(){
+                getCustomerServiceDropdown(this);
+
+            })
+        });
+
+
+
+        function getNumber($item){
+            var txt = $item;
+            var numb = txt.match(/\d/g);
+            numb = numb.join("");
+            return numb;
+        }
+
+        function createCloneRow(tblID, idInp) {
+           
+            var lastrow = $('#' + tblID + ' tbody tr:last');
+            var $item = lastrow.attr('id');
+           
+            var numb = lastrow.length > 0 ? getNumber($item) : 0;
+            numb++;
+            if(tblID == 'ratetableCustomer'){
+                $("#table-12 tr").clone().appendTo('#' + tblID + ' tbody');
+                $("#table-12 tr").attr('id', 'selectedCustomerRow-'+numb);
+            }else{
+                $("#table-13 tr").clone().appendTo('#' + tblID + ' tbody');
+            }
+           
+
+            var row = "";
+
+            if(tblID == "ratetableCustomer"){
+                 row = "selectedCustomerRow";
+            }else{
+                row = "selectedCustomerServiceRow";
+            }
+
+            $('#' + tblID + ' tr:last').attr('id', row + '-' + numb);
+            if (tblID == "ratetableCustomer") {
+                $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Customer-' + numb).attr('id', 'Customer-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(1)').removeAttr('class').children('select').attr('name', 'Access-' + numb).attr('id', 'Access-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'Package-' + numb).attr('id', 'Package-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Termination-' + numb).attr('id', 'Termination-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'AccessD-' + numb).attr('id', 'AccessD-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'PackageD-' + numb).attr('id', 'PackageD-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'TerminationD-' + numb).attr('id', 'TerminationD-' + numb).select2();
+                                
+            }else {
+                $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Customer1-' + numb).attr('id', 'Customer1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(1)').removeAttr('class').children('select').attr('name', 'Service1-' + numb).attr('id', 'Service1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'Access1-' + numb).attr('id', 'Access1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Package1-' + numb).attr('id', 'Package1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'Termination1-' + numb).attr('id', 'Termination1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'AccessD1-' + numb).attr('id', 'AccessD1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'PackageD1-' + numb).attr('id', 'PackageD1-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(7)').children('select').attr('name', 'TerminationD1-' + numb).attr('id', 'TerminationD1-' + numb).select2();
+          }
+            if ($('#' + idInp).val() == '') {
+                $('#' + idInp).val(numb + ',');
+            } else {
+                var getIDString = $('#' + idInp).val();
+                getIDString = getIDString + numb + ',';
+                $('#' + idInp).val(getIDString);
+            }
+
+           
+            if (tblID == "ratetableCustomer") {
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').children('a').attr('id', "CustomerCal-" + numb);
+            } else {
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(8)').children('a').attr('id', "serviceCal-" + numb);
+            }
+
+            $('#' + tblID + ' tr:last').children('td:eq(0)').find('div:first').remove();
+            $('#' + tblID + ' tr:last').children('td:eq(1)').find('div:first').remove();
+            $('#' + tblID + ' tr:last').children('td:eq(2)').find('div:first').remove();
+            $('#' + tblID + ' tr:last').children('td:eq(3)').find('div:first').remove();
+            $('#' + tblID + ' tr:last').children('td:eq(4)').find('div:first').remove();
+
+            if (tblID == "ratetableCustomer") {
+                $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
+                
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').find('a').removeClass('hidden');
+            }else {
+                $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(7)').find('div:first').remove();
+                
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(8)').find('a').removeClass('hidden');
+            }
+        }
+        function deleteRow(id, tblID, idInp)
+        {
+            if(confirm("Are You Sure?")) {
+                var selectedSubscription = $('#'+idInp).val();
+                var removeValue = id + ",";
+                var removalueIndex = selectedSubscription.indexOf(removeValue);
+                var firstValue = selectedSubscription.substr(0, removalueIndex);
+                var lastValue = selectedSubscription.substr(removalueIndex + removeValue.length, selectedSubscription.length);
+                var selectedSubscription = firstValue + lastValue;
+                if (selectedSubscription.charAt(0) == ',') {
+                    selectedSubscription = selectedSubscription.substr(1, selectedSubscription.length)
+                }
+                $('#'+idInp).val(selectedSubscription);
+
+             
+                $("#" + id).closest("tr").remove();
+                getIds(tblID, idInp);
+                return false;
+            }
+        }
+        
     </script>
 @stop

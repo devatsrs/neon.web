@@ -272,8 +272,9 @@ class CronJobController extends \BaseController {
 
         $commands = CronJobCommand::getCommands();
         $Process = new Process();
+        $Nodes = Nodes::getActiveNodes();
         $crontab_status = $Process->check_crontab_status();
-        return View::make('cronjob.cronjob_monitor', compact('commands','crontab_status'));
+        return View::make('cronjob.cronjob_monitor', compact('commands','crontab_status','Nodes'));
 
     }
 
@@ -283,6 +284,7 @@ class CronJobController extends \BaseController {
      */
     public function trigger($CronJobID){
 
+
         //@TODO: what if cron job is running on another server.
 
         $CompanyID = User::get_companyID();
@@ -290,19 +292,35 @@ class CronJobController extends \BaseController {
         $query = $pr_name . $CompanyID . "," . $CronJobID . ")";
         $CronJob = DB::connection('sqlsrv')->select($query);
         $CronJob = json_decode(json_encode($CronJob), true);
-        $success = false;
         $CronJob = array_pop($CronJob);
-        if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
-            $command = CompanyConfiguration::get("PHP_EXE_PATH"). " " .CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
-            $success = run_process($command);
+        $Success = false;
+        $Server = false;
+        $CheckServerStatus = Nodes::getServersFromCronJob($CronJobID,$CompanyID);
+		if(!empty($CheckServerStatus) && count($CheckServerStatus) > 0){
+            foreach($CheckServerStatus as $Status){
+                $CheckServerUp = Nodes::where(['ServerIP' => $Status ,'ServerStatus' => '1', 'MaintananceStatus' => 0])->first();
+                $CheckServerUp = json_decode($CheckServerUp,true);
+                if(count($CheckServerUp) > 0){
+                    if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
+                        $command = CompanyConfiguration::get("PHP_EXE_PATH"). " " .CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
+                        RemoteSSH::$ServerIp = $CheckServerUp['ServerIP'];
+                        $Success = run_process($command);
+                        $Server = true;
+                        break;
+                    }   
+                }
+            }
+            if(!$Server){
+                return Response::json(array("status" => "failed", "message" => "This cron job couldn't triggered because all servers are down"));
+            }
         }
-        if($success){
+       
+        if($Success){
             CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => "Triggered by " . User::get_user_full_name()]);
             return Response::json(array("status" => "success", "message" => "Cron Job is triggered." ));
         }else{
             return Response::json(array("status" => "failed", "message" => "Failed to trigger Cron Job"));
         }
-
     }
 
     /**
@@ -350,7 +368,7 @@ class CronJobController extends \BaseController {
      * @return mixed
      */
     public function change_crontab_status($Status=1){
-
+       
         if($Status == 0 ){
             $Status_to = "Cron Tab Stopped";
         }else {
@@ -380,4 +398,6 @@ class CronJobController extends \BaseController {
         }
 
     }
+
+    
 }

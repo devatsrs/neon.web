@@ -108,7 +108,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Termination Exclude Discount Components</label>
                         <div class="col-sm-4">
-                            {{ Form::select('Components[]', DiscountPlan::$Component, $ExcludedComponent, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"MinutesComponent-1")) }}
+                            {{ Form::select('Components[]', DiscountPlan::$RateTableRate_Components, $ExcludedComponent, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"MinutesComponent-1")) }}
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Access Exclude Discount Components</label>
@@ -218,7 +218,7 @@
                         </div>
                         <label for=" field-1" class="col-sm-2 control-label">Country</label>
                         <div class="col-sm-4">
-                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control select2 small"))}}
+                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control select2"))}}
                         </div>
                     </div>
                 </div>
@@ -240,10 +240,12 @@
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control" id="InvoiceStatus" name="InvoiceStatus" value="{{$company->InvoiceStatus}}" />
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Use Prefix In CDR</label>
-                                    <p class="make-switch switch-small">
-                                        <input id="UseInBilling" name="UseInBilling" type="checkbox" value="1" @if($UseInBilling == 1) checked="checked" @endif>
-                                    </p>
+                                    <label class="col-sm-2 control-label">Rate Approval Process</label>
+                                    <div class="col-sm-4">
+                                        <p class="make-switch switch-small">
+                                            <input id="RateApprovalProcess" name="RateApprovalProcess" type="checkbox" value="1" @if($RateApprovalProcess == 1) checked="checked" @endif>
+                                        </p>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">Decimal Places (123.45) </label>
@@ -296,12 +298,7 @@
                                             <input id="invoicePdfSend" name="invoicePdfSend" type="checkbox" value="1" @if($invoicePdfSend == 1) checked="checked" @endif>
                                         </p>
                                     </div>
-                                    <label class="col-sm-2 control-label">Rate Approval Process</label>
-                                    <div class="col-sm-4">
-                                        <p class="make-switch switch-small">
-                                            <input id="RateApprovalProcess" name="RateApprovalProcess" type="checkbox" value="1" @if($RateApprovalProcess == 1) checked="checked" @endif>
-                                        </p>
-                                    </div>
+                                    
                                 </div>
                                 {{--<div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">RateSheet excel Note</label>
@@ -387,7 +384,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Password</label>
                         <div class="col-sm-4">
-                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="{{$company->SMTPPassword}}" />
+                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="@if(!empty($company->SMTPPassword)){{ Crypt::decrypt($company->SMTPPassword) }}@endif" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -487,6 +484,25 @@
                   </div>
             </div>
 
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                      <div class="panel-title">
+                              Nodes Setting
+                      </div>
+                      <div class="panel-options">
+                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                      </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="col-sm-10">
+                            <label class="control-label col-sm-2">Nodes</label>
+                            {{ Form::select('Nodes[]', $Nodes, $ActiveNodes['Nodes'], array("class"=>"select2",'id'=>'nodes','multiple',"data-placeholder"=>"Select Nodes")) }}
+                        </div>    
+                    </div>
+                </div>
+            </div>
+
             @endif
 
         </form>
@@ -524,6 +540,14 @@
 
 <script type="text/javascript">
     jQuery(document).ready(function($) {
+
+        $("#nodes").on("select2-selecting", function (evt) {
+            var element = evt.object.element;
+            var $element = $(element);
+            $element.detach();
+            $(this).append($element);
+            $(this).trigger("change");
+        });
 
         // Replace Checboxes
         $(".save.btn").click(function(ev) {

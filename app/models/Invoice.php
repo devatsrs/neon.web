@@ -111,19 +111,22 @@ class Invoice extends \Eloquent {
             if(!empty($Invoice->RecurringInvoiceID) && $Invoice->RecurringInvoiceID > 0){
                 $recurringInvoice = RecurringInvoice::find($Invoice->RecurringInvoiceID);
                 $billingClass = BillingClass::where('BillingClassID',$recurringInvoice->BillingClassID)->first();
-                $InvoiceTemplateID = $billingClass->InvoiceTemplateID;
+                //$InvoiceTemplateID = $billingClass->InvoiceTemplateID;
                 $PaymentDueInDays = $billingClass->PaymentDueInDays;
             }else{
 				$BillingClassID = self::GetInvoiceBillingClass($Invoice);
-				$InvoiceTemplateID = self::GetInvoiceTemplateID($Invoice);
+				//$InvoiceTemplateID = self::GetInvoiceTemplateID($Invoice);
                 $PaymentDueInDays = BillingClass::getPaymentDueInDays($BillingClassID);
             }
 
-            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
-            if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key,$Account->CompanyId) == '') {
+            $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
+            //Log::info("Pdf Reseller");
+            //Log::info(print_r($Reseller, true));
+            //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+            if (empty($Reseller->LogoUrl) || AmazonS3::unSignedUrl($Reseller->LogoAS3Key, $Account->CompanyId) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
             } else {
-                $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key,$Account->CompanyId));
+                $as3url = (AmazonS3::unSignedUrl($Reseller->LogoAS3Key,$Account->CompanyId));
             }
             $logo_path = CompanyConfiguration::get('UPLOAD_PATH',$Account->CompanyId) . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
@@ -132,9 +135,10 @@ class Invoice extends \Eloquent {
             file_put_contents($logo, file_get_contents($as3url));
             @chmod($logo,0777);
 
-            $InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
-
-            $common_name = Str::slug($Account->AccountName.'-'.$Invoice->FullInvoiceNumber.'-'.date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate)).'-'.$InvoiceID);
+            //$InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
+            $dateFormat = isset($Reseller->InvoiceDateFormat) ? $Reseller->InvoiceDateFormat : '';
+            Log::info('date format: '. $dateFormat);
+            $common_name = Str::slug($Account->AccountName.'-'.$Invoice->FullInvoiceNumber.'-'.date(invoice_date_fomat($dateFormat),strtotime($Invoice->IssueDate)).'-'.$InvoiceID);
 
             $file_name = 'Invoice--' .$common_name . '.pdf';
             $htmlfile_name = 'Invoice--' .$common_name . '.html';
@@ -150,12 +154,13 @@ class Invoice extends \Eloquent {
             }
             $MultiCurrencies=array();
             $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
-            if($InvoiceTemplate->ShowTotalInMultiCurrency==1){
+            if(isset($InvoiceTemplate) && $InvoiceTemplate->ShowTotalInMultiCurrency==1){
                 $MultiCurrencies = Invoice::getTotalAmountInOtherCurrency($Account->CompanyId,$Account->CurrencyId,$Invoice->GrandTotal,$RoundChargesAmount);
             }
 			
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates','language' ,'arrSignature','RoundChargesAmount','MultiCurrencies'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'Reseller',
+'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates','language' ,'arrSignature','RoundChargesAmount','MultiCurrencies'))->render();
 
             $body = htmlspecialchars_decode($body);  
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
@@ -1007,5 +1012,29 @@ class Invoice extends \Eloquent {
     public function Dispute()
     {
         return $this->hasOne(Dispute::class, 'InvoiceNo', 'InvoiceNumber');
+    }
+
+    public static function getAccountNextInvoiceNumber($AccountID){
+
+        $CompanyID = Account::getCompanyIDByAccountID($AccountID);
+        if($CompanyID > 0){
+            return self::getNextInvoiceNumber($CompanyID);
+        }else{
+            return 0;
+        }
+    }
+
+
+    public static function getNextInvoiceNumber($CompanyID){
+        $Company = Company::find($CompanyID);
+        $NewInvoiceNumber =  ($Company->LastInvoiceNumber > 0)?($Company->LastInvoiceNumber + 1):1;
+        while(Invoice::where([
+                "InvoiceNumber" => $NewInvoiceNumber,
+                'CompanyID'     => $CompanyID
+            ])->count()>0){
+            $NewInvoiceNumber++;
+        }
+
+        return $NewInvoiceNumber;
     }
 }

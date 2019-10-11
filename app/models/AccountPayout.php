@@ -40,80 +40,100 @@ class AccountPayout extends \Eloquent
 
     public static function createPayoutInvoice($data){
 
-        $InvoiceData["CompanyID"] = $data['CompanyID'];
+        $CompanyID = $data['CompanyID'];
+        $InvoiceData["CompanyID"] = $CompanyID;
         $InvoiceData["AccountID"] = $data['AccountID'];
         $CreatedBy = "API";
         $Account = Account::find($data["AccountID"]);
         $BillingClassID = AccountBilling::getBillingClassID($data['AccountID']);
-        $InvoiceTemplateID = $BillingClassID != false ? BillingClass::getInvoiceTemplateID($BillingClassID) : false;
 
-        if($InvoiceTemplateID == false)
-            return ["status"  => "failed", "message" => "Account don't have billing class."];
 
-        $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
-
-        $message = $InvoiceTemplate->InvoiceTo;
+        $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
+        $message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
         $replace_array = Invoice::create_accountdetails($Account);
         $text = Invoice::getInvoiceToByAccount($message, $replace_array);
         $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
 
-        $prefix = $InvoiceTemplate->InvoiceNumberPrefix;
+        $prefix = Company::getCompanyField($CompanyID, "InvoiceNumberPrefix");
+        $Amount = $data["Amount"];
+        //For Tax Rate
+        $TotalTax = 0;
+        $TaxRateArr = [];
+        $TaxRates = isset($Account->TaxRateID) && $Account->TaxRateID != null ? explode(",",$Account->TaxRateID) : [];
+        if(!empty($TaxRates)){
+            foreach ($TaxRates as $TaxRateID) {
+                $TaxRateData = TaxRate::find($TaxRateID);
+                if(!empty($TaxRateData)){
+                    $InvoiceTaxRates = array();
+                    $InvoiceTaxRates['TaxRateID'] 		= $TaxRateID;
+                    $TaxAmount = TaxRate::calculateProductTaxAmount($TaxRateID,$Amount);
+                    $TotalTax += (float)$TaxAmount;
+                    $InvoiceTaxRates['TaxAmount'] 		= $TaxAmount;
+                    $InvoiceTaxRates['Title'] 			= $TaxRateData->Title;
+                    $InvoiceTaxRates['Title']           .= $TaxRateData->FlatStatus != 1 ? " " . round($TaxRateData->Amount) . "%" : "";
+                    $InvoiceTaxRates['InvoiceTaxType'] 	= 0;
+                    $TaxRateArr[] = $InvoiceTaxRates;
+                }
+            }
+        }
 
-        $InvoiceData["InvoiceNumber"] = InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID);
+        $AmountWithoutTax = (float)$Amount - (float)$TotalTax;
+
+        $InvoiceData["InvoiceNumber"] = Invoice::getNextInvoiceNumber($CompanyID);
         $InvoiceData["FullInvoiceNumber"] = $prefix . $InvoiceData["InvoiceNumber"];
         $InvoiceData["Address"]       = $InvoiceToAddress;
         $InvoiceData["Description"]   = "Out Payment";
         $InvoiceData["IssueDate"]     = date('Y-m-d');
-        $InvoiceData["SubTotal"]      = -floatval($data["Amount"]);
+        $InvoiceData["SubTotal"]      = floatval($AmountWithoutTax);
         $InvoiceData["TotalDiscount"] = 0;
-        $InvoiceData["TotalTax"]      = 0;
+        $InvoiceData["TotalTax"]      = $TotalTax;
         $InvoiceData["ItemInvoice"]   = Invoice::ITEM_INVOICE;
         $InvoiceData["BillingClassID"]= $BillingClassID;
         $InvoiceData["InvoiceStatus"] = Invoice::SEND;
-        $InvoiceData["GrandTotal"]    = -floatval($data["Amount"]);
-        $InvoiceData['InvoiceTotal']  = -floatval($data["Amount"]);
+        $InvoiceData["GrandTotal"]    = floatval($Amount);
+        $InvoiceData['InvoiceTotal']  = floatval($Amount);
         $InvoiceData["CurrencyID"]    = $Account->CurrencyId;
         $InvoiceData["InvoiceType"]   = Invoice::INVOICE_OUT;
         $InvoiceData["Note"]          = $CreatedBy;
         $InvoiceData["CreatedBy"]     = $CreatedBy;
-        $InvoiceData["Terms"]         = $InvoiceTemplate->Terms;
-        $InvoiceData["FooterTerm"]    = $InvoiceTemplate->FooterTerm;
+        $InvoiceData["Terms"]         = isset($Reseller->TermsAndCondition) ? $Reseller->TermsAndCondition : '';
+        $InvoiceData["FooterTerm"]    = isset($Reseller->FooterTerm) ? $Reseller->FooterTerm : '';
 
         try{
             DB::connection('sqlsrv2')->beginTransaction();
             $Invoice = Invoice::create($InvoiceData);
 
             $ProductID = Product::where([
-                'CompanyId' => $data['CompanyID'],
+                'CompanyId' => $CompanyID,
                 'Code'      => 'outpayment'
             ])->pluck('ProductID');
 
             if (empty($ProductID)) {
                 $ProductData = array();
-                $ProductData['CompanyID'] = $data['CompanyID'];
-                $ProductData['Name'] = 'OutPayment';
-                $ProductData['Amount'] = '0.00';
+                $ProductData['CompanyID']   = $CompanyID;
+                $ProductData['Name']        = 'OutPayment';
+                $ProductData['Amount']      = '0.00';
                 $ProductData['Description'] = 'Out Payment';
-                $ProductData['Code'] = Product::OutPaymentCode;
-                $product = Product::create($ProductData);
+                $ProductData['Code']        = Product::OutPaymentCode;
+                $product   = Product::create($ProductData);
                 $ProductID = $product->ProductID;
             }
 
             $InvoiceID = $Invoice->InvoiceID;
 
-            $InvoiceDetailData = $InvoiceTaxRates = array();
+            $InvoiceDetailData = array();
             $InvoiceDetailData['InvoiceID']     = $InvoiceID;
             $InvoiceDetailData['ProductID']     = $ProductID;
             $InvoiceDetailData['Description']   = 'Out Payment';
-            $InvoiceDetailData['Price']         = -floatval($data["Amount"]);
+            $InvoiceDetailData['Price']         = floatval($AmountWithoutTax);
             $InvoiceDetailData['Qty']           = 1;
-            $InvoiceDetailData['TaxAmount']     = 0;
-            $InvoiceDetailData['LineTotal']     = -floatval($data["Amount"]);
+            $InvoiceDetailData['TaxAmount']     = $TotalTax;
+            $InvoiceDetailData['LineTotal']     = floatval($AmountWithoutTax);
             $InvoiceDetailData['StartDate']     = '';
             $InvoiceDetailData['EndDate']       = '';
             $InvoiceDetailData['Discount']      = 0;
-            $InvoiceDetailData['TaxRateID']     = 0;
-            $InvoiceDetailData['TaxRateID2']    = 0;
+            $InvoiceDetailData['TaxRateID'] 	= isset($TaxRates[0]) ? $TaxRates[0] : 0;
+            $InvoiceDetailData['TaxRateID2'] 	= isset($TaxRates[1]) ? $TaxRates[1] : 0;
             $InvoiceDetailData['TotalMinutes']  = 0;
             $InvoiceDetailData["CreatedBy"]     = $CreatedBy;
             $InvoiceDetailData["ModifiedBy"]    = $CreatedBy;
@@ -121,7 +141,8 @@ class AccountPayout extends \Eloquent
             $InvoiceDetailData['ProductType']   = Product::ITEM;
             $InvoiceDetailData['ServiceID']     = 0;
             $InvoiceDetailData['AccountSubscriptionID'] = 0;
-            InvoiceDetail::insert($InvoiceDetailData);
+            $InvoiceDetails  = InvoiceDetail::create($InvoiceDetailData);
+            $InvoiceDetailID = $InvoiceDetails != false ? $InvoiceDetails->InvoiceDetailID : 0;
 
             $invoiceloddata = array();
             $invoiceloddata['InvoiceID']        = $InvoiceID;
@@ -130,17 +151,26 @@ class AccountPayout extends \Eloquent
             $invoiceloddata['InvoiceLogStatus'] = InVoiceLog::CREATED;
             InVoiceLog::insert($invoiceloddata);
 
-            $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($InvoiceID);
-            if(!empty($InvoiceTaxRates1)) { //Invoice tax
-                InvoiceTaxRate::insert($InvoiceTaxRates1);
+            //Inserting VAT Rates
+            if(!empty($TaxRateArr)){
+                foreach($TaxRateArr as $TaxRateInsert){
+                    $TaxRateInsert['InvoiceID'] = $InvoiceID;
+                    $TaxRateInsert['InvoiceDetailID'] = $InvoiceDetailID;
+                    InvoiceTaxRate::create($TaxRateInsert);
+                }
             }
+
+            //Store Last Invoice Number.
+            Company::find($CompanyID)->update(array(
+                "LastInvoiceNumber" => $InvoiceData["InvoiceNumber"]
+            ));
 
             Log::info($InvoiceID);
             $pdf_path = Invoice::generate_pdf($InvoiceID);
             Log::info($pdf_path);
             if (empty($pdf_path)) {
                 $error['message'] = 'Failed to generate Invoice PDF File';
-                $error['status'] = 'failed';
+                $error['status']  = 'failed';
                 return $error;
             } else {
                 $Invoice->where('InvoiceID', $InvoiceID)->update(["PDF" => $pdf_path]);
@@ -150,7 +180,7 @@ class AccountPayout extends \Eloquent
             Log::info($ubl_path);
             if (empty($ubl_path)) {
                 $error['message'] = 'Failed to generate Invoice UBL File.';
-                $error['status'] = 'failed';
+                $error['status']  = 'failed';
                 return $error;
             } else {
                 $Invoice->where('InvoiceID', $InvoiceID)->update(["UblInvoice" => $ubl_path]);
@@ -191,9 +221,9 @@ class AccountPayout extends \Eloquent
         if($Account != false) {
             $PayoutMethod = $Account->PayoutMethod != "" ? $Account->PayoutMethod : "Stripe";
             if (!empty($PayoutMethod) && $PayoutMethod=='Stripe') {
-                $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PayoutMethod);
+                $PaymentGatewayID    = PaymentGateway::getPaymentGatewayIDByName($PayoutMethod);
                 $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
-                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $data['CompanyID']);
+                $PaymentIntegration  = new PaymentIntegration($PaymentGatewayClass, $data['CompanyID']);
                 $data['account'] = $Account;
 
                 $response = $PaymentIntegration->payoutWithStripeAccount($data);
@@ -209,12 +239,12 @@ class AccountPayout extends \Eloquent
 
         $status = EmailsTemplates::CheckEmailTemplateStatus(Account::OutPaymentEmailTemplate);
         if($status != false) {
-            $Account = Account::find($email['AccountID']);
-            $CompanyID = $email['CompanyID'];
-            $CompanyName = Company::getName();
-            $Currency = Currency::find($Account->CurrencyId);
-            $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-            $emaildata = array(
+            $Account        = Account::find($email['AccountID']);
+            $CompanyID      = $email['CompanyID'];
+            $CompanyName    = Company::getName();
+            $Currency       = Currency::find($Account->CurrencyId);
+            $CurrencyCode   = !empty($Currency) ? $Currency->Code : '';
+            $emaildata      = array(
                 'CompanyName' => $CompanyName,
                 'Currency' => $CurrencyCode,
                 'CompanyID' => $CompanyID,

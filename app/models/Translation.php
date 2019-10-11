@@ -176,6 +176,8 @@ $html_translation[] = array("SystemName"=>$key, "Translation"=> str_replace("&nb
         foreach($labelArr as $label){
             $system_name=strtoupper($label["system_name"]);
             $json_file[$system_name]=$label["value"];
+
+            Log::info("result save". $system_name . ' ' . $label["value"]);
         }
         DB::table('tblTranslation')
             ->where(['TranslationID'=>$data_langs->TranslationID])
@@ -189,7 +191,7 @@ $html_translation[] = array("SystemName"=>$key, "Translation"=> str_replace("&nb
 
         $data_langs = Translation::get_language_labels($language);
 
-        $json_file = json_decode($data_langs->Translation, true);
+        $json_file = !empty($data_langs->Translation) ? (array) json_decode($data_langs->Translation, true) : [];
         if(array_key_exists($system_name, $json_file)){
             unset($json_file[$system_name]);
         }

@@ -17,7 +17,7 @@
                 @if(!empty($ResellerPage))
                     <input name="Reseller" type="hidden" value="-1" >
                 @else
-                    <div class="form-group ">
+                    <div class="form-group FilterResellerBox" style="display: none;">
                         <label class="control-label">Partner</label><br/>
                         {{Form::select('Reseller', $ResellerDD, '',array("class"=>"form-control select2"))}}
                     </div>
@@ -338,11 +338,15 @@ jQuery(document).ready(function($) {
             $("#modal-edit-new-rate-table [name='TrunkID']").attr('disabled','disabled');
             $("#modal-edit-new-rate-table [name='DIDCategoryID']").attr('disabled','disabled');
         }
-        if($(this).attr('data-Type') == 1) {
+        if($(this).attr('data-Type') == 3) { // package
+            $('#box-edit-DIDCategory').hide();
+            $('#box-edit-Trunk').hide();
+            $('#box-edit-MinimumCallCharge').hide();
+        } else if($(this).attr('data-Type') == 1) { // voicecall
             $('#box-edit-DIDCategory').hide();
             $('#box-edit-Trunk').show();
             $('#box-edit-MinimumCallCharge').hide();//$('#box-edit-MinimumCallCharge').show();
-        } else {
+        } else { // did
             $('#box-edit-Trunk').hide();
             $('#box-edit-MinimumCallCharge').hide();
             $('#box-edit-DIDCategory').show();
@@ -367,6 +371,7 @@ jQuery(document).ready(function($) {
          $('#add-new-form')[0].reset();
          $('#add-new-form select[name=Type]').trigger('change');
          $('#add-new-form input[name="AppliedTo"]').trigger('change');
+         $('#add-new-form select[name="CurrencyID"]').select2('val',{{$CompanyCurrency}});
          $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
      });
      $("#add-new-form").submit(function(ev){
@@ -431,6 +436,17 @@ jQuery(document).ready(function($) {
             $('#add-new-form select[name="Reseller"]').select2("val","");
         }
     });
+    $('#ratetable_filter [name="AppliedTo"]').change(function() {
+        var AppliedTo = $('#ratetable_filter [name="AppliedTo"]').val();
+
+        if(AppliedTo == {{ RateTable::APPLIED_TO_RESELLER }}) {
+            $('.FilterResellerBox').show();
+        } else {
+            $('.FilterResellerBox').hide();
+            //$('#ratetable_filter [name="Reseller"]').select2("val","");
+        }
+    });
+    //$('#ratetable_filter [name="AppliedTo"]').trigger('change');
 });
 
 </script>
@@ -481,7 +497,7 @@ jQuery(document).ready(function($) {
                         <div class="col-md-6">
                             <div class="form-group ">
                                 <label for="field-5" class="control-label">Currency</label>
-                                {{Form::SelectControl('currency')}}
+                                {{Form::SelectControl('currency',0,$CompanyCurrency)}}
                                         <!--{ Form::select('CurrencyID', $currencylist,  '', array("class"=>"select2")) }}-->
                             </div>
                         </div>
@@ -522,12 +538,12 @@ jQuery(document).ready(function($) {
                                     </label>
                                 @else
                                     <label class="radio-inline">
-                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, true,array("class"=>""))}}
-                                        Partner
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_VENDOR, true,array("class"=>""))}}
+                                        Vendor
                                     </label>
                                     <label class="radio-inline">
-                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_VENDOR, false,array("class"=>""))}}
-                                        Vendor
+                                        {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, false,array("class"=>""))}}
+                                        Partner
                                     </label>
                                 @endif     
                             </div>

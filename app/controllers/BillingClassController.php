@@ -168,6 +168,12 @@ class BillingClassController extends \BaseController {
     }
 
     public function delete($id){
+        if(is_reseller()) {
+            $BillingClass = BillingClass::find($id);
+            if ($BillingClass != false && $BillingClass->IsGlobal == 1)
+                return Response::json(['status' => 'failed', 'message' => 'Invalid Request.']);
+        }
+
         $response =  NeonAPI::request('billing_class/delete/'.$id,array(),'delete',false,false);
         return json_response_api($response);
     }
@@ -188,7 +194,11 @@ class BillingClassController extends \BaseController {
 
         $response =  NeonAPI::request('billing_class/store',$postdata,true,false,false);
         if(!empty($response) && $response->status == 'success'){
-            AccountBilling::where('BillingClassID',$id)->update(['BillingClassID'=>$response->data->BillingClassID]);
+            AccountBilling::join('tblAccount','tblAccount.AccountID','=','tblAccountBilling.AccountID')
+                ->where([
+                    'tblAccountBilling.BillingClassID' => $id,
+                    'tblAccount.CompanyId' => $CompanyID
+                ])->update(['BillingClassID'=>$response->data->BillingClassID]);
             $response->redirect =  URL::to('/billing_class/edit/' . $response->data->BillingClassID);
         }
         return json_response_api($response);

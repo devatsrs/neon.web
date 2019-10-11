@@ -18,7 +18,7 @@
                 @else
                 <div class="form-group">
                     <label for="field-1" class="control-label">Partner</label>
-                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                    {{ Form::select('ResellerOwner',$reseller_owners,'-1', array("class"=>"select2")) }}
                 </div>
                 @endif
                 <div class="form-group">
@@ -133,11 +133,11 @@
                                 for(var i = 0 ; i< list_fields.length; i++){
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
-                                console.log(full);
+                                //console.log(full);
                                 action += '</div>';
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                                 @if(User::checkCategoryPermission('BillingClass','Delete'))
-                                if(full[6]== 0)
+                                if(full[6] == 0 && full[2] == 0)
                             {
                                     action += ' <a href="' + delete_url.replace("{id}", id) + '" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                 }

@@ -25,7 +25,7 @@ public function main() {
         $select = [
             "tblAccountSubscription.AccountSubscriptionID as AID",
             "tblBillingSubscription.Name",
-            "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",
+            "InvoiceDescription", "Frequency" ,"Qty" ,"tblAccountSubscription.StartDate",
             DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),            
             "tblAccountSubscription.ActivationFee",
             
@@ -138,6 +138,7 @@ public function main() {
         $rules = array(
            // 'AccountID'         =>      'required',
             'SubscriptionID'    =>  'required',
+            'Frequency'         =>   'required',
             'ActivationFee' => 'required|numeric',
             'DailyFee' => 'required|numeric',
             'WeeklyFee' => 'required|numeric',
@@ -309,6 +310,7 @@ public function main() {
             $rules = array(
                 // 'AccountID'         =>      'required',
                  'SubscriptionID'    =>  'required',
+                 'Frequency'         =>   'required',
                  'ActivationFee' => 'required|numeric',
                  'DailyFee' => 'required|numeric',
                  'WeeklyFee' => 'required|numeric',
@@ -429,7 +431,7 @@ public function main() {
                         }
                 }
 
-                return Response::json(array("status" => "success", "message" => "Subscription Successfully Created", 'LastID' => $AccountSubscription->AccountSubscriptionID));
+                return Response::json(array("status" => "success", "message" => "Subscription Successfully Updated", 'LastID' => $AccountSubscription->AccountSubscriptionID));
             }catch(Exception $ex){
                 Log::info('Trach Line...' . $ex->getTraceAsString());
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:" . $ex->getMessage()));

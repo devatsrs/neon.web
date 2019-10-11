@@ -32,7 +32,7 @@ class Package extends \Eloquent
         return $Packages;
     }
 
-    public static function getServiceNameByID($PackageID){
+    public static function getPackageNameByID($PackageID){
         return Package::where('PackageId',$PackageID)->pluck('Name');
     }
 

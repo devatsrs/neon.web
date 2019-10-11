@@ -13,29 +13,24 @@ class LCRController extends \BaseController {
         }
         $data['Use_Preference'] = $data['Use_Preference'] == 'true' ? 1:0;
         $data['vendor_block'] = $data['vendor_block'] == 'true' ? 1:0;
-        $data['show_all_vendor_codes'] = $data['show_all_vendor_codes'] == 'true' ? 1:0;
         $data['iDisplayStart'] +=1;
 
         $LCRPosition = Invoice::getCookie('LCRPosition');
         if($data['LCRPosition'] != $LCRPosition){
             NeonCookie::setCookie('LCRPosition',$data['LCRPosition'],60);
         }
-        $LCRGroupBy = Invoice::getCookie('LCRGroupBy');
-        if($data['GroupBy'] != $LCRGroupBy){
-            NeonCookie::setCookie('LCRGroupBy',$data['GroupBy'],60);
-        }
 
-        $data['merge_timezones'] = $data['merge_timezones'] == 'true' ? 1 : 0;
-        $data['Timezones'] = $data['merge_timezones'] == 1 ? $data['TimezonesMerged'] : $data['Timezones'];
+        // $data['merge_timezones'] = $data['merge_timezones'] == 'true' ? 1 : 0;
+        // $data['Timezones'] = $data['merge_timezones'] == 1 ? $data['TimezonesMerged'] : $data['Timezones'];
 
         //@TODO: check $data["Type"] when DID procedue is done
 
         if( $data['Policy'] == LCR::LCR ) {
             //log::info("call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."',0)");
-            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",'".$data['Timezones']."',".$data['CodeDeck'].",'".$data['Currency']."','".$data['OriginationCode']."','".$data['OriginationDescription']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."','".intval($data['show_all_vendor_codes'])."' ,'".$data['merge_timezones']."' ,'".intval($data['TakePrice'])."' ";
+            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['OriginationCode']."','".$data['OriginationDescription']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['SelectedEffectiveDate']."' ";
         } else {
             //log::info("call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".$data['GroupBy']."',0)");
-            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",'".$data['Timezones']."',".$data['CodeDeck'].",'".$data['Currency']."','".$data['OriginationCode']."','".$data['OriginationDescription']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ,'".intval($data['show_all_vendor_codes'])."' ,'".$data['merge_timezones']."' ,'".intval($data['TakePrice'])."' ";
+            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['OriginationCode']."','".$data['OriginationDescription']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['SelectedEffectiveDate']."'  ";
         }
 
 
@@ -308,30 +303,53 @@ class LCRController extends \BaseController {
 
     public function editPreference(){
         $data = Input::all();
-        $preference =  !empty($data['preference']) ? $data['preference'] : 5;
-        $Timezones =  $data['Timezones'];
-        $description = $data["Description"];
-        $OriginationDescription = $data["OriginationDescription"];
 
-        $username = User::get_user_full_name();
+        $EffectiveDate  = $EndDate = $Rate = $RateN = $MinimumDuration = $Interval1 = $IntervalN = $ConnectionFee = $OriginationRateID = $RoutingCategoryID = $Preference = $Blocked = $RateCurrency = $ConnectionFeeCurrency = 'null';
+        $Preference     =  !empty($data['preference']) ? $data['preference'] : 5;
+        $p_criteria     = 0;
+        $action         = 1; //update action
+        $username       = User::get_user_full_name();
 
-        $query = "call prc_editpreference ('".$data["GroupBy"]."',".$preference.",".$data["RateTableRateID"].",".$Timezones.",'".$OriginationDescription."','".$description."','".$username."')";
-        \Illuminate\Support\Facades\Log::info($query);
-        DB::select($query);
+        $RateTableRateID = $data["RateTableRateID"];
+        $RateTableID    = RateTableRate::where(['RateTableRateID'=>$RateTableRateID])->pluck('RateTableId');
 
         try{
+            $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . ",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'" . $username . "'," . $p_criteria . "," . $action . ")";
+            \Illuminate\Support\Facades\Log::info($query);
+            DB::statement($query);
 
             $message =  "Preference Update Successfully";
-            return json_encode(["status" => "success", "message" => $message,"preference"=>$preference]);
-
+            return json_encode(["status" => "success", "message" => $message,"preference"=>$Preference]);
         }catch ( Exception $ex ){
-
             $message =  "Oops Somethings Wrong !";
-            return json_encode(["status" => "fail", "message" => $message,"preference"=>$preference]);
-
+            return json_encode(["status" => "fail", "message" => $message,"preference"=>$Preference]);
         }
+    }
 
+    public function blockunblockcode(){
+        $data = Input::all();
 
-     }
+        $EffectiveDate  = $EndDate = $Rate = $RateN = $MinimumDuration = $Interval1 = $IntervalN = $ConnectionFee = $OriginationRateID = $RoutingCategoryID = $Preference = $Blocked = $RateCurrency = $ConnectionFeeCurrency = 'null';
+        $Blocked        = $data['Blocked']==0 ? 1 : 0;
+        $msgVendor      = $Blocked == 1 ? 'Blocked' : 'Unblocked';
+        $p_criteria     = 0;
+        $action         = 1; //update action
+        $username       = User::get_user_full_name();
+
+        $RateTableRateID = $data["RateTableRateID"];
+        $RateTableID    = RateTableRate::where(['RateTableRateID'=>$RateTableRateID])->pluck('RateTableId');
+
+        try{
+            $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . ",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'" . $username . "'," . $p_criteria . "," . $action . ")";
+            \Illuminate\Support\Facades\Log::info($query);
+            DB::statement($query);
+
+            $message =  "Vendor ".$msgVendor." Successfully";
+            return json_encode(["status" => "success", "message" => $message]);
+        }catch ( Exception $ex ){
+            $message =  "Oops Somethings Wrong !";
+            return json_encode(["status" => "fail", "message" => $message]);
+        }
+    }
 
 }

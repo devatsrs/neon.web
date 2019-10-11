@@ -37,7 +37,7 @@
             <ul>
                 <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
                 {{-- <li> <a href="{{URL::to('/lcr')}}">  <span>Compare Vendor Rate</span> </a> </li> --}}
-                <li> <a href="{{URL::to('/rategenerators')}}">  <span>Rate Generator</span> </a> </li>
+                {{-- <li> <a href="{{URL::to('/rategenerators')}}">  <span>Rate Generator</span> </a> </li> --}}
                 {{-- <li> <a href="{{URL::to('/rate_compare')}}">  <span>Rate Analysis</span> </a> </li> --}}
                 {{-- <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li> --}}
             </ul>
@@ -52,7 +52,7 @@
                 <li> <a href="{{URL::to('/package')}}">  <span>Packages</span> </a> </li>
                 {{-- <li> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li> --}}
                 {{-- <li> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li> --}}
-                <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
+<!--                <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>-->
                 {{-- <li> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li> --}}
                 <li> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
                 <li> <a href="{{URL::to('/cdr_upload')}}">  <span>CDR Upload</span> </a> </li>
@@ -60,17 +60,17 @@
             </ul>
         </li>
         <li class="two-links"> <a href="{{Url::to('/report')}}" class="first"> <i class="fa fa-line-chart"></i><span>Reports</span></a> <a href="{{URL::to('report/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
-        <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
+<!--        <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
             <ul>
-                <!--<li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>-->
+                <li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>
                 <li> <a href="{{Url::to('/codedecks')}}">  <span>Code Decks</span> </a> </li>
                 {{-- <li> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li> --}}
-                <!--<li> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>-->
+                <li> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>
                 {{-- <li> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li> --}}
                 <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
             </ul>
-        </li>
-        <li> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li>
+        </li>-->
+        {{-- <li> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li> --}}
         <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
             <ul>
                 {{-- <li> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li> --}}
@@ -81,7 +81,7 @@
                 {{-- <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li> --}}
             </ul>
         </li>
-        <li> <a href="{{Url::to('cronjob_monitor')}}"> <i class="glyphicon glyphicon-time"></i> <span>&nbsp;Cron Jobs</span> </a> </li>
+        {{-- <li> <a href="{{Url::to('cronjob_monitor')}}"> <i class="glyphicon glyphicon-time"></i> <span>&nbsp;Cron Jobs</span> </a> </li> --}}
         <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-home"></i> <span>&nbsp;Company</span> </a> </li>
     </ul>
 
@@ -91,13 +91,13 @@
             <ul>
                 <li><a href="{{Url::to('customer/invoice')}}"><span>Invoices</span></a></li>
                 <li><a href="{{URL::to('customer/payments')}}"><span>Payments</span></a></li>
-                <li><a href="{{URL::to('customer/account_statement')}}"><span>Account Statement</span></a></li>
-                <li><a href="{{URL::to('customer/PaymentMethodProfiles')}}"><span>Payment Method Profiles</span></a></li>
-                <li><a href="{{URL::to('customer/cdr')}}"><span>CDR</span></a></li>
+                {{-- <li><a href="{{URL::to('customer/account_statement')}}"><span>Account Statement</span></a></li>
+                <li><a href="{{URL::to('customer/PaymentMethodProfiles')}}"><span>Payment Method Profiles</span></a></li> --}}
+                {{-- <li><a href="{{URL::to('customer/cdr')}}"><span>CDR</span></a></li> --}}
             </ul>
         </li>
         {{-- <li><a href="{{URL::to('customer/customers_rates')}}"><i class="fa fa-table"></i><span>Commercial</span></a></li> --}}
-        <li><a href="{{URL::to('reseller/profile')}}"><i class="glyphicon glyphicon-user"></i><span>Profile</span></a></li>
+        {{-- <li><a href="{{URL::to('reseller/profile')}}"><i class="glyphicon glyphicon-user"></i><span>Profile</span></a></li> --}}
         <li><a href="{{URL::to('/rate_tables/commercial')}}"><i class="fa fa-table"></i><span>Commercial</span> </a> </li>
     </ul>
 

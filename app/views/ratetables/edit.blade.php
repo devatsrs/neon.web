@@ -84,7 +84,7 @@
                     </div>
                 @endif
 
-                <div class="form-group filter_naa">
+                <div class="form-group filter_naa hidden">
                     <label for="field-1" class="control-label">Group By</label>
                     <select class="select2" name="GroupBy" id="GroupBy">
                         <option value="GroupByCode">Code</option>
@@ -113,7 +113,7 @@
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
     <li><a href="{{URL::to('/rate_tables')}}">Rate Table</a></li>
     <li>
-        <a><span>{{rate_tables_dropbox($id)}}</span></a>
+        <a><span>{{rate_tables_dropbox($id,['ResellerPage'=>$ResellerPage])}}</span></a>
     </li>
     <li class="active"><strong>{{$rateTable->RateTableName}}</strong></li>
 </ol>
@@ -192,9 +192,15 @@
             <th width="3%">Interval 1/N</th>
             <th width="3%" style="display: none;">Interval N</th>
             <th width="5%">Connection Fee</th>
+            <th width="5%">Connection Fee Diff.</th>
+            <th width="5%">Connection Fee Diff. %</th>
             <th width="5%">Previous Rate ({{$code}})</th>
             <th width="5%">Rate1 ({{$code}})</th>
+            <th width="5%">Rate1 Diff.</th>
+            <th width="5%">Rate1 Diff. %</th>
             <th width="5%">RateN ({{$code}})</th>
+            <th width="5%">RateN Diff.</th>
+            <th width="5%">RateN Diff. %</th>
             <th width="8%">Effective Date</th>
             <th width="8%" style="display: none">End Date</th>
             <th width="8%">Modified By/Date</th>
@@ -272,6 +278,11 @@
                 RateTableRateIDs[i++] = RateTableRateID;
             });
 
+            var $clickedButton = $(this);
+            if(typeof $clickedButton.attr('disabled') !== typeof undefined && $clickedButton.attr('disabled') !== false) {
+                return false;
+            }
+
             if(RateTableRateIDs.length || $(this).hasClass('clear-rate-table')) {
                 response = confirm('Are you sure?');
                 if (response) {
@@ -302,14 +313,24 @@
                         }
                     }
 
+                    $clickedButton.attr('disabled','disabled');
+                    if($clickedButton.attr('id') == 'clear-bulk-rate') {
+                        $clickedButton.html('<i class="entypo-trash"></i><span>Deleting...</span>');
+                    }
+
                     var formData = new FormData($('#clear-bulk-rate-form')[0]);
                     formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
+                    formData.append('RateTableName', "{{$rateTable->RateTableName}}");
 
                     $.ajax({
                         url: baseurl + '/rate_tables/{{$id}}/clear_rate', //Server script to process data
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
+                            $clickedButton.removeAttr('disabled');
+                            if($clickedButton.attr('id') == 'clear-bulk-rate') {
+                                $clickedButton.html('<i class="entypo-trash"></i><span>Delete Selected</span>');
+                            }
                             $(".save.btn").button('reset');
 
                             if (response.status == 'success') {
@@ -384,6 +405,7 @@
         $("#bulk-edit-rate-table-form,#edit-rate-table-form").submit(function() {
             var formData = new FormData($(this)[0]);
             formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
+            formData.append('RateTableName', "{{$rateTable->RateTableName}}");
             $.ajax({
                 url: baseurl + '/rate_tables/{{$id}}/update_rate_table_rate', //Server script to process data
                 type: 'POST',
@@ -443,6 +465,7 @@
                     formdata.append('RateTableRateID', RateTableRateIDs.join(","));
                     formdata.append('criteria', '');
                 }
+                formdata.append('RateTableName', "{{$rateTable->RateTableName}}");
 
                 if (RateTableRateIDs.length) {
                     $this.text('Processing...').addClass('processing');
@@ -555,7 +578,8 @@
                 table.append("<thead><tr><th style='width:10%'>Origination Code</th><th>Code</th></tr></thead>");
                 var tbody = $("<tbody></tbody>");
                 for (var i = 0; i < Code.length; i++) {
-                    table.append("<tr class='no-selection'><td>" + OriginationCode[i] + "</td><td>" + Code[i] + "</td></tr>");
+                    Origination = OriginationCode[i] != undefined ? OriginationCode[i] : '';
+                    table.append("<tr class='no-selection'><td>" + Origination + "</td><td>" + Code[i] + "</td></tr>");
                 }
                 table.append(tbody);
                 row.child(table).show();
@@ -621,6 +645,8 @@
 
     function rateDataTable() {
         var GroupBy = $('#rate-table-search #GroupBy').val();
+        var ApproveStatus = $("#rate-table-search [name='ApprovedStatus']").val();
+
         if(GroupBy == 'GroupByDesc'){
             setCookie('ratetableview','GroupByDesc','30');
             view = 2;
@@ -629,6 +655,7 @@
             view = 1;
         }
         var bVisible = false;
+        var bVisiblePreviousRate = false;
         ratetablepageview = getCookie('ratetablepageview');
         if(ratetablepageview == 'AdvanceView') {
             bVisible = true;
@@ -636,11 +663,19 @@
             bVisible = false;
         }
 
+        var bVisibleComparisonView = false;
+        if(ApproveStatus != 1) {
+            bVisibleComparisonView = bVisible;
+            bVisiblePreviousRate = false;
+        } else {
+            bVisiblePreviousRate = bVisible;
+        }
+
         var bVisibleApprovedStatus  = false;
         var bVisibleRoutingCategory = false;
         var bVisiblePreferenceBlock = false;
         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-            bVisibleApprovedStatus = bVisible;
+                bVisibleApprovedStatus = bVisible;
         @endif
         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
             @if($ROUTING_PROFILE == 1)
@@ -690,7 +725,7 @@
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[view==2 ? 1 : 4, "asc"]],
+            "aaSorting": [[view==2 ? 1 : 5, "asc"]],
             "aoColumns":
                     [
                         {"bSortable": false,
@@ -698,7 +733,7 @@
                                 var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
 
                                 @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[24] == {{RateTable::RATE_STATUS_REJECTED}}) {
+                                if (full[25] == {{RateTable::RATE_STATUS_REJECTED}}) {
                                     html += '<i class="entypo-cancel" title="Rejected" style="color: red; "></i>';
                                 } else if (full[25] == {{RateTable::RATE_STATUS_APPROVED}}) {
                                     html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
@@ -730,7 +765,8 @@
                                     return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
                             },
                             "className":      'details-control',
-                            "orderable":      false,
+//                            "orderable":      false,
+                            "bSortable" : view == 1 ? true : false,
                             "data": null,
                             "defaultContent": ''
                         }, //3 Origination Code
@@ -742,40 +778,154 @@
                             }
                         }, //5 Destination Code
                         {}, //6 Destination description
-                        {}, //7 Min. Duration
+                        {"bSortable" : false}, //7 Min. Duration
                         {
+                            "bSortable" : false,
                             mRender: function(id, type, full) {
                                 return full[8] + '/' + full[9]; // interval1/intervalN
                             }
                         }, //8 interval 1
                         {
+                            "bSortable" : false,
                             "bVisible" : false
                         }, //9 interval n
                         {
+                            "bSortable" : false,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[31] + col; else return '';  //ConnectionFeeCurrency+ConnectionFee
+                                var cf_html = '';
+                                if(bVisibleComparisonView) {
+                                    cf_html = (full[33] != null && full[33] != '') ? full[36] + full[33] : '-';
+                                    cf_html += '<br/>';
+                                    cf_html += (full[10] != null && full[10] != '') ? full[30] + full[10] : '-';
+                                } else {
+                                    cf_html = (full[10] != null && full[10] != '') ? full[30] + full[10] : '';  //ConnectionFeeCurrency+ConnectionFee
+                                }
+                                return cf_html;
                             }
                         }, //10 ConnectionFee
                         {
-                            "bVisible" : bVisible
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[38] != 0 && full[38] != null ? full[38] : '-';
+                                if(full[38] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[38] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 38 ConnectionFee Margin
+                        {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[41] != 0 && full[41] != null ? full[41]+'%' : '-';
+                                if(full[41] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[41] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 41 ConnectionFee Margin Percentage
+                        {
+                            "bSortable" : false,
+                            "bVisible" : bVisiblePreviousRate,
+                            mRender: function(col, type, full) {
+                                return full[11];
+                            }
                         }, //11 PreviousRate
                         {
+                            "bSortable" : false,
                             mRender: function(col, type, full) {
-                                var rate_html = full[30] + col; //RateCurrency+Rate
-                                if(col > full[11])
-                                    rate_html = rate_html+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
-                                else if(col < full[11])
-                                    rate_html = rate_html+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                var rate_html = '';
+                                if(bVisibleComparisonView) {
+                                    rate_html = (full[34] != null && full[34] != '') ? full[37] + full[34] : '-'; //CurrentRateCurrency+Rate for awaiting approval
+                                    rate_html += '<br/>';
+                                    rate_html += full[31] + full[12]; //RateCurrency+Rate
+                                } else {
+                                    rate_html = full[31] + full[12]; //RateCurrency+Rate
+                                    if(full[12] > full[11])
+                                        rate_html = rate_html+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                    else if(col < Prev_Rate)
+                                        rate_html = rate_html+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                }
+
                                 return rate_html;
                             }
                         }, //12 Rate
                         {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[30] + col; else return '';  //RateCurrency+RateN
+                                rate_html = full[39] != 0 && full[39] != null ? full[39] : '-';
+                                if(full[39] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[39] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 39 Rate Margin
+                        {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[42] != 0 && full[42] != null ? full[42]+'%' : '-';
+                                if(full[42] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[42] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 42 Rate Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var raten_html = '';
+                                if(bVisibleComparisonView) {
+                                    raten_html = (full[35] != null && full[35] != '') ? full[37] + full[35] : '-';
+                                    raten_html += '<br/>';
+                                    raten_html += (full[13] != null && full[13] != '') ? full[31] + full[13] : '-';
+                                } else {
+                                    raten_html = (full[13] != null && full[13] != '') ? full[31] + full[13] : '';  //RateCurrency+RateN
+                                }
+                                return raten_html;
                             }
                         }, //13 RateN
-                        {}, //14 Effective Date
-                        {"bVisible" : false}, //15 End Date
+                        {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[40] != 0 && full[40] != null ? full[40] : '-';
+                                if(full[40] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[40] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 40 RateN Margin
+                        {
+                            "bSortable" : false,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[43] != 0 && full[43] != null ? full[43]+'%' : '-';
+                                if(full[43] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[43] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 43 RateN Margin Percentage
+                        {
+                            mRender: function(col, type, full) {
+                                return full[14];
+                            }
+                        }, //14 Effective Date
+                        {
+                            "bVisible" : false,
+                            mRender: function(col, type, full) {
+                                return full[15];
+                            }
+                        }, //15 End Date
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
@@ -805,6 +955,7 @@
                             }
                         }, //22 RoutingCategoryName
                         {
+                            "bSortable" : false,
                             "bVisible" : bVisiblePreferenceBlock,
                             mRender: function(id, type, full) {
                                 return full[23]
@@ -827,10 +978,12 @@
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
-                                    // if awaiting approval rates then show Edit button else hide it
-                                    if(full[25] == {{RateTable::RATE_STATUS_AWAITING}}) {
-                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
-                                    }
+                                    @if(empty($ResellerPage))
+                                        // if awaiting approval rates then show Edit button else hide it
+                                        if(full[25] == {{RateTable::RATE_STATUS_AWAITING}} || parseInt("{{$RateApprovalProcess}}") != 1 || {{$rateTable->AppliedTo}} == {{RateTable::APPLIED_TO_VENDOR}}) {
+                                            action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                        }
+                                    @endif
                                 }
                                 <?php } ?>
 
@@ -1018,7 +1171,7 @@
                 });
 
                 // if approved rates then show Bulk update button else hide it
-                if($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}}) {
+                if(parseInt("{{$RateApprovalProcess}}") != 1 || {{$rateTable->AppliedTo}} == {{RateTable::APPLIED_TO_VENDOR}} || ($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}})) {
                     if (Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
                         $('#change-bulk-rate').hide();
                     } else {

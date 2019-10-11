@@ -125,19 +125,21 @@ class ResellerController extends BaseController {
             try {
 
                 $CompanyData = array();
-                $CompanyData['CompanyName'] = $AccountName;
+                $CompanyData['CompanyName']     = $AccountName;
                 $CompanyData['CustomerAccountPrefix'] = '22221';
-                $CompanyData['FirstName'] = $FirstName;
-                $CompanyData['LastName'] = $LastName;
-                $CompanyData['Email'] = $data['Email'];
-                $CompanyData['Status'] = '1';
-                $CompanyData['TimeZone'] = 'Etc/GMT';
-                $CompanyData['SMTPServer'] = $data['SMTPServer'];
-                $CompanyData['SMTPUsername'] = $data['SMTPUsername'];
-                $CompanyData['SMTPPassword'] = Crypt::encrypt($data['SMTPPassword']);
-                $CompanyData['Port'] = $data['Port'];
-                $CompanyData['EmailFrom'] = $data['EmailFrom'];
-                $CompanyData['IsSSL'] = isset($data['IsSSL']) ? 1 : 0;
+                $CompanyData['FirstName']       = $FirstName;
+                $CompanyData['LastName']        = $LastName;
+                $CompanyData['Email']           = $data['Email'];
+                $CompanyData['Status']          = '1';
+                $CompanyData['CurrencyId']      = $Account->CurrencyId;
+                $CompanyData['Country']         = $Account->Country;
+                $CompanyData['TimeZone']        = Company::getCompanyTimeZone($CompanyID);
+                $CompanyData['SMTPServer']      = $data['SMTPServer'];
+                $CompanyData['SMTPUsername']    = $data['SMTPUsername'];
+                $CompanyData['SMTPPassword']    = Crypt::encrypt($data['SMTPPassword']);
+                $CompanyData['Port']            = $data['Port'];
+                $CompanyData['EmailFrom']       = $data['EmailFrom'];
+                $CompanyData['IsSSL']           = isset($data['IsSSL']) ? 1 : 0;
 
                 $CompanyData['created_at'] = $CurrentTime;
                 $CompanyData['created_by'] = $CreatedBy;
@@ -157,7 +159,7 @@ class ResellerController extends BaseController {
                         }
                         $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
                         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PARTNER_LOGO'],'',$ChildCompanyID) ;
-                        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH',$ChildCompanyID) . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
+                        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
 
                         //Create profile company_logo dir if not exists
                         if (!file_exists($destinationPath)) {
@@ -529,8 +531,10 @@ class ResellerController extends BaseController {
             ->where('tblCompanyConfiguration.Key','WEB_URL')->first();
         
         $reseller = json_decode($data,true);
-        $reseller['Password'] = Crypt::decrypt($reseller['Password']);
         if(!empty($reseller)){
+            $reseller['Password'] = Crypt::decrypt($reseller['Password']);
+            Log::info("Amazon" . AmazonS3::$isAmazonS3);
+            $reseller['Logo']  = !empty($reseller['LogoAS3Key']) ? AmazonS3::unSignedImageUrl($reseller['LogoAS3Key'], $reseller['ChildCompanyID']):'';
             return Response::json($reseller);
         }else{
             return Response::json(array("status" => "failed", "message" => "Partner Not Found!"));

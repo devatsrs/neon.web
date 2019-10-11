@@ -399,6 +399,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('email_template', 'EmailTemplateController@index');
 	Route::any('email_template/{id}/update', 'EmailTemplateController@update');
+	Route::any('email_template/clone', 'EmailTemplateController@clone_email');
 	Route::any('email_template/{id}/edit', 'EmailTemplateController@edit');
 	Route::any('email_template/{id}/delete', 'EmailTemplateController@delete');
 	Route::any('email_template/store', 'EmailTemplateController@store');
@@ -483,7 +484,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_blocking/unblock/{id}', array('as' => 'vendor_blocking_unblock', 'uses' => 'VendorBlockingsController@unblock'));
 
 	Route::any('/vendor_blocking/index_blockby_code/{id}',  'VendorBlockingsController@index_blockby_code');
-	Route::any('/vendor_blocking_lrc/blockunblockcode',  'VendorBlockingsController@blockunblockcode');
+	Route::any('/vendor_blocking_lrc/blockunblockcode',  'LCRController@blockunblockcode');
 
 	Route::any('/vendor_blocking/blockby_code/{id}', array('as' => 'vendor_blocking_block_blockby_code', 'uses' => 'VendorBlockingsController@blockby_code'));
 	Route::any('/vendor_blocking/unblockby_code/{id}', array('as' => 'vendor_blocking_unblockby_code', 'uses' => 'VendorBlockingsController@unblockby_code'));
@@ -698,7 +699,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/contacts/{id}/GetTimeLineSrollData/{scroll}', 'ContactsController@GetTimeLineSrollData');
 
 
-
+	Route::any('customer/Services/{id}', 'AccountsController@customerservices');
 	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
 	Route::any('/users/exports/{type}', 'UsersController@exports');
@@ -961,6 +962,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/taxrate/create', 'TaxRatesController@create');
 	Route::any('/taxrate/update/{id}', 'TaxRatesController@update');
 	Route::any('/taxrate/{id}/delete', 'TaxRatesController@delete');
+	Route::any('/taxrate/base_exports', 'TaxRatesController@export');
+
+	
 
 	//BilllingSubscription
 	Route::any('/billing_subscription/ajax_datagrid/{type}', 'BillingSubscriptionController@ajax_datagrid');
@@ -995,8 +999,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_subscription/dynamicField/typesAccess/{data}', 'BillingSubscriptionController@getSubscritionsType');
 	Route::any('/billing_subscription/dynamicField/fieldAccess', 'BillingSubscriptionController@getSubscritionsField');
 
-
-
+	//ActiveCall	
+	Route::any('/ActiveCalls', 'ActiveCallController@index');
+	Route::any('/ActiveCalls/ajax_datagrid/{type}', 'ActiveCallController@ajax_datagrid');	
 
 	//InvoiceTemplate
 	Route::any('/invoice_template/ajax_datagrid/{type}', 'InvoiceTemplatesController@ajax_datagrid');
@@ -1460,6 +1465,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/retention', "RetentionController@index");
 	Route::any('/retention/create', "RetentionController@create");
 
+	//Nodes
+	Route::any('/nodes', "NodesController@index");
+	Route::any('/node/ajax_datagrid', "NodesController@ajax_datagrid");
+	Route::any('/node/store', "NodesController@store");
+	Route::any('/node/update/{id}', "NodesController@update");
+	Route::any('/node/delete/{id}', "NodesController@delete");
+	Route::any('/node/exports/{type}', "NodesController@export");
+	
+	
 	//Destination Group Set
 	Route::any('/destination_group_set','DestinationGroupSetController@index');
 	Route::any('/destination_group_set/ajax_datagrid','DestinationGroupSetController@ajax_datagrid');
@@ -1838,6 +1852,7 @@ Route::group(array('before' => 'guest'), function () {
 });
 
 Route::any('terms', "HomeController@terms");
+Route::any('health_check', "HomeController@health_check");
 
 /*
  * save isGuest to skip routes/urls for user permission

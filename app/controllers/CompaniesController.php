@@ -1,5 +1,6 @@
 <?php
 
+
 class CompaniesController extends \BaseController {
 
 
@@ -14,6 +15,14 @@ class CompaniesController extends \BaseController {
         $LicenceApiResponse = Company::ValidateLicenceKey();
         $company_id = User::get_companyID();
         $company = Company::find($company_id);
+        $Nodes = Nodes::getActiveNodes();
+        $ActiveNodes = CompanyConfiguration::where('Key','Nodes')->first();
+        if($ActiveNodes){
+            $ActiveNodes = json_decode($ActiveNodes->Value,true);
+        }else{
+            $ActiveNodes['Nodes'] = "";
+        }
+        
         $ExcludedComponent = array();
         $ExcludedComponent = explode(",",$company->Components);
         $AccessExcludedComponent = array();
@@ -40,7 +49,7 @@ class CompaniesController extends \BaseController {
             $RateSheetTemplate['FooterSize'] = "";
         }
 
-        $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
+        // $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
         $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
         $RateApprovalProcess = CompanySetting::getKeyVal('RateApprovalProcess');
         $AccountVerification = CompanySetting::getKeyVal('AccountVerification');
@@ -72,7 +81,7 @@ class CompaniesController extends \BaseController {
             $DigitalSignature=json_decode($DigitalSignature, true);
         }
 
-        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend', 'RateApprovalProcess'));
+        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'ActiveNodes' ,'invoicePdfSend', 'RateApprovalProcess','Nodes'));
 
     }
 
@@ -86,9 +95,10 @@ class CompaniesController extends \BaseController {
 	public function update()
 	{
         $data = Input::all();
+
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
-        $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
+        // $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
         $data['invoicePdfSend'] = isset($data['invoicePdfSend']) ? 1 : 0;
         $data['RateApprovalProcess'] = isset($data['RateApprovalProcess']) ? 1 : 0;
         $data['AccountVerification'] = isset($data['AccountVerification']) ? CompanySetting::ACCOUT_VARIFICATION_ON : CompanySetting::ACCOUT_VARIFICATION_OFF;
@@ -122,6 +132,7 @@ class CompaniesController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        $data['SMTPPassword'] = Crypt::encrypt($data['SMTPPassword']);
         if(empty($data['SMTPPassword'])){
             unset($data['SMTPPassword']);
         }
@@ -179,8 +190,8 @@ class CompaniesController extends \BaseController {
             unset($data['RateSheetTemplate']);
             unset($data['RateSheetTemplateFile']);
         }
-        CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
-        unset($data['UseInBilling']);
+        // CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
+        // unset($data['UseInBilling']);
         CompanySetting::setKeyVal('invoicePdfSend',$data['invoicePdfSend']);
         unset($data['invoicePdfSend']);
         CompanySetting::setKeyVal('RateApprovalProcess',$data['RateApprovalProcess']);
@@ -196,19 +207,19 @@ class CompaniesController extends \BaseController {
         //unset($data['PincodeWidget']);
         // LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         // unset($data['LastPrefixNo']);
-		
+	$Getparent_CompanyID =  getParentCompanyIdIfReseller($companyID);	
         if(!empty($data['CurrencyId'])){
             //add default currency value in exchange rate
             $CurrencyCon = array();
             $CurrencyCon['CurrencyID'] = $data['CurrencyId'];
             $CurrencyCon['Value'] = '1.000000';
             $CurrencyCon['EffectiveDate'] = date('Y-m-d H:i:s');
-            $CurrencyCon['CompanyID'] = $companyID;
-            $CurrencyConversion = CurrencyConversion::select('Value','EffectiveDate')->where(array('CompanyId' => $companyID, 'CurrencyID' => $data['CurrencyId']))->first();
+            $CurrencyCon['CompanyID'] = $Getparent_CompanyID;
+            $CurrencyConversion = CurrencyConversion::select('Value','EffectiveDate')->where(array('CompanyId' => $Getparent_CompanyID, 'CurrencyID' => $data['CurrencyId']))->first();
             if(count($CurrencyConversion)>0){
                 $cval = $CurrencyConversion->Value;
                 if($cval!='1.000000'){
-                    CurrencyConversion::where(array('CompanyId' => $companyID, 'CurrencyID' => $data['CurrencyId']))->update($CurrencyCon);
+                    CurrencyConversion::where(array('CompanyId' => $Getparent_CompanyID, 'CurrencyID' => $data['CurrencyId']))->update($CurrencyCon);
                 }
             }else{
                 CurrencyConversion::create($CurrencyCon);
@@ -249,9 +260,23 @@ class CompaniesController extends \BaseController {
                 $SSH['password'] = '';
             }
         }
+        if(isset($data['Nodes'])){
+            $Nodes['Nodes'] = $data['Nodes'];
+            $Nodes = json_encode($Nodes);
+            $NodesCheck = CompanyConfiguration::where('Key', 'Nodes')->first();
+            if($NodesCheck){
+                CompanyConfiguration::where('Key', 'Nodes')->update(['Value'=>$Nodes]);
+                CompanyConfiguration::updateCompanyConfiguration($companyID);
+            }else{
+                $NodeAdd["CompanyID"] = User::get_companyID();
+                $NodeAdd["Key"] = "Nodes";
+                $NodeAdd["Value"] = $Nodes;
+                CompanyConfiguration::insert($NodeAdd);
+            }
+            unset($data['Nodes']);
+        }
 		
         if ($company->update($data)) {
-
             if(CompanySetting::getKeyVal('UseDigitalSignature', $companyID)){
                 $signaturePath =$upload_path . AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
                 $SERVER_NAME=preg_replace('/[^A-Za-z0-9\-]/', '', $_SERVER["SERVER_NAME"]);
@@ -261,7 +286,7 @@ class CompaniesController extends \BaseController {
                         'openssl pkcs12 -inkey '.$signaturePath.'digitalsignature.key -in '.$signaturePath.'digitalsignature.crt -export -out '.$signaturePath.'digitalsignature.pfx -password pass:Welcome100'
                     ]);
             }
-
+           
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Company."));

@@ -14,10 +14,11 @@
                     <label for="field-1" class="control-label">Name</label>
                     <input type="text" name="Name" class="form-control" value="" />
                 </div>
-               <div class="form-group">
-                    <label class="control-label">Status</label>
-                    <?php $nameprefix_array = array("" => "","1" => "Active", "0" => "De-Active"); ?>
-                    {{Form::select('Status', $nameprefix_array, '',array("id"=>"Status","class"=>"form-control"))}}
+                <div class="form-group">
+                    <label class="control-label">Status</label><br/>
+                    <p class="make-switch switch-small">
+                        <input name="Status" type="checkbox" value="" checked="checked">
+                    </p>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
@@ -97,7 +98,7 @@ var postdata;
             e.preventDefault();
 
             $search.Name = $("#table_filter").find('[name="Name"]').val();
-            $search.Status = $("#table_filter").find('[name="Status"]').val();
+            $search.Status = $("#table_filter").find('[name="Status"]').prop("checked");
 
         // routing categories table...
 

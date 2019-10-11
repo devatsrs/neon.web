@@ -27,17 +27,15 @@
                     <table width="100%">
                         <tr>
                             <td><label for="field-1" class="col-sm-1 control-label">Package</label></td>
-                            <td width="15%">{{ Form::select('PackageName', $Packages , '' , array("class"=>"select2")) }}</td>
+                            <td width="10%">{{ Form::select('PackageName', $Packages , '' , array("class"=>"select2")) }}</td>
                             <td><label for="field-1" class="col-sm-1 control-label">ContractID</label></td>
-                            <td><input type="text" name="PackageContractID" class="form-control" value="" /></td>
+                            <td width="10%"><input type="text" name="PackageContractID" class="form-control" value="" /></td>
                             <td><label for="field-1" class="col-sm-1 control-label">Start Date</label></td>
-                            <td><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="PackageStartDate" name="PackageStartDate"></td>
+                            <td width="10%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="PackageStartDate" name="PackageStartDate"></td>
                             <td><label for="field-1" class="col-sm-1 control-label">End Date</label></td>
-                            <td><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="PackageEndDate" name="PackageEndDate"></td>
+                            <td width="10%"><input type="text" data-date-format="yyyy-mm-dd"  class="form-control datepicker" id="PackageEndDate" name="PackageEndDate"></td>
                             <td><label for="field-1" class="col-sm-1 control-label">Status</label></td>
-                            <td><p class="make-switch switch-small">
-                                    <input id="PackageStatus" name="PackageStatus" type="checkbox" value="1" checked="checked">
-                                </p></td>
+                            <td width="12%">{{ Form::select('PackageStatus', [""=>"All",1=>"Active",0=>"Inactive"], '', array("class"=>"form-control select2 small")) }}</td>
                         </tr>
                         <tr>
                             <td colspan="10" align="right">
@@ -258,7 +256,7 @@
                         $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
                        // tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
-                        var header = "<thead><tr><th>One Off Cost</th><th>Monthly Cost</th><th>Cost Per Minute</th><th>Recording Cost per Minute</th>" +
+                        var header = "<thead><tr><th>Time Of Day</th><th>One Off Cost</th><th>Monthly Cost</th><th>Cost Per Minute</th><th>Recording Cost per Minute</th>" +
                                 "<th>Effective Date</th><th>End Date</th>";
                         header += "</tr></thead>";
                         table.append(header);
@@ -270,6 +268,7 @@
                             html += "<tr class='no-selection'>";
 
 
+                            html += "<td>" + (data['TimeTitle'] != null ? data['TimeTitle'] : '') + "</td>";
                             html += "<td>" + (data['OneOffCost'] != null ? data['OneOffCost'] : '') + "</td>";
                             html += "<td>" + (data['MonthlyCost'] != null ? data['MonthlyCost'] : '') + "</td>";
                             html += "<td>" + (data['PackageCostPerMinute'] != null ? data['PackageCostPerMinute'] : '') + "</td>";
@@ -312,7 +311,7 @@
             $searchcli.PackageContractID = $("#packagetable_filter").find('[name="PackageContractID"]').val();
             $searchcli.PackageStartDate = $("#packagetable_filter").find('[name="PackageStartDate"]').val();
             $searchcli.PackageEndDate = $("#packagetable_filter").find('[name="PackageEndDate"]').val();
-            $searchcli.PackageStatus = $("#packagetable_filter").find('[name="PackageStatus"]').is(":checked") ? 1 : 0;
+            $searchcli.PackageStatus = $("#packagetable_filter").find('[name="PackageStatus"]').val();
 
             if((typeof $searchcli.PackageEndDate  != 'undefined' && $searchcli.PackageEndDate != '')
                     && (typeof $searchcli.PackageStartDate  != 'undefined' && $searchcli.PackageStartDate != '')
@@ -567,7 +566,7 @@
 
             var fields = $(this).prev(".hiddenRowData");
             $('#packagetable-form').trigger("reset");
-            $('#modal-packagetable h4').html('Edit Number RateTable');
+            $('#modal-packagetable h4').html('Edit Package RateTable');
 
             /* var package_list_fields = ["AccountServicePackageID", "PackageName","RateTableName", "PackageDiscountPlan",'ContractID', 'PackageStartDate', 'PackageEndDate',
              'Status','PackageId','RateTableID','PackageDiscountPlanID'];*/
@@ -660,7 +659,7 @@
                 }
             });
             $('#packagetable-form').trigger("reset");
-            $('#modal-packagetable h4').html('Update Number');
+            $('#modal-packagetable h4').html('Update Package');
             $("#packagetable-form [name=RateTableID]").select2().select2('val', "");
             $("#packagetable-form [name=PackageID]").select2().select2('val', "");
             $("#packagetable-form [name=PackageRateTableID]").select2().select2('val', "");
@@ -845,7 +844,7 @@
                 <form role="form" id="form-confirm-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Delete Number</h4>
+                        <h4 class="modal-title">Delete Package</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -857,7 +856,7 @@
                                     </div>
                                     <div class="col-sm-3"></div>
                                     <div class="col-sm-3"></div>
-                                    <div class="col-sm-9">This is the date when you deleted Number against this account from the switch</div>
+                                    <div class="col-sm-9">This is the date when you deleted Package against this account from the switch</div>
                                 </div>
                             </div>
                         </div>

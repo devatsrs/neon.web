@@ -566,7 +566,7 @@ class CompanyGateway extends \Eloquent {
         }
         log::info('-- Active CronJob END--');
 
-        log::info('-- Activity Reminder --');
+        /*log::info('-- Activity Reminder --');
         $ActivityReminderJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('accountactivityreminder',$CompanyID);
         $ActivityReminder_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$ActivityReminderJobCommandID])->count();
         if($ActivityReminder_Count == 0) {
@@ -602,8 +602,9 @@ class CompanyGateway extends \Eloquent {
             log::info($AutoInvoiceGeneratordata);
             CronJob::create($AutoInvoiceGeneratordata);
         }
-        log::info('-- Auto Invoice Generator END--');
+        log::info('-- Auto Invoice Generator END--');*/
         log::info('-- Create Summary --');
+        /*
         $CreateSummaryCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummary',$CompanyID);
         $CreateSummary_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CreateSummaryCommandID])->count();
         if($CreateSummary_Count == 0) {
@@ -620,8 +621,10 @@ class CompanyGateway extends \Eloquent {
             log::info($CreateSummarydata);
             CronJob::create($CreateSummarydata);
         }
+        */
         log::info('-- Create Summary END--');
         log::info('-- Create Summary Live --');
+        /*
         $CreateSummaryLiveCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummarylive',$CompanyID);
         $CreateSummaryLive_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CreateSummaryLiveCommandID])->count();
         if($CreateSummaryLive_Count == 0) {
@@ -637,10 +640,31 @@ class CompanyGateway extends \Eloquent {
             $CreateSummaryLivedata['JobTitle'] = $CreateSummaryLiveJobTitle;
             log::info($CreateSummaryLivedata);
             CronJob::create($CreateSummaryLivedata);
-        }
+        }*/
         log::info('-- Create Summary Live END--');
 
-        log::info('-- System Alert --');
+        /*
+        log::info('-- Account Balance Generator --');
+        $AccountBalanceGeneratorCommandID = CronJobCommand::getCronJobCommandIDByCommand('accountbalancegenerator',$CompanyID);
+        $AccountBalanceGenerator_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$AccountBalanceGeneratorCommandID])->count();
+        if($AccountBalanceGenerator_Count == 0) {
+            $AccountBalanceGeneratorJobTitle = 'Account Balance Generator';
+            $AccountBalanceGeneratorSetting = '{"ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"5","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}';
+            $AccountBalanceGeneratorLivedata = array();
+            $AccountBalanceGeneratorLivedata['CompanyID'] = $CompanyID;
+            $AccountBalanceGeneratorLivedata['CronJobCommandID'] = $AccountBalanceGeneratorCommandID;
+            $AccountBalanceGeneratorLivedata['Settings'] = $AccountBalanceGeneratorSetting;
+            $AccountBalanceGeneratorLivedata['Status'] = 1;
+            $AccountBalanceGeneratorLivedata['created_by'] = 'system';
+            $AccountBalanceGeneratorLivedata['created_at'] = $today;
+            $AccountBalanceGeneratorLivedata['JobTitle'] = $AccountBalanceGeneratorJobTitle;
+            log::info($AccountBalanceGeneratorLivedata);
+            CronJob::create($AccountBalanceGeneratorLivedata);
+        }
+        log::info('-- Account Balance Generator--');
+        */
+
+        /*log::info('-- System Alert --');
         $SystemAlertCommandID = CronJobCommand::getCronJobCommandIDByCommand('neonalerts',$CompanyID);
         $SystemAlert_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$SystemAlertCommandID])->count();
         if($SystemAlert_Count == 0) {
@@ -657,7 +681,7 @@ class CompanyGateway extends \Eloquent {
             log::info($SystemAlertLivedata);
             CronJob::create($SystemAlertLivedata);
         }
-        log::info('-- System Alert END--');
+        log::info('-- System Alert END--');*/
 
     }
 

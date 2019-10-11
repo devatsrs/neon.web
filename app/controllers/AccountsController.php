@@ -39,6 +39,9 @@ class AccountsController extends \BaseController {
             \Illuminate\Support\Facades\Log::info("Account query ".$query.',2)');
             $excel_data = json_decode(json_encode($excel_data),true);
 
+            foreach($excel_data as $key => $item)
+                unset($excel_data[$key]['Account Owner']);
+
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Accounts.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
@@ -197,10 +200,10 @@ class AccountsController extends \BaseController {
         if(!User::is_admin()){
             unset($doc_status[Account::VERIFIED]);
         }
-        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::VOICECALL_ID);
+        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForRateType(RateType::VOICECALL_ID);
         $DiscountPlan = $DiscountPlanVOICECALL;
-        $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::DID_ID);
-        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($company_id,0,RateType::PACKAGE_ID);
+        $DiscountPlanDID = DiscountPlan::getDropdownIDListForRateType(RateType::DID_ID);
+        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForRateType(RateType::PACKAGE_ID);
         $dynamicfields = Account::getDynamicfields('account',0);
         $reseller_owners = Reseller::getDropdownIDList($company_id);
         //As per new question call the routing profile model for fetch the routing profile list.
@@ -208,8 +211,10 @@ class AccountsController extends \BaseController {
         $TaxRates = TaxRate::getTaxRateDropdownIDList($company_id);
         //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
+        $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$CompanyID)->first():[];
+
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
-        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID','TaxRates'));
+        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID','TaxRates','reseller'));
     }
 
     /**
@@ -240,16 +245,16 @@ class AccountsController extends \BaseController {
         if(isset($data['routingprofile'])){
             $RoutingProfileID=$data['routingprofile'];
         }
-        $data['CompanyID'] = $companyID;
-        $data['AccountType'] = 1;
-        $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
-        $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+        $data['CompanyID']      = $companyID;
+        $data['AccountType']    = 1;
+        $data['IsVendor']       = isset($data['IsVendor']) ? 1 : 0;
+        $data['IsCustomer']     = isset($data['IsCustomer']) ? 1 : 0;
         $data['IsAffiliateAccount'] = isset($data['IsAffiliateAccount']) ? 1 : 0;
-        $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
-        $data['Billing'] = isset($data['Billing']) ? 1 : 0;
-        $data['created_by'] = User::get_user_full_name();
-        $data['AccountType'] = 1;
-        $data['AccountName'] = trim($data['AccountName']);
+        $data['IsReseller']     = isset($data['IsReseller']) ? 1 : 0;
+        $data['Billing']        = isset($data['Billing']) ? 1 : 0;
+        $data['created_by']     = User::get_user_full_name();
+        $data['AccountType']    = 1;
+        $data['AccountName']    = trim($data['AccountName']);
         $CustomerID = '';
 
         if (isset($data['accountgateway'])) {
@@ -258,16 +263,23 @@ class AccountsController extends \BaseController {
         }else{
             $AccountGateway = '';
         }
+
+        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
+
+        if(is_reseller() && $data['IsCustomer'] == 0)
+            return Response::json(array("status" => "failed", "message" => "Customer option should be checked."));
+
+        if(!is_reseller() && $data['IsCustomer'] == 1 && $ResellerOwner == 0)
+            return Response::json(array("status" => "failed", "message" => "Account Partner is required for customer"));
+
         /**
          * If Reseller on backend customer is on
          */
-        if($data['IsReseller']==1){
+        /*if($data['IsReseller']==1){
             $data['IsCustomer']=1;
             $data['IsVendor']=0;
-        }
-
-        if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
-            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
+        }*/
 
         unset($data['ResellerOwner']);
         unset($data['routingprofile']);
@@ -284,7 +296,7 @@ class AccountsController extends \BaseController {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
         }
         if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
+            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
         }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
@@ -315,13 +327,13 @@ class AccountsController extends \BaseController {
             Account::$rules['CommissionPercentage'] = 'required';
         }
 
-        if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
+        if(DynamicFields::where(['CompanyID' => getParentCompanyIdIfReseller($companyID), 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
             Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
         }
 
         $validator = Validator::make($data, Account::$rules, Account::$messages);
-        $validator->setAttributeNames(['AccountName' => 'Company Name']);
+        $validator->setAttributeNames(['AccountName' => 'Account Name']);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -467,33 +479,6 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
         }
 
-        if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] = 1) {
-            $rules = array(
-                'OutPaymentThreshold' => 'required|numeric',
-                'OutPaymentAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
-
-            );
-            $validator = Validator::make($data, $rules);
-
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-        }
-
-
-        if (isset($data['AutoTopup']) && $data['AutoTopup'] = 1) {
-            $rules = array(
-                'MinThreshold' => 'required|numeric',
-                'TopupAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
-
-            );
-            $validator = Validator::make($data, $rules);
-
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-        }
-
         if(empty($data['DifferentBillingAddress'])) {
             $data['BillingAddress1'] = $data['Address1'];
             $data['BillingAddress2'] = $data['Address2'];
@@ -505,15 +490,13 @@ class AccountsController extends \BaseController {
         $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
 
         if ($account = Account::create($data)) {
-            /*
+
             $DynamicData = array();
             $DynamicData['CompanyID']= $companyID;
             $DynamicData['AccountID']= $account->AccountID;
 
-            if( isset($data['BillingType']) && $data['BillingType'] == 1 ) {
-                $AccountPaymentAutomation['AccountID'] = $DynamicData['AccountID'];
-                AccountPaymentAutomation::create($AccountPaymentAutomation);
-            }
+            $AccountPaymentAutomation['AccountID'] = $DynamicData['AccountID'];
+            AccountPaymentAutomation::create($AccountPaymentAutomation);
             //
             if($RoutingProfileID!=''){
                 $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$account->AccountID])->first();
@@ -641,7 +624,7 @@ class AccountsController extends \BaseController {
 
 
             $account->update($data);
-            */
+
             return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
@@ -847,6 +830,8 @@ class AccountsController extends \BaseController {
         $ServiceID = 0;
         $account = Account::find($id);
         $companyID = $account->CompanyId;
+        if(is_reseller() && $companyID != User::get_companyID())
+            return  Response::json(array("status" => "failed", "message" => "Invalid Data."));
         //$companyID = User::get_companyID();
         $account_owners = User::getOwnerUsersbyRole();
         $countries = $this->countries;
@@ -876,15 +861,17 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
+        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForRateType(RateType::VOICECALL_ID);
         $DiscountPlan = $DiscountPlanVOICECALL;
-        $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::DID_ID);
-        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($companyID,(int)$account->CurrencyId,RateType::PACKAGE_ID);
+        $DiscountPlanDID = DiscountPlan::getDropdownIDListForRateType(RateType::DID_ID);
+        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForRateType(RateType::PACKAGE_ID);
         $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
         $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
         $decimal_places = get_round_decimal_places($id);
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $services = Service::getAllServices($companyID);
+
+        $CustomerServices = Service::getDropdownIDList($companyID);
 
         $billing_disable = $hiden_class= '';
         if($invoice_count > 0 || AccountDiscountPlan::checkDiscountPlan($id) > 0){
@@ -896,7 +883,7 @@ class AccountsController extends \BaseController {
                 $AccountBilling->BillingStartDate = $AccountBilling->LastInvoiceDate;
             }
         }
-
+        $frequency = array('' => "Select") + AccountSubscription::$frequency;
         $ResellerCount = Reseller::where(['AccountID'=>$id,'Status'=>1])->count();
 
         $dynamicfields = Account::getDynamicfields('account',$id);
@@ -912,6 +899,17 @@ class AccountsController extends \BaseController {
         //As per new question call the routing profile model for fetch the routing profile list.
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
+        $customers = array('' => 'Select');
+        if($account->IsReseller == 1){
+            $resellers = Reseller::where('AccountID',$id)->first();
+            if($resellers){
+                $customers = array('' => 'Select') + Account::where('CompanyID',$resellers->ChildCompanyID)->lists('AccountName','AccountID');
+            }
+        }
+
+        $CustomerRatetable = AccountCustomerRatetable::where('AccountID',$id)->get();
+        $CustomerServiceRatetable = AccountCustomerServiceRatetable::where('AccountID',$id)->get();
+
 
         $UserCompanyID = User::get_companyID();
         $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
@@ -920,8 +918,29 @@ class AccountsController extends \BaseController {
         $Packages = Package::getDropdownIDListByCompany($companyID);
         $AffiliateAccount = Account::getAffiliateAccount();
 
+        $AccountRateTable = AccountRateTable::where(['AccountID' => $id])->first();
+
+        $AccountAccessRateTableID = isset($AccountRateTable->AccessRateTableID) ? $AccountRateTable->AccessRateTableID : '';
+        $AccountPackageRateTableID = isset($AccountRateTable->PackageRateTableID) ? $AccountRateTable->PackageRateTableID : '';
+        $AccountTerminationRateTableID = isset($AccountRateTable->TerminationRateTableID) ? $AccountRateTable->TerminationRateTableID : '';
+        $rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::DID],
+            'NotVendor' => true,
+            'CompanyID' => $companyID
+        ]);
+        $termination_rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::VoiceCall],
+            'NotVendor' => true,
+            'CompanyID' => $companyID
+        ]);
+        $package_rate_table = RateTable::getRateTableList([
+            'types' => [RateGenerator::Package],
+            'NotVendor' => true,
+            'CompanyID' => $companyID
+        ]);
+        $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$companyID)->first():[];
         return View::make('accounts.edit', compact('account','AffiliateAccount', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
-            'Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
+            'CustomerServiceRatetable','CustomerRatetable','CustomerServices','customers','frequency','Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table'));
     }
 
     /**
@@ -934,20 +953,27 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $ServiceID = 0;
         $data = Input::all();
-        $companyID = User::get_companyID();
-        $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        // dd($data);
+        $account = Account::find($id);
+        //$companyID = User::get_companyID();
+        $companyID = $account->CompanyId;
+        $getRateCustomerIDs = isset($data['getRateCustomerIDs']) ? $data['getRateCustomerIDs'] : '';
+        $getRateServiceIDs = isset($data['getRateServiceIDs']) ? $data['getRateServiceIDs'] : '';
+        
+        unset($data['getRateCustomerIDs']);
+        unset($data['getRateServiceIDs']);
+        //$ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
 
 
 
-        if($ResellerOwner>0){
+        /*if($ResellerOwner>0){
             $Reseller = Reseller::getResellerDetails($ResellerOwner);
             $ResellerCompanyID = $Reseller->ChildCompanyID;
             $ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
             $ResellerUserID = $ResellerUser->UserID;
             $companyID=$ResellerCompanyID;
             $data['Owner'] = $ResellerUserID;
-        }
-        $account = Account::find($id);
+        }*/
         if(isset($data['tags'])){
             Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
         }
@@ -999,13 +1025,16 @@ class AccountsController extends \BaseController {
         $data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
         $data['DisplayRates'] = isset($data['DisplayRates']) ? 1 : 0;
 
-        if($data['IsReseller']==1){
+        /*if($data['IsReseller']==1){
             $data['IsCustomer']=1;
             $data['IsVendor']=0;
-        }
+        }*/
 
-        if($data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
+        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
+
+        if(is_reseller() && $data['IsCustomer'] == 0)
+            return Response::json(array("status" => "failed", "message" => "Customer option should be on."));
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
@@ -1028,7 +1057,7 @@ class AccountsController extends \BaseController {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
         }
         if (strpbrk($data['AccountName'],'\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Company Name contains illegal character."));
+            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
         }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
@@ -1073,7 +1102,7 @@ class AccountsController extends \BaseController {
         }
         $validator = Validator::make($data, Account::$rules,Account::$messages);
 
-        $validator->setAttributeNames(['AccountName' => 'Company Name']);
+        $validator->setAttributeNames(['AccountName' => 'Account Name']);
         if ($validator->fails()) {
             return json_validator_response($validator);
             exit;
@@ -1128,6 +1157,13 @@ class AccountsController extends \BaseController {
             $COCNumber = '';
         }
 
+        if (isset($data['CustomerID'])) {
+            $CustomerID = $data['CustomerID'];
+            unset($data['CustomerID']);
+        }else{
+            $CustomerID = '';
+        }
+
         if (isset($data['PONumber'])) {
             $PONumber = $data['PONumber'];
             unset($data['PONumber']);
@@ -1161,6 +1197,67 @@ class AccountsController extends \BaseController {
             unset($data['DirectDebit']);
         }else{
             $DirectDebit = 0;
+        }
+
+                                //Customer Rates     
+        $calculatedCustomerRates = array_unique(explode(",", $getRateCustomerIDs));
+        for ($i = 0; $i < sizeof($calculatedCustomerRates) - 1; $i++) {
+
+                if ($data['Customer-' . $calculatedCustomerRates[$i]] == '') {
+                    return Response::json(array(
+                        "status" => "failed",
+                        "message" => "Missing customer ratetable values."
+                    ));
+                } else {
+
+                    $rcCustomer[]    = $data['Customer-' . $calculatedCustomerRates[$i]];
+                    $rcAccess[]  = $data['Access-' . $calculatedCustomerRates[$i]];
+                    $rcPackage[] = $data['Package-' . $calculatedCustomerRates[$i]];
+                    $rcTermination[] = $data['Termination-' . $calculatedCustomerRates[$i]];
+                    $rcAccessD[]      = $data['AccessD-' . $calculatedCustomerRates[$i]];
+                    $rcPackageD[]   = $data['PackageD-' . $calculatedCustomerRates[$i]];
+                    $rcTerminationD[]   = $data['TerminationD-' . $calculatedCustomerRates[$i]];
+                    
+                }
+            unset($data['Customer-'. $calculatedCustomerRates[$i]]);
+            unset($data['Access-'. $calculatedCustomerRates[$i]]);
+            unset($data['Package-'. $calculatedCustomerRates[$i]]);
+            unset($data['City2-'. $calculatedCustomerRates[$i]]);
+            unset($data['Termination-'. $calculatedCustomerRates[$i]]);
+            unset($data['AccessD-'. $calculatedCustomerRates[$i]]);
+            unset($data['PackageD-'. $calculatedCustomerRates[$i]]); 
+            unset($data['TerminationD-'. $calculatedCustomerRates[$i]]); 
+        }
+
+
+        $calculatedCustomerRateService = array_unique(explode(",", $getRateServiceIDs));
+        for ($i = 0; $i < sizeof($calculatedCustomerRateService) - 1; $i++) {
+
+                if ($data['Customer1-' . $calculatedCustomerRateService[$i]] == '' || $data['Service1-' . $calculatedCustomerRateService[$i]] == '') {
+                    return Response::json(array(
+                        "status" => "failed",
+                        "message" => "Missing customer service ratetable values."
+                    ));
+                } else {
+
+                    $rsCustomer[]    = $data['Customer1-' . $calculatedCustomerRateService[$i]];
+                    $rsService[]    = $data['Service1-' . $calculatedCustomerRateService[$i]];
+                    $rsAccess[]  = $data['Access1-' . $calculatedCustomerRateService[$i]];
+                    $rsPackage[] = $data['Package1-' . $calculatedCustomerRateService[$i]];
+                    $rsTermination[] = $data['Termination1-' . $calculatedCustomerRateService[$i]];
+                    $rsAccessD[]      = $data['AccessD1-' . $calculatedCustomerRateService[$i]];
+                    $rsPackageD[]   = $data['PackageD1-' . $calculatedCustomerRateService[$i]];
+                    $rsTerminationD[]   = $data['TerminationD1-' . $calculatedCustomerRateService[$i]];
+                    
+                }
+            unset($data['Customer1-'. $calculatedCustomerRateService[$i]]);
+            unset($data['Service1-'. $calculatedCustomerRateService[$i]]);
+            unset($data['Access1-'. $calculatedCustomerRateService[$i]]);
+            unset($data['Package1-'. $calculatedCustomerRateService[$i]]);
+            unset($data['Termination1-'. $calculatedCustomerRateService[$i]]);
+            unset($data['AccessD1-'. $calculatedCustomerRateService[$i]]);
+            unset($data['PackageD1-'. $calculatedCustomerRateService[$i]]); 
+            unset($data['TerminationD1-'. $calculatedCustomerRateService[$i]]); 
         }
 
         /*$test=array();
@@ -1251,7 +1348,14 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
         }
 
-        AccountPaymentAutomation::where(['AccountID' => $id])->update($AccountPaymentAutomation);
+        $automation = AccountPaymentAutomation::where(['AccountID' => $id])->first();
+
+        if ($automation != false)
+            $automation->update($AccountPaymentAutomation);
+        else{
+            $AccountPaymentAutomation['AccountID'] = $id;
+            AccountPaymentAutomation::create($AccountPaymentAutomation);
+        }
 
 //        else{
 //
@@ -1272,9 +1376,9 @@ class AccountsController extends \BaseController {
             $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
         }
 
-       /* if ($data['IsAffiliateAccount'] == 0) {
-            unset($data['CommissionPercentage']);
-        }*/
+        /* if ($data['IsAffiliateAccount'] == 0) {
+             unset($data['CommissionPercentage']);
+         }*/
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -1286,9 +1390,9 @@ class AccountsController extends \BaseController {
                 $DynamicData['FieldValue']= $AccountGateway;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
-            if(!empty($data["CustomerID"])){
+            if(!empty($CustomerID)){
                 $DynamicData['FieldName'] = 'CustomerID';
-                $DynamicData['FieldValue']= $data["CustomerID"];
+                $DynamicData['FieldValue']= $CustomerID;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
 
@@ -1414,12 +1518,104 @@ class AccountsController extends \BaseController {
                 }
             }
 
+            AccountRateTable::addAccountRateTable($id,$data);
+
+            AccountCustomerRatetable::where("AccountID", $id)->delete();
+            AccountCustomerServiceRatetable::where("AccountID", $id)->delete();
+            
+            $calculatedCustomerRates = explode(",", $getRateCustomerIDs);
+                $addCustomerRate = array();
+                for ($i = 0; $i < sizeof($calculatedCustomerRates) - 1; $i++) {
+                    if (!isset($rcCustomer[$i])) {
+                        break;
+                    }
+                   
+                    $addCustomerRate['AccountID']                               = $id;
+                    $addCustomerRate['CustomerID']                              = $rcCustomer[$i];
+                    $addCustomerRate['AccessRatetableID']                       = $rcAccess[$i];
+                    $addCustomerRate['PackageRatetableID']                      = $rcPackage[$i];
+                    $addCustomerRate['TerminationRatetableID']                  = $rcTermination[$i];
+                    $addCustomerRate['AccessDiscountPlanID']                    = $rcAccessD[$i];
+                    $addCustomerRate['PackageDiscountPlanID']                   = $rcPackageD[$i];
+                    $addCustomerRate['TerminationDiscountPlanID']               = $rcTerminationD[$i];
+
+                    if($addCustomerRate['AccessRatetableID'] == ''){
+                        $addCustomerRate['AccessRatetableID'] = Null;
+                    }
+                    
+                    if($addCustomerRate['PackageRatetableID'] == ''){
+                        $addCustomerRate['PackageRatetableID'] = Null;
+                    }
+                    
+                    if($addCustomerRate['TerminationRatetableID'] == ''){
+                        $addCustomerRate['TerminationRatetableID'] = Null;
+                    }
+
+                    if($addCustomerRate['AccessDiscountPlanID'] == ''){
+                        $addCustomerRate['AccessDiscountPlanID'] = Null;
+                    }
+                    
+                    if($addCustomerRate['PackageDiscountPlanID'] == ''){
+                        $addCustomerRate['PackageDiscountPlanID'] = Null;
+                    }
+                    
+                    if($addCustomerRate['TerminationDiscountPlanID'] == ''){
+                        $addCustomerRate['TerminationDiscountPlanID'] = Null;
+                    }
+                    
+                    AccountCustomerRatetable::create($addCustomerRate);
+                }
+                
+                $calculatedCustomerRates = explode(",", $getRateServiceIDs);
+                $addCustomerServiceRate = array();
+                for ($i = 0; $i < sizeof($calculatedCustomerRates) - 1; $i++) {
+                    if (!isset($rsCustomer[$i])) {
+                        break;
+                    }
+                   
+                    $addCustomerServiceRate['AccountID']                               = $id;
+                    $addCustomerServiceRate['CustomerID']                              = $rsCustomer[$i];
+                    $addCustomerServiceRate['AccountServiceID']                               = $rsService[$i];
+                    $addCustomerServiceRate['AccessRatetableID']                       = $rsAccess[$i];
+                    $addCustomerServiceRate['PackageRatetableID']                      = $rsPackage[$i];
+                    $addCustomerServiceRate['TerminationRatetableID']                  = $rsTermination[$i];
+                    $addCustomerServiceRate['AccessDiscountPlanID']                    = $rsAccessD[$i];
+                    $addCustomerServiceRate['PackageDiscountPlanID']                   = $rsPackageD[$i];
+                    $addCustomerServiceRate['TerminationDiscountPlanID']               = $rsTerminationD[$i];
+
+                    if($addCustomerServiceRate['AccessRatetableID'] == ''){
+                        $addCustomerServiceRate['AccessRatetableID'] = Null;
+                    }
+                    
+                    if($addCustomerServiceRate['PackageRatetableID'] == ''){
+                        $addCustomerServiceRate['PackageRatetableID'] = Null;
+                    }
+                    
+                    if($addCustomerServiceRate['TerminationRatetableID'] == ''){
+                        $addCustomerServiceRate['TerminationRatetableID'] = Null;
+                    }
+                    if($addCustomerServiceRate['AccessDiscountPlanID'] == ''){
+                        $addCustomerServiceRate['AccessDiscountPlanID'] = Null;
+                    }
+                    
+                    if($addCustomerServiceRate['PackageDiscountPlanID'] == ''){
+                        $addCustomerServiceRate['PackageDiscountPlanID'] = Null;
+                    }
+                    
+                    if($addCustomerServiceRate['TerminationDiscountPlanID'] == ''){
+                        $addCustomerServiceRate['TerminationDiscountPlanID'] = Null;
+                    }
+
+                    AccountCustomerServiceRatetable::create($addCustomerServiceRate);            
+                } 
+
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
         }
         //return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Updated');;
     }
+
 
     public function getAccountPartnerInfo($id){
         $Reseller = Reseller::getResellerDetails($id);
@@ -1429,9 +1625,9 @@ class AccountsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Invalid Request."));
 
         $data['BillingClass'] = BillingClass::getBillingClassListByCompanyID($CompanyID);
-        $data['TerminationDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::VOICECALL_ID);
-        $data['AccessDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::DID_ID);
-        $data['PackageDiscountPlan'] = DiscountPlan::getDropdownIDListForType($CompanyID,0,RateType::PACKAGE_ID);
+        /*$data['TerminationDiscountPlan'] = DiscountPlan::getDropdownIDListForRateType(RateType::VOICECALL_ID);
+        $data['AccessDiscountPlan'] = DiscountPlan::getDropdownIDListForRateType(RateType::DID_ID);
+        $data['PackageDiscountPlan'] = DiscountPlan::getDropdownIDListForRateType(RateType::PACKAGE_ID);*/
         $data['TaxRates'] = TaxRate::getTaxRateDropdownIDList($CompanyID);
         //log::info(print_r($data['TaxRates'],true));
 
@@ -1866,19 +2062,27 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         //$CompanyID = User::get_companyID();
         $account = Account::find($id);
         $CompanyID = $account->CompanyId;
+
+        if(is_reseller() && $CompanyID != User::get_companyID())
+            return  Response::json(array("status" => "failed", "message" => "Invalid Data."));
+
         $BillingType=AccountBilling::where(['AccountID'=>$id,'ServiceID'=>0])->pluck('BillingType');
         $getdata['AccountID'] = $id;
-        $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount', 'OutPaymentAwaiting', 'OutPaymentAvailable', 'OutPaymentPaid']);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = $OutPaymentAwaiting = $OutPaymentAvailable = $OutPaymentPaid = $OutPaymentPaid = 0;
+        $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount', 'OutPaymentAvailable', 'OutPaymentPaid']);
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = $OutPaymentAvailable = $OutPaymentPaid = $OutPaymentPaid = 0;
+
+        // Calculating total Out Payment
+        $OutPaymentAwaiting = OutPaymentLog::where([
+            'AccountID' => $id,
+            'Status' => 0,
+        ])->sum('Amount');
+
         if (!empty($response)) {
             if (!empty($response->PermanentCredit)) {
                 $PermanentCredit = $response->PermanentCredit;
             }
             if (!empty($response->TemporaryCredit)) {
                 $TemporaryCredit = $response->TemporaryCredit;
-            }
-            if (!empty($response->OutPaymentAwaiting)) {
-                $OutPaymentAwaiting = $response->OutPaymentAwaiting;
             }
             if (!empty($response->OutPaymentAvailable)) {
                 $OutPaymentAvailable = $response->OutPaymentAvailable;
@@ -1917,14 +2121,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function update_credit(){
         $data = Input::all();
         $postdata= $data;
-        
+
         $rules=array();$messages=array();
         if(!empty($postdata['counttr'])){
             $thList = $postdata['counttr'];
             for ($k = 0; $k < $thList; $k++) {
                 $rules['BalanceThresholdnew-' . ($k)] = 'required';
                 $messages['BalanceThresholdnew-' . ($k).'.required'] = "Balance Threshold Value for the Row " . ($k+1 ) . " required";
-                
+
                 $rules['email-' . ($k)] = 'required';
                 $messages['email-' . ($k).'.required'] = "Balance Threshold Email Value for the Row " . ($k+1 ) . " required";
             }
@@ -2097,17 +2301,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 
     public function prepaidunbilledreport($id){
-        $data = Input::all();
+        $input = Input::all();
+        $data = $input["searchreport"];
+        $type = $data["Type"];
+        $description = $data["Description"];
         // $companyID = User::get_companyID();
         // @TODO: ServiceID need to fix for show
         $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
         $companyID = $account->CompanyId;
-        $today = date('Y-m-d 23:59:59');
-        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
+        $today = $data["DateTo"] . " 23:59:59";
+        $CustomerLastInvoiceDate = $data["DateFrom"] . " 00:00:00";
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
-        $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?)";
-        $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1));
+        $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?,?,?)";
+        $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1,$type,$description));
+       
         return View::make('accounts.prepaid_unbilled_table', compact('UnbilledResult','CurrencySymbol','account'));
     }
 
@@ -2158,11 +2366,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             ->leftJoin('tblRateTable as termination','termination.RateTableId','=','tblCLIRateTable.TerminationRateTableID')
             ->leftJoin('tblRateTable as specialRT','specialRT.RateTableId','=','tblCLIRateTable.SpecialRateTableID')
             ->leftJoin('tblRateTable as specialTerminationRT','specialTerminationRT.RateTableId','=','tblCLIRateTable.SpecialTerminationRateTableID')
+            ->leftJoin('tblAccountServicePackage','tblAccountServicePackage.AccountServicePackageID','=','tblCLIRateTable.AccountServicePackageID')
+            ->leftJoin('tblPackage','tblPackage.PackageID','=','tblAccountServicePackage.PackageID')
             ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
             ->leftJoin('tblCountry','tblCountry.CountryID','=','tblCLIRateTable.CountryID')
-            ->select(['CLIRateTableID', 'CLI', 'rt.RateTableName as AccessRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.AccessDiscountPlanID ) as AccessDiscountPlan"), 'termination.RateTableName as TerminationRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.TerminationDiscountPlanID ) as TerminationDiscountPlan"), 'specialRT.RateTableName as SpecialRateTable', 'specialTerminationRT.RateTableName as SpecialTerminationRateTable', 'tblCLIRateTable.ContractID', 'tblCLIRateTable.NoType',
+            ->select(['CLIRateTableID', 'CLI','tblPackage.Name','rt.RateTableName as AccessRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.AccessDiscountPlanID ) as AccessDiscountPlan"), 'termination.RateTableName as TerminationRateTable', DB::raw("(select name from tblDiscountPlan dplan where dplan.DiscountPlanID = tblCLIRateTable.TerminationDiscountPlanID ) as TerminationDiscountPlan"), 'specialRT.RateTableName as SpecialRateTable', 'specialTerminationRT.RateTableName as SpecialTerminationRateTable', 'tblCLIRateTable.ContractID', 'tblCLIRateTable.NoType',
                 'tblCountry.Country as Country', 'tblCLIRateTable.PrefixWithoutCountry', 'tblCLIRateTable.City', 'tblCLIRateTable.Tariff', 'tblCLIRateTable.NumberStartDate', 'tblCLIRateTable.NumberEndDate', 'tblCLIRateTable.Status',
-                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID','tblCLIRateTable.SpecialRateTableID','tblCLIRateTable.SpecialTerminationRateTableID','tblCLIRateTable.Prefix'])
+                'tblCLIRateTable.RateTableID','tblCLIRateTable.AccessDiscountPlanID','tblCLIRateTable.TerminationRateTableID','tblCLIRateTable.TerminationDiscountPlanID','tblCLIRateTable.CountryID','tblCLIRateTable.SpecialRateTableID','tblCLIRateTable.SpecialTerminationRateTableID','tblCLIRateTable.Prefix','tblCLIRateTable.AccountServicePackageID'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountServiceID",$data['AccountServiceID'])
             ->where("tblCLIRateTable.AccountID",$id);
@@ -2196,7 +2406,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
 
     public function packagetable_ajax_datagrid($id){
-
+        
         $data = Input::all();
         $account = Account::find($data['AccountID']);
         $CompanyID = $account->CompanyId;
@@ -2243,7 +2453,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = $account->CompanyId;
         $message = '';
 
-       // Log::info("clitable_store " . print_r($data,true));
+        // Log::info("clitable_store " . print_r($data,true));
         $rules['CLI']                    = 'required';
         $rules['NumberStartDate']        = 'required';
         $rules['NumberEndDate']          = 'required';
@@ -2252,6 +2462,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['CountryID']              = 'required'; // Country
         $rules['NoType']                 = 'required'; // Type
         $rules['PrefixWithoutCountry']   = 'required'; // Prefix
+        $rules['AccountServicePackageID'] = 'required';
 
 
         $validator = Validator::make($data, $rules, [
@@ -2261,6 +2472,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CountryID.required'              => "The country is required.",
             'NoType.required'                 => "The type is required.",
             'PrefixWithoutCountry.required'   => "The prefix is required.",
+            'AccountServicePackageID.required' => 'The package is required.'
         ]);
 
         if ($validator->fails()) {
@@ -2327,6 +2539,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $rate_tables['PrefixWithoutCountry'] = !empty($data['PrefixWithoutCountry'])?$data['PrefixWithoutCountry']:'';
             $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
             $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
+            $rate_tables['AccountServicePackageID'] = !empty($data['AccountServicePackageID'])?$data['AccountServicePackageID']:'';
             $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
             $rate_tables['AccountID'] = $data['AccountID'];
             $rate_tables['CompanyID'] = $CompanyID;
@@ -2343,10 +2556,20 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $rate_tables['Prefix'] = $rate_tables['PrefixWithoutCountry'];
             if (!empty($rate_tables['CountryID']) && !empty($rate_tables['PrefixWithoutCountry'])) {
                 $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
-                if (substr($rate_tables['PrefixWithoutCountry'], 0, 1) == "0") {
-                    $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], 1, strlen($rate_tables['PrefixWithoutCountry']));
+                $zeroPrefix = 0;
+                $zeroPrefixStop = 0;
+                for ($x = 0; $x < strlen($rate_tables['PrefixWithoutCountry']) && $zeroPrefixStop == 0; $x++) {
+                    if (substr($rate_tables['PrefixWithoutCountry'], $x, 1) == "0") {
+                        $zeroPrefix++;
+                    }else {
+                        $zeroPrefixStop = 1;
+                    }
+                }
+
+                if ($zeroPrefix > 0) {
+                    $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], $zeroPrefix, strlen($rate_tables['PrefixWithoutCountry']));
                 } else {
-                    $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry'];
+                    $ProductCountryPrefix = $ProductCountry->Prefix . (empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry']);
                 }
                 $rate_tables['Prefix'] = $ProductCountryPrefix;
             }
@@ -2530,7 +2753,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return Response::json(array("status" => "check","check"=>1));
         }
 
-       // Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
+        // Log::info("clitable_delete " . print_r($data,true) . '' . $CLIRateTableID);
 
         if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
@@ -2543,7 +2766,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function packagetable_delete($AccountServicePackageID){
         $data = Input::all();
-       // Log::info("packagetable_delete " . print_r($data,true) . '' . $AccountServicePackageID);
+        // Log::info("packagetable_delete " . print_r($data,true) . '' . $AccountServicePackageID);
         $CompanyID = User::get_companyID();
         if ($AccountServicePackageID > 0) {
             $data['AccountServicePackageIDs'] = $AccountServicePackageID + ",";
@@ -2568,7 +2791,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rules['CountryID']              = 'required'; // Country
         $rules['NoType']                 = 'required'; // Type
         $rules['PrefixWithoutCountry']   = 'required'; // Prefix
+        $rules['AccountServicePackageID'] = 'required';
         // Log::info("clitable_store " . print_r($data,true));
+
+        $zeroPrefix = 0;
+
+
+
 
         $validator = Validator::make($data, $rules, [
             'CLI.required'                    => "The number is required.",
@@ -2577,6 +2806,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             'CountryID.required'              => "The country is required.",
             'NoType.required'                 => "The type is required.",
             'PrefixWithoutCountry.required'   => "The prefix is required.",
+            'AccountServicePackageID.required' => 'The package is required.'
         ]);
 
         if ($validator->fails()) {
@@ -2614,9 +2844,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $rate_tables['PrefixWithoutCountry'] = !empty($data['PrefixWithoutCountry'])?$data['PrefixWithoutCountry']:'';
         $rate_tables['ContractID'] = !empty($data['ContractID'])?$data['ContractID']:'';
         $rate_tables['City'] = !empty($data['City'])?$data['City']:'';
+        $rate_tables['AccountServicePackageID'] = !empty($data['AccountServicePackageID'])?$data['AccountServicePackageID']:'';
         $rate_tables['Tariff'] = !empty($data['Tariff'])?$data['Tariff']:'';
         $rate_tables['AccountID'] = $data['AccountID'];
         $rate_tables['CompanyID'] = $CompanyID;
+
 
 
         $rate_tables['Status'] = isset($data['Status']) ? 1 : 0;
@@ -2668,7 +2900,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 
 
-            if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
+            if($check != false  && $check->count() > 0 || $check1 != false && $check1->count() > 0 ||$check2 != false && $check2->count() > 0){
                 $message = 'Number '. $data['CLI'] . ' already exist between start date '.
                     $data['NumberStartDate'] . ' and End Date ' .$data['NumberEndDate'].' <br>';
                 return Response::json(array("status" => "error", "message" => $message));
@@ -2677,17 +2909,26 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $rate_tables['Prefix'] = $rate_tables['PrefixWithoutCountry'];
             if (!empty($rate_tables['CountryID']) && !empty($rate_tables['PrefixWithoutCountry'])) {
                 $ProductCountry = Country::where(array('CountryID' => $rate_tables['CountryID']))->first();
-                if (substr($rate_tables['PrefixWithoutCountry'], 0, 1) == "0") {
-                    $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], 1, strlen($rate_tables['PrefixWithoutCountry']));
+                $zeroPrefixStop = 0;
+                for ($x = 0; $x < strlen($rate_tables['PrefixWithoutCountry']) && $zeroPrefixStop == 0; $x++) {
+                    if (substr($rate_tables['PrefixWithoutCountry'], $x, 1) == "0") {
+                        $zeroPrefix++;
+                    }else {
+                        $zeroPrefixStop = 1;
+                    }
+                }
+
+                if ($zeroPrefix > 0) {
+                    $ProductCountryPrefix = $ProductCountry->Prefix . substr($rate_tables['PrefixWithoutCountry'], $zeroPrefix, strlen($rate_tables['PrefixWithoutCountry']));
                 } else {
-                    $ProductCountryPrefix = $ProductCountry->Prefix . empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry'];
+                    $ProductCountryPrefix = $ProductCountry->Prefix . (empty($rate_tables['PrefixWithoutCountry']) ? "" : $rate_tables['PrefixWithoutCountry']);
                 }
                 $rate_tables['Prefix'] = $ProductCountryPrefix;
             }
             $query = 'call prc_getRateTableVendor (' . $rate_tables['RateTableID'] .",'" .
                 $rate_tables['NoType'] . "','" . $rate_tables['City']. "','" . $rate_tables['Tariff']. "','" . $rate_tables['CountryID'] . "','" . '0' .
                 "','" . $rate_tables['Prefix'] . "'" . ')';
-           $results = DB::select($query);
+            $results = DB::select($query);
             Log::info("clitable_update " . $query);
             $VendorID = '';
             foreach($results as $result){
@@ -2786,7 +3027,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 
 
-            if($check->count() > 0 || $check1->count() > 0 || $check2->count() > 0){
+            if($check != false && $check->count() > 0 || $check1 != false && $check1->count() > 0 || $check2 != false && $check2->count() > 0){
                 $message = 'Selected Package already exists between package start date ' . $data['PackageStartDate'] . ' and  package end data ' . '.<br>';
                 return Response::json(array("status" => "error", "message" => $message));
             }
@@ -3171,9 +3412,28 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $Taxes = '';
         $CompanyID = $data['CompanyID'];
+        $CompanyID = getParentCompanyIdIfReseller($CompanyID);
         $Country = $data['Country'];
+        $CustomerAccount = $data['Customer'] == "true" ? 1 : 0;
+        $PartnerAccount =  $data['Partner'] == "true" ? 1 : 0;
         $RegisterDutchFoundation = 0;
         $DutchProvider = 0;
+        if($PartnerAccount == 1){
+            if($Country != "NETHERLANDS"){
+                return Response::json(array("status" => "success", "Taxes" => ""));
+            }
+        }else if($CustomerAccount == 1 && $data['PartnerID'] != ""){
+            $Reseller = Reseller::where('ResellerID',$data['PartnerID'])->first();
+            $AccountCountry = Account::where('AccountID',$Reseller->AccountID)->pluck('Country');
+            if($Country != $AccountCountry){
+                return Response::json(array("status" => "success", "Taxes" => ""));
+            }
+        }else{
+            return Response::json(array("status" => "success", "Taxes" => ""));
+        }    
+
+        
+    
         if(isset($data['RegisterDutchFoundation']) && $data['RegisterDutchFoundation']=='true'){
             $RegisterDutchFoundation=1;
         }
@@ -3198,4 +3458,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         return Response::json(array("status" => "success", "Taxes" => $Taxes));
     }
+
+    public function customerservices($id){
+
+        $accountService = CLIRateTable::selectRaw('GROUP_CONCAT(CLI) as numbers , tblAccountService.AccountServiceID , tblAccountService.ServiceOrderID')
+        ->leftjoin("tblAccountService","tblAccountService.AccountServiceID","=","tblCLIRateTable.AccountServiceID")
+        
+        
+        ->where('tblCLIRateTable.AccountID',$id)
+        ->groupBy('tblAccountService.AccountServiceID')
+        ->groupBy('tblAccountService.AccountID')
+        ->get();
+
+        return $accountService;
+        }
 }

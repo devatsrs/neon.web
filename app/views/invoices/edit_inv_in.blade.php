@@ -69,68 +69,8 @@
           <label for="field-1" class="col-sm-4 control-label">End Date</label>
           <div class="col-sm-8"> {{Form::text('EndDate',date('d-m-Y',strtotime($InvoiceDetailFirst->EndDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
           <div class="clearfix margin-bottom "></div>
-          <label for="field-1" class="col-sm-4 control-label">*Total Seconds</label>
-          <div class="col-sm-8"> {{Form::text('TotalMinutes',$InvoiceDetailFirst->TotalMinutes,array("class"=>"form-control"))}} </div>
         </div>
       </div>
-      <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Dispute Amount</label>
-            <div class="col-sm-2">
-              <input type="text" name="DisputeAmount" class="form-control" value="@if(!empty($Invoice->dispute->DisputeAmount)) {{$Invoice->dispute->DisputeAmount}} @endif"/>
-            </div>
-             <label class="col-sm-2 control-label" for="field-1">Reconcile</label>
-            <div class="col-sm-6">
-              <table class="reconcile_table table table-bordered datatable  hidden">
-                <thead>
-                <th></th>
-                  <th>Total</th>
-                  <th>Difference</th>
-                  <th>Difference %</th>
-                    </thead>
-                <tbody>
-                  <tr>
-                    <th>Amount</th>
-                    <td><span class="DisputeTotal"></span></td>
-                    <td><span class="DisputeDifference"></span></td>
-                    <td><span class="DisputeDifferencePer"></span></td>
-                  </tr>
-                  <tr>
-                    <th>Seconds</th>
-                    <td><span class="DisputeMinutes"></span></td>
-                    <td><span class="MinutesDifference"></span></td>
-                    <td><span class="MinutesDifferencePer"></span></td>
-                  </tr>
-                </tbody>
-              </table>
-              <button class="btn btn-primary reconcile btn-sm btn-icon icon-left" type="button"
-                                        data-loading-text="Loading..."> <i class="entypo-pencil"></i> Reconcile </button>
-              <button class="btn ignore btn-danger btn-sm btn-icon icon-left hidden" type="button"
-                                        data-loading-text="Loading..."> <i class="entypo-pencil"></i> Ignore </button>
-              <input type="hidden" name="DisputeID">
-              {{--
-              <input type="hidden" name="DisputeTotal">
-              --}}
-              {{--
-              <input type="hidden" name="DisputeDifference">
-              --}}
-              {{--
-              <input type="hidden" name="DisputeDifferencePer">
-              --}}
-              
-              {{--
-              <input type="hidden" name="DisputeMinutes">
-              --}}
-              {{--
-              <input type="hidden" name="MinutesDifference">
-              --}}
-              {{--
-              <input type="hidden" name="MinutesDifferencePer">
-              --}} </div>
-              
-            <div class="col-sm-1 download"> </div>
-            
-            
-          </div>
           <div class="clearfix"></div>
           <div class="form-group">
           <div class="col-sm-6">
@@ -152,11 +92,12 @@
                                     <th  width="1%"><button type="button" id="add-row" class="btn btn-primary btn-xs ">+</button></th>
                                     <th  width="14%">Item</th>
                                     <th width="15%">Description</th>
-                                    <th width="10%">Unit Price</th>
-                                    <th width="10%">Quantity</th>
-                                    <th width="10%" >Discount</th>
+                                    <th width="8%">Currency</th>
+                                    <th width="8%">Unit Price</th>
+                                    <th width="8%">Quantity</th>
+                                    <th width="8%" >Discount</th>
                                     <th class="hidden" width="10%" >Total Tax</th>
-                                    <th width="10%">Line Total</th>
+                                    <th width="8%">Line Total</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -167,6 +108,7 @@
                                             <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
                                             <td>{{Form::SelectControl('item_and_Subscription',0,['Type'=>$ProductRow->ProductType,'ID'=>$ProductRow->ProductID],0,'InvoiceDetail[ProductID][]')}}</td>
                                             <td>{{Form::textarea('InvoiceDetail[Description][]',$ProductRow->Description,array("class"=>"form-control autogrow invoice_estimate_textarea descriptions","rows"=>1))}}</td>
+                                            <td>{{Form::select('InvoiceDetail[CurrencyID][]', $currencies, $ProductRow->CurrencyID ,array("class"=>"select2 CurrencyID"))}}</td>
                                             <td class="text-center">{{Form::text('InvoiceDetail[Price][]', number_format($ProductRow->Price,$RoundChargesAmount),array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
                                             <td class="text-center">{{Form::text('InvoiceDetail[Qty][]',$ProductRow->Qty,array("class"=>"form-control Qty"))}}</td>
                                             <td class="text-center hidden">{{Form::text('InvoiceDetail[Discount][]',number_format($ProductRow->Discount,$RoundChargesAmount),array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>
@@ -319,7 +261,7 @@ var decimal_places = 2;
 var invoice_id = '';
 var invoice_tax_html = '<td><button title="Delete Tax" type="button" class="btn btn-danger btn-xs invoice_tax_remove ">X</button></td><td><div class="col-md-8">{{addslashes(Form::SelectExt(["name"=>"InvoiceTaxes[field][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small InvoiceTaxesFld"]))}}</div><div class="col-md-4">{{Form::text("InvoiceTaxes[value][]","",array("class"=>"form-control InvoiceTaxesValue","readonly"=>"readonly"))}}</div></td>';
 
-var add_row_html = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{addslashes(Form::SelectControl('item_and_Subscription',0,'',0,'InvoiceDetail[ProductID][]',0))}}</td><td>{{Form::textarea('InvoiceDetail[Description][]','',array("class"=>"form-control invoice_estimate_textarea autogrow descriptions","rows"=>1))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty"))}}</td>'
+var add_row_html = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{addslashes(Form::SelectControl('item_and_Subscription',0,'',0,'InvoiceDetail[ProductID][]',0))}}</td><td>{{Form::textarea('InvoiceDetail[Description][]','',array("class"=>"form-control invoice_estimate_textarea autogrow descriptions","rows"=>1))}}</td><td>{{Form::select('InvoiceDetail[CurrencyID][]', $currencies, '' ,array("class"=>"select22 CurrencyID"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty"))}}</td>'
 add_row_html += '<td class="text-center hidden">{{Form::text('InvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
 add_row_html += '<td class="text-center">{{Form::text('InvoiceDetail[DiscountAmount][]',0,array("class"=>"form-control DiscountAmount","data-min"=>"1", "data-mask"=>"fdecimal"))}} {{Form::Select("InvoiceDetail[DiscountType][]",array("Percentage"=>"%","Flat"=>"Flat"),'%',array("class"=>"select22 small DiscountType"))}}</td>';
 /*add_row_html += '<td>{{addslashes(Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID"]))}}</td>';

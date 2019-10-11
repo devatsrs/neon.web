@@ -184,4 +184,43 @@ class TaxRatesController extends \BaseController {
         }
     }
 
+    public function export(){
+        
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $taxrates = TaxRate::select(DB::Raw("Title,Amount as 'VAT %',Country,DutchProvider as 'Dutch Provider',DutchFoundation as 'Dutch Foundation'"))->where("CompanyID", $CompanyID);
+        if(isset($data['Title']) and !empty($data['Title']))
+        {
+             $taxrates = $taxrates->where('Title', 'like', '%'.$data['Title'].'%');
+        }
+        if(isset($data['TaxType'])  and !empty($data['TaxType']))
+        {
+             $taxrates = $taxrates->where('TaxType',  $data['TaxType']);
+        }
+        if(isset($data['Country']) and !empty($data['Country']))
+        {
+            //Log::info('country '.$data['Country']);
+             $taxrates = $taxrates->where('Country', $data['Country']);
+        }
+        if(isset($data['FlatStatus']) and $data['FlatStatus']!=0)
+        {
+             $taxrates = $taxrates->where('FlatStatus', 1);
+        }
+        if(isset($data['ftDutchProvider']) and $data['ftDutchProvider']!=0)
+        {
+             $taxrates = $taxrates->where('DutchProvider', 1);
+        }
+        if(isset($data['ftDutchFoundation']) and $data['ftDutchFoundation']!=0)
+        {
+             $taxrates = $taxrates->where('DutchFoundation', 1);
+        }
+        $taxrates = $taxrates->get();
+		$ExcelFile = json_decode(json_encode($taxrates),true);
+		if(isset($data['Export']) && $data['Export'] == 1){
+			$file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Taxrates.xls';
+			$NeonExcel = new NeonExcelIO($file_path);
+			$NeonExcel->download_excel($ExcelFile);
+		}
+    }
+
 }

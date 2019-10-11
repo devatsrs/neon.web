@@ -131,13 +131,6 @@
     <br>
     <table class="table table-bordered datatable" id="table">
         <thead>
-        {{--<tr>
-            <th><h4><strong>PRS IT 0900 caller rate:</strong></h4></th>
-            <th>$</th>
-            <th></th>
-            <th></th>
-        </tr>--}}
-
         <tr>
             <th id="dt_AccessType">Access Type</th>
             <th id="dt_Country">Country</th>
@@ -216,7 +209,7 @@
             @endif
 
             $('.didbutton').click(function(){
-                //  alert("Access Called");
+                
                 var packbtnval = $('.didbutton').html();
                 if(packbtnval=='Package'){
                     var accbtnval=$('.didbutton').text();
@@ -232,7 +225,7 @@
                     $('#OriginationPercentage').hide();
                     $('.didbutton').html(packbtnval+' <span class="caret"></span>');
                     //  $('.packageoption').html(accbtnval);
-                }else {
+                }else if(packbtnval == 'Access') {
                     var accbtnval = $('.didbutton').text();
                     var packbtnval = $('.packageoption').text();
                     $('#lcr_type').val('N');
@@ -372,81 +365,11 @@
                     },10);
                     aoColumns = [
                         { "bSortable": false}, //1 Access Type
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[1] != null) {
-                                    var array = full[1].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[1];
-                            }
-                        }, //2 Country
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[2] != null) {
-                                    var array = full[2].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[2];
-                            }
-                        }, //3 Prefix
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[3] != null) {
-                                    var array = full[3].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[3];
-                            }
-                        }, //4 City
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[4] != null) {
-                                    var array = full[4].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[4];
-                            }
-                        }, //5 Tariff
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[5] != null) {
-                                    var array = full[5].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[5];
-                            }
-                        }, //6 Position 1
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //2 Country
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //3 Prefix
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //4 City
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //5 Tariff
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //6 Position 1
                         { "bSortable": false,"bVisible" : false}, //7 Position 2
                         { "bSortable": false,"bVisible" : false}, //8 Position 3
                         { "bSortable": false,"bVisible" : false}, //9 Position 4
@@ -488,156 +411,16 @@
                     },10);
                     aoColumns = [
                         { "bSortable": false}, //1 Access Type
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[1] != null) {
-                                    var array = full[1].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[1];
-                            }
-                        }, //2 Country
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[2] != null) {
-                                    var array = full[2].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[2];
-                            }
-                        }, //3 Prefix
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[3] != null) {
-                                    var array = full[3].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[3];
-                            }
-                        }, //4 City
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[4] != null) {
-                                    var array = full[4].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[4];
-                            }
-                        }, //5 Tariff
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[5] != null) {
-                                    var array = full[5].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[5];
-                            }
-                        }, //6 Position 1
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[6] != null) {
-                                    var array = full[6].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[6];
-                            }
-                        }, //7 Position 2
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[7] != null) {
-                                    var array = full[7].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[7];
-                            }
-                        }, //8 Position 3
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[8] != null) {
-                                    var array = full[8].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[8];
-                            }
-                        }, //9 Position 4
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[9] != null) {
-                                    var array = full[9].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[9];
-                            }
-                        }, //10 Position 5
-                        { "bSortable": false,
-                            mRender: function (id, type, full) {
-                                if (full[10] != null) {
-                                    var array = full[10].split(';');
-                                    var html = "<table>";
-                                    html += "<tr><td>" + array[0] + "</td></tr>";
-                                    html += "<tr><td>" + array[1] + "</td></tr>";
-                                    html += "<tr><td>" + array[2] + "</td></tr>";
-                                    html += "</table>";
-
-                                    return html;
-                                }
-                                return full[10];
-                            }
-                        }, //11 Position 6
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //2 Country
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //3 Prefix
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //4 City
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //5 Tariff
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //6 Position 1
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //7 Position 2
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //8 Position 3
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //9 Position 4
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //10 Position 5
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //11 Position 6
                         /* { "bVisible": false},  //12 Position 7
                          { "bVisible": false},  //13 Position 8
                          { "bVisible": false},  //14 Position 9
@@ -684,11 +467,11 @@
                         { "bSortable": false}, //3 Prefix
                         { "bSortable": false}, //4 City
                         { "bSortable": false}, //5 Tariff
-                        { "bSortable": false}, //6 Position 1
-                        { "bSortable": false}, //7 Position 2
-                        { "bSortable": false}, //8 Position 3
-                        { "bSortable": false}, //9 Position 4
-                        { "bSortable": false}, //10 Position 5
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //6 Position 1
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //7 Position 2
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //8 Position 3
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //9 Position 4
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //10 Position 5
                         /* { "bSortable": false}, //11 Position 6
                          { "bVisible": false},  //12 Position 7
                          { "bVisible": false},  //13 Position 8
@@ -731,16 +514,16 @@
                         { "bSortable": false}, //3 Prefix
                         { "bSortable": false}, //4 City
                         { "bSortable": false}, //5 Tariff
-                        { "bSortable": false}, //6 Position 1
-                        { "bSortable": false}, //7 Position 2
-                        { "bSortable": false}, //8 Position 3
-                        { "bSortable": false}, //9 Position 4
-                        { "bSortable": false}, //10 Position 5
-                        { "bSortable": false}, //11 Position 6
-                        { "bSortable": false},  //12 Position 7
-                        { "bSortable": false},  //13 Position 8
-                        { "bSortable": false},  //14 Position 9
-                        { "bSortable": false},  //15 Company 10
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //6 Position 1
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //7 Position 2
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //8 Position 3
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //9 Position 4
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //10 Position 5
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}}, //11 Position 6
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}},  //12 Position 7
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}},  //13 Position 8
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}},  //14 Position 9
+                        { "bSortable": false,mRender: function (id, type, full) {return split_data(id);}},  //15 Company 10
 
 
 
@@ -949,9 +732,27 @@
             $(".pagination a").click(function(ev) {
                 replaceCheckboxes();
             });
+
+            function split_data(col_data){
+
+                var html = '';
+                if (typeof col_data != 'undefined' && col_data != null && col_data != 'null') {
+
+                    var array = col_data.split(",");
+                    for (i=0;i<array.length;i++){
+                        var hr = (array.length-1) != i ? '<hr class="hrpadding">' : '';
+                        html += array[i] + hr;
+                    }
+                }
+                return html;
+            }
         });
     </script>
     <style>
+        .hrpadding{
+            margin-top: 4px;
+            margin-bottom: 2px;
+        }
         .dataTables_filter label{
             display:none !important;
         }

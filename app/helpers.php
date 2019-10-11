@@ -202,7 +202,7 @@ function slapolicies_dropbox($id=0,$data=array()){
 }
 
 function rate_tables_dropbox($id=0,$data=array()){
-    $all_getRateTables = RateTable::getRateTables();
+    $all_getRateTables = RateTable::getRateTables($data);
     return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
@@ -262,6 +262,7 @@ function sendMail($view,$data,$ViewType=1){
 	}
 	else{ 
 		$config = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $companyID)->first();
+        if($config != false) $config->SMTPPassword = Crypt::decrypt($config->SMTPPassword);
 		$status = 	PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID,$body);
 	}
 	return $status;
@@ -1570,6 +1571,11 @@ function terminate_process($pid){
 function run_process($command) {
     $process = new Process($command);
     return $status = $process->status();
+}
+
+function run_artisan_command($CompanyID, $Command, $extr_perams = "") {
+    $command = CompanyConfiguration::get("PHP_EXE_PATH"). " " .CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"). " " . $Command . " " . $CompanyID . " " . $extr_perams ;
+    return run_process($command);
 }
 
 function Get_Api_file_extentsions($ajax=false){

@@ -69,29 +69,36 @@
                         <div class="form-group" id="group-preference-div">
 
 
-                            <label for="field-1" class="col-sm-2 control-label" id="group-by-lbl">Group By</label>
-                            <div class="col-sm-4" id="group-by-select-div">
-                                {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), 'Code' , array("class"=>"select2")) }}
+                            <label for="field-1" class="col-sm-2 control-label" id="group-by-lbl" style="display: none;">Group By</label>
+                            <div class="col-sm-4" id="group-by-select-div" style="display: none;">
+                                {{ Form::select('GroupBy', array('Code'=>'Code'), 'Code' , array("class"=>"select2")) }}
+                                {{--{{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), 'Code' , array("class"=>"select2")) }}--}}
                             </div>
                             <div class="panel-options">
-                                <div class="col-sm-3">
-                                    <label for="field-1" class="control-label">Use Preference</label>
-                                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON then vendors will be ordered based on Preference instead of rate." data-original-title="Use Preference">?</span>
-
-                                    <div class="make-switch switch-small">
-                                        {{Form::checkbox('UsePreference', 1, '');}}
+                                <div class="col-sm-6">
+                                    <label for="field-1" class="col-sm-4 control-label">
+                                        Use Preference
+                                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON then vendors will be ordered based on Preference instead of rate." data-original-title="Use Preference">?</span>
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <div class="make-switch switch-small">
+                                            {{Form::checkbox('UsePreference', 1, '');}}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div id="rate-aveg-div">
-                                <div class="col-sm-3">
+                                <div class="col-sm-6">
                                     <div class="panel-options">
-                                        <label for="field-1" class="control-label">Use Average</label>
-                                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="IF ON system will take the average of all available vendor rates and use that." data-original-title="Use Average">?</span>
-
-                                        <div class="make-switch switch-small">
-                                            {{Form::checkbox('UseAverage', 1,  '' );}}
+                                        <label for="field-1" class="col-sm-4 control-label">
+                                            Use Average
+                                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="IF ON system will take the average of all available vendor rates and use that." data-original-title="Use Average">?</span>
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <div class="make-switch switch-small">
+                                                {{Form::checkbox('UseAverage', 1,  '' );}}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -135,23 +142,23 @@
 
                             </div>
 
-                            <label for="field-1" class="col-sm-2 control-label">Time Of Day*</label>
+                            {{-- <label for="field-1" class="col-sm-2 control-label">Time Of Day*</label>
                             <div class="col-sm-4">
                                 {{ Form::select('Timezones[]', $Timezones, array_keys($Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
-                            </div>
+                            </div> --}}
                         </div>
-                        <div class="form-group NonDID-Div">
-                            <label class="col-sm-3 control-label text-center">Merge Rate By Time Of Day</label>
+                        {{-- <div class="form-group NonDID-Div">
+                            {{-- <label class="col-sm-3 control-label text-center">Merge Rate By Time Of Day</label>
                             <div class="col-sm-4">
                                 <div class="make-switch switch-small">
                                     {{Form::checkbox('IsMerge', 1,  null, array('id' => 'IsMerge') );}}
                                 </div>
-                            </div>
-                            <label class="col-sm-2 control-label IsMerge">Take Price</label>
+                            </div> --}}
+                            {{-- <label class="col-sm-2 control-label IsMerge">Take Price</label>
                             <div class="col-sm-4 IsMerge">
                                 {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), null , array("class"=>"select2")) }}
-                            </div>
-                        </div>
+                            </div> --}}
+                        {{-- </div> --}}
                         <div class="form-group">
                             <label class="col-sm-2 control-label">
                                 Applied To
@@ -283,6 +290,10 @@
                         </div>
 
                         <div class="panel-options">
+                            <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
+                                <i></i>
+                                +
+                            </button>
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
@@ -311,12 +322,6 @@
                                     <th style="width:250px;" class="DID-Div">To Tariff</th>
                                     <th style="width:200px;" class="DID-Div">To Origination</th>
                                     <th style="width:200px;">To Time of Day</th>
-                                    <th style="width:40px !important;">
-                                        <button type="button" onclick="createCloneRow('servicetableSubBox','getIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
-                                            <i></i>
-                                            +
-                                        </button>
-                                    </th>
                                 </tr>
                                 </thead>
                                 <tbody id="tbody">
@@ -388,6 +393,10 @@
                             Calculated Rate
                         </div>
                         <div class="panel-options">
+                            <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
+                                <i></i>
+                                +
+                            </button>
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
@@ -409,12 +418,77 @@
                                     <th style="width:200px !important;">Time of Day</th>
                                     <th style="width:200px !important;">Calculated Rate</th>
                                     <th style="width:200px !important;">Change Rate To</th>
-                                    <th style="width:40px !important;">
-                                        <button type="button" onclick="createCloneRow('ratetableSubBox','getRateIDs')" id="rate-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
-                                            <i></i>
-                                            +
-                                        </button>
-                                    </th>
+                                   
+                                </tr>
+                                </thead>
+                                <tbody id="ratetbody">
+                                {{--<tr id="selectedRateRow-1">--}}
+                                    {{--<td>--}}
+                                        {{--{{ Form::select('RateComponent-1[]', RateGenerator::$Component, '', array("class"=>"select2 selected-Components" ,'multiple', "id"=>"RateComponent-1")) }}--}}
+                                    {{--</td>--}}
+                                    {{--<td>--}}
+                                        {{--<input type="text" class="form-control" name="RateOrigination-1"/>--}}
+                                    {{--</td>--}}
+                                    {{--<td>--}}
+                                        {{--{{ Form::select('RateTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}--}}
+                                    {{--</td>--}}
+                                    {{--<td>--}}
+                                        {{--{{ Form::select('Country1-1', $country, '', array("class"=>"select2")) }}--}}
+                                    {{--</td>--}}
+                                    {{--<td>--}}
+                                        {{--{{ Form::select('AccessType1-1', $AccessType, '', array("class"=>"select2")) }}--}}
+                                    {{--</td>--}}
+                                    {{--<td>--}}
+                                        {{--{{ Form::select('Prefix1-1', $Prefix, '', array("class"=>"select2")) }}--}}
+                                    {{--</td>--}}
+                                    {{--<td>--}}
+                                        {{--{{ Form::select('City_Tariff1-1', $CityTariff, null, array("class"=>"select2")) }}--}}
+                                    {{--</td>--}}
+                                    {{--<td>--}}
+                                        {{--<input type="number" min="0" class="form-control" name="RateLessThen-1"/>--}}
+                                    {{--</td>--}}
+                                    {{--<td>--}}
+                                        {{--<input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>--}}
+                                    {{--</td>--}}
+                                    {{--<td>--}}
+                                        {{--<a onclick="deleteRow(this.id,'ratetableSubBox','getRateIDs')" id="rateCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >--}}
+                                            {{--<i></i>--}}
+                                            {{-----}}
+                                        {{--</a>--}}
+                                    {{--</td>--}}
+                                {{--</tr>--}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-primary" data-collapsed="0" id="Vendors">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            Vendors &nbsp;<span class="label label-info popover-primary vendor-tooltip" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="" data-original-title="">?</span>
+                        </div>
+                        <div class="panel-options">
+                            <button type="button" onclick="createCloneRow('ratetableVendorBox','getRateVendorIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
+                                <i></i>
+                                +
+                            </button>
+                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="" style=" overflow: auto;">
+                            <br/>
+                            <input type="hidden" id="getRateVendorIDs" name="getRateVendorIDs" value=""/>
+                            <table id="ratetableVendorBox" class="table table-bordered datatable">
+                                <thead>
+                                <tr>
+                                    <th style="width:250px;" class="Package-Div">Package</th>
+                                    <th style="width:250px;">Vendors</th>
+                                    <th style="width:250px !important;" class="DID-Div">Country</th>
+                                    <th style="width:250px !important;" class="DID-Div">Access Type</th>
+                                    <th style="width:250px !important;" class="DID-Div">Prefix</th>
+                                    <th style="width:250px !important;" class="DID-Div">City</th>
+                                    <th style="width:250px !important;" class="DID-Div">Tariff</th>
                                 </tr>
                                 </thead>
                                 <tbody id="ratetbody">
@@ -519,7 +593,7 @@
                 <td>
                     {{ Form::select('ToTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                 </td>
-                <td>
+                <td class="w-del">
 
                     <a onclick="deleteRow(this.id, 'servicetableSubBox','getIDs')" id="merge-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
                         <i></i>
@@ -562,8 +636,40 @@
                 <td>
                     <input type="number" min="0" class="form-control" name="ChangeRateTo-1"/>
                 </td>
-                <td>
+                <td class="w-del">
                     <a onclick="deleteRow(this.id,'ratetableSubBox','getRateIDs')" id="rateCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
+                        <i></i>
+                        -
+                    </a>
+                </td>
+            </tr>
+        </table>
+        <table id="table-3">
+            <tr id="selectedRateVendorRow-0">
+                <td class="Package-Div">
+                    {{ Form::select('Package2-1', $Package, '', array("class"=>"select2")) }}
+                </td>
+                <td>
+                    {{ Form::select('Vendors2-1[]', $Vendors, '', array("class"=>"select2" , "multiple")) }}
+                </td>
+                
+                <td class="DID-Div">
+                    {{ Form::select('Country2-1', $country, '', array("class"=>"select2")) }}
+                </td>
+                <td class="DID-Div">
+                    {{ Form::select('AccessType2-1', $AccessType, '', array("class"=>"select2")) }}
+                </td>
+                <td class="DID-Div">
+                    {{ Form::select('Prefix2-1', $Prefix, '', array("class"=>"select2")) }}
+                </td>
+                <td class="DID-Div">
+                    {{ Form::select('City2-1', $City, null, array("class"=>"select2")) }}
+                </td>
+                <td class="DID-Div">
+                    {{ Form::select('Tariff2-1', $Tariff, null, array("class"=>"select2")) }}
+                </td>
+                <td class="w-del">
+                    <a onclick="deleteRow(this.id,'ratetableVendorBox','getRateVendorIDs')" id="rateVendorCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
                         <i></i>
                         -
                     </a>
@@ -584,6 +690,10 @@
             width:1900px;
             overflow-x: auto;
         }
+        #ratetableVendorBox{
+            width:1600px;
+            overflow-x: auto;
+        }
     </style>
     <script type="text/javascript">
 
@@ -602,7 +712,14 @@
             $('#'+idInp).val("");
             $('#' + tblID + ' tbody tr').each(function() {
 
-                var row = tblID == "servicetableSubBox" ? "selectedRow-0" : "selectedRateRow-0";
+                var row = "";
+                if(tblID == "servicetableSubBox"){
+                    row = "selectedRow";
+                }else if(tblID == "ratetableVendorBox"){
+                    row = "selectedRateVendorRow";
+                }else{
+                    row = "selectedRateRow";
+                }
                 var id = 0;
                 if(this.id != row)
                     id = getNumber(this.id);
@@ -651,6 +768,7 @@
             $(window).load(function() {
                 getIds("servicetableSubBox", "getIDs");
                 getIds("ratetableSubBox", "getRateIDs");
+                getIds("ratetableVendorBox", "getRateVendorIDs");
             });
 
             $('#servicetableSubBox tbody tr').each(function() {
@@ -723,6 +841,7 @@
             $("#Merge-components").hide();
             $("#DIDCategoryDiv").hide();
             $("#hide-components").hide();
+            $("#Vendors").hide();
             $(".DID-Div").hide();
             $(".NonDID-Div").show();$(".Package-Div").hide();
         }else if(TypeValue == 3){
@@ -735,6 +854,7 @@
             $("#group-preference-div").hide();
             $("#DIDCategoryDiv").hide();
             $("#Merge-components").show();
+            $("#Vendors").show();
 
         } else {
             $(".DID-Div").hide();
@@ -751,13 +871,20 @@
                 $("#rate-aveg-div").hide();
                 $("#group-preference-div").hide();
                 $("#Merge-components").show();
+                $("#Vendors").show();
                 $("#DIDCategoryDiv").show();
                 $("#hide-components").show();
                 $(".DID-Div").show();
                 $(".NonDID-Div").hide();$(".Package-Div").hide();
                 $('#servicetableSubBox').css('width','3200px');
+                $('#ratetableVendorBox').css('width','1600px');
+                $('.w-del').css('width','1%');
+                $('#getRateVendorIDs').val('');
                 $('#getIDs').val('');
                 $('#getRateIDs').val('');
+                $("#Vendors tbody").empty();
+                $('.vendor-tooltip').attr('data-content','Keep ALL Product option at the bottom. If any condition added for any specific Product then also add ALL option for remaining Product.');
+                $('.vendor-tooltip').attr('data-original-title','Product');
                 $('#servicetableSubBox tbody').empty();
                 $('#ratetableSubBox tbody').empty();
                 $('.testValues').html('{{ Form::select("Component-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID Components1" ,"multiple", "id"=>"Component-1")) }}');
@@ -769,10 +896,14 @@
                 $("#rate-aveg-div").show();
                 $("#group-preference-div").show();
                 $("#Merge-components").hide();
+                $("#Vendors").hide();
                 $("#hide-components").hide();
                 $("#DIDCategoryDiv").hide();
                 $(".DID-Div").hide();
                 $(".NonDID-Div").show();$(".Package-Div").hide();
+                $('#getRateVendorIDs').val('');
+                $('#getIDs').val('');
+                $('#getRateIDs').val('');
 
             }else if(TypeValue == 3){
 
@@ -785,12 +916,19 @@
                 $("#group-preference-div").hide();
                 $("#DIDCategoryDiv").hide();
                 $("#Merge-components").show();
+                $("#Vendors").show();
 //              $('#servicetableSubBox thead th').css('width','50px');
                 $('#servicetableSubBox').css('width','1225px');
+                $('#ratetableVendorBox').css('width','1030px');
+                $('.w-del').css('width','3%');
+                $("#Vendors tbody").empty();
                 $('#servicetableSubBox tbody').empty();
                 $('#ratetableSubBox tbody').empty();
+                $('#getRateVendorIDs').val('');
                 $('#getIDs').val('');
                 $('#getRateIDs').val('');
+                $('.vendor-tooltip').attr('data-content','Keep ALL package option at the bottom. If any condition added for any specific Package then also add ALL option for remaining packages. ')
+                $('.vendor-tooltip').attr('data-original-title','Package');
                 $('.testValues').html('{{ Form::select("Component-[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('.testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" , "id"=>"MergeTo-1")) }}');
@@ -900,17 +1038,27 @@
             var $item = lastrow.attr('id');
             var numb = lastrow.length > 0 ? getNumber($item) : 0;
             numb++;
-
+            
             if(tblID == 'servicetableSubBox'){
                 $("#table-1 tr").clone().appendTo('#' + tblID + ' tbody');
                 $("#table-1 tr").attr('id', 'selectedRow-'+numb);
+            }else if(tblID == 'ratetableVendorBox'){
+                $("#table-3 tr").clone().appendTo('#' + tblID + ' tbody');
+                $("#table-3 tr").attr('id', 'selectedRateVendorRow-'+numb);
             }else{
                 $("#table-2 tr").clone().appendTo('#' + tblID + ' tbody');
             }
+           
 
+            var row = "";
 
-
-            var row = tblID == "servicetableSubBox" ? "selectedRow" : "selectedRateRow";
+            if(tblID == "servicetableSubBox"){
+                 row = "selectedRow";
+            }else if(tblID == "ratetableVendorBox"){
+                 row = "selectedRateVendorRow";
+            }else{
+                row = "selectedRateRow";
+            }
 
             $('#' + tblID + ' tr:last').attr('id', row + '-' + numb);
             if (tblID == "servicetableSubBox") {
@@ -933,6 +1081,14 @@
                 $('#' + tblID + ' tr:last').children('td:eq(16)').children('input').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(17)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
 
+            }else if (tblID == "ratetableVendorBox") { 
+                $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Package2-' + numb).attr('id', 'Package2-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'Vendor2-' + numb + '[]').attr('id', 'Vendor2-' + numb ).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'Country2-' + numb).attr('id', 'Country2-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'AccessType2-' + numb).attr('id', 'AccessType2-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'Prefix2-' + numb).attr('id', 'Prefix2-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'City2-' + numb).attr('id', 'City_Tariff2-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'Tariff2-' + numb).attr('id', 'Tariff2-' + numb).select2();
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Package1-' + numb).attr('id', 'Package1-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(1)').removeAttr('class').children('select').attr('name', 'RateComponent-' + numb + '[]').attr('id', 'RateComponent-' + numb).select2().select2('val', '');
@@ -965,6 +1121,8 @@
              }*/
             if (tblID == "servicetableSubBox") {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(18)').children('a').attr('id', "merge-" + numb);
+            }else if (tblID == "ratetableVendorBox") {
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').children('a').attr('id', "rateVendorCal-" + numb);
             } else {
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(11)').children('a').attr('id', "rateCal-" + numb);
             }
@@ -991,6 +1149,10 @@
                 $('#' + tblID + ' tr:last').children('td:eq(17)').find('div:first').remove();
 
                 $('#' + tblID + ' tr:last').closest('tr').children('td:eq(18)').find('a').removeClass('hidden');
+            }else if(tblID == "ratetableVendorBox") {
+                $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(7)').find('a').removeClass('hidden');
             } else {
                 $('#' + tblID + ' tr:last').children('td:eq(5)').find('div:first').remove();
                 $('#' + tblID + ' tr:last').children('td:eq(6)').find('div:first').remove();
@@ -1004,6 +1166,7 @@
         }
         function deleteRow(id, tblID, idInp)
         {
+            
             if(confirm("Are You Sure?")) {
                 var selectedSubscription = $('#'+idInp).val();
                 var removeValue = id + ",";

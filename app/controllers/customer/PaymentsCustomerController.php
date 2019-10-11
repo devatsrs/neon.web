@@ -39,15 +39,16 @@ class PaymentsCustomerController extends \BaseController {
         $data['recall_on_off'] = 0;
 
         $account                     = Account::find($data['AccountID']);
+        $Reseller                    = Reseller::where('AccountID',$data['AccountID'])->first();
         $CurrencyId                  = $account->CurrencyId;
-        $accountCurrencyID 		     = empty($CurrencyId)?'0':$CurrencyId;
-
+        $accountCurrencyID 		     = empty($CurrencyId)?'0':$CurrencyId;     
+        $ResellerID                  = $Reseller != false ? $Reseller->ResellerID : 0; 
         // AccountManager Condition
         $userID = 0;
 
         $columns = array('InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'','".$data['Status']."',".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1,".$data['p_paymentstart'].",".$data['p_paymentend']."";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].", ".$ResellerID." ,".$data['InvoiceNo'].",'','".$data['Status']."',".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$accountCurrencyID.",50 ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',2,'.$userID.',"")');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -302,8 +303,10 @@ class PaymentsCustomerController extends \BaseController {
         $data['recall_on_off'] = 0;
 
         $account                     = Account::find($data['AccountID']);
+        $Reseller                    = Reseller::where('AccountID',$data['AccountID'])->first();
         $CurrencyId                  = $account->CurrencyId;
         $accountCurrencyID 		     = empty($CurrencyId)?'0':$CurrencyId;
+        $ResellerID                  = $Reseller != false ? $Reseller->ResellerID : 0;
 
         $columns = array('InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
         $sort_column = $columns[$data['iSortCol_0']];
@@ -311,7 +314,7 @@ class PaymentsCustomerController extends \BaseController {
         //AccountManager Condition
         $userID = 0;
 
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'','".$data['Status']."',".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1,".$data['p_paymentstart'].",".$data['p_paymentend'].",0,".$userID.",'')";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].", ". $ResellerID .",".$data['InvoiceNo'].",'','".$data['Status']."',".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1,".$data['p_paymentstart'].",".$data['p_paymentend'].",0,".$userID.",'')";
 
         $result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
         $result2  = $result['data']['Total_grand_field'][0]->total_grand;

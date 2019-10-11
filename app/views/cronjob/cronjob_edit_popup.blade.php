@@ -1,6 +1,14 @@
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
 
+    $("#nodes").on("select2-selecting", function (evt) {
+        var element = evt.object.element;
+        var $element = $(element);
+        $element.detach();
+        $(this).append($element);
+        $(this).trigger("change");
+    });
+
         $('#add-new-config').click(function(ev){
         ev.preventDefault();
         $('#add-new-config-form').trigger("reset");
@@ -9,6 +17,7 @@
         //$("#add-new-config-form [name='Setting[JobTime]']").val('');
         $("#add-new-config-form [name='Setting[JobTime]']").val('').trigger("change");
         $("#add-new-config-form [name='Setting[JobDay][]']").val('').trigger("change");
+        $("#add-new-config-form [name='Setting[Nodes][]']").val('').trigger("change");
         $("#CronJobCommandID").trigger('change');
         $("#CronJobCommandID").prop("disabled", false);
         $('#add-new-modal-config h4').html('Add New Cron Job');
@@ -56,6 +65,11 @@
             if(json !== null && typeof  json['JobStartDay'] != 'undefined'){
                 $("#add-new-config-form [name='Setting[JobStartDay]']").val(json['JobStartDay']).trigger("change");
             }
+            if(json !== null && typeof  json['Nodes'] != 'undefined'){
+                $("#add-new-config-form [name='Setting[Nodes][]']").val(json['Nodes']).trigger("change");
+            }else{
+                $("#add-new-config-form [name='Setting[Nodes][]']").val('').trigger("change");
+            }
 
         }
         $("#CronJobCommandID").val(prevrow.find("input[name='CronJobCommandID']").val()).trigger("change");
@@ -76,6 +90,8 @@
         }
 
     });
+
+
     $('#add-new-config-form').submit(function(e){
         e.preventDefault();
         var CronJobID = $("#add-new-config-form [name='CronJobID']").val()
@@ -186,9 +202,9 @@
                 starttime.hide();
                 starttime.val('');
             }else if(jobtype == 'SECONDS'){
-                options.push(new Option("10 Second", 10, true, true));
-                options.push(new Option("20 Second", 20, true, true));
-                options.push(new Option("30 Second", 30, true, true));
+                for(var i=1;i<60;i++){
+                    options.push(new Option(i+" Second", i, true, true));
+                }
                 starttime.hide();
                 starttime.val('');
             }else if(jobtype == 'DAILY'){
@@ -282,6 +298,14 @@
                             <div class="form-group">
                                 <label class="control-label">Cron Type</label>
                                 {{ Form::select('CronJobCommandID', $commands, '', array("class"=>"select2",'id'=>'CronJobCommandID')) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="control-label">Nodes</label>
+                                {{ Form::select('Setting[Nodes][]', $Nodes, '', array("class"=>"select2",'id'=>'nodes','multiple',"data-placeholder"=>"Select Nodes")) }}
                             </div>
                         </div>
                     </div>

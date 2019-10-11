@@ -15,24 +15,27 @@ class AccountServiceController extends \BaseController {
         $ServiceName = Service::getServiceNameByID($ServiceID);
         $decimal_places = get_round_decimal_places($id);
         $products = Product::getProductDropdownList($CompanyID);
-        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
+        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0, getParentCompanyIdIfReseller($CompanyID));
         $rate_table = RateTable::getRateTableList([
             'types' => [RateGenerator::DID],
             'NotVendor' => true,
+            'CompanyID' => $AccountCompanyId
         ]);
         $termination_rate_table = RateTable::getRateTableList([
             'types' => [RateGenerator::VoiceCall],
             'NotVendor' => true,
+            'CompanyID' => $AccountCompanyId
         ]);
         $package_rate_table = RateTable::getRateTableList([
             'types' => [RateGenerator::Package],
             'NotVendor' => true,
+            'CompanyID' => $AccountCompanyId
         ]);
         //$DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
-        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::VOICECALL_ID);
+        $DiscountPlanVOICECALL = DiscountPlan::getDropdownIDListForRateType(RateType::VOICECALL_ID);
         $DiscountPlan = $DiscountPlanVOICECALL;
-        $DiscountPlanDID = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::DID_ID);
-        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForType($CompanyID,(int)$account->CurrencyId,RateType::PACKAGE_ID);
+        $DiscountPlanDID = DiscountPlan::getDropdownIDListForRateType(RateType::DID_ID);
+        $DiscountPlanPACKAGE = DiscountPlan::getDropdownIDListForRateType(RateType::PACKAGE_ID);
         $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceID)->first();
         $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID',$AccountServiceID)->first();
 
@@ -68,7 +71,7 @@ class AccountServiceController extends \BaseController {
         //ServiceOrderID = $AccountService->ServiceOrderID;
 
         //As per new question call the routing profile model for fetch the routing profile list.
-        $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
+        $routingprofile = RoutingProfiles::getRoutingProfile(getParentCompanyIdIfReseller($CompanyID));
 
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where('AccountID',$id)->where('AccountServiceID',$AccountServiceID)->first();
         //----------------------------------------------------------------------
@@ -82,7 +85,7 @@ class AccountServiceController extends \BaseController {
         $AffiliateAccount = Account::getAffiliateAccount();
         $AppiedTo=Account::getAccountTypeByAccountID($id);
         $RateTable=RateTable::getPackageTariffDropDownList($CompanyID,$PackageType,$AppiedTo);
-
+        $frequency = array('' => 'Select') + AccountSubscription::$frequency;
         $PackageId="";
         $RateTableID="";
         $allservices = Service::where('Status', 1)->get();
@@ -93,18 +96,20 @@ class AccountServiceController extends \BaseController {
             $RateTableID=$AccountServicePackage->RateTableID;
         }
 
-        $AccessType         = ServiceTemplate::getAccessTypeDD($AccountCompanyId);
-        $City               = ServiceTemplate::getCityDD($AccountCompanyId);
-        $Tariff             =ServiceTemplate::getTariffDD($AccountCompanyId);
-        $Prefix             = ServiceTemplate::getPrefixDD($AccountCompanyId);
+        $ParentCompanyID    = getParentCompanyIdIfReseller($AccountCompanyId);
+        $AccessType         = ServiceTemplate::getAccessTypeDD($ParentCompanyID);
+        $City               = ServiceTemplate::getCityDD($ParentCompanyID);
+        $Tariff             = ServiceTemplate::getTariffDD($ParentCompanyID);
+        $Prefix             = ServiceTemplate::getPrefixDD($ParentCompanyID);
 
         $AccessType = array('' => "Select") + $AccessType;
         $Prefix = array('' => "Select") + $Prefix;
         $City = array('' => "Select") + $City;
         $Tariff = array('' => "Select") + $Tariff;
 
+
         return View::make('accountservices.edit', compact('AffiliateAccount','CompanyID','AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table', 'termination_rate_table',
-            'AccessType','Prefix','City','Tariff','package_rate_table','countries','DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
+            'frequency','AccessType','Prefix','City','Tariff','package_rate_table','countries','DiscountPlan','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID', 'PackageDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
 
     }
 
@@ -115,7 +120,7 @@ class AccountServiceController extends \BaseController {
         $AccountID = $id;
         $decimal_places = get_round_decimal_places($id);
         $products = Product::getProductDropdownList($CompanyID);
-        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
+        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,getParentCompanyIdIfReseller($CompanyID));
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
         $allservices = Service::where('Status', 1)->get();
@@ -146,7 +151,7 @@ class AccountServiceController extends \BaseController {
         $PackageId="";
         $RateTableID="";
 
-        
+
         return View::make('accountservices.create', compact('CompanyID','AccountID','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceDescription','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID','allservices'));
     }
 
@@ -373,6 +378,7 @@ class AccountServiceController extends \BaseController {
             $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
             $PackageDiscountPlan = empty($data['PackageDiscountPlanID']) ? '' : $data['PackageDiscountPlanID'];
 
+
             //billing
             //$invoice_count = Account::getInvoiceCount($AccountID);
             $invoice_count = 0;
@@ -404,6 +410,7 @@ class AccountServiceController extends \BaseController {
                     $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), $ServiceID);
                 }
             }
+
             if (!empty($AccountPeriod)) {
                 $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                 $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
@@ -532,21 +539,21 @@ class AccountServiceController extends \BaseController {
     {
         if( intval($AccountID) > 0 && intval($AccountServiceID) > 0){
 
-            if(AccountService::checkForeignKeyById($AccountID,$AccountServiceID)){
-                try{
-                    $result = AccountService::where(array('AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID))->delete();
-                    if ($result) {
-                        AccountServiceContract::where('AccountServiceID', $AccountServiceID)->delete();
-                        return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
-                    } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
-                    }
-                }catch (Exception $ex){
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
+            /*if(AccountService::checkForeignKeyById($AccountID,$AccountServiceID)){*/
+            try{
+                $result = AccountService::where(array('AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID))->delete();
+                if ($result) {
+                    AccountServiceContract::where('AccountServiceID', $AccountServiceID)->delete();
+                    return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
                 }
-            }else{
-                return Response::json(array("status" => "failed", "message" => "Service is in Use, You can not delete this Service."));
+            }catch (Exception $ex){
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
             }
+            /*}else{
+                return Response::json(array("status" => "failed", "message" => "Service is in Use, You can not delete this Service."));
+            }*/
         }
     }
 
@@ -681,13 +688,13 @@ class AccountServiceController extends \BaseController {
             $error = '';
             try {
                 foreach ($AccountServiceIds as $Service => $key) {
-                    if (AccountService::checkForeignKeyById($AccountID, $key)) {
-                        AccountService::where(array('AccountID' => $AccountID, 'AccountServiceID' => $key))->delete();
-                    } else {
+                    /*if (AccountService::checkForeignKeyById($AccountID, $key)) {*/
+                    AccountService::where(array('AccountID' => $AccountID, 'AccountServiceID' => $key))->delete();
+                    /*} else {
                         $ServiceName = Service::getServiceNameByID($key);
                         $error .= '<br>' . $ServiceName;
 
-                    }
+                    }*/
                 }
                 if (!empty($error)) {
                     $errormsg = '<br>Following Service is Use,you can not delete.' . $error;
@@ -742,7 +749,7 @@ class AccountServiceController extends \BaseController {
 
         //$services->select($select);
         Log::info("Account Service SQL " .  $query);
-       // $services->select($select);
+        // $services->select($select);
 
 
 
@@ -821,11 +828,11 @@ class AccountServiceController extends \BaseController {
 
         ];
 
-            AccountService::where('AccountServiceID', $AccountServiceID)->update($CancelContractStatus);
-            AccountServiceHistory::insert($InsertRenewalHistory);
+        AccountService::where('AccountServiceID', $AccountServiceID)->update($CancelContractStatus);
+        AccountServiceHistory::insert($InsertRenewalHistory);
 
 
-            return Response::json(array("status" => "success", "message" => "Contract Is Renewed!"));
+        return Response::json(array("status" => "success", "message" => "Contract Is Renewed!"));
 
     }
 

@@ -88,11 +88,13 @@ class RateTable extends \Eloquent
         return RateTable::where(["RateTableId" => $RateTableId,'RateGeneratorID'=>0])->count();
     }
     public static function getRateTableList($data=array()){
-        $data['CompanyID']=User::get_companyID();
+
         $data['Status'] = 1;
 
         $types = [];
         $appliedTos = [];
+        $AccountCompanyID = 0;
+        $resellerID = 0;
         if(isset($data['types']) && !empty($data['types'])) {
             $types = $data['types'];
             unset($data['types']);
@@ -101,6 +103,16 @@ class RateTable extends \Eloquent
         if(isset($data['applied_tos']) && !empty($data['applied_tos'])) {
             $appliedTos = $data['applied_tos'];
             unset($data['applied_tos']);
+        }
+
+        if(isset($data['CompanyID']) && !empty($data['CompanyID'])) {
+            $AccountCompanyID = $data['CompanyID'];
+
+            $reseller = Reseller::where('ChildCompanyID', $AccountCompanyID)->first();
+            if($reseller != false)
+                $resellerID = $reseller->ResellerID;
+
+            unset($data['CompanyID']);
         }
 
         $notVendor = false;
@@ -117,6 +129,84 @@ class RateTable extends \Eloquent
         if(!empty($appliedTos))
             $row->whereIn("AppliedTo", $appliedTos);
 
+        if($AccountCompanyID != 0){
+
+            $row->where(function($query) use($AccountCompanyID, $resellerID){
+                $query->where(['CompanyID' => $AccountCompanyID, 'Reseller' => '0'])
+                    ->orWhere(['Reseller' => '-1']);
+
+                if($resellerID != 0)
+                        $query->orWhere(['Reseller' => $resellerID]);
+            });
+
+        } else
+            $row->where('CompanyID', User::get_companyID());
+
+        if($notVendor == true)
+            $row->where("AppliedTo", "!=", self::APPLIED_TO_VENDOR);
+
+        $row = $row->lists("RateTableName", "RateTableId");
+        $row = array(""=> "Select")+$row;
+        return $row;
+    }
+
+    public static function getRateTableListForPackage($data=array()){
+
+        $data['Status'] = 1;
+
+        $types = [];
+        $appliedTos = [];
+        $AccountCompanyID = 0;
+        $resellerID = 0;
+        if(isset($data['types']) && !empty($data['types'])) {
+            $types = $data['types'];
+            unset($data['types']);
+        }
+
+        if(isset($data['applied_tos']) && !empty($data['applied_tos'])) {
+            $appliedTos = $data['applied_tos'];
+            unset($data['applied_tos']);
+        }
+
+        if(isset($data['CompanyID']) && !empty($data['CompanyID'])) {
+            $AccountCompanyID = $data['CompanyID'];
+
+            $reseller = Reseller::where('ChildCompanyID', $AccountCompanyID)->first();
+            if($reseller != false)
+                $resellerID = $reseller->ResellerID;
+
+            unset($data['CompanyID']);
+        }
+
+        $notVendor = false;
+        if(isset($data['NotVendor'])){
+            $notVendor = true;
+            unset($data['NotVendor']);
+        }
+
+        $row = RateTable::where($data);
+
+        if(!empty($types))
+            $row->whereIn("Type", $types);
+
+        if(!empty($appliedTos))
+            $row->whereIn("AppliedTo", $appliedTos);
+
+        if($AccountCompanyID != 0){
+
+            if(is_reseller()){
+                $row->where(function($query) use($AccountCompanyID, $resellerID){
+                    $query->where(['CompanyID' => $AccountCompanyID, 'Reseller' => '0'])
+                        ->orWhere(['Reseller' => '-1']);
+
+                    if($resellerID != 0)
+                            $query->orWhere(['Reseller' => $resellerID]);
+                });
+            }
+
+        } else
+            $row->where('CompanyID', User::get_companyID());
+
         if($notVendor == true)
             $row->where("AppliedTo", "!=", self::APPLIED_TO_VENDOR);
 
@@ -126,17 +216,29 @@ class RateTable extends \Eloquent
     }
 
     public static function getRateTables($data=array()){
-        $compantID = User::get_companyID();
-        $where = ['CompanyID'=>$compantID];
-        $RateTables = RateTable::select(['RateTableName','RateTableId'])->where($where)->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        if(!empty($data['ResellerPage'])) {
+            $where = ['CompanyID'=>1];
+            $ResellerID = Reseller::getResellerID();
+            $RateTables = RateTable::select(['RateTableName','RateTableId'])->where($where)->where("tblRateTable.Reseller",-1)->orWhere("tblRateTable.Reseller",$ResellerID)->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        } else {
+            $where = ['CompanyID'=>User::get_companyID()];
+            $RateTables = RateTable::select(['RateTableName','RateTableId'])->where($where)->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        }
         if(!empty($RateTables)){
             $RateTables = [''=>'Select'] + $RateTables;
         }
         return $RateTables;
     }
 
-    public static function getRateTablesForPackage($CompanyID,$Type){
-        $RateTables = RateTable::select(['RateTableName','RateTableId'])->where(['CompanyID' => $CompanyID,'Type' => $Type])->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+    public static function getRateTablesByType($CompanyID,$Type){
+        $RateTables = RateTable::select(['RateTableName','RateTableId'])
+        ->where(['CompanyID' => $CompanyID,'Type' => $Type]);
+        if(is_reseller())
+            $RateTables->where('AppliedTo', self::APPLIED_TO_RESELLER);
+        else
+            $RateTables->where('AppliedTo','<>', 2);
+
+        $RateTables = $RateTables->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
         if(!empty($RateTables)){
             $RateTables = [''=>'Select'] + $RateTables;
         }
@@ -201,7 +303,7 @@ class RateTable extends \Eloquent
             >0  = For Specific Reseller
         */
         $DropdownIDList = Reseller::where(array("Status"=>1))->lists('ResellerName', 'ResellerID');
-        $DropdownIDList = array('' => "Select",'-1' => "All") + $DropdownIDList;
+        $DropdownIDList = array('-1' => "All") + $DropdownIDList;
         return $DropdownIDList;
     }
 }

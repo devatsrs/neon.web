@@ -1277,17 +1277,19 @@ class NeonRegistartionController extends \BaseController {
             DB::connection('sqlsrv2')->beginTransaction();
 
             $InvoiceData = array();
-            $InvoiceTemplateID = BillingClass::getInvoiceTemplateID($data['BillingClassID']);
-            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
-            $message = $InvoiceTemplate->InvoiceTo;
+            //$InvoiceTemplateID = BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+            //$InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+
+            $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
+            $message = isset($Reseller->InvoiceTo) ? $Reseller->InvoiceTo : '';
             $replace_array = Invoice::create_accountdetails($Account);
             $text = Invoice::getInvoiceToByAccount($message, $replace_array);
             $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
-            $Terms = $InvoiceTemplate->Terms;
-            $FooterTerm = $InvoiceTemplate->FooterTerm;
+            $Terms = isset($Reseller->TermsAndCondition) ? $Reseller->TermsAndCondition : '';
+            $FooterTerm = isset($Reseller->FooterTerm) ? $Reseller->FooterTerm : '';
 
-            $LastInvoiceNumber = InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID);
-            $FullInvoiceNumber = $InvoiceTemplate->InvoiceNumberPrefix . $LastInvoiceNumber;
+            $LastInvoiceNumber = Invoice::getNextInvoiceNumber($CompanyID);
+            $FullInvoiceNumber = Company::getCompanyField($CompanyID, "InvoiceNumberPrefix") . $LastInvoiceNumber;
             $InvoiceData["InvoiceNumber"] = $LastInvoiceNumber;
             $InvoiceData["CompanyID"] = $CompanyID;
             $InvoiceData["AccountID"] = intval($AccountID);
@@ -1320,7 +1322,7 @@ class NeonRegistartionController extends \BaseController {
                 return $reseponse;
             }
             //Store Last Invoice Number.
-            InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber));
+            Company::find($CompanyID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber));
             $InvoiceID = $Invoice->InvoiceID;
             log::info('InvoiceID ' . $InvoiceID);
 

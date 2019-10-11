@@ -54,12 +54,12 @@
                     <label for="field-1" class="control-label">Trunk</label>
                     {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
                 </div>
-                <div class="form-group">
+                {{-- <div class="form-group">
                     <label class="control-label">Merge Time Of Day</label>
                     <p class="make-switch switch-small">
                         <input id="merge_timezones" name="merge_timezones" type="checkbox" value="1">
                     </p>
-                </div>
+                </div> --}}
                 <div class="form-group TimezonesMergedBox" style="display: none;">
                     <label class="control-label">Time Of Day</label>
                     {{ Form::select('TimezonesMerged[]', $Timezones, '', array("class"=>"select2","multiple"=>"multiple")) }}
@@ -68,10 +68,10 @@
                     <label class="control-label">Take Price</label>
                     {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), 0 , array("class"=>"select2")) }}
                 </div>
-                <div class="form-group" id="TimezonesBox">
+                {{-- <div class="form-group" id="TimezonesBox">
                     <label class="control-label">Time Of Day</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
-                </div>
+                </div> --}}
                 <div class="form-group">
                     <label for="field-1" class="control-label">CodeDeck</label>
                     {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
@@ -83,15 +83,16 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">LCR Policy</label>
-                    {{ Form::select('Policy', LCR::$policy, LCR::LCR_PREFIX , array("class"=>"select2")) }}
+                    {{ Form::select('Policy', LCR::$policy, LCR::LCR , array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Show Positions</label>
                     {{ Form::select('LCRPosition', LCR::$position, $LCRPosition , array("class"=>"select2")) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: none">
                     <label for="field-1" class="control-label">Group By</label>
-                    {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
+                    {{Form::select('GroupBy', ["code"=>"Code"], 'Code' ,array("class"=>"form-control select2"))}}
+                    {{--{{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}--}}
                 </div>
 
                 <div class="form-group">
@@ -110,7 +111,7 @@
                         <input id="vendor_block" name="vendor_block" type="checkbox" value="1">
                     </p>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display:none;"> <!--Hide this as per skype requirement by mam - 07-11-2019-->
                     <label for="field-1" class="control-label">Show All Vendor Codes</label>
                     <p class="make-switch switch-small">
                         <input id="show_customer_rate" name="show_all_vendor_codes" type="checkbox" value="1">
@@ -195,6 +196,7 @@
             <thead>
             <tr>
                 <th>Destination</th>
+                <th>Time Of Day</th>
                 <th id="dt_company1">Position 1</th>
                 <th id="dt_company2">Position 2</th>
                 <th id="dt_company3">Position 3</th>
@@ -214,7 +216,7 @@
         </table>
     </div>
 
-    <div class="vendorRateInfo hide">
+    <div class="vendorRateInfo hide" style="display:none">
         <ul class="nav nav-tabs">
             <?php $i = 0; $active = ''; ?>
             @foreach($Timezones as $ID => $Title)
@@ -302,8 +304,8 @@
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                 SelectedEffectiveDate = $("#lcr-search-form input[name='SelectedEffectiveDate']").val();
                 Accounts = $("#lcr-search-form select[name='Accounts[]']").val();
-                Timezones = $("#lcr-search-form select[name='Timezones']").val();
-                merge_timezones = $("#lcr-search-form [name='merge_timezones']").prop("checked");
+                // Timezones = $("#lcr-search-form select[name='Timezones']").val();
+                // merge_timezones = $("#lcr-search-form [name='merge_timezones']").prop("checked");
                 TimezonesMerged = $("#lcr-search-form select[name='TimezonesMerged[]']").val();
                 TakePrice       = $("#lcr-search-form select[name='TakePrice']").val();
 
@@ -318,6 +320,7 @@
                     var GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                     aoColumns = [
                         {}, //1 Destination
+                        {}, //1 Timezone
                         { "bSortable": false,
                             mRender: function ( id, type, full ) {
                                 if (typeof id != 'undefined' && id != null && id != 'null') {
@@ -512,11 +515,12 @@
 
                     aoColumnDefs = [
                         {    "sClass": "destination not-active", "aTargets": [ 0 ] },
-                        {    "sClass": "rate1_class", "aTargets": [ 1 ] },
-                        {    "sClass": "rate2_class", "aTargets": [ 2 ] },
-                        {    "sClass": "rate3_class", "aTargets": [ 3 ] },
-                        {    "sClass": "rate4_class", "aTargets": [ 4 ] },
-                        {    "sClass": "rate5_class", "aTargets": [ 5 ] }
+                        {    "sClass": "timezone not-active", "aTargets": [ 1 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 2 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 3 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 4 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 5 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 6 ] }
                     ];
                 }else{
                     setTimeout(function(){
@@ -528,6 +532,7 @@
                     },10);
                     aoColumns = [
                         {}, //1 Destination
+                        {}, //1 Timezone
                         { "bSortable": false,
                             mRender: function ( id, type, full ) {
                                 if (typeof id != 'undefined' && id != null && id != 'null') {
@@ -913,16 +918,17 @@
 
                     aoColumnDefs = [
                         {    "sClass": "destination", "aTargets": [ 0 ] },
-                        {    "sClass": "rate1_class", "aTargets": [ 1 ] },
-                        {    "sClass": "rate2_class", "aTargets": [ 2 ] },
-                        {    "sClass": "rate3_class", "aTargets": [ 3 ] },
-                        {    "sClass": "rate4_class", "aTargets": [ 4 ] },
-                        {    "sClass": "rate5_class", "aTargets": [ 5 ] },
-                        {    "sClass": "rate6_class", "aTargets": [ 6 ] },
-                        {    "sClass": "rate7_class", "aTargets": [ 7 ] },
-                        {    "sClass": "rate8_class", "aTargets": [ 8 ] },
-                        {    "sClass": "rate9_class", "aTargets": [ 9 ] },
-                        {    "sClass": "rate10_class", "aTargets": [ 10 ] }
+                        {    "sClass": "timezone not-active", "aTargets": [ 1 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 2 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 3 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 4 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 5 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 6 ] },
+                        {    "sClass": "rate6_class", "aTargets": [ 7 ] },
+                        {    "sClass": "rate7_class", "aTargets": [ 8 ] },
+                        {    "sClass": "rate8_class", "aTargets": [ 9 ] },
+                        {    "sClass": "rate9_class", "aTargets": [ 10 ] },
+                        {    "sClass": "rate10_class", "aTargets": [ 11 ] }
                     ];
                 }
                 if(typeof Trunk  == 'undefined' || Trunk == '' ){
@@ -961,9 +967,9 @@
                     "bServerSide": true,
                     "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
                     "fnServerParams": function(aoData) {
-                        aoData.push({"name": "OriginationCode", "value": OriginationCode},{"name": "OriginationDescription", "value": OriginationDescription},{"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Timezones","value":Timezones},{"name":"merge_timezones","value":merge_timezones},{"name":"TimezonesMerged","value":TimezonesMerged},{"name":"TakePrice","value":TakePrice});
+                        aoData.push({"name": "OriginationCode", "value": OriginationCode},{"name": "OriginationDescription", "value": OriginationDescription},{"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"TimezonesMerged","value":TimezonesMerged},{"name":"TakePrice","value":TakePrice});
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({"name": "OriginationCode", "value": OriginationCode},{"name": "OriginationDescription", "value": OriginationDescription},{"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Timezones","value":Timezones},{"name":"merge_timezones","value":merge_timezones},{"name":"TimezonesMerged","value":TimezonesMerged},{"name":"TakePrice","value":TakePrice},{"name":"Export","value":1});
+                        data_table_extra_params.push({"name": "OriginationCode", "value": OriginationCode},{"name": "OriginationDescription", "value": OriginationDescription},{"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"TimezonesMerged","value":TimezonesMerged},{"name":"TakePrice","value":TakePrice},{"name":"Export","value":1});
                     },
                     "iDisplayLength": 10,
                     "sPaginationType": "bootstrap",
@@ -1014,35 +1020,36 @@
 
                                 // console.log(data_table.oApi.aoColumns);
                                 //data_table.Columns[0].ColumnName = "newColumnName";
-                                if (typeof results.jqXHR.responseJSON.sColumns[1] != 'undefined') {
-                                    $('#dt_company1').html(results.jqXHR.responseJSON.sColumns[1]);
-                                }
+
                                 if (typeof results.jqXHR.responseJSON.sColumns[2] != 'undefined') {
-                                    $('#dt_company2').html(results.jqXHR.responseJSON.sColumns[2]);
+                                    $('#dt_company1').html(results.jqXHR.responseJSON.sColumns[2]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[3] != 'undefined') {
-                                    $('#dt_company3').html(results.jqXHR.responseJSON.sColumns[3]);
+                                    $('#dt_company2').html(results.jqXHR.responseJSON.sColumns[3]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[4] != 'undefined') {
-                                    $('#dt_company4').html(results.jqXHR.responseJSON.sColumns[4]);
+                                    $('#dt_company3').html(results.jqXHR.responseJSON.sColumns[4]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[5] != 'undefined') {
-                                    $('#dt_company5').html(results.jqXHR.responseJSON.sColumns[5]);
+                                    $('#dt_company4').html(results.jqXHR.responseJSON.sColumns[5]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[6] != 'undefined') {
-                                    $('#dt_company6').html(results.jqXHR.responseJSON.sColumns[6]);
+                                    $('#dt_company5').html(results.jqXHR.responseJSON.sColumns[6]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[7] != 'undefined') {
-                                    $('#dt_company7').html(results.jqXHR.responseJSON.sColumns[7]);
+                                    $('#dt_company6').html(results.jqXHR.responseJSON.sColumns[7]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[8] != 'undefined') {
-                                    $('#dt_company8').html(results.jqXHR.responseJSON.sColumns[8]);
+                                    $('#dt_company7').html(results.jqXHR.responseJSON.sColumns[8]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[9] != 'undefined') {
-                                    $('#dt_company9').html(results.jqXHR.responseJSON.sColumns[9]);
+                                    $('#dt_company8').html(results.jqXHR.responseJSON.sColumns[9]);
                                 }
                                 if (typeof results.jqXHR.responseJSON.sColumns[10] != 'undefined') {
-                                    $('#dt_company10').html(results.jqXHR.responseJSON.sColumns[10]);
+                                    $('#dt_company9').html(results.jqXHR.responseJSON.sColumns[10]);
+                                }
+                                if (typeof results.jqXHR.responseJSON.sColumns[11] != 'undefined') {
+                                    $('#dt_company10').html(results.jqXHR.responseJSON.sColumns[11]);
                                 }
                             }
                             catch(err) {
@@ -1138,6 +1145,7 @@
 
             /* show margine datatable */
             $('#table-4 tbody').on('click', 'td.destination', function () {
+                return false; // disabled
                 var SelectedEffectiveDate = $("#lcr-search-form input[name='SelectedEffectiveDate']").val();
                 var LCRPosition = $("#lcr-search-form select[name='LCRPosition']").val();
                 $("#margineDataTable_processing").css('visibility','visible');

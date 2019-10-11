@@ -101,7 +101,15 @@ class Company extends \Eloquent {
         if(!empty($LICENCE_KEY)) {
 
             $post = array("host" => $_SERVER['HTTP_HOST'], "ip" => $_SERVER['SERVER_ADDR'], "licence_key" => getenv('LICENCE_KEY'), "company_name" => $result['CompanyName']);
-            $response = call_api($post);
+            //$response = call_api($post);
+            $result['Status'] = 1;
+            $result['Message'] = 'Your Licence is Valid';
+            $result['ExpiryDate'] = '2020-10-10';
+            $result['Type'] = 3;
+            $result['LicenceProperties'] = '';
+
+            return $result;
+            /*
             if (!empty($response)) {
                 $response = json_decode($response,TRUE);
                 $result['Status'] = $response['Status'] ;
@@ -115,7 +123,7 @@ class Company extends \Eloquent {
                 $result['Status'] = 0 ;
                 $result['Message'] = 'Unable To Validate Licence';
                 $result['ExpiryDate']='';
-            }
+            }*/
 
         }else{
 

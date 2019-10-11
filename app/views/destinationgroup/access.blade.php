@@ -257,14 +257,16 @@ var nm = 'king';
             //inst.myMethod('I am a method');
             $('#add-button').click(function(ev){
                 ev.preventDefault();
-               
-
+              
                 $('#modal-form-data').trigger("reset");
                 $('#modal-list .panel-title').html('Add Product Group');
                 $("#modal-form-data [name=DestinationGroupID]").val("");
-                $("#modal-form-data [name=CountryID]").select2('val',"");
-                $("#modal-form-data [name=Type]").select2('val',"");
-                $("#modal-form-data [name=PackageID]").select2('val',"");
+                $("#modal-form-data [name=CountryID]").select2('val',"").trigger('changes');
+                $("#modal-form-data [name=Type]").select2('val',"").trigger('changes');
+                $("#modal-form-data [name=Prefix]").select2('val',"").trigger('changes');
+                $("#modal-form-data [name=Tariff]").select2('val',"").trigger('changes');
+                $("#modal-form-data [name=City]").select2('val',"").trigger('changes');
+                $("#modal-form-data [name=PackageID]").select2('val',"").trigger('changes');
                 $("#modal-form-data [name=DestinationGroupSetID]").val("{{$DestinationGroupSetID}}");
                 $('#modal-form-data').attr("action",add_url);
                 $("#showmodal").hide();
@@ -365,7 +367,7 @@ var nm = 'king';
                 $("#close_codes").click(function(){
                     $('#modal_codes').modal('hide');
                 });
-$("#newdata").hide();
+                $("#newdata").hide();
                 $("#showmodal_new").click(function(){
                     $("#newdata").toggle();
                     $("#newdata").html("<div align='center'>loading...</div>");
@@ -394,7 +396,7 @@ $("#newdata").hide();
         <div class="modal-dialog">
             <div class="modal-content">
                 
-<form id="modal-form-data" method="post">
+                <form id="modal-form-data" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" data-target="#modal-list" aria-hidden="true">×</button>
                         <h4 class="modal-title">Add Product Group</h4>

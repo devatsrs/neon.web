@@ -135,12 +135,12 @@
                 
                 @endif
                 @if(User::checkCategoryPermission('Account','Email'))
-                <li>
+                        <!--<li>
                     <a href="javascript:void(0)" id="bulk-Ratesheet">
                         <i class="entypo-mail"></i>
                         <span>Bulk Rate sheet Email</span>
                     </a>
-                </li>
+                </li>-->
                 @endif
                 @if(User::checkCategoryPermission('Account','Add'))
                 <li>
@@ -149,12 +149,12 @@
                         <span>Import</span>
                    </a>
                 </li>
-                <li>
+                <!--<li>
                    <a href="{{ URL::to('/import/ips') }}" >
                         <i class="entypo-user-add"></i>
                         <span>Import IPs</span>
                    </a>
-                </li>
+                </li>-->
                 <li class="li_active">
                    <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
                         <i class="fa fa-plus-circle"></i>
@@ -453,7 +453,7 @@
 //                                }
 
 								<?php if(User::checkCategoryPermission('AccountSubscription','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1) { ?>
-                                action +='&nbsp;<button class="btn btn-default small_icons btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
+                                /*action +='&nbsp;<button class="btn btn-default small_icons btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';*/
                                 <?php } ?>
 								
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
@@ -1357,6 +1357,8 @@
                     success: function (response) {
                         console.log(response.Email);
                         $(this).button('reset');
+                        $(".logoUpload").empty();
+
                         if (response.status == 'failed') {
 
                             $("#add-new-reseller-form [name='AccountIDs']").select2().select2('val',PartnerID);
@@ -1407,6 +1409,7 @@
                             IsSSL = response.IsSSL;
                             DomainUrl = response.DomainUrl;
                             Password = response.Password;
+                            PartnerLogo = response.Logo;
 
 
                             //AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
@@ -1443,6 +1446,9 @@
                                 $("#SMTP-SERVER [name='IsSSL']").prop('checked',true);
                             }else{
                                 $("#SMTP-SERVER [name='IsSSL']").prop('checked',false);
+                            }
+                            if(PartnerLogo != ''){
+                                $(".logoUpload").html('<img src="' + PartnerLogo + '" style="max-width: 100px;margin-bottom: 5px">');
                             }
 
                             if(AllowWhiteLabel == 1 ){

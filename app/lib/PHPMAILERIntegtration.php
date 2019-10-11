@@ -54,6 +54,7 @@ class PHPMAILERIntegtration{
 		if(empty($companyID)){
 			 $companyID = User::get_companyID();
 		}
+		Log::useFiles(storage_path() . '/logs/email-companyid-'.$companyID . date('Y-m-d') . '.log');
 		
 		if(isset($data['CompanyName']) && !empty($data['CompanyName']))
 		{ 
@@ -101,6 +102,7 @@ class PHPMAILERIntegtration{
     } 
 
 		$emailto = is_array($data['EmailTo'])?implode(",",$data['EmailTo']):$data['EmailTo'];
+		//Log::info('Mail OBJ: ' . json_encode($mail));
 		if (!$mail->send()) {
 					$status['status'] = 0;
 					$status['message'] .= $mail->ErrorInfo . ' ( Email Address: ' . $emailto . ')';

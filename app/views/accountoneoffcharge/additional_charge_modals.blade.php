@@ -26,7 +26,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Description</label>
+                                <label for="field-5" class="control-label">Description*</label>
                                 <input type="text" name="Description" class="form-control" value="" />
                             </div>
                         </div>
@@ -34,15 +34,15 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Qty</label>
-                                <input type="text" name="Qty" class="form-control Qty" value="1" data-min="1" />
+                                <label for="field-5" class="control-label">Qty*</label>
+                                <input type="number" name="Qty" min="0" class="form-control Qty" value="1" data-min="1" />
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Date</label>
+                                <label for="field-5" class="control-label">Date*</label>
                                 <input type="text" name="Date" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
                             </div>
                         </div>
@@ -50,7 +50,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-521" class="control-label">Currency</label>
+                                <label for="field-521" class="control-label">Currency*</label>
                                 {{ Form::select('CurrencyID', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
                             </div>
                         </div>
@@ -58,8 +58,8 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Price</label>
-                                <input type="text" name="Price" class="form-control" value="0"   />
+                                <label for="field-5" class="control-label">Price*</label>
+                                <input type="text" name="Price" min="0" class="form-control" value="0"   />
                             </div>
                         </div>
                     </div>

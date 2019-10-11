@@ -46,6 +46,24 @@
                     </select>
                 </div>
 
+                <div class="form-group AA_Filter" style="display: none">
+                    <label class="control-label">Diff. Percentage</label>
+                    <div class="input-group">
+                        <div class="input-group-btn">
+                            <button type="button" id="PercentageDDBTN" class="btn dropdown-toggle" data-toggle="dropdown" style="background-color: #e8ecef; border-color: #d2d3d5; color: #32353c; border-radius: 3px 0 0 3px;">>=</button>
+                            <ul class="dropdown-menu dropdown-left" id="PercentageDD" style="background-color: #e8ecef; border-color: #d2d3d5; margin-top:0px; min-width: 100%">
+                                <li><a href="javascript:void(0);" style="color: #32353c; text-align: center; font-weight: bold;">>=</a></li>
+                                <li><a href="javascript:void(0);" style="color: #32353c; text-align: center; font-weight: bold;"><=</a></li>
+                            </ul>
+                        </div>
+                        <input type="text" name="Percentage" class="form-control" style="height: 31px;">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" style="background-color: #e8ecef; border-color: #d2d3d5; color: #32353c; border-radius: 0 3px 3px 0;">%</button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="PercentageCondition" id="PercentageCondition" class="form-control" value=">=">
+                </div>
+
                 <input name="ResellerPage" type="hidden" value="{{!empty($ResellerPage) ? $ResellerPage : 0}}" >
 
                 <div class="form-group">
@@ -67,7 +85,7 @@
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
     <li><a href="{{URL::to('/rate_tables')}}">Rate Table</a></li>
     <li>
-        <a><span>{{rate_tables_dropbox($id)}}</span></a>
+        <a><span>{{rate_tables_dropbox($id,['ResellerPage'=>$ResellerPage])}}</span></a>
     </li>
     <li class="active"><strong>{{$rateTable->RateTableName}}</strong></li>
 </ol>
@@ -137,9 +155,17 @@
             <th width="10%">Time of Day</th>
             <th width="10%">Package Name</th>
             <th width="5%">One-Off Cost</th>
+            <th width="5%">One-Off Cost Diff.</th>
+            <th width="5%">One-Off Cost Diff. %</th>
             <th width="5%">Monthly Cost</th>
+            <th width="5%">Monthly Cost Diff.</th>
+            <th width="5%">Monthly Cost Diff. %</th>
             <th width="5%">Package Cost Per Minute</th>
+            <th width="5%">Package Cost Per Minute Diff.</th>
+            <th width="5%">Package Cost Per Minute Diff. %</th>
             <th width="5%">Recording Cost Per Minute</th>
+            <th width="5%">Recording Cost Per Minute Diff.</th>
+            <th width="5%">Recording Cost Per Minute Diff. %</th>
             <th width="5%">Effective Date</th>
             <th width="9%" style="display: none;">End Date</th>
             <th width="8%">Modified By/Date</th>
@@ -184,6 +210,11 @@
             }
         });
 
+        $('#PercentageDD').on('click', 'li',function () {
+            $('#PercentageDDBTN').text($(this).text());
+            $('#PercentageCondition').val($(this).text());
+        });
+
         //Clear Rate Button
         $(document).off('click.clear-rate','.btn.clear-rate-table,#clear-bulk-rate');
         $(document).on('click.clear-rate','.btn.clear-rate-table,#clear-bulk-rate',function(ev) {
@@ -194,6 +225,11 @@
                 RateTablePKGRateID = $(this).val();
                 RateTablePKGRateIDs[i++] = RateTablePKGRateID;
             });
+
+            var $clickedButton = $(this);
+            if(typeof $clickedButton.attr('disabled') !== typeof undefined && $clickedButton.attr('disabled') !== false) {
+                return false;
+            }
 
             if(RateTablePKGRateIDs.length || $(this).hasClass('clear-rate-table')) {
                 response = confirm('Are you sure?');
@@ -225,6 +261,11 @@
                         }
                     }
 
+                    $clickedButton.attr('disabled','disabled');
+                    if($clickedButton.attr('id') == 'clear-bulk-rate') {
+                        $clickedButton.html('<i class="entypo-trash"></i><span>Deleting...</span>');
+                    }
+
                     var formData = new FormData($('#clear-bulk-rate-form')[0]);
                     formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
 
@@ -233,6 +274,10 @@
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
+                            $clickedButton.removeAttr('disabled');
+                            if($clickedButton.attr('id') == 'clear-bulk-rate') {
+                                $clickedButton.html('<i class="entypo-trash"></i><span>Delete Selected</span>');
+                            }
                             $(".save.btn").button('reset');
 
                             if (response.status == 'success') {
@@ -484,10 +529,12 @@
             if($('#rate-table-search select[name="ApprovedStatus1"]').val() == {{RateTable::RATE_STATUS_APPROVED}}) {
                 Status = $('#rate-table-search select[name="ApprovedStatus1"]').val();
                 $('#ApprovedStatus2-Box').hide();
+                $('.AA_Filter').hide();
                 $('.filter_naa').show();
             } else {
                 Status = $('#rate-table-search select[name="ApprovedStatus2"]').val();
                 $('#ApprovedStatus2-Box').show();
+                $('.AA_Filter').show();
                 $('.filter_naa').hide();
             }
             $('#rate-table-search [name="ApprovedStatus"]').val(Status);
@@ -495,13 +542,21 @@
     });
 
     function rateDataTable() {
-        var bVisible = false;
+        var ApproveStatus = $("#rate-table-search [name='ApprovedStatus']").val();
+
+        var bVisibleComparisonView = false;
+        if(ApproveStatus != 1) {
+            bVisibleComparisonView = true;
+        }
 
         $searchFilter.Code = $("#rate-table-search input[name='Code']").val();
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
         $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search [name='ApprovedStatus']").val();
+
+        $searchFilter.Percentage = Percentage = $("#rate-table-search [name='Percentage']").val();
+        $searchFilter.PercentageCondition = PercentageCondition = $("#rate-table-search [name='PercentageCondition']").val();
 
         $searchFilter.ResellerPage = ResellerPage = $('#rate-table-search [name="ResellerPage"]').val();
 
@@ -516,9 +571,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "Code", "value": $searchFilter.Code},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ResellerPage", "value": ResellerPage});
+                aoData.push({"name": "Code", "value": $searchFilter.Code},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ResellerPage", "value": ResellerPage},{"name": "Percentage", "value": Percentage},{"name": "PercentageCondition", "value": PercentageCondition});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ResellerPage", "value": ResellerPage});
+                data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ResellerPage", "value": ResellerPage},{"name": "Percentage", "value": Percentage},{"name": "PercentageCondition", "value": PercentageCondition});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -548,28 +603,167 @@
                         {}, //1 Timezones Title
                         {}, //2 Package Name
                         {
+                            "bSortable" : false,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[20] + col; else return '';
+                                var oc_html = '';
+                                if(bVisibleComparisonView) {
+                                    oc_html = (full[25] != null && full[25] != '') ? full[29] + full[25] : '-';
+                                    oc_html += '<br/>';
+                                    oc_html += (full[3] != null && full[3] != '') ? full[20] + full[3] : '-';
+                                } else {
+                                    oc_html = (full[3] != null && full[3] != '') ? full[20] + full[3] : '';  //OneOffCostCurrency+OneOffCost
+                                }
+                                return oc_html;
                             }
                         }, //3 OneOffCost,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[21] + col; else return '';
+                                var rate_html = full[33] != 0 && full[33] != null ? full[33] : '-';
+                                if(full[33] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[33] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 33 OneOffCost Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[37] != 0 && full[37] != null ? full[37]+'%' : '-';
+                                if(full[37] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[37] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 37 OneOffCost Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var mc_html = '';
+                                if(bVisibleComparisonView) {
+                                    mc_html = (full[26] != null && full[26] != '') ? full[30] + full[26] : '-';
+                                    mc_html += '<br/>';
+                                    mc_html += (full[4] != null && full[4] != '') ? full[21] + full[4] : '-';
+                                } else {
+                                    mc_html = (full[4] != null && full[4] != '') ? full[21] + full[4] : '';  //MonthlyCostCurrency+MonthlyCost
+                                }
+                                return mc_html;
                             }
                         }, //4 MonthlyCost,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[22] + col; else return '';
+                                var rate_html = full[34] != 0 && full[34] != null ? full[34] : '-';
+                                if(full[34] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[34] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 34 MonthlyCost Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[38] != 0 && full[38] != null ? full[38]+'%' : '-';
+                                if(full[38] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[38] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 38 MonthlyCost Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var pc_html = '';
+                                if(bVisibleComparisonView) {
+                                    pc_html = (full[27] != null && full[27] != '') ? full[31] + full[27] : '-';
+                                    pc_html += '<br/>';
+                                    pc_html += (full[5] != null && full[5] != '') ? full[22] + full[5] : '-';
+                                } else {
+                                    pc_html = (full[5] != null && full[5] != '') ? full[22] + full[5] : '';  //PackageCostPerMinuteCurrency+PackageCostPerMinute
+                                }
+                                return pc_html;
                             }
                         }, //5 PackageCostPerMinute,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[23] + col; else return '';
+                                var rate_html = full[35] != 0 && full[35] != null ? full[35] : '-';
+                                if(full[35] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[35] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 35 PackageCostPerMinute Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[39] != 0 && full[39] != null ? full[39]+'%' : '-';
+                                if(full[39] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[39] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 39 PackageCostPerMinute Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var rc_html = '';
+                                if(bVisibleComparisonView) {
+                                    rc_html = (full[28] != null && full[28] != '') ? full[32] + full[28] : '-';
+                                    rc_html += '<br/>';
+                                    rc_html += (full[6] != null && full[6] != '') ? full[23] + full[6] : '-';
+                                } else {
+                                    rc_html = (full[6] != null && full[6] != '') ? full[23] + full[6] : '';  //RecordingCostPerMinuteCurrency+RecordingCostPerMinute
+                                }
+                                return rc_html;
                             }
                         }, //6 RecordingCostPerMinute,
-                        {}, //7 Effective Date
                         {
-                            "bVisible" : false
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[36] != 0 && full[36] != null ? full[36] : '-';
+                                if(full[36] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[36] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 36 RecordingCostPerMinute Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var rate_html = full[40] != 0 && full[40] != null ? full[40]+'%' : '-';
+                                if(full[40] > 0)
+                                    rate_html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[40] < 0)
+                                    rate_html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return rate_html;
+                            }
+                        }, // 40 RecordingCostPerMinute Margin Percentage
+                        {
+                            mRender: function(col, type, full) {
+                                return full[7];
+                            }
+                        }, //7 Effective Date
+                        {
+                            "bVisible" : false,
+                            mRender: function(col, type, full) {
+                                return full[8];
+                            }
                         }, //8 End Date
                         {
                             "bVisible" : true,
@@ -611,10 +805,12 @@
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
-                                    // if approved rates then show Edit button else hide it
-                                    if(full[13] == {{RateTable::RATE_STATUS_AWAITING}}) {
-                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
-                                    }
+                                    @if(empty($ResellerPage))
+                                        // if approved rates then show Edit button else hide it
+                                        if(full[13] == {{RateTable::RATE_STATUS_AWAITING}} || parseInt("{{$RateApprovalProcess}}") != 1 || {{$rateTable->AppliedTo}} == {{RateTable::APPLIED_TO_VENDOR}}) {
+                                            action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                        }
+                                    @endif
                                 }
                                 <?php } ?>
 
@@ -761,7 +957,7 @@
                 });
 
                 // if approved rates then show Bulk update button else hide it
-                if($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}}) {
+                if(parseInt("{{$RateApprovalProcess}}") != 1 || {{$rateTable->AppliedTo}} == {{RateTable::APPLIED_TO_VENDOR}} || ($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}})) {
                     if (Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
                         $('#change-bulk-rate').hide();
                     } else {

@@ -67,6 +67,24 @@
                     </select>
                 </div>
 
+                <div class="form-group AA_Filter" style="display: none">
+                    <label class="control-label">Diff. Percentage</label>
+                    <div class="input-group">
+                        <div class="input-group-btn">
+                            <button type="button" id="PercentageDDBTN" class="btn dropdown-toggle" data-toggle="dropdown" style="background-color: #e8ecef; border-color: #d2d3d5; color: #32353c; border-radius: 3px 0 0 3px;">>=</button>
+                            <ul class="dropdown-menu dropdown-left" id="PercentageDD" style="background-color: #e8ecef; border-color: #d2d3d5; margin-top:0px; min-width: 100%">
+                                <li><a href="javascript:void(0);" style="color: #32353c; text-align: center; font-weight: bold;">>=</a></li>
+                                <li><a href="javascript:void(0);" style="color: #32353c; text-align: center; font-weight: bold;"><=</a></li>
+                            </ul>
+                        </div>
+                        <input type="text" name="Percentage" class="form-control" style="height: 31px;">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" style="background-color: #e8ecef; border-color: #d2d3d5; color: #32353c; border-radius: 0 3px 3px 0;">%</button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="PercentageCondition" id="PercentageCondition" class="form-control" value=">=">
+                </div>
+
                 <input name="ResellerPage" type="hidden" value="{{!empty($ResellerPage) ? $ResellerPage : 0}}" >
 
                 <div class="form-group">
@@ -88,7 +106,7 @@
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
     <li><a href="{{URL::to('/rate_tables')}}">Rate Table</a></li>
     <li>
-        <a><span>{{rate_tables_dropbox($id)}}</span></a>
+        <a><span>{{rate_tables_dropbox($id,['ResellerPage'=>$ResellerPage])}}</span></a>
     </li>
     <li class="active"><strong>{{$rateTable->RateTableName}}</strong></li>
 </ol>
@@ -165,18 +183,44 @@
             <th width="10%">Tariff</th>
             <th width="10%">Time of Day</th>
             <th width="3%">One-Off Cost</th>
+            <th width="3%">One-Off Cost Diff.</th>
+            <th width="3%">One-Off Cost Diff. %</th>
             <th width="3%">Monthly Cost</th>
+            <th width="3%">Monthly Cost Diff.</th>
+            <th width="3%">Monthly Cost Diff. %</th>
             <th width="5%">Cost Per Call</th>
+            <th width="5%">Cost Per Call Diff.</th>
+            <th width="5%">Cost Per Call Diff. %</th>
             <th width="5%">Cost Per Minute</th>
+            <th width="5%">Cost Per Minute Diff.</th>
+            <th width="5%">Cost Per Minute Diff. %</th>
             <th width="5%">Surcharge Per Call</th>
+            <th width="5%">Surcharge Per Call Diff.</th>
+            <th width="5%">Surcharge Per Call Diff. %</th>
             <th width="5%">Surcharge Per Minute</th>
+            <th width="5%">Surcharge Per Minute Diff.</th>
+            <th width="5%">Surcharge Per Minute Diff. %</th>
             <th width="5%">Outpayment Per Call</th>
+            <th width="5%">Outpayment Per Call Diff.</th>
+            <th width="5%">Outpayment Per Call Diff. %</th>
             <th width="5%">Outpayment Per Minute</th>
+            <th width="5%">Outpayment Per Minute Diff.</th>
+            <th width="5%">Outpayment Per Minute Diff. %</th>
             <th width="5%">Surcharges</th>
+            <th width="5%">Surcharges Diff.</th>
+            <th width="5%">Surcharges Diff. %</th>
             <th width="5%">Chargeback</th>
+            <th width="5%">Chargeback Diff.</th>
+            <th width="5%">Chargeback Diff. %</th>
             <th width="5%">Collection Cost</th>
+            <th width="5%">Collection Cost Diff.</th>
+            <th width="5%">Collection Cost Diff. %</th>
             <th width="5%">Collection Cost (%)</th>
+            <th width="5%">Collection Cost (%) Diff.</th>
+            <th width="5%">Collection Cost (%) Diff. %</th>
             <th width="5%">Registration Cost</th>
+            <th width="5%">Registration Cost Diff.</th>
+            <th width="5%">Registration Cost Diff. %</th>
             <th width="8%">Effective Date</th>
             <th width="9%" style="display: none;">End Date</th>
             <th width="8%">Modified By/Date</th>
@@ -244,6 +288,11 @@
             }
         });
 
+        $('#PercentageDD').on('click', 'li',function () {
+            $('#PercentageDDBTN').text($(this).text());
+            $('#PercentageCondition').val($(this).text());
+        });
+
         //Clear Rate Button
         $(document).off('click.clear-rate','.btn.clear-rate-table,#clear-bulk-rate');
         $(document).on('click.clear-rate','.btn.clear-rate-table,#clear-bulk-rate',function(ev) {
@@ -254,6 +303,11 @@
                 RateTableDIDRateID = $(this).val();
                 RateTableDIDRateIDs[i++] = RateTableDIDRateID;
             });
+
+            var $clickedButton = $(this);
+            if(typeof $clickedButton.attr('disabled') !== typeof undefined && $clickedButton.attr('disabled') !== false) {
+                return false;
+            }
 
             if(RateTableDIDRateIDs.length || $(this).hasClass('clear-rate-table')) {
                 response = confirm('Are you sure?');
@@ -285,6 +339,11 @@
                         }
                     }
 
+                    $clickedButton.attr('disabled','disabled');
+                    if($clickedButton.attr('id') == 'clear-bulk-rate') {
+                        $clickedButton.html('<i class="entypo-trash"></i><span>Deleting...</span>');
+                    }
+
                     var formData = new FormData($('#clear-bulk-rate-form')[0]);
                     formData.append('ApprovedStatus',$searchFilter.ApprovedStatus);
 
@@ -293,6 +352,10 @@
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
+                            $clickedButton.removeAttr('disabled');
+                            if($clickedButton.attr('id') == 'clear-bulk-rate') {
+                                $clickedButton.html('<i class="entypo-trash"></i><span>Delete Selected</span>');
+                            }
                             $(".save.btn").button('reset');
 
                             if (response.status == 'success') {
@@ -593,10 +656,12 @@
             if($('#rate-table-search select[name="ApprovedStatus1"]').val() == {{RateTable::RATE_STATUS_APPROVED}}) {
                 Status = $('#rate-table-search select[name="ApprovedStatus1"]').val();
                 $('#ApprovedStatus2-Box').hide();
+                $('.AA_Filter').hide();
                 $('.filter_naa').show();
             } else {
                 Status = $('#rate-table-search select[name="ApprovedStatus2"]').val();
                 $('#ApprovedStatus2-Box').show();
+                $('.AA_Filter').show();
                 $('.filter_naa').hide();
             }
             $('#rate-table-search [name="ApprovedStatus"]').val(Status);
@@ -605,11 +670,18 @@
 
     function rateDataTable() {
         var bVisible = false;
+        var ApproveStatus = $("#rate-table-search [name='ApprovedStatus']").val();
+
         ratetablepageview = getCookie('ratetablepageview');
         if(ratetablepageview == 'AdvanceView') {
             bVisible = true;
         } else {
             bVisible = false;
+        }
+
+        var bVisibleComparisonView = false;
+        if(ApproveStatus != 1) {
+            bVisibleComparisonView = bVisible;
         }
 
         $searchFilter.OriginationCode = $("#rate-table-search input[name='OriginationCode']").val();
@@ -627,6 +699,9 @@
         $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search [name='ApprovedStatus']").val();
         $searchFilter.ratetablepageview = ratetablepageview;
 
+        $searchFilter.Percentage = Percentage = $("#rate-table-search [name='Percentage']").val();
+        $searchFilter.PercentageCondition = PercentageCondition = $("#rate-table-search [name='PercentageCondition']").val();
+
         $searchFilter.ResellerPage = ResellerPage = $('#rate-table-search [name="ResellerPage"]').val();
 
         data_table = $("#table-4").DataTable({
@@ -640,9 +715,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "City", "value": $searchFilter.City},{"name": "Tariff", "value": $searchFilter.Tariff},{"name": "AccessType", "value": $searchFilter.AccessType},{"name": "ResellerPage", "value": ResellerPage});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "City", "value": $searchFilter.City},{"name": "Tariff", "value": $searchFilter.Tariff},{"name": "AccessType", "value": $searchFilter.AccessType},{"name": "ResellerPage", "value": ResellerPage},{"name": "Percentage", "value": Percentage},{"name": "PercentageCondition", "value": PercentageCondition});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "City", "value": $searchFilter.City},{"name": "Tariff", "value": $searchFilter.Tariff},{"name": "AccessType", "value": $searchFilter.AccessType},{"name": "ResellerPage", "value": ResellerPage});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "City", "value": $searchFilter.City},{"name": "Tariff", "value": $searchFilter.Tariff},{"name": "AccessType", "value": $searchFilter.AccessType},{"name": "ResellerPage", "value": ResellerPage},{"name": "Percentage", "value": Percentage},{"name": "PercentageCondition", "value": PercentageCondition});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -671,83 +746,515 @@
                         }, //0Checkbox
                         {}, //1 AccessType
                         {}, //2 Country
-                        {
-                            mRender: function(id, type, full) {
-                                return full[3];
-                            },
-                            "className":      'details-control',
-                            "orderable":      false,
-                            "data": null,
-                            "defaultContent": ''
-                        }, //3 Origination Code
+                        {}, //3 Origination Code
                         {}, //4 Destination Code
                         {}, //5 City
                         {}, //6 Tariff
                         {}, //7 Timezones Title
                         {
+                            "bSortable" : false,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[43] + col; else return '';
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[56] != null && full[56] != '') ? full[69] + full[56] : '-';
+                                    html += '<br/>';
+                                    html += (full[8] != null && full[8] != '') ? full[43] + full[8] : '-';
+                                } else {
+                                    html = (full[8] != null && full[8] != '') ? full[43] + full[8] : '';  //OneOffCostCurrency+OneOffCost
+                                }
+                                return html;
                             }
                         }, //8 OneOffCost,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[44] + col; else return '';
+                                var html = full[81] != 0 && full[81] != null ? full[81] : '-';
+                                if(full[81] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[81] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 81 OneOffCost Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[94] != 0 && full[94] != null ? full[94]+'%' : '-';
+                                if(full[94] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[94] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 94 OneOffCost Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[57] != null && full[57] != '') ? full[70] + full[57] : '-';
+                                    html += '<br/>';
+                                    html += (full[9] != null && full[9] != '') ? full[44] + full[9] : '-';
+                                } else {
+                                    html = (full[9] != null && full[9] != '') ? full[44] + full[9] : '';  //MonthlyCostCurrency+MonthlyCost
+                                }
+                                return html;
                             }
                         }, //9 MonthlyCost,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[45] + col; else return '';
+                                var html = full[82] != 0 && full[82] != null ? full[82] : '-';
+                                if(full[82] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[82] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 82 MonthlyCost Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[95] != 0 && full[95] != null ? full[95]+'%' : '-';
+                                if(full[95] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[95] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 95 MonthlyCost Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[58] != null && full[58] != '') ? full[71] + full[58] : '-';
+                                    html += '<br/>';
+                                    html += (full[10] != null && full[10] != '') ? full[45] + full[10] : '-';
+                                } else {
+                                    html = (full[10] != null && full[10] != '') ? full[45] + full[10] : '';  //CostPerCallCurrency+CostPerCall
+                                }
+                                return html;
                             }
                         }, //10 CostPerCall,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[46] + col; else return '';
+                                var html = full[83] != 0 && full[83] != null ? full[83] : '-';
+                                if(full[83] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[83] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 83 CostPerCall Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[96] != 0 && full[96] != null ? full[96]+'%' : '-';
+                                if(full[96] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[96] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 96 CostPerCall Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[59] != null && full[59] != '') ? full[72] + full[59] : '-';
+                                    html += '<br/>';
+                                    html += (full[11] != null && full[11] != '') ? full[46] + full[11] : '-';
+                                } else {
+                                    html = (full[11] != null && full[11] != '') ? full[46] + full[11] : '';  //CostPerMinuteCurrency+CostPerMinute
+                                }
+                                return html;
                             }
                         }, //11 CostPerMinute,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[47] + col; else return '';
+                                var html = full[84] != 0 && full[84] != null ? full[84] : '-';
+                                if(full[84] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[84] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 84 CostPerMinute Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[97] != 0 && full[97] != null ? full[97]+'%' : '-';
+                                if(full[97] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[97] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 97 CostPerMinute Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[60] != null && full[60] != '') ? full[73] + full[60] : '-';
+                                    html += '<br/>';
+                                    html += (full[12] != null && full[12] != '') ? full[47] + full[12] : '-';
+                                } else {
+                                    html = (full[12] != null && full[12] != '') ? full[47] + full[12] : '';  //SurchargePerCallCurrency+SurchargePerCall
+                                }
+                                return html;
                             }
                         }, //12 SurchargePerCall,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[48] + col; else return '';
+                                var html = full[85] != 0 && full[85] != null ? full[85] : '-';
+                                if(full[85] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[85] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 85 SurchargePerCall Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[98] != 0 && full[98] != null ? full[98]+'%' : '-';
+                                if(full[98] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[98] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 98 SurchargePerCall Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[61] != null && full[61] != '') ? full[74] + full[61] : '-';
+                                    html += '<br/>';
+                                    html += (full[13] != null && full[13] != '') ? full[48] + full[13] : '-';
+                                } else {
+                                    html = (full[13] != null && full[13] != '') ? full[48] + full[13] : '';  //SurchargePerMinuteCurrency+SurchargePerMinute
+                                }
+                                return html;
                             }
                         }, //13 SurchargePerMinute,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[49] + col; else return '';
+                                var html = full[86] != 0 && full[86] != null ? full[86] : '-';
+                                if(full[86] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[86] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 86 SurchargePerMinute Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[99] != 0 && full[99] != null ? full[99]+'%' : '-';
+                                if(full[99] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[99] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 99 SurchargePerMinute Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[62] != null && full[62] != '') ? full[75] + full[62] : '-';
+                                    html += '<br/>';
+                                    html += (full[14] != null && full[14] != '') ? full[49] + full[14] : '-';
+                                } else {
+                                    html = (full[14] != null && full[14] != '') ? full[49] + full[14] : '';  //OutpaymentPerCallCurrency+OutpaymentPerCall
+                                }
+                                return html;
                             }
                         }, //14 OutpaymentPerCall,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[50] + col; else return '';
+                                var html = full[87] != 0 && full[87] != null ? full[87] : '-';
+                                if(full[87] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[87] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 87 OutpaymentPerCall Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[100] != 0 && full[100] != null ? full[100]+'%' : '-';
+                                if(full[100] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[100] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 100 OutpaymentPerCall Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[63] != null && full[63] != '') ? full[76] + full[63] : '-';
+                                    html += '<br/>';
+                                    html += (full[15] != null && full[15] != '') ? full[50] + full[15] : '-';
+                                } else {
+                                    html = (full[15] != null && full[15] != '') ? full[50] + full[15] : '';  //OutpaymentPerMinuteCurrency+OutpaymentPerMinute
+                                }
+                                return html;
                             }
                         }, //15 OutpaymentPerMinute,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[51] + col; else return '';
+                                var html = full[88] != 0 && full[88] != null ? full[88] : '-';
+                                if(full[88] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[88] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 88 OutpaymentPerMinute Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[101] != 0 && full[101] != null ? full[101]+'%' : '-';
+                                if(full[101] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[101] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 101 OutpaymentPerMinute Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[64] != null && full[64] != '') ? full[77] + full[64] : '-';
+                                    html += '<br/>';
+                                    html += (full[16] != null && full[16] != '') ? full[51] + full[16] : '-';
+                                } else {
+                                    html = (full[16] != null && full[16] != '') ? full[51] + full[16] : '';  //SurchargesCurrency+Surcharges
+                                }
+                                return html;
                             }
                         }, //16 Surcharges,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[52] + col; else return '';
+                                var html = full[89] != 0 && full[89] != null ? full[89] : '-';
+                                if(full[89] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[89] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 89 Surcharges Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[102] != 0 && full[102] != null ? full[102]+'%' : '-';
+                                if(full[102] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[102] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 102 Surcharges Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[65] != null && full[65] != '') ? full[78] + full[65] : '-';
+                                    html += '<br/>';
+                                    html += (full[17] != null && full[17] != '') ? full[52] + full[17] : '-';
+                                } else {
+                                    html = (full[17] != null && full[17] != '') ? full[52] + full[17] : '';  //ChargebackCurrency+Chargeback
+                                }
+                                return html;
                             }
                         }, //17 Chargeback,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[53] + col; else return '';
+                                var html = full[90] != 0 && full[90] != null ? full[90] : '-';
+                                if(full[90] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[90] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 90 Chargeback Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[103] != 0 && full[103] != null ? full[103]+'%' : '-';
+                                if(full[103] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[103] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 103 Chargeback Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[66] != null && full[66] != '') ? full[79] + full[66] : '-';
+                                    html += '<br/>';
+                                    html += (full[18] != null && full[18] != '') ? full[53] + full[18] : '-';
+                                } else {
+                                    html = (full[18] != null && full[18] != '') ? full[53] + full[18] : '';  //CollectionCostAmountCurrency+CollectionCostAmount
+                                }
+                                return html;
                             }
                         }, //18 CollectionCostAmount,
-                        {}, //19 CollectionCostPercentage,
                         {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
-                                if(col != null && col != '') return full[54] + col; else return '';
+                                var html = full[91] != 0 && full[91] != null ? full[91] : '-';
+                                if(full[91] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[91] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 91 CollectionCostAmount Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[104] != 0 && full[104] != null ? full[104]+'%' : '-';
+                                if(full[104] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[104] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 104 CollectionCostAmount Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[67] != null && full[67] != '') ? full[67] : '-';
+                                    html += '<br/>';
+                                    html += (full[19] != null && full[19] != '') ? full[19] : '-';
+                                } else {
+                                    html = (full[19] != null && full[19] != '') ? full[19] : '';  //CollectionCostPercentage
+                                }
+                                return html;
+                            }
+                        }, //19 CollectionCostPercentage,
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[92] != 0 && full[92] != null ? full[92] : '-';
+                                if(full[92] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[92] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 92 CollectionCostPercentage Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[105] != 0 && full[105] != null ? full[105]+'%' : '-';
+                                if(full[105] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[105] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 105 CollectionCostPercentage Margin Percentage
+                        {
+                            "bSortable" : false,
+                            mRender: function(col, type, full) {
+                                var html = '';
+                                if(bVisibleComparisonView) {
+                                    html = (full[68] != null && full[68] != '') ? full[80] + full[68] : '-';
+                                    html += '<br/>';
+                                    html += (full[20] != null && full[20] != '') ? full[54] + full[20] : '-';
+                                } else {
+                                    html = (full[20] != null && full[20] != '') ? full[54] + full[20] : '';  //RegistrationCostPerNumberCurrency+RegistrationCostPerNumber
+                                }
+                                return html;
                             }
                         }, //20 RegistrationCostPerNumber,
-                        {}, //21 Effective Date
                         {
-                            "bVisible" : false
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[93] != 0 && full[93] != null ? full[93] : '-';
+                                if(full[93] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[93] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 93 RegistrationCostPerNumber Margin
+                        {
+                            "bSortable" : true,
+                            "bVisible" : bVisibleComparisonView,
+                            mRender: function(col, type, full) {
+                                var html = full[106] != 0 && full[106] != null ? full[106]+'%' : '-';
+                                if(full[106] > 0)
+                                    html += '<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[106] < 0)
+                                    html += '<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                return html;
+                            }
+                        }, // 106 RegistrationCostPerNumber Margin Percentage
+                        {
+                            mRender: function(id, type, full) {
+                                return full[21];
+                            }
+                        }, //21 Effective Date
+                        {
+                            "bVisible" : false,
+                            mRender: function(id, type, full) {
+                                return full[22];
+                            }
                         }, //22 End Date
                         {
                             "bVisible" : bVisible,
@@ -789,10 +1296,12 @@
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {
-                                    // if approved rates then show Edit button else hide it
-                                    if(full[28] == {{RateTable::RATE_STATUS_AWAITING}}) {
-                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
-                                    }
+                                    @if(empty($ResellerPage))
+                                        // if approved rates then show Edit button else hide it
+                                        if(full[28] == {{RateTable::RATE_STATUS_AWAITING}} || parseInt("{{$RateApprovalProcess}}") != 1 || {{$rateTable->AppliedTo}} == {{RateTable::APPLIED_TO_VENDOR}}) {
+                                            action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                        }
+                                    @endif
                                 }
                                 <?php } ?>
 
@@ -963,7 +1472,7 @@
                 });
 
                 // if approved rates then show Bulk update button else hide it
-                if($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}}) {
+                if(parseInt("{{$RateApprovalProcess}}") != 1 || {{$rateTable->AppliedTo}} == {{RateTable::APPLIED_TO_VENDOR}} || ($searchFilter.ApprovedStatus!= '' && $searchFilter.ApprovedStatus == {{RateTable::RATE_STATUS_AWAITING}})) {
                     if (Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
                         $('#change-bulk-rate').hide();
                     } else {

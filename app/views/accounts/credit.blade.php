@@ -95,7 +95,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Credit Limit</label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control"  name="PermanentCredit" value="{{$PermanentCredit}}" >
+                            <input type="number" class="form-control"  name="PermanentCredit" value="{{$PermanentCredit}}" >
                         </div>
                     </div>
                     <div class="form-group" style="display: none;">
@@ -104,7 +104,7 @@
                         </label>
                         <div class="desc col-sm-4 ">
                             <?php /* <input type="text" class="form-control"  name="BalanceThreshold" value="{{$BalanceThreshold}}" id="Threshold Limit"> */?>
-                            <input type="text" class="form-control"  name="BalanceThreshold" value="0" id="Threshold Limit">
+                            <input type="number" class="form-control"  name="BalanceThreshold" value="0" id="Threshold Limit">
                         </div>
                     </div>
                     
@@ -143,7 +143,7 @@
             @foreach($AccountBalanceThreshold as $key=>$AccountBalanceThresholdRow)
                         <tr id="selectedRow-{{$key}}" class="fieldwrapper">
                             <td id="testValues">
-                                <input type="text" class="form-control BalanceThresholdcls"  name="BalanceThresholdnew-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
+                                <input type="number" class="form-control BalanceThresholdcls"  name="BalanceThresholdnew-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThreshold}}" id="Threshold Limit">
                             </td>
                             <td>
                                 <input type="text" class="form-control emailcls"  name="email-{{$key}}" value="{{$AccountBalanceThresholdRow->BalanceThresholdEmail}}" id="email">
@@ -191,13 +191,13 @@
                 <input type="text" class="form-control" readonly value="{{$OutPaymentAwaiting}}">
             </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-4 hide">
             <div class="form-group">
                 <label for="field-2" class="control-label">Approved</label>
                 <input type="text" class="form-control" readonly value="{{$OutPaymentAvailable}}">
             </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-4 hide">
             <div class="form-group">
                 <label for="field-3" class="control-label">Paid</label>
                 <input type="text" class="form-control" readonly value="{{$OutPaymentPaid}}">
@@ -237,7 +237,7 @@
         var rowCountMain = $("#servicetableSubBox > tbody").children().length;
         console.log(rowCountMain);
         if(rowCountMain==0){
-            htmldata='<tr id="selectedRow-0" class="fieldwrapper"  ><td id="testValues"><input type="text" class="form-control BalanceThresholdcls"  name="BalanceThresholdnew-0" value="" id="Threshold Limit"></td><td> <input type="text" class="form-control emailcls"  name="email-0" value="" id="email"></td><td><a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm " data-loading-text="Loading..."><i></i> - </a></td></tr>';
+            htmldata='<tr id="selectedRow-0" class="fieldwrapper"  ><td id="testValues"><input type="number" class="form-control BalanceThresholdcls"  name="BalanceThresholdnew-0" value="" id="Threshold Limit"></td><td> <input type="text" class="form-control emailcls"  name="email-0" value="" id="email"></td><td><a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm " data-loading-text="Loading..."><i></i> - </a></td></tr>';
             $('#tbody').html(htmldata);
         }else{
             var $item = $('#servicetableSubBox tr:last').attr('id');

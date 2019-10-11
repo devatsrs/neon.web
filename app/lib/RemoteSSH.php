@@ -3,13 +3,25 @@
 class RemoteSSH{
     private static $config = array();
     public static $uploadPath = '';
+    public static $ServerIp = '';
 
     public static function setConfig(){
-
         $Configuration = CompanyConfiguration::getConfiguration();
-        if(!empty($Configuration)){
-            self::$config = json_decode($Configuration['SSH'],true);
-            self::$uploadPath = $Configuration['UPLOAD_PATH'];
+        if(self::$ServerIp != "" && !empty($Configuration)){
+            $Nodes = Nodes::where('ServerIP',self::$ServerIp)->first();
+            if(!empty($Nodes)){
+                self::$config = json_decode($Nodes,true);
+                self::$config['password'] = Crypt::decrypt(self::$config['Password']);
+                self::$config['host']     = self::$config['ServerIP'];
+                self::$config['username'] = self::$config['Username'];
+                self::$uploadPath = $Configuration['UPLOAD_PATH'];
+            }
+        }else{
+            if(!empty($Configuration)){
+                self::$config = json_decode($Configuration['SSH'],true);
+                self::$uploadPath = $Configuration['UPLOAD_PATH'];
+            }
+            
         }
         if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['username']) && isset(self::$config['password'])){
             Config::set('remote.connections.production',self::$config);

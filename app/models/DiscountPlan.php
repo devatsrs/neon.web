@@ -66,7 +66,7 @@ class DiscountPlan extends \Eloquent
         $ExcludedComponent = array();
         $DiscountPlanComponents = [];
         if ($DestinationGroupSetID == 1) {
-            $DiscountPlanComponents = DiscountPlan::$Component;
+            $DiscountPlanComponents = DiscountPlan::$RateTableRate_Components;
             $AllComponents = $company->Components;
         } else if ($DestinationGroupSetID == 2) {
             $DiscountPlanComponents = DiscountPlan::$RateTableDIDRate_Components;
@@ -104,13 +104,10 @@ class DiscountPlan extends \Eloquent
         return $DropdownIDList;
     }
     public static function getDropdownIDListForType($CompanyID,$CurrencyID,$RateType){
-
-
-
         $DropdownIDListQry = DiscountPlan::Join('tblDestinationGroupSet as dgs','dgs.DestinationGroupSetID','=','tblDiscountPlan.DestinationGroupSetID')->
-                            where(array("tblDiscountPlan.CompanyID"=>$CompanyID,
-                                    'dgs.RateTypeID'=>$RateType))->
-                                select(['tblDiscountPlan.Name','tblDiscountPlan.DiscountPlanID']);
+        where(array("tblDiscountPlan.CompanyID"=>$CompanyID,
+            'dgs.RateTypeID'=>$RateType))->
+        select(['tblDiscountPlan.Name','tblDiscountPlan.DiscountPlanID']);
         $DropdownIDResult = $DropdownIDListQry->get();
         $DropdownIDList= array();
         foreach ($DropdownIDResult as $item) {
@@ -119,10 +116,21 @@ class DiscountPlan extends \Eloquent
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
         return $DropdownIDList;
     }
+
+    public static function getDropdownIDListForRateType($RateType){
+        $DropdownIDListQry = DiscountPlan::Join('tblDestinationGroupSet as dgs','dgs.DestinationGroupSetID','=','tblDiscountPlan.DestinationGroupSetID')->
+        where(array('dgs.RateTypeID'=>$RateType))
+            ->select(['tblDiscountPlan.Name','tblDiscountPlan.DiscountPlanID']);
+        $DropdownIDResult = $DropdownIDListQry->get();
+        $DropdownIDList= array();
+        foreach ($DropdownIDResult as $item) {
+            $DropdownIDList[$item->DiscountPlanID] = $item->Name;
+        }
+        $DropdownIDList = array('' => "Select") + $DropdownIDList;
+        return $DropdownIDList;
+    }
+
     public static function verifyDiscountPlanID($CompanyID,$CurrencyID,$RateType,$DiscountPlanID){
-
-
-
         $DropdownIDListQry = DiscountPlan::Join('tblDestinationGroupSet as dgs','dgs.DestinationGroupSetID','=','tblDiscountPlan.DestinationGroupSetID')->
         where(array("tblDiscountPlan.CompanyID"=>$CompanyID,
             'dgs.RateTypeID'=>$RateType))
