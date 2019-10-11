@@ -497,7 +497,7 @@
                     <div class="form-group">
                         <div class="col-sm-10">
                             <label class="control-label col-sm-2">Nodes</label>
-                            {{ Form::select('Nodes[]', $Nodes, '', array("class"=>"select2",'id'=>'nodes','multiple',"data-placeholder"=>"Select Nodes")) }}
+                            {{ Form::select('Nodes[]', $Nodes, $ActiveNodes['Nodes'], array("class"=>"select2",'id'=>'nodes','multiple',"data-placeholder"=>"Select Nodes")) }}
                         </div>    
                     </div>
                 </div>
@@ -540,6 +540,14 @@
 
 <script type="text/javascript">
     jQuery(document).ready(function($) {
+
+        $("#nodes").on("select2-selecting", function (evt) {
+            var element = evt.object.element;
+            var $element = $(element);
+            $element.detach();
+            $(this).append($element);
+            $(this).trigger("change");
+        });
 
         // Replace Checboxes
         $(".save.btn").click(function(ev) {
