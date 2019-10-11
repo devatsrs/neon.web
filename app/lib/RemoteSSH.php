@@ -3,12 +3,12 @@
 class RemoteSSH{
     private static $config = array();
     public static $uploadPath = '';
-    public static $ServerIp = '';
+    public static $ServerID = '';
 
     public static function setConfig(){
         $Configuration = CompanyConfiguration::getConfiguration();
-        if(self::$ServerIp != "" && !empty($Configuration)){
-            $Nodes = Nodes::where('ServerIP',self::$ServerIp)->first();
+        if(self::$ServerID != "" && !empty($Configuration)){
+            $Nodes = Nodes::where('ServerID',self::$ServerID)->first();
             if(!empty($Nodes)){
                 self::$config = json_decode($Nodes,true);
                 self::$config['password'] = Crypt::decrypt(self::$config['Password']);
