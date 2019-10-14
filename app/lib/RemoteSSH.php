@@ -12,7 +12,7 @@ class RemoteSSH{
             if(!empty($Nodes)){
                 self::$config = json_decode($Nodes,true);
                 self::$config['password'] = Crypt::decrypt(self::$config['Password']);
-                self::$config['host']     = self::$config['ServerIP'];
+                self::$config['host']     = self::$config['LocalIP'];
                 self::$config['username'] = self::$config['Username'];
                 self::$uploadPath = $Configuration['UPLOAD_PATH'];
             }
