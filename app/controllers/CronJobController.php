@@ -303,6 +303,7 @@ class CronJobController extends \BaseController {
                 if(count($CheckServerUp) > 0){
                     if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
                         $command = CompanyConfiguration::get("PHP_EXE_PATH"). " " .CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
+                        log::info('server command ' . $command);
                         RemoteSSH::$ServerID = $ServerID;
                         $Success = run_process($command);
                         $Server = true;
