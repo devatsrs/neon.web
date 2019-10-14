@@ -16,6 +16,13 @@ class CompaniesController extends \BaseController {
         $company_id = User::get_companyID();
         $company = Company::find($company_id);
         $Nodes = Nodes::getActiveNodes();
+        $ActiveNodes = CompanyConfiguration::where('Key','Nodes')->first();
+        if($ActiveNodes){
+            $ActiveNodes = json_decode($ActiveNodes->Value,true);
+        }else{
+            $ActiveNodes['Nodes'] = "";
+        }
+        
         $ExcludedComponent = array();
         $ExcludedComponent = explode(",",$company->Components);
         $AccessExcludedComponent = array();
@@ -74,7 +81,7 @@ class CompaniesController extends \BaseController {
             $DigitalSignature=json_decode($DigitalSignature, true);
         }
 
-        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend', 'RateApprovalProcess','Nodes'));
+        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'ActiveNodes' ,'invoicePdfSend', 'RateApprovalProcess','Nodes'));
 
     }
 

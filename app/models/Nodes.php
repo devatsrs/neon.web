@@ -18,7 +18,7 @@ class Nodes extends \Eloquent {
     );
 
     public static function getActiveNodes(){
-        $Nodes = Nodes::where('Status','1')->lists('ServerName','ServerIP');
+        $Nodes = Nodes::where('Status','1')->lists('ServerName','ServerID');
         return $Nodes;
     }
 
