@@ -298,11 +298,12 @@ class CronJobController extends \BaseController {
         $CheckServerStatus = Nodes::getServersFromCronJob($CronJobID,$CompanyID);
 		if(!empty($CheckServerStatus) && count($CheckServerStatus) > 0){
             foreach($CheckServerStatus as $ServerID){
-                $CheckServerUp = Nodes::where(['ServerID' => $ServerID ,'ServerStatus' => '1', 'MaintananceStatus' => 0])->first();
+                $CheckServerUp = Nodes::where(['ServerID' => $ServerID ,'ServerStatus' => '1', 'MaintananceStatus' => '0'])->first();
                 $CheckServerUp = json_decode($CheckServerUp,true);
                 if(count($CheckServerUp) > 0){
                     if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
                         $command = CompanyConfiguration::get("PHP_EXE_PATH"). " " .CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
+                        log::info('server command ' . $command);
                         RemoteSSH::$ServerID = $ServerID;
                         $Success = run_process($command);
                         $Server = true;

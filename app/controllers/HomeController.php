@@ -408,7 +408,7 @@ class HomeController extends BaseController {
     }
 
     function health_check(){
-        $CurrentIp = $host = gethostname();
+        $CurrentIp = getenv('SERVER_LOCAL_IP');
         log::info('Check Current Ip '.$CurrentIp);
         $Node = Nodes::where('LocalIP',$CurrentIp)->first();
         if($Node){
