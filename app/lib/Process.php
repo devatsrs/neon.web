@@ -26,7 +26,7 @@ class Process
     }
     private function runCom(){
         //@TODO: need to fix for Window
-        $command = 'nohup '.$this->command.'  >/dev/null 2>/dev/null & printf "%u" $!';
+        $command = 'sudo nohup '.$this->command.'  >/dev/null 2>/dev/null & printf "%u" $!';
         $op = RemoteSSH::run([$command]);
         //exec($command ,$op);
         $this->pid = (int)$op;
