@@ -408,8 +408,9 @@ class HomeController extends BaseController {
     }
 
     function health_check(){
-        $CurrentIp = $_SERVER['SERVER_ADDR'];
-        $Node = Nodes::where('ServerIP',$CurrentIp)->first();
+        $CurrentIp = getenv('SERVER_LOCAL_IP');
+        log::info('Check Current Ip '.$CurrentIp);
+        $Node = Nodes::where('LocalIP',$CurrentIp)->first();
         if($Node){
             if($Node->MaintananceStatus == 1){
                 App::abort(404, 'Server In Maintenance');

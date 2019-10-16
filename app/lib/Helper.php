@@ -154,7 +154,15 @@ class Helper{
         else
         {
             $config = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $companyID)->first();
-            if($config != false) $config->SMTPPassword = Crypt::decrypt($config->SMTPPassword);
+
+
+            //If configuration not set then use parent company's configuration
+            if($config != false && empty($config->SMTPUsername) && Reseller::IsResellerByCompanyID($companyID) > 0){
+                $ParentCompanyID = Reseller::getCompanyIDByChildCompanyID($companyID);
+                $config = Company::select('SMTPServer', 'SMTPUsername', 'CompanyName', 'SMTPPassword', 'Port', 'IsSSL', 'EmailFrom')->where("CompanyID", '=', $ParentCompanyID)->first();
+            }
+
+            if($config = !false) $config->SMTPPassword = Crypt::decrypt($config->SMTPPassword);
             $status = 	 PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID,$body);
         }
 
