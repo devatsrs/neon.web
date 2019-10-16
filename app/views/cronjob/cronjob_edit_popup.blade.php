@@ -84,7 +84,7 @@
 				var options = "";
 				$.each(z, function(item, val){
                 if(item.lastIndexOf(" - ") > 0)
-                    item = item.splice(0, item.lastIndexOf(" "));
+                    item = item.splice(item.lastIndexOf(" "));
                 options += "<option value=" + item + ">" + val + "</option>";
                 });
 				$("#add-new-config-form [name='Setting[Nodes][]']").html(options);
