@@ -85,7 +85,7 @@
 				$.each(z, function(item, val){
                     if(item.lastIndexOf(" - ") > 0){
                     item += "";
-                    item = item.splice(item.lastIndexOf(" "));
+                    item = item.slice(item.lastIndexOf(" "));
                     }
                 options += "<option value=" + item + ">" + val + "</option>";
                 });
