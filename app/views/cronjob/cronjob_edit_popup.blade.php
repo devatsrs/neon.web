@@ -83,7 +83,8 @@
 				$("#add-new-config-form [name='Setting[Nodes][]']").empty();
 				var options = "";
 				$.each(z, function(item, val){
-                if(item.lastIndexOf(" - ") > 0)
+                    if(item.lastIndexOf(" - ") > 0){
+                    item += "";
                     item = item.splice(item.lastIndexOf(" "));
                 options += "<option value=" + item + ">" + val + "</option>";
                 });
