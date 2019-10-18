@@ -30,7 +30,7 @@
             submit_ajax(baseurl+'/cronjobs/delete/'+$(this).attr('data-id'));
         }
     });
-
+    var nodesArr = '{{ json_encode($Nodes) }}';
     $('table tbody').on('click','.edit-config',function(ev){
         ev.preventDefault();
         ev.stopPropagation();
@@ -64,8 +64,33 @@
             }
             if(json !== null && typeof  json['JobStartDay'] != 'undefined'){
                 $("#add-new-config-form [name='Setting[JobStartDay]']").val(json['JobStartDay']).trigger("change");
-            }
+            }   
             if(json !== null && typeof  json['Nodes'] != 'undefined'){
+                var nodesarray = json['Nodes'];
+                var y = JSON.parse(nodesArr);
+                var x = {}; 
+                $.each(nodesarray,(i,j) => {
+                    $.each(y,(a,b) => {
+                        if(j == a){
+                            x[i + " - " + a] = b;
+							console.log(y[a]);
+                            delete y[a];
+                        }
+                    });
+                });
+				var z = $.extend(x,y);
+                console.log(z);
+				$("#add-new-config-form [name='Setting[Nodes][]']").empty();
+				var options = "";
+				$.each(z, function(item, val){
+                    if(item.lastIndexOf(" - ") > 0){
+                    item += "";
+                    item = item.slice(item.lastIndexOf(" "));
+                    }
+                options += "<option value=" + item + ">" + val + "</option>";
+                });
+				$("#add-new-config-form [name='Setting[Nodes][]']").html(options);
+				$("#add-new-config-form [name='Setting[Nodes][]']").trigger("change");
                 $("#add-new-config-form [name='Setting[Nodes][]']").val(json['Nodes']).trigger("change");
             }else{
                 $("#add-new-config-form [name='Setting[Nodes][]']").val('').trigger("change");
