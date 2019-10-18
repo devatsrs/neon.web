@@ -311,7 +311,7 @@ class BillingDashboard extends \BaseController {
         if(!empty($data['ResellerOwner'])){
             $Reseller = Reseller::getResellerDetails($data['ResellerOwner']);
             if($Reseller != false)
-                $countQryString .= ' (tblAccount.CompanyId='.$Reseller->CompanyId.') AND ';
+                $countQryString .= ' (tblAccount.CompanyId='.$Reseller->ChildCompanyID.') AND ';
         }
        
         if (User::is('AccountManager')) {
