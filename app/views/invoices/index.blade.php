@@ -164,10 +164,8 @@
             @if(is_FastPay($CompanyID))
             <li> <a class="create" id="fastpay-export" href="javascript:;"> FastPay Export </a> </li>
             @endif
-            @if(!empty($IngenicoExport->Value))
-             @if($IngenicoExport->Value == 1)
+            @if(User::is_admin() || (!empty($IngenicoExport->Value) && $IngenicoExport->Value == 1))
                 <li> <a class="create" id="ingenico-export" href="javascript:;"> Ingenico Export </a> </li>
-              @endif 
             @endif
           </ul>
           @endif
