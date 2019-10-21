@@ -15,9 +15,9 @@ class PackageController extends BaseController {
         $CompanyID = User::get_companyID();
         $resellerID = Reseller::getResellerID();
         $packages = Package::leftJoin('tblRateTable',function($join){
-            $join->on('tblPackage.RateTableId','=','tblRateTable.RateTableId');
-            $join->on('tblRateTable.Type','=','3');
-            $join->on('tblRateTable.AppliedTo','<>','2');
+            $join->on('tblPackage.RateTableId','=','tblRateTable.RateTableId')
+            ->where('tblRateTable.Type','=','3')
+            ->where('tblRateTable.AppliedTo','<>','2');
         })           
         ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
         ->select([
