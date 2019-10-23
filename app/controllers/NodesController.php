@@ -148,7 +148,6 @@ class NodesController extends \BaseController {
 		Nodes::$rules["ServerName"] = 'required|unique:tblNode,ServerName,'.$id.',ServerID';
 		Nodes::$rules["ServerIP"] = 'required|unique:tblNode,ServerIP,'.$id.',ServerID';
 		Nodes::$rules["LocalIP"] = 'required|unique:tblNode,LocalIP,'.$id.',ServerID';
-		Nodes::$rules["Username"] = 'required|unique:tblNode,ServerIP,'.$id.',ServerID';
 
 
         $validator = Validator::make($data, Nodes::$rules);
@@ -222,7 +221,7 @@ class NodesController extends \BaseController {
 	public function delete($id)
 	{
 		$result = Nodes::find($id);
-		if(!Nodes::FindNodesInCronJob($result->ServerIP)){
+		if(!Nodes::FindNodesInCronJob($result->ServerID)){
 			return Response::json(array("status" => "failed", "message" => "Node can not be deleted, Its assigned to CronJob."));
 		}
 		$result->delete();

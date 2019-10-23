@@ -1852,6 +1852,7 @@ Route::group(array('before' => 'guest'), function () {
 });
 
 Route::any('terms', "HomeController@terms");
+Route::any('health_check', "HomeController@health_check");
 
 /*
  * save isGuest to skip routes/urls for user permission

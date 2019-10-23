@@ -406,4 +406,16 @@ class HomeController extends BaseController {
     function terms(){
         return View::make('terms.index');
     }
+
+    function health_check(){
+        $CurrentIp = getenv('SERVER_LOCAL_IP');
+        log::info('Check Current Ip '.$CurrentIp);
+        $Node = Nodes::where('LocalIP',$CurrentIp)->first();
+        if($Node){
+            if($Node->MaintananceStatus == 1){
+                App::abort(404, 'Server In Maintenance');
+            }
+        }
+    }
+
 }

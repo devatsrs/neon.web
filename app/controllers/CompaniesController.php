@@ -1,5 +1,6 @@
 <?php
 
+
 class CompaniesController extends \BaseController {
 
 
@@ -14,6 +15,14 @@ class CompaniesController extends \BaseController {
         $LicenceApiResponse = Company::ValidateLicenceKey();
         $company_id = User::get_companyID();
         $company = Company::find($company_id);
+        $Nodes = Nodes::getActiveNodes();
+        $ActiveNodes = CompanyConfiguration::where('Key','Nodes')->first();
+        if($ActiveNodes){
+            $ActiveNodes = json_decode($ActiveNodes->Value,true);
+        }else{
+            $ActiveNodes['Nodes'] = "";
+        }
+        
         $ExcludedComponent = array();
         $ExcludedComponent = explode(",",$company->Components);
         $AccessExcludedComponent = array();
@@ -72,7 +81,7 @@ class CompaniesController extends \BaseController {
             $DigitalSignature=json_decode($DigitalSignature, true);
         }
 
-        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend', 'RateApprovalProcess'));
+        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'ActiveNodes' ,'invoicePdfSend', 'RateApprovalProcess','Nodes'));
 
     }
 
@@ -86,6 +95,7 @@ class CompaniesController extends \BaseController {
 	public function update()
 	{
         $data = Input::all();
+
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         // $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
@@ -250,9 +260,23 @@ class CompaniesController extends \BaseController {
                 $SSH['password'] = '';
             }
         }
+        if(isset($data['Nodes'])){
+            $Nodes['Nodes'] = $data['Nodes'];
+            $Nodes = json_encode($Nodes);
+            $NodesCheck = CompanyConfiguration::where('Key', 'Nodes')->first();
+            if($NodesCheck){
+                CompanyConfiguration::where('Key', 'Nodes')->update(['Value'=>$Nodes]);
+                CompanyConfiguration::updateCompanyConfiguration($companyID);
+            }else{
+                $NodeAdd["CompanyID"] = User::get_companyID();
+                $NodeAdd["Key"] = "Nodes";
+                $NodeAdd["Value"] = $Nodes;
+                CompanyConfiguration::insert($NodeAdd);
+            }
+            unset($data['Nodes']);
+        }
 		
         if ($company->update($data)) {
-
             if(CompanySetting::getKeyVal('UseDigitalSignature', $companyID)){
                 $signaturePath =$upload_path . AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
                 $SERVER_NAME=preg_replace('/[^A-Za-z0-9\-]/', '', $_SERVER["SERVER_NAME"]);
@@ -262,7 +286,7 @@ class CompaniesController extends \BaseController {
                         'openssl pkcs12 -inkey '.$signaturePath.'digitalsignature.key -in '.$signaturePath.'digitalsignature.crt -export -out '.$signaturePath.'digitalsignature.pfx -password pass:Welcome100'
                     ]);
             }
-
+           
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Company."));

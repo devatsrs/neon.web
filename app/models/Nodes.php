@@ -14,11 +14,11 @@ class Nodes extends \Eloquent {
         'ServerName' =>      'required|unique:tblNode',
         'ServerIP'   =>      'required|unique:tblNode',
         'LocalIP'    =>      'required|unique:tblNode',
-        'Username'   =>      'required|unique:tblNode',
+        'Username'   =>      'required',
     );
 
     public static function getActiveNodes(){
-        $Nodes = Nodes::where('Status','1')->lists('ServerName','ServerIP');
+        $Nodes = Nodes::where('Status','1')->lists('ServerName','ServerID');
         return $Nodes;
     }
 
@@ -40,13 +40,13 @@ class Nodes extends \Eloquent {
         return $CurrentIp;
     }
 
-    public static function FindNodesInCronJob($ServerIP){
+    public static function FindNodesInCronJob($ServerID){
         $Crons = CronJob::where('CompanyID',1)->get();
 		foreach($Crons as $Cron){
 			$Settings = json_decode($Cron->Settings,true);
 			if(isset($Settings['Nodes'])){
 				$Nodes = $Settings['Nodes'];
-				if(in_array($ServerIP,$Nodes)){
+				if(in_array($ServerID,$Nodes)){
 					return false;
 				}
 			}
