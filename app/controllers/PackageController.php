@@ -15,26 +15,22 @@ class PackageController extends BaseController {
         $CompanyID = User::get_companyID();
         $resellerID = Reseller::getResellerID();
         $packages = Package::leftJoin('tblRateTable',function($join){
-                $join->on('tblPackage.RateTableId','=','tblRateTable.RateTableId');
-            })           
-            ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
-            ->select([
-                "tblPackage.PackageId",
-                "tblPackage.Name",
-                "tblRateTable.RateTableName",
-                "tblCurrency.Code",
-                "tblPackage.RateTableId",
-                "tblPackage.CurrencyId",
-                "tblPackage.Status"
-            ])
+            $join->on('tblPackage.RateTableId','=','tblRateTable.RateTableId')
+            ->where('tblRateTable.Type','=',RateTable::RATE_TABLE_TYPE_PACKAGE)
+            ->where('tblRateTable.AppliedTo','<>',RateTable::APPLIED_TO_VENDOR);
+        })           
+        ->leftJoin('tblCurrency','tblPackage.CurrencyId','=','tblCurrency.CurrencyId')
+        ->select([
+            "tblPackage.PackageId",
+            "tblPackage.Name",
+            "tblRateTable.RateTableName",
+            "tblCurrency.Code",
+            "tblPackage.RateTableId",
+            "tblPackage.CurrencyId",
+            "tblPackage.Status"
+        ])
+        ->where('tblPackage.CompanyId',$CompanyID);
             
-            ->where('tblRateTable.Type',RateTable::RATE_TABLE_TYPE_PACKAGE)
-            ->where('tblRateTable.AppliedTo','<>', RateTable::APPLIED_TO_VENDOR)
-            ->where('tblPackage.CompanyId',$CompanyID);;
-            
-            
-
-
         if(is_reseller()){
             $packages->where(function($query) use($CompanyID, $resellerID){
                 $query->where([
