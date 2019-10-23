@@ -186,7 +186,7 @@
                         </div>
                     </div>
                    <div class="form-group">
-                       <label class="col-md-2 control-label">Currency</label>
+                       <label class="col-md-2 control-label">*Currency</label>
                        <div class="col-md-4">
 
                            {{Form::SelectControl('currency',0,$lead->CurrencyId,0,'CurrencyId')}}

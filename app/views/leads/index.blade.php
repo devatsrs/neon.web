@@ -179,7 +179,7 @@
                 "aoColumns": [
                     {"bSortable": false,
                         mRender: function(id, type, full) {
-                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[4] + '" class="rowcheckbox" ></div>';
+                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[5] + '" class="rowcheckbox" ></div>';
                         }
                     }, //0Checkbox
                     {"bSortable": true,
