@@ -154,7 +154,13 @@ class DashboardController extends BaseController {
         if(!empty($BillingDashboardWidgets)) {
             $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
         }
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets','StartDateDefault1','GetDashboardPR','GetDashboardPL'));
+        $FileSatusFilter = array(
+            '1' => 'Pending',
+            '2' => 'In Progress',
+            '3' => 'Success',
+            '4' => 'Failed'
+        );
+        return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets','StartDateDefault1','GetDashboardPR','GetDashboardPL','FileSatusFilter'));
 
     }
     public function monitor_dashboard(){
@@ -428,6 +434,14 @@ class DashboardController extends BaseController {
         }catch(Exception $ex){
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
+    }
+
+    public function ajax_get_usage_files(){
+        $companyID = User::get_companyID();
+        $query = "call prc_getUsageFiles (".$companyID.",".intval(Input::get('CompanyGatewayID')).",".intval(Input::get('FileStatusFilter')).")";
+        $missingAccounts = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('getusageFiles'));
+        $jsondata['usageFiles']=$missingAccounts['data']['getusageFiles'];
+        return json_encode($jsondata);
     }
 
     public function getTopAlerts(){
