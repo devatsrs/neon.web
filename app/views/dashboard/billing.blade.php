@@ -386,32 +386,37 @@
                     </div>
 
                     <div class="panel-options">
+                        <label for="Closingdate" class="col-sm-3 control-label managerLabel ">Date</label>
+                        <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="UsageDate"  data-format="YYYY-MM-DD"  name="UsageDate" class="small-date-input daterange">
+                        <button type="submit" id="submit_files" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
                         {{ Form::select('CompanyGatewayID', $company_gateway, 1, array('id'=>'company_gateway_files','class'=>'select_gray')) }}
                         {{ Form::select('FileStatusFilter',[0=>'Select Status'] + $FileSatusFilter, 0, array('id'=>'file_status_filter','class'=>'select_gray')) }}
                         <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
                         <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
                         <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
+
                         <!--   <a data-rel="empty" href="#" title="Delete Usage Files"><i class="entypo-trash"></i></a>-->
                     </div>
                 </div>
-                <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
-                    <table id="usageFiles" class="table table-responsive">
-                        <thead>
-                        <tr>
-                            <th>Gateway</th>
-                            <th>FileName</th>
-                            <th>Created Date</th>
-                            <th>Process Date</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
+            </div>
+            <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
+                <table id="usageFiles" class="table table-responsive">
+                    <thead>
+                    <tr>
+                        <th>Gateway</th>
+                        <th>FileName</th>
+                        <th>Created Date</th>
+                        <th>Process Date</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
 
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
     </div>
 
 
@@ -903,10 +908,10 @@
             $("#company_gateway").change(function () {
                 missingAccounts();
             });
-            $("#company_gateway_files").change(function () {
+            $("#company_gateway_files,#file_status_filter").change(function () {
                 usageFiles();
             });
-            $("#file_status_filter").change(function () {
+            $("#submit_files").click(function () {
                 usageFiles();
             });
         });
@@ -1230,7 +1235,12 @@
 
             var table = $('#usageFiles');
             loadingUnload(table, 1);
-            var url = baseurl + '/dashboard/ajax_get_usage_files?CompanyGatewayID=' + $("#company_gateway").val() + '&FileStatusFilter='+ $("#file_status_filter").val();
+            var UsageDate     = $("#UsageDate").val();
+            var res = UsageDate.split(" - ");
+            var startdate = res[0].trim();
+            var enddate = res[1].trim();
+
+            var url = baseurl + '/dashboard/ajax_get_usage_files?CompanyGatewayID=' + $("#company_gateway").val() + '&FileStatusFilter='+ $("#file_status_filter").val() + '&StartDate=' + startdate + '&EndDate=' + enddate;
             $.ajax({
                 url: url,  //Server script to process data
                 type: 'POST',
