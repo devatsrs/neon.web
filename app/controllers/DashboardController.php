@@ -438,7 +438,7 @@ class DashboardController extends BaseController {
 
     public function ajax_get_usage_files(){
         $companyID = User::get_companyID();
-        $query = "call prc_getUsageFiles (".$companyID.",".intval(Input::get('CompanyGatewayID')).",".intval(Input::get('FileStatusFilter')).")";
+        $query = "call prc_getUsageFiles (".$companyID.",".intval(Input::get('CompanyGatewayID')).",".intval(Input::get('FileStatusFilter')).",'".Input::get('StartDate')."','".Input::get('EndDate')."')";
         $missingAccounts = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('getusageFiles'));
         $jsondata['usageFiles']=$missingAccounts['data']['getusageFiles'];
         return json_encode($jsondata);

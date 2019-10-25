@@ -295,3 +295,47 @@ BEGIN
 
 END//
 DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getUsageFiles`;
+DELIMITER //
+CREATE PROCEDURE `prc_getUsageFiles`(
+	IN `p_CompanyID` int,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_FileStatus` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+	SELECT udf.FileName,cg.title,udf.created_at,udf.process_at,
+		CASE WHEN udf.Status = '1'
+		THEN
+			'Pending'
+		WHEN udf.Status = '2'
+		THEN
+			'In Progress'
+		WHEN udf.Status = '3'
+		THEN
+			'Success'
+		ELSE
+			'Failed'
+		END AS FileStatus
+		FROM tblUsageDownloadFiles udf
+	INNER JOIN Ratemanagement3.tblCompanyGateway cg
+		ON udf.CompanyGatewayID = cg.CompanyGatewayID
+	WHERE cg.`Status` =1
+		AND (p_CompanyGatewayID = 0 OR udf.CompanyGatewayID = p_CompanyGatewayID )
+		AND udf.FileName IS NOT NULL
+		AND (p_FileStatus = 0 OR udf.Status = p_FileStatus )
+	--	AND  udf.created_at >= NOW() - INTERVAL 1 DAY
+		AND  DATE(udf.created_at) BETWEEN p_StartDate and p_EndDate
+	ORDER BY udf.CompanyGatewayID,udf.created_at desc;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
