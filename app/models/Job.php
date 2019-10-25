@@ -1026,6 +1026,49 @@ class Job extends \Eloquent {
 
                 break;
 
+            case 'TRM':
+                /*
+                 *  Termination Rate Margin
+                 */
+                $rules = array(
+                    'CompanyID' => 'required',
+                    'JobTypeID' => 'required',
+                    'JobStatusID' => 'required',
+                    'JobLoggedUserID' => 'required',
+                    'Title' => 'required',
+                    'CreatedBy' => 'required',
+                );
+
+                $jobType = JobType::where(["Code" => $JobType])->get(["JobTypeID", "Title"]);
+                $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+
+                $CompanyID              = User::get_companyID();
+                $options["CompanyID"]   = $CompanyID;
+                $data["CompanyID"]      = $CompanyID;
+                $data["JobTypeID"]      = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+                $data["JobStatusID"]    = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+                $data["JobLoggedUserID"]= User::get_userID();
+                $data["Title"]          = 'Termination Rate Difference ('.$options['RateTableName'].')';
+                $data["Description"]    = ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+                $data["CreatedBy"]      = User::get_user_full_name();
+                $data["updated_at"]     = date('Y-m-d H:i:s');
+                $data["created_at"]     = date('Y-m-d H:i:s');
+                $data["Options"]        = json_encode($options);
+
+                $validator = Validator::make($data, $rules);
+
+                if ($validator->fails()) {
+                    return validator_response($validator);
+                }
+
+                if ($JobID = Job::insertGetId($data)) {
+                    return array("status" => "success", "message" => "Job Logged Successfully");
+                } else {
+                    return array("status" => "failed", "message" => "Problem Inserting Job.");
+                }
+
+                break;
+
             case 'CD': // Customer Rate Sheet Download
 
                 return self::JobLogCustomerVendorDownload($JobType, $options);

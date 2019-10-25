@@ -627,8 +627,20 @@ class RateTablesController extends \BaseController {
 
                     $results = Job::logJob('TRO', $options);
                 } else {
-                    $results = DB::statement($query);
+                    $results = DB::select($query);
                     if ($results) {
+                        // only log job when inserted termination rate in awaiting approval table
+                        if($data['ApprovedStatus'] != RateTable::RATE_STATUS_APPROVED && !empty($results[0]->ProcessID)) {
+                            $params['RateTableID']       = $RateTableID;
+                            $params['RateTableRateAAID'] = '';
+                            $params['ProcessID']         = $results[0]->ProcessID;
+
+                            $options['RateTableName']   = $data['RateTableName'];
+                            $options['params']          = $params;
+
+                            $results = Job::logJob('TRM', $options);
+                        }
+
                         $results = array("status" => "success", "message" => "Rates Successfully Updated");
                     } else {
                         $results = array("status" => "failed", "message" => "Problem Updating Rate Table Rate.");
@@ -1106,7 +1118,22 @@ class RateTablesController extends \BaseController {
 
             $RateTableRate['RoutingCategoryID'] = !empty($RateTableRate['RoutingCategoryID']) ? $RateTableRate['RoutingCategoryID'] : NULL;
 
-            $Rate = $RateTableRateModel::insert($RateTableRate);
+            $Rate = $RateTableRateModel::create($RateTableRate);
+
+            if($Rate) {
+                // only log job when inserted termination rate in awaiting approval table
+                if($RateTableRateModel == 'RateTableRateAA') {
+                    $params['RateTableID']              = $rateTable->RateTableId;
+                    $params['RateTableRateAAID']        = $Rate->RateTableRateAAID;
+                    $params['ProcessID']                = '';
+
+                    $options['RateTableName']   = $rateTable->RateTableName;
+                    $options['params']          = $params;
+
+                    $results = Job::logJob('TRM', $options);
+                }
+            }
+
             $archive_query = "CALL prc_ArchiveOldRateTableRate('".$RateTableRate['RateTableId']."','".$RateTableRate['TimezonesID']."','".$username."');";
         } else if($rateTable->Type == $TypeDID) {
             $RateTableRate['OneOffCost']                = $data['OneOffCost'] == '' ? NULL : $data['OneOffCost'];
