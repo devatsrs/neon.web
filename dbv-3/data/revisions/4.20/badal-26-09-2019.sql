@@ -5,7 +5,7 @@ CREATE TABLE `tblHuaweiExtraFields` (
 	`UsageDetailID` INT(11) NOT NULL,
 	`caller_address_nature` INT(5) NULL DEFAULT NULL,
 	`called_address_nature` INT(5) NULL DEFAULT NULL,
-	`alert_time` DATETIME NULL DEFAULT NULL,
+	`alert_time` VARCHAR(50) NULL DEFAULT NULL,
 	`trunk_group_in` VARCHAR(100) NULL DEFAULT NULL,
 	`trunk_group_out` VARCHAR(100) NULL DEFAULT NULL,
 	`caller_trunk_cic` INT(11) NULL DEFAULT NULL,
@@ -17,6 +17,7 @@ CREATE TABLE `tblHuaweiExtraFields` (
 	`global_call_ref` VARCHAR(50) NULL DEFAULT NULL,
 	`connection_id` INT(11) NULL DEFAULT NULL,
 	`audio_codec_type` INT(5) NULL DEFAULT NULL,
+	`terminating_code` VARCHAR(50) NULL DEFAULT NULL,
 	PRIMARY KEY (`HuaweiID`)
 )
 COLLATE='utf8_unicode_ci'
@@ -28,7 +29,7 @@ CREATE TABLE `tblHuaweiExtraFieldsFailedCall` (
 	`UsageDetailFailedCallID` INT(11) NOT NULL,
 	`caller_address_nature` INT(5) NULL DEFAULT NULL,
 	`called_address_nature` INT(5) NULL DEFAULT NULL,
-	`alert_time` DATETIME NULL DEFAULT NULL,
+	`alert_time` VARCHAR(50) NULL DEFAULT NULL,
 	`trunk_group_in` VARCHAR(100) NULL DEFAULT NULL,
 	`trunk_group_out` VARCHAR(100) NULL DEFAULT NULL,
 	`caller_trunk_cic` INT(11) NULL DEFAULT NULL,
@@ -40,6 +41,7 @@ CREATE TABLE `tblHuaweiExtraFieldsFailedCall` (
 	`global_call_ref` VARCHAR(50) NULL DEFAULT NULL,
 	`connection_id` INT(11) NULL DEFAULT NULL,
 	`audio_codec_type` INT(5) NULL DEFAULT NULL,
+	`terminating_code` VARCHAR(50) NULL DEFAULT NULL,
 	PRIMARY KEY (`HuaweiFailedID`)
 )
 COLLATE='utf8_unicode_ci'
@@ -51,7 +53,7 @@ CREATE TABLE `tblHuaweiVendorExtraFields` (
 	`VendorCDRID` INT(11) NOT NULL,
 	`caller_address_nature` INT(5) NULL DEFAULT NULL,
 	`called_address_nature` INT(5) NULL DEFAULT NULL,
-	`alert_time` DATETIME NULL DEFAULT NULL,
+	`alert_time` VARCHAR(50) NULL DEFAULT NULL,
 	`trunk_group_in` VARCHAR(100) NULL DEFAULT NULL,
 	`trunk_group_out` VARCHAR(100) NULL DEFAULT NULL,
 	`caller_trunk_cic` INT(11) NULL DEFAULT NULL,
@@ -63,6 +65,7 @@ CREATE TABLE `tblHuaweiVendorExtraFields` (
 	`global_call_ref` VARCHAR(50) NULL DEFAULT NULL,
 	`connection_id` INT(11) NULL DEFAULT NULL,
 	`audio_codec_type` INT(5) NULL DEFAULT NULL,
+  `terminating_code` VARCHAR(50) NULL DEFAULT NULL,
 	PRIMARY KEY (`HuaweiVendorID`)
 )
 COLLATE='utf8_unicode_ci'
@@ -74,7 +77,7 @@ CREATE TABLE `tblHuaweiVendorExtraFieldsFailedCall` (
 	`VendorCDRFailedID` INT(11) NOT NULL,
 	`caller_address_nature` INT(5) NULL DEFAULT NULL,
 	`called_address_nature` INT(5) NULL DEFAULT NULL,
-	`alert_time` DATETIME NULL DEFAULT NULL,
+	`alert_time` VARCHAR(50) NULL DEFAULT NULL,
 	`trunk_group_in` VARCHAR(100) NULL DEFAULT NULL,
 	`trunk_group_out` VARCHAR(100) NULL DEFAULT NULL,
 	`caller_trunk_cic` INT(11) NULL DEFAULT NULL,
@@ -86,6 +89,7 @@ CREATE TABLE `tblHuaweiVendorExtraFieldsFailedCall` (
 	`global_call_ref` VARCHAR(50) NULL DEFAULT NULL,
 	`connection_id` INT(11) NULL DEFAULT NULL,
 	`audio_codec_type` INT(5) NULL DEFAULT NULL,
+	`terminating_code` VARCHAR(50) NULL DEFAULT NULL,
 	PRIMARY KEY (`HuaweiVendorFailedID`)
 )
 COLLATE='utf8_unicode_ci'
@@ -155,8 +159,8 @@ BEGIN
 	IF (@gateway_name = 'Huawei') THEN
 
 		SET @stm8 = CONCAT('
-		INSERT INTO tblHuaweiExtraFieldsFailedCall (UsageDetailFailedCallID,caller_address_nature,called_address_nature,alert_time,trunk_group_in,trunk_group_out,caller_trunk_cic,called_trunk_cic,connected_number,connected_address_nature,caller_call_id,called_call_id,global_call_ref,connection_id,audio_codec_type)
-			SELECT d.UsageDetailFailedCallID,rd.caller_address_nature,rd.called_address_nature,rd.alert_time,rd.trunk_group_in,rd.trunk_group_out,rd.caller_trunk_cic,rd.called_trunk_cic,rd.connected_number,rd.connected_address_nature,rd.caller_call_id,rd.called_call_id,rd.global_call_ref,rd.connection_id,rd.audio_codec_type
+		INSERT INTO tblHuaweiExtraFieldsFailedCall (UsageDetailFailedCallID,caller_address_nature,called_address_nature,alert_time,trunk_group_in,trunk_group_out,caller_trunk_cic,called_trunk_cic,connected_number,connected_address_nature,caller_call_id,called_call_id,global_call_ref,connection_id,audio_codec_type,terminating_code)
+			SELECT d.UsageDetailFailedCallID,rd.caller_address_nature,rd.called_address_nature,rd.alert_time,rd.trunk_group_in,rd.trunk_group_out,rd.caller_trunk_cic,rd.called_trunk_cic,rd.connected_number,rd.connected_address_nature,rd.caller_call_id,rd.called_call_id,rd.global_call_ref,rd.connection_id,rd.audio_codec_type,terminating_code
 		FROM  `' , p_tbltempusagedetail_name , '`rd
 		INNER JOIN tblUsageDetailFailedCall d
 		ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
@@ -223,8 +227,8 @@ BEGIN
 	IF (@gateway_name = 'Huawei') THEN
 
 		SET @stm9 = CONCAT('
-		INSERT INTO tblHuaweiExtraFields (UsageDetailID,caller_address_nature,called_address_nature,alert_time,trunk_group_in,trunk_group_out,caller_trunk_cic,called_trunk_cic,connected_number,connected_address_nature,caller_call_id,called_call_id,global_call_ref,connection_id,audio_codec_type)
-			SELECT d.UsageDetailID,rd.caller_address_nature,rd.called_address_nature,rd.alert_time,rd.trunk_group_in,rd.trunk_group_out,rd.caller_trunk_cic,rd.called_trunk_cic,rd.connected_number,rd.connected_address_nature,rd.caller_call_id,rd.called_call_id,rd.global_call_ref,rd.connection_id,rd.audio_codec_type
+		INSERT INTO tblHuaweiExtraFields (UsageDetailID,caller_address_nature,called_address_nature,alert_time,trunk_group_in,trunk_group_out,caller_trunk_cic,called_trunk_cic,connected_number,connected_address_nature,caller_call_id,called_call_id,global_call_ref,connection_id,audio_codec_type,terminating_code)
+			SELECT d.UsageDetailID,rd.caller_address_nature,rd.called_address_nature,rd.alert_time,rd.trunk_group_in,rd.trunk_group_out,rd.caller_trunk_cic,rd.called_trunk_cic,rd.connected_number,rd.connected_address_nature,rd.caller_call_id,rd.called_call_id,rd.global_call_ref,rd.connection_id,rd.audio_codec_type,terminating_code
 		FROM  `' , p_tbltempusagedetail_name , '` rd
 		INNER JOIN tblUsageDetails d
 		ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
@@ -357,8 +361,8 @@ BEGIN
 	IF (@gateway_name = 'Huawei') THEN
 
 		SET @stm8 = CONCAT('
-		INSERT INTO tblHuaweiVendorExtraFieldsFailedCall (VendorCDRFailedID,caller_address_nature,called_address_nature,alert_time,trunk_group_in,trunk_group_out,caller_trunk_cic,called_trunk_cic,connected_number,connected_address_nature,caller_call_id,called_call_id,global_call_ref,connection_id,audio_codec_type)
-		SELECT d.VendorCDRFailedID,rd.caller_address_nature,rd.called_address_nature,rd.alert_time,rd.trunk_group_in,rd.trunk_group_out,rd.caller_trunk_cic,rd.called_trunk_cic,rd.connected_number,rd.connected_address_nature,rd.caller_call_id,rd.called_call_id,rd.global_call_ref,rd.connection_id,rd.audio_codec_type
+		INSERT INTO tblHuaweiVendorExtraFieldsFailedCall (VendorCDRFailedID,caller_address_nature,called_address_nature,alert_time,trunk_group_in,trunk_group_out,caller_trunk_cic,called_trunk_cic,connected_number,connected_address_nature,caller_call_id,called_call_id,global_call_ref,connection_id,audio_codec_type,terminating_code)
+		SELECT d.VendorCDRFailedID,rd.caller_address_nature,rd.called_address_nature,rd.alert_time,rd.trunk_group_in,rd.trunk_group_out,rd.caller_trunk_cic,rd.called_trunk_cic,rd.connected_number,rd.connected_address_nature,rd.caller_call_id,rd.called_call_id,rd.global_call_ref,rd.connection_id,rd.audio_codec_type,terminating_code
 		FROM `' , p_tbltempusagedetail_name , '` rd
 			INNER JOIN tblVendorCDRFailed d
 		ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
@@ -395,8 +399,8 @@ BEGIN
 	IF (@gateway_name = 'Huawei') THEN
 
 		SET @stm9 = CONCAT('
-		INSERT INTO tblHuaweiVendorExtraFields (VendorCDRID,caller_address_nature,called_address_nature,alert_time,trunk_group_in,trunk_group_out,caller_trunk_cic,called_trunk_cic,connected_number,connected_address_nature,caller_call_id,called_call_id,global_call_ref,connection_id,audio_codec_type)
-		SELECT d.VendorCDRID,rd.caller_address_nature,rd.called_address_nature,rd.alert_time,rd.trunk_group_in,rd.trunk_group_out,rd.caller_trunk_cic,rd.called_trunk_cic,rd.connected_number,rd.connected_address_nature,rd.caller_call_id,rd.called_call_id,rd.global_call_ref,rd.connection_id,rd.audio_codec_type
+		INSERT INTO tblHuaweiVendorExtraFields (VendorCDRID,caller_address_nature,called_address_nature,alert_time,trunk_group_in,trunk_group_out,caller_trunk_cic,called_trunk_cic,connected_number,connected_address_nature,caller_call_id,called_call_id,global_call_ref,connection_id,audio_codec_type,terminating_code)
+		SELECT d.VendorCDRID,rd.caller_address_nature,rd.called_address_nature,rd.alert_time,rd.trunk_group_in,rd.trunk_group_out,rd.caller_trunk_cic,rd.called_trunk_cic,rd.connected_number,rd.connected_address_nature,rd.caller_call_id,rd.called_call_id,rd.global_call_ref,rd.connection_id,rd.audio_codec_type,terminating_code
 		FROM `' , p_tbltempusagedetail_name , '` rd
 			INNER JOIN tblVendorCDR d
 		ON d.ProcessID = rd.ProcessID AND d.ID=rd.ID
