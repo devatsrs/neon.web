@@ -171,8 +171,8 @@ var postdata;
                     if(data == 1) {var display = "<i class='fa fa-check-circle checkicon'></i>";} else {var display = "<i class='fa fa-times-circle timesicon'></i>";}
                     return display;} },*/
                 },    
-                {  "bSortable": true, mRender: function ( data, type, full ) {
-                    if(data == 'NL'){return 'Netherlands';} else if(data == 'EU'){return 'EU Country';} else if(data == 'NEU'){return 'Non EU';} else{return data;}} },
+                // {  "bSortable": true, mRender: function ( data, type, full ) {
+                //     if(data == 'NL'){return 'Netherlands';} else if(data == 'EU'){return 'EU Country';} else if(data == 'NEU'){return 'Non EU';} else{return data;}} },
                 {  "bSortable": true,"sClass":"aligncenter", mRender: function ( data, type, full ) {
                     if(data == 1) {return "<i class='fa fa-check-circle checkicon'></i>";} else {return "<i class='fa fa-times-circle timesicon'></i>";}
                     }  },
