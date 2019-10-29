@@ -190,31 +190,35 @@ class TaxRatesController extends \BaseController {
         
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $taxrates = TaxRate::select(DB::Raw("Title,Amount as 'VAT %',Country,DutchProvider as 'Dutch Provider',DutchFoundation as 'Dutch Foundation'"))->where("CompanyID", $CompanyID);
+        $taxrates = TaxRate::select(DB::Raw("tblTaxRate.Title,tblTaxRate.Amount as 'VAT %',tblCountry.Country,tblTaxRate.DutchProvider as 'Dutch Provider',tblTaxRate.DutchFoundation as 'Dutch Foundation'"))
+        ->leftjoin('tblCountry','tblCountry.ISO2','=','tblTaxRate.Country')
+        ->where("CompanyID", $CompanyID);
+
+        
         if(isset($data['Title']) and !empty($data['Title']))
         {
-             $taxrates = $taxrates->where('Title', 'like', '%'.$data['Title'].'%');
+             $taxrates = $taxrates->where('tblTaxRate.Title', 'like', '%'.$data['Title'].'%');
         }
         if(isset($data['TaxType'])  and !empty($data['TaxType']))
         {
-             $taxrates = $taxrates->where('TaxType',  $data['TaxType']);
+             $taxrates = $taxrates->where('tblTaxRate.TaxType',  $data['TaxType']);
         }
         if(isset($data['Country']) and !empty($data['Country']))
         {
             //Log::info('country '.$data['Country']);
-             $taxrates = $taxrates->where('Country', $data['Country']);
+             $taxrates = $taxrates->where('tblTaxRate.Country', $data['Country']);
         }
         if(isset($data['FlatStatus']) and $data['FlatStatus']!=0)
         {
-             $taxrates = $taxrates->where('FlatStatus', 1);
+             $taxrates = $taxrates->where('tblTaxRate.FlatStatus', 1);
         }
         if(isset($data['ftDutchProvider']) and $data['ftDutchProvider']!=0)
         {
-             $taxrates = $taxrates->where('DutchProvider', 1);
+             $taxrates = $taxrates->where('tblTaxRate.DutchProvider', 1);
         }
         if(isset($data['ftDutchFoundation']) and $data['ftDutchFoundation']!=0)
         {
-             $taxrates = $taxrates->where('DutchFoundation', 1);
+             $taxrates = $taxrates->where('tblTaxRate.DutchFoundation', 1);
         }
         $taxrates = $taxrates->get();
 		$ExcelFile = json_decode(json_encode($taxrates),true);
