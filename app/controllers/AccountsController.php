@@ -3432,20 +3432,22 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return Response::json(array("status" => "success", "Taxes" => ""));
         }    
 
-        
-    
+
         if(isset($data['RegisterDutchFoundation']) && $data['RegisterDutchFoundation']=='true'){
             $RegisterDutchFoundation=1;
         }
         if(isset($data['DutchProvider']) && $data['DutchProvider']=='true'){
             $DutchProvider=1;
         }
-        if($Country=='NETHERLANDS'){
-            $EUCountry = 'NL';
-        }else{
-            $EUCountry = Country::where('Country',$Country)->pluck('EUCountry');
-            $EUCountry = empty($EUCountry) ? 'NEU' : 'EU';
-        }
+        
+        // if($Country=='NETHERLANDS'){
+        //     $EUCountry = 'NL';
+        // }else{
+            $EUCountry = Country::where('Country',$Country)->pluck('ISO2');
+            //dd($EUCountry);
+            //$EUCountry = $EUCountry;
+            // $EUCountry = empty($EUCountry) ? 'NEU' : 'EU';
+        //}
         $Results = TaxRate::where(['DutchProvider'=>$DutchProvider,'DutchFoundation'=>$RegisterDutchFoundation,'Country'=>$EUCountry,'CompanyId'=>$CompanyID,'Status'=>1])->get();
         //log::info(print_r($Results,true));
         if(!empty($Results)){

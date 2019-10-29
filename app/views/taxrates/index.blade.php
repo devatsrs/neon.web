@@ -19,7 +19,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Country</label>
-                                {{ Form::select('ftCountry',TaxRate::$tax_countries_filter,'All', array("class"=>"select2",'id'=>'Country')) }}
+                                {{ Form::select('ftCountry',Country::getCountryByNameAndCode('filter'),'', array("class"=>"select2",'id'=>'Country')) }}
                             </div>
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Dutch Provider</label>
@@ -165,10 +165,12 @@ var postdata;
                     else {return "All Charges overall Invoice";}
                 }  }, //1   TaxRateAmount*/
                 {  "bSortable": true},
-                /*{  "bSortable": true, "sClass":"aligncenter",mRender: function ( data, type, full ) {
+                {  "bSortable": true
+                /*, "sClass":"aligncenter",mRender: function ( data, type, full ) {
                      
                     if(data == 1) {var display = "<i class='fa fa-check-circle checkicon'></i>";} else {var display = "<i class='fa fa-times-circle timesicon'></i>";}
                     return display;} },*/
+                },    
                 {  "bSortable": true, mRender: function ( data, type, full ) {
                     if(data == 'NL'){return 'Netherlands';} else if(data == 'EU'){return 'EU Country';} else if(data == 'NEU'){return 'Non EU';} else{return data;}} },
                 {  "bSortable": true,"sClass":"aligncenter", mRender: function ( data, type, full ) {
@@ -176,7 +178,8 @@ var postdata;
                     }  },
                 {  "bSortable": true,"sClass":"aligncenter", mRender: function ( data, type, full ) {
                     if(data == 1) {return "<i class='fa fa-check-circle checkicon'></i>";} else {return "<i class='fa fa-times-circle timesicon'></i>";}
-                    }  },
+                    }  
+                },
                 {  "bSortable": true,
                     mRender: function ( id, type, full ) {
                         var action , edit_ , show_ , delete_;
@@ -437,7 +440,7 @@ function ajax_update(fullurl,data){
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Country</label>
-                                {{ Form::select('Country',TaxRate::$tax_countries_array,TaxRate::NL, array("class"=>"select2",'id'=>'Country')) }}
+                                {{ Form::select('Country',Country::getCountryByNameAndCode(),'', array("class"=>"select2",'id'=>'Country')) }}
                             </div>
                         </div>
                         <div class="clearfix"></div>
