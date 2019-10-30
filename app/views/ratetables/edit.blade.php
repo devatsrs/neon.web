@@ -833,7 +833,7 @@
                             }
                         }, //10 ConnectionFee
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 var rate_html = full[38] != 0 && full[38] != null ? full[38] : '-';
@@ -845,7 +845,7 @@
                             }
                         }, // 38 ConnectionFee Margin
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 var rate_html = full[41] != 0 && full[41] != null ? full[41]+'%' : '-';
@@ -883,7 +883,7 @@
                             }
                         }, //12 Rate
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 rate_html = full[39] != 0 && full[39] != null ? full[39] : '-';
@@ -895,7 +895,7 @@
                             }
                         }, // 39 Rate Margin
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 var rate_html = full[42] != 0 && full[42] != null ? full[42]+'%' : '-';
@@ -921,7 +921,7 @@
                             }
                         }, //13 RateN
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 var rate_html = full[40] != 0 && full[40] != null ? full[40] : '-';
@@ -933,7 +933,7 @@
                             }
                         }, // 40 RateN Margin
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 var rate_html = full[43] != 0 && full[43] != null ? full[43]+'%' : '-';
