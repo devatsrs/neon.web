@@ -253,6 +253,7 @@ $('#filter_submit').trigger('click');
     $('#add-new-taxrate').click(function(ev){
         ev.preventDefault();
         $('[name="Country"]').prop('disabled', false);
+        $("#add-new-taxrate-form [name='Country']").select2().select2('val','');
         $('p#custom').removeClass('deactivate');
 
         $('#add-new-taxrate-form').trigger("reset");
