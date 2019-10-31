@@ -165,7 +165,9 @@ var postdata;
                     else {return "All Charges overall Invoice";}
                 }  }, //1   TaxRateAmount*/
                 {  "bSortable": true},
-                {  "bSortable": true
+                {  "bSortable": true ,mRender: function ( data, type, full ) {
+                    return full[6];
+                }
                 /*, "sClass":"aligncenter",mRender: function ( data, type, full ) {
                      
                     if(data == 1) {var display = "<i class='fa fa-check-circle checkicon'></i>";} else {var display = "<i class='fa fa-times-circle timesicon'></i>";}

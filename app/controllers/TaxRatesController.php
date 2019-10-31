@@ -6,7 +6,7 @@ class TaxRatesController extends \BaseController {
     public function ajax_datagrid() {
        $data = Input::all();
         $CompanyID = User::get_companyID();
-        $taxrates = TaxRate::select('tblTaxRate.Title','tblTaxRate.Amount','tblCountry.Country','tblTaxRate.DutchProvider','tblTaxRate.DutchFoundation','tblTaxRate.TaxRateId')
+        $taxrates = TaxRate::select('tblTaxRate.Title','tblTaxRate.Amount','tblTaxRate.Country','tblTaxRate.DutchProvider','tblTaxRate.DutchFoundation','tblTaxRate.TaxRateId','tblCountry.Country')
         ->leftjoin('tblCountry','tblCountry.ISO2','=','tblTaxRate.Country')
         ->where("CompanyID", $CompanyID);
         if(isset($data['Title']) and !empty($data['Title']))
@@ -194,7 +194,7 @@ class TaxRatesController extends \BaseController {
         ->leftjoin('tblCountry','tblCountry.ISO2','=','tblTaxRate.Country')
         ->where("CompanyID", $CompanyID);
 
-        
+
         if(isset($data['Title']) and !empty($data['Title']))
         {
              $taxrates = $taxrates->where('tblTaxRate.Title', 'like', '%'.$data['Title'].'%');
