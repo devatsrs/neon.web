@@ -6,8 +6,8 @@ class TaxRatesController extends \BaseController {
     public function ajax_datagrid() {
        $data = Input::all();
         $CompanyID = User::get_companyID();
-        $taxrates = TaxRate::select('tblTaxRate.Title','tblTaxRate.Amount','tblTaxRate.Country','tblTaxRate.DutchProvider','tblTaxRate.DutchFoundation','tblTaxRate.TaxRateId','tblCountry.Country')
-        ->leftjoin('tblCountry','tblCountry.ISO2','=','tblTaxRate.Country')
+        $taxrates = TaxRate::select('tblTaxRate.Title','tblTaxRate.Amount','tblTaxRate.Country as ISO2','tblTaxRate.DutchProvider','tblTaxRate.DutchFoundation','tblTaxRate.TaxRateId','tblCountry.Country as Country')
+        ->leftjoin('tblCountry','tblTaxRate.Country', '=' , 'tblCountry.ISO2')
         ->where("CompanyID", $CompanyID);
         if(isset($data['Title']) and !empty($data['Title']))
         {
