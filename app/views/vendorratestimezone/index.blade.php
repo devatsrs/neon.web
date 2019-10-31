@@ -191,11 +191,7 @@
                                 {
                                     "bSortable": false, //TimezonesID
                                     mRender: function(id, type, full) {
-                                        if(id !=1) { // if not default timezone
-                                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
-                                        } else {
-                                            return '';
-                                        }
+                                        return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                     }
                                 }, // 0 //TimezonesID
                                 {  "bSortable": true },  // 1 Timezones Name (Title)
