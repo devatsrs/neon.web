@@ -113,10 +113,11 @@ class TimezoneVendorController extends \BaseController {
             if($data['Country'] == ''){
                 $data['Country'] = null;
             }
-            $VendorCheck = VendorTimeZone::where(['Type' => $data['Type'],'Country' => $data['Country'],'TimeZoneID'=> $data['TimeZoneID'],'VendorID' => $data['VendorID']])->first();
-            if(Count($VendorCheck) > 0){
-                return  Response::json(array("status" => "failed", "message" => "Vendor Time Of Day Already Exist!"));
-            }
+
+            // $VendorCheck = VendorTimeZone::where(['Type' => $data['Type'],'Country' => $data['Country'],'TimeZoneID'=> $data['TimeZoneID'],'VendorID' => $data['VendorID']])->first();
+            // if(Count($VendorCheck) > 0){
+            //     return  Response::json(array("status" => "failed", "message" => "Vendor Time Of Day Already Exist!"));
+            // }
 
             if($data['Country'] == ''){
                 $data['Country'] = null;
@@ -217,10 +218,10 @@ class TimezoneVendorController extends \BaseController {
                         $data['Country'] = null;
                     }
 
-                    $VendorCheck = VendorTimeZone::where(['Type' => $data['Type'],'Country' => $data['Country'],'TimeZoneID'=> $data['TimeZoneID'],'VendorID'=>$data['VendorID']])->where('VendorTimezoneID', '!=' , $id)->first();
-                    if(Count($VendorCheck) > 0){
-                        return  Response::json(array("status" => "failed", "message" => "Vendor Time Of Day Already Exist!"));
-                    }
+                    // $VendorCheck = VendorTimeZone::where(['Type' => $data['Type'],'Country' => $data['Country'],'TimeZoneID'=> $data['TimeZoneID'],'VendorID'=>$data['VendorID']])->where('VendorTimezoneID', '!=' , $id)->first();
+                    // if(Count($VendorCheck) > 0){
+                    //     return  Response::json(array("status" => "failed", "message" => "Vendor Time Of Day Already Exist!"));
+                    // }
                     
                     if($data['Country'] == ''){
                         $data['Country'] = null;
