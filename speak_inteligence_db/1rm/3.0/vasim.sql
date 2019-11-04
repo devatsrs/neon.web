@@ -1,5 +1,7 @@
 use `speakintelligentRM`;
 
+INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (38, 'TRM', 'Termination Rate Margin', 'Termination Rate Margin Difference for Awaiting Approval Rates', '2019-10-25 11:28:08', 'RateManagementSystem', NULL, NULL);
+
 CREATE TABLE IF NOT EXISTS `tblRate_new` (
   `RateID` int(11) NOT NULL AUTO_INCREMENT,
   `CountryID` int(11) DEFAULT NULL,
@@ -18075,6 +18077,52 @@ BEGIN
 		INNER JOIN tblJobStatus js
 			ON j.JobStatusID = js.JobStatusID
 		WHERE jt.Code = 'TRO'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL2.COUNTER = 0
+	WHERE TBL1.rowno = 1
+	AND TBL2.COUNTER = 0
+	limit 1;
+
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'TRM'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.created_at,j.JobLoggedUserID ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			count(*) as COUNTER
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'TRM'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
 	) TBL2

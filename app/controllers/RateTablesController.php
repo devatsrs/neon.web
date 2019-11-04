@@ -83,7 +83,7 @@ class RateTablesController extends \BaseController {
         $TypeDID        = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
 
         // column index from data table grid for sorting
-        $columns_voicecall  = array(1=>'DestinationType', 2=>'TimezoneTitle', 3=>'OriginationCode', 4=>'OriginationDescription', 5=>'Code', 6=>'Description', 17=>'EffectiveDate', 18=>'EndDate', 19=>'ModifiedBy', 20=>'ApprovedBy', 21=>'RoutingCategoryName');
+        $columns_voicecall  = array(1=>'DestinationType', 2=>'TimezoneTitle', 3=>'OriginationCode', 4=>'OriginationDescription', 5=>'Code', 6=>'Description',11 => 'ConnectionFeeMargin', 12 => 'ConnectionFeeMarginPercent', 15 => 'RateMargin' ,16 => 'RateMarginPercent',18 => 'RateNMargin', 19 => 'RateNMarginPercent' ,20=>'EffectiveDate', 21=>'EndDate', 22=>'ModifiedBy', 23=>'ApprovedBy', 24=>'RoutingCategoryName');
         $columns_did        = array(
             1=>'AccessType', 2=>'Country', 3=>'OriginationCode', 4=>'Code', 5=>'City', 6=>'Tariff', 7=>'TimezoneTitle',
             9=>'OneOffCostMargin',10=>'OneOffCostMarginPercent',
@@ -258,6 +258,7 @@ class RateTablesController extends \BaseController {
      * @return Response
      */
     public function view($id) {
+       
         $rateTable = RateTable::find($id);
         $trunkID = RateTable::where(["RateTableId" => $id])->pluck('TrunkID');
         $countries = Country::getCountryDropdownIDList();
@@ -627,8 +628,20 @@ class RateTablesController extends \BaseController {
 
                     $results = Job::logJob('TRO', $options);
                 } else {
-                    $results = DB::statement($query);
+                    $results = DB::select($query);
                     if ($results) {
+                        // only log job when inserted termination rate in awaiting approval table
+                        if($data['ApprovedStatus'] != RateTable::RATE_STATUS_APPROVED && !empty($results[0]->ProcessID)) {
+                            $params['RateTableID']       = $RateTableID;
+                            $params['RateTableRateAAID'] = '';
+                            $params['ProcessID']         = $results[0]->ProcessID;
+
+                            $options['RateTableName']   = $data['RateTableName'];
+                            $options['params']          = $params;
+
+                            $results = Job::logJob('TRM', $options);
+                        }
+
                         $results = array("status" => "success", "message" => "Rates Successfully Updated");
                     } else {
                         $results = array("status" => "failed", "message" => "Problem Updating Rate Table Rate.");
@@ -1106,7 +1119,22 @@ class RateTablesController extends \BaseController {
 
             $RateTableRate['RoutingCategoryID'] = !empty($RateTableRate['RoutingCategoryID']) ? $RateTableRate['RoutingCategoryID'] : NULL;
 
-            $Rate = $RateTableRateModel::insert($RateTableRate);
+            $Rate = $RateTableRateModel::create($RateTableRate);
+
+            if($Rate) {
+                // only log job when inserted termination rate in awaiting approval table
+                if($RateTableRateModel == 'RateTableRateAA') {
+                    $params['RateTableID']              = $rateTable->RateTableId;
+                    $params['RateTableRateAAID']        = $Rate->RateTableRateAAID;
+                    $params['ProcessID']                = '';
+
+                    $options['RateTableName']   = $rateTable->RateTableName;
+                    $options['params']          = $params;
+
+                    $results = Job::logJob('TRM', $options);
+                }
+            }
+
             $archive_query = "CALL prc_ArchiveOldRateTableRate('".$RateTableRate['RateTableId']."','".$RateTableRate['TimezonesID']."','".$username."');";
         } else if($rateTable->Type == $TypeDID) {
             $RateTableRate['OneOffCost']                = $data['OneOffCost'] == '' ? NULL : $data['OneOffCost'];

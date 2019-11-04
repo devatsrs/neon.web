@@ -191,11 +191,7 @@
                                 {
                                     "bSortable": false, //TimezonesID
                                     mRender: function(id, type, full) {
-                                        if(id !=1) { // if not default timezone
-                                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
-                                        } else {
-                                            return '';
-                                        }
+                                        return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                     }
                                 }, // 0 //TimezonesID
                                 {  "bSortable": true },  // 1 Timezones Name (Title)
@@ -259,14 +255,13 @@
                                             action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                         }
                                         action += '</div>';
-                                        if(full[0] != 1) {// can't edit/delete default timezone, default timezone id is 1
                                             <?php if(User::checkCategoryPermission('Timezones', 'Edit') ){ ?>
                                                     action += ' <a href="' + edit_ + '" title="Edit" class="edit-timezones btn btn-default btn-xs" data-name="Edit Timezones"><i class="entypo-pencil"></i>&nbsp;</a>';
                                             <?php } ?>
                                             <?php if(User::checkCategoryPermission('Timezones', 'Delete') ){ ?>
                                             action += ' <a href="'+delete_+'" title="Delete" class="btn delete btn-danger btn-default btn-xs"><i class="entypo-trash"></i></a>';
                                             <?php } ?>
-                                        }
+                                        
                                         return action;
                                     }
                                 }

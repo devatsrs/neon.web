@@ -110,6 +110,16 @@ class Country extends \Eloquent {
             return '';
     }
 
+    public static function getCountryByNameAndCode($filter = ''){
+        $country =  Country::where('ISO2', '!=', '')->lists('Country','ISO2');
+        if($filter == 'filter'){
+            return array("" => "All")+ $country;
+        }else{
+            return array("" => "Select")+ $country;
+        }    
+       
+    }
+
     public static function getName($CountryID){
         return Country::where(array('CountryID'=>$CountryID))->pluck('Country');
     }
