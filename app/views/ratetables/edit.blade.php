@@ -63,6 +63,24 @@
                     </select>
                 </div>
 
+                <div class="form-group AA_Filter" style="display: none">
+                    <label class="control-label">Diff. Percentage</label>
+                    <div class="input-group">
+                        <div class="input-group-btn">
+                            <button type="button" id="PercentageDDBTN" class="btn dropdown-toggle" data-toggle="dropdown" style="background-color: #e8ecef; border-color: #d2d3d5; color: #32353c; border-radius: 3px 0 0 3px;">>=</button>
+                            <ul class="dropdown-menu dropdown-left" id="PercentageDD" style="background-color: #e8ecef; border-color: #d2d3d5; margin-top:0px; min-width: 100%">
+                                <li><a href="javascript:void(0);" style="color: #32353c; text-align: center; font-weight: bold;">>=</a></li>
+                                <li><a href="javascript:void(0);" style="color: #32353c; text-align: center; font-weight: bold;"><=</a></li>
+                            </ul>
+                        </div>
+                        <input type="text" name="Percentage" class="form-control" style="height: 31px;">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" style="background-color: #e8ecef; border-color: #d2d3d5; color: #32353c; border-radius: 0 3px 3px 0;">%</button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="PercentageCondition" id="PercentageCondition" class="form-control" value=">=">
+                </div>
+
                 @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                     @if($ROUTING_PROFILE == 1)
                     <div class="form-group filter_naa">
@@ -265,6 +283,11 @@
                     }
                 }
             }
+        });
+
+        $('#PercentageDD').on('click', 'li',function () {
+            $('#PercentageDDBTN').text($(this).text());
+            $('#PercentageCondition').val($(this).text());
         });
 
         //Clear Rate Button
@@ -633,10 +656,12 @@
             if($('#rate-table-search select[name="ApprovedStatus1"]').val() == {{RateTable::RATE_STATUS_APPROVED}}) {
                 Status = $('#rate-table-search select[name="ApprovedStatus1"]').val();
                 $('#ApprovedStatus2-Box').hide();
+                $('.AA_Filter').hide();
                 $('.filter_naa').show();
             } else {
                 Status = $('#rate-table-search select[name="ApprovedStatus2"]').val();
                 $('#ApprovedStatus2-Box').show();
+                $('.AA_Filter').show();
                 $('.filter_naa').hide();
             }
             $('#rate-table-search [name="ApprovedStatus"]').val(Status);
@@ -695,6 +720,9 @@
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
         $searchFilter.RoutingCategoryID = RoutingCategoryID = $("#rate-table-search select[name='RoutingCategoryID']").val() != undefined ? $("#rate-table-search select[name='RoutingCategoryID']").val() : '';
 
+        $searchFilter.Percentage = Percentage = $("#rate-table-search [name='Percentage']").val();
+        $searchFilter.PercentageCondition = PercentageCondition = $("#rate-table-search [name='PercentageCondition']").val();
+
         $searchFilter.ResellerPage = ResellerPage = $('#rate-table-search [name="ResellerPage"]').val();
 
         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
@@ -718,9 +746,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "ResellerPage", "value": ResellerPage});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "ResellerPage", "value": ResellerPage},{"name": "Percentage", "value": Percentage},{"name": "PercentageCondition", "value": PercentageCondition});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "ResellerPage", "value": ResellerPage});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "ResellerPage", "value": ResellerPage},{"name": "Percentage", "value": Percentage},{"name": "PercentageCondition", "value": PercentageCondition});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -755,9 +783,10 @@
                                 return html;
                             }
                         }, //0Checkbox
-                        {}, //1 Destination Type
-                        {}, //2 Timezone Title
+                        {"bSortable": false}, //1 Destination Type
+                        {"bSortable": false}, //2 Timezone Title
                         {
+                            "bSortable": false,
                             mRender: function(id, type, full) {
                                 if(view==1) {
                                     return full[3];
@@ -770,7 +799,7 @@
                             "data": null,
                             "defaultContent": ''
                         }, //3 Origination Code
-                        {}, //4 Origination description
+                        {"bSortable": false}, //4 Origination description
                         {
                             "bVisible" : view == 1 ? true : false,
                             mRender: function(col, type, full) {
@@ -804,7 +833,7 @@
                             }
                         }, //10 ConnectionFee
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 var rate_html = full[38] != 0 && full[38] != null ? full[38] : '-';
@@ -816,7 +845,7 @@
                             }
                         }, // 38 ConnectionFee Margin
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 var rate_html = full[41] != 0 && full[41] != null ? full[41]+'%' : '-';
@@ -846,7 +875,7 @@
                                     rate_html = full[31] + full[12]; //RateCurrency+Rate
                                     if(full[12] > full[11])
                                         rate_html = rate_html+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
-                                    else if(col < Prev_Rate)
+                                    else if(col < full[11])
                                         rate_html = rate_html+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
                                 }
 
@@ -854,7 +883,7 @@
                             }
                         }, //12 Rate
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 rate_html = full[39] != 0 && full[39] != null ? full[39] : '-';
@@ -866,7 +895,7 @@
                             }
                         }, // 39 Rate Margin
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 var rate_html = full[42] != 0 && full[42] != null ? full[42]+'%' : '-';
@@ -892,7 +921,7 @@
                             }
                         }, //13 RateN
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 var rate_html = full[40] != 0 && full[40] != null ? full[40] : '-';
@@ -904,7 +933,7 @@
                             }
                         }, // 40 RateN Margin
                         {
-                            "bSortable" : false,
+                            "bSortable" : true,
                             "bVisible" : bVisibleComparisonView,
                             mRender: function(col, type, full) {
                                 var rate_html = full[43] != 0 && full[43] != null ? full[43]+'%' : '-';
@@ -921,12 +950,14 @@
                             }
                         }, //14 Effective Date
                         {
+                            "bSortable": false,
                             "bVisible" : false,
                             mRender: function(col, type, full) {
                                 return full[15];
                             }
                         }, //15 End Date
                         {
+                            "bSortable": false,
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
                                 full[16] = full[16] != null ? full[16] : '';
@@ -938,6 +969,7 @@
                             }
                         }, //17/16 modified by/modified date
                         {
+                            "bSortable": false,
                             "bVisible" : bVisibleApprovedStatus,
                             mRender: function(id, type, full) {
                                 full[26] = full[26] != null ? full[26] : '';
@@ -949,6 +981,7 @@
                             }
                         }, //26/27 Approved Status Changed By/Approved Date
                         {
+                            "bSortable": false,
                             "bVisible" : bVisibleRoutingCategory,
                             mRender: function(id, type, full) {
                                 return full[22]
