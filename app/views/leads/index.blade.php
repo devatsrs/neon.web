@@ -23,6 +23,15 @@
                     <input class="form-control leadTags" name="tag" type="text" >
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Lead Status</label>
+                    <?php $leadstatus_array = array( ""=>"Select", "Attempted to Contact"=>"Attempted to Contact" , "Contact in Future"=>"Contact in Future","Contacted"=>"Contacted", "Junk Lead"=>"Junk Lead","Not Contacted"=>"Not Contacted", "Pre Qualified"=>"Pre Qualified" ); ?>
+                   {{ Form::select('LeadStatus', $leadstatus_array, '', array('class' => 'form-control select2')) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Date</label>
+                    <input id="DateFrom" type="text" name="Date" class="form-control datepicker" data-date-format="yyyy-mm-dd" value=""/>
+                </div>
+                <div class="form-group">
                     <label class="control-label">Active</label><br/>
                     <p class="make-switch switch-small">
                         <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
@@ -120,6 +129,7 @@
     <th width="15%">Name</th>
     <th width="15%">Phone</th>
     <th width="15%">Email</th>
+    <th width="15%">Lead Status</th>
     <th width="15%">Created At</th>
     <th width="30%">Actions</th>
 </tr>
@@ -148,6 +158,8 @@
 
         $searchFilter.account_owners = $("#lead_filter [name='account_owners']").val();
         $searchFilter.account_active = $("#lead_filter [name='account_active']").prop("checked");
+        $searchFilter.lead_status = $("#lead_filter [name='LeadStatus']").val();
+        $searchFilter.Date = $("#lead_filter [name='Date']").val();
             data_table = $("#table-4").dataTable({
 
                 "bProcessing": true,
@@ -156,9 +168,9 @@
                 "sAjaxSource": baseurl + "/leads/ajax_datagrid",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"account_active","value":$searchFilter.account_active},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"tag","value":$searchFilter.tag});
+                    aoData.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"account_active","value":$searchFilter.account_active},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"lead_status","value":$searchFilter.lead_status},{"name":"Date","value":$searchFilter.Date},{"name":"tag","value":$searchFilter.tag});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"account_active","value":$searchFilter.account_active},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"tag","value":$searchFilter.tag});
+                    data_table_extra_params.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"account_active","value":$searchFilter.account_active},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"tag","value":$searchFilter.tag},{"name":"lead_status","value":$searchFilter.lead_status},{"name":"Date","value":$searchFilter.Date});
                 },
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -167,7 +179,7 @@
                 "aoColumns": [
                     {"bSortable": false,
                         mRender: function(id, type, full) {
-                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[4] + '" class="rowcheckbox" ></div>';
+                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + full[5] + '" class="rowcheckbox" ></div>';
                         }
                     }, //0Checkbox
                     {"bSortable": true,
@@ -188,6 +200,11 @@
                     {"bSortable": true,
                         mRender: function(id, type, full) {
                             return full[3];
+                        }
+                    },
+                    {"bSortable": true,
+                        mRender: function(id, type, full) {
+                            return full[15];
                         }
                     },
                     {"bSortable": true,
@@ -272,7 +289,7 @@
                          if(childrens.eq(0).hasClass('dataTables_empty')){
                              return true;
                          }
-                         var temp = childrens.eq(5).clone();
+                         var temp = childrens.eq(7).clone();
                          $(temp).find('a').each(function(){
                              $(this).find('i').remove();
                              $(this).removeClass('btn btn-icon icon-left');
@@ -311,7 +328,7 @@
 					account_name  = account_name.substring(0,40)+"...";	
 				}
 						 
-                         html += '  <div class="box clearfix ' + select + '">';
+                html += '  <div class="box clearfix ' + select + '">';
                          //html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
                          html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + account_title + '</span><br>';
                          html += '  <span class="meta complete_name">' + account_name + '</span></div>';
@@ -397,6 +414,8 @@
 
             $searchFilter.account_owners = $("#lead_filter [name='account_owners']").val();
             $searchFilter.account_active = $("#lead_filter [name='account_active']").prop("checked");
+            $searchFilter.lead_status = $("#lead_filter [name='LeadStatus']").val();
+            $searchFilter.Date = $("#lead_filter [name='Date']").val();
             data_table.fnFilter('', 0);
             return false;
         });

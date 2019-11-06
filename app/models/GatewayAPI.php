@@ -3,7 +3,7 @@
 class GatewayAPI extends \Eloquent {
 	protected $fillable = [];
 
-    private static $gateway_class = array('Sippy','Porta','PBX','FTP', 'VOS','MOR','CallShop','Streamco','FusionPBX','M2','SippySFTP','VoipNow','VOS5000','VoipMS','ClarityPBX');
+    private static $gateway_class = array('Sippy','Porta','PBX','FTP', 'VOS','MOR','CallShop','Streamco','FusionPBX','M2','SippySFTP','VoipNow','VOS5000','VoipMS','ClarityPBX','Huawei','PortaOne');
 
     public static $required_key = array('api_url','BillingTime','cdr_folder','dbserver','host','NameFormat','password','username');
 

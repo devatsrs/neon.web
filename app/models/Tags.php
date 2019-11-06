@@ -13,7 +13,7 @@ class Tags extends \Eloquent {
     const  Task_tag = 4;
 
     public static function getTagsArray($type = 1){
-        $tags = Tags::where(array('CompanyID'=>User::get_companyID(),'TagType'=>$type))->get(array("TagName"));
+        $tags = Tags::where(array('CompanyID'=>User::get_companyID(),'TagType'=>$type))->distinct('TagName')->get(array("TagName"));
         if(!empty($tags)){
             $tagsname = [];
             foreach($tags as $tag){

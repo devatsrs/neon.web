@@ -39,7 +39,7 @@ class PaymentIntegration {
 
 	public function paymentValidateWithProfile($data){
 		$response = array();
-		if($data['PaymentGateway']=='Stripe' || $data['PaymentGateway']=='StripeACH' || $data['PaymentGateway']=='GoCardLess' || $data['PaymentGateway']=='AuthorizeNetEcheck'){
+		if($data['PaymentGateway']=='Stripe' || $data['PaymentGateway']=='StripeACH' || $data['PaymentGateway']=='GoCardLess'){
 			return $this->request->paymentValidateWithProfile($data);
 		}
 		$response['status'] = 'success';
