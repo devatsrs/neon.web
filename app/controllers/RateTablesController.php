@@ -1018,6 +1018,7 @@ class RateTablesController extends \BaseController {
         $RateTableName = str_replace( '\/','-',$RateTableName);
         $RateTableName = str_replace( '/','-',$RateTableName);
         $RateTableName = str_replace( '&','-',$RateTableName);
+        $RateTableName = str_replace( ' ','_',$RateTableName);
 
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rate Table Rates.csv';
