@@ -1,7 +1,20 @@
 @extends('layout.main')
 
 @section('content')
+    <style>
+        #table-4 {
+            max-width: 100% !important;
+            width: 100%
+        }
 
+        @media screen and (max-width: 1600px) {
+
+            #table-4 {
+                max-width: 1600px !important;
+                width: 1600px
+            }
+        }
+    </style>
     <ol class="breadcrumb bc-3">
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -45,6 +58,7 @@
                             <div class="col-md-4">
                                 @if($DealDetails != false && count($DealDetails) > 0)
                                     {{Form::select('DealType',Deal::$TypeDropDown, $Deal->DealType,array("class"=>"select2", "disabled" => "disabled"))}}
+                                    <input type='hidden' name='DealType' value='{{ $Deal->DealType }}'>
                                 @else
                                     {{Form::select('DealType',Deal::$TypeDropDown, $Deal->DealType,array("class"=>"select2"))}}
                                 @endif
@@ -59,6 +73,7 @@
                             <div class="col-md-4">
                                 @if($DealDetails != false && count($DealDetails) > 0)
                                     {{Form::select('CodedeckID',$codedecklist,$Deal->CodedeckID,array("class"=>"select2", "disabled" => "disabled"))}}
+                                    <input type='hidden' name='CodedeckID' value='{{ $Deal->CodedeckID }}'>
                                 @else
                                     {{Form::select('CodedeckID',$codedecklist,$Deal->CodedeckID,array("class"=>"select2"))}}
                                 @endif
@@ -101,102 +116,110 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <table class="table table-bordered dealTable" id="table-4">
-                            <thead>
-                            <tr class="revenueRow">
-                                <th style="width: 10%">Type</th>
-                                <th style="width: 10%">Destination</th>
-                                <th style="width: 10%">Destination Break</th>
-                                <th style="width: 10%">Prefix</th>
-                                <th style="width: 10%">Trunk</th>
-                                <th style="width: 10%">Revenue</th>
-                                <th style="width: 9%">Sale Price</th>
-                                <th style="width: 9%">Buy Price</th>
-                                <th style="width: 9%">(Profit/Loss) per min</th>
-                                <th style="width: 9%">Minutes</th>
-                                <th style="width: 9%">Profit/Loss</th>
-                                <th style="width: 5%">Action</th>
-                            </tr>
-                            <tr class="paymentRow">
-                                <th style="width: 10%">Type</th>
-                                <th style="width: 10%">Destination</th>
-                                <th style="width: 10%">Destination Break</th>
-                                <th style="width: 10%">Prefix</th>
-                                <th style="width: 10%">Trunk</th>
-                                <th style="width: 10%">Minutes</th>
-                                <th style="width: 9%">Sale Price</th>
-                                <th style="width: 9%">Buy Price</th>
-                                <th style="width: 9%">(Profit/Loss) per min</th>
-                                <th style="width: 9%">Revenue</th>
-                                <th style="width: 9%">Profit/Loss</th>
-                                <th style="width: 5%">Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($DealDetails as $dealDetail)
-                                <tr data-pl="{{ $dealDetail->TotalPL }}">
-                                    <td>
-                                        <select class="select2 dealer" name="Type[]" onchange="changePrice(this)">
-                                            <option @if($dealDetail->Type == "Customer") selected @endif value="Customer">Customer</option>
-                                            <option @if($dealDetail->Type == "Vendor") selected @endif value="Vendor">Vendor</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        {{Form::select('Destination[]', $Countries, $dealDetail->DestinationCountryID, array("class"=>"select2 destination"))}}
-                                    </td>
-                                    <td>
-                                        {{Form::select('DestinationBreak[]', $destinationBreaks, $dealDetail->DestinationBreak,array("class"=>"select2 destinationBreaks"))}}
-                                    </td>
-                                    <td>
-                                        <input type="text" name="Prefix[]" class="form-control" value="{{ $dealDetail->Prefix }}">
-                                    </td>
-                                    <td>
-                                        {{ Form::select('Trunk[]', $Trunks, $dealDetail->TrunkID, array("class"=>"select2")) }}
-                                    </td>
-                                    <td>
-                                        @if($dealDetail->Type == "Revenue")
-                                            <input type="number" name="Revenue[]" value="{{ $dealDetail->Revenue }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control revenue">
-                                        @else
-                                            <input type="number" name="Minutes[]" value="{{ $dealDetail->Minutes }}" class="form-control minutes" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)">
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <input type="number" name="SalePrice[]" value="{{ $dealDetail->SalePrice }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control salePrice">
-                                    </td>
-                                    <td>
-                                        <input type="number" name="BuyPrice[]" value="{{ $dealDetail->BuyPrice }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control buyPrice">
-                                    </td>
-                                    <td>
-                                        <input readonly type="number" name="PLPerMinute[]" value="{{ $dealDetail->PerMinutePL }}" class="form-control pl-minute">
-                                    </td>
-                                    <td>
-                                        @if($dealDetail->Type == "Revenue")
-                                        <input readonly type="number" name="Minutes[]" value="{{ $dealDetail->Minutes }}" class="form-control minutes">
-                                        @else
-                                            <input type="number" name="Revenue[]" value="{{ $dealDetail->Revenue }}" readonly class="form-control revenue">
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <input readonly type="number" name="PL[]" value="{{ $dealDetail->TotalPL }}" class="form-control pl-total">
-                                    </td>
-                                    <td>
-                                        <button type="button" title="Delete" onclick="deleteDeal(this)" class="btn btn-danger btn-xs del-deal" data-loading-text="Loading...">
-                                            <i></i>
-                                            -
-                                        </button>
-                                    </td>
+                        <div class="table-responsive">
+                            <table class="table table-bordered dealTable" id="table-4">
+                                <thead>
+                                <tr class="revenueRow">
+                                    <th style="width: 9% !important">Type</th>
+                                    <th style="width: 12% !important">Destination</th>
+                                    <th style="width: 12% !important">Destination Break</th>
+                                    <th style="width: 8% !important">Prefix</th>
+                                    <th style="width: 9% !important">Trunk</th>
+                                    <th style="width: 8%">Revenue/Cost</th>
+                                    <th style="width: 7%">Deal Rate</th> <!-- Sale Price -->
+                                    <th style="width: 7%">Actual Rate</th> <!-- Buy Price -->
+                                    <th style="width: 8%">(Profit/Loss) per min</th>
+                                    <th style="width: 7%">Minutes</th>
+                                    <th style="width: 10%">Profit/Loss</th>
+                                    <th style="width: 5%">Action</th>
                                 </tr>
-                            @endforeach
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <th colspan="7"></th>
-                                <th>Total</th>
-                                <th class="pl-grand">0</th>
+                                <tr class="paymentRow">
+                                    <th style="width: 9% !important">Type</th>
+                                    <th style="width: 12% !important">Destination</th>
+                                    <th style="width: 12% !important">Destination Break</th>
+                                    <th style="width: 8% !important">Prefix</th>
+                                    <th style="width: 9% !important">Trunk</th>
+                                    <th style="width: 7%">Minutes</th>
+                                    <th style="width: 7%">Deal Rate</th> <!-- Sale Price -->
+                                    <th style="width: 7%">Actual Rate</th> <!-- Buy Price -->
+                                    <th style="width: 8%">(Profit/Loss) per min</th>
+                                    <th style="width: 8%">Revenue/Cost</th>
+                                    <th style="width: 10%">Profit/Loss</th>
+                                    <th style="width: 5%">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
                                 <input type="hidden" name="TotalPL" value="{{ $Deal->TotalPL }}">
-                            </tr>
-                            </tfoot>
-                        </table>
+                                @foreach($DealDetails as $dealDetail)
+                                    <tr data-pl="{{ $dealDetail->TotalPL }}" data-rev="{{ $dealDetail->Revenue }}" data-dealer="{{ $dealDetail->Type }}">
+                                        <td>
+                                            <select class="select2 dealer" name="Type[]" onchange="changePrice(this)">
+                                                <option @if($dealDetail->Type == "Customer") selected @endif value="Customer">Customer</option>
+                                                <option @if($dealDetail->Type == "Vendor") selected @endif value="Vendor">Vendor</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            {{Form::select('Destination[]', $Countries, $dealDetail->DestinationCountryID, array("class"=>"select2 destination"))}}
+                                        </td>
+                                        <td>
+                                            {{Form::select('DestinationBreak[]', $destinationBreaks, $dealDetail->DestinationBreak,array("class"=>"select2 destinationBreaks"))}}
+                                        </td>
+                                        <td>
+                                            <input type="text" name="Prefix[]" class="form-control" value="{{ $dealDetail->Prefix }}">
+                                        </td>
+                                        <td>
+                                            {{ Form::select('Trunk[]', $Trunks, $dealDetail->TrunkID, array("class"=>"select2")) }}
+                                        </td>
+                                        <td>
+                                            @if($Deal->DealType == "Revenue")
+                                                <input type="number" name="Revenue[]" value="{{ $dealDetail->Revenue }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control revenue">
+                                            @else
+                                                <input type="number" name="Minutes[]" value="{{ $dealDetail->Minutes }}" class="form-control minutes" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)">
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <input type="number" name="SalePrice[]" value="{{ $dealDetail->SalePrice }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control salePrice">
+                                        </td>
+                                        <td>
+                                            <input type="number" name="BuyPrice[]" value="{{ $dealDetail->BuyPrice }}" onkeyup="changePrice(this)" onchange="changePrice(this)" onblur="changePrice(this)" class="form-control buyPrice">
+                                        </td>
+                                        <td>
+                                            <input readonly type="number" name="PLPerMinute[]" value="{{ $dealDetail->PerMinutePL }}" class="form-control pl-minute">
+                                        </td>
+                                        <td>
+                                            @if($Deal->DealType == "Revenue")
+                                                <input readonly type="number" name="Minutes[]" value="{{ $dealDetail->Minutes }}" class="form-control minutes">
+                                            @else
+                                                <input type="number" name="Revenue[]" value="{{ $dealDetail->Revenue }}" readonly class="form-control revenue">
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <input readonly type="number" name="PL[]" value="{{ $dealDetail->TotalPL }}" class="form-control pl-total">
+                                        </td>
+                                        <td>
+                                            <button type="button" title="Delete" onclick="deleteDeal(this)" class="btn btn-danger btn-xs del-deal" data-loading-text="Loading...">
+                                                <i></i>
+                                                -
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                                <tfoot>
+                                <tr class="revenueRow">
+                                    <th colspan="9"></th>
+                                    <th>Total</th>
+                                    <th class="pl-grand">0</th>
+                                </tr>
+                                <tr class="paymentRow">
+                                    <th colspan="8"></th>
+                                    <th>Total</th>
+                                    <th class="rev-grand">0</th>
+                                    <th class="pl-grand">0</th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 <div class="panel panel-primary" data-collapsed="0">
@@ -214,7 +237,7 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <table class="table table-bordered noteTable" id="table-4">
+                        <table class="table table-bordered noteTable" id="table-44">
                             <thead>
                             <tr>
                                 <th style="width: 65%">Note</th>

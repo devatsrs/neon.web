@@ -156,6 +156,7 @@
                         "bSortable": false,
                         mRender: function (id, type, full) {
 
+                            var report_ = "{{ URL::to('/dealmanagement/{id}/report/customer')}}";
                             var edit_ = "{{ URL::to('/dealmanagement/{id}/edit/')}}";
                             var delete_ = "{{ URL::to('/dealmanagement/{id}/delete/')}}";
                             edit_ = edit_.replace('{id}', id);
@@ -166,6 +167,7 @@
                                 action += '<input type = "hidden"  name = "' + list_fields_deal[i] + '"       value = "' + (full[i] != null ? full[i] : '') + '" / >';
                             }
                             action += '</div>';
+                            action += ' <a href="' + report_ + '" title="Report" class="btn btn-warning btn-sm tooltip-primary" data-placement="top" data-toggle="tooltip"><i class="fa fa-file-text"></i>&nbsp;</a>';
                             action += ' <a href="' + edit_ + '" data-redirect="{{ URL::to('dealmanagement')}}" title="Edit" class="btn btn-default btn-sm tooltip-primary" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                             action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('dealmanagement')}}" title="Delete" class="btn delete btn-danger btn-sm tooltip-primary" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>'
                             return action;

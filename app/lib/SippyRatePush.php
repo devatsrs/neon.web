@@ -31,13 +31,20 @@ class SippyRatePush
             $response['status'] = 0;
             $response['message'] = $APIResult['faultString'] . '\n';
         }
-        if(!empty($DBResult['result']) && $DBResult['result'] == 'OK' && $response['status'] == 1) {
-            $response['status'] = 1;
-            $response['message'] = "OK";
-        } else {
-            $response['status'] = 0;
-            $response['message'] = $DBResult['faultString'];
+        if($response['status'] == 1)
+        {
+            if(!empty($DBResult['result']) && $DBResult['result'] == 'OK' && $response['status'] == 1) {
+                $response['status'] = 1;
+                $response['message'] = "OK";
+            } else {
+                $response['status'] = 0;
+                $response['message'] = $DBResult['faultString'];
+            }
         }
+        else{
+            $response['message'] = "Your API details are wrong.";
+        }
+
         return $response;
     }
 

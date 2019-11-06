@@ -16,6 +16,7 @@ class Lead extends \Eloquent {
         'FirstName' =>  'required',
         'LastName' =>  'required',
         'CurrencyId' =>  'required',
+        'Email'  => 'required'
     );
     public static function getRecentLeads($limit){
         $companyID  = User::get_companyID();

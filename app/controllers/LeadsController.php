@@ -13,11 +13,12 @@ class LeadsController extends \BaseController {
 	
        $companyID = User::get_companyID();
        $userID = User::get_userID();
-        $data = Input::all();
-        $columns = array('AccountID','AccountName','FirstName','Phone','Email','created_at');
+       $data = Input::all();
+
+        $columns = array('AccountID','AccountName','FirstName','Phone','Email','LeadStatus','created_at');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.created_at","tblAccount.AccountID","IsCustomer","IsVendor",'tblAccount.Address1','tblAccount.Address2','tblAccount.Address3','tblAccount.City','tblAccount.Country','Picture','tblAccount.PostCode'];
+        $select = ["tblAccount.AccountName" ,DB::raw("concat(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername"),"tblAccount.Phone","tblAccount.Email","tblAccount.created_at","tblAccount.AccountID","IsCustomer","IsVendor",'tblAccount.Address1','tblAccount.Address2','tblAccount.Address3','tblAccount.City','tblAccount.Country','Picture','tblAccount.PostCode','tblAccount.LeadStatus'];
         //$leads = Account::leftjoin('tblUser', 'tblAccount.Owner', '=', 'tblUser.UserID')->select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
 		$leads = Account::select($select)->where(["tblAccount.AccountType"=>0,"tblAccount.CompanyID" => $companyID]);
 
@@ -46,6 +47,16 @@ class LeadsController extends \BaseController {
         if(trim($data['tag']) != '') {
             $leads->where('tblAccount.tags', 'like','%'.trim($data['tag']).'%');
         }
+
+        if(trim($data['lead_status']) != '') {
+            $leads->where('tblAccount.LeadStatus', trim($data['lead_status']));
+        }
+        
+        if(trim($data['Date']) != '') {
+            $leads->where('tblAccount.created_at','like','%'. trim($data['Date']).'%');
+        }
+
+        
 
         $leads->orderBy($sort_column,$data['sSortDir_0']);
 
@@ -316,6 +327,7 @@ class LeadsController extends \BaseController {
             'CompanyID' =>  'required',
             'AccountName' => 'required|unique:tblAccount,AccountName,'.$lead->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'],
             'CurrencyId' =>  'required',
+            'Email'      => 'required',
         );
         
         $validator = Validator::make($data, $rules);
@@ -502,7 +514,7 @@ class LeadsController extends \BaseController {
                 'tags' => 'required',
                 'SelectedIDs' => 'required',
             );
-
+            
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
@@ -518,7 +530,6 @@ class LeadsController extends \BaseController {
             $SelectedIDs = $data['SelectedIDs'];
             unset($data['SelectedIDs']);
             if (Lead::whereIn('AccountID', explode(',', $SelectedIDs))->update($data)) {
-                $UserActilead = UserActivity::UserActivitySaved($data,'Bulk Tags','Lead');
                 return Response::json(array("status" => "success", "message" => "Lead Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Lead."));

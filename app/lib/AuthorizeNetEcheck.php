@@ -119,7 +119,7 @@ class AuthorizeNetEcheck {
     public function CreatePaymentProfile($customerProfileId,$data){
         try{
             $paymentProfile = new AuthorizeNetPaymentProfile;
-            $paymentProfile->customerType = strtolower($data['AccountHolderType']);
+            $paymentProfile->customerType = str_replace("company","business",strtolower($data['AccountHolderType']));
             $paymentProfile->payment->bankAccount->nameOnAccount = $data["AccountHolderName"];
             $paymentProfile->payment->bankAccount->accountNumber = $data["AccountNumber"];
             $paymentProfile->payment->bankAccount->routingNumber = $data["RoutingNumber"];
@@ -145,7 +145,7 @@ class AuthorizeNetEcheck {
         try{
             $data["ExpirationDate"] = $data["ExpirationYear"]."-".$data["ExpirationMonth"];
             $paymentProfile = new AuthorizeNetPaymentProfile;
-            $paymentProfile->customerType = strtolower($data['AccountHolderType']);
+            $paymentProfile->customerType = str_replace("company","business",strtolower($data['AccountHolderType']));
             $paymentProfile->payment->bankAccount->nameOnAccount = $data["AccountHolderName"];
             $paymentProfile->payment->bankAccount->accountNumber = $data["AccountNumber"];
             $paymentProfile->payment->bankAccount->routingNumber = $data["RoutingNumber"];

@@ -1,5 +1,5 @@
 <table id="addRevenueRow" class="hide hidden">
-    <tr>
+    <tr data-deale="Customer">
         <td>
             <select class="selectOpt dealer" name="Type[]" onchange="changePrice(this)">
                 <option value="Customer">Customer</option>
@@ -49,7 +49,7 @@
     </tr>
 </table>
 <table id="addPaymentRow" class="hide hidden">
-    <tr>
+    <tr data-deale="Customer">
         <td>
             <select class="selectOpt dealer" name="Type[]" onchange="changePrice(this)">
                 <option value="Customer">Customer</option>
@@ -127,7 +127,6 @@
             $("#deal-from").submit();
         });
 
-
         $("#StartDate").datepicker({
             todayBtn:  1,
             autoclose: true
@@ -154,7 +153,7 @@
             checkDealType();
         });
         countTotalPL();
-
+        addDestinationBreakOnLoad();
     });
     checkDealType();
 
@@ -164,6 +163,10 @@
 
     $(document).on("change", "select.destination", function (e) {
         getDestinationBreak(this)
+    });
+
+    $(document).on("change","select.dealer", function (e) {
+        $(this).parent().parent().attr("data-dealer", $(this).val());
     });
 
     function ajax_form_success(response){
@@ -213,43 +216,88 @@
         disableFieldsOnAddDetails();
     }
 
+    function addDestinationBreakOnLoad(){
+        var trows = $(".dealTable tbody tr");
+        if(trows.length > 0){
+            trows.each(function (x, y) {
+               var destination = $(y).find(".destination");
+                if(destination.val() != "") {
+                    getDestinationBreak(destination);
+                }
+            });
+        }
+    }
+
 
     function getDestinationBreak(ele){
         var CodeDeckID = $("[name='CodedeckID']").val();
-        var destination = ele != 0 && $(ele).val() != "" ? $(ele).val() : 0;
+        var that = $(ele);
+        var destination = ele != 0 && that.val() != "" ? that.val() : 0;
+        var rawSelect = $("select.destinationBreaks");
+
+        var defaultVal = "";
+        if(ele != 0 && that.val() != ""){
+            rawSelect = $(ele).parent().parent().find("select.destinationBreaks");
+            defaultVal = rawSelect.val();
+        }
+        var options = "<option value=''>Select</option>";
         $.ajax({
-            url:'{{URL::to('dealmanagement/get_destination_breaks')}}',
+            url: '{{ URL::to('dealmanagement/get_destination_breaks') }}',
             type: 'POST',
             dataType: 'json',
             data:{id:CodeDeckID,destination:destination},
             success: function(response) {
-                var rawSelect = ele != 0 && $(ele).val() != "" ? $(ele).parent().parent().find("select.destinationBreaks") : $("select.destinationBreaks");
-
-                var options = "<option value=''>Select</option>";
+                var valArr = [];
                 $.each(response.data, function (x,y) {
                     options += "<option value='" + y + "'>" + y + "</option>";
+                    valArr.push(y);
                 });
 
                 rawSelect.html(options);
-                $(".dealTable select.destinationBreaks").select2();
+                if(ele != 0 && that.val() != ""){
+                    rawSelect.select2().select2("val", $.inArray(defaultVal,valArr) != -1 ? defaultVal : "");
+                } else
+                    $(".dealTable select.destinationBreaks").select2();
+
             },
             error: function () {
-                var rawSelect = ele != 0 && $(ele).val() != "" ? $(ele).parent().parent().find("select.destinationBreaks") : $("select.destinationBreaks");
-                var options = "<option value=''>Select</option>";
                 rawSelect.html(options);
-                $(".dealTable select.destinationBreaks").select2();
+
+                if(ele != 0 && that.val() != ""){
+                    rawSelect.select2().select2("val","");
+                } else
+                    $(".dealTable select.destinationBreaks").select2();
             }
         });
     }
 
     function countTotalPL(){
-
-        var totalPL = 0;
+        var DealType = $("[name='DealType']").val();
+        var totalPL  = 0;
+        var totalRev = 0;
+        var CustomerTotal = 0;
+        var VendorTotal   = 0;
         $(".dealTable tbody tr").each(function () {
             var plVal = $(this).attr('data-pl');
-            totalPL +=  (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
+
+            if(DealType == "Payment") {
+                var revVal = $(this).attr('data-rev');
+                totalRev += (revVal != "" && revVal != undefined && revVal != "NaN") ? parseFloat(revVal) : 0;
+
+                if($(this).attr('data-dealer') == "Customer")
+                    CustomerTotal += (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
+                else
+                    VendorTotal += (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
+            } else {
+                totalPL += (plVal != "" && plVal != undefined && plVal != "NaN") ? parseFloat(plVal) : 0;
+            }
         });
+
+        if(DealType == "Payment") {
+            totalPL = CustomerTotal - VendorTotal;
+        }
         $(".pl-grand").text(totalPL.toFixed(toFixed));
+        $(".rev-grand").text(totalRev.toFixed(toFixed));
         $("[name='TotalPL']").val(totalPL.toFixed(toFixed));
     }
 
@@ -277,6 +325,7 @@
             revenue = (revenue != undefined && revenue != "NaN") ? parseFloat(revenue) : 0;
 
             minutes = salePrice != 0 ? revenue / salePrice : 0;
+
             minutes = (minutes != undefined && minutes != "NaN") ? minutes : 0;
             row.find(".minutes").val(minutes);
         } else {
@@ -296,9 +345,10 @@
 
         var profileLoss = plminute * minutes;
 
-        row.find(".pl-minute").val(plminute);
+        row.find(".pl-minute").val(plminute.toFixed(toFixed));
         row.find(".pl-total").val(profileLoss.toFixed(toFixed));
         row.attr("data-pl", profileLoss.toFixed(toFixed));
+        row.attr("data-rev",revenue.toFixed(toFixed));
         countTotalPL();
     }
 

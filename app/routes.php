@@ -183,6 +183,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/dashboard/ajax_get_recent_accounts', "DashboardController@ajax_get_recent_accounts");
     Route::any('/dashboard/ajax_get_missing_accounts', "DashboardController@ajax_get_missing_accounts");
     Route::any('/dashboard/delete_missing_accounts/{id}', "DashboardController@delete_gateway_missing_account");
+	Route::any('/dashboard/ajax_get_usage_files', "DashboardController@ajax_get_usage_files");
 	Route::any('/crmdashboard/ajax_opportunity_grid', 'DashboardController@GetOpportunites');
 	
 	Route::any('/crmdashboard/ajax_task_grid', 'DashboardController@GetUsersTasks');
@@ -824,6 +825,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('dealmanagement/{id}/update', "DealManagementController@update");
 	Route::any('dealmanagement/get_destination_breaks', "DealManagementController@getDestinationBreak");
 
+	Route::any('dealmanagement/{id}/report/{type}', 'DealManagementController@report');
+	Route::any('dealmanagement/{id}/get_report/{type}', "DealManagementController@get_report");
 	//Pages
 	Route::any('/about', 'PagesController@about');
 	Route::resource('page', 'PagesController');
