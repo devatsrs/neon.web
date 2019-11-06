@@ -63,7 +63,7 @@ class DestinationGroupSet extends \Eloquent
     }
     public static function  getTerminationTypes(){
         $row = Rate::distinct()->where('Type', '!=', '')->orderBy('Type','asc')->lists('Type','Type');
-        $row = array(""=> "Select") + $row;
+        $row = array(""=> "All") + $row;
         return $row;
     }
 
