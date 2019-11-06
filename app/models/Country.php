@@ -120,6 +120,11 @@ class Country extends \Eloquent {
        
     }
 
+    public static function getCountryByName(){
+        $country =  Country::lists('Country','Country');
+        return array("" => "All")+ $country;
+    }
+
     public static function getName($CountryID){
         return Country::where(array('CountryID'=>$CountryID))->pluck('Country');
     }
