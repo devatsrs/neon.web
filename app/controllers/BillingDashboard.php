@@ -391,7 +391,7 @@ class BillingDashboard extends \BaseController {
         }
 
 
-        $AccountEmaillog = json_encode($AccountEmaillog);
+        $AccountEmaillog = json_decode(json_encode($AccountEmaillog),true);
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/paymentreminders.csv';
             $NeonExcel = new NeonExcelIO($file_path);
