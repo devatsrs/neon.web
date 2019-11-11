@@ -390,7 +390,11 @@ class BillingDashboard extends \BaseController {
             $AccountEmaillog = $AccountEmaillog->whereIn('AccountEmailLog.EmailType',[1,2]);
         }
 
+        if(is_reseller()){
+            $AccountEmaillog = $AccountEmaillog->where('AccountEmailLog.CompanyID' , User::get_companyID());
+        }
 
+        $AccountEmaillog = $AccountEmaillog->get();
         $AccountEmaillog = json_decode(json_encode($AccountEmaillog),true);
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/paymentreminders.csv';
