@@ -825,9 +825,9 @@
                                 if(bVisibleComparisonView) {
                                     cf_html = (full[33] != null && full[33] != '') ? full[36] + full[33] : '-';
                                     cf_html += '<br/>';
-                                    cf_html += (full[10] != null && full[10] != '') ? full[30] + full[10] : '-';
+                                    cf_html += (full[10] != null && full[10] != '') ? full[31] + full[10] : '-';
                                 } else {
-                                    cf_html = (full[10] != null && full[10] != '') ? full[30] + full[10] : '';  //ConnectionFeeCurrency+ConnectionFee
+                                    cf_html = (full[10] != null && full[10] != '') ? full[31] + full[10] : '';  //ConnectionFeeCurrency+ConnectionFee
                                 }
                                 return cf_html;
                             }
@@ -870,9 +870,9 @@
                                 if(bVisibleComparisonView) {
                                     rate_html = (full[34] != null && full[34] != '') ? full[37] + full[34] : '-'; //CurrentRateCurrency+Rate for awaiting approval
                                     rate_html += '<br/>';
-                                    rate_html += full[31] + full[12]; //RateCurrency+Rate
+                                    rate_html += full[30] + full[12]; //RateCurrency+Rate
                                 } else {
-                                    rate_html = full[31] + full[12]; //RateCurrency+Rate
+                                    rate_html = full[30] + full[12]; //RateCurrency+Rate
                                     if(full[12] > full[11])
                                         rate_html = rate_html+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
                                     else if(col < full[11])
@@ -913,9 +913,9 @@
                                 if(bVisibleComparisonView) {
                                     raten_html = (full[35] != null && full[35] != '') ? full[37] + full[35] : '-';
                                     raten_html += '<br/>';
-                                    raten_html += (full[13] != null && full[13] != '') ? full[31] + full[13] : '-';
+                                    raten_html += (full[13] != null && full[13] != '') ? full[30] + full[13] : '-';
                                 } else {
-                                    raten_html = (full[13] != null && full[13] != '') ? full[31] + full[13] : '';  //RateCurrency+RateN
+                                    raten_html = (full[13] != null && full[13] != '') ? full[30] + full[13] : '';  //RateCurrency+RateN
                                 }
                                 return raten_html;
                             }
