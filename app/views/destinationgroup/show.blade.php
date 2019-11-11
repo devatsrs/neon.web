@@ -200,8 +200,24 @@
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
                         {  "bSortable": true },  // 0 Code
-                        {  "bSortable": true },  // country
-                        {  "bSortable": true },  // type
+                        {  "bSortable": true ,
+                            mRender: function ( id, type, full ) {
+                                var output = full[2];
+                                if(output == '' || output == 0){
+                                    return 'All';
+                                }
+                                return output;
+                            }
+                        },  // country
+                        {  "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                var output = full[3];
+                                if(output == '' || output == 0){
+                                    return 'All';
+                                }
+                                return output;
+                            }
+                        },  // type
                         {  "bSortable": true }, //created by
                         {  "bSortable": true },  //created at
                         {  "bSortable": false,
@@ -289,15 +305,13 @@
                     {   
 
                         var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
-
-                        
-                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('val', select2value);
                         
                     } 
                     else if(list_fields[i] == 'Type')
                     {   
                         var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
-                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('val', select2value);
                     } 
 
                     else if(list_fields[i] == 'CityTariff')

@@ -10,7 +10,7 @@ class DiscountPlan extends \Eloquent
 
     const VOLUME_MINUTES = 1;
 
-    public static  $discount_service = array(''=>'Select','1'=>'Volume','2'=>'Minutes','3'=>'Fixed');
+    public static  $discount_service = array(''=>'Select','1'=>'Volume','3'=>'Fixed');
 
     public static $Component = array(
         "OneOffCost"=>"One-Off cost",

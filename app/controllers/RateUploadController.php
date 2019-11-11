@@ -2305,8 +2305,13 @@ class RateUploadController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Please select a file."));
             }
             if (!empty($file_name)) {
-                $SheetNames = NeonExcelIO::getSheetNamesFromExcel($file_name);
-                return Response::json(array("status" => "success", "SheetNames" => $SheetNames , "FileExtesion" => strtolower($excel->getClientOriginalExtension())));
+
+                if (strtolower($ext) == "csv") {
+                    return Response::json(array("status" => "success", "SheetNames" => ["0"] , "FileExtesion" => strtolower($excel->getClientOriginalExtension())));
+                }else{
+                    $SheetNames = NeonExcelIO::getSheetNamesFromExcel($file_name);
+                    return Response::json(array("status" => "success", "SheetNames" => $SheetNames , "FileExtesion" => strtolower($excel->getClientOriginalExtension())));
+                }
             }
         } catch (Exception $ex) {
             Log::info($ex);
