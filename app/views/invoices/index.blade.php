@@ -35,7 +35,7 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Auto Pay</label>
-                    {{Form::select('AutoPay',['0' => 'Select','1' => 'On' , '' => 'Off'],'0',array("class"=>"select2"))}}
+                    {{Form::select('AutoPay',['' => 'Select','on' => 'On' , 'never' => 'Off'],'0',array("class"=>"select2"))}}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Status</label>
@@ -124,7 +124,7 @@
                   <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
-                      <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
+                      {{-- <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li> --}}
 
                   </ul>
               </div>
@@ -177,10 +177,7 @@
             @if(is_FastPay($CompanyID))
             <li> <a class="create" id="fastpay-export" href="javascript:;"> FastPay Export </a> </li>
             @endif
-                <?php $global_admin = Session::get("global_admin" , 0); ?>
-            @if(!empty($global_admin) || (!empty($IngenicoExport->Value) && $IngenicoExport->Value == 1))
                 <li> <a class="create" id="ingenico-export" href="javascript:;"> Ingenico Export </a> </li>
-            @endif
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
@@ -193,7 +190,7 @@
         </div>
       </div>
     </div>
-    <div class="" style="overflow: auto;">
+    
     <table class="table table-bordered datatable" id="table-4">
       <thead>
         <tr>
@@ -202,7 +199,9 @@
             </div>
           </th>
           <th>Account</th>
+          @if(!is_reseller())
           <th>Partner</th>
+          @endif
           <th>Payment Method</th>
           <th>Auto Pay</th>
           <th>Billing Type</th>
@@ -221,11 +220,10 @@
       <tbody>
       </tbody>
     </table>
-</div>
   </div>
 </div>
 <style>
-#table-4{
+.over{
     width:2000px !important;
     overflow-x: auto;
 }
@@ -247,7 +245,7 @@
 
             var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
             var Invoice_Delete_Url = "{{ URL::to('invoice/invoice_in_delete')}}";
-            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate', 'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
+            var list_fields = ['InvoiceType', 'AccountName ', 'Partner','PaymentMethod', 'AutoPay' , 'BillingType' ,'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate', 'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ? $("#invoice_filter select[name='InvoiceStatus']").val() : '';
@@ -271,6 +269,10 @@
                 "bDestroy": true,
                 "bProcessing": true,
                 "bServerSide": true,
+                "scrollX": true,
+                "initComplete": function(settings, json) { // to hide extra row which is displaying due to scrollX
+                    $('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
+                },
                 "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
@@ -343,15 +345,25 @@
                             return output;
                         }
 
-                    },  // 1 InvoiceNumber
-                    {"bSortable": true},
-                    {"bSortable": true},
+                    },  // Partner
+                    @if(!is_reseller())
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[2];
+                        }
+                    },
+                    @endif
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[3];
+                        }
+                    },
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {                       
                             var readonly  = "deactivate";
                             var readonly_title = 'Cannot deactivate';
-                            if(full[4] == 1){
+                            if(full[4] != 'never'){
                                 action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[8]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1" readonly></p>';
                             }else{
                                 action = '<p class="make-switch switch-small '+readonly+'"><input type="checkbox" data-id="'+full[8]+'" class="changestatus"  name="template_status" value="1" readonly></p>';
@@ -373,11 +385,11 @@
                         "bSortable": true,
 
                         mRender: function (id, type, full) {
-
+                            var id = full[6];
                             var output, account_url;
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                 output = '<a href="{url}" target="_blank"> ' + id + '</a>';
-                                account_url = baseurl + "/invoice/" + full[10] + "/invoice_preview";
+                                account_url = baseurl + "/invoice/" + full[14] + "/invoice_preview";
                                 output = output.replace("{url}", account_url);
                                 output = output.replace("{account_name}", id);
                             } else {
@@ -387,12 +399,26 @@
                         }
 
                     },  // 2 IssueDate
-                    {"bSortable": true},  // 3 IssueDate
-                    {"bSortable": true},  //4 Invoice period
-                    {"bSortable": true},  // 5 GrandTotal
-                    {"bSortable": true},  // 6 PAID/OS
-                   
-                    
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[7];
+                        }
+                    },  // 3 IssueDate
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[8];
+                        }
+                    },  //4 Invoice period
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[9];
+                        }
+                    },  // 5 GrandTotal
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[10];
+                        }
+                    },  // 6 PAID/OS
                     {
                         "bSortable": true,
                         mRender: function (id, type, full) {
@@ -1111,6 +1137,7 @@
             $('table tbody').on('click', '.send-invoice', function (ev) {
                 //var cur_obj = $(this).prevAll("div.hiddenRowData");
                 var cur_obj = $(this).parent().parent().parent().parent().find("div.hiddenRowData");
+
                 InvoiceID = cur_obj.find("[name=InvoiceID]").val();
                 send_url = ("/invoice/{id}/invoice_email").replace("{id}", InvoiceID);
                 showAjaxModal(send_url, 'send-modal-invoice');
