@@ -193,36 +193,43 @@
         </div>
       </div>
     </div>
+    <div class="" style="overflow: auto;">
     <table class="table table-bordered datatable" id="table-4">
       <thead>
         <tr>
-          <th width="10%"> <div class="pull-left">
+          <th width="7%"> <div class="pull-left">
               <input type="checkbox" id="selectall" name="checkbox[]" class=""/>
             </div>
           </th>
-          <th width="15%">Account</th>
-          <th width="6%">Partner</th>
-          <th width="6%">Payment Method</th>
-          <th width="6%">Auto Pay</th>
-          <th width="6%">Billing Type</th>
-          <th width="10%">Invoice Number</th>
-          <th width="10%">Issue Date</th>
-          <th width="13%">Period</th>
-          <th width="6%">Grand Total</th>
-          <th width="6%">Paid/OS</th>
-          <th width="5%">Status</th>
-          <th width="5%">Available Credit Notes</th>
-          <th width="10%">Due Date</th>
-            <th width="15%">Payment Reminder</th>
-          <th width="20%">Action</th>
+          <th>Account</th>
+          <th>Partner</th>
+          <th>Payment Method</th>
+          <th>Auto Pay</th>
+          <th>Billing Type</th>
+          <th>Invoice Number</th>
+          <th>Issue Date</th>
+          <th>Period</th>
+          <th>Grand Total</th>
+          <th>Paid/OS</th>
+          <th>Status</th>
+          <th>Available Credit Notes</th>
+          <th>Due Date</th>
+          <th>Payment Reminder</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
       </tbody>
     </table>
+</div>
   </div>
 </div>
-
+<style>
+#table-4{
+    width:2000px !important;
+    overflow-x: auto;
+}
+</style>
 <script type="text/javascript">
         var $searchFilter = {};
         var checked = '';
@@ -268,7 +275,7 @@
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[3, 'desc']],
+                "aaSorting": [[6, 'desc']],
                 "fnServerParams": function (aoData) {
                     aoData.push({"name": "InvoiceType", "value": $searchFilter.InvoiceType},
                             {"name": "AccountID","value": $searchFilter.AccountID},
@@ -313,7 +320,7 @@
                                 invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-right-bold"></i>RCV</a>';
                             }
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
-                                action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[10] + '" name="InvoiceID[]"></div>';
+                                action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[14] + '" name="InvoiceID[]"></div>';
                             }
                             action += invoiceType;
                             return action;
@@ -326,11 +333,11 @@
                         mRender: function (id, type, full) {
                             var output, account_url;
                             output = '<a href="{url}" target="_blank" >{account_name}';
-                            if (full[16] == '') {
+                            if (full[20] == '') {
                                 output += '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                             }
                             output += '</a>';
-                            account_url = baseurl + "/accounts/" + full[13] + "/show";
+                            account_url = baseurl + "/accounts/" + full[17] + "/show";
                             output = output.replace("{url}", account_url);
                             output = output.replace("{account_name}", id);
                             return output;
@@ -663,7 +670,7 @@
                         if (response1.total_grand != null) {
                             $('.result_row').remove();
                             $('.result_row').hide();
-                            $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="4"></td><td><strong>' + response1.total_grand + '</strong></td><td><strong>' + response1.os_pp + '</strong></td><td colspan="2"></td></tr>');
+                            $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="8"></td><td><strong>' + response1.total_grand + '</strong></td><td><strong>' + response1.os_pp + '</strong></td><td colspan="5"></td></tr>');
                         }
                     }
                 });
