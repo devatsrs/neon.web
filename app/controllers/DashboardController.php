@@ -154,6 +154,8 @@ class DashboardController extends BaseController {
         $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD');
         if(!empty($BillingDashboardWidgets)) {
             $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
+        }else{
+            $BillingDashboardWidgets = [];
         }
         $accounts = Account::getAccountIDList();
         $customers = Account::getCustomerAccountIDList();

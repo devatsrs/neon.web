@@ -44,332 +44,344 @@
     //http_build_query(['StartDate'=>isset($data['StartDate'])?$data['StartDate']:date('Y-m-d'),'EndDate'=>isset($data['EndDate'])?$data['EndDate']:date('Y-m-d')])
     ?>
     <br/>
-    <?php if(User::checkCategoryPermission('BillingDashboardSummaryWidgets','View')){ ?>
-    <div class="row">
-        <div class="col-md-12">
-            <div data-collapsed="0" class="panel panel-primary">
-                <div id="invoice-widgets" class="panel-body">
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-blue"><a target="_blank" class="undefined"
-                                                                 data-startdate="" data-enddate=""
-                                                                 data-currency="" href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
+    @if(!is_reseller())
+        <?php if(User::checkCategoryPermission('BillingDashboardSummaryWidgets','View')){ ?>
+            <div class="row">
+                <div class="col-md-12">
+                    <div data-collapsed="0" class="panel panel-primary">
+                        <div id="invoice-widgets" class="panel-body">
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-blue"><a target="_blank" class="undefined"
+                                                                        data-startdate="" data-enddate=""
+                                                                        data-currency="" href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p> Total Outstanding</p></a></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-orange"><a target="_blank" class="undefined" data-startdate=""
+                                                                        data-enddate="" data-currency=""
+                                                                        href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p>Total Payable</p></a></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
+                                                                        data-enddate="" data-currency=""
+                                                                        href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p>Total Receivable</p></a></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
+                                                                        data-enddate="" data-currency=""
+                                                                        href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p>Invoice Sent for selected period</p></a></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-plum"><a target="_blank" class="undefined" data-startdate=""
+                                                                        data-enddate="" data-currency=""
+                                                                        href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p>Invoice Received</p></a></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
+                                                                        data-startdate="" data-enddate=""
+                                                                        data-currency="0" href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p>Due Amount</p></a></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
+                                                                        data-enddate="" data-currency=""
+                                                                        href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p>Overdue Amount</p></a></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentReceived',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-purple"><a target="_blank" class="undefined" data-startdate=""
+                                                                        data-enddate="" data-currency=""
+                                                                        href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p>Payment Received</p></a></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentSent',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
+                                                                        data-enddate="" data-currency=""
+                                                                        href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p>Payment Sent</p></a></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-brown">
+                                        <a target="_blank" class="undefined" data-startdate="" data-enddate="" data-currency="" href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
+                                            <p>Outstanding For Selected Period</p>
+                                        </a>
                                     </div>
-                                    <p> Total Outstanding</p></a></div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-orange"><a target="_blank" class="undefined" data-startdate=""
-                                                                   data-enddate="" data-currency=""
-                                                                   href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
-                                    <p>Total Payable</p></a></div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
-                                                                data-enddate="" data-currency=""
-                                                                href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
-                                    <p>Total Receivable</p></a></div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
-                                                                  data-enddate="" data-currency=""
-                                                                  href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
-                                    <p>Invoice Sent for selected period</p></a></div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-plum"><a target="_blank" class="undefined" data-startdate=""
-                                                                 data-enddate="" data-currency=""
-                                                                 href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
-                                    <p>Invoice Received</p></a></div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
-                                                                   data-startdate="" data-enddate=""
-                                                                   data-currency="0" href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
-                                    <p>Due Amount</p></a></div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
-                                                                data-enddate="" data-currency=""
-                                                                href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
-                                    <p>Overdue Amount</p></a></div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentReceived',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-purple"><a target="_blank" class="undefined" data-startdate=""
-                                                                   data-enddate="" data-currency=""
-                                                                   href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
-                                    <p>Payment Received</p></a></div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentSent',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
-                                                                 data-enddate="" data-currency=""
-                                                                 href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
-                                    <p>Payment Sent</p></a></div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-brown">
-                                <a target="_blank" class="undefined" data-startdate="" data-enddate="" data-currency="" href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
-                                    <p>Outstanding For Selected Period</p>
-                                </a>
-                            </div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingDispute',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
-                                                                 data-enddate="" data-currency=""
-                                                                 href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
-                                    <p>Pending Dispute</p></a></div>
-                        </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
-                        <div class="col-sm-3 col-xs-6">
-                            <div class="tile-stats tile-pink"><a target="_blank" class="undefined" data-startdate=""
-                                                                 data-enddate="" data-currency=""
-                                                                 href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
-                                    <p>Pending Eastimate</p></a></div>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php } ?>
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaybleWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardPaybleWidget','View'))
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="panel panel-primary panel-table">
-                    <div class="panel-heading">
-                        <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
-                        <div class="panel-title forecase_title">
-                            <h3>Payable & Receivable  </h3>
-                            <div class="PayableReceivable"></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingDispute',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
+                                                                        data-enddate="" data-currency=""
+                                                                        href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p>Pending Dispute</p></a></div>
+                                </div>
+                            @endif
+                            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="tile-stats tile-pink"><a target="_blank" class="undefined" data-startdate=""
+                                                                        data-enddate="" data-currency=""
+                                                                        href="javascript:void(0)">
+                                            <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                                data-duration="1500" data-delay="1200">0
+                                            </div>
+                                            <p>Pending Eastimate</p></a></div>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                    <div class="form_Sales panel-body white-bg">
-                        <form novalidate class="form-horizontal form-groups-bordered"  id="PayableReceivableForm">
-                            <div class="form-group form-group-border-none">
-                                <div class="col-sm-8">
-                                    <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
-                                    <div class="col-sm-6"> <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
-                                        {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),$GetDashboardPR,array("class"=>"select_gray","id"=>"ListType")) }}
-                                        {{ Form::select('Type',array("0"=>"Exclude Unbill Amount","1"=>"Include Unbill Amount"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }}
-                                        <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
+                </div>
+            </div>
+        <?php } ?>
+    @endif
+    @if(!is_reseller())
+        @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaybleWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardPaybleWidget','View'))
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="panel panel-primary panel-table">
+                        <div class="panel-heading">
+                            <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+                            <div class="panel-title forecase_title">
+                                <h3>Payable & Receivable  </h3>
+                                <div class="PayableReceivable"></div>
+                            </div>
+                        </div>
+                        <div class="form_Sales panel-body white-bg">
+                            <form novalidate class="form-horizontal form-groups-bordered"  id="PayableReceivableForm">
+                                <div class="form-group form-group-border-none">
+                                    <div class="col-sm-8">
+                                        <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
+                                        <div class="col-sm-6"> <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
+                                            {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),$GetDashboardPR,array("class"=>"select_gray","id"=>"ListType")) }}
+                                            {{ Form::select('Type',array("0"=>"Exclude Unbill Amount","1"=>"Include Unbill Amount"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }}
+                                            <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <div id="PayableReceivable1" style="min-width: 310px; height: 400px; margin: 0 auto" class="PayableReceivable1"></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endif
+    @if(!is_reseller())
+        @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardProfitWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardProfitWidget','View'))
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="panel panel-primary panel-table">
+                        <div class="panel-heading">
+                            <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+                            <div class="panel-title forecase_title">
+                                <h3>Profit & Loss  </h3>
+                                <div class="ProfitLoss"></div>
+                            </div>
+                        </div>
+                        <div class="form_Sales panel-body white-bg">
+                            <form novalidate class="form-horizontal form-groups-bordered"  id="ProfitLossForm">
+                                <div class="form-group form-group-border-none">
+                                    <div class="col-sm-8">
+                                        <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
+                                        <div class="col-sm-6"> <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
+                                            {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),$GetDashboardPL,array("class"=>"select_gray","id"=>"ListType")) }}
+                                            <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <div id="ProfitLoss1" style="min-width: 310px; height: 400px; margin: 0 auto" class="ProfitLoss1"></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endif
+    @if(!is_reseller())
+        @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="invoice_expsense panel panel-primary panel-table">
+                        <form id="invoiceExpensefilter-form" name="filter-form">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <h3>Invoices & Expenses</h3>
+
+                                </div>
+
+                                <div class="panel-options">
+
+                                    {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly","Yearly"=>"Yearly"),$monthfilter,array("class"=>"select_gray","id"=>"ListType")) }}
+
+                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                    <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                    <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
                                 </div>
                             </div>
-                            <div class="text-center">
-                                <div id="PayableReceivable1" style="min-width: 310px; height: 400px; margin: 0 auto" class="PayableReceivable1"></div>
-                            </div>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardProfitWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardProfitWidget','View'))
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="panel panel-primary panel-table">
-                    <div class="panel-heading">
-                        <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
-                        <div class="panel-title forecase_title">
-                            <h3>Profit & Loss  </h3>
-                            <div class="ProfitLoss"></div>
+
+                        <div class="panel-body">
+                            <div id="invoice_expense_bar_chart"></div>
                         </div>
                     </div>
-                    <div class="form_Sales panel-body white-bg">
-                        <form novalidate class="form-horizontal form-groups-bordered"  id="ProfitLossForm">
-                            <div class="form-group form-group-border-none">
-                                <div class="col-sm-8">
-                                    <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
-                                    <div class="col-sm-6"> <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
-                                        {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),$GetDashboardPL,array("class"=>"select_gray","id"=>"ListType")) }}
-                                        <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
+                </div>
+            </div>
+        @endif
+    @endif
+    @if(!is_reseller())    
+        @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboardPincodeWidget','View'))
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="pin_expsense panel panel-primary panel-table">
+                        <form id="filter-form" name="filter-form" style="display: inline">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <h3>Top Pincodes</h3>
                                 </div>
-                            </div>
-                            <div class="text-center">
-                                <div id="ProfitLoss1" style="min-width: 310px; height: 400px; margin: 0 auto" class="ProfitLoss1"></div>
+                                <div class="panel-options">
+
+                                    {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array('id'=>'PinExt','class'=>'select_gray')) }}
+                                    {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type','class'=>'select_gray')) }}
+                                    {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size','class'=>'select_gray')) }}
+
+                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                    <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
+                                    <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                                </div>
+
                             </div>
                         </form>
+                        <div class="panel-body">
+                            <div id="pin_expense_bar_chart"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
-        <div class="row">
-            <div class="col-md-12">
-                <div class="invoice_expsense panel panel-primary panel-table">
-                    <form id="invoiceExpensefilter-form" name="filter-form">
+            <div class="row hidden" id="pin_grid_main">
+                <div class="col-sm-12">
+                    <div class="pin_expsense_report panel panel-primary" style="position: static;">
                         <div class="panel-heading">
                             <div class="panel-title">
-                                <h3>Invoices & Expenses</h3>
+                                <h3>Pincodes Detail Report</h3>
+                            </div>
+
+                            <div class="panel-options">
+                                <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
+                                <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table table-bordered datatable" id="pin_grid">
+                                <thead>
+                                <tr>
+                                    <th width="30%">Destination Number</th>
+                                    <th width="30%">Total Cost</th>
+                                    <th width="30%">Number of Times Dialed</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        @endif
+    @endif
+    @if(!is_reseller()) 
+        @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="panel panel-primary panel-table">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                <h3>Missing Gateway Accounts ()</h3>
 
                             </div>
 
                             <div class="panel-options">
-
-                                {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly","Yearly"=>"Yearly"),$monthfilter,array("class"=>"select_gray","id"=>"ListType")) }}
-
-                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
+                                {{ Form::select('CompanyGatewayID', $company_gateway, 1, array('id'=>'company_gateway','class'=>'select_gray')) }}
+                                <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
+                                <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
+                                <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
+                                <a data-rel="empty" href="#" title="Delete Missing Gateway Accounts"><i class="entypo-trash"></i></a>
                             </div>
                         </div>
-                    </form>
+                        <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
+                            <table id="missingAccounts" class="table table-responsive">
+                                <thead>
+                                <tr>
+                                    <th>Account Name</th>
+                                    <th>Gateway</th>
+                                </tr>
+                                </thead>
 
-                    <div class="panel-body">
-                        <div id="invoice_expense_bar_chart"></div>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
     @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboardPincodeWidget','View'))
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="pin_expsense panel panel-primary panel-table">
-                    <form id="filter-form" name="filter-form" style="display: inline">
-                        <div class="panel-heading">
-                            <div class="panel-title">
-                                <h3>Top Pincodes</h3>
-                            </div>
-                            <div class="panel-options">
-
-                                {{ Form::select('PinExt', array('pincode'=>'By Pincode','extension'=>'By Extension'), 1, array('id'=>'PinExt','class'=>'select_gray')) }}
-                                {{ Form::select('Type', array(1=>'By Cost',2=>'By Duration'), 1, array('id'=>'Type','class'=>'select_gray')) }}
-                                {{ Form::select('Limit', array(5=>5,10=>10,20=>20), 5, array('id'=>'pin_size','class'=>'select_gray')) }}
-
-                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                <a href="#" data-rel="reload"><i class="entypo-arrows-ccw"></i></a>
-                                <a href="#" data-rel="close"><i class="entypo-cancel"></i></a>
-                            </div>
-
-                        </div>
-                    </form>
-                    <div class="panel-body">
-                        <div id="pin_expense_bar_chart"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row hidden" id="pin_grid_main">
-            <div class="col-sm-12">
-                <div class="pin_expsense_report panel panel-primary" style="position: static;">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            <h3>Pincodes Detail Report</h3>
-                        </div>
-
-                        <div class="panel-options">
-                            <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                            <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <table class="table table-bordered datatable" id="pin_grid">
-                            <thead>
-                            <tr>
-                                <th width="30%">Destination Number</th>
-                                <th width="30%">Total Cost</th>
-                                <th width="30%">Number of Times Dialed</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="panel panel-primary panel-table">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            <h3>Missing Gateway Accounts ()</h3>
-
-                        </div>
-
-                        <div class="panel-options">
-                            {{ Form::select('CompanyGatewayID', $company_gateway, 1, array('id'=>'company_gateway','class'=>'select_gray')) }}
-                            <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                            <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
-                            <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
-                            <a data-rel="empty" href="#" title="Delete Missing Gateway Accounts"><i class="entypo-trash"></i></a>
-                        </div>
-                    </div>
-                    <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
-                        <table id="missingAccounts" class="table table-responsive">
-                            <thead>
-                            <tr>
-                                <th>Account Name</th>
-                                <th>Gateway</th>
-                            </tr>
-                            </thead>
-
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('PaymentRemindersWidget','View'))
+    {{-- @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('PaymentRemindersWidget','View')) --}}
         <div class="panel panel-primary panel-table">
             <div class="panel-heading">
                 <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
@@ -397,15 +409,19 @@
                         </div>
 
                     </div>
-                    <div class="form-group form-group-border-none">
-                        <label for="Closingdate" class="col-sm-1 control-label ">Account Partner</label>
-                        <div class="col-md-3">
-                            {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                    
+                        <div class="form-group form-group-border-none">
+                            @if(!is_reseller()) 
+                                <label for="Closingdate" class="col-sm-1 control-label ">Account Partner</label>
+                                <div class="col-md-3">
+                                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                                </div>
+                            @endif
+                            <div class="col-md-3">
+                                <button type="submit" id="submit_paymentreminder" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <button type="submit" id="submit_paymentreminder" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
-                        </div>
-                    </div>
+                    
                 </form>
                 <br />
 
@@ -414,6 +430,9 @@
                     <tr>
                         <th>Type</th>
                         <th>Account</th>
+                        @if(!is_reseller()) 
+                        <th>Partner</th>
+                        @endif
                         <th>Date Sent</th>
                         <th>Email From</th>
                         <th>Email To</th>
@@ -454,62 +473,63 @@
                 </div>
             </div>
         </div>
-    @endif
-
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('OutPaymentsWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('OutPaymentsWidget','View'))
-        <div class="clearfix"></div>
-        <div class="panel panel-primary panel-table">
-            <div class="panel-heading">
-                <div id="OutPayments" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
-                <div class="panel-title forecase_title">
-                    <h3>Out Payments</h3>
-                    <div class="OutPaymentsDiv"></div>
+    {{-- @endif --}}
+    @if(!is_reseller()) 
+        @if(((count($BillingDashboardWidgets)==0) ||  in_array('OutPaymentsWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('OutPaymentsWidget','View'))
+            <div class="clearfix"></div>
+            <div class="panel panel-primary panel-table">
+                <div class="panel-heading">
+                    <div id="OutPayments" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+                    <div class="panel-title forecase_title">
+                        <h3>Out Payments</h3>
+                        <div class="OutPaymentsDiv"></div>
+                    </div>
+                </div>
+                <div class="form_OutPayments panel-body white-bg">
+                    <form novalidate class="form-horizontal form-groups-bordered" id="OutPaymentsForm">
+                        <div class="form-group form-group-border-none">
+                            <label for="AccountID" class="col-sm-1 control-label">Account</label>
+                            <div class="col-sm-3">
+                                {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}}
+                            </div>
+                            <label for="VendorID" class="col-sm-1 control-label">Vendor</label>
+                            <div class="col-sm-3">
+                                {{Form::select('VendorID', $vendors,'',array("class"=>"select2"))}}
+                            </div>
+                            <label for="InvoiceNumber" class="col-sm-1 control-label">Invoice</label>
+                            <div class="col-sm-3">
+                                <input type="text" name="InvoiceNumber" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group form-group-border-none">
+                            <label for="DateRange" class="col-sm-1 control-label">Period</label>
+                            <div class="col-sm-3">
+                                <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="DateRange" data-format="YYYY-MM-DD" name="DateRange" class="form-control input-sm daterange">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" id="submit_outpayment" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                    <br>
+                    <table class="table table-bordered datatable" id="OutPayments-4">
+                        <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Vendor</th>
+                            <th>Account</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Amount</th>
+                            <th>Approve Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="form_OutPayments panel-body white-bg">
-                <form novalidate class="form-horizontal form-groups-bordered" id="OutPaymentsForm">
-                    <div class="form-group form-group-border-none">
-                        <label for="AccountID" class="col-sm-1 control-label">Account</label>
-                        <div class="col-sm-3">
-                            {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}}
-                        </div>
-                        <label for="VendorID" class="col-sm-1 control-label">Vendor</label>
-                        <div class="col-sm-3">
-                            {{Form::select('VendorID', $vendors,'',array("class"=>"select2"))}}
-                        </div>
-                        <label for="InvoiceNumber" class="col-sm-1 control-label">Invoice</label>
-                        <div class="col-sm-3">
-                            <input type="text" name="InvoiceNumber" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group form-group-border-none">
-                        <label for="DateRange" class="col-sm-1 control-label">Period</label>
-                        <div class="col-sm-3">
-                            <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="DateRange" data-format="YYYY-MM-DD" name="DateRange" class="form-control input-sm daterange">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" id="submit_outpayment" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button>
-                        </div>
-                    </div>
-                </form>
-                <br>
-                <table class="table table-bordered datatable" id="OutPayments-4">
-                    <thead>
-                    <tr>
-                        <th>Invoice #</th>
-                        <th>Vendor</th>
-                        <th>Account</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Amount</th>
-                        <th>Approve Date</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        @endif
     @endif
 
     <script type="text/javascript">
@@ -587,10 +607,38 @@
                                 }
                             }, //1 EmailType
                             { "bSortable": true }, //0 AccountName
-                            { "bSortable": true }, //2 CreatedBy
-                            { "bSortable": true }, //3 Emailfrom
-                            { "bSortable": true }, //3 EmailTo
-                            { "bSortable": true }, //3 Message
+                            @if(!is_reseller()) 
+                                { "bSortable": true ,
+                                    mRender: function ( id, type, full ) {
+                                        var action = full[8];
+                                        return action;
+                                    }
+                                }, //2 CreatedBy
+                            @endif
+                            { "bSortable": true,
+                                mRender: function ( id, type, full ) {
+                                    var action = full[2];
+                                    return action;
+                                }
+                            },
+                            { "bSortable": true,
+                                mRender: function ( id, type, full ) {
+                                    var action = full[3];
+                                    return action;
+                                }
+                            },
+                            { "bSortable": true,
+                                mRender: function ( id, type, full ) {
+                                    var action = full[4];
+                                    return action;
+                                }
+                            },
+                            { "bSortable": true,
+                                mRender: function ( id, type, full ) {
+                                    var action = full[5];
+                                    return action;
+                                }
+                            },
                             {  // 4 Contact ID
                                 "bSortable": true,
                                 mRender: function ( id, type, full ) {
@@ -602,7 +650,7 @@
                                     edit_ = edit_.replace( '{id}', id );
                                     show_ = show_.replace( '{id}', id );
                                     delete_  = delete_ .replace( '{id}', id );
-                                    action = '<div id="subject_'+full[7]+'" style="display:none" >'+full[5]+'</div><div id="msg_'+full[7]+'" style="display:none" >'+full[6]+'</div>';
+                                    action = '<div id="subject_'+full[7]+'" style="display:none" >'+full[5]+'</div><div id="msg_'+full[7]+'" style="display:none" >'+full[7]+'</div>';
 
                                     action += ' <a data-name = "' + full[7] + '" data-id="' + full[7] + '" Title="View" class="view-email-body btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
 

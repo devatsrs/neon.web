@@ -325,8 +325,9 @@ class BillingDashboard extends \BaseController {
         }else{
           
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
-                  ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')   
-                ->select(["AccountEmailLog.EmailType","tblAccount.AccountName", "AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
+                  ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')
+                  ->join('tblReseller', 'tblAccount.CompanyID', '=', 'tblReseller.ChildCompanyID')   
+                ->select(["AccountEmailLog.EmailType","tblAccount.AccountName","AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID", "tblReseller.ResellerName"])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
         }
         if(!empty($data['emailType'])){
             $emailType = $data['emailType'];
@@ -334,9 +335,76 @@ class BillingDashboard extends \BaseController {
         }else{
             $AccountEmaillog = $AccountEmaillog->whereIn('AccountEmailLog.EmailType',[1,2]);
         }
+        if(is_reseller()){
+            $AccountEmaillog = $AccountEmaillog->where('AccountEmailLog.CompanyID' , User::get_companyID());
+        }
     //    dd($AccountEmaillog->toSql());
         //( AccountEmailLog.EmailType IN (4,3) ) AND
         return Datatables::of($AccountEmaillog)->make();
+    }
+
+
+    public function paymentreminders_export($type){
+        $data = Input::all();
+        if($data['Duedate']!=''){
+            $Closingdate		=	explode(' - ',$data['Duedate']);
+            $Startdate			=   $Closingdate[0];
+            $Enddate			=	$Closingdate[1];
+            $from = trim($Startdate).' 00:00:00';
+            $to = trim($Enddate).' 23:59:59';
+        }else{
+            $from = $data['Duedate'];
+            $to=0;
+        }
+     
+        $countQryString="";
+        if(!empty($data['accountID'])){
+            $countQryString = ' (tblAccount.AccountID='.$data['accountID'].') AND ';
+        }
+
+        if(!empty($data['ResellerOwner'])){
+            $Reseller = Reseller::getResellerDetails($data['ResellerOwner']);
+            if($Reseller != false)
+                $countQryString .= ' (tblAccount.CompanyId='.$Reseller->ChildCompanyID.') AND ';
+        }
+       
+        if (User::is('AccountManager')) {
+            echo $userID = User::get_userID();
+          
+            die();
+            $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
+            ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')        
+            ->select(["AccountEmailLog.EmailType","tblAccount.AccountName","AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to') AND  ( tblAccount.Owner = ".    $userID. " OR tblAccount.AccountType = 0 ) ")->orderBy('AccountEmailLog.created_at', 'desc');
+
+        }else{
+          
+            $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
+                  ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')
+                  ->join('tblReseller', 'tblAccount.CompanyID', '=', 'tblReseller.ChildCompanyID')   
+                ->select(["AccountEmailLog.EmailType","tblAccount.AccountName", "tblReseller.ResellerName" ,"AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
+        }
+        if(!empty($data['emailType'])){
+            $emailType = $data['emailType'];
+            $AccountEmaillog = $AccountEmaillog->where('AccountEmailLog.EmailType',$emailType);
+        }else{
+            $AccountEmaillog = $AccountEmaillog->whereIn('AccountEmailLog.EmailType',[1,2]);
+        }
+
+        if(is_reseller()){
+            $AccountEmaillog = $AccountEmaillog->where('AccountEmailLog.CompanyID' , User::get_companyID());
+        }
+
+        $AccountEmaillog = $AccountEmaillog->get();
+        $AccountEmaillog = json_decode(json_encode($AccountEmaillog),true);
+        if($type=='csv'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/paymentreminders.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($AccountEmaillog);
+        }elseif($type=='xlsx'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/paymentreminders.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($AccountEmaillog);
+        }
     }
 
     public function outpayment_ajax_datagrid() {
