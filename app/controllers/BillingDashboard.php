@@ -381,7 +381,7 @@ class BillingDashboard extends \BaseController {
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
                   ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')
                   ->join('tblReseller', 'tblAccount.CompanyID', '=', 'tblReseller.ChildCompanyID')   
-                ->select(["AccountEmailLog.EmailType as Type ","tblAccount.AccountName as Account ", "tblReseller.ResellerName as Partner" ,"AccountEmailLog.created_at as DateSent", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject"])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
+                  ->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
         }
         if(!empty($data['emailType'])){
             $emailType = $data['emailType'];
@@ -391,7 +391,9 @@ class BillingDashboard extends \BaseController {
         }
 
         if(is_reseller()){
-            $AccountEmaillog = $AccountEmaillog->where('AccountEmailLog.CompanyID' , User::get_companyID());
+            $AccountEmaillog = $AccountEmaillog->select(["AccountEmailLog.EmailType as Type ","tblAccount.AccountName as Account ", "AccountEmailLog.created_at as DateSent", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject"])->where('AccountEmailLog.CompanyID' , User::get_companyID());
+        }else{
+            $AccountEmaillog = $AccountEmaillog->select(["AccountEmailLog.EmailType as Type ","tblAccount.AccountName as Account ", "tblReseller.ResellerName as Partner" ,"AccountEmailLog.created_at as DateSent", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject"]);
         }
 
         $AccountEmaillog = $AccountEmaillog->get();
