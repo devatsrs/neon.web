@@ -399,11 +399,11 @@ class BillingDashboard extends \BaseController {
         $AccountEmaillog = $AccountEmaillog->get();
 
         foreach($AccountEmaillog as $Accountdata){
-            if($Accountdata->Type == '4'){
+            if($Accountdata->Type == 2){
                $Accountdata->Type = 'Low balance';
-            }elseif($Accountdata->Type == '2'){
-                $Accountdata->Type = 'Low balance';
-            }
+            }else{
+                $Accountdata->Type = 'Payment Reminders';
+            }  
         }
         $AccountEmaillog = json_decode(json_encode($AccountEmaillog),true);
         if($type=='csv'){
