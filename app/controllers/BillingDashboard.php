@@ -397,13 +397,21 @@ class BillingDashboard extends \BaseController {
         }
 
         $AccountEmaillog = $AccountEmaillog->get();
+
+        foreach($AccountEmaillog as $Accountdata){
+            if($Accountdata->Type == '4'){
+               $Accountdata->Type = 'Low balance';
+            }elseif($Accountdata->Type == '2'){
+                $Accountdata->Type = 'Low balance';
+            }
+        }
         $AccountEmaillog = json_decode(json_encode($AccountEmaillog),true);
         if($type=='csv'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/paymentreminders.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Notification.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($AccountEmaillog);
         }elseif($type=='xlsx'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/paymentreminders.xls';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Notification.xls';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($AccountEmaillog);
         }
