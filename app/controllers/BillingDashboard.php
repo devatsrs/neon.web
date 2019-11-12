@@ -381,7 +381,7 @@ class BillingDashboard extends \BaseController {
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
                   ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')
                   ->join('tblReseller', 'tblAccount.CompanyID', '=', 'tblReseller.ChildCompanyID')   
-                ->select(["AccountEmailLog.EmailType","tblAccount.AccountName", "tblReseller.ResellerName" ,"AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
+                ->select(["AccountEmailLog.EmailType as Type ","tblAccount.AccountName as Account ", "tblReseller.ResellerName as Partner" ,"AccountEmailLog.created_at as DateSent", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject"])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
         }
         if(!empty($data['emailType'])){
             $emailType = $data['emailType'];
