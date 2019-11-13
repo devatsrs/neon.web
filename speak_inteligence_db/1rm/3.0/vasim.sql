@@ -5270,6 +5270,8 @@ ThisSP:BEGIN
 
 	DECLARE v_Select_Count VARCHAR(500);
 	DECLARE v_Select LONGTEXT;
+	DECLARE v_Index_Select LONGTEXT;
+	DECLARE v_Index_Count LONGTEXT;
 	DECLARE v_From LONGTEXT;
 	DECLARE v_Join_Rate LONGTEXT;
 	DECLARE v_Join_ORate LONGTEXT;
@@ -5337,16 +5339,8 @@ ThisSP:BEGIN
 
 	-- in order by we need to specify table name of columns to avoid error
 	CASE
-		WHEN p_lSortCol = 'DestinationType' THEN SET v_Sort_By=CONCAT('tblRate.Type',' ',p_SortOrder);
-		WHEN p_lSortCol = 'TimezoneTitle' THEN SET v_Sort_By=CONCAT('tblTimezones.Title',' ',p_SortOrder);
-		WHEN p_lSortCol = 'OriginationCode' THEN SET v_Sort_By=CONCAT('OriginationRate.Code',' ',p_SortOrder);
-		WHEN p_lSortCol = 'OriginationDescription' THEN SET v_Sort_By=CONCAT('OriginationRate.Description',' ',p_SortOrder);
 		WHEN p_lSortCol = 'Code' THEN SET v_Sort_By=CONCAT('tblRate.Code',' ',p_SortOrder);
 		WHEN p_lSortCol = 'Description' THEN SET v_Sort_By=CONCAT('tblRate.Description',' ',p_SortOrder);
-		WHEN p_lSortCol = 'EffectiveDate' THEN SET v_Sort_By=CONCAT('tblRateTableRate.EffectiveDate',' ',p_SortOrder);
-		WHEN p_lSortCol = 'RoutingCategoryName' THEN SET v_Sort_By=CONCAT('RC.Name',' ',p_SortOrder);
-		WHEN p_lSortCol = 'ModifiedBy' THEN SET v_Sort_By=CONCAT('tblRateTableRate.ModifiedBy ',p_SortOrder,',tblRateTableRate.updated_at ',p_SortOrder);
-		WHEN p_lSortCol = 'ApprovedBy' THEN SET v_Sort_By=CONCAT('tblRateTableRate.ApprovedBy ',p_SortOrder,',tblRateTableRate.ApprovedDate ',p_SortOrder);
 	ELSE
 		SET v_Sort_By = 'tblRate.Code ASC';
 	END CASE;
@@ -5361,17 +5355,29 @@ ThisSP:BEGIN
 		SET v_limit 	= '';
 	END IF;
 
+--	SET v_Index_Select = ' FORCE INDEX (IX_Unique_RateID_ORateID_RateTableId_TimezonesID_EffectiveDate)';
+	SET v_Index_Select = '';
+	/*
+	IF(p_origination_code IS NULL AND p_origination_description IS NULL)
+	THEN
+		SET v_Index_Count = '';
+	ELSE
+		SET v_Index_Count = ' FORCE INDEX (IX_OriginationRateID)';
+	END IF;
+	*/
+	SET v_Index_Count = '';
+
 	SET v_From = '
 		FROM
 			tblRateTableRate';
 
 	SET v_Join_Rate = CONCAT('
 		INNER JOIN tblRate
-			ON tblRate.RateID = tblRateTableRate.RateID AND tblRate.CompanyID = ',p_companyid);
+			ON tblRate.RateID = tblRateTableRate.RateID');
 
 	SET v_Join_ORate = CONCAT('
 		LEFT JOIN tblRate AS OriginationRate
-			ON OriginationRate.RateID = tblRateTableRate.OriginationRateID AND OriginationRate.CompanyID = ',p_companyid);
+			ON OriginationRate.RateID = tblRateTableRate.OriginationRateID');
 
 	SET v_Join_Timezone = '
 		INNER JOIN
@@ -5385,14 +5391,13 @@ ThisSP:BEGIN
 		WHERE
 			tblRateTableRate.RateTableId = ',p_RateTableId,'
 			',IF(p_contryID IS NULL,'',CONCAT('AND tblRate.CountryID = ',p_contryID)),'
-			',IF(p_origination_code IS NULL,'',CONCAT('AND OriginationRate.Code LIKE REPLACE("',p_origination_code,'", "*", "%")')),'
+			',IF(p_origination_code IS NULL,'',IF(p_origination_code = 'blank','AND OriginationRate.Code IS NULL',CONCAT('AND OriginationRate.Code LIKE REPLACE("',p_origination_code,'", "*", "%")'))),'
 			',IF(p_origination_description IS NULL,'',CONCAT('AND OriginationRate.Description LIKE REPLACE("',p_origination_description,'", "*", "%")')),'
 			',IF(p_code IS NULL,'',CONCAT('AND tblRate.Code LIKE REPLACE("',p_code,'", "*", "%")')),'
 			',IF(p_description IS NULL,'',CONCAT('AND tblRate.Description LIKE REPLACE("',p_description,'", "*", "%")')),'
 			',IF(p_RoutingCategoryID IS NULL,'',CONCAT('AND RC.RoutingCategoryID = ',p_RoutingCategoryID)),'
 			',IF(p_Preference IS NULL,'',CONCAT('AND tblRateTableRate.Preference = ',p_Preference)),'
 			',IF(p_Blocked IS NULL,'',CONCAT('AND tblRateTableRate.Blocked = ',p_Blocked)),'
-			',IF(p_ApprovedStatus IS NULL,'',CONCAT('AND tblRateTableRate.ApprovedStatus = ',p_ApprovedStatus)),'
 			',IF(p_TimezonesID IS NULL,'',CONCAT('AND tblRateTableRate.TimezonesID = ',p_TimezonesID)),'
 			AND (
 				"',p_effective,'" = "All"
@@ -5400,6 +5405,8 @@ ThisSP:BEGIN
 				OR ("',p_effective,'" = "Future" AND EffectiveDate > NOW())
 			)
 	');
+
+	-- 		',IF(p_ApprovedStatus IS NULL,'',CONCAT('AND tblRateTableRate.ApprovedStatus = ',p_ApprovedStatus)),'
 
 	IF p_view = 1
 	THEN
@@ -5528,7 +5535,7 @@ ThisSP:BEGIN
 			ConnectionFeeCurrencySymbol,
 			TimezonesID
 		)
-		SELECT ',v_Select,' ',v_From,' ',v_Join_Rate,' ',v_Join_ORate,' ',v_Join_Timezone,' ',v_Join_RC,' ',v_Where,' ',v_Group_By,' ',v_Order_By,' ',v_limit,' ;
+		SELECT ',v_Select,' ',v_From,' ',v_Index_Select,' ',v_Join_Rate,' ',v_Join_ORate,' ',v_Join_Timezone,' ',v_Join_RC,' ',v_Where,' ',v_Group_By,' ',v_Order_By,' ',v_limit,' ;
 	');
 	-- select @stm_q_select; leave ThisSP;
 	PREPARE stmt FROM @stm_q_select;
@@ -5541,7 +5548,7 @@ ThisSP:BEGIN
 	THEN
 		SET @stm_q_count = CONCAT('
 			INSERT INTO tmp_RateTableRate_Count_
-			SELECT ',v_Select_Count,' ',v_From,' ',IF(p_code IS NULL AND p_description IS NULL,'',v_Join_Rate),' ',IF(p_origination_code IS NULL AND p_origination_description IS NULL,'',v_Join_ORate),' ',IF(p_TimezonesID IS NULL,'',v_Join_Timezone),' ',IF(p_RoutingCategoryID IS NULL,'',v_Join_RC),' ',v_Where,' ',v_Group_By,';
+			SELECT ',v_Select_Count,' ',v_From,' ',v_Index_Count,' ',IF(p_code IS NULL AND p_description IS NULL AND p_contryID IS NULL,'',v_Join_Rate),' ',IF(p_origination_code IS NULL AND p_origination_description IS NULL,'',v_Join_ORate),' ',IF(p_TimezonesID IS NULL,'',v_Join_Timezone),' ',IF(p_RoutingCategoryID IS NULL,'',v_Join_RC),' ',v_Where,' ',v_Group_By,';
 		');
 
 		-- select @stm_q_select,@stm_q_count; leave ThisSP;
@@ -5572,7 +5579,7 @@ ThisSP:BEGIN
 		ConnectionFeeCurrencySymbol = IFNULL(ConnectionFeeCurrency.Symbol,""),
 		RateCurrencySymbol = IFNULL(RateCurrency.Symbol,"");
 
-
+	/*
 	UPDATE
 		tmp_RateTableRate_ tr
 	SET
@@ -5584,7 +5591,7 @@ ThisSP:BEGIN
 		PreviousRate = (SELECT Rate FROM tblRateTableRateArchive WHERE RateTableID=p_RateTableId AND TimezonesID = tr.TimezonesID AND RateID=tr.RateID AND OriginationRateID=tr.OriginationRateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1)
 	WHERE
 		PreviousRate is null;
-
+*/
 	-- if request for grid not export
 	IF p_isExport = 0
 	THEN
@@ -5667,9 +5674,10 @@ CREATE PROCEDURE `prc_GetRateTableRateAA`(
 	IN `p_description` VARCHAR(50),
 	IN `p_effective` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
+	IN `p_percentage` VARCHAR(50),
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
-	IN `p_lSortCol` VARCHAR(500),
+	IN `p_SortCol` VARCHAR(500),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
 )
@@ -5680,10 +5688,19 @@ ThisSP:BEGIN
 	DECLARE v_Select_Count VARCHAR(500);
 	DECLARE v_Select LONGTEXT;
 	DECLARE v_From LONGTEXT;
-	DECLARE v_Join_Rate LONGTEXT;
-	DECLARE v_Join_ORate LONGTEXT;
+	DECLARE v_AA_Index_Select LONGTEXT;
+	DECLARE v_AA_Index_Count LONGTEXT;
+	DECLARE v_Rate_Index_Select LONGTEXT;
+	DECLARE v_Rate_Index_Count LONGTEXT;
+	DECLARE v_Join_Rate_Select LONGTEXT;
+	DECLARE v_Join_Rate_Count LONGTEXT;
+	DECLARE v_Join_ORate_Select LONGTEXT;
+	DECLARE v_Join_ORate_Count LONGTEXT;
 	DECLARE v_Join_Timezone LONGTEXT;
+	DECLARE v_Join_Currency LONGTEXT;
+	DECLARE v_Join_Margin LONGTEXT DEFAULT '';
 	DECLARE v_Where LONGTEXT;
+	DECLARE v_Where2 LONGTEXT DEFAULT '';
 	DECLARE v_Order_By LONGTEXT;
 	DECLARE v_Sort_By LONGTEXT;
 	DECLARE v_limit VARCHAR(50);
@@ -5725,10 +5742,10 @@ ThisSP:BEGIN
 		ApprovedStatus TINYINT,
 		ApprovedBy VARCHAR(50),
 		ApprovedDate DATETIME,
-		ConnectionFeeCurrency INT(11),
 		RateCurrency INT(11),
-		ConnectionFeeCurrencySymbol VARCHAR(255),
+		ConnectionFeeCurrency INT(11),
 		RateCurrencySymbol VARCHAR(255),
+		ConnectionFeeCurrencySymbol VARCHAR(255),
 		TimezonesID INT(11),
 		CurrentConnectionFee DECIMAL(18, 6) NULL DEFAULT NULL,
 		CurrentRate DECIMAL(18, 6) NULL DEFAULT NULL,
@@ -5741,6 +5758,8 @@ ThisSP:BEGIN
 		ConnectionFeeMarginPercent VARCHAR(255) NULL DEFAULT NULL,
 		RateMarginPercent VARCHAR(255) NULL DEFAULT NULL,
 		RateNMarginPercent VARCHAR(255) NULL DEFAULT NULL,
+		CurrentConnectionFeeCurrency INT(11),
+		CurrentRateCurrency INT(11),
 		INDEX `IX_tmpIAA_RateID_ORateID_TmzID_EffDate` (`RateID`, `OriginationRateID`, `TimezonesID`, `EffectiveDate`),
 		INDEX `IX_tmpIAA_ID` (`ID`)
 	);
@@ -5750,23 +5769,32 @@ ThisSP:BEGIN
 		`Count` INT
 	);
 
-	-- in order by we need to specify table name of columns to avoid error
+
 	CASE
-		WHEN p_lSortCol = 'DestinationType' THEN SET v_Sort_By=CONCAT('tblRate.Type',' ',p_SortOrder);
-		WHEN p_lSortCol = 'TimezoneTitle' THEN SET v_Sort_By=CONCAT('tblTimezones.Title',' ',p_SortOrder);
-		WHEN p_lSortCol = 'OriginationCode' THEN SET v_Sort_By=CONCAT('OriginationRate.Code',' ',p_SortOrder);
-		WHEN p_lSortCol = 'OriginationDescription' THEN SET v_Sort_By=CONCAT('OriginationRate.Description',' ',p_SortOrder);
-		WHEN p_lSortCol = 'Code' THEN SET v_Sort_By=CONCAT('tblRate.Code',' ',p_SortOrder);
-		WHEN p_lSortCol = 'Description' THEN SET v_Sort_By=CONCAT('tblRate.Description',' ',p_SortOrder);
-		WHEN p_lSortCol = 'EffectiveDate' THEN SET v_Sort_By=CONCAT('tblRateTableRate.EffectiveDate',' ',p_SortOrder);
-		WHEN p_lSortCol = 'RoutingCategoryName' THEN SET v_Sort_By=CONCAT('RC.Name',' ',p_SortOrder);
-		WHEN p_lSortCol = 'ModifiedBy' THEN SET v_Sort_By=CONCAT('tblRateTableRate.ModifiedBy ',p_SortOrder,',tblRateTableRate.updated_at ',p_SortOrder);
-		WHEN p_lSortCol = 'ApprovedBy' THEN SET v_Sort_By=CONCAT('tblRateTableRate.ApprovedBy ',p_SortOrder,',tblRateTableRate.ApprovedDate ',p_SortOrder);
+		WHEN p_SortCol = 'Code' THEN SET v_Sort_By=CONCAT('tblRate.Code',' ',p_SortOrder);
+		WHEN p_SortCol = 'Description' THEN SET v_Sort_By=CONCAT('tblRate.Description',' ',p_SortOrder);
+		WHEN p_SortCol = 'ConnectionFeeMargin' THEN SET v_Sort_By=CONCAT('margin.ConnectionFeeMargin',' ',p_SortOrder);
+		WHEN p_SortCol = 'ConnectionFeeMarginPercent' THEN SET v_Sort_By=CONCAT('margin.ConnectionFeeMarginPercent',' ',p_SortOrder);
+		WHEN p_SortCol = 'RateMargin' THEN SET v_Sort_By=CONCAT('margin.RateMargin',' ',p_SortOrder);
+		WHEN p_SortCol = 'RateMarginPercent' THEN SET v_Sort_By=CONCAT('margin.RateMarginPercent',' ',p_SortOrder);
+		WHEN p_SortCol = 'RateNMargin' THEN SET v_Sort_By=CONCAT('margin.RateNMargin',' ',p_SortOrder);
+		WHEN p_SortCol = 'RateNMarginPercent' THEN SET v_Sort_By=CONCAT('margin.RateNMarginPercent',' ',p_SortOrder);
 	ELSE
 		SET v_Sort_By = 'tblRate.Code ASC';
 	END CASE;
 
-	-- we need order by and limit only in grid, we don't need it in export
+
+--	SET v_Sort_By = CONCAT(p_SortCol,' ',p_SortOrder);
+/*
+	IF(p_Percentage IS NOT NULL)
+	THEN
+		SET v_Where2 = CONCAT('WHERE RateMarginPercent ',p_Percentage,' OR RateNMarginPercent ',p_Percentage,' OR ConnectionFeeMarginPercent ',p_Percentage);
+	ELSE
+		SET v_Where2 = '';
+	END IF;
+*/
+
+
 	IF(p_isExport = 0)
 	THEN
 		SET v_Order_By = CONCAT('ORDER BY ',v_Sort_By);
@@ -5778,78 +5806,142 @@ ThisSP:BEGIN
 
 	SET v_From = '
 		FROM
-			tblRateTableRateAA AS tblRateTableRate';
+			tblRateTableRateAA AS AA';
 
-	SET v_Join_Rate = CONCAT('
+--	SET v_AA_Index_Select = 'FORCE INDEX (IX_IAAB_RateID_TZID_ORateID_RC_CFC_RTId_EffectiveDate)';
+	SET v_AA_Index_Select = '';
+	/*
+	IF(p_contryID IS NULL AND p_code IS NULL AND p_description IS NULL AND p_origination_code IS NULL AND p_origination_description IS NULL)
+	THEN
+		SET v_AA_Index_Count = 'FORCE INDEX (IX_IAAB_RateTableId_ApprovedStatus_TimezonesID)';
+	ELSE
+		SET v_AA_Index_Count = '';
+	END IF;
+	*/
+	SET v_AA_Index_Count = '';
+	/*
+	SET v_Join_Rate_Select = CONCAT('
+		INNER JOIN tblRate FORCE INDEX (',IF(p_SortCol = 'Description','IX_tblrate_desc','IX_tblrate_code'),')
+			ON tblRate.RateID = AA.RateID');
+	*/
+	SET v_Join_Rate_Select = CONCAT('
 		INNER JOIN tblRate
-			ON tblRate.RateID = tblRateTableRate.RateID AND tblRate.CompanyID = ',p_companyid);
+			ON tblRate.RateID = AA.RateID');
 
-	SET v_Join_ORate = CONCAT('
-		LEFT JOIN tblRate AS OriginationRate
-			ON OriginationRate.RateID = tblRateTableRate.OriginationRateID AND OriginationRate.CompanyID = ',p_companyid);
-
+	SET v_Join_Rate_Count = CONCAT('
+		INNER JOIN tblRate
+			ON tblRate.RateID = AA.RateID');
+	/*
 	SET v_Join_Timezone = '
-		INNER JOIN
-			tblTimezones ON tblTimezones.TimezonesID = tblRateTableRate.TimezonesID';
+		INNER JOIN tblTimezones IGNORE INDEX (IX_tblTimezones_Title)
+			ON tblTimezones.TimezonesID = AA.TimezonesID';
+		*/
+	SET v_Join_Timezone = '
+		INNER JOIN tblTimezones
+			ON tblTimezones.TimezonesID = AA.TimezonesID';
+
+	SET v_Join_ORate_Select = CONCAT('
+		LEFT JOIN tblRate AS OriginationRate
+			ON OriginationRate.RateID = AA.OriginationRateID');
+			/*
+	SET v_Join_ORate_Count = CONCAT('
+		LEFT JOIN tblRate AS OriginationRate FORCE INDEX (IX_tblrate_code)
+			ON OriginationRate.RateID = AA.OriginationRateID');
+			*/
+	SET v_Join_ORate_Count = CONCAT('
+		LEFT JOIN tblRate AS OriginationRate
+			ON OriginationRate.RateID = AA.OriginationRateID');
+
+/*	SET v_Join_Currency = '
+		LEFT JOIN
+			tblCurrency AS RateCurrency ON RateCurrency.CurrencyID = AA.RateCurrency
+		LEFT JOIN
+			tblCurrency AS ConnectionFeeCurrency ON ConnectionFeeCurrency.CurrencyID = AA.ConnectionFeeCurrency
+		LEFT JOIN
+			tblCurrency AS CRC ON CRC.CurrencyID=margin.RateCurrency
+		LEFT JOIN
+			tblCurrency AS CCFC ON CCFC.CurrencyID=margin.ConnectionFeeCurrency';
+*/
+	SET v_Join_Currency = '';
+
+	SET v_Join_Margin = '
+		LEFT JOIN
+		 	tblRateTableRateAAMargin AS margin
+			ON margin.RateTableID = AA.RateTableID AND margin.RateTableRateAAID = AA.RateTableRateAAID';
 
 	SET v_Where = CONCAT('
 		WHERE
-			tblRateTableRate.RateTableId = ',p_RateTableId,'
+			AA.RateTableId = ',p_RateTableId,'
 			',IF(p_contryID IS NULL,'',CONCAT('AND tblRate.CountryID = ',p_contryID)),'
-			',IF(p_origination_code IS NULL,'',CONCAT('AND OriginationRate.Code LIKE REPLACE("',p_origination_code,'", "*", "%")')),'
+			',IF(p_origination_code IS NULL,'',IF(p_origination_code = 'blank','AND OriginationRate.Code IS NULL',CONCAT('AND OriginationRate.Code LIKE REPLACE("',p_origination_code,'", "*", "%")'))),'
 			',IF(p_origination_description IS NULL,'',CONCAT('AND OriginationRate.Description LIKE REPLACE("',p_origination_description,'", "*", "%")')),'
 			',IF(p_code IS NULL,'',CONCAT('AND tblRate.Code LIKE REPLACE("',p_code,'", "*", "%")')),'
 			',IF(p_description IS NULL,'',CONCAT('AND tblRate.Description LIKE REPLACE("',p_description,'", "*", "%")')),'
-			',IF(p_ApprovedStatus IS NULL,'',CONCAT('AND tblRateTableRate.ApprovedStatus = ',p_ApprovedStatus)),'
-			',IF(p_TimezonesID IS NULL,'',CONCAT('AND tblRateTableRate.TimezonesID = ',p_TimezonesID)),'
+			',IF(p_ApprovedStatus IS NULL,'',CONCAT('AND AA.ApprovedStatus = ',p_ApprovedStatus)),'
 			AND (
 				"',p_effective,'" = "All"
 				OR ("',p_effective,'" = "Now" AND EffectiveDate <= NOW() )
 				OR ("',p_effective,'" = "Future" AND EffectiveDate > NOW())
 			)
+			',IF(p_TimezonesID IS NULL,'',CONCAT('AND AA.TimezonesID = ',p_TimezonesID)),'
+			',IF(p_Percentage IS NULL,'',CONCAT('AND (margin.RateMarginPercent ',p_Percentage,' OR margin.RateNMarginPercent ',p_Percentage,' OR margin.ConnectionFeeMarginPercent ',p_Percentage,')')),'
 	');
 
 
-	-- if select columns
+
+
 	SET v_Select = '
-		RateTableRateAAID AS ID,
+		AA.RateTableRateAAID AS ID,
 		tblRate.Type AS DestinationType,
 		tblTimezones.Title AS TimezoneTitle,
 		OriginationRate.Code AS OriginationCode,
 		OriginationRate.Description AS OriginationDescription,
 		tblRate.Code,
 		tblRate.Description,
-		IFNULL(tblRateTableRate.MinimumDuration,0) AS MinimumDuration,
-		IFNULL(tblRateTableRate.Interval1,1) AS Interval1,
-		IFNULL(tblRateTableRate.IntervalN,1) AS IntervalN,
-		tblRateTableRate.ConnectionFee,
+		IFNULL(AA.MinimumDuration,0) AS MinimumDuration,
+		IFNULL(AA.Interval1,1) AS Interval1,
+		IFNULL(AA.IntervalN,1) AS IntervalN,
+		AA.ConnectionFee,
 		NULL AS PreviousRate,
-		IFNULL(tblRateTableRate.Rate, 0) AS Rate,
-		IFNULL(tblRateTableRate.RateN, 0) AS RateN,
-		IFNULL(tblRateTableRate.EffectiveDate, NOW()) AS EffectiveDate,
-		tblRateTableRate.EndDate,
-		tblRateTableRate.updated_at,
-		tblRateTableRate.ModifiedBy,
-		RateTableRateAAID,
+		IFNULL(AA.Rate, 0) AS Rate,
+		IFNULL(AA.RateN, 0) AS RateN,
+		IFNULL(AA.EffectiveDate, NOW()) AS EffectiveDate,
+		AA.EndDate,
+		AA.updated_at,
+		AA.ModifiedBy,
+		AA.RateTableRateAAID,
 		IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
 		tblRate.RateID,
-		tblRateTableRate.RoutingCategoryID,
+		AA.RoutingCategoryID,
 		"" AS RoutingCategoryName,
-		tblRateTableRate.Preference,
-		tblRateTableRate.Blocked,
-		tblRateTableRate.ApprovedStatus,
-		tblRateTableRate.ApprovedBy,
-		tblRateTableRate.ApprovedDate,
-		tblRateTableRate.ConnectionFeeCurrency AS ConnectionFeeCurrency,
-		tblRateTableRate.RateCurrency AS RateCurrency,
-		NULL AS ConnectionFeeCurrencySymbol,
-		NULL AS RateCurrencySymbol,
-		tblRateTableRate.TimezonesID
+		AA.Preference,
+		AA.Blocked,
+		AA.ApprovedStatus,
+		AA.ApprovedBy,
+		AA.ApprovedDate,
+		AA.ConnectionFeeCurrency AS ConnectionFeeCurrency,
+		AA.RateCurrency AS RateCurrency,
+		NULL, -- IFNULL(ConnectionFeeCurrency.Symbol,"") AS ConnectionFeeCurrencySymbol,
+		NULL, -- IFNULL(RateCurrency.Symbol,"") AS RateCurrencySymbol,
+		AA.TimezonesID,
+		margin.ConnectionFee AS CurrentConnectionFee,
+		margin.Rate AS CurrentRate,
+		margin.RateN AS CurrentRateN,
+		NULL, -- IFNULL(CCFC.Symbol,"") AS CurrentConnectionFeeSymbol,
+		NULL, -- IFNULL(CRC.Symbol,"") AS CurrentRateSymbol,
+		margin.ConnectionFeeMargin,
+		margin.RateMargin,
+		margin.RateNMargin,
+		margin.ConnectionFeeMarginPercent,
+		margin.RateMarginPercent,
+		margin.RateNMarginPercent,
+		margin.ConnectionFeeCurrency,
+		margin.RateCurrency
 	';
 
-	SET v_Select_Count = 'COUNT(tblRateTableRate.RateTableRateAAID)';
+	SET v_Select_Count = 'COUNT(AA.RateTableRateAAID)';
 
-	-- final query from dynamic variables
+
 	SET @stm_q_select = CONCAT('
 		INSERT INTO tmp_RateTableRate_
 		(
@@ -5885,30 +5977,50 @@ ThisSP:BEGIN
 			RateCurrency,
 			ConnectionFeeCurrencySymbol,
 			RateCurrencySymbol,
-			TimezonesID
+			TimezonesID,
+			CurrentConnectionFee,
+			CurrentRate,
+			CurrentRateN,
+			CurrentConnectionFeeCurrencySymbol,
+			CurrentRateCurrencySymbol,
+			ConnectionFeeMargin ,
+			RateMargin,
+			RateNMargin ,
+			ConnectionFeeMarginPercent ,
+			RateMarginPercent ,
+			RateNMarginPercent,
+			CurrentConnectionFeeCurrency,
+			CurrentRateCurrency
 		)
-		SELECT ',v_Select,' ',v_From,' ',v_Join_Rate,' ',v_Join_ORate,' ',v_Join_Timezone,' ',v_Where,' ',v_Order_By,' ',v_limit,' ;
+		SELECT ',v_Select,' ',v_From,' ',v_AA_Index_Select,' ',v_Join_Rate_Select,' ',v_Join_Timezone,' ',v_Join_ORate_Select,' ',v_Join_Margin,' ',v_Join_Currency,' ' ,v_Where,' ',v_Order_By,' ',v_limit,' ;
 	');
-	-- select @stm_q_select; leave ThisSP;
+	-- ,' ',v_Order_By,' ',v_limit
+
+	-- SELECT @stm_q_select;leave ThisSP;
+
 	PREPARE stmt FROM @stm_q_select;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
 
-	-- count only need in view page, we don't need it when export
+
 	IF(p_isExport = 0)
 	THEN
-		-- count query from dynamic variables
+
 		SET @stm_q_count = CONCAT('
 			INSERT INTO tmp_RateTableRate_Count_
-			SELECT ',v_Select_Count,' ',v_From,' ',IF(p_code IS NULL AND p_description IS NULL,'',v_Join_Rate),' ',IF(p_origination_code IS NULL AND p_origination_description IS NULL,'',v_Join_ORate),' ',IF(p_TimezonesID IS NULL,'',v_Join_Timezone),' ',v_Where,';
+			SELECT ',v_Select_Count,' ',v_From,' ',v_AA_Index_Count,' ',IF(p_code IS NULL AND p_description IS NULL AND p_contryID IS NULL,'',v_Join_Rate_Count),' ',IF(p_TimezonesID IS NULL,'',v_Join_Timezone),' ',IF(p_origination_code IS NULL AND p_origination_description IS NULL,'',v_Join_ORate_Count),
+			IF(p_percentage IS NULL ,'',v_Join_Margin),' ' ,v_Where,';
 		');
-
-		-- select @stm_q_select,@stm_q_count; leave ThisSP;
-
+		/*
+		SET @stm_q_count = CONCAT('
+			INSERT INTO tmp_RateTableRate_Count_ VALUES(200);
+		');
+		*/
 		PREPARE stmt FROM @stm_q_count;
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
+
 	END IF;
 
 	IF p_effective = 'Now'
@@ -5919,25 +6031,27 @@ ThisSP:BEGIN
 	END IF;
 
 
-	-- update rate currency, connection fee currency symbols, timezone title
 	UPDATE
-		tmp_RateTableRate_ tr
-	INNER JOIN
-		tblRateTableRateAA AS tblRateTableRate ON tblRateTableRate.RateTableRateAAID = tr.ID
+		tmp_RateTableRate_ AA
 	LEFT JOIN
-		tblCurrency AS RateCurrency ON RateCurrency.CurrencyID = tblRateTableRate.RateCurrency
+		tblCurrency AS RateCurrency ON RateCurrency.CurrencyID = AA.RateCurrency
 	LEFT JOIN
-		tblCurrency AS ConnectionFeeCurrency ON ConnectionFeeCurrency.CurrencyID = tblRateTableRate.ConnectionFeeCurrency
+		tblCurrency AS ConnectionFeeCurrency ON ConnectionFeeCurrency.CurrencyID = AA.ConnectionFeeCurrency
+	LEFT JOIN
+		tblCurrency AS CRC ON CRC.CurrencyID=AA.CurrentRateCurrency
+	LEFT JOIN
+		tblCurrency AS CCFC ON CCFC.CurrencyID=AA.CurrentConnectionFeeCurrency
 	SET
-		ConnectionFeeCurrencySymbol = IFNULL(ConnectionFeeCurrency.Symbol,""),
-		RateCurrencySymbol = IFNULL(RateCurrency.Symbol,"");
+		RateCurrencySymbol = RateCurrency.Symbol,
+		ConnectionFeeCurrencySymbol = ConnectionFeeCurrency.Symbol,
+		CurrentRateCurrencySymbol = CRC.Symbol,
+		CurrentConnectionFeeCurrencySymbol = CCFC.Symbol;
 
-
-	-- update current rate, margin and margin percentage
+	/*
 	UPDATE
 		tmp_RateTableRate_ tr
 	LEFT JOIN
-		tblRateTableRate rtr ON rtr.RateTableRateID = ( SELECT tmp.RateTableRateID FROM tblRateTableRate tmp INNER JOIN tblRateTable tmp_r ON tmp.RateTableId=tmp_r.RateTableId WHERE tmp_r.Reseller=v_Reseller_ AND tmp.TimezonesID = tr.TimezonesID AND tmp.RateID=tr.RateID AND tmp.OriginationRateID=tr.OriginationRateID AND ((tr.EffectiveDate < CURDATE() AND tmp.EffectiveDate <= CURDATE()) OR tmp.EffectiveDate<=tr.EffectiveDate) ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1 )
+		tblRateTableRate rtr ON rtr.RateTableRateID = ( SELECT tmp.RateTableRateID FROM tblRateTableRate tmp INNER JOIN tblRateTable tmp_r ON tmp.RateTableId=tmp_r.RateTableId WHERE tmp_r.Reseller=v_Reseller_ AND tmp.TimezonesID = tr.TimezonesID AND tmp.RateID=tr.RateID AND tmp.OriginationRateID=tr.OriginationRateID AND tmp.EffectiveDate <= CURDATE() LIMIT 1 )
 	LEFT JOIN
 		tblCurrency AS CurrentRateCurrency ON CurrentRateCurrency.CurrencyID=rtr.RateCurrency
 	LEFT JOIN
@@ -5953,7 +6067,7 @@ ThisSP:BEGIN
 		RateNMargin = (tr.RateN - rtr.RateN),
 		ConnectionFeeMarginPercent = ROUND(
 			IF(
-				(IFNULL(tr.ConnectionFee,0) - IFNULL(rtr.ConnectionFee,0)) <> 0,
+				(IFNULL(tr.ConnectionFee,0) <> 0 AND IFNULL(rtr.ConnectionFee,0) <> 0),
 				(((IFNULL(tr.ConnectionFee,0) - IFNULL(rtr.ConnectionFee,0)) * 100) / rtr.ConnectionFee),
 				NULL
 			)
@@ -5961,7 +6075,7 @@ ThisSP:BEGIN
 		),
 		RateMarginPercent = ROUND(
 			IF(
-				(IFNULL(tr.Rate,0) - IFNULL(rtr.Rate,0)) <> 0,
+				(IFNULL(tr.Rate,0) <> 0 AND IFNULL(rtr.Rate,0) <> 0),
 				(((IFNULL(tr.Rate,0) - IFNULL(rtr.Rate,0)) * 100) / rtr.Rate),
 				NULL
 			)
@@ -5969,25 +6083,40 @@ ThisSP:BEGIN
 		),
 		RateNMarginPercent = ROUND(
 			IF(
-				(IFNULL(tr.RateN,0) - IFNULL(rtr.RateN,0)) <> 0,
+				(IFNULL(tr.RateN,0) <> 0 AND IFNULL(rtr.RateN,0) <> 0),
 				(((IFNULL(tr.RateN,0) - IFNULL(rtr.RateN,0)) * 100) / rtr.RateN),
 				NULL
 			)
 			,2
 		)
-	/*WHERE
-		rtr.RateTableID=p_RateTableId*/;
+	 ;
+*/
 
 
-	-- if request for grid not export
 	IF p_isExport = 0
 	THEN
+		/*
+		SET @stm_final_select = CONCAT('
+			SELECT * FROM tmp_RateTableRate_ ', v_Where2,' ',v_Order_By,' ',v_limit,';
+		');
+		-- select @stm_final_select; leave ThisSP;
+		PREPARE stmt FROM @stm_final_select;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+		SET @stm_final_select_count = CONCAT('
+			SELECT count(*) AS totalcount FROM tmp_RateTableRate_ ', v_Where2,';
+		');
+		PREPARE stmt FROM @stm_final_select_count;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+		*/
 		SELECT * FROM tmp_RateTableRate_;
 		SELECT `Count` AS totalcount FROM tmp_RateTableRate_Count_;
 	END IF;
 
 
-	-- export
+
 	IF p_isExport <> 0
 	THEN
 		SET @stm1='',@stm2='',@stm3='',@stm4='';
@@ -6006,7 +6135,7 @@ ThisSP:BEGIN
 
 		SET @stm3 = ", EffectiveDate AS `Effective Date`";
 
-		-- advance view
+
 		IF p_isExport = 11
 		THEN
 			SET @stm2 = ",
@@ -6014,15 +6143,15 @@ ThisSP:BEGIN
 				IF(ConnectionFeeMargin IS NULL, '-',ConnectionFeeMargin) AS `Connection Fee Diff.`,
 				IF(ConnectionFeeMarginPercent IS NULL, '-',CONCAT(ConnectionFeeMarginPercent,'%')) AS `Connection Fee Diff. %`,
 
-				CONCAT(CurrentRateCurrencySymbol,IFNULL(CurrentRate,'-'),'\n',RateCurrencySymbol,IFNULL(Rate,'-')) AS `Rate`,
+				CONCAT(IF(CurrentRate IS NULL,'',CurrentRateCurrencySymbol),IFNULL(CurrentRate,'-'),'\n',IF(Rate IS NULL,'',RateCurrencySymbol),IFNULL(Rate,'-')) AS `Rate`,
 				IF(RateMargin IS NULL, '-',RateMargin) AS `Rate Diff.`,
 				IF(RateMarginPercent IS NULL, '-',CONCAT(RateMarginPercent,'%')) AS `Rate Diff. %`,
 
-				CONCAT(CurrentRateCurrencySymbol,IFNULL(CurrentRateN,'-'),'\n',RateCurrencySymbol,IFNULL(RateN,'-')) AS `RateN`,
+				CONCAT(IF(CurrentRateN IS NULL,'',CurrentRateCurrencySymbol),IFNULL(CurrentRateN,'-'),'\n',IF(RateN IS NULL,'',RateCurrencySymbol),IFNULL(RateN,'-')) AS `RateN`,
 				IF(RateNMargin IS NULL, '-',RateNMargin) AS `RateN Diff.`,
 				IF(RateNMarginPercent IS NULL, '-',CONCAT(RateNMarginPercent,'%')) AS `RateN Diff. %`
 			";
-			-- SET @stm4 = ", PreviousRate AS `Previous Rate`, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
+
 			SET @stm4 = ", CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
 			SET @stm4 = CONCAT(@stm4,", CONCAT(IFNULL(ApprovedBy,''),'\n',IFNULL(ApprovedDate,'')) AS `Approved By/Date`, ApprovedStatus");
 		ELSE
@@ -6034,6 +6163,8 @@ ThisSP:BEGIN
 		END IF;
 
 		SET @stm = CONCAT(@stm1,@stm2,@stm3,@stm4,' FROM tmp_RateTableRate_;');
+
+		-- SELECT @stm;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
