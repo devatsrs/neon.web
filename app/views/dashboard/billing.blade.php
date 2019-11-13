@@ -909,7 +909,9 @@
                 missingAccounts();
             });
             $("#company_gateway_files,#file_status_filter").change(function () {
-                usageFiles();
+                var companyGatewayID=$(this).val();
+
+                usageFiles_fromGateway(companyGatewayID);
             });
             $("#submit_files").click(function () {
                 usageFiles();
@@ -1229,6 +1231,49 @@
                 processData: false
             });
             @endif
+        }
+
+        function usageFiles_fromGateway(company_gateway){
+
+            var table = $('#usageFiles');
+            loadingUnload(table, 1);
+            var UsageDate     = $("#UsageDate").val();
+            var res = UsageDate.split(" - ");
+            var startdate = res[0].trim();
+            var enddate = res[1].trim();
+
+            var url = baseurl + '/dashboard/ajax_get_usage_files?CompanyGatewayID=' + company_gateway + '&FileStatusFilter='+ $("#file_status_filter").val() + '&StartDate=' + startdate + '&EndDate=' + enddate;
+            $.ajax({
+                url: url,  //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    var files = response.usageFiles;
+                    html = '';
+                    table.parents('.panel-primary').find('.panel-title h3').html('Usage Files (' + files.length + ')');
+                    table.find('tbody').html('');
+                    if (files.length > 0) {
+                        for (i = 0; i < files.length; i++) {
+                            html += '<tr>';
+                            html += '      <td>' + files[i]["title"] + '</td>';
+                            html += '      <td>' + files[i]["FileName"] + '</td>';
+                            html += '      <td>' + files[i]["created_at"] + '</td>';
+                            html += '      <td>' + files[i]["process_at"] + '</td>';
+                            html += '      <td>' + files[i]["FileStatus"] + '</td>';
+                            html += '</tr>';
+                        }
+                    } else {
+                        html = '<td colspan="3">No Records found.</td>';
+                    }
+                    table.find('tbody').html(html);
+                    loadingUnload(table, 0);
+                },
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+
         }
 
         function usageFiles() {
