@@ -799,7 +799,7 @@
                             },
                             "className":      'details-control',
 //                            "orderable":      false,
-                            "bSortable" : view == 1 ? true : false,
+                        //    "bSortable" : view == 1 ? true : false,
                             "data": null,
                             "defaultContent": ''
                         }, //3 Origination Code
