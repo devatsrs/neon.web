@@ -7522,11 +7522,21 @@ CREATE PROCEDURE `prc_RateTableRateAAUpdateDelete`(
 	IN `p_Critearea_Effective` VARCHAR(50),
 	IN `p_TimezonesID` INT,
 	IN `p_Critearea_ApprovedStatus` TINYINT,
+	IN `p_Critearea_Percentage` VARCHAR(50),
 	IN `p_ModifiedBy` VARCHAR(50),
 	IN `p_Critearea` INT,
 	IN `p_action` INT
 )
 ThisSP:BEGIN
+
+	DECLARE v_before_select DATETIME;
+	DECLARE v_after_select DATETIME;
+	DECLARE v_after_copy_table DATETIME;
+	DECLARE v_after_delete_duplicate DATETIME;
+	DECLARE v_after_delete_rejected DATETIME;
+	DECLARE v_after_update_enddate DATETIME;
+	DECLARE v_after_archive DATETIME;
+	DECLARE v_after_final_insert DATETIME;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -7556,9 +7566,107 @@ ThisSP:BEGIN
 		`ApprovedBy` varchar(50),
 		`ApprovedDate` datetime,
 		`RateCurrency` INT(11) NULL DEFAULT NULL,
-		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL
+		`ConnectionFeeCurrency` INT(11) NULL DEFAULT NULL,
+		INDEX `IX_tmpIAA_RateTableRateAAId` (`RateTableRateAAId`),
+		INDEX `IX_tmpIAA_ApprovedStatus` (`ApprovedStatus`),
+		INDEX `IX_tmpIAA_ALL` (`RateId`,`OriginationRateID`,`TimezonesID`,`RateTableRateAAId`)
 	);
 
+	SET v_before_select = NOW();
+
+	SET @v_Where = IF(p_EffectiveDate IS NULL,'',CONCAT('
+			(
+				(rtr.RateID,rtr.OriginationRateID,rtr.TimezonesID) NOT IN (
+						SELECT
+							RateID,OriginationRateID,TimezonesID
+						FROM
+							tblRateTableRateAA
+						WHERE
+							EffectiveDate="',p_EffectiveDate,'" AND (',IFNULL(p_TimezonesID,'NULL'),' IS NULL OR TimezonesID = ',IFNULL(p_TimezonesID,'NULL'),') AND
+							((',IFNULL(p_Critearea,'NULL'),' = 0 AND (FIND_IN_SET(RateTableRateAAID,',IFNULL(p_RateTableRateAAID,'NULL'),') = 0 )) OR ',IFNULL(p_Critearea,'NULL'),' = 1) AND
+							RateTableId = ',p_RateTableId,'
+				)
+			) AND
+		')
+	);
+
+	IF p_Critearea = 0
+	THEN
+		SET @v_Where = CONCAT('
+			WHERE
+				',@v_Where,'
+				rtr.RateTableId = ',p_RateTableId,'
+				AND FIND_IN_SET( rtr.RateTableRateAAID, "' , p_RateTableRateAAId, '") != 0 ');
+	ELSE
+		SET @v_Where = CONCAT('
+			WHERE
+				',@v_Where,'
+				rtr.RateTableId = ',p_RateTableId,'
+				',IF(p_Critearea_CountryId IS NULL,'',CONCAT('AND r.CountryId = ',p_Critearea_CountryId)),'
+				',IF(p_Critearea_OriginationCode IS NULL,'',IF(p_Critearea_OriginationCode = 'blank','AND r2.Code IS NULL',CONCAT('AND r2.Code LIKE REPLACE("',p_Critearea_OriginationCode,'", "*", "%")'))),'
+				',IF(p_Critearea_OriginationDescription IS NULL,'',CONCAT('AND r2.Description LIKE REPLACE("',p_Critearea_OriginationDescription,'", "*", "%")')),'
+				',IF(p_Critearea_Code IS NULL,'',CONCAT('AND r.Code LIKE REPLACE("',p_Critearea_Code,'", "*", "%")')),'
+				',IF(p_Critearea_Description IS NULL,'',CONCAT('AND r.Description LIKE REPLACE("',p_Critearea_Description,'", "*", "%")')),'
+				',IF(p_Critearea_ApprovedStatus IS NULL,'',CONCAT('AND rtr.ApprovedStatus = ',p_Critearea_ApprovedStatus)),'
+				AND (
+					\'',p_Critearea_Effective,'\' = "All"
+					OR (\'',p_Critearea_Effective,'\' = "Now" AND EffectiveDate <= NOW() )
+					OR (\'',p_Critearea_Effective,'\' = "Future" AND EffectiveDate > NOW())
+				)
+				',IF(p_TimezonesID IS NULL,'',CONCAT('AND rtr.TimezonesID = ',p_TimezonesID)),'
+				',IF(p_Critearea_Percentage IS NULL,'',CONCAT('AND (margin.RateMarginPercent ',p_Critearea_Percentage,' OR margin.RateNMarginPercent ',p_Critearea_Percentage,' OR margin.ConnectionFeeMarginPercent ',p_Critearea_Percentage,')')),'
+
+		');
+	END IF;
+
+
+	SET @stm_q_select = CONCAT('
+		INSERT INTO tmp_TempRateTableRate_
+		SELECT
+			rtr.RateTableRateAAId,
+			IF(rtr.OriginationRateID=0,IFNULL(',IFNULL(p_OriginationRateID,'NULL'),',rtr.OriginationRateID),rtr.OriginationRateID) AS OriginationRateID,
+			rtr.RateId,
+			rtr.RateTableId,
+			rtr.TimezonesID,
+			IF(',IFNULL(p_Rate,'NULL'),'=0,0,IFNULL(',IFNULL(p_Rate,'NULL'),',rtr.Rate)) AS Rate,
+			IF(',IFNULL(p_RateN,'NULL'),' IS NOT NULL,IF(',IFNULL(p_RateN,'NULL'),'="NULL",NULL,',IFNULL(p_RateN,'NULL'),'),rtr.RateN) AS RateN,
+			',IF(p_EffectiveDate IS NOT NULL, CONCAT('"',p_EffectiveDate,'"'),'rtr.EffectiveDate'),' AS EffectiveDate,
+			',IF(p_EndDate IS NOT NULL, CONCAT('"',p_EndDate,'"'),'rtr.EndDate'),' AS EndDate,
+			rtr.created_at,
+			NOW() AS updated_at,
+			rtr.CreatedBy,
+			"',p_ModifiedBy,'" AS ModifiedBy,
+			',IFNULL(p_MinimumDuration,'rtr.MinimumDuration'),' AS MinimumDuration,
+			',IFNULL(p_Interval1,'rtr.Interval1'),' AS Interval1,
+			',IFNULL(p_IntervalN,'rtr.IntervalN'),' AS IntervalN,
+			',IF(p_ConnectionFee IS NOT NULL,IF(p_ConnectionFee='NULL','NULL',p_ConnectionFee),'rtr.ConnectionFee'),' AS ConnectionFee,
+			rtr.RoutingCategoryID AS RoutingCategoryID,
+			rtr.Preference AS Preference,
+			rtr.Blocked AS Blocked,
+			rtr.ApprovedStatus,
+			NULL AS ApprovedBy,
+			NULL AS ApprovedDate,
+			',IFNULL(p_RateCurrency,'rtr.RateCurrency'),' AS RateCurrency,
+			',IFNULL(p_ConnectionFeeCurrency,'rtr.ConnectionFeeCurrency'),' AS ConnectionFeeCurrency
+		FROM
+			tblRateTableRateAA rtr
+		INNER JOIN
+			tblRate r ON r.RateID = rtr.RateId
+		LEFT JOIN
+			tblRate r2 ON r2.RateID = rtr.OriginationRateID
+		LEFT JOIN
+		 	tblRateTableRateAAMargin AS margin
+			ON margin.RateTableID = rtr.RateTableID AND margin.RateTableRateAAID = rtr.RateTableRateAAID
+			',@v_Where,'
+			;
+	');
+
+-- select @stm_q_select; leave ThisSP;
+	PREPARE stmt FROM @stm_q_select;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+/*
 	INSERT INTO tmp_TempRateTableRate_
 	SELECT
 		rtr.RateTableRateAAId,
@@ -7614,7 +7722,7 @@ ThisSP:BEGIN
 				p_Critearea = 1 AND
 				(
 					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
-					((p_Critearea_OriginationCode IS NULL) OR (p_Critearea_OriginationCode IS NOT NULL AND r2.Code LIKE REPLACE(p_Critearea_OriginationCode,'*', '%'))) AND
+					((p_Critearea_OriginationCode IS NULL) OR (p_Critearea_OriginationCode = 'blank' AND r2.Code IS NULL) OR (r2.Code LIKE REPLACE(p_Critearea_OriginationCode,'*', '%'))) AND
 					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
@@ -7629,23 +7737,34 @@ ThisSP:BEGIN
 		) AND
 		rtr.RateTableId = p_RateTableId AND
 		(p_TimezonesID IS NULL OR rtr.TimezonesID = p_TimezonesID);
-	
-	IF p_action = 1
+	*/
+	SET v_after_select = NOW();
+
+	IF p_action = 1 -- action = update
 	THEN
 		IF p_EffectiveDate IS NOT NULL
 		THEN
-			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableRate_2 as (select * from tmp_TempRateTableRate_);
-			DELETE n1 FROM tmp_TempRateTableRate_ n1, tmp_TempRateTableRate_2 n2 WHERE n1.RateTableRateAAID < n2.RateTableRateAAID AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID;
+			-- CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableRate_2 as (select * from tmp_TempRateTableRate_);
+			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableRate_2 LIKE tmp_TempRateTableRate_;
+			INSERT INTO tmp_TempRateTableRate_2 SELECT * FROM tmp_TempRateTableRate_;
+
+			SET v_after_copy_table = NOW();
+
+			DELETE n1 FROM tmp_TempRateTableRate_ n1, tmp_TempRateTableRate_2 n2 WHERE n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.TimezonesID = n2.TimezonesID AND n1.RateTableRateAAID < n2.RateTableRateAAID;
+
+			SET v_after_delete_duplicate = NOW();
 		END IF;
 
 		-- remove rejected rates from temp table while updating so, it can't be update and delete
 		DELETE n1 FROM tmp_TempRateTableRate_ n1 WHERE ApprovedStatus = 2;
 
+		SET v_after_delete_rejected = NOW();
+
 		/*
 			it was creating history evan if no columns are updating of row
 			so, using this query we are removing rows which are not updating any columns
 		*/
-		DELETE
+/*		DELETE
 			temp
 		FROM
 			tmp_TempRateTableRate_ temp
@@ -7666,12 +7785,81 @@ ThisSP:BEGIN
 			((rtr.Blocked IS NULL && temp.Blocked IS NULL) || rtr.Blocked = temp.Blocked) AND
 			((rtr.RateCurrency IS NULL && temp.RateCurrency IS NULL) || rtr.RateCurrency = temp.RateCurrency) AND
 			((rtr.ConnectionFeeCurrency IS NULL && temp.ConnectionFeeCurrency IS NULL) || rtr.ConnectionFeeCurrency = temp.ConnectionFeeCurrency);
+*/
 
+		UPDATE
+			tblRateTableRateAA rtr
+		INNER JOIN
+			tmp_TempRateTableRate_ temp ON temp.RateTableRateAAID = rtr.RateTableRateAAID
+		SET
+			rtr.OriginationRateID = temp.OriginationRateID,
+			rtr.Rate = temp.Rate,
+			rtr.RateN = temp.RateN,
+			rtr.EffectiveDate = temp.EffectiveDate,
+			rtr.EndDate = temp.EndDate,
+			rtr.updated_at = temp.updated_at,
+			rtr.ModifiedBy = temp.ModifiedBy,
+			rtr.MinimumDuration = temp.MinimumDuration,
+			rtr.Interval1 = temp.Interval1,
+			rtr.IntervalN = temp.IntervalN,
+			rtr.ConnectionFee = temp.ConnectionFee,
+			rtr.ApprovedBy = temp.ApprovedBy,
+			rtr.ApprovedDate = temp.ApprovedDate,
+			rtr.RateCurrency = temp.RateCurrency,
+			rtr.ConnectionFeeCurrency = temp.ConnectionFeeCurrency
+		WHERE
+			rtr.RateTableId = p_RateTableId;
+
+		SET v_after_final_insert = NOW();
+
+		SET @ProcessID = HEX(AES_ENCRYPT(p_RateTableId, NOW()));
+		INSERT INTO tblRateTableRateAAMarginTobeUpdate
+		(
+			RateTableID,RateTableRateAAID,ProcessID
+		)
+		SELECT
+			p_RateTableId,RateTableRateAAID,@ProcessID AS ProcessID
+		FROM
+			tmp_TempRateTableRate_;
+
+		SELECT @ProcessID AS ProcessID;
+		/*
+		SELECT
+			TIME_TO_SEC(TIMEDIFF(v_after_select, v_before_select)) AS `Insert In Temp`,
+			TIME_TO_SEC(TIMEDIFF(v_after_copy_table, v_after_select)) AS `Copy Temp`,
+			TIME_TO_SEC(TIMEDIFF(v_after_delete_duplicate, v_after_copy_table)) AS `Delete Duplicate`,
+			TIME_TO_SEC(TIMEDIFF(v_after_delete_rejected, v_after_delete_duplicate)) AS `Delete Rejected`,
+			TIME_TO_SEC(TIMEDIFF(v_after_final_insert, v_after_delete_rejected)) AS `Final Update`,
+			TIME_TO_SEC(TIMEDIFF(v_after_final_insert, v_before_select)) `Total`;
+		*/
+	ELSE -- action = delete
+
+		UPDATE
+			tblRateTableRateAA rtr
+		INNER JOIN
+			tmp_TempRateTableRate_ temp ON temp.RateTableRateAAID = rtr.RateTableRateAAID
+		SET
+			rtr.EndDate = NOW()
+		WHERE
+			rtr.RateTableId = p_RateTableId;
+
+		SET v_after_update_enddate = NOW();
+
+		CALL prc_ArchiveOldRateTableRateAA(p_RateTableId,p_TimezonesID,p_ModifiedBy);
+
+		SET v_after_archive = NOW();
+/*
+		SELECT
+			TIME_TO_SEC(TIMEDIFF(v_after_select, v_before_select)) AS `Insert In Temp`,
+			TIME_TO_SEC(TIMEDIFF(v_after_update_enddate, v_after_select)) AS `Update EndDate`,
+			TIME_TO_SEC(TIMEDIFF(v_after_archive, v_after_update_enddate)) AS `Archive`,
+			TIME_TO_SEC(TIMEDIFF(v_after_archive, v_before_select)) `Total`;
+*/
 	END IF;
 
 
 
-
+/*
 	UPDATE
 		tblRateTableRateAA rtr
 	INNER JOIN
@@ -7679,9 +7867,13 @@ ThisSP:BEGIN
 	SET
 		rtr.EndDate = NOW()
 	WHERE
-		temp.RateTableRateAAID = rtr.RateTableRateAAID;
+		rtr.RateTableId = p_RateTableId;
+
+	SET v_after_update_enddate = NOW();
 
 	CALL prc_ArchiveOldRateTableRateAA(p_RateTableId,p_TimezonesID,p_ModifiedBy);
+
+	SET v_after_archive = NOW();
 
 	IF p_action = 1
 	THEN
@@ -7743,7 +7935,18 @@ ThisSP:BEGIN
 			ApprovedStatus = 0; -- only allow awaiting approval rates to be updated
 
 	END IF;
-
+	*/
+/*
+	SELECT
+		TIME_TO_SEC(TIMEDIFF(v_after_select, v_before_select)) AS `Insert In Temp`,
+		TIME_TO_SEC(TIMEDIFF(v_after_copy_table, v_after_select)) AS `Copy Temp`,
+		TIME_TO_SEC(TIMEDIFF(v_after_delete_duplicate, v_after_copy_table)) AS `Delete Duplicate`,
+		TIME_TO_SEC(TIMEDIFF(v_after_delete_rejected, v_after_delete_duplicate)) AS `Delete Rejected`,
+		TIME_TO_SEC(TIMEDIFF(v_after_update_enddate, v_after_delete_rejected)) AS `Update EndDate`,
+		TIME_TO_SEC(TIMEDIFF(v_after_archive, v_after_update_enddate)) AS `Archive`,
+		TIME_TO_SEC(TIMEDIFF(v_after_final_insert, v_after_archive)) AS `Final Insert`,
+		TIME_TO_SEC(TIMEDIFF(v_after_final_insert, v_before_select)) `Total`;
+*/
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
@@ -7769,6 +7972,7 @@ CREATE PROCEDURE `prc_RateTableRateApprove`(
 	IN `p_Critearea_Preference` TEXT,
 	IN `p_Critearea_Blocked` TINYINT,
 	IN `p_Critearea_ApprovedStatus` TINYINT,
+	IN `p_Critearea_Percentage` INT,
 	IN `p_ApprovedBy` VARCHAR(50),
 	IN `p_Critearea` INT,
 	IN `p_action` INT
@@ -7779,6 +7983,28 @@ ThisSP:BEGIN
 	DECLARE v_StatusApproved_ INT(11) DEFAULT 1;
 	DECLARE v_StatusRejected_ INT(11) DEFAULT 2;
 	DECLARE v_StatusDelete_ INT(11) DEFAULT 3;
+
+	DECLARE v_Select LONGTEXT;
+	DECLARE v_From LONGTEXT;
+	DECLARE v_AA_Index LONGTEXT;
+	DECLARE v_Rate_Index LONGTEXT;
+	DECLARE v_Join_Rate LONGTEXT;
+	DECLARE v_Join_ORate LONGTEXT;
+	DECLARE v_Join_ORate_Index LONGTEXT DEFAULT '';
+	DECLARE v_Join_Timezone LONGTEXT;
+	DECLARE v_Where LONGTEXT;
+
+	DECLARE start_time DATETIME;
+	DECLARE insert_time DATETIME;
+	DECLARE copy_time DATETIME;
+	DECLARE delete_time DATETIME;
+	DECLARE update1_time DATETIME;
+	DECLARE update2_time DATETIME;
+	DECLARE update3_time DATETIME;
+	DECLARE archive1_time DATETIME;
+	DECLARE final_insert_time DATETIME;
+	DECLARE final_delete_time DATETIME;
+	DECLARE archive2_time DATETIME;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -7813,70 +8039,118 @@ ThisSP:BEGIN
 		`VendorID` INT(11),
 		`RateTableRateID` INT(11),
 		INDEX tmp_RateTableRate_RateTableRateAAID (`RateTableRateAAID`),
-		INDEX tmp_RateTableRate_RateTableRateID (`RateTableRateID`),
-		INDEX tmp_RateTableRate_RateID (`RateTableId`,`RateID`,`OriginationRateID`,`TimezonesID`,`EffectiveDate`)
+		INDEX tmp_RateTableRate_RateTableRateID_ApprovedStatus (`RateTableRateID`,`ApprovedStatus`),
+		INDEX tmp_RateTableRate_RateID (`RateTableId`,`RateID`,`OriginationRateID`,`TimezonesID`,`EffectiveDate`),
+		INDEX tmp_RateTableRate_ApprovedStatus (`ApprovedStatus`)
 	);
 
-	INSERT INTO	tmp_RateTableRate_
-	SELECT
-		rtr.RateTableRateAAID,
-		rtr.OriginationRateID,
-		rtr.RateID,
-		rtr.RateTableId,
-		rtr.TimezonesID,
-		rtr.Rate,
-		rtr.RateN,
-		IF(rtr.EffectiveDate < CURDATE(), CURDATE(), rtr.EffectiveDate) AS EffectiveDate,
-		rtr.EndDate,
-		rtr.created_at,
-		rtr.updated_at,
-		rtr.CreatedBy,
-		rtr.ModifiedBy,
-		rtr.PreviousRate,
-		rtr.MinimumDuration,
-		rtr.Interval1,
-		rtr.IntervalN,
-		rtr.ConnectionFee,
-		rtr.RoutingCategoryID,
-		rtr.Preference,
-		rtr.Blocked,
-		rtr.ApprovedStatus AS ApprovedStatus,
-		p_ApprovedBy AS ApprovedBy,
-		NOW() AS ApprovedDate,
-		rtr.RateCurrency,
-		rtr.ConnectionFeeCurrency,
-		rtr.VendorID,
-		rtr.RateTableRateID
-	FROM
-		tblRateTableRateAA rtr
-	INNER JOIN
-		tblRate r ON r.RateID = rtr.RateId
-	LEFT JOIN
-		tblRate r2 ON r2.RateID = rtr.OriginationRateID
-	WHERE
-		(
-			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTableRateAAID,p_RateTableRateAAID) != 0 )) OR
-			(
-				p_Critearea = 1 AND
-				(
-					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
-					((p_Critearea_OriginationCode IS NULL) OR (p_Critearea_OriginationCode IS NOT NULL AND r2.Code LIKE REPLACE(p_Critearea_OriginationCode,'*', '%'))) AND
-					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
-					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
-					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
-					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
-					(
-						p_Critearea_Effective = 'All' OR
-						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
-						(p_Critearea_Effective = 'Future' AND rtr.EffectiveDate > NOW() )
-					)
-				)
-			)
-		) AND
-		rtr.RateTableId = p_RateTableId AND
-		(p_TimezonesID IS NULL OR rtr.TimezonesID = p_TimezonesID) AND
-		rtr.ApprovedStatus IN (v_StatusAwaitingApproval_,v_StatusDelete_); -- only awaitng approval and awaitng approval delete rates
+	SET start_time = NOW();
 
+	SET v_From = '
+		FROM
+			tblRateTableRateAA AS AA
+		LEFT JOIN
+		 	tblRateTableRateAAMargin AS margin
+			ON margin.RateTableID = AA.RateTableID AND margin.RateTableRateAAID = AA.RateTableRateAAID';
+
+	IF p_Critearea_Code IS NOT NULL OR p_Critearea_Description IS NOT NULL OR p_Critearea_CountryId IS NOT NULL
+	THEN
+		SET v_Join_Rate = CONCAT('
+			INNER JOIN tblRate AS r
+				ON r.RateID = AA.RateID'
+		);
+	ELSE
+		SET v_Join_Rate = '';
+	END IF;
+
+	IF p_Critearea_OriginationCode IS NOT NULL OR p_Critearea_OriginationDescription IS NOT NULL
+	THEN
+		IF p_Critearea_OriginationCode IS NOT NULL
+		THEN
+			SET v_Join_ORate_Index = 'FORCE INDEX (IX_tblrate_code)';
+		ELSE
+			SET v_Join_ORate_Index = 'FORCE INDEX (IX_tblrate_desc)';
+		END IF;
+
+		SET v_Join_ORate = CONCAT('
+			INNER JOIN tblRate AS r2 ',v_Join_ORate_Index,'
+				ON r2.RateID = AA.OriginationRateID'
+		);
+	ELSE
+		SET v_Join_ORate = '';
+	END IF;
+
+
+	IF p_Critearea = 0
+	THEN
+		SET v_Where = CONCAT('
+			WHERE
+				AA.RateTableId = ',p_RateTableId,'
+				AND FIND_IN_SET( AA.RateTableRateAAID, "' , p_RateTableRateAAID, '") != 0 ');
+	ELSE
+		SET v_Where = CONCAT('
+			WHERE
+				AA.RateTableId = ',p_RateTableId,'
+				',IF(p_Critearea_CountryId IS NULL,'',CONCAT('AND r.CountryId = ',p_Critearea_CountryId)),'
+				',IF(p_Critearea_OriginationCode IS NULL,'',IF(p_Critearea_OriginationCode = 'blank','AND r2.Code IS NULL',CONCAT('AND r2.Code LIKE REPLACE("',p_Critearea_OriginationCode,'", "*", "%")'))),'
+				',IF(p_Critearea_OriginationDescription IS NULL,'',CONCAT('AND r2.Description LIKE REPLACE("',p_Critearea_OriginationDescription,'", "*", "%")')),'
+				',IF(p_Critearea_Code IS NULL,'',CONCAT('AND r.Code LIKE REPLACE("',p_Critearea_Code,'", "*", "%")')),'
+				',IF(p_Critearea_Description IS NULL,'',CONCAT('AND r.Description LIKE REPLACE("',p_Critearea_Description,'", "*", "%")')),'
+				',IF(p_Critearea_ApprovedStatus IS NULL,CONCAT('AND AA.ApprovedStatus IN (',v_StatusAwaitingApproval_,',',v_StatusDelete_,')'),CONCAT('AND AA.ApprovedStatus = ',p_Critearea_ApprovedStatus)),'
+				AND (
+					\'',p_Critearea_Effective,'\' = "All"
+					OR (\'',p_Critearea_Effective,'\' = "Now" AND EffectiveDate <= NOW() )
+					OR (\'',p_Critearea_Effective,'\' = "Future" AND EffectiveDate > NOW())
+				)
+				',IF(p_TimezonesID IS NULL,'',CONCAT('AND AA.TimezonesID = ',p_TimezonesID)),'
+				',IF(p_Critearea_Percentage IS NULL,'',CONCAT('AND (margin.RateMarginPercent ',p_Critearea_Percentage,' OR margin.RateNMarginPercent ',p_Critearea_Percentage,' OR margin.ConnectionFeeMarginPercent ',p_Critearea_Percentage,')')),'
+
+		');
+	END IF;
+
+	-- if select columns
+	SET v_Select = CONCAT('
+		AA.RateTableRateAAID,
+		AA.OriginationRateID,
+		AA.RateID,
+		AA.RateTableId,
+		AA.TimezonesID,
+		AA.Rate,
+		AA.RateN,
+		IF(AA.EffectiveDate < CURDATE(), CURDATE(), AA.EffectiveDate) AS EffectiveDate,
+		AA.EndDate,
+		AA.created_at,
+		AA.updated_at,
+		AA.CreatedBy,
+		AA.ModifiedBy,
+		AA.PreviousRate,
+		AA.MinimumDuration,
+		AA.Interval1,
+		AA.IntervalN,
+		AA.ConnectionFee,
+		AA.RoutingCategoryID,
+		AA.Preference,
+		AA.Blocked,
+		AA.ApprovedStatus AS ApprovedStatus,
+		\'',p_ApprovedBy,'\' AS ApprovedBy,
+		NOW() AS ApprovedDate,
+		AA.RateCurrency,
+		AA.ConnectionFeeCurrency,
+		AA.VendorID,
+		AA.RateTableRateID
+	');
+
+	-- final query from dynamic variables
+	SET @stm_q_select = CONCAT('
+		INSERT INTO tmp_RateTableRate_
+		SELECT ',v_Select,' ',v_From,' ',v_Join_Rate,' ',v_Join_ORate,' ',v_Where,' ;
+	');
+	-- select @stm_q_select; leave ThisSP;
+	PREPARE stmt FROM @stm_q_select;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	SET insert_time = NOW();
 
 
 	IF p_ApprovedStatus = v_StatusApproved_ -- approve rates
@@ -7886,6 +8160,8 @@ ThisSP:BEGIN
 --		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate2_ AS (SELECT * FROM tmp_RateTableRate_);
 		CREATE TEMPORARY TABLE tmp_RateTableRate2_ LIKE tmp_RateTableRate_;
 		INSERT INTO tmp_RateTableRate2_ SELECT * FROM tmp_RateTableRate_;
+
+		SET copy_time = NOW();
 
 		-- delete all duplicate records, keep only one - only last aa rate will be approved and all other will be ignored
 		DELETE temp2
@@ -7903,11 +8179,13 @@ ThisSP:BEGIN
 		WHERE
 			temp2.RateTableRateAAID < temp1.RateTableRateAAID;
 
+		SET delete_time = NOW();
+
 		-- set EndDate to archive rates which needs to approve and exist with same effective date
 		UPDATE
 			tblRateTableRate rtr
 		INNER JOIN
-			tmp_RateTableRate2_ temp ON temp.RateId = rtr.RateId AND temp.OriginationRateID = rtr.OriginationRateID AND temp.TimezonesID = rtr.TimezonesID AND temp.EffectiveDate = rtr.EffectiveDate
+			tmp_RateTableRate2_ temp ON temp.RateTableId = rtr.RateTableId AND temp.RateId = rtr.RateId AND temp.OriginationRateID = rtr.OriginationRateID AND temp.TimezonesID = rtr.TimezonesID AND temp.EffectiveDate = rtr.EffectiveDate
 		SET
 			rtr.EndDate = NOW()
 		WHERE
@@ -7915,11 +8193,14 @@ ThisSP:BEGIN
 			(p_TimezonesID IS NULL OR rtr.TimezonesID = p_TimezonesID) AND
 			temp.ApprovedStatus = v_StatusAwaitingApproval_;
 
+		SET update1_time = NOW();
+
 		-- set EndDate to archive rates which needs to approve and exist with old effective date new rate is <=now() effective date
 		UPDATE
 			tblRateTableRate rtr
 		INNER JOIN
-			tmp_RateTableRate2_ temp ON temp.RateId = rtr.RateId AND
+			tmp_RateTableRate2_ temp ON temp.RateTableId = rtr.RateTableId AND
+			temp.RateId = rtr.RateId AND
 			temp.OriginationRateID = rtr.OriginationRateID AND
 			temp.TimezonesID = rtr.TimezonesID AND
 			(temp.EffectiveDate <= NOW() AND rtr.EffectiveDate <= temp.EffectiveDate)
@@ -7930,6 +8211,8 @@ ThisSP:BEGIN
 			(p_TimezonesID IS NULL OR rtr.TimezonesID = p_TimezonesID) AND
 			temp.ApprovedStatus = v_StatusAwaitingApproval_;
 
+		SET update2_time = NOW();
+
 		-- set EndDate to archive rates which rate's status is - awaiting approval delete
 		UPDATE
 			tblRateTableRate rtr
@@ -7938,10 +8221,15 @@ ThisSP:BEGIN
 		SET
 			rtr.EndDate = NOW()
 		WHERE
+			rtr.RateTableId=p_RateTableId AND
 			temp.ApprovedStatus = v_StatusDelete_;
+
+		SET update3_time = NOW();
 
 		--	archive rates
 		CALL prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_ApprovedBy);
+
+		SET archive1_time = NOW();
 
 		-- insert approved rates to tblRateTableRate
 		INSERT INTO	tblRateTableRate
@@ -8005,6 +8293,8 @@ ThisSP:BEGIN
 		WHERE
 			ApprovedStatus = v_StatusAwaitingApproval_;
 
+		SET final_insert_time = NOW();
+
 		-- drop table to free up memory, now no need of it
 		DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate2_;
 
@@ -8013,11 +8303,17 @@ ThisSP:BEGIN
 		FROM
 			tblRateTableRateAA AS AA
 		INNER JOIN
-			tmp_RateTableRate_ AS temp ON temp.RateTableRateAAID = AA.RateTableRateAAID;
+			tmp_RateTableRate_ AS temp ON temp.RateTableRateAAID = AA.RateTableRateAAID
+		WHERE
+			AA.RateTableId=p_RateTableId;
+
+		SET final_delete_time = NOW();
 
 
 	--	CALL prc_RateTableRateUpdatePreviousRate(p_RateTableId,'');
-		CALL prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_ApprovedBy);
+	--	CALL prc_ArchiveOldRateTableRate(p_RateTableId, NULL,p_ApprovedBy);
+
+		SET archive2_time = NOW();
 
 	ELSE -- reject/disapprove rates
 
@@ -8026,11 +8322,24 @@ ThisSP:BEGIN
 		INNER JOIN
 			tmp_RateTableRate_ temp ON temp.RateTableRateAAID = rtr.RateTableRateAAID
 		SET
-			rtr.ApprovedStatus = p_ApprovedStatus, rtr.ApprovedBy = temp.ApprovedBy, rtr.ApprovedDate = temp.ApprovedDate;
+			rtr.ApprovedStatus = p_ApprovedStatus, rtr.ApprovedBy = temp.ApprovedBy, rtr.ApprovedDate = temp.ApprovedDate
+		WHERE
+			rtr.RateTableId=p_RateTableId;
 
 	END IF;
-
-
+/*
+	SELECT
+		TIME_TO_SEC(TIMEDIFF(insert_time, start_time)) AS `insert_time`,
+		TIME_TO_SEC(TIMEDIFF(copy_time, insert_time)) AS `copy_time`,
+		TIME_TO_SEC(TIMEDIFF(delete_time, copy_time)) AS `delete_time`,
+		TIME_TO_SEC(TIMEDIFF(update1_time, delete_time)) AS `update1_time`,
+		TIME_TO_SEC(TIMEDIFF(update2_time, update1_time)) AS `update2_time`,
+		TIME_TO_SEC(TIMEDIFF(update3_time, update2_time)) AS `update3_time`,
+		TIME_TO_SEC(TIMEDIFF(archive1_time, update3_time)) AS `archive1_time`,
+		TIME_TO_SEC(TIMEDIFF(final_insert_time, archive1_time)) `final_insert_time`,
+		TIME_TO_SEC(TIMEDIFF(final_delete_time, final_insert_time)) `final_delete_time`,
+		TIME_TO_SEC(TIMEDIFF(archive2_time, final_delete_time)) `archive2_time`;
+*/
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
