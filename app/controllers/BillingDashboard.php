@@ -381,7 +381,7 @@ class BillingDashboard extends \BaseController {
             $AccountEmaillog = AccountEmailLog::join('tblAccount', 'tblAccount.AccountID', '=', 'AccountEmailLog.AccountID')
                   ->join('tblAccountDetails', 'tblAccount.AccountID', '=', 'tblAccountDetails.AccountID')
                   ->join('tblReseller', 'tblAccount.CompanyID', '=', 'tblReseller.ChildCompanyID')   
-                ->select(["AccountEmailLog.EmailType","tblAccount.AccountName", "tblReseller.ResellerName" ,"AccountEmailLog.created_at", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject", "AccountEmailLog.Message", "AccountEmailLog.AccountEmailLogID"])->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
+                  ->WhereRaw(" $countQryString (AccountEmailLog.created_at between '$from' AND '$to')  ")->orderBy('AccountEmailLog.created_at', 'desc');
         }
         if(!empty($data['emailType'])){
             $emailType = $data['emailType'];
@@ -391,17 +391,27 @@ class BillingDashboard extends \BaseController {
         }
 
         if(is_reseller()){
-            $AccountEmaillog = $AccountEmaillog->where('AccountEmailLog.CompanyID' , User::get_companyID());
+            $AccountEmaillog = $AccountEmaillog->select(["AccountEmailLog.EmailType as Type ","tblAccount.AccountName as Account ", "AccountEmailLog.created_at as DateSent", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject"])->where('AccountEmailLog.CompanyID' , User::get_companyID());
+        }else{
+            $AccountEmaillog = $AccountEmaillog->select(["AccountEmailLog.EmailType as Type ","tblAccount.AccountName as Account ", "tblReseller.ResellerName as Partner" ,"AccountEmailLog.created_at as DateSent", "AccountEmailLog.Emailfrom", "AccountEmailLog.EmailTo", "AccountEmailLog.Subject"]);
         }
 
         $AccountEmaillog = $AccountEmaillog->get();
+
+        foreach($AccountEmaillog as $Accountdata){
+            if($Accountdata->Type == 2){
+               $Accountdata->Type = 'Low balance';
+            }else{
+                $Accountdata->Type = 'Payment Reminders';
+            }  
+        }
         $AccountEmaillog = json_decode(json_encode($AccountEmaillog),true);
         if($type=='csv'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/paymentreminders.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Notification.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($AccountEmaillog);
         }elseif($type=='xlsx'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/paymentreminders.xls';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Notification.xls';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($AccountEmaillog);
         }

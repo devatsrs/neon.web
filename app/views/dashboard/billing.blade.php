@@ -381,7 +381,7 @@
             </div>
         @endif
     @endif
-    {{-- @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('PaymentRemindersWidget','View')) --}}
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('PaymentRemindersWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('PaymentRemindersWidget','View'))
         <div class="panel panel-primary panel-table">
             <div class="panel-heading">
                 <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
@@ -473,7 +473,7 @@
                 </div>
             </div>
         </div>
-    {{-- @endif --}}
+    @endif
     @if(!is_reseller()) 
         @if(((count($BillingDashboardWidgets)==0) ||  in_array('OutPaymentsWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('OutPaymentsWidget','View'))
             <div class="clearfix"></div>

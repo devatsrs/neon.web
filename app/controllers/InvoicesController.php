@@ -21,8 +21,7 @@ class InvoicesController extends \BaseController {
         $data['PaymentMethod'] = !isset($data['PaymentMethod']) ? '' : $data['PaymentMethod'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['InvoiceStatus'] = is_array($data['InvoiceStatus'])?implode(',',$data['InvoiceStatus']):$data['InvoiceStatus'];
-        $data['ResellerOwner']  =  !isset($data['ResellerOwner']) || empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
-        
+        $data['ResellerOwner'] = !isset($data['ResellerOwner']) || empty($data['ResellerOwner']) || $data['ResellerOwner'] == "undefined" ?'0':$data['ResellerOwner'];
         $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID']).",".$data['BillingType'].",'".$data['AutoPay']."','".$data['PaymentMethod']."',".$data['ResellerOwner']."";
         $InvoiceHideZeroValue = Invoice::getCookie('InvoiceHideZeroValue');
         // Account Manager Condition
@@ -94,8 +93,7 @@ class InvoicesController extends \BaseController {
         $data['AutoPay'] = !isset($data['AutoPay']) ? 0 : $data['AutoPay'];
         $data['PaymentMethod'] = !isset($data['PaymentMethod']) ? '' : $data['PaymentMethod'];
         $sort_column = $columns[$data['iSortCol_0']];
-        $data['ResellerOwner'] = !isset($data['ResellerOwner']) || empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
-        
+        $data['ResellerOwner'] = !isset($data['ResellerOwner']) || empty($data['ResellerOwner']) || $data['ResellerOwner'] == "undefined" ?'0':$data['ResellerOwner'];
         // Account Manager Condition
         $userID = 0;
         if(User::is('AccountManager')) { // Account Manager
@@ -1923,7 +1921,7 @@ public function store_inv_in(){
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
                // $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-			    $templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($Invoice->CompanyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
+			    $templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($Invoice->CompanyID, Invoice::EMAILTEMPLATE, $Account->LanguageID);
 				$data['InvoiceURL']	 =   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email=#email');
 			//	$Subject	 		 = 	 $templateData->Subject;
 			//	$Message 	 		 = 	 $templateData->TemplateBody;		
@@ -3837,9 +3835,9 @@ public function store_inv_in(){
             $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID). "/";
             $isAmazon = is_amazon($CompanyID);
             foreach ($Invoices as $invoice) {
+               
                 if (!empty($invoice->UblInvoice)) {
                     $path = AmazonS3::preSignedUrl($invoice->UblInvoice, $CompanyID);
-
                     if (file_exists($path)) {
                         $zipfiles[$invoice->InvoiceID] = $path;
                     } else if ($isAmazon == true) {
