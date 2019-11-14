@@ -3463,7 +3463,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }else{
             $PartnerAccount = 0;
         }
-        
+         
         $RegisterDutchFoundation = 0;
         $DutchProvider = 0;
         if($PartnerAccount == 1){
