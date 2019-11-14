@@ -160,7 +160,7 @@
                                 <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                             </div>
                         </div>
-                        <div class="form-group hidden" id="AffiliateDiv">
+                        <div class="form-group" id="AffiliateDiv">
                             <label class="col-md-2 control-label">Affiliate</label>
                             <div class="col-md-4">
                                 <div class="make-switch switch-small" id="desablecustomer">
@@ -169,7 +169,7 @@
                             </div>
 
                         </div>
-                        <div class="form-group hidden @if($account->IsAffiliateAccount != 1 ) hidden @endif" id="AffiliateDetailDiv">
+                        <div class="form-group AffiliateDetailDiv @if($account->IsAffiliateAccount != 1 ) hidden @endif" id="">
                             <label class="col-md-2 control-label">Commission Percentage</label>
                             <div class="col-md-4">
                                 <input type="text" name="CommissionPercentage" class="form-control" id="field-1" placeholder="" value="{{isset($account->CommissionPercentage) ? $account->CommissionPercentage : "5" }}" />
@@ -177,6 +177,19 @@
                             <label class="col-md-2 control-label">Duration Months</label>
                             <div class="col-md-4">
                                 <input type="text" name="DurationMonths" class="form-control" id="field-1" placeholder="" value="{{$account->DurationMonths}}" />
+                            </div>
+                        </div>
+                        <?php
+                            $AffiliateAccountArray1 = array();
+                            $AffiliateAccountArray = explode("," ,$AffiliateAccounts);
+                            foreach ($AffiliateAccountArray as $Affiliate) {
+                                $AffiliateAccountArray1[$Affiliate]=$Affiliate;
+                            }
+                        ?>
+                        <div class="form-group AffiliateDetailDiv @if($account->IsAffiliateAccount != 1 ) hidden @endif">
+                            <label class="col-md-2 control-label">Affiliate Accounts</label>
+                            <div class="col-md-10">
+                                    {{Form::select('AffiliateAccounts[]', Account::getCustomerAccountIDList([] , 1), $AffiliateAccountArray1 ,array("class"=>"form-control select2", "multiple"))}}
                             </div>
                         </div>
                         @if(!is_reseller())
@@ -1129,9 +1142,9 @@
             $('[name="IsAffiliateAccount"]').on("change",function(e){
                 if($('[name="IsAffiliateAccount"]').prop("checked") == true) {
 
-                    $("#AffiliateDetailDiv").removeClass('hidden');
+                    $(".AffiliateDetailDiv").removeClass('hidden');
                 }else {
-                    $("#AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
+                    $(".AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
                     // $('[name="CommissionPercentage"]').val('');
                     // $('[name="DurationMonths"]').val(5);
 

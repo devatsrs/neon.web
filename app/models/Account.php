@@ -275,7 +275,7 @@ class Account extends \Eloquent {
         return $row;
     }
 
-    public static function getCustomerAccountIDList($data=array()){
+    public static function getCustomerAccountIDList($data=array() , $SelectOption = ""){
 
         if(User::is('AccountManager')){
             $data['Owner'] = User::get_userID();
@@ -294,7 +294,11 @@ class Account extends \Eloquent {
             $data['CompanyID']=User::get_companyID();
         $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
         if(!empty($row)){
-            $row = array(""=> "Select")+$row;
+            if($SelectOption == 1){
+            }else{
+                $row = array(""=> "Select")+$row;
+            }
+            
         }
         return $row;
     }
