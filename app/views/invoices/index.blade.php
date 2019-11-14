@@ -17,13 +17,27 @@
                     <label for="field-1" class="control-label">Account</label>
                     {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                 </div>
-<!--                @if(is_reseller())
+               @if(is_reseller())
                 @else
                 <div class="form-group">
                     <label class="control-label" for="field-1">Account Partner</label>
                     {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
                 </div>
-                @endif-->
+                @endif
+                
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Billing Type</label>
+                    {{Form::select('BillingType',['0' => 'Select','1' => 'Prepaid' , '2' => 'Postpaid'],'0',array("class"=>"select2"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Payment Methods</label>
+                    {{Form::select('PaymentMethod',array('' => 'Select') + PaymentGateway::$paymentgateway_byname,'',array("class"=>"select2"))}}
+                    
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Auto Pay</label>
+                    {{Form::select('AutoPay',['' => 'Select','on' => 'On' , 'never' => 'Off'],'0',array("class"=>"select2"))}}
+                </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Status</label>
                     {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
@@ -111,7 +125,7 @@
                   <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
-                      <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
+                      {{-- <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li> --}}
 
                   </ul>
               </div>
@@ -164,10 +178,7 @@
             @if(is_FastPay($CompanyID))
             <li> <a class="create" id="fastpay-export" href="javascript:;"> FastPay Export </a> </li>
             @endif
-                <?php $global_admin = Session::get("global_admin" , 0); ?>
-            @if(!empty($global_admin) || (!empty($IngenicoExport->Value) && $IngenicoExport->Value == 1))
                 <li> <a class="create" id="ingenico-export" href="javascript:;"> Ingenico Export </a> </li>
-            @endif
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
@@ -180,24 +191,31 @@
         </div>
       </div>
     </div>
-    <table class="table table-bordered datatable" id="table-4">
+
+    <table class="table table-bordered datatable table-responsive" style="overflow-x:scroll;display:block;" id="table-4">
       <thead>
         <tr>
-          <th width="10%"> <div class="pull-left">
+          <th width="7%"> <div class="pull-left">
               <input type="checkbox" id="selectall" name="checkbox[]" class=""/>
             </div>
           </th>
-          <th width="15%">Account</th>
-          <th width="10%">Invoice Number</th>
-          <th width="10%">Issue Date</th>
-          <th width="13%">Period</th>
-          <th width="6%">Grand Total</th>
-          <th width="6%">Paid/OS</th>
-          <th width="5%">Status</th>
-          <th width="5%">Available Credit Notes</th>
-          <th width="10%">Due Date</th>
-            <th width="15%">Payment Reminder</th>
-          <th width="20%">Action</th>
+          <th>Account</th>
+          @if(!is_reseller())
+          <th>Partner</th>
+          @endif
+          <th>Payment Method</th>
+          <th>Auto Pay</th>
+          <th>Billing Type</th>
+          <th>Invoice Number</th>
+          <th>Issue Date</th>
+          <th>Period</th>
+          <th>Grand Total</th>
+          <th>Paid/OS</th>
+          <th>Status</th>
+          <th>Available Credit Notes</th>
+          <th>Due Date</th>
+          <th>Payment Reminder</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -223,7 +241,7 @@
 
             var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
             var Invoice_Delete_Url = "{{ URL::to('invoice/invoice_in_delete')}}";
-            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate', 'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
+            var list_fields = ['InvoiceType', 'AccountName ', 'Partner','PaymentMethod', 'AutoPay' , 'BillingType' ,'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate', 'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ? $("#invoice_filter select[name='InvoiceStatus']").val() : '';
@@ -234,18 +252,25 @@
             $searchFilter.CurrencyID = $("#invoice_filter [name='CurrencyID']").val();
             $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
             $searchFilter.tag = $("#invoice_filter [name='tag']").val();
+            $searchFilter.BillingType = $("#invoice_filter [name='BillingType']").val();
+            $searchFilter.AutoPay = $("#invoice_filter [name='AutoPay']").val();
+            $searchFilter.PaymentMethod = $("#invoice_filter [name='PaymentMethod']").val();
             
+
+            
+
             $searchFilter.ResellerOwner = $("#invoice_filter [name='ResellerOwner']").val();
             
-            data_table = $("#table-4").dataTable({
-                "bDestroy": true,
+            data_table = $("#table-4").DataTable({
+                "bDestroy": true, // Destroy when resubmit form
                 "bProcessing": true,
                 "bServerSide": true,
+                "scrollX": true,
                 "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[3, 'desc']],
+                "aaSorting": [[6, 'desc']],
                 "fnServerParams": function (aoData) {
                     aoData.push({"name": "InvoiceType", "value": $searchFilter.InvoiceType},
                             {"name": "AccountID","value": $searchFilter.AccountID},
@@ -257,6 +282,9 @@
                             {"name": "zerovalueinvoice","value": $searchFilter.zerovalueinvoice},
                             {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
                             {"name": "Overdue","value": $searchFilter.Overdue},
+                            {"name": "BillingType","value": $searchFilter.BillingType},
+                            {"name": "AutoPay","value": $searchFilter.AutoPay},
+                            {"name": "PaymentMethod","value": $searchFilter.PaymentMethod},
                             {"name": "tag","value": $searchFilter.tag});
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push({"name": "InvoiceType","value": $searchFilter.InvoiceType},
@@ -271,6 +299,9 @@
                             {"name": "zerovalueinvoice","value": $searchFilter.zerovalueinvoice},
                             {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
                             {"name": "Overdue","value": $searchFilter.Overdue},
+                            {"name": "BillingType","value": $searchFilter.BillingType},
+                            {"name": "AutoPay","value": $searchFilter.AutoPay},
+                            {"name": "PaymentMethod","value": $searchFilter.PaymentMethod},
                             {"name": "tag","value": $searchFilter.tag});
                 },
                 "aoColumns": [
@@ -284,7 +315,7 @@
                                 invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-right-bold"></i>RCV</a>';
                             }
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
-                                action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[10] + '" name="InvoiceID[]"></div>';
+                                action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[14] + '" name="InvoiceID[]"></div>';
                             }
                             action += invoiceType;
                             return action;
@@ -297,26 +328,61 @@
                         mRender: function (id, type, full) {
                             var output, account_url;
                             output = '<a href="{url}" target="_blank" >{account_name}';
-                            if (full[16] == '') {
+                            if (full[20] == '') {
                                 output += '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                             }
                             output += '</a>';
-                            account_url = baseurl + "/accounts/" + full[13] + "/show";
+                            account_url = baseurl + "/accounts/" + full[17] + "/show";
                             output = output.replace("{url}", account_url);
                             output = output.replace("{account_name}", id);
                             return output;
                         }
 
-                    },  // 1 InvoiceNumber
+                    },  // Partner
+                    @if(!is_reseller())
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[2];
+                        }
+                    },
+                    @endif
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[3];
+                        }
+                    },
+                    {
+                        "bSortable": false,
+                        mRender: function (id, type, full) {                       
+                            var readonly  = "deactivate";
+                            var readonly_title = 'Cannot deactivate';
+                            if(full[4] != 'never'){
+                                action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[8]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1" readonly></p>';
+                            }else{
+                                action = '<p class="make-switch switch-small '+readonly+'"><input type="checkbox" data-id="'+full[8]+'" class="changestatus"  name="template_status" value="1" readonly></p>';
+                            } return action;     
+                        }                               
+                    },
+                    {"bSortable": true , 
+                        mRender: function (id, type, full) {                       
+                           
+                            if(full[5] == 1){
+                                action = 'Prepaid';
+                            }else{
+                                action = 'Postpaid';
+                            } return action;     
+                        } 
+                    
+                    },
                     {
                         "bSortable": true,
 
                         mRender: function (id, type, full) {
-
+                            var id = full[6];
                             var output, account_url;
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                 output = '<a href="{url}" target="_blank"> ' + id + '</a>';
-                                account_url = baseurl + "/invoice/" + full[10] + "/invoice_preview";
+                                account_url = baseurl + "/invoice/" + full[14] + "/invoice_preview";
                                 output = output.replace("{url}", account_url);
                                 output = output.replace("{account_name}", id);
                             } else {
@@ -326,21 +392,37 @@
                         }
 
                     },  // 2 IssueDate
-                    {"bSortable": true},  // 3 IssueDate
-                    {"bSortable": true},  //4 Invoice period
-                    {"bSortable": true},  // 5 GrandTotal
-                    {"bSortable": true},  // 6 PAID/OS
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[7];
+                        }
+                    },  // 3 IssueDate
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[8];
+                        }
+                    },  //4 Invoice period
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[9];
+                        }
+                    },  // 5 GrandTotal
+                    {"bSortable": true,
+                        mRender: function (id, type, full) {
+                                return full[10];
+                        }
+                    },  // 6 PAID/OS
                     {
                         "bSortable": true,
                         mRender: function (id, type, full) {
-                            return invoicestatus[full[7]];
+                            return invoicestatus[full[11]];
                         }
 
                     },  // 7 InvoiceStatus
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {
-                                return full[18];
+                                return full[22];
                         }
 
                     }, // 18 CreditNotes Amount
@@ -348,10 +430,10 @@
                         "bSortable": true,
                         mRender: function (id, type, full) {
                             var output;
-                            if(full[9] != '' && full[9] != null)
-                                output = full[8] + '<br/> <span style="color:red">(' + full[9] + ' Days)</span>';
+                            if(full[13] != '' && full[13] != null)
+                                output = full[12] + '<br/> <span style="color:red">(' + full[13] + ' Days)</span>';
                             else
-                                output = full[8];
+                                output = full[12];
                             return output;
                         }
                     },  // 8 DueDate and DueDays
@@ -359,11 +441,11 @@
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {
-                            if(full[20] != null){
-                                var output =  '<span title="Last Date Sent">' + full[20] +'</span>' + " - " +'('+ '<span title="No of reminders ">' + full[19]+'</span>'+')';
+                            if(full[24] != null){
+                                var output =  '<span title="Last Date Sent">' + full[24] +'</span>' + " - " +'('+ '<span title="No of reminders ">' + full[23]+'</span>'+')';
 
                             }else{
-                                var output = '('+ '<span title="No of reminders ">' + full[19]+'</span>'+')';
+                                var output = '('+ '<span title="No of reminders ">' + full[23]+'</span>'+')';
 
                             }
 
@@ -376,7 +458,7 @@
                         "bSortable": false,
                         mRender: function (id, type, full) {
                             var action, edit_, show_, delete_, view_url, edit_url, download_url, invoice_preview, invoice_log;
-                            id = full[10];
+                            id = full[14];
                             action = '<div class = "hiddenRowData" >';
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                 edit_url = (baseurl + "/invoice/{id}/edit").replace("{id}", id);
@@ -397,14 +479,14 @@
                                     action += '<div class="btn-group">';
                                     action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                     action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
-                                    action += ' <li><a href="{{url("/invoice/'+full[10]+'/edit_inv_in")}}" class="icon-left"><i class="entypo-pencil"></i>Edit </a></li>';
+                                    action += ' <li><a href="{{url("/invoice/'+full[14]+'/edit_inv_in")}}" class="icon-left"><i class="entypo-pencil"></i>Edit </a></li>';
                                   
                                     action += '<li><a data-invoicestatus="deleteinv" data-invoiceid="' + id + '" href="' + Invoice_Delete_Url + '" class="changestatus" ><i class="entypo-trash"></i> Delete</a></li>';
                                   
                                     //action += ' <li><a class="view-invoice-in icon-left"><i class="entypo-pencil"></i>Print </a></li>';
                                     action += '</ul>';
                                     action += '</div>';
-                                    if (full[12]) {
+                                    if (full[16]) {
                                         action += ' <a class="btn btn-success btn-sm btn-icon icon-left download" href="' + (baseurl + "/invoice/download_atatchment/{id}").replace("{id}", id) + '"><i class="entypo-down"></i>Download</a>'
                                     }
                                 }
@@ -413,7 +495,7 @@
                                 action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                 action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
-                                if (full[15] == '{{Invoice::ITEM_INVOICE}}') {
+                                if (full[19] == '{{Invoice::ITEM_INVOICE}}') {
                                     if ('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                         action += ' <li><a class="icon-left"  href="' + (baseurl + "/invoice/{id}/edit").replace("{id}", id) + '"><i class="entypo-pencil"></i>Edit </a></li>';
                                     }
@@ -430,7 +512,7 @@
                                         action += '<li><a data-id="' + id + '" class="send-invoice icon-left"><i class="entypo-mail"></i>Send </a></li>';
                                     }
                                 }
-                                if (full[0] != '{{Invoice::INVOICE_IN}}' && (full[7] != '{{Invoice::PAID}}')) {
+                                if (full[0] != '{{Invoice::INVOICE_IN}}' && (full[11] != '{{Invoice::PAID}}')) {
                                     if ('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                         action += '<li><a data-id="' + id + '" class="add-new-payment icon-left"><i class="entypo-credit-card"></i>Enter Payment</a></li>';
                                     }
@@ -561,6 +643,13 @@
                 $searchFilter.CurrencyID = $("#invoice_filter [name='CurrencyID']").val();
                 $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
                 $searchFilter.tag = $("#invoice_filter [name='tag']").val();
+                $searchFilter.BillingType = $("#invoice_filter [name='BillingType']").val();
+                $searchFilter.AutoPay = $("#invoice_filter [name='AutoPay']").val();
+                $searchFilter.PaymentMethod = $("#invoice_filter [name='PaymentMethod']").val();
+
+                
+
+                
                 data_table.fnFilter('', 0);
                 return false;
             });
@@ -582,6 +671,9 @@
                         "zerovalueinvoice": $("#invoice_filter [name='zerovalueinvoice']").prop("checked"),
                         "CurrencyID": $("#invoice_filter [name='CurrencyID']").val(),
                         "Overdue": $("#invoice_filter [name='Overdue']").prop("checked"),
+                        "BillingType" : $("#invoice_filter [name='BillingType']").val(),
+                        "AutoPay" : $("#invoice_filter [name='AutoPay']").val(),
+                        "PaymentMethod" : $("#invoice_filter [name='PaymentMethod']").val(),
                         "tag": $("#invoice_filter [name='tag']").val(),
                         "bDestroy": true,
                         "bProcessing": true,
@@ -597,7 +689,7 @@
                         if (response1.total_grand != null) {
                             $('.result_row').remove();
                             $('.result_row').hide();
-                            $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="4"></td><td><strong>' + response1.total_grand + '</strong></td><td><strong>' + response1.os_pp + '</strong></td><td colspan="2"></td></tr>');
+                            $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="8"></td><td><strong>' + response1.total_grand + '</strong></td><td><strong>' + response1.os_pp + '</strong></td><td colspan="5"></td></tr>');
                         }
                     }
                 });
@@ -1038,6 +1130,7 @@
             $('table tbody').on('click', '.send-invoice', function (ev) {
                 //var cur_obj = $(this).prevAll("div.hiddenRowData");
                 var cur_obj = $(this).parent().parent().parent().parent().find("div.hiddenRowData");
+
                 InvoiceID = cur_obj.find("[name=InvoiceID]").val();
                 send_url = ("/invoice/{id}/invoice_email").replace("{id}", InvoiceID);
                 showAjaxModal(send_url, 'send-modal-invoice');

@@ -1112,6 +1112,7 @@ class RateUploadController extends \BaseController {
             $includePrefix          = 1;
             $component_currencies   = Currency::getCurrencyDropdownIDList($CompanyID,$includePrefix); // to check when currency mapped from DB
             $component_currencies2  = Currency::getCurrencyDropdownIDList($CompanyID);  // to check when currency mapped from File
+            $component_currencies2  = array_map('strtolower', $component_currencies2);
             $CountryPrefix          = ServiceTemplate::getCountryPrefixDD($includePrefix);
             $AccessTypes            = ServiceTemplate::getAccessTypeDD($CompanyID,$includePrefix);
             $Codes                  = ServiceTemplate::getPrefixDD($CompanyID,$includePrefix);
@@ -1509,8 +1510,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$OneOffCostCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$OneOffCostCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['OneOffCostCurrency'] = str_replace($prefixKeyword,'',$attrselection->$OneOffCostCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$OneOffCostCurrencyColumn]) && array_search($temp_row[$attrselection->$OneOffCostCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['OneOffCostCurrency'] = array_search($temp_row[$attrselection->$OneOffCostCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$OneOffCostCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$OneOffCostCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['OneOffCostCurrency'] = array_search(strtolower($temp_row[$attrselection->$OneOffCostCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['OneOffCostCurrency'] = NULL;
                                         $error[] = 'One-Off Cost Currency is not match at line no:' . $lineno;
@@ -1522,8 +1523,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$MonthlyCostCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$MonthlyCostCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['MonthlyCostCurrency'] = str_replace($prefixKeyword,'',$attrselection->$MonthlyCostCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$MonthlyCostCurrencyColumn]) && array_search($temp_row[$attrselection->$MonthlyCostCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['MonthlyCostCurrency'] = array_search($temp_row[$attrselection->$MonthlyCostCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$MonthlyCostCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$MonthlyCostCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['MonthlyCostCurrency'] = array_search(strtolower($temp_row[$attrselection->$MonthlyCostCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['MonthlyCostCurrency'] = NULL;
                                         $error[] = 'Monthly Cost Currency is not match at line no:' . $lineno;
@@ -1535,8 +1536,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$CostPerCallCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$CostPerCallCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['CostPerCallCurrency'] = str_replace($prefixKeyword,'',$attrselection->$CostPerCallCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$CostPerCallCurrencyColumn]) && array_search($temp_row[$attrselection->$CostPerCallCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['CostPerCallCurrency'] = array_search($temp_row[$attrselection->$CostPerCallCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$CostPerCallCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$CostPerCallCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['CostPerCallCurrency'] = array_search(strtolower($temp_row[$attrselection->$CostPerCallCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['CostPerCallCurrency'] = NULL;
                                         $error[] = 'Cost Per Call Currency is not match at line no:' . $lineno;
@@ -1548,8 +1549,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$CostPerMinuteCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$CostPerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['CostPerMinuteCurrency'] = str_replace($prefixKeyword,'',$attrselection->$CostPerMinuteCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$CostPerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$CostPerMinuteCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['CostPerMinuteCurrency'] = array_search($temp_row[$attrselection->$CostPerMinuteCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$CostPerMinuteCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$CostPerMinuteCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['CostPerMinuteCurrency'] = array_search(strtolower($temp_row[$attrselection->$CostPerMinuteCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['CostPerMinuteCurrency'] = NULL;
                                         $error[] = 'Cost Per Minute Currency is not match at line no:' . $lineno;
@@ -1561,8 +1562,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$SurchargePerCallCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$SurchargePerCallCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['SurchargePerCallCurrency'] = str_replace($prefixKeyword,'',$attrselection->$SurchargePerCallCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$SurchargePerCallCurrencyColumn]) && array_search($temp_row[$attrselection->$SurchargePerCallCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['SurchargePerCallCurrency'] = array_search($temp_row[$attrselection->$SurchargePerCallCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$SurchargePerCallCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$SurchargePerCallCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['SurchargePerCallCurrency'] = array_search(strtolower($temp_row[$attrselection->$SurchargePerCallCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['SurchargePerCallCurrency'] = NULL;
                                         $error[] = 'Surcharge Per Call Currency is not match at line no:' . $lineno;
@@ -1574,8 +1575,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$SurchargePerMinuteCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$SurchargePerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['SurchargePerMinuteCurrency'] = str_replace($prefixKeyword,'',$attrselection->$SurchargePerMinuteCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['SurchargePerMinuteCurrency'] = array_search($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['SurchargePerMinuteCurrency'] = array_search(strtolower($temp_row[$attrselection->$SurchargePerMinuteCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['SurchargePerMinuteCurrency'] = NULL;
                                         $error[] = 'Surcharge Per Minute Currency is not match at line no:' . $lineno;
@@ -1587,8 +1588,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$OutpaymentPerCallCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$OutpaymentPerCallCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['OutpaymentPerCallCurrency'] = str_replace($prefixKeyword,'',$attrselection->$OutpaymentPerCallCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn]) && array_search($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['OutpaymentPerCallCurrency'] = array_search($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['OutpaymentPerCallCurrency'] = array_search(strtolower($temp_row[$attrselection->$OutpaymentPerCallCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['OutpaymentPerCallCurrency'] = NULL;
                                         $error[] = 'Outpayment Per Call Currency is not match at line no:' . $lineno;
@@ -1600,8 +1601,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$OutpaymentPerMinuteCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$OutpaymentPerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['OutpaymentPerMinuteCurrency'] = str_replace($prefixKeyword,'',$attrselection->$OutpaymentPerMinuteCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['OutpaymentPerMinuteCurrency'] = array_search($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['OutpaymentPerMinuteCurrency'] = array_search(strtolower($temp_row[$attrselection->$OutpaymentPerMinuteCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['OutpaymentPerMinuteCurrency'] = NULL;
                                         $error[] = 'Outpayment Per Minute Currency is not match at line no:' . $lineno;
@@ -1613,8 +1614,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$SurchargesCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$SurchargesCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['SurchargesCurrency'] = str_replace($prefixKeyword,'',$attrselection->$SurchargesCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$SurchargesCurrencyColumn]) && array_search($temp_row[$attrselection->$SurchargesCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['SurchargesCurrency'] = array_search($temp_row[$attrselection->$SurchargesCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$SurchargesCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$SurchargesCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['SurchargesCurrency'] = array_search(strtolower($temp_row[$attrselection->$SurchargesCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['SurchargesCurrency'] = NULL;
                                         $error[] = 'Surcharges Currency is not match at line no:' . $lineno;
@@ -1626,8 +1627,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$ChargebackCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$ChargebackCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['ChargebackCurrency'] = str_replace($prefixKeyword,'',$attrselection->$ChargebackCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$ChargebackCurrencyColumn]) && array_search($temp_row[$attrselection->$ChargebackCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['ChargebackCurrency'] = array_search($temp_row[$attrselection->$ChargebackCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$ChargebackCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$ChargebackCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['ChargebackCurrency'] = array_search(strtolower($temp_row[$attrselection->$ChargebackCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['ChargebackCurrency'] = NULL;
                                         $error[] = 'Chargeback Currency is not match at line no:' . $lineno;
@@ -1639,8 +1640,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$CollectionCostAmountCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$CollectionCostAmountCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['CollectionCostAmountCurrency'] = str_replace($prefixKeyword,'',$attrselection->$CollectionCostAmountCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn]) && array_search($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['CollectionCostAmountCurrency'] = array_search($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['CollectionCostAmountCurrency'] = array_search(strtolower($temp_row[$attrselection->$CollectionCostAmountCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['CollectionCostAmountCurrency'] = NULL;
                                         $error[] = 'Collection Cost Amount Currency is not match at line no:' . $lineno;
@@ -1652,8 +1653,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$RegistrationCostPerNumberCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$RegistrationCostPerNumberCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['RegistrationCostPerNumberCurrency'] = str_replace($prefixKeyword,'',$attrselection->$RegistrationCostPerNumberCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn]) && array_search($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['RegistrationCostPerNumberCurrency'] = array_search($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['RegistrationCostPerNumberCurrency'] = array_search(strtolower($temp_row[$attrselection->$RegistrationCostPerNumberCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['RegistrationCostPerNumberCurrency'] = NULL;
                                         $error[] = 'Registration Cost Per Number Currency is not match at line no:' . $lineno;
@@ -1716,8 +1717,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$OneOffCostCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$OneOffCostCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['OneOffCostCurrency'] = str_replace($prefixKeyword,'',$attrselection->$OneOffCostCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$OneOffCostCurrencyColumn]) && array_search($temp_row[$attrselection->$OneOffCostCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['OneOffCostCurrency'] = array_search($temp_row[$attrselection->$OneOffCostCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$OneOffCostCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$OneOffCostCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['OneOffCostCurrency'] = array_search(strtolower($temp_row[$attrselection->$OneOffCostCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['OneOffCostCurrency'] = NULL;
                                         $error[] = 'One-Off Cost Currency is not match at line no:' . $lineno;
@@ -1729,8 +1730,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$MonthlyCostCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$MonthlyCostCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['MonthlyCostCurrency'] = str_replace($prefixKeyword,'',$attrselection->$MonthlyCostCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$MonthlyCostCurrencyColumn]) && array_search($temp_row[$attrselection->$MonthlyCostCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['MonthlyCostCurrency'] = array_search($temp_row[$attrselection->$MonthlyCostCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$MonthlyCostCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$MonthlyCostCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['MonthlyCostCurrency'] = array_search(strtolower($temp_row[$attrselection->$MonthlyCostCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['MonthlyCostCurrency'] = NULL;
                                         $error[] = 'Monthly Cost Currency is not match at line no:' . $lineno;
@@ -1742,8 +1743,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$PackageCostPerMinuteCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$PackageCostPerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['PackageCostPerMinuteCurrency'] = str_replace($prefixKeyword,'',$attrselection->$PackageCostPerMinuteCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$PackageCostPerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$PackageCostPerMinuteCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['PackageCostPerMinuteCurrency'] = array_search($temp_row[$attrselection->$PackageCostPerMinuteCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$PackageCostPerMinuteCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$PackageCostPerMinuteCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['PackageCostPerMinuteCurrency'] = array_search(strtolower($temp_row[$attrselection->$PackageCostPerMinuteCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['PackageCostPerMinuteCurrency'] = NULL;
                                         $error[] = 'Package Cost Per Minute Currency is not match at line no:' . $lineno;
@@ -1755,8 +1756,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$RecordingCostPerMinuteCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$RecordingCostPerMinuteCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['RecordingCostPerMinuteCurrency'] = str_replace($prefixKeyword,'',$attrselection->$RecordingCostPerMinuteCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$RecordingCostPerMinuteCurrencyColumn]) && array_search($temp_row[$attrselection->$RecordingCostPerMinuteCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['RecordingCostPerMinuteCurrency'] = array_search($temp_row[$attrselection->$RecordingCostPerMinuteCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$RecordingCostPerMinuteCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$RecordingCostPerMinuteCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['RecordingCostPerMinuteCurrency'] = array_search(strtolower($temp_row[$attrselection->$RecordingCostPerMinuteCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['RecordingCostPerMinuteCurrency'] = NULL;
                                         $error[] = 'Recording Cost Per Minute Currency is not match at line no:' . $lineno;
@@ -1799,8 +1800,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$RateCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$RateCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['RateCurrency'] = str_replace($prefixKeyword,'',$attrselection->$RateCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$RateCurrencyColumn]) && array_search($temp_row[$attrselection->$RateCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['RateCurrency'] = array_search($temp_row[$attrselection->$RateCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$RateCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$RateCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['RateCurrency'] = array_search(strtolower($temp_row[$attrselection->$RateCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['RateCurrency'] = NULL;
                                         $error[] = 'Rate Currency is not match at line no:' . $lineno;
@@ -1812,8 +1813,8 @@ class RateUploadController extends \BaseController {
                                 if (!empty($attrselection->$ConnectionFeeCurrencyColumn)) {
                                     if (array_key_exists($attrselection->$ConnectionFeeCurrencyColumn, $component_currencies)) {// if currency selected from Neon Currencies
                                         $tempdata['ConnectionFeeCurrency'] = str_replace($prefixKeyword,'',$attrselection->$ConnectionFeeCurrencyColumn);
-                                    } else if (isset($temp_row[$attrselection->$ConnectionFeeCurrencyColumn]) && array_search($temp_row[$attrselection->$ConnectionFeeCurrencyColumn], $component_currencies2)) {// if currency selected from file
-                                        $tempdata['ConnectionFeeCurrency'] = array_search($temp_row[$attrselection->$ConnectionFeeCurrencyColumn], $component_currencies2);
+                                    } else if (isset($temp_row[$attrselection->$ConnectionFeeCurrencyColumn]) && array_search(strtolower($temp_row[$attrselection->$ConnectionFeeCurrencyColumn]), $component_currencies2)) {// if currency selected from file
+                                        $tempdata['ConnectionFeeCurrency'] = array_search(strtolower($temp_row[$attrselection->$ConnectionFeeCurrencyColumn]), $component_currencies2);
                                     } else {
                                         $tempdata['ConnectionFeeCurrency'] = NULL;
                                         $error[] = 'Connection Fee Currency is not match at line no:' . $lineno;
@@ -2305,8 +2306,13 @@ class RateUploadController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Please select a file."));
             }
             if (!empty($file_name)) {
-                $SheetNames = NeonExcelIO::getSheetNamesFromExcel($file_name);
-                return Response::json(array("status" => "success", "SheetNames" => $SheetNames , "FileExtesion" => strtolower($excel->getClientOriginalExtension())));
+
+                if (strtolower($ext) == "csv") {
+                    return Response::json(array("status" => "success", "SheetNames" => ["0"] , "FileExtesion" => strtolower($excel->getClientOriginalExtension())));
+                }else{
+                    $SheetNames = NeonExcelIO::getSheetNamesFromExcel($file_name);
+                    return Response::json(array("status" => "success", "SheetNames" => $SheetNames , "FileExtesion" => strtolower($excel->getClientOriginalExtension())));
+                }
             }
         } catch (Exception $ex) {
             Log::info($ex);

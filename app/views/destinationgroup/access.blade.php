@@ -201,11 +201,52 @@ var nm = 'king';
                     
                     "aoColumns": [
                         {  "bSortable": true },  // 0 Name
-                        {  "bSortable": true },  // country
-                        {  "bSortable": true },  // type
-                        {  "bSortable": true }, //prefix
-                        {  "bSortable": true },  //city
-                        {  "bSortable": true },  //Tariff
+                        {  "bSortable": true ,
+                            mRender: function ( id, type, full ) {
+                                var output = full[1];
+                                if(output == '' || output == 0){
+                                    return 'All';
+                                }
+                                return output;
+                            }
+                        
+                        },  // country
+                        {  "bSortable": true ,
+                            mRender: function ( id, type, full ) {
+                                var output = full[2];
+                                if(output == '' || output == 0){
+                                    return 'All';
+                                }
+                                return output;
+                            }
+                        },  // type
+                        {  "bSortable": true ,
+                            mRender: function ( id, type, full ) {
+                                var output = full[3];
+                                if(output == '' || output == 0){
+                                    return 'All';
+                                }
+                                return output;
+                            }
+                        }, //prefix
+                        {  "bSortable": true,
+                            mRender: function ( id, type, full ) {
+                                var output = full[4];
+                                if(output == '' || output == 0){
+                                    return 'All';
+                                }
+                                return output;
+                            }
+                        },  //city
+                        {  "bSortable": true , 
+                            mRender: function ( id, type, full ) {
+                                var output = full[5];
+                                if(output == '' || output == 0){
+                                    return 'All';
+                                }
+                                return output;
+                            }
+                        },  //Tariff
                         {  "bSortable": true }, //created by
                         {  "bSortable": true },  //created at
                         {  "bSortable": false,
@@ -291,32 +332,28 @@ var nm = 'king';
                 for(var i = 0 ; i< list_fields.length; i++){
                     if(list_fields[i] == 'CountryID')
                     {   
-
                         var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
-
-                        
-                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
-                        
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('val', select2value);
                     } 
                     else if(list_fields[i] == 'Type')
                     {   
                         var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
-                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('val', select2value);
                     } 
 
                     else if(list_fields[i] == 'City')
                     {   
                         var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
-                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('val', select2value);
                     } else if(list_fields[i] == 'Tariff')
                     {
                         var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
-                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('val', select2value);
                     }
                     else if(list_fields[i] == 'Prefix')
                     {
                         var select2value = cur_obj.find("[name="+list_fields[i]+"]").val();
-                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('data',{id: select2value, text: select2value});
+                        $("#modal-form-data [name='"+list_fields[i]+"']").select2('val', select2value);
                     }
                     else if(list_fields[i] == 'PackageID')
                     {   

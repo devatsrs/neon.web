@@ -44,6 +44,9 @@
         </li>
         <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-credit-card" ></i> <span>Billing</span> </a>
             <ul>
+                    @if(User::checkCategoryPermission('BillingDashboard','All'))
+                    <li class="{{ active_url_class("billingdashboard") }}"> <a href="{{Url::to('/billingdashboard')}}"><span>Analysis</span> </a> </li>
+                  @endif
                 {{-- <li> <a href="{{URL::to('/estimates')}}">  <span>Estimates</span> </a> </li> --}}
                 <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
                 <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>

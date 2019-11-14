@@ -1352,6 +1352,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_dashboard/paymentreminders', 'BillingDashboard@PaymentReminders');
 	Route::any('/billing_dashboard/paymentreminders_ajax_datagrid', 'BillingDashboard@paymentreminders_ajax_datagrid');
 	Route::any('/billing_dashboard/outpayment_ajax_datagrid', 'BillingDashboard@outpayment_ajax_datagrid');
+	Route::any('/billing_dashboard/exports/{type}', 'BillingDashboard@paymentreminders_export');
+	
 
 
 	//AccountPaymentProfile

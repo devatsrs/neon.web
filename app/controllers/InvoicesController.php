@@ -16,11 +16,13 @@ class InvoicesController extends \BaseController {
         $data['IssueDateStart'] 	 =  empty($data['IssueDateStart'])?'0000-00-00 00:00:00':$data['IssueDateStart'];
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $data['Overdue'] = $data['Overdue']== 'true'?1:0;
+        $data['BillingType'] = !isset($data['BillingType']) ? 0 : $data['BillingType'];
+        $data['AutoPay'] = !isset($data['AutoPay']) ? 0 : $data['AutoPay'];
+        $data['PaymentMethod'] = !isset($data['PaymentMethod']) ? '' : $data['PaymentMethod'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['InvoiceStatus'] = is_array($data['InvoiceStatus'])?implode(',',$data['InvoiceStatus']):$data['InvoiceStatus'];
-       // $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
-        
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
+        $data['ResellerOwner'] = !isset($data['ResellerOwner']) || empty($data['ResellerOwner']) || $data['ResellerOwner'] == "undefined" ?'0':$data['ResellerOwner'];
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID']).",".$data['BillingType'].",'".$data['AutoPay']."','".$data['PaymentMethod']."',".$data['ResellerOwner']."";
         $InvoiceHideZeroValue = Invoice::getCookie('InvoiceHideZeroValue');
         // Account Manager Condition
         $userID = 0;
@@ -87,16 +89,17 @@ class InvoicesController extends \BaseController {
         $data['IssueDateEnd'] = empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
         $data['Overdue'] = $data['Overdue']== 'true'?1:0;
+        $data['BillingType'] = !isset($data['BillingType']) ? 0 : $data['BillingType'];
+        $data['AutoPay'] = !isset($data['AutoPay']) ? 0 : $data['AutoPay'];
+        $data['PaymentMethod'] = !isset($data['PaymentMethod']) ? '' : $data['PaymentMethod'];
         $sort_column = $columns[$data['iSortCol_0']];
-        //$data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
-        
+        $data['ResellerOwner'] = !isset($data['ResellerOwner']) || empty($data['ResellerOwner']) || $data['ResellerOwner'] == "undefined" ?'0':$data['ResellerOwner'];
         // Account Manager Condition
         $userID = 0;
         if(User::is('AccountManager')) { // Account Manager
             $userID = User::get_userID();
         }
-
-        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
+        $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID']).",".$data['BillingType'].",'".$data['AutoPay']."','".$data['PaymentMethod']."',".$data['ResellerOwner']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
                 $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,1,"",'.$userID.',"'.$data['tag'].'")');
@@ -1918,7 +1921,7 @@ public function store_inv_in(){
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
                // $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-			    $templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($Invoice->CompanyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
+			    $templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($Invoice->CompanyID, Invoice::EMAILTEMPLATE, $Account->LanguageID);
 				$data['InvoiceURL']	 =   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email=#email');
 			//	$Subject	 		 = 	 $templateData->Subject;
 			//	$Message 	 		 = 	 $templateData->TemplateBody;		
@@ -2683,7 +2686,7 @@ public function store_inv_in(){
         }
         $companyID = User::get_companyID();
         if(!empty($data['InvoiceIDs'])){
-            $query = "call prc_getInvoice (".$companyID.",0,'','0000-00-00 00:00:00','0000-00-00 00:00:00',0,'',0,1 ,".count($data['InvoiceIDs']).",'','',''";
+            $query = "call prc_getInvoice (".$companyID.",0,'','0000-00-00 00:00:00','0000-00-00 00:00:00',0,'',0,1 ,".count($data['InvoiceIDs']).",'','','','','','','',''";
             if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
                 $query = $query.',0,2,0';
             }else{
@@ -3832,9 +3835,9 @@ public function store_inv_in(){
             $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID). "/";
             $isAmazon = is_amazon($CompanyID);
             foreach ($Invoices as $invoice) {
+               
                 if (!empty($invoice->UblInvoice)) {
                     $path = AmazonS3::preSignedUrl($invoice->UblInvoice, $CompanyID);
-
                     if (file_exists($path)) {
                         $zipfiles[$invoice->InvoiceID] = $path;
                     } else if ($isAmazon == true) {

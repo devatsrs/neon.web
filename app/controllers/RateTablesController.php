@@ -403,6 +403,9 @@ class RateTablesController extends \BaseController {
                 $criteria['Blocked']                = isset($criteria['Blocked']) && $criteria['Blocked'] != '' ? "'".$criteria['Blocked']."'" : 'NULL';
                 $criteria['ApprovedStatus']         = isset($criteria['ApprovedStatus']) && $criteria['ApprovedStatus'] != '' ? "'".$criteria['ApprovedStatus']."'" : 'NULL';
 
+                $PercentageCondition                = !empty($criteria['PercentageCondition']) && $criteria['PercentageCondition'] == '>=' ? '>=' : '<=';
+                $criteria['Percentage']             = isset($criteria['Percentage']) && $criteria['Percentage'] != '' ? "'".$PercentageCondition.$criteria['Percentage']."'" : 'NULL';
+
                 $RateTableID                = $id;
                 $RateTableRateID            = $data['RateTableRateID'];
 
@@ -419,7 +422,7 @@ class RateTablesController extends \BaseController {
                     $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 } else {
                     $success_message = 'Rates Successfully Deleted';
-                    $query = "call prc_RateTableRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "'," . $p_criteria . "," . $action . ")";
+                    $query = "call prc_RateTableRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . "," . $criteria['Percentage'] . ",'" . $username . "'," . $p_criteria . "," . $action . ")";
                 }
                 //Log::info($query);
 
@@ -587,6 +590,9 @@ class RateTablesController extends \BaseController {
                 $criteria['Blocked']                = isset($criteria['Blocked']) && $criteria['Blocked'] != '' ? "'".$criteria['Blocked']."'" : 'NULL';
                 $criteria['ApprovedStatus']         = isset($criteria['ApprovedStatus']) && $criteria['ApprovedStatus'] != '' ? "'".$criteria['ApprovedStatus']."'" : 'NULL';
 
+                $PercentageCondition                = !empty($criteria['PercentageCondition']) && $criteria['PercentageCondition'] == '>=' ? '>=' : '<=';
+                $criteria['Percentage']             = isset($criteria['Percentage']) && $criteria['Percentage'] != '' ? "'".$PercentageCondition.$criteria['Percentage']."'" : 'NULL';
+
                 $RateTableID                = $id;
                 $RateTableRateID            = $data['RateTableRateID'];
                 $OriginationRateID          = !empty($OriginationRateID) ? $OriginationRateID : 'NULL';
@@ -603,7 +609,7 @@ class RateTablesController extends \BaseController {
                 if($data['ApprovedStatus'] == RateTable::RATE_STATUS_APPROVED) {
                     $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RoutingCategoryID . "," . $Preference . "," . $Blocked . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "'," . $p_criteria . "," . $action . ")";
                 } else {
-                    $query = "call prc_RateTableRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "'," . $p_criteria . "," . $action . ")";
+                    $query = "call prc_RateTableRateAAUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $MinimumDuration . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $RateCurrency . "," . $ConnectionFeeCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . "," . $criteria['Percentage'] . ",'" . $username . "'," . $p_criteria . "," . $action . ")";
                 }
                 //Log::info($query);
 
@@ -684,6 +690,9 @@ class RateTablesController extends \BaseController {
                 $criteria['Blocked']                = isset($criteria_all['Blocked']) && $criteria_all['Blocked'] != '' ? "'".$criteria_all['Blocked']."'" : 'NULL';
                 $criteria['ApprovedStatus']         = isset($criteria_all['ApprovedStatus']) && $criteria_all['ApprovedStatus'] != '' ? "'".$criteria_all['ApprovedStatus']."'" : 'NULL';
 
+                $PercentageCondition                = !empty($criteria['PercentageCondition']) && $criteria['PercentageCondition'] == '>=' ? '>=' : '<=';
+                $criteria['Percentage']             = isset($criteria['Percentage']) && $criteria['Percentage'] != '' ? "'".$PercentageCondition.$criteria['Percentage']."'" : 'NULL';
+
                 $RateTableID                = $id;
                 $RateTableRateID            = $data['RateTableRateID'];
 
@@ -695,7 +704,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableRateApprove (" . $RateTableID . ",'" . $RateTableRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableRateApprove (" . $RateTableID . ",'" . $RateTableRateID . "','" . $data['ApprovedStatus'] . "'," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['RoutingCategoryID'] . "," . $criteria['Preference'] . "," . $criteria['Blocked'] . "," . $criteria['ApprovedStatus'] . "," . $criteria['Percentage'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 //Log::info($query);
 
                 $ApprovedStatus = $data['ApprovedStatus'] == 1 ? 'Approve' : 'Reject';
@@ -1018,6 +1027,7 @@ class RateTablesController extends \BaseController {
         $RateTableName = str_replace( '\/','-',$RateTableName);
         $RateTableName = str_replace( '/','-',$RateTableName);
         $RateTableName = str_replace( '&','-',$RateTableName);
+        $RateTableName = str_replace( ' ','_',$RateTableName);
 
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rate Table Rates.csv';
