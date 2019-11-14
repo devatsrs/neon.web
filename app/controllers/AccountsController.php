@@ -3457,7 +3457,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = getParentCompanyIdIfReseller($CompanyID);
         $Country = $data['Country'];
         $CustomerAccount = $data['Customer'] == "true" ? 1 : 0;
-        $PartnerAccount =  $data['Partner'] == "true" ? 1 : 0;
+        if(!is_reseller()){
+            $PartnerAccount =  $data['Partner'] == "true" ? 1 : 0;
+        }else{
+            $PartnerAccount = 0;
+        }
+        
         $RegisterDutchFoundation = 0;
         $DutchProvider = 0;
         if($PartnerAccount == 1){
