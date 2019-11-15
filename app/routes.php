@@ -1663,6 +1663,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('reseller/bulkcopydata', 'ResellerController@bulkcopydata');
 	Route::any('reseller/getdomainurl/{id}', 'ResellerController@getdomainurl');
 	Route::any('/reseller/getdata/{id}','ResellerController@getdataofreseller');
+	Route::any('/reseller/accounts/{id}','ResellerController@getreselleraccount');
+	
+
+	
 
 	//Reseller
 	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));
