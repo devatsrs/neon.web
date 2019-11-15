@@ -325,8 +325,18 @@ class AccountsController extends \BaseController {
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
         if ($data['IsAffiliateAccount'] == 1) {
             Account::$rules['CommissionPercentage'] = 'required';
+            //Account::$rules['AffiliateAccounts'] = 'required';
         }
 
+        if ($data['IsAffiliateAccount'] == 1) {
+            if(empty($data['AffiliateAccounts'])){
+                return Response::json(array("status" => "failed", "message" => "Please Select Atleast One Affiliate Account."));
+            }
+            $AffiliateAccount = array();
+            $AffiliateAccount['AffiliateAccounts'] = implode(",",$data['AffiliateAccounts']);
+            unset($data['AffiliateAccounts']);
+        }
+        
         if(DynamicFields::where(['CompanyID' => getParentCompanyIdIfReseller($companyID), 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
             Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
@@ -622,6 +632,10 @@ class AccountsController extends \BaseController {
             $AccountDetails['AccountID'] = $account->AccountID;
             AccountDetails::create($AccountDetails);
 
+            if ($data['IsAffiliateAccount'] == 1) {
+                $AffiliateAccount['AccountID'] = $account->AccountID;
+                AffiliateAccount::create($AffiliateAccount);
+            }
 
             $account->update($data);
 
@@ -906,7 +920,13 @@ class AccountsController extends \BaseController {
                 $customers = array('' => 'Select') + Account::where('CompanyID',$resellers->ChildCompanyID)->lists('AccountName','AccountID');
             }
         }
-
+        $Affiliate = AffiliateAccount::where('AccountID',$account->AccountID)->first();
+        if($Affiliate){
+            $AffiliateAccounts = $Affiliate->AffiliateAccounts;
+        }else{
+            $AffiliateAccounts = '';
+        }
+        //dd($AffiliateAccount);
         $CustomerRatetable = AccountCustomerRatetable::where('AccountID',$id)->get();
         $CustomerServiceRatetable = AccountCustomerServiceRatetable::where('AccountID',$id)->get();
 
@@ -940,7 +960,7 @@ class AccountsController extends \BaseController {
         ]);
         $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$companyID)->first():[];
         return View::make('accounts.edit', compact('account','AffiliateAccount', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
-            'CustomerServiceRatetable','CustomerRatetable','CustomerServices','customers','frequency','Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table'));
+            'CustomerServiceRatetable','CustomerRatetable','CustomerServices','customers','frequency','Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table','AffiliateAccounts'));
     }
 
     /**
@@ -1096,6 +1116,16 @@ class AccountsController extends \BaseController {
         if ($data['IsAffiliateAccount'] == 1) {
             Account::$rules['CommissionPercentage'] = 'required';
         }
+
+        if ($data['IsAffiliateAccount'] == 1) {
+            if(empty($data['AffiliateAccounts'])){
+                return Response::json(array("status" => "failed", "message" => "Please Select Atleast One Affiliate Account."));
+            }
+            $AffiliateAccount = array();
+            $AffiliateAccount['AffiliateAccounts'] = implode(",",$data['AffiliateAccounts']);
+            unset($data['AffiliateAccounts']);
+        }
+
         if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
             Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
@@ -1376,9 +1406,9 @@ class AccountsController extends \BaseController {
             $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
         }
 
-        /* if ($data['IsAffiliateAccount'] == 0) {
+         if ($data['IsAffiliateAccount'] == 0) {
              unset($data['CommissionPercentage']);
-         }*/
+         }
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -1491,6 +1521,18 @@ class AccountsController extends \BaseController {
                 AccountDetails::find($AccountDetailsID)->update($AccountDetails);
             }else{
                 AccountDetails::create($AccountDetails);
+            }
+
+            if ($data['IsAffiliateAccount'] == 1) {
+                $Affiliate = AffiliateAccount::where('AccountID',$id);
+                if($Affiliate){
+                    $Affiliate->update($AffiliateAccount);
+                }else{
+                    $AffiliateAccount['AccountID'] = $id;
+                    AffiliateAccount::create($AffiliateAccount);
+                }
+                
+                
             }
 
             if(!empty($data['PaymentMethod'])) {
@@ -3415,7 +3457,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = getParentCompanyIdIfReseller($CompanyID);
         $Country = $data['Country'];
         $CustomerAccount = $data['Customer'] == "true" ? 1 : 0;
-        $PartnerAccount =  $data['Partner'] == "true" ? 1 : 0;
+        if(!is_reseller()){
+            $PartnerAccount =  $data['Partner'] == "true" ? 1 : 0;
+        }else{
+            $data['PartnerID'] = Reseller::getResellerID();
+            $PartnerAccount = 0;
+        }
         $RegisterDutchFoundation = 0;
         $DutchProvider = 0;
         if($PartnerAccount == 1){

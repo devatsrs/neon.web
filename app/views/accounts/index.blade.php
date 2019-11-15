@@ -501,7 +501,13 @@
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
                                         action += '&nbsp;<button redirecto="'+connection_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></button>';
                                     <?php } ?>
-                                } 								
+                                }
+
+                                if(full[28]==1 && full[12]=='{{Account::VERIFIED}}'){
+                                    <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
+                                        action += '&nbsp;<button title="Affliate" class="btn small_icons btn-info btn-xs" disabled><i class="entypo-users"></i></button>';
+                                    <?php } ?>
+                                }  								
 				
                                 try{
                                     if(full[27]==1){

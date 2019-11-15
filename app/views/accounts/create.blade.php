@@ -123,8 +123,8 @@
                                 <input type="text" name="Employee" class="form-control" placeholder="" value="{{Input::old('Employee')}}" />
                             </div>
                         </div>
-                        <div class="form-group hidden" id="AffiliateDiv">
-                            <label class="col-md-2 control-label hidden">Affiliate</label>
+                        <div class="form-group" id="AffiliateDiv">
+                            <label class="col-md-2 control-label">Affiliate</label>
                             <div class="col-md-4">
                                 <div class="make-switch switch-small" id="desablecustomer">
                                     <input type="checkbox"  name="IsAffiliateAccount" @if(Input::old('IsAffiliateAccount') == 1 )checked=""@endif value="1">
@@ -132,7 +132,7 @@
                             </div>
 
                         </div>
-                        <div class="form-group @if(!Input::old('IsAffiliateAccount') == 1 ) hidden @endif" id="AffiliateDetailDiv">
+                        <div class="form-group AffiliateDetailDiv @if(!Input::old('IsAffiliateAccount') == 1 ) hidden @endif">
 
 
                             <label class="col-md-2 control-label">Commission Percentage</label>
@@ -142,6 +142,14 @@
                             <label class="col-md-2 control-label">Duration Months</label>
                             <div class="col-md-4">
                                 <input type="text" name="DurationMonths" class="form-control" id="field-1" placeholder="" value="" />
+                            </div>
+                        </div>
+                        <div class="form-group AffiliateDetailDiv @if(!Input::old('IsAffiliateAccount') == 1 ) hidden @endif">
+
+
+                            <label class="col-md-2 control-label">Affiliate Accounts</label>
+                            <div class="col-md-10">
+                                    {{Form::select('AffiliateAccounts[]', Account::getCustomerAccountIDList([] , 1), '' ,array("class"=>"form-control select2", "multiple"))}}
                             </div>
                         </div>
 
@@ -594,9 +602,9 @@
             $('[name="IsAffiliateAccount"]').on("change",function(e){
                 if($('[name="IsAffiliateAccount"]').prop("checked") == true) {
 
-                    $("#AffiliateDetailDiv").removeClass('hidden');
+                    $(".AffiliateDetailDiv").removeClass('hidden');
                 }else {
-                    $("#AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
+                    $(".AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
                 }
             });
 
