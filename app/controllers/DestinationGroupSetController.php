@@ -147,7 +147,7 @@ class DestinationGroupSetController extends \BaseController {
         }
     }
     public function show($id) {
-    	$countries  = Country::getCountryByName();
+    	$countries  = Country::getCountryByID();
         $DestinationGroupSetID = $id;
         $CompanyID = User::get_companyID();
         $name = DestinationGroupSet::getName($id);

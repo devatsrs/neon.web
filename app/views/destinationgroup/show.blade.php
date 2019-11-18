@@ -151,7 +151,7 @@
 
             $('#filter-button-toggle').show();
 
-            var list_fields  = ["Name","Code","CountryID","Type","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID"];
+            var list_fields  = ["Name","Code","Country","Type","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID","CountryID"];
             //public_vars.$body = $("body");
             var $search = {};
 

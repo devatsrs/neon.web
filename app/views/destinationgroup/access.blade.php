@@ -152,7 +152,7 @@
 
             $('#filter-button-toggle').show();
 var nm = 'king';
-            var list_fields  = ["Name","CountryID","Type","Prefix","City","Tariff","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID"];
+            var list_fields  = ["Name","Country","Type","Prefix","City","Tariff","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID","CountryID"];
             //public_vars.$body = $("body");
             var $search = {};
 
