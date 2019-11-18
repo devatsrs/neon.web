@@ -123,10 +123,27 @@
                                 <input type="text" name="Employee" class="form-control" placeholder="" value="{{Input::old('Employee')}}" />
                             </div>
                         </div>
+
+                        @if(!is_reseller())
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Partner</label>
+                                <div class="col-md-4">
+                                    <div class="make-switch switch-small" id="desablereseller">
+                                        <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked="" @endif value="1">
+                                    </div>
+                                </div>
+
+                                <label class="col-md-2 control-label">Account Partner</label>
+                                <div class="col-md-4" id="disableresellerowner">
+                                    {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2 ResellerOwner"))}}
+                                </div>
+
+                            </div>
+                        @endif
                         <div class="form-group" id="AffiliateDiv">
                             <label class="col-md-2 control-label">Affiliate</label>
                             <div class="col-md-4">
-                                <div class="make-switch switch-small" id="desablecustomer">
+                                <div class="make-switch switch-small" id="desableaffiliate">
                                     <input type="checkbox"  name="IsAffiliateAccount" @if(Input::old('IsAffiliateAccount') == 1 )checked=""@endif value="1">
                                 </div>
                             </div>
@@ -149,26 +166,9 @@
 
                             <label class="col-md-2 control-label">Affiliate Accounts</label>
                             <div class="col-md-10">
-                                    {{Form::select('AffiliateAccounts[]', Account::getCustomerAccountIDList([] , 1), '' ,array("class"=>"form-control select2", "multiple"))}}
+                                    {{Form::select('AffiliateAccounts[]', $CustomerAccountsByReseller , '' ,array("class"=>"form-control select2", "id" => "affiliateaccounts" ,"multiple"))}}
                             </div>
                         </div>
-
-                        @if(!is_reseller())
-                            <div class="form-group">
-                                <label class="col-md-2 control-label">Partner</label>
-                                <div class="col-md-4">
-                                    <div class="make-switch switch-small" id="desablereseller">
-                                        <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked="" @endif value="1">
-                                    </div>
-                                </div>
-
-                                <label class="col-md-2 control-label">Account Partner</label>
-                                <div class="col-md-4" id="disableresellerowner">
-                                    {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2"))}}
-                                </div>
-
-                            </div>
-                        @endif
 
                         @if(is_reseller())
                             <input type="hidden" name="ResellerOwner" value="{{ @$reseller->ResellerID }}">
@@ -593,7 +593,25 @@
     <script type="text/javascript">
 
         jQuery(document).ready(function ($) {
-
+            function getCustomerAccouts(ele){
+            var that = $(ele);
+            var resellerid = $(ele).val() == '' ? 0 : $(ele).val(); 
+            $.ajax({
+                url : baseurl + '/reseller/accounts/' + resellerid,
+                type: 'get',
+                success:function(response){
+                    var options = $('#affiliateaccounts');
+                    options.empty();
+                    $.map(response, function( val, i ) {      
+                        options.append("<option value='"+ i +"'>"+val+"</option>");                                                 
+                    });
+                    options.select2();
+                }
+            })
+         }
+            $('.ResellerOwner').on('change',function(){
+                getCustomerAccouts(this);
+            })
             $("#save_account").click(function (ev) {
                 $('#save_account').button('loading');
                 $("#account-from").submit();
@@ -705,10 +723,13 @@
                 if($('[name="IsReseller"]').prop("checked") == true){
                     $('[name="IsCustomer"]').prop("checked", false).trigger('change');
                     $('[name="IsVendor"]').prop("checked", false).trigger('change');
+                    $('[name="IsAffiliateAccount"]').prop("checked", false).trigger('change');
+                    $('#desableaffiliate').addClass('deactivate')
                     $("#desablecustomer").addClass('deactivate');
                     $("#desablevendor").addClass('deactivate');
                     $('#disableresellerowner select').attr("disabled", "disabled");
                 }else{
+                    $('#desableaffiliate').removeClass('deactivate');
                     $("#desablecustomer").removeClass('deactivate');
                     $("#desablevendor").removeClass('deactivate');
                     $("#desablereseller").removeClass('deactivate');

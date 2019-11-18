@@ -540,4 +540,9 @@ class ResellerController extends BaseController {
             return Response::json(array("status" => "failed", "message" => "Partner Not Found!"));
         }
     }
+
+    public function getreselleraccount($id){
+        $Accounts = Account::getAccountByReseller($id);
+        return $Accounts;
+    }
 }

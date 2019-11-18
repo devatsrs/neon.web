@@ -25,6 +25,7 @@ class AccountsController extends \BaseController {
         $data['vendor_on_off'] = $data['vendor_on_off']== 'true'?1:0;
         $data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
         $data['reseller_on_off'] = $data['reseller_on_off']== 'true'?1:0;
+        $data['affliate_on_off'] = $data['affliate_on_off']== 'true'?1:0;
         $data['account_active'] = $data['account_active']== 'true'?1:0;
         $data['low_balance'] = $data['low_balance']== 'true'?1:0;
         //$data['account_name'] = $data['account_name']!= ''?$data['account_name']:'';
@@ -33,7 +34,7 @@ class AccountsController extends \BaseController {
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
         $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','UnbilledAmount','PermanentCredit','AccountExposure','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['ResellerOwner'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['affliate_on_off'].",".$data['ResellerOwner'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             \Illuminate\Support\Facades\Log::info("Account query ".$query.',2)');
@@ -209,12 +210,18 @@ class AccountsController extends \BaseController {
         //As per new question call the routing profile model for fetch the routing profile list.
         $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
         $TaxRates = TaxRate::getTaxRateDropdownIDList($company_id);
+        if(is_reseller()){
+            $CustomerAccountsByReseller =  Account::getAccountByReseller(Reseller::getResellerID());
+        }else{
+            $CustomerAccountsByReseller =  [];
+        }
+        
         //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
         $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$CompanyID)->first():[];
 
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
-        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID','TaxRates','reseller'));
+        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID','TaxRates','reseller','CustomerAccountsByReseller'));
     }
 
     /**
@@ -264,8 +271,8 @@ class AccountsController extends \BaseController {
             $AccountGateway = '';
         }
 
-        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
-            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
+        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0 && $data['IsAffiliateAccount'] == 0)
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor, AffiliateAccount or Partner."));
 
         if(is_reseller() && $data['IsCustomer'] == 0)
             return Response::json(array("status" => "failed", "message" => "Customer option should be checked."));
@@ -905,7 +912,7 @@ class AccountsController extends \BaseController {
         $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
-
+        $CustomerAccountsByReseller =  Account::getAccountByReseller($accountreseller);
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $PackageDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::PACKAGE,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
@@ -926,7 +933,6 @@ class AccountsController extends \BaseController {
         }else{
             $AffiliateAccounts = '';
         }
-        //dd($AffiliateAccount);
         $CustomerRatetable = AccountCustomerRatetable::where('AccountID',$id)->get();
         $CustomerServiceRatetable = AccountCustomerServiceRatetable::where('AccountID',$id)->get();
 
@@ -960,7 +966,7 @@ class AccountsController extends \BaseController {
         ]);
         $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$companyID)->first():[];
         return View::make('accounts.edit', compact('account','AffiliateAccount', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
-            'CustomerServiceRatetable','CustomerRatetable','CustomerServices','customers','frequency','Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table','AffiliateAccounts'));
+            'CustomerServiceRatetable','CustomerRatetable','CustomerServices','customers','frequency','Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table','AffiliateAccounts','CustomerAccountsByReseller'));
     }
 
     /**
@@ -1050,7 +1056,7 @@ class AccountsController extends \BaseController {
             $data['IsVendor']=0;
         }*/
 
-        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
+        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0 && $data['IsAffiliateAccount'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
         if(is_reseller() && $data['IsCustomer'] == 0)
@@ -3457,9 +3463,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = getParentCompanyIdIfReseller($CompanyID);
         $Country = $data['Country'];
         $CustomerAccount = $data['Customer'] == "true" ? 1 : 0;
-        if(!is_reseller()){
-            $PartnerAccount =  $data['Partner'] == "true" ? 1 : 0;
-        }else{
+        $PartnerAccount =  $data['Partner'] == "true" ? 1 : 0;
+        if(is_reseller()){
             $data['PartnerID'] = Reseller::getResellerID();
             $PartnerAccount = 0;
         }
