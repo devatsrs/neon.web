@@ -203,7 +203,7 @@
                         {  "bSortable": true ,
                             mRender: function ( id, type, full ) {
                                 var output = full[2];
-                                if(output == '' || output == 0){
+                                if(output == null || output == 0){
                                     return 'All';
                                 }
                                 return output;
