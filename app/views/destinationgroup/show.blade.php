@@ -151,7 +151,7 @@
 
             $('#filter-button-toggle').show();
 
-            var list_fields  = ["Name","Code","CountryID","Type","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID"];
+            var list_fields  = ["Name","Code","Country","Type","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID","CountryID"];
             //public_vars.$body = $("body");
             var $search = {};
 
@@ -203,7 +203,7 @@
                         {  "bSortable": true ,
                             mRender: function ( id, type, full ) {
                                 var output = full[2];
-                                if(output == '' || output == 0){
+                                if(output == null || output == 0){
                                     return 'All';
                                 }
                                 return output;
