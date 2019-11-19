@@ -736,6 +736,7 @@ class AccountsController extends \BaseController {
         $vendor   = $account->IsVendor?1:0;
         $Customer = $account->IsCustomer?1:0;
         $Reseller = $account->IsReseller?1:0;
+        $Affiliate = $account->IsAffiliateAccount?1:0;
         $ResellerOwner=0;
         $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         if(is_reseller()){
@@ -743,7 +744,7 @@ class AccountsController extends \BaseController {
         }
 
         //get account card data
-        $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$ResellerOwner."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
+        $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$Affiliate."','".$ResellerOwner."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
         Log::info("Show My Sql Query:" . $sql);
         $Account_card  				= 	 DB::select($sql);
         $Account_card  				=	 array_shift($Account_card);
