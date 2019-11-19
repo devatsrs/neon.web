@@ -1520,7 +1520,7 @@ class AccountsController extends \BaseController {
                     $Outbound['ServiceID'] = 0;
                     $Outbound['AccountServiceID'] = 0;
                     $Outbound['ModifiedBy'] = User::get_user_full_name();
-                    AccountDiscountPlan::where(['AccountID' => $id , 'DiscountPlanID' => $OutboundDiscountPlan])->update($Outbound);
+                    AccountDiscountPlan::where(['AccountID' => $id , 'DiscountPlanID' => $OutboundDiscountPlan , 'Type' =>  AccountDiscountPlan::OUTBOUND])->update($Outbound);
                     $Inbound = array();
                     $Inbound['AccountID'] = $account->AccountID;
                     $Inbound['DiscountPlanID'] = $InboundDiscountPlan;
@@ -1528,7 +1528,7 @@ class AccountsController extends \BaseController {
                     $Inbound['ServiceID'] = 0;
                     $Inbound['AccountServiceID'] = 0;
                     $Inbound['ModifiedBy'] = User::get_user_full_name();
-                    AccountDiscountPlan::where(['AccountID' => $id , 'DiscountPlanID' => $InboundDiscountPlan])->update($Inbound);
+                    AccountDiscountPlan::where(['AccountID' => $id , 'DiscountPlanID' => $InboundDiscountPlan , 'Type' =>  AccountDiscountPlan::INBOUND])->update($Inbound);
                     $Package = array();
                     $Package['AccountID'] = $account->AccountID;
                     $Package['DiscountPlanID'] = $PackageDiscountPlan;
@@ -1536,7 +1536,7 @@ class AccountsController extends \BaseController {
                     $Package['ServiceID'] = 0;
                     $Package['AccountServiceID'] = 0;
                     $Package['ModifiedBy'] = User::get_user_full_name();
-                    AccountDiscountPlan::where(['AccountID' => $id , 'DiscountPlanID' => $PackageDiscountPlan])->update($Package);
+                    AccountDiscountPlan::where(['AccountID' => $id , 'DiscountPlanID' => $PackageDiscountPlan , 'Type' =>  AccountDiscountPlan::PACKAGE])->update($Package);
 
                     // AccountDiscountPlan::addUpdateDiscountPlan($id, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                     // AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
