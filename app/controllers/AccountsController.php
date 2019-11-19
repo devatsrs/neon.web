@@ -1518,7 +1518,7 @@ class AccountsController extends \BaseController {
                         $Outbound['Type'] = AccountDiscountPlan::OUTBOUND;
                         $Outbound['ServiceID'] = 0;
                         $Outbound['AccountServiceID'] = 0;
-                        $OutboundDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'DiscountPlanID' => $data['DiscountPlanID'] , 'Type' =>  AccountDiscountPlan::OUTBOUND])->first();
+                        $OutboundDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'Type' =>  AccountDiscountPlan::OUTBOUND])->first();
                         if($OutboundDiscountPlan){
                             $Outbound['ModifiedBy'] = User::get_user_full_name();
                             $OutboundDiscountPlan->update($Outbound);
@@ -1534,7 +1534,7 @@ class AccountsController extends \BaseController {
                         $Inbound['Type'] = AccountDiscountPlan::INBOUND;
                         $Inbound['ServiceID'] = 0;
                         $Inbound['AccountServiceID'] = 0;
-                        $InboundDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'DiscountPlanID' => $data['InboundDiscountPlanID'] , 'Type' =>  AccountDiscountPlan::INBOUND])->first();
+                        $InboundDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'Type' =>  AccountDiscountPlan::INBOUND])->first();
                         if($InboundDiscountPlan){
                             $Inbound['ModifiedBy'] = User::get_user_full_name();
                             $InboundDiscountPlan->update($Inbound);
@@ -1550,7 +1550,7 @@ class AccountsController extends \BaseController {
                         $Package['Type'] = AccountDiscountPlan::PACKAGE;
                         $Package['ServiceID'] = 0;
                         $Package['AccountServiceID'] = 0;
-                        $PackageDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'DiscountPlanID' => $data['PackageDiscountPlanID'] , 'Type' =>  AccountDiscountPlan::PACKAGE])->first();
+                        $PackageDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'Type' =>  AccountDiscountPlan::PACKAGE])->first();
                         if($PackageDiscountPlan){
                             $Package['ModifiedBy'] = User::get_user_full_name();
                             $PackageDiscountPlan->update($Package);
