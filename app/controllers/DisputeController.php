@@ -418,7 +418,7 @@ class DisputeController extends \BaseController {
 							$destinationPath = CompanyConfiguration::get('UPLOAD_PATH',$Dispute->CompanyID) . '/' . $amazonPath;
 
 							if (!file_exists($destinationPath)) {
-								mkdir($destinationPath, 0777, true);
+								mkdir($destinationPath, 0775, true);
 							}
 							copy($array_file_data['filepath'], $destinationPath . $file_name);
 							if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath,$Dispute->CompanyID)) {
