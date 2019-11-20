@@ -140,10 +140,10 @@ class AmazonS3 {
 
         $dir = CompanyConfiguration::get('UPLOAD_PATH',$companyId) . '/'. $path;
         if (!file_exists($dir)) {
-            RemoteSSH::run("sudo mkdir -p -m 0775 " . $dir);
+            RemoteSSH::run("mkdir -p -m 0775 " . $dir);
             @mkdir($dir, 0775, TRUE);
         }
-        RemoteSSH::run("sudo chmod -R 0775 " . $dir);
+        RemoteSSH::run("chmod -R 0775 " . $dir);
 
         return $path;
     }
