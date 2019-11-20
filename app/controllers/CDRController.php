@@ -197,7 +197,7 @@ class CDRController extends BaseController {
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
 		$data['CurrencyID'] 		 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
         $data['tag'] 		    	 = 		empty($data['tag'])?'':$data['tag'];
-        $data['extension'] 			 = 		empty($data['extension'])?'':$data['extension'];
+        $data['UUID'] 			     = 		empty($data['UUID'])?'':$data['UUID'];
 
         $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",".(int)$data['ResellerOwner'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         //log::info("call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",".(int)$data['ResellerOwner'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)");
@@ -221,7 +221,7 @@ class CDRController extends BaseController {
                 });
             })->download('xls');*/
         }
-         $query .=',0,"'.$data['tag'].'","'.$data['extension'].'")';
+         $query .=',0,"'.$data['tag'].'","'.$data['UUID'].'")';
         log::info($query);
         //echo $query;die;
         return DataTableSql::of($query, 'sqlsrv2')->make();
