@@ -117,8 +117,11 @@
                   @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED)
            <a class="btn-info btn btn-default btn-xs" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}"><i class="fa fa-slideshare"></i></a>
                    @endif
-                  @if($account->IsReseller==1)
+                    @if($account->IsReseller==1)
                       <button class="btn-info btn btn-default btn-xs" title="Partner" onclick="checkreseller('{{ $account->AccountID }}')"><i class="entypo-users"></i></button>
+                   @endif
+                   @if($account->IsAffiliateAccount==1)
+                    <button title="Affliate" class="btn small_icons btn-info btn-xs" style="background:orange;border-color:orange;margin-bottom:0px !important;" disabled><i class="entypo-users"></i></button>
                    @endif
                   @endif
                    </div>
