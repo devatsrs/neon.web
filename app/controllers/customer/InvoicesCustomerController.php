@@ -140,7 +140,7 @@ class InvoicesCustomerController extends \BaseController {
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'Reseller', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
-                mkdir($destination_dir, 0777, true);
+                mkdir($destination_dir, 0775, true);
             }
             $save_path = $destination_dir .  GUID::generate().'-'. $file_name;
             PDF::loadHTML($body)->setPaper('a4')->setOrientation('potrait')->save($save_path);

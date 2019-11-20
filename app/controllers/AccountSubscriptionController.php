@@ -258,7 +258,7 @@ public function main() {
                         $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$companyID)."/";
                         $fileUrl=$companyID."/dynamicfields/";
                         if (!file_exists($upload_path.$fileUrl)) {
-                            mkdir($upload_path.$fileUrl, 0777, true);
+                            mkdir($upload_path.$fileUrl, 0775, true);
                         }
                         $dynamicImage = time().$companyID. $dynamicImage;
 
@@ -380,7 +380,7 @@ public function main() {
                                     $fileUrl = $companyID . "/dynamicfields/";
 
                                     if (!file_exists($upload_path . $fileUrl)) {
-                                        mkdir($upload_path . $fileUrl, 0777, true);
+                                        mkdir($upload_path . $fileUrl, 0775, true);
                                     }
 
                                     //rename with time img

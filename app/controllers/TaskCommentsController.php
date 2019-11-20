@@ -50,7 +50,7 @@ class TaskCommentsController extends \BaseController {
                 $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0777, true);
+                    mkdir($destinationPath, 0775, true);
                 }
                 copy($array_file_data['filepath'], $destinationPath . $file_name);
 

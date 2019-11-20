@@ -806,7 +806,7 @@ function bulk_mail($type,$data){
                 }
                 $dir = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
                 if (!file_exists($dir)) {
-                    mkdir($dir, 777, TRUE);
+                    mkdir($dir, 775, TRUE);
                 }
                 $Attachment->move($dir, $file_name);
                 if (!AmazonS3::upload($dir . '/' . $file_name, $amazonPath)) {

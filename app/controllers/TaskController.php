@@ -78,7 +78,7 @@ class TaskController extends \BaseController {
                 $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0777, true);
+                    mkdir($destinationPath, 0775, true);
                 }
                 $file_name = "TaskAttachment_". GUID::generate() . '.' . $ext;
                 $file->move($destinationPath, $file_name);

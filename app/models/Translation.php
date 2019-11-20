@@ -216,18 +216,18 @@ $html_translation[] = array("SystemName"=>$key, "Translation"=> str_replace("&nb
         if(!File::exists($JSON_File)){
             // File::makeDirectory($JSON_File);
             RemoteSSH::run("mkdir -p " . $JSON_File);
-            RemoteSSH::run("chmod -R 777 " . $JSON_File);
+            RemoteSSH::run("chmod -R 775 " . $JSON_File);
         }
-        RemoteSSH::run("chmod -R 777 " . $JSON_File."/routes.php");
+        RemoteSSH::run("chmod -R 775 " . $JSON_File."/routes.php");
         file_put_contents($JSON_File."/routes.php", "<?php ".$arr_valid );
 
         $service_path=dirname(CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"))."/resources/lang/";
         RemoteSSH::run("yes | cp -rf ".$JSON_File." ".$service_path);
-        RemoteSSH::run("chmod -R 777 " . $service_path.$lang_folder);
+        RemoteSSH::run("chmod -R 775 " . $service_path.$lang_folder);
 
         $api_path=public_path("neon.api/resources/lang/");
         RemoteSSH::run("yes | cp -rf ".$JSON_File." ".$api_path);
-        RemoteSSH::run("chmod -R 777 " . $api_path.$lang_folder);
+        RemoteSSH::run("chmod -R 775 " . $api_path.$lang_folder);
     }
 
 }
