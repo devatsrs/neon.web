@@ -184,19 +184,19 @@
                                 <input type="checkbox" id="selectall" name="checkbox[]" />
                             </div>
                         </th>
-                        <th width="10%" >Account Name</th>
-                        <th width="10%" >Connect Time</th>
-                        <th width="10%" >Disconnect Time</th>
-                        <th width="6%" >Billed Duration (sec)</th>
-                        <th width="6%" >Cost</th>
-                        <th width="6%" >Avg. Rate/Min</th>
-                        <th width="9%" >CLI</th>
-                        <th width="9%" >CLD</th>
-                        <th width="5%" >Prefix</th>
-                        <th width="6%" >Trunk</th>
-                        <th width="10%" >Service</th>
-                        <th width="10%" >Type</th>
-                        <th width="15%" >UUID</th>
+                        <th width="10%">Account Name</th>
+                        <th width="10%">Connect Time</th>
+                        <th width="10%">Disconnect Time</th>
+                        <th width="6%">Billed Duration (sec)</th>
+                        <th width="6%">Cost</th>
+                        <th width="6%">Avg. Rate/Min</th>
+                        <th width="9%">CLI</th>
+                        <th width="9%">CLD</th>
+                        <th width="5%">Prefix</th>
+                        <th width="6%">Trunk</th>
+                        <th width="10%">Service</th>
+                        <th width="10%">Type</th>
+                        <th width="15%">UUID</th>
                     </tr>
                     </thead>
                     <tbody>

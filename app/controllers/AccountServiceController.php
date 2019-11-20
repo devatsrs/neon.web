@@ -60,6 +60,7 @@ class AccountServiceController extends \BaseController {
         $AccountBilling =  AccountBilling::getBillingByAccountService($id,$AccountServiceID);
         $AccountNextBilling =  AccountNextBilling::getBillingByAccountService($id,$AccountServiceID);
 
+        
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
         $PackageDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::PACKAGE,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');

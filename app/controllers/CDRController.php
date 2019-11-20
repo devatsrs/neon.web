@@ -221,7 +221,7 @@ class CDRController extends BaseController {
                 });
             })->download('xls');*/
         }
-         $query .=',0,"'.$data['tag'].'","'.$data['UUID'].'")';
+        $query .=',0,"'.$data['tag'].'","'.$data['UUID'].'")';
         log::info($query);
         //echo $query;die;
         return DataTableSql::of($query, 'sqlsrv2')->make();
