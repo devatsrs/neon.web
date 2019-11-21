@@ -502,6 +502,16 @@ class NeonExcelIO
         download_file($this->file);
     }
 
+    public function download_excel_ajax($rows){
+        $this->write_excel($rows);
+        return $this->file;
+    }
+
+    public function download_csv_ajax($rows){
+        $this->write_csv($rows);
+        return $this->file;
+    }
+
     // get utf8 result
     public function utf8json($inArray) {
 

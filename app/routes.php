@@ -797,7 +797,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_upload/ajaxfilegrid', 'RateUploadController@ajaxfilegrid');
 	Route::any('/rate_upload/checkUpload', 'RateUploadController@checkUpload');
 	Route::any('/rate_upload/getTrunk/{type}', 'RateUploadController@getTrunk');
-        
+
+	Route::any('/rate_upload/refreshCityTariffMapping', 'RateUploadController@refreshCityTariffMapping');
+	Route::any('/rate_upload/city_tariff_mapping/export', 'RateUploadController@export_city_tariff_mapping');
+	Route::any('/rate_upload/city_tariff_mapping/download/{column}/{type}', 'RateUploadController@download_city_tariff_mapping');
 	Route::any('/rate_upload/getUploadTemplates/{type}', 'RateUploadController@getUploadTemplates');
 	Route::any('/rate_upload/{id}/getRateTableDetails', 'RateUploadController@getRateTableDetails');
 	Route::any('/rate_upload/{id}/{type}', 'RateUploadController@index');

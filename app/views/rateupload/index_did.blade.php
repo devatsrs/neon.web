@@ -700,6 +700,7 @@
                 }
                 var formData = new FormData($('#form-upload')[0]);
                 var importdialcodessheet = formData.get('importdialcodessheet');
+
                 show_loading_bar(0);
                 $.ajax({
                     url:  '{{URL::to('rate_upload/checkUpload')}}',  //Server script to process data
@@ -747,6 +748,12 @@
                                 $('li.box_dialcode a[href="#tab2"],li.box_dialcode a[href="#tabs2"]').parent('li').removeClass('active');
                                 $('li.box_dialcode a[href="#tab1"],li.box_dialcode a[href="#tabs1"]').parent('li').addClass('active');
                                 $('.box_code').show();
+                            }
+
+                            // trigger city tariff mapping screen
+                            if(formData.get('uploadtemplate') != "") {
+                                $('#btnCityMapping').trigger('click');
+                                $('#btnTariffMapping').trigger('click');
                             }
 
                             $('#add-template').removeClass('hidden');
@@ -823,6 +830,37 @@
 
             $("#save_template").click(function(e){
                 e.preventDefault();
+
+                var MappedCityList = [];
+                $('#add-template-form .CityList').each(function(i, obj) {
+                    var AccessType  = $(this).attr('attr-accesstype');
+                    var Country     = $(this).attr('attr-country');
+                    var Prefix      = $(this).attr('attr-prefix');
+                    var City        = $(this).attr('attr-city');
+                    var CityValue   = $(this).val();
+                    if(CityValue != '') {
+                        MappedCityList.push({
+                            'AccessType': AccessType, 'Country': Country, 'Prefix': Prefix, 'City': City, 'CityValue': CityValue
+                        });
+                    }
+                });
+                MappedCityList = JSON.stringify(MappedCityList);
+
+                var MappedTariffList = [];
+                $('#add-template-form .TariffList').each(function(i, obj) {
+                    var AccessType  = $(this).attr('attr-accesstype');
+                    var Country     = $(this).attr('attr-country');
+                    var Prefix      = $(this).attr('attr-prefix');
+                    var Tariff      = $(this).attr('attr-tariff');
+                    var TariffValue = $(this).val();
+                    if(TariffValue != '') {
+                        MappedTariffList.push({
+                            'AccessType': AccessType, 'Country': Country, 'Prefix': Prefix, 'Tariff': Tariff, 'TariffValue': TariffValue
+                        });
+                    }
+                });
+                MappedTariffList = JSON.stringify(MappedTariffList);
+
                 if($("#save_template").hasClass('reviewrates')) {
                     var formData = new FormData($('#add-template-form')[0]);
                     var poData = $(document.forms['form-upload']).serializeArray();
@@ -831,6 +869,8 @@
                             formData.append(poData[i].name, poData[i].value);
                         }
                     }
+                    formData.append('MappedCityList',MappedCityList);
+                    formData.append('MappedTariffList',MappedTariffList);
                     $.ajax({
                         url: '{{URL::to('rate_upload/reviewRates')}}', //Server script to process data
                         type: 'POST',
@@ -863,6 +903,8 @@
                             formData.append(poData[i].name, poData[i].value);
                         }
                     }
+                    formData.append('MappedCityList',MappedCityList);
+                    formData.append('MappedTariffList',MappedTariffList);
                     $.ajax({
                         url: '{{URL::to('rate_upload/storeTemplate')}}', //Server script to process data
                         type: 'POST',
@@ -1083,6 +1125,276 @@
                     addFieldToMapping(value);
                 });
                 $('#modal-manage-columns').modal('hide');
+            });
+
+            $('#btnCityMapping, #btnTariffMapping').on('click', function(e) {
+                e.preventDefault();
+
+                var id = $(this).attr('id');
+                var mapping_type = id == 'btnCityMapping' ? 'City' : 'Tariff';
+
+                var formData = new FormData($('#add-template-form')[0]);
+                var poData = $(document.forms['form-upload']).serializeArray();
+                for (var i=0; i<poData.length; i++){
+                    formData.append(poData[i].name, poData[i].value);
+                }
+                formData.append('mapping_type', mapping_type);
+                if($('#add-template-form select[name="selection['+mapping_type+']"]').val() == '') {
+                    $('#'+mapping_type+'MappingPanel').html('');
+                    toastr.error('Please select '+mapping_type+' column to load '+mapping_type+' mapping panel.', "Error", toastr_opts);
+                    return false;
+                }
+                $.ajax({
+                    url: '{{URL::to('rate_upload/refreshCityTariffMapping')}}',
+                    data: formData,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            var html = '';
+                            var mapped_html = '';
+                            var notmapped_html = '';
+                            var option = '';
+                            var columns = response.data.columns;
+                            var autoselect = 0;
+
+                            //var i = 0;
+                            // City Mapping Grid from file with City Dropdown (Not Mapped)
+                            $.each(response.data.grid, function(key, value) {
+                                var AccessType  = columns[0] == '' ? '' : value[columns[0]];
+                                var Country     = columns[1] == '' ? '' : value[columns[1]];
+                                var Prefix      = columns[2] == '' ? '' : value[columns[2]];
+                                var CityTariff  = columns[3] == '' ? '' : value[columns[3]];
+                                var html        = '';
+                                var options     = '';
+                                var select_class= mapping_type+'List';
+
+                                // city/tariff Dropdown options which match combination of AccessType, Country and Prefix
+                                // select option which also match with City/Tariff
+                                $.each(response.data.CityTariffForMapping, function(key, opvalue) {
+                                    // city/tariff Dropdown options which match combination of AccessType, Country and Prefix (compare prefix without leading 0)
+                                    if(AccessType == opvalue['accessType'] && Country == opvalue['country'] && Prefix.replace(/^0+/, '') == opvalue['prefixName'].replace(/^0+/, '')) {
+                                        var selected = CityTariff.toUpperCase() == opvalue[mapping_type].toUpperCase() ? 'selected' : '';
+                                        options += '<option ' +
+                                                'value="' + opvalue[mapping_type] + '" ' +
+                                                mapping_type + '="' + (opvalue[mapping_type] != null ? opvalue[mapping_type] : '') + '" ' +
+                                                'prefix="' + (opvalue['prefixName'] != null ? opvalue['prefixName'] : '') + '" ' +
+                                                'country="' + (opvalue['country'] != null ? opvalue['country'] : '') + '" ' +
+                                                'accesstype="' + (opvalue['accessType'] != null ? opvalue['accessType'] : '') + '" ' +
+                                                'countrycode="' + (opvalue['countryCode'] != null ? opvalue['countryCode'] : '') + '" ' +
+                                                selected +
+                                                '>' + opvalue[mapping_type] + '</option>';
+
+                                        if(selected != '') {
+                                            autoselect += 1;
+                                            select_class = 'Mapped'+mapping_type+'List';
+                                        }
+                                    }
+                                });
+
+                                html += '<div class="form-group">';
+                                html += '   <label class="col-sm-2 control-label" style="word-wrap: break-word; text-align: left">'+AccessType+'</label>';
+                                html += '   <label class="col-sm-2 control-label" style="word-wrap: break-word; text-align: left">'+Country+'</label>';
+                                html += '   <label class="col-sm-2 control-label" style="word-wrap: break-word; text-align: left">'+Prefix+'</label>';
+                                html += '   <label class="col-sm-2 control-label" style="word-wrap: break-word; text-align: left">'+CityTariff+'</label>';
+                                html += '   <div class="col-sm-2">';
+                                html += '       <select attr-accesstype="'+AccessType+'" attr-country="'+Country+'" attr-prefix="'+Prefix+'" attr-'+mapping_type+'="'+CityTariff+'" class="small '+mapping_type+'List '+select_class+'">';
+                                html += '           <option value="">Skip loading</option>';
+                                html += options;
+                                html += '       </select>';
+                                html += '   </div>';
+                                html += '</div>';
+
+                                if(autoselect == 0) {
+                                    notmapped_html += html;
+                                } else {
+                                    mapped_html += html;
+                                }
+                                autoselect = 0;
+
+                                //i++;
+                                //if(i==100) return false;
+                            });
+                            // load dynamic generated not mapped html in panel
+                            $('#'+mapping_type+'MappingPanel').html(notmapped_html);
+
+                            // City/Tariff Mapping Grid from template with City/Tariff Dropdown (Mapped)
+                            $.each(response.data.MappedCityTariffList, function(key, value) {
+                                var html = '';
+                                html += '<div class="form-group">';
+                                html += '   <label class="col-sm-2 control-label" style="word-wrap: break-word; text-align: left">'+value['AccessType']+'</label>';
+                                html += '   <label class="col-sm-2 control-label" style="word-wrap: break-word; text-align: left">'+value['Country']+'</label>';
+                                html += '   <label class="col-sm-2 control-label" style="word-wrap: break-word; text-align: left">'+value['Prefix']+'</label>';
+                                html += '   <label class="col-sm-2 control-label" style="word-wrap: break-word; text-align: left">'+value[mapping_type]+'</label>';
+                                html += '   <div class="col-sm-2">';
+                                html += '       <select attr-accesstype="'+value['AccessType']+'" attr-country="'+value['Country']+'" attr-prefix="'+value['Prefix']+'" attr-'+mapping_type+'="'+value[mapping_type]+'" class="small '+mapping_type+'List Mapped'+mapping_type+'List">';
+                                html += '           <option value="">Skip loading</option>';
+
+                                // city/tariff Dropdown options which match combination of AccessType, Country and Prefix
+                                // select option which also match with City/Tariff
+                                $.each(response.data.CityTariffForMapping, function(key, opvalue) {
+                                    // city/tariff Dropdown options which match combination of AccessType, Country and Prefix (compare prefix without leading 0)
+                                    if(value['AccessType'] == opvalue['accessType'] && value['Country'] == opvalue['country'] && value['Prefix'].replace(/^0+/, '') == opvalue['prefixName'].replace(/^0+/, '')) {
+                                        var selected = value[mapping_type+'Value'].toUpperCase() == opvalue[mapping_type].toUpperCase() ? 'selected' : '';
+                                        html += '<option ' +
+                                                'value="' + opvalue[mapping_type] + '" ' +
+                                                mapping_type + '="' + (opvalue[mapping_type] != null ? opvalue[mapping_type] : '') + '" ' +
+                                                'prefix="' + (opvalue['prefixName'] != null ? opvalue['prefixName'] : '') + '" ' +
+                                                'country="' + (opvalue['country'] != null ? opvalue['country'] : '') + '" ' +
+                                                'accesstype="' + (opvalue['accessType'] != null ? opvalue['accessType'] : '') + '" ' +
+                                                'countrycode="' + (opvalue['countryCode'] != null ? opvalue['countryCode'] : '') + '" ' +
+                                                selected +
+                                                '>' + opvalue[mapping_type] + '</option>';
+                                    }
+                                });
+                                html += '       </select>';
+                                html += '   </div>';
+                                html += '</div>';
+
+                                mapped_html += html;
+
+                                //i++;
+                                //if(i==100) return false;
+                            });
+                            // load dynamic generated mapped html in panel
+                            $('#'+mapping_type+'MappingPanelMapped').html(mapped_html);
+
+                            $('.btn.save').button('reset');
+                            $('#btn'+mapping_type+'Mapping').button('reset');
+                            $('#btn'+mapping_type+'MappingExportExcel, #btn'+mapping_type+'MappingExportCSV').show();
+                            show_loading_bar({
+                                pct: 100,
+                                delay: 2
+                            });
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                            $('.btn.save').button('reset');
+                            $('#btn'+mapping_type+'Mapping').button('reset');
+                            $('#btn'+mapping_type+'MappingExportExcel, #btn'+mapping_type+'MappingExportCSV').show();
+                            show_loading_bar({
+                                pct: 100,
+                                delay: 2
+                            });
+                        }
+                    },
+                    error: function () {
+                        toastr.error("error", "Error", toastr_opts);
+                        $('.btn.save').button('reset');
+                        $('#btn'+mapping_type+'Mapping').button('reset');
+                        $('#btn'+mapping_type+'MappingExportExcel, #btn'+mapping_type+'MappingExportCSV').show();
+                        show_loading_bar({
+                            pct: 100,
+                            delay: 2
+                        });
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function(){
+                        $('.btn.save').button('loading');
+                        $('#btn'+mapping_type+'Mapping').button('loading');
+                        $('#btn'+mapping_type+'MappingExportExcel, #btn'+mapping_type+'MappingExportCSV').hide();
+                        show_loading_bar({
+                            pct: 50,
+                            delay: 5
+                        });
+                    },
+                    afterSend: function(){
+                        //console.log("Afer Send");
+                    }
+                });
+            });
+
+            $('#btnCityMappingExportExcel, #btnCityMappingExportCSV, #btnTariffMappingExportExcel, #btnTariffMappingExportCSV').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).attr('id');
+                var type = 'csv';
+                if(id == 'btnCityMappingExportExcel' || id == 'btnTariffMappingExportExcel') {
+                    type = 'xlsx';
+                }
+                var mapping_column = '';
+                if(id == 'btnCityMappingExportExcel' || id == 'btnCityMappingExportCSV') {
+                    mapping_column = 'City';
+                } else {
+                    mapping_column = 'Tariff';
+                }
+
+                var MappedCityTariffList = [];
+                var NotMappedCityTariffList = [];
+                $('#add-template-form .'+mapping_column+'List').each(function(i, obj) {
+                    var AccessType      = $(this).attr('attr-accesstype');
+                    var Country         = $(this).attr('attr-country');
+                    var Prefix          = $(this).attr('attr-prefix');
+                    var CityTariff      = $(this).attr('attr-'+mapping_column);
+                    var CityTariffValue = $(this).val();
+
+                    var temp_obj = {};
+                    temp_obj['AccessType']       = AccessType;
+                    temp_obj['Country']          = Country;
+                    temp_obj['Prefix']           = Prefix;
+                    temp_obj[mapping_column]     = CityTariff;
+                    temp_obj[mapping_column+'Value'] = CityTariffValue;
+
+                    if ($(this).hasClass('Mapped'+mapping_column+'List')) {
+                        MappedCityTariffList.push(temp_obj);
+                    } else {
+                        NotMappedCityTariffList.push(temp_obj);
+                    }
+                });
+                //console.log([MappedCityTariffList,NotMappedCityTariffList]);return false;
+                MappedCityTariffList = JSON.stringify(MappedCityTariffList);
+                NotMappedCityTariffList = JSON.stringify(NotMappedCityTariffList);
+
+                var formData = new FormData();
+                formData.append('mapping_column',mapping_column);
+                formData.append('type',type);
+                formData.append('MappedCityTariffList',MappedCityTariffList);
+                formData.append('NotMappedCityTariffList',NotMappedCityTariffList);
+
+                $.ajax({
+                    url: '{{URL::to('rate_upload/city_tariff_mapping/export/')}}',
+                    data: formData,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        //toastr.success(response.message, "Success", toastr_opts);
+
+                        var win = window.open('{{URL::to('rate_upload/city_tariff_mapping/download')}}'+'/'+mapping_column+'/'+type, '_blank');
+                        if (win) {
+                            //Browser has allowed it to be opened
+                            win.focus();
+                        } else {
+                            //Browser has blocked it
+                            alert('Please allow popups for this website');
+                        }
+
+                        $('.btn.save').button('reset');
+                        $('#btnCityTariffMapping').button('reset');
+                        show_loading_bar({
+                            pct: 100,
+                            delay: 2
+                        });
+                    },
+                    error: function () {
+                        toastr.error("error", "Error", toastr_opts);
+                        $('.btn.save').button('reset');
+                        $('#btnCityTariffMapping').button('reset');
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function(){
+                        $('.btn.save').button('loading');
+                        $('#btnCityTariffMapping').button('loading');
+                        show_loading_bar({
+                            pct: 50,
+                            delay: 5
+                        });
+                    },
+                    afterSend: function(){
+                        //console.log("Afer Send");
+                    }
+                });
             });
         });
 
