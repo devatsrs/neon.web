@@ -1041,8 +1041,8 @@ class EstimatesController extends \BaseController {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
             $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
-            @mkdir($logo_path, 0777, true);
-            RemoteSSH::run("chmod -R 777 " . $logo_path);
+            @mkdir($logo_path, 0775, true);
+            RemoteSSH::run("chmod -R 775 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             $usage_data = array();
@@ -1069,7 +1069,7 @@ class EstimatesController extends \BaseController {
             $body = View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['ESTIMATE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
-                mkdir($destination_dir, 0777, true);
+                mkdir($destination_dir, 0775, true);
             }
             $save_path = $destination_dir .  GUID::generate().'-'. $file_name;
             PDF::loadHTML($body)->setPaper('a4')->setOrientation('potrait')->save($save_path);
@@ -1192,7 +1192,7 @@ class EstimatesController extends \BaseController {
 					$destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 	
 					if (!file_exists($destinationPath)) {
-						mkdir($destinationPath, 0777, true);
+						mkdir($destinationPath, 0775, true);
 					}
 					copy($array_file_data['filepath'], $destinationPath . $file_name);
 					if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {

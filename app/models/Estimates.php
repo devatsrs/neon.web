@@ -74,8 +74,8 @@ class Estimate extends \Eloquent {
                 $as3url = (AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key,$CompanyID));
             }
             $logo_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) . '/logo/' . $CompanyID;
-            @mkdir($logo_path, 0777, true);
-            RemoteSSH::run("chmod -R 777 " . $logo_path);
+            @mkdir($logo_path, 0775, true);
+            RemoteSSH::run("chmod -R 775 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
 
@@ -102,9 +102,9 @@ class Estimate extends \Eloquent {
             
 			if (!file_exists($destination_dir))
 			{
-                mkdir($destination_dir, 0777, true);
+                mkdir($destination_dir, 0775, true);
             }
-            RemoteSSH::run("chmod -R 777 " . $destination_dir);
+            RemoteSSH::run("chmod -R 775 " . $destination_dir);
 			
             $file_name 			= 	\Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name 		= 	\Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;

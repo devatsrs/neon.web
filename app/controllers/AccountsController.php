@@ -2429,9 +2429,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         $destination_dir = CompanyConfiguration::get('TEMP_PATH') . '/';
         if (!file_exists($destination_dir)) {
-            mkdir($destination_dir, 0777, true);
+            mkdir($destination_dir, 0775, true);
         }
-        RemoteSSH::run("chmod -R 777 " . $destination_dir);
+        RemoteSSH::run("chmod -R 775 " . $destination_dir);
         $file_name = $account->AccountName.' Account Activity Chart '. date('d-m-Y') . '.pdf';
         $htmlfile_name = $account->AccountName. ' Account Activity Chart ' . date('d-m-Y') . '.html';
 
