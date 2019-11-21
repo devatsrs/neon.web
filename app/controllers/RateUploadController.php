@@ -2398,9 +2398,9 @@ class RateUploadController extends \BaseController {
             $data['City']           = $City;
             $data['Tariff']         = $Tariff;
 
-            $CityFromFile       = $this->getCityTariffMapping($data);
+            $CityTariffFromFile     = $this->getCityTariffMapping($data);
 
-            $CityTariffForMapping = array('' => 'Skip loading') + ServiceTemplate::distinct()->select([$data['mapping_type'], "prefixName", "country", "accessType", "countryCode"])
+            $CityTariffForMapping   = array('' => 'Skip loading') + ServiceTemplate::distinct()->select([$data['mapping_type'], "prefixName", "country", "accessType", "countryCode"])
                     ->where("CompanyID", $CompanyID)->where($data['mapping_type'], '!=', '')->whereNotNull($data['mapping_type'])
                     ->orderBy($data['mapping_type'])->get()->toArray();
 
@@ -2415,11 +2415,11 @@ class RateUploadController extends \BaseController {
 
                 //if selected first row as data
                 if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
-                    $AccessTypeColumn   = 'Col'.$AccessTypeColumn;
-                    $CountryColumn      = 'Col'.$CountryColumn;
-                    $PrefixColumn       = 'Col'.$PrefixColumn;
-                    $CityColumn         = 'Col'.$CityColumn;
-                    $TariffColumn       = 'Col'.$TariffColumn;
+                    $AccessTypeColumn   = strpos($AccessTypeColumn,$prefixKeyword) === false ? 'Col'.$AccessTypeColumn : $AccessTypeColumn;
+                    $CountryColumn      = strpos($CountryColumn,$prefixKeyword) === false ? 'Col'.$CountryColumn : $CountryColumn;
+                    $PrefixColumn       = strpos($PrefixColumn,$prefixKeyword) === false ? 'Col'.$PrefixColumn : $PrefixColumn;
+                    $CityColumn         = strpos($CityColumn,$prefixKeyword) === false ? 'Col'.$CityColumn : $CityColumn;
+                    $TariffColumn       = strpos($TariffColumn,$prefixKeyword) === false ? 'Col'.$TariffColumn : $TariffColumn;
                 }
 
                 //$data['mapping_type'] value will be either 'City' or 'Tariff'
@@ -2438,7 +2438,7 @@ class RateUploadController extends \BaseController {
 
                 // created new array with all the values as key which needs to compare
                 $compare_array = array();
-                foreach($CityFromFile['grid'] AS $key => $val){
+                foreach($CityTariffFromFile['grid'] AS $key => $val){
                     if (array_key_exists($AccessTypeColumn, $AccessTypes)) {// if Country selected from Neon Database
                         $val[$AccessTypeColumn] = str_replace($prefixKeyword,'',$AccessTypeColumn);
                     } else {
@@ -2470,14 +2470,14 @@ class RateUploadController extends \BaseController {
                     }
                 }
                 // Compare all values by a json_encode
-                $diff = array_diff(array_map('json_encode', $CityFromFile['grid']), array_map('json_encode', $remove_from_file_array));
+                $diff = array_diff(array_map('json_encode', $CityTariffFromFile['grid']), array_map('json_encode', $remove_from_file_array));
                 // Json decode the result
                 $diff = array_map(function ($json) { return json_decode($json, true); }, $diff);
                 // reindex array after removing matched data
-                $CityFromFile['grid'] = array_values(array_map("unserialize", array_unique(array_map("serialize", $diff))));
+                $CityTariffFromFile['grid'] = array_values(array_map("unserialize", array_unique(array_map("serialize", $diff))));
             }
 
-            $response = $CityFromFile;
+            $response = $CityTariffFromFile;
             $response['MappedCityTariffList']   = $MappedCityTariffList;
             $response['CityTariffForMapping']   = $CityTariffForMapping;
 
@@ -2503,11 +2503,11 @@ class RateUploadController extends \BaseController {
 
         //if selected first row as data
         if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
-            $AccessTypeColumn   = 'Col'.$AccessTypeColumn;
-            $CountryColumn      = 'Col'.$CountryColumn;
-            $PrefixColumn       = 'Col'.$PrefixColumn;
-            $CityColumn         = 'Col'.$CityColumn;
-            $TariffColumn       = 'Col'.$TariffColumn;
+            $AccessTypeColumn   = strpos($AccessTypeColumn,$data['prefixKeyword']) === false ? 'Col'.$AccessTypeColumn : $AccessTypeColumn;
+            $CountryColumn      = strpos($CountryColumn,$data['prefixKeyword']) === false ? 'Col'.$CountryColumn : $CountryColumn;
+            $PrefixColumn       = strpos($PrefixColumn,$data['prefixKeyword']) === false ? 'Col'.$PrefixColumn : $PrefixColumn;
+            $CityColumn         = strpos($CityColumn,$data['prefixKeyword']) === false ? 'Col'.$CityColumn : $CityColumn;
+            $TariffColumn       = strpos($TariffColumn,$data['prefixKeyword']) === false ? 'Col'.$TariffColumn : $TariffColumn;
         }
 
         if($data['mapping_type'] == 'City') { // City
