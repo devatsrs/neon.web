@@ -79,7 +79,7 @@ class CDRCustomerController extends BaseController {
                 //$body = View::make('customer.cdr.genpdf', compact('excel_data'));
                 $body = self::generate_html($excel_data);
                 $destination_dir = CompanyConfiguration::get('UPLOAD_PATH')."/";
-                RemoteSSH::run("chmod -R 777 " . $destination_dir);
+                RemoteSSH::run("chmod -R 775 " . $destination_dir);
                 $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
                 $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
                 Log::info($htmlfile_name);

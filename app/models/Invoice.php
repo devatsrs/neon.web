@@ -129,11 +129,11 @@ class Invoice extends \Eloquent {
                 $as3url = (AmazonS3::unSignedUrl($Reseller->LogoAS3Key,$Account->CompanyId));
             }
             $logo_path = CompanyConfiguration::get('UPLOAD_PATH',$Account->CompanyId) . '/logo/' . $Account->CompanyId;
-            @mkdir($logo_path, 0777, true);
-            RemoteSSH::run("chmod -R 777 " . $logo_path);
+            @mkdir($logo_path, 0775, true);
+            RemoteSSH::run("chmod -R 775 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
-            @chmod($logo,0777);
+            @chmod($logo,0775);
 
             //$InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
             $dateFormat = isset($Reseller->InvoiceDateFormat) ? $Reseller->InvoiceDateFormat : '';
@@ -173,24 +173,24 @@ class Invoice extends \Eloquent {
              $destination_dir = CompanyConfiguration::get('UPLOAD_PATH',$Account->CompanyId) . '/'. $amazonPath;
 			
             if (!file_exists($destination_dir)) {
-                mkdir($destination_dir, 0777, true);
+                mkdir($destination_dir, 0775, true);
             } 
-            RemoteSSH::run("chmod -R 777 " . $destination_dir);
+            RemoteSSH::run("chmod -R 775 " . $destination_dir);
 
             $local_file = $destination_dir .  $file_name; 
 
             $local_htmlfile = $destination_dir .  $htmlfile_name; 
             file_put_contents($local_htmlfile,$body);
-            @chmod($local_htmlfile,0777);
+            @chmod($local_htmlfile,0775);
             $footer_name = 'footer-'. $common_name .'.html';
             $footer_html = $destination_dir.$footer_name;
             file_put_contents($footer_html,$footer);
-            @chmod($footer_html,0777);
+            @chmod($footer_html,0775);
 
             $header_name = 'header-'. $common_name .'.html';
             $header_html = $destination_dir.$header_name;
             file_put_contents($header_html,$header);
-            @chmod($footer_html,0777);
+            @chmod($footer_html,0775);
 
             $output= "";
            /* if(getenv('APP_OS') == 'Linux'){
@@ -215,7 +215,7 @@ class Invoice extends \Eloquent {
             }else{
                 exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
-            @chmod($local_file,0777);
+            @chmod($local_file,0775);
             Log::info($output); 
             @unlink($local_htmlfile);
             @unlink($footer_html);
@@ -244,14 +244,14 @@ class Invoice extends \Eloquent {
             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH',$Account->CompanyId) . '/'. $amazonPath;
 
             if (!is_dir($destination_dir)) {
-                mkdir($destination_dir, 0777, true);
+                mkdir($destination_dir, 0775, true);
             }
 
             $local_file = $destination_dir . $file_name;
             file_put_contents($local_file, $body);
-            @chmod($local_file,0777);
+            @chmod($local_file,0775);
 
-            RemoteSSH::run("chmod -R 777 " . $destination_dir);
+            RemoteSSH::run("chmod -R 775 " . $destination_dir);
             if (file_exists($local_file)) {
                 $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
                 if (AmazonS3::upload($local_file, $amazonPath,$Account->CompanyId)) {

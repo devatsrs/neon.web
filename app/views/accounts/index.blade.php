@@ -43,6 +43,12 @@
                         <input id="Vendor_on_off" name="vendor_on_off" type="checkbox" value="1">
                     </p>
                 </div>
+                <div class="form-group">
+                    <label class="control-label">Affliate</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="Vendor_on_off" name="affliate_on_off" type="checkbox" value="1">
+                    </p>
+                </div>
                 @if(is_reseller())
                 @else
                 <div class="form-group">
@@ -281,6 +287,7 @@
 			"customer_on_off":$("#account_filter [name='customer_on_off']").prop("checked"),
 			"reseller_on_off":$("#account_filter [name='reseller_on_off']").prop("checked"),
 			"vendor_on_off":$("#account_filter [name='vendor_on_off']").prop("checked"),
+            "affliate_on_off":$("#account_filter [name='affliate_on_off']").prop("checked"),
             "low_balance":$("#account_filter [name='low_balance']").prop("checked"),
 			"account_active":$("#account_filter [name='account_active']").prop("checked"),
 			"SelectedIDs":SelectedIDs,
@@ -316,6 +323,7 @@
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.reseller_on_off = $("#account_filter [name='reseller_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
+        $searchFilter.affliate_on_off = $("#account_filter [name='affliate_on_off']").prop("checked");
         $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
         $searchFilter.ipclitext = $("#account_filter [name='IPCLIText']").val();
@@ -339,6 +347,7 @@
                                 {"name":"customer_on_off","value":$searchFilter.customer_on_off},
                                 {"name":"reseller_on_off","value":$searchFilter.reseller_on_off},
                                 {"name":"vendor_on_off","value":$searchFilter.vendor_on_off},
+                                {"name":"affliate_on_off","value":$searchFilter.affliate_on_off},
                                 {"name":"low_balance","value":$searchFilter.low_balance},
                                 {"name":"account_active","value":$searchFilter.account_active},
                                 {"name":"verification_status","value":$searchFilter.verification_status},
@@ -355,6 +364,7 @@
                                 {"name":"customer_on_off","value":$searchFilter.customer_on_off},
                                 {"name":"reseller_on_off","value":$searchFilter.reseller_on_off},
                                 {"name":"vendor_on_off","value":$searchFilter.vendor_on_off},
+                                {"name":"affliate_on_off","value":$searchFilter.affliate_on_off},
                                 {"name":"low_balance","value":$searchFilter.low_balance},
                                 {"name":"account_active","value":$searchFilter.account_active},
                                 {"name":"verification_status","value":$searchFilter.verification_status},
@@ -501,7 +511,13 @@
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
                                         action += '&nbsp;<button redirecto="'+connection_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></button>';
                                     <?php } ?>
-                                } 								
+                                }
+
+                                if(full[28]==1 && full[12]=='{{Account::VERIFIED}}'){
+                                    <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
+                                        action += '&nbsp;<button title="Affliate" class="btn small_icons btn-info btn-xs" style="background:orange;border-color:orange;" disabled><i class="entypo-users"></i></button>';
+                                    <?php } ?>
+                                }  								
 				
                                 try{
                                     if(full[27]==1){
@@ -798,6 +814,7 @@
         $searchFilter.ResellerOwner = $("#account_filter [name='ResellerOwner']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
+        $searchFilter.affliate_on_off = $("#account_filter [name='affliate_on_off']").prop("checked");
         $searchFilter.reseller_on_off = $("#account_filter [name='reseller_on_off']").prop("checked");
         $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");

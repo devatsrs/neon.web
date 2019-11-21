@@ -33,18 +33,18 @@ class PaymentGateway extends \Eloquent {
     );
 
     public static $paymentgateway_byname = array(''=>'' ,
-        'AuthorizeNet' => 'AuthorizeNet',
-        'Stripe'=>'Stripe',
-        'StripeACH'=>'StripeACH',
-        'SagePayDirectDebit'=>'SagePayDirectDebit',
-        'FideliPay'=>'FideliPay',
-        'PeleCard'=>'PeleCard',
-        'MerchantWarrior'=>'MerchantWarrior',
-        'AuthorizeNetEcheck'=>'AuthorizeNetEcheck',
-        'FastPay'=>'FastPay',
+        // 'AuthorizeNet' => 'AuthorizeNet',
+        // 'Stripe'=>'Stripe',
+        // 'StripeACH'=>'StripeACH',
+        // 'SagePayDirectDebit'=>'SagePayDirectDebit',
+        // 'FideliPay'=>'FideliPay',
+        // 'PeleCard'=>'PeleCard',
+        // 'MerchantWarrior'=>'MerchantWarrior',
+        // 'AuthorizeNetEcheck'=>'AuthorizeNetEcheck',
+        // 'FastPay'=>'FastPay',
         'Ingenico'=>'Ingenico',
-        'WireTransfer'=>'WireTransfer',
-        'DirectDebit'=>'DirectDebit'
+        'WireTransfer'=>'Bank Transfer',
+        'DirectDebit'=>'Direct Debit'
     );
 
     public static function getName($PaymentGatewayID)

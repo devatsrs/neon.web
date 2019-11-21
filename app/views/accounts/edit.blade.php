@@ -160,25 +160,6 @@
                                 <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                             </div>
                         </div>
-                        <div class="form-group hidden" id="AffiliateDiv">
-                            <label class="col-md-2 control-label">Affiliate</label>
-                            <div class="col-md-4">
-                                <div class="make-switch switch-small" id="desablecustomer">
-                                    <input type="checkbox"  name="IsAffiliateAccount" @if($account->IsAffiliateAccount == 1 )checked="" @endif value="1">
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="form-group hidden @if($account->IsAffiliateAccount != 1 ) hidden @endif" id="AffiliateDetailDiv">
-                            <label class="col-md-2 control-label">Commission Percentage</label>
-                            <div class="col-md-4">
-                                <input type="text" name="CommissionPercentage" class="form-control" id="field-1" placeholder="" value="{{isset($account->CommissionPercentage) ? $account->CommissionPercentage : "5" }}" />
-                            </div>
-                            <label class="col-md-2 control-label">Duration Months</label>
-                            <div class="col-md-4">
-                                <input type="text" name="DurationMonths" class="form-control" id="field-1" placeholder="" value="{{$account->DurationMonths}}" />
-                            </div>
-                        </div>
                         @if(!is_reseller())
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Partner</label>
@@ -194,6 +175,38 @@
                                 </div>
                             </div>
                         @endif
+                        <div class="form-group" id="AffiliateDiv">
+                            <label class="col-md-2 control-label">Affiliate</label>
+                            <div class="col-md-4">
+                                <div class="make-switch switch-small" id="desableaffiliate">
+                                    <input type="checkbox"  name="IsAffiliateAccount" @if($account->IsAffiliateAccount == 1 )checked="" @endif value="1">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group AffiliateDetailDiv @if($account->IsAffiliateAccount != 1 ) hidden @endif" id="">
+                            <label class="col-md-2 control-label">Commission Percentage</label>
+                            <div class="col-md-4">
+                                <input type="text" name="CommissionPercentage" class="form-control" id="field-1" placeholder="" value="{{isset($account->CommissionPercentage) ? $account->CommissionPercentage : "5" }}" />
+                            </div>
+                            <label class="col-md-2 control-label">Duration Months</label>
+                            <div class="col-md-4">
+                                <input type="text" name="DurationMonths" class="form-control" id="field-1" placeholder="" value="{{$account->DurationMonths}}" />
+                            </div>
+                        </div>
+                        <?php
+                            $AffiliateAccountArray1 = array();
+                            $AffiliateAccountArray = explode("," ,$AffiliateAccounts);
+                            foreach ($AffiliateAccountArray as $Affiliate) {
+                                $AffiliateAccountArray1[$Affiliate]=$Affiliate;
+                            }
+                        ?>
+                        <div class="form-group AffiliateDetailDiv @if($account->IsAffiliateAccount != 1 ) hidden @endif">
+                            <label class="col-md-2 control-label">Affiliate Accounts</label>
+                            <div class="col-md-10">
+                                    {{Form::select('AffiliateAccounts[]',$CustomerAccountsByReseller, $AffiliateAccountArray1 ,array("class"=>"form-control select2", "multiple"))}}
+                            </div>
+                        </div>
 
                         @if(is_reseller())
                             <input type="hidden" name="ResellerOwner" value="{{ @$reseller->ResellerID }}">
@@ -1113,11 +1126,14 @@
                 if ($('[name="IsReseller"]').prop("checked") == true) {
                     $('[name="IsCustomer"]').prop("checked", false).trigger('change');
                     $('[name="IsVendor"]').prop("checked", false).trigger('change');
+                    $('[name="IsAffiliateAccount"]').prop("checked", false).trigger('change');
+                    $("#desableaffiliate").addClass('deactivate');
                     $("#desablecustomer").addClass('deactivate');
                     $("#desablevendor").addClass('deactivate');
                     //$("#desablereseller").addClass('deactivate');
                     $('#disableresellerowner select').attr("disabled", "disabled");
                 } else {
+                    $("#desableaffiliate").removeClass('deactivate');
                     $("#desablecustomer").removeClass('deactivate');
                     $("#desablevendor").removeClass('deactivate');
                     $("#desablereseller").removeClass('deactivate');
@@ -1129,9 +1145,9 @@
             $('[name="IsAffiliateAccount"]').on("change",function(e){
                 if($('[name="IsAffiliateAccount"]').prop("checked") == true) {
 
-                    $("#AffiliateDetailDiv").removeClass('hidden');
+                    $(".AffiliateDetailDiv").removeClass('hidden');
                 }else {
-                    $("#AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
+                    $(".AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
                     // $('[name="CommissionPercentage"]').val('');
                     // $('[name="DurationMonths"]').val(5);
 
@@ -1143,10 +1159,13 @@
                     if($('[name="IsReseller"]').prop("checked") == true){
                         $('[name="IsCustomer"]').prop("checked", false).trigger('change');
                         $('[name="IsVendor"]').prop("checked", false).trigger('change');
+                        $('[name="IsAffiliateAccount"]').prop("checked", false).trigger('change');
+                        $("#desableaffiliate").addClass('deactivate');
                         $("#desablecustomer").addClass('deactivate');
                         $("#desablevendor").addClass('deactivate');
                         $('#disableresellerowner select').attr("disabled", "disabled");
                     }else{
+                        $("#desableaffiliate").removeClass('deactivate');
                         $("#desablecustomer").removeClass('deactivate');
                         $("#desablevendor").removeClass('deactivate');
                         $('#disableresellerowner select').removeAttr("disabled");

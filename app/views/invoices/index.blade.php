@@ -32,6 +32,7 @@
                 <div class="form-group">
                     <label for="field-1" class="control-label">Payment Methods</label>
                     {{Form::select('PaymentMethod',array('' => 'Select') + PaymentGateway::$paymentgateway_byname,'',array("class"=>"select2"))}}
+                    
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Auto Pay</label>
@@ -190,8 +191,8 @@
         </div>
       </div>
     </div>
-    
-    <table class="table table-bordered datatable" id="table-4">
+
+    <table class="table table-bordered datatable table-responsive" style="overflow-x:scroll;display:block;" id="table-4">
       <thead>
         <tr>
           <th width="7%"> <div class="pull-left">
@@ -222,12 +223,7 @@
     </table>
   </div>
 </div>
-<style>
-.over{
-    width:2000px !important;
-    overflow-x: auto;
-}
-</style>
+
 <script type="text/javascript">
         var $searchFilter = {};
         var checked = '';
@@ -265,14 +261,11 @@
 
             $searchFilter.ResellerOwner = $("#invoice_filter [name='ResellerOwner']").val();
             
-            data_table = $("#table-4").dataTable({
-                "bDestroy": true,
+            data_table = $("#table-4").DataTable({
+                "bDestroy": true, // Destroy when resubmit form
                 "bProcessing": true,
                 "bServerSide": true,
                 "scrollX": true,
-                "initComplete": function(settings, json) { // to hide extra row which is displaying due to scrollX
-                    $('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
-                },
                 "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",

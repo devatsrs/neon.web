@@ -86,8 +86,8 @@
                     <input class="form-control tags" name="tag" type="text" >
                 </div>
                 <div class="form-group">
-                    <label class="control-label" for="field-1">Extension</label>
-                    <input type="text" name="extension" class="form-control mid_fld "  value="{{Input::get('extension')}}"  />
+                    <label class="control-label" for="field-1">UUID</label>
+                    <input type="text" name="UUID" class="form-control mid_fld "  value="{{Input::get('UUID')}}"  />
                 </div>
                 <!--
                 <div class="form-group">
@@ -184,19 +184,19 @@
                                 <input type="checkbox" id="selectall" name="checkbox[]" />
                             </div>
                         </th>
-                        <th width="15%" >Account Name</th>
-                        <th width="10%" >Connect Time</th>
-                        <th width="10%" >Disconnect Time</th>
-                        <th width="6%" >Billed Duration (sec)</th>
-                        <th width="6%" >Cost</th>
-                        <th width="6%" >Avg. Rate/Min</th>
-                        <th width="10%" >CLI</th>
-                        <th width="10%" >CLD</th>
-                        <th width="6%" >Prefix</th>
-                        <th width="8%" >Trunk</th>
-                        <th width="10%" >Service</th>
-                        <th width="10%" >Type</th>
-                        <th width="10%" >Extension</th>
+                        <th width="10%">Account Name</th>
+                        <th width="10%">Connect Time</th>
+                        <th width="10%">Disconnect Time</th>
+                        <th width="6%">Billed Duration (sec)</th>
+                        <th width="6%">Cost</th>
+                        <th width="6%">Avg. Rate/Min</th>
+                        <th width="9%">CLI</th>
+                        <th width="9%">CLD</th>
+                        <th width="5%">Prefix</th>
+                        <th width="6%">Trunk</th>
+                        <th width="10%">Service</th>
+                        <th width="10%">Type</th>
+                        <th width="15%">UUID</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -266,7 +266,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
             $searchFilter.tag 			        = 		$("#cdr_filter [name='tag']").val();
-            $searchFilter.extension 	        = 		$("#cdr_filter [name='extension']").val();
+            $searchFilter.UUID 	        = 		$("#cdr_filter [name='UUID']").val();
 
 
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
@@ -302,7 +302,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"Trunk","value":$searchFilter.Trunk},
                             {"name":"CurrencyID","value":$searchFilter.CurrencyID},
                             {"name":"tag","value":$searchFilter.tag},
-                            {"name":"extension","value":$searchFilter.extension}
+                            {"name":"UUID","value":$searchFilter.UUID}
                     );
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push(
@@ -320,7 +320,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"Trunk","value":$searchFilter.Trunk},
                             {"name":"CurrencyID","value":$searchFilter.CurrencyID},
                             {"name":"tag","value":$searchFilter.tag},
-                            {"name":"extension","value":$searchFilter.extension}
+                            {"name":"UUID","value":$searchFilter.UUID}
                     );
                 },
                 "sPaginationType": "bootstrap",

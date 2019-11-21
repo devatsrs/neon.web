@@ -383,7 +383,7 @@ class DiscountController extends \BaseController
         $DestinationGroupSetID = DiscountPlan::where(array('DiscountPlanID' => $id))->pluck('DestinationGroupSetID');
         $DestinationGroupSetRateType = DestinationGroupSet::where(array('DestinationGroupSetID' => $DestinationGroupSetID))->pluck('RateTypeID');
         $DestinationGroup = DestinationGroup::getDropdownIDList($DestinationGroupSetID);
-        $DiscountPlanComponents = DiscountPlan::exludedCompnents($DestinationGroupSetRateType);
+        $DiscountPlanComponents = array('All' => 'All') + DiscountPlan::exludedCompnents($DestinationGroupSetRateType);
         $name = DiscountPlan::getName($id);
         $discountplanapplied = DiscountPlan::isDiscountPlanApplied('DiscountPlan', 0, $id);
         return View::make('discountplan.show', compact('currencies', 'DestinationGroup', 'id', 'name', 'discountplanapplied','DiscountPlanComponents'));

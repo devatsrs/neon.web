@@ -152,7 +152,7 @@
 
             $('#filter-button-toggle').show();
 var nm = 'king';
-            var list_fields  = ["Name","CountryID","Type","Prefix","City","Tariff","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID"];
+            var list_fields  = ["Name","Country","Type","Prefix","City","Tariff","CreatedBy","created_at","DestinationGroupID","DestinationGroupSetID","CompanyID","CountryID"];
             //public_vars.$body = $("body");
             var $search = {};
 
@@ -204,7 +204,7 @@ var nm = 'king';
                         {  "bSortable": true ,
                             mRender: function ( id, type, full ) {
                                 var output = full[1];
-                                if(output == '' || output == 0){
+                                if(output == null || output == 0){
                                     return 'All';
                                 }
                                 return output;

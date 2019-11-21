@@ -51,10 +51,10 @@ class UploadFile{
 			
 			if (!file_exists($dirpath)){
                 RemoteSSH::run("mkdir -p " . $dirpath);
-                @mkdir($dirpath, 0777, TRUE);
+                @mkdir($dirpath, 0775, TRUE);
                     //mkdir($dirpath, 0777, true);
              }			
-            RemoteSSH::run("chmod -R 777 " . $dirpath);
+            RemoteSSH::run("chmod -R 775 " . $dirpath);
 
 			$Attachmenturl  =  AmazonS3::unSignedUrl($file['filepath']);  
 			file_put_contents($FileNewPath,file_get_contents($Attachmenturl));

@@ -1040,6 +1040,31 @@ class Account extends \Eloquent {
         return $Type;
     }
 
+    public static function getAccountByReseller($ResellerID){
+        $data = array();
+        if($ResellerID == 0 || $ResellerID == ''){
+          return [];
+        }
+        $Reseller = Reseller::find($ResellerID);
+        $data['CompanyID'] = $Reseller->ChildCompanyID;
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+        $data['Status'] = 1;
+        $data['isCustomer'] = 1;
+        if(!isset($data['AccountType'])) {
+            $data['AccountType'] = 1;
+            $data['VerificationStatus'] = Account::VERIFIED;
+        } 
+        
+        $row = Account::where($data)->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+       
+        return $row;
+    }
+
     public static function getAccountTypeForSubscriptions($AccountID){
         $account = Account::find($AccountID);
         $Type="";

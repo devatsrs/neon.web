@@ -312,7 +312,7 @@ class DestinationGroupController extends \BaseController {
                     $Action = $postdata['Action'];
                 }
                 $DestinationGroup->update($updatedata);
-                
+               
                 $insert_query = "call prc_insertUpdateDestinationCode(?,?,?,?,?,?)";
                 DB::statement($insert_query,array(intval($dgsid),$RateID,$CountryID,$Code,$Description,'Insert'));
             
@@ -414,6 +414,7 @@ class DestinationGroupController extends \BaseController {
                 if(isset($postdata['Action'])) {
                     $Action = $postdata['Action'];
                 }
+                //dd($postdata);
                 $DestinationGroup->update($updatedata);
                 $insert_query = "call prc_insertUpdateDestinationCode(?,?,?,?,?,?)";
                 DB::statement($insert_query,array(intval($DestinationGroup->DestinationGroupID),$RateID,$CountryID,$Code,$Description,$Action));
@@ -474,6 +475,7 @@ class DestinationGroupController extends \BaseController {
                 }
                 if(isset($postdata['CountryID'])) {
                     $updatedata['CountryName'] = $postdata['CountryID'];
+                    $updatedata['CountryID'] = $postdata['CountryID'];
                     $CountryID = intval($postdata['CountryID']);
                 }
                 if(isset($postdata['Description'])) {
