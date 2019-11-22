@@ -21,6 +21,14 @@ class Package extends \Eloquent
         return $DropdownIDList;
     }
 
+    public static function getPackageDD($CompanyID,$includePrefix=0){
+        //Name columns is code/package name
+        if($includePrefix == 1)
+            return Package::select('Name',DB::raw('CONCAT("DBDATA-",Name) AS NameValue'))->where("CompanyID",$CompanyID)->orderBy('Name')->lists("Name", "NameValue");
+        else
+            return Package::where("CompanyID",$CompanyID)->orderBy('Name')->lists("Name", "Name");
+    }
+
     public static function getDropdownIDListByCompany($CompanyID){
         $DropdownIDList = Package::where('CompanyId',$CompanyID)->lists('Name', 'PackageId');
         $DropdownIDList = array('' => "Select") + $DropdownIDList;

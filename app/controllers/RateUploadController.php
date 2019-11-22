@@ -46,10 +46,10 @@ class RateUploadController extends \BaseController {
         $CountryPrefix      = array('' => "Skip loading") + ServiceTemplate::getCountryPrefixDD($includePrefix);
         $AccessTypes        = array('' => "Skip loading") + ServiceTemplate::getAccessTypeDD($CompanyID,$includePrefix);
         $Codes              = array('' => "Skip loading") + ServiceTemplate::getPrefixDD($CompanyID,$includePrefix);
-        $City               = array('' => 'Skip loading') + ServiceTemplate::getCityDD($CompanyID,$includePrefix);;
-        $Tariff             = array('' => 'Skip loading') + ServiceTemplate::getTariffDD($CompanyID,$includePrefix);;
-        $CityFilter         = array('' => "All") + ServiceTemplate::getCityDD($CompanyID);;
-        $TariffFilter       = array('' => "All") + ServiceTemplate::getTariffDD($CompanyID);;
+        $City               = array('' => 'Skip loading') + ServiceTemplate::getCityDD($CompanyID,$includePrefix);
+        $Tariff             = array('' => 'Skip loading') + ServiceTemplate::getTariffDD($CompanyID,$includePrefix);
+        $CityFilter         = array('' => "All") + ServiceTemplate::getCityDD($CompanyID);
+        $TariffFilter       = array('' => "All") + ServiceTemplate::getTariffDD($CompanyID);
         $AccessTypeFilter   = array('' => "All") + ServiceTemplate::getAccessTypeDD($CompanyID);
 
         $CountryPrefix      = array('Map From Database'=>$CountryPrefix);
@@ -521,9 +521,12 @@ class RateUploadController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload rate file."));
             }
         }
-        $option["skipRows"]              = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
-        //$option["Sheet"]               = !empty($data['Sheet']) ? $data['Sheet'] : '';
-        $option["importratesheet"]       = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
+        $option["skipRows"]             = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
+        //$option["Sheet"]              = !empty($data['Sheet']) ? $data['Sheet'] : '';
+        $option["importratesheet"]      = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
+        $option["MappedCityList"]       = !empty($data['MappedCityList']) ? $data['MappedCityList'] : '';
+        $option["MappedTariffList"]     = !empty($data['MappedTariffList']) ? $data['MappedTariffList'] : '';
+        $option["MappedCodeList"]       = !empty($data['MappedCodeList']) ? $data['MappedCodeList'] : '';
 
         $save = array();
         $option["option"]       = $data['option'];
@@ -807,9 +810,12 @@ class RateUploadController extends \BaseController {
             }
         }
 
-        $option["skipRows"]              = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
-        //$option["Sheet"]               = !empty($data['Sheet']) ? $data['Sheet'] : '';
-        $option["importratesheet"]       = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
+        $option["MappedCityList"]       = !empty($data['MappedCityList']) ? $data['MappedCityList'] : '';
+        $option["MappedTariffList"]     = !empty($data['MappedTariffList']) ? $data['MappedTariffList'] : '';
+        $option["MappedCodeList"]       = !empty($data['MappedCodeList']) ? $data['MappedCodeList'] : '';
+        $option["skipRows"]             = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
+        //$option["Sheet"]              = !empty($data['Sheet']) ? $data['Sheet'] : '';
+        $option["importratesheet"]      = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
 
         $save = array();
         $option["option"]       = $data['option'];
@@ -861,6 +867,13 @@ class RateUploadController extends \BaseController {
         $joboptions = json_decode(json_encode($save));
         if (count($joboptions) > 0) {
 
+            if(isset($joboptions->uploadtemplate) && !empty($joboptions->uploadtemplate)){
+                $uploadtemplate     = FileUploadTemplate::find($joboptions->uploadtemplate);
+                $templateoptions    = json_decode($uploadtemplate->Options);
+            }else{
+                $templateoptions    = json_decode($joboptions->Options);
+            }
+
             if($data['RateUploadType'] == RateUpload::vendor) {
                 $MODEL = "TempVendorRate";
             } else if($data['RateUploadType'] == RateUpload::customer) {
@@ -869,15 +882,30 @@ class RateUploadController extends \BaseController {
                 $MODEL = "TempRateTableRate";
             } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
                 $MODEL = "TempRateTableDIDRate";
+
+                // get mapped city from template options
+                //$MappedCityList = json_decode($templateoptions->MappedCityList,true);
+                $MappedCityList = !empty($templateoptions->MappedCityList) ? json_decode($templateoptions->MappedCityList,true) : [];
+                $CompareMappedCityList = array();
+                foreach($MappedCityList AS $key => $val){
+                    $CompareMappedCityList[$val['AccessType'].'-'.$val['Country'].'-'.$val['Prefix'].'-'.$val['City']] = $val;
+                }
+                // get mapped tariff from template options
+                //$MappedTariffList = json_decode($templateoptions->MappedTariffList,true);
+                $MappedTariffList = !empty($templateoptions->MappedTariffList) ? json_decode($templateoptions->MappedTariffList,true) : [];
+                $CompareMappedTariffList = array();
+                foreach($MappedTariffList AS $key => $val){
+                    $CompareMappedTariffList[$val['AccessType'].'-'.$val['Country'].'-'.$val['Prefix'].'-'.$val['Tariff']] = $val;
+                }
             } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))) {
                 $MODEL = "TempRateTablePKGRate";
-            }
 
-            if(isset($joboptions->uploadtemplate) && !empty($joboptions->uploadtemplate)){
-                $uploadtemplate     = FileUploadTemplate::find($joboptions->uploadtemplate);
-                $templateoptions    = json_decode($uploadtemplate->Options);
-            }else{
-                $templateoptions    = json_decode($joboptions->Options);
+                // get mapped package from template options
+                $MappedCodeList = !empty($templateoptions->MappedCodeList) ? json_decode($templateoptions->MappedCodeList,true) : [];
+                $CompareMappedCodeList = array();
+                foreach($MappedCodeList AS $key => $val){
+                    $CompareMappedCodeList[$val['Code']] = $val;
+                }
             }
 
             $csvoption      = $templateoptions->option;
@@ -1948,6 +1976,26 @@ class RateUploadController extends \BaseController {
                             $tempdata['TimezonesID'] = $TimezoneID;
 
                             if (isset($tempdata['Code']) && isset($tempdata['Description']) && ((isset($tempdata['Rate']) || $CostComponentsMapped>0) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
+
+                                // for access city/tariff mapping
+                                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_did)) {
+                                    $check_city_key = $tempdata['AccessType'] . '-' . $tempdata['CountryCode'] . '-' . $tempdata['Code'] . '-' . $tempdata['City'];
+                                    if (array_key_exists($check_city_key, $CompareMappedCityList)) {
+                                        $tempdata['City'] = $CompareMappedCityList[$check_city_key]['CityValue'];
+                                    }
+                                    $check_tariff_key = $tempdata['AccessType'] . '-' . $tempdata['CountryCode'] . '-' . $tempdata['Code'] . '-' . $tempdata['Tariff'];
+                                    if (array_key_exists($check_tariff_key, $CompareMappedTariffList)) {
+                                        $tempdata['Tariff'] = $CompareMappedTariffList[$check_tariff_key]['TariffValue'];
+                                    }
+                                }
+                                // for package mapping
+                                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_pkg)) {
+                                    $check_code_key = $tempdata['Code'];
+                                    if (array_key_exists($check_code_key, $CompareMappedCodeList)) {
+                                        $tempdata['Code'] = $CompareMappedCodeList[$check_code_key]['CodeValue'];
+                                    }
+                                }
+
                                 if (isset($tempdata['EndDate'])) {
                                     $batch_insert_array[] = $tempdata;
                                 } else {
@@ -2343,4 +2391,411 @@ class RateUploadController extends \BaseController {
         }
         return $result;
     }
+
+    public function refreshCityTariffMapping() {
+        $data       = Input::all();
+        $CompanyID  = User::get_companyID();
+        if (!empty($data['TempFileName']) && file_exists($data['TempFileName'])) {
+            $data['Delimiter']  = $data['option']['Delimiter'];
+            $data['Enclosure']  = $data['option']['Enclosure'];
+            $data['Escape']     = $data['option']['Escape'];
+            $data['Firstrow']   = $data['option']['Firstrow'];
+
+            $prefixKeyword      = 'DBDATA-';
+            $includePrefix      = 1;
+            $CountryPrefix      = ServiceTemplate::getCountryPrefixDD($includePrefix);
+            $AccessTypes        = ServiceTemplate::getAccessTypeDD($CompanyID,$includePrefix);
+            $Codes              = ServiceTemplate::getPrefixDD($CompanyID,$includePrefix);
+            $City               = ServiceTemplate::getCityDD($CompanyID,$includePrefix);
+            $Tariff             = ServiceTemplate::getTariffDD($CompanyID,$includePrefix);
+
+            $data['prefixKeyword']  = $prefixKeyword;
+            $data['includePrefix']  = $includePrefix;
+            $data['CountryPrefix']  = $CountryPrefix;
+            $data['AccessTypes']    = $AccessTypes;
+            $data['Codes']          = $Codes;
+            $data['City']           = $City;
+            $data['Tariff']         = $Tariff;
+
+            $CityTariffFromFile     = $this->getCityTariffMapping($data);
+
+            $CityTariffForMapping   = array('' => 'Skip loading') + ServiceTemplate::distinct()->select([$data['mapping_type'], "prefixName", "country", "accessType", "countryCode"])
+                    ->where("CompanyID", $CompanyID)->where($data['mapping_type'], '!=', '')->whereNotNull($data['mapping_type'])
+                    ->orderBy($data['mapping_type'])->get()->toArray();
+
+            // if selected template
+            $MappedCityTariffList = [];
+            if(!empty($data['uploadtemplate'])) {
+                $AccessTypeColumn   = $data['selection']['AccessType'];
+                $CountryColumn      = $data['selection']['CountryCode'];
+                $PrefixColumn       = $data['selection']['Code'];
+                $CityColumn         = $data['selection']['City'];
+                $TariffColumn       = $data['selection']['Tariff'];
+
+                //if selected first row as data
+                if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                    $AccessTypeColumn   = strpos($AccessTypeColumn,$prefixKeyword) === false ? 'Col'.$AccessTypeColumn : $AccessTypeColumn;
+                    $CountryColumn      = strpos($CountryColumn,$prefixKeyword) === false ? 'Col'.$CountryColumn : $CountryColumn;
+                    $PrefixColumn       = strpos($PrefixColumn,$prefixKeyword) === false ? 'Col'.$PrefixColumn : $PrefixColumn;
+                    $CityColumn         = strpos($CityColumn,$prefixKeyword) === false ? 'Col'.$CityColumn : $CityColumn;
+                    $TariffColumn       = strpos($TariffColumn,$prefixKeyword) === false ? 'Col'.$TariffColumn : $TariffColumn;
+                }
+
+                //$data['mapping_type'] value will be either 'City' or 'Tariff'
+                if($data['mapping_type'] == 'City') { // City
+                    $CityTariffColumn        = $CityColumn;
+                    $MappedCityTariffListKey = 'MappedCityList';
+                } else { // Tariff
+                    $CityTariffColumn        = $TariffColumn;
+                    $MappedCityTariffListKey = 'MappedTariffList';
+                }
+
+                $uploadtemplate         = FileUploadTemplate::find($data['uploadtemplate']);
+                $templateoptions        = json_decode($uploadtemplate->Options);
+                //$MappedCityTariffList   = json_decode($templateoptions->$MappedCityTariffListKey,true);
+                $MappedCityTariffList   = !empty($templateoptions->$MappedCityTariffListKey) ? json_decode($templateoptions->$MappedCityTariffListKey,true) : [];
+
+                // created new array with all the values as key which needs to compare
+                $compare_array = array();
+                foreach($CityTariffFromFile['grid'] AS $key => $val){
+                    if (array_key_exists($AccessTypeColumn, $AccessTypes)) {// if Country selected from Neon Database
+                        $val[$AccessTypeColumn] = str_replace($prefixKeyword,'',$AccessTypeColumn);
+                    } else {
+                        $val[$AccessTypeColumn] = empty($val[$AccessTypeColumn]) ? '' : $val[$AccessTypeColumn];
+                    }
+                    if (array_key_exists($CountryColumn, $CountryPrefix)) {// if Country selected from Neon Database
+                        $val[$CountryColumn]    = str_replace($prefixKeyword,'',$CountryColumn);
+                    } else {
+                        $val[$CountryColumn]    = empty($val[$CountryColumn]) ? '' : $val[$CountryColumn];
+                    }
+                    if (array_key_exists($PrefixColumn, $Codes)) {// if Prefix selected from Neon Database
+                        $val[$PrefixColumn]     = str_replace($prefixKeyword,'',$PrefixColumn);
+                    } else {
+                        $val[$PrefixColumn]     = empty($val[$PrefixColumn]) ? '' : $val[$PrefixColumn];
+                    }
+                    if (array_key_exists($CityTariffColumn, $City)) {// if City selected from Neon Database
+                        $val[$CityTariffColumn] = str_replace($prefixKeyword, '', $CityTariffColumn);
+                    } else {
+                        $val[$CityTariffColumn] = empty($val[$CityTariffColumn]) ? '' : $val[$CityTariffColumn];
+                    }
+                    $compare_array[$val[$AccessTypeColumn].'-'.$val[$CountryColumn].'-'.$val[$PrefixColumn].'-'.$val[$CityTariffColumn]] = $val;
+                }
+
+                // created new array with only matched values from file and mapped city/tariff
+                $remove_from_file_array = array();
+                foreach($MappedCityTariffList AS $key => $val){
+                    if(isset($compare_array[$val['AccessType'].'-'.$val['Country'].'-'.$val['Prefix'].'-'.$val[$data['mapping_type']]])){
+                        $remove_from_file_array[] = $compare_array[$val['AccessType'].'-'.$val['Country'].'-'.$val['Prefix'].'-'.$val[$data['mapping_type']]];
+                    }
+                }
+                // Compare all values by a json_encode
+                $diff = array_diff(array_map('json_encode', $CityTariffFromFile['grid']), array_map('json_encode', $remove_from_file_array));
+                // Json decode the result
+                $diff = array_map(function ($json) { return json_decode($json, true); }, $diff);
+                // reindex array after removing matched data
+                $CityTariffFromFile['grid'] = array_values(array_map("unserialize", array_unique(array_map("serialize", $diff))));
+            }
+
+            $response = $CityTariffFromFile;
+            $response['MappedCityTariffList']   = $MappedCityTariffList;
+            $response['CityTariffForMapping']   = $CityTariffForMapping;
+
+            return Response::json(array("status" => "success", "data" => $response));
+        }
+
+        return Response::json(array("status" => "failed", "message" => "Please select a file."));
+    }
+
+    function getCityTariffMapping($data){
+        $grid       = [];
+        $file_name  = $data['TempFileName'];
+        $Sheet      = '';
+        if(isset($data['importratesheet'])) {
+            $Sheet = $data['importratesheet'];
+        }
+
+        $AccessTypeColumn   = $data['selection']['AccessType'];
+        $CountryColumn      = $data['selection']['CountryCode'];
+        $PrefixColumn       = $data['selection']['Code'];
+        $CityColumn         = $data['selection']['City'];
+        $TariffColumn       = $data['selection']['Tariff'];
+
+        //if selected first row as data
+        if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+            $AccessTypeColumn   = strpos($AccessTypeColumn,$data['prefixKeyword']) === false ? 'Col'.$AccessTypeColumn : $AccessTypeColumn;
+            $CountryColumn      = strpos($CountryColumn,$data['prefixKeyword']) === false ? 'Col'.$CountryColumn : $CountryColumn;
+            $PrefixColumn       = strpos($PrefixColumn,$data['prefixKeyword']) === false ? 'Col'.$PrefixColumn : $PrefixColumn;
+            $CityColumn         = strpos($CityColumn,$data['prefixKeyword']) === false ? 'Col'.$CityColumn : $CityColumn;
+            $TariffColumn       = strpos($TariffColumn,$data['prefixKeyword']) === false ? 'Col'.$TariffColumn : $TariffColumn;
+        }
+
+        if($data['mapping_type'] == 'City') { // City
+            $CityTariffColumn = $CityColumn;
+        } else { // Tariff
+            $CityTariffColumn = $TariffColumn;
+        }
+
+        $ColumnsArray   = array($AccessTypeColumn,$CountryColumn,$PrefixColumn,$CityTariffColumn);
+        $select_columns = array($AccessTypeColumn,$CountryColumn,$PrefixColumn,$CityTariffColumn);
+
+        if(isset($data["start_row"]) && isset($data["end_row"])){
+            NeonExcelIO::$start_row=$data["start_row"];
+            NeonExcelIO::$end_row=$data["end_row"];
+        }
+        $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
+        $results = $NeonExcel->read();
+
+        $grid_array = array();
+        foreach ($results as $outindex => $datarow) {
+            foreach ($datarow as $index => $singlerow) {
+                //if selected first row as data
+                if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                    $index = 'Col'.($index + 1);
+                }
+                if (strpos(strtolower($index), 'date') !== false) {
+                    $singlerow = str_replace('/', '-', $singlerow);
+                    $grid_array[$outindex][$index] = $singlerow;
+                }
+                //if(in_array($index,$select_columns) && trim($singlerow) != '') {
+                if(in_array($index,$select_columns)) {// && (strpos($CityTariffColumn,$data['prefixKeyword']) === false && $datarow[$CityTariffColumn] != '')
+                    if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                        $grid_array[$outindex][$index] = $singlerow;
+                    }else{
+                        $grid_array[$outindex][$index] = trim($singlerow);
+                    }
+                }
+            }
+            if (array_key_exists($AccessTypeColumn, $data['AccessTypes'])) {// if AccessType selected from Neon Database then add it in file grid
+                $grid_array[$outindex][$AccessTypeColumn] = trim(str_replace($data['prefixKeyword'],'',$AccessTypeColumn));
+            }
+            if (array_key_exists($CountryColumn, $data['CountryPrefix'])) {// if Country selected from Neon Database then add it in file grid
+                $grid_array[$outindex][$CountryColumn] = trim(str_replace($data['prefixKeyword'],'',$CountryColumn));
+            }
+            if (array_key_exists($PrefixColumn, $data['Codes'])) {// if Prefix selected from Neon Database then add it in file grid
+                $grid_array[$outindex][$PrefixColumn] = trim(str_replace($data['prefixKeyword'],'',$PrefixColumn));
+            }
+            if (array_key_exists($CityTariffColumn, $data[$data['mapping_type']])) {// if City/Tariff selected from Neon Database then add it in file grid
+                $grid_array[$outindex][$CityTariffColumn] = trim(str_replace($data['prefixKeyword'],'',$CityTariffColumn));
+            }
+        }
+        $grid_array         = array_values(array_map("unserialize", array_unique(array_map("serialize", $grid_array))));
+        $grid['grid']       = $grid_array;
+        $grid['columns']    = $ColumnsArray;
+
+        return $grid;
+    }
+
+    public function export_city_tariff_mapping() {
+        $data = Input::all();
+
+        $mapping_column             = $data['mapping_column'];
+        $type                       = $data['type'];
+        $MappedCityTariffList       = json_decode($data['MappedCityTariffList'],true);
+        $NotMappedCityTariffList    = json_decode($data['NotMappedCityTariffList'],true);
+
+        //echo "<pre>";print_r([$MappedCityList,$NotMappedCityList]);exit();
+
+        $blank_row_array = array(
+            array(
+                'AccessType' => '',
+                'Country' => '',
+                'Prefix' => '',
+                $mapping_column => '',
+                $mapping_column.'Value' => ''
+            ),
+            array(
+                '' => 'Mapped'
+            )
+        );
+
+        $export_data = array_merge($NotMappedCityTariffList, $blank_row_array, $MappedCityTariffList);
+
+        $file = '';
+        // if file name change here then also change it in download_city_tariff_mapping() function
+        if($type=='csv'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Rate Upload '.$mapping_column.' mapping.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $file = $NeonExcel->download_csv_ajax($export_data);
+        }elseif($type=='xlsx'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Rate Upload '.$mapping_column.' mapping.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $file = $NeonExcel->download_excel_ajax($export_data);
+        }
+        //return $file;
+        return Response::json(array("status" => "success"));
+    }
+
+    public function refreshPackageMapping() {
+        $data       = Input::all();
+        $CompanyID  = User::get_companyID();
+        if (!empty($data['TempFileName']) && file_exists($data['TempFileName'])) {
+            $data['Delimiter']  = $data['option']['Delimiter'];
+            $data['Enclosure']  = $data['option']['Enclosure'];
+            $data['Escape']     = $data['option']['Escape'];
+            $data['Firstrow']   = $data['option']['Firstrow'];
+
+            $prefixKeyword      = 'DBDATA-';
+            $includePrefix      = 1;
+            $Code               = Package::getPackageDD($CompanyID,$includePrefix);
+
+            $data['prefixKeyword']  = $prefixKeyword;
+            $data['includePrefix']  = $includePrefix;
+            $data['Code']           = $Code;
+
+            $CodeFromFile           = $this->getPackageMapping($data);
+
+            $CodeForMapping         = array('' => 'Skip loading') + Package::distinct()->select(DB::raw('Name AS Code'))
+                    ->where("CompanyID", $CompanyID)->orderBy('Name')->get()->toArray();
+
+            // if selected template
+            $MappedCodeList = [];
+            if(!empty($data['uploadtemplate'])) {
+                $CodeColumn = $data['selection']['Code'];
+
+                //if selected first row as data
+                if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                    $CodeColumn = strpos($CodeColumn,$prefixKeyword) === false ? 'Col'.$CodeColumn : $CodeColumn;
+                }
+
+                $MappedCodeListKey      = 'MappedCodeList';
+
+                $uploadtemplate         = FileUploadTemplate::find($data['uploadtemplate']);
+                $templateoptions        = json_decode($uploadtemplate->Options);
+                $MappedCodeList         = !empty($templateoptions->$MappedCodeListKey) ? json_decode($templateoptions->$MappedCodeListKey,true) : [];
+
+                // created new array with all the values as key which needs to compare
+                $compare_array = array();
+                foreach($CodeFromFile['grid'] AS $key => $val){
+                    if (array_key_exists($CodeColumn, $Code)) {// if Code/Package selected from Neon Database
+                        $val[$CodeColumn] = str_replace($prefixKeyword, '', $CodeColumn);
+                    } else {
+                        $val[$CodeColumn] = empty($val[$CodeColumn]) ? '' : $val[$CodeColumn];
+                    }
+                    $compare_array[$val[$CodeColumn]] = $val;
+                }
+
+                // created new array with only matched values from file and mapped code/package
+                $remove_from_file_array = array();
+                foreach($MappedCodeList AS $key => $val){
+                    if(isset($compare_array[$val[$data['mapping_type']]])){
+                        $remove_from_file_array[] = $compare_array[$val[$data['mapping_type']]];
+                    }
+                }
+                // Compare all values by a json_encode
+                $diff = array_diff(array_map('json_encode', $CodeFromFile['grid']), array_map('json_encode', $remove_from_file_array));
+                // Json decode the result
+                $diff = array_map(function ($json) { return json_decode($json, true); }, $diff);
+                // reindex array after removing matched data
+                $CodeFromFile['grid'] = array_values(array_map("unserialize", array_unique(array_map("serialize", $diff))));
+            }
+
+            $response                   = $CodeFromFile;
+            $response['MappedCodeList'] = $MappedCodeList;
+            $response['CodeForMapping'] = $CodeForMapping;
+
+            return Response::json(array("status" => "success", "data" => $response));
+        }
+
+        return Response::json(array("status" => "failed", "message" => "Please select a file."));
+    }
+
+    function getPackageMapping($data){
+        $grid       = [];
+        $file_name  = $data['TempFileName'];
+        $Sheet      = '';
+        if(isset($data['importratesheet'])) {
+            $Sheet = $data['importratesheet'];
+        }
+
+        $CodeColumn = $data['selection']['Code'];
+
+        //if selected first row as data
+        if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+            $CodeColumn = strpos($CodeColumn,$data['prefixKeyword']) === false ? 'Col'.$CodeColumn : $CodeColumn;
+        }
+
+        $ColumnsArray   = array($CodeColumn);
+        $select_columns = array($CodeColumn);
+
+        if(isset($data["start_row"]) && isset($data["end_row"])){
+            NeonExcelIO::$start_row=$data["start_row"];
+            NeonExcelIO::$end_row=$data["end_row"];
+        }
+        $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
+        $results = $NeonExcel->read();
+
+        $grid_array = array();
+        foreach ($results as $outindex => $datarow) {
+            foreach ($datarow as $index => $singlerow) {
+                //if selected first row as data
+                if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                    $index = 'Col'.($index + 1);
+                }
+                if (strpos(strtolower($index), 'date') !== false) {
+                    $singlerow = str_replace('/', '-', $singlerow);
+                    $grid_array[$outindex][$index] = $singlerow;
+                }
+                //if(in_array($index,$select_columns) && trim($singlerow) != '') {
+                if(in_array($index,$select_columns)) {// && (strpos($CodeColumn,$data['Code']) === false && $datarow[$CodeColumn] != '')
+                    if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                        $grid_array[$outindex][$index] = $singlerow;
+                    }else{
+                        $grid_array[$outindex][$index] = trim($singlerow);
+                    }
+                }
+            }
+            if (array_key_exists($CodeColumn, $data[$data['mapping_type']])) {// if Code/Package selected from Neon Database then add it in file grid
+                $grid_array[$outindex][$CodeColumn] = trim(str_replace($data['prefixKeyword'],'',$CodeColumn));
+            }
+        }
+        $grid_array         = array_values(array_map("unserialize", array_unique(array_map("serialize", $grid_array))));
+        $grid['grid']       = $grid_array;
+        $grid['columns']    = $ColumnsArray;
+
+        return $grid;
+    }
+
+    public function export_package_mapping() {
+        $data = Input::all();
+
+        $mapping_column     = $data['mapping_column'];
+        $type               = $data['type'];
+        $MappedCodeList     = json_decode($data['MappedCodeList'],true);
+        $NotMappedCodeList  = json_decode($data['NotMappedCodeList'],true);
+
+        //echo "<pre>";print_r([$MappedCityList,$NotMappedCityList]);exit();
+
+        $blank_row_array = array(
+            array(
+                $mapping_column => '',
+                $mapping_column.'Value' => ''
+            ),
+            array(
+                '' => 'Mapped'
+            )
+        );
+
+        $export_data = array_merge($NotMappedCodeList, $blank_row_array, $MappedCodeList);
+
+        $file = '';
+        // if file name change here then also change it in download_city_tariff_mapping() function
+        if($type=='csv'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Rate Upload Package mapping.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $file = $NeonExcel->download_csv_ajax($export_data);
+        }elseif($type=='xlsx'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Rate Upload Package mapping.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $file = $NeonExcel->download_excel_ajax($export_data);
+        }
+        //return $file;
+        return Response::json(array("status" => "success"));
+    }
+
+    public function download_mapping_exported_file($mapping_column,$type){
+        $ext = $type == 'csv' ? 'csv' : 'xls';
+        $filePath =  CompanyConfiguration::get('UPLOAD_PATH') .'/Rate Upload '.$mapping_column.' mapping.'.$ext;
+        download_file($filePath);
+    }
+
 }
