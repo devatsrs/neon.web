@@ -71,16 +71,7 @@
                     <label class="control-label" for="field-1">Prefix</label>
                     <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
                 </div>
-                <div class="form-group">
-                    <?php
-                    $trunk = Input::get('trunk');
-                    if((int)Input::get('TrunkID') > 0){
-                        $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
-                    }
-                    ?>
-                    <label class="control-label" for="field-1">Trunk</label>
-                    {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                </div>
+               
                 <div class="form-group">
                     <label class="control-label">Account Tag</label>
                     <input class="form-control tags" name="tag" type="text" >
@@ -133,10 +124,10 @@
 @include('includes.errors')
 @include('includes.success')
 
-    <a href="javascript:void(0)" id="cdr_rerate" class="btn btn-primary btn-sm btn-icon icon-left pull-right hidden">
+    {{-- <a href="javascript:void(0)" id="cdr_rerate" class="btn btn-primary btn-sm btn-icon icon-left pull-right hidden">
         <i class="entypo-check"></i>
         <span>CDR Rerate</span>
-    </a>
+    </a> --}}
 <style>
 .small_fld{width:80.6667%;}
 .small_label{width:5.0%;}
@@ -187,16 +178,13 @@
                         <th width="10%">Account Name</th>
                         <th width="10%">Connect Time</th>
                         <th width="10%">Disconnect Time</th>
-                        <th width="6%">Billed Duration (sec)</th>
+                        <th width="10%">Billed Duration (sec)</th>
                         <th width="6%">Cost</th>
-                        <th width="6%">Avg. Rate/Min</th>
                         <th width="9%">CLI</th>
                         <th width="9%">CLD</th>
                         <th width="5%">Prefix</th>
-                        <th width="6%">Trunk</th>
-                        <th width="10%">Service</th>
                         <th width="10%">Type</th>
-                        <th width="15%">UUID</th>
+                        <th width="10%">UUID</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -264,7 +252,6 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").val();
 			$searchFilter.CurrencyID 			= 		$("#cdr_filter [name='CurrencyID']").val();
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
-            $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
             $searchFilter.tag 			        = 		$("#cdr_filter [name='tag']").val();
             $searchFilter.UUID 	        = 		$("#cdr_filter [name='UUID']").val();
 
@@ -299,7 +286,6 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"CLD","value":$searchFilter.CLD},
                             {"name":"zerovaluecost","value":$searchFilter.zerovaluecost},
                             {"name":"area_prefix","value":$searchFilter.area_prefix},
-                            {"name":"Trunk","value":$searchFilter.Trunk},
                             {"name":"CurrencyID","value":$searchFilter.CurrencyID},
                             {"name":"tag","value":$searchFilter.tag},
                             {"name":"UUID","value":$searchFilter.UUID}
@@ -317,7 +303,6 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"CLD","value":$searchFilter.CLD},
                             {"name":"zerovaluecost","value":$searchFilter.zerovaluecost},
                             {"name":"area_prefix","value":$searchFilter.area_prefix},
-                            {"name":"Trunk","value":$searchFilter.Trunk},
                             {"name":"CurrencyID","value":$searchFilter.CurrencyID},
                             {"name":"tag","value":$searchFilter.tag},
                             {"name":"UUID","value":$searchFilter.UUID}
@@ -357,13 +342,10 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
-                    { "bSortable": false },
-                    { "bSortable": false },
-                    { "bSortable": false },
                     {
                         "bSortable": false,
                         mRender: function(id, type, full) {
-                            if(full[16] == 0)
+                            if(full[13] == 0)
                             {
                                 return "OutBound";
                             }
@@ -376,7 +358,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     },
                     { "bSortable": false,
                         mRender: function(id, type, full) {
-                            return full[17];
+                            return full[14];
                         }
 
                     }

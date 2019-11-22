@@ -2785,7 +2785,7 @@ public function store_inv_in(){
             $invoices = Invoice::where(['InvoiceID' => $invid])->first();
             if($invoices->accdetail->PaymentMethod == 'Ingenico' && $invoices->InvoiceType == 1){
                 fwrite($file, 
-                number_format($invoices->GrandTotal, 0).';'.
+                $invoices->GrandTotal.';'.
                 $invoices->currency->Code.';;;;'.
                 $invoices->FullInvoiceNumber.';;;;;;;;;;;'.
                 $this->get_GUID($invoices->AccountID).';;;;;;;;;;;;;;;;;;'.'9'."\r\n"
