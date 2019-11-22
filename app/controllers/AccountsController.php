@@ -610,7 +610,7 @@ class AccountsController extends \BaseController {
 
                 $AccountPeriod = AccountBilling::getCurrentPeriod($account->AccountID, date('Y-m-d'),$ServiceID);
                 if(!empty($AccountPeriod)) {
-                    if(!empty($data['DiscountPlanID'])){
+                    
                         $Outbound = array();
                         $Outbound['AccountID'] = $account->AccountID;
                         $Outbound['DiscountPlanID'] = $data['DiscountPlanID'];
@@ -619,8 +619,7 @@ class AccountsController extends \BaseController {
                         $Outbound['AccountServiceID'] = 0;
                         $Outbound['CreatedBy'] = User::get_user_full_name();
                         AccountDiscountPlan::create($Outbound);
-                    }
-                    if(!empty($data['InboundDiscountPlanID'])){
+                   
                         $Inbound = array();
                         $Inbound['AccountID'] = $account->AccountID;
                         $Inbound['DiscountPlanID'] = $data['InboundDiscountPlanID'];
@@ -629,8 +628,7 @@ class AccountsController extends \BaseController {
                         $Inbound['AccountServiceID'] = 0;
                         $Inbound['CreatedBy'] = User::get_user_full_name();
                         AccountDiscountPlan::create($Inbound);
-                    }    
-                    if(!empty($data['PackageDiscountPlanID'])){
+                      
                         $Package = array();
                         $Package['AccountID'] = $account->AccountID;
                         $Package['DiscountPlanID'] = $data['PackageDiscountPlanID'];
@@ -639,7 +637,7 @@ class AccountsController extends \BaseController {
                         $Package['AccountServiceID'] = 0;
                         $Package['CreatedBy'] = User::get_user_full_name();
                         AccountDiscountPlan::create($Package);
-                    }
+                    
                     // AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                     // AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                     // AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
@@ -1511,7 +1509,7 @@ class AccountsController extends \BaseController {
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
 
                 if(!empty($AccountPeriod)) {
-                    if(!empty($data['DiscountPlanID'])){
+                   
                         $Outbound = array();
                         $Outbound['AccountID'] = $account->AccountID;
                         $Outbound['DiscountPlanID'] = $data['DiscountPlanID'];
@@ -1526,8 +1524,7 @@ class AccountsController extends \BaseController {
                             $Outbound['CreatedBy'] = User::get_user_full_name();
                             AccountDiscountPlan::create($Outbound);
                         }
-                    }
-                    if(!empty($data['InboundDiscountPlanID'])){    
+                   
                         $Inbound = array();
                         $Inbound['AccountID'] = $account->AccountID;
                         $Inbound['DiscountPlanID'] = $data['InboundDiscountPlanID'];
@@ -1542,8 +1539,7 @@ class AccountsController extends \BaseController {
                             $Inbound['CreatedBy'] = User::get_user_full_name();
                             AccountDiscountPlan::create($Inbound);
                         }
-                    }
-                    if(!empty($data['PackageDiscountPlanID'])){
+                    
                         $Package = array();
                         $Package['AccountID'] = $account->AccountID;
                         $Package['DiscountPlanID'] = $data['PackageDiscountPlanID'];
@@ -1558,7 +1554,7 @@ class AccountsController extends \BaseController {
                             $Package['CreatedBy'] = User::get_user_full_name();
                             AccountDiscountPlan::create($Package);
                         }
-                    }    
+                        
                     // AccountDiscountPlan::addUpdateDiscountPlan($id, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                     // AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                     // AccountDiscountPlan::addUpdateDiscountPlan($id, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
