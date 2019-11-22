@@ -79,6 +79,7 @@ class FileUploadTemplate extends \Eloquent {
             //$option["importratesheet"]  = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
             $option["MappedCityList"]   = !empty($data['MappedCityList']) ? $data['MappedCityList'] : '';
             $option["MappedTariffList"] = !empty($data['MappedTariffList']) ? $data['MappedTariffList'] : '';
+            $option["MappedCodeList"]   = !empty($data['MappedCodeList']) ? $data['MappedCodeList'] : '';
             $option["option"]           = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"]        = filterArrayRemoveNewLines($data['selection']);//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
 
@@ -167,6 +168,7 @@ class FileUploadTemplate extends \Eloquent {
 
                 $option["MappedCityList"]   = !empty($data['MappedCityList']) ? $data['MappedCityList'] : '';
                 $option["MappedTariffList"] = !empty($data['MappedTariffList']) ? $data['MappedTariffList'] : '';
+                $option["MappedCodeList"]   = !empty($data['MappedCodeList']) ? $data['MappedCodeList'] : '';
                 $save['updated_by']         = User::get_user_full_name();
                 //$option["Sheet"]          = !empty($data['Sheet']) ? $data['Sheet'] : '';
                 $option["option"]           = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];

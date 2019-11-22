@@ -535,6 +535,11 @@
                                 createGrid2(data2);
                             }
 
+                            // trigger package mapping screen
+                            if(formData.get('uploadtemplate') != "") {
+                                $('#btnCodeMapping').trigger('click');
+                            }
+
                             $('#add-template').removeClass('hidden');
                             var scrollTo = $('#add-template').offset().top;
                             $('html, body').animate({scrollTop:scrollTo}, 1000);
@@ -604,6 +609,19 @@
 
             $("#save_template").click(function(e){
                 e.preventDefault();
+
+                var MappedCodeList = [];
+                $('#add-template-form .CodeList').each(function(i, obj) {
+                    var Code        = $(this).attr('attr-code');
+                    var CodeValue   = $(this).val();
+                    if(CodeValue != '') {
+                        MappedCodeList.push({
+                            'Code': Code, 'CodeValue': CodeValue
+                        });
+                    }
+                });
+                MappedCodeList = JSON.stringify(MappedCodeList);
+
                 if($("#save_template").hasClass('reviewrates')) {
                     var formData = new FormData($('#add-template-form')[0]);
                     var poData = $(document.forms['form-upload']).serializeArray();
@@ -612,6 +630,7 @@
                             formData.append(poData[i].name, poData[i].value);
                         }
                     }
+                    formData.append('MappedCodeList',MappedCodeList);
                     $.ajax({
                         url: '{{URL::to('rate_upload/reviewRates')}}', //Server script to process data
                         type: 'POST',
@@ -644,6 +663,7 @@
                             formData.append(poData[i].name, poData[i].value);
                         }
                     }
+                    formData.append('MappedCodeList',MappedCodeList);
                     $.ajax({
                         url: '{{URL::to('rate_upload/storeTemplate')}}', //Server script to process data
                         type: 'POST',
@@ -846,6 +866,239 @@
                 });
                 $('#modal-manage-columns').modal('hide');
             });
+
+            $('#btnCodeMapping').on('click', function(e) {
+                e.preventDefault();
+
+                var id = $(this).attr('id');
+                var mapping_type = 'Code';
+
+                var formData = new FormData($('#add-template-form')[0]);
+                var poData = $(document.forms['form-upload']).serializeArray();
+                for (var i=0; i<poData.length; i++){
+                    formData.append(poData[i].name, poData[i].value);
+                }
+                formData.append('mapping_type', mapping_type);
+                var PackageCol = $('#add-template-form select[name="selection['+mapping_type+']"]').val();
+                if(PackageCol == '' || PackageCol == 'Skip loading') {
+                    $('#'+mapping_type+'MappingPanel').html('');
+                    toastr.error('Please select Package column to load Package mapping panel.', "Error", toastr_opts);
+                    return false;
+                }
+
+                $.ajax({
+                    url: '{{URL::to('rate_upload/refreshPackageMapping')}}',
+                    data: formData,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            var html = '';
+                            var mapped_html = '';
+                            var notmapped_html = '';
+                            var option = '';
+                            var columns = response.data.columns;
+                            var autoselect = 0;
+
+                            //var i = 0;
+                            // Package Mapping Grid from file with Package Dropdown (Not Mapped)
+                            $.each(response.data.grid, function(key, value) {
+                                var Code        = columns[0] == '' ? '' : value[columns[0]];
+                                var html        = '';
+                                var options     = '';
+                                var select_class= mapping_type+'List';
+
+                                // dropdown options - select option which match with package
+                                $.each(response.data.CodeForMapping, function(key, opvalue) {
+                                    // dropdown options - select option which match with package
+                                    var selected = opvalue[mapping_type] != undefined && Code.toUpperCase() == opvalue[mapping_type].toUpperCase() ? 'selected' : '';
+                                    options += '<option ' +
+                                            'value="' + opvalue[mapping_type] + '" ' +
+                                            mapping_type + '="' + (opvalue[mapping_type] != null ? opvalue[mapping_type] : '') + '" ' +
+                                            selected +
+                                            '>' + opvalue[mapping_type] + '</option>';
+
+                                    if(selected != '') {
+                                        autoselect += 1;
+                                        select_class = 'Mapped'+mapping_type+'List';
+                                    }
+                                });
+
+                                html += '<div class="form-group">';
+                                html += '   <label class="col-sm-2 control-label" style="word-wrap: break-word; text-align: left">'+Code+'</label>';
+                                html += '   <div class="col-sm-2">';
+                                html += '       <select attr-'+mapping_type+'="'+Code+'" class="small '+mapping_type+'List '+select_class+'">';
+                                html += '           <option value="">Skip loading</option>';
+                                html += options;
+                                html += '       </select>';
+                                html += '   </div>';
+                                html += '</div>';
+
+                                if(autoselect == 0) {
+                                    notmapped_html += html;
+                                } else {
+                                    mapped_html += html;
+                                }
+                                autoselect = 0;
+                            });
+                            // load dynamic generated not mapped html in panel
+                            $('#'+mapping_type+'MappingPanel').html(notmapped_html);
+
+                            // Package Mapping Grid from template with Package Dropdown (Mapped)
+                            $.each(response.data.MappedCodeList, function(key, value) {
+                                var html = '';
+                                html += '<div class="form-group">';
+                                html += '   <label class="col-sm-2 control-label" style="word-wrap: break-word; text-align: left">'+value[mapping_type]+'</label>';
+                                html += '   <div class="col-sm-2">';
+                                html += '       <select attr-'+mapping_type+'="'+value[mapping_type]+'" class="small '+mapping_type+'List Mapped'+mapping_type+'List">';
+                                html += '           <option value="">Skip loading</option>';
+
+                                // dropdown options - select option which match with package
+                                $.each(response.data.CodeForMapping, function(key, opvalue) {
+                                    // select option which match with package
+                                    var selected = opvalue[mapping_type] != undefined && value[mapping_type+'Value'].toUpperCase() == opvalue[mapping_type].toUpperCase() ? 'selected' : '';
+                                    html += '<option ' +
+                                            'value="' + opvalue[mapping_type] + '" ' +
+                                            mapping_type + '="' + (opvalue[mapping_type] != null ? opvalue[mapping_type] : '') + '" ' +
+                                            selected +
+                                            '>' + opvalue[mapping_type] + '</option>';
+                                });
+                                html += '       </select>';
+                                html += '   </div>';
+                                html += '</div>';
+
+                                mapped_html += html;
+                            });
+                            // load dynamic generated mapped html in panel
+                            $('#'+mapping_type+'MappingPanelMapped').html(mapped_html);
+
+                            $('.btn.save').button('reset');
+                            $('#btn'+mapping_type+'Mapping').button('reset');
+                            $('#btn'+mapping_type+'MappingExportExcel, #btn'+mapping_type+'MappingExportCSV').show();
+                            show_loading_bar({
+                                pct: 100,
+                                delay: 2
+                            });
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                            $('.btn.save').button('reset');
+                            $('#btn'+mapping_type+'Mapping').button('reset');
+                            $('#btn'+mapping_type+'MappingExportExcel, #btn'+mapping_type+'MappingExportCSV').show();
+                            show_loading_bar({
+                                pct: 100,
+                                delay: 2
+                            });
+                        }
+                    },
+                    error: function () {
+                        toastr.error("error", "Error", toastr_opts);
+                        $('.btn.save').button('reset');
+                        $('#btn'+mapping_type+'Mapping').button('reset');
+                        $('#btn'+mapping_type+'MappingExportExcel, #btn'+mapping_type+'MappingExportCSV').show();
+                        show_loading_bar({
+                            pct: 100,
+                            delay: 2
+                        });
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function(){
+                        $('.btn.save').button('loading');
+                        $('#btn'+mapping_type+'Mapping').button('loading');
+                        $('#btn'+mapping_type+'MappingExportExcel, #btn'+mapping_type+'MappingExportCSV').hide();
+                        show_loading_bar({
+                            pct: 50,
+                            delay: 5
+                        });
+                    },
+                    afterSend: function(){
+                        //console.log("Afer Send");
+                    }
+                });
+            });
+
+            $('#btnCodeMappingExportExcel, #btnCodeMappingExportCSV').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).attr('id');
+                var type = 'csv';
+                if(id == 'btnCodeMappingExportExcel') {
+                    type = 'xlsx';
+                }
+                var mapping_column = 'Code';
+
+                var MappedCodeList = [];
+                var NotMappedCodeList = [];
+                $('#add-template-form .'+mapping_column+'List').each(function(i, obj) {
+                    var Code      = $(this).attr('attr-'+mapping_column);
+                    var CodeValue = $(this).val();
+
+                    var temp_obj = {};
+                    temp_obj[mapping_column]         = Code;
+                    temp_obj[mapping_column+'Value'] = CodeValue;
+
+                    if ($(this).hasClass('Mapped'+mapping_column+'List')) {
+                        MappedCodeList.push(temp_obj);
+                    } else {
+                        NotMappedCodeList.push(temp_obj);
+                    }
+                });
+                //console.log([MappedCodeList,NotMappedCodeList]);return false;
+                MappedCodeList    = JSON.stringify(MappedCodeList);
+                NotMappedCodeList = JSON.stringify(NotMappedCodeList);
+
+                var formData = new FormData();
+                formData.append('mapping_column',mapping_column);
+                formData.append('type',type);
+                formData.append('MappedCodeList',MappedCodeList);
+                formData.append('NotMappedCodeList',NotMappedCodeList);
+
+                $.ajax({
+                    url: '{{URL::to('rate_upload/package_mapping/export/')}}',
+                    data: formData,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        //toastr.success(response.message, "Success", toastr_opts);
+
+                        var win = window.open('{{URL::to('rate_upload/package_mapping/download')}}'+'/Package/'+type, '_blank');
+                        if (win) {
+                            //Browser has allowed it to be opened
+                            win.focus();
+                        } else {
+                            //Browser has blocked it
+                            alert('Please allow popups for this website');
+                        }
+
+                        $('.btn.save').button('reset');
+                        $('#btn'+mapping_column+'Mapping').button('reset');
+                        show_loading_bar({
+                            pct: 100,
+                            delay: 2
+                        });
+                    },
+                    error: function () {
+                        toastr.error("error", "Error", toastr_opts);
+                        $('.btn.save').button('reset');
+                        $('#btn'+mapping_column+'Mapping').button('reset');
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function(){
+                        $('.btn.save').button('loading');
+                        $('#btn'+mapping_column+'Mapping').button('loading');
+                        show_loading_bar({
+                            pct: 50,
+                            delay: 5
+                        });
+                    },
+                    afterSend: function(){
+                        //console.log("Afer Send");
+                    }
+                });
+            });
+
         });
 
         function createGrid(data){

@@ -800,7 +800,10 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('/rate_upload/refreshCityTariffMapping', 'RateUploadController@refreshCityTariffMapping');
 	Route::any('/rate_upload/city_tariff_mapping/export', 'RateUploadController@export_city_tariff_mapping');
-	Route::any('/rate_upload/city_tariff_mapping/download/{column}/{type}', 'RateUploadController@download_city_tariff_mapping');
+	Route::any('/rate_upload/city_tariff_mapping/download/{column}/{type}', 'RateUploadController@download_mapping_exported_file');
+	Route::any('/rate_upload/refreshPackageMapping', 'RateUploadController@refreshPackageMapping');
+	Route::any('/rate_upload/package_mapping/export', 'RateUploadController@export_package_mapping');
+	Route::any('/rate_upload/package_mapping/download/{column}/{type}', 'RateUploadController@download_mapping_exported_file');
 	Route::any('/rate_upload/getUploadTemplates/{type}', 'RateUploadController@getUploadTemplates');
 	Route::any('/rate_upload/{id}/getRateTableDetails', 'RateUploadController@getRateTableDetails');
 	Route::any('/rate_upload/{id}/{type}', 'RateUploadController@index');
