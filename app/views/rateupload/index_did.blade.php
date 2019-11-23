@@ -1141,7 +1141,7 @@
                 formData.append('mapping_type', mapping_type);
                 if($('#add-template-form select[name="selection['+mapping_type+']"]').val() == '') {
                     $('#'+mapping_type+'MappingPanel').html('');
-                    toastr.error('Please select '+mapping_type+' column to load '+mapping_type+' mapping panel.', "Error", toastr_opts);
+                    toastr.warning('Please select '+mapping_type+' column to load '+mapping_type+' mapping panel.', "Warning", toastr_opts);
                     return false;
                 }
                 $.ajax({
