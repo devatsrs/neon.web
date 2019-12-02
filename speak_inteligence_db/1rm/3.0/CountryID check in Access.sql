@@ -2910,12 +2910,12 @@ ThisSP:BEGIN
 	IF  p_effectiveImmediately = 1
 	THEN
 		UPDATE tmp_split_RateTableDIDRate_
-		SET EffectiveDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
-		WHERE EffectiveDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+		SET EffectiveDate = DATE_FORMAT(NOW(), '%Y-%m-%d')
+		WHERE EffectiveDate < DATE_FORMAT(NOW(), '%Y-%m-%d');
 
 		UPDATE tmp_split_RateTableDIDRate_
-		SET EndDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
-		WHERE EndDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+		SET EndDate = DATE_FORMAT(NOW(), '%Y-%m-%d')
+		WHERE EndDate < DATE_FORMAT(NOW(), '%Y-%m-%d');
 	END IF;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_split_RateTableDIDRate_2;
@@ -3052,12 +3052,12 @@ ThisSP:BEGIN
 	IF  p_effectiveImmediately = 1
 	THEN
 		UPDATE tmp_TempRateTableDIDRate_
-		SET EffectiveDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
-		WHERE EffectiveDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+		SET EffectiveDate = DATE_FORMAT(NOW(), '%Y-%m-%d')
+		WHERE EffectiveDate < DATE_FORMAT(NOW(), '%Y-%m-%d');
 
 		UPDATE tmp_TempRateTableDIDRate_
-		SET EndDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
-		WHERE EndDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+		SET EndDate = DATE_FORMAT(NOW(), '%Y-%m-%d')
+		WHERE EndDate < DATE_FORMAT(NOW(), '%Y-%m-%d');
 	END IF;
 
 	SELECT COUNT(*) INTO totalduplicatecode FROM(
