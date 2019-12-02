@@ -1173,7 +1173,7 @@
                                 // select option which also match with City/Tariff
                                 $.each(response.data.CityTariffForMapping, function(key, opvalue) {
                                     // city/tariff Dropdown options which match combination of AccessType, Country and Prefix (compare prefix without leading 0)
-                                    if(AccessType == opvalue['accessType'] && Country == opvalue['country'] && Prefix.replace(/^0+/, '') == opvalue['prefixName'].replace(/^0+/, '')) {
+                                    if(AccessType.toUpperCase() == opvalue['accessType'].toUpperCase() && Country.toUpperCase() == opvalue['country'].toUpperCase() && Prefix.replace(/^0+/, '') == opvalue['prefixName'].replace(/^0+/, '')) {
                                         var selected = CityTariff.toUpperCase() == opvalue[mapping_type].toUpperCase() ? 'selected' : '';
                                         options += '<option ' +
                                                 'value="' + opvalue[mapping_type] + '" ' +
@@ -1234,7 +1234,7 @@
                                 // select option which also match with City/Tariff
                                 $.each(response.data.CityTariffForMapping, function(key, opvalue) {
                                     // city/tariff Dropdown options which match combination of AccessType, Country and Prefix (compare prefix without leading 0)
-                                    if(value['AccessType'] == opvalue['accessType'] && value['Country'] == opvalue['country'] && value['Prefix'].replace(/^0+/, '') == opvalue['prefixName'].replace(/^0+/, '')) {
+                                    if(value['AccessType'].toUpperCase() == opvalue['accessType'].toUpperCase() && value['Country'].toUpperCase() == opvalue['country'].toUpperCase() && value['Prefix'].replace(/^0+/, '') == opvalue['prefixName'].replace(/^0+/, '')) {
                                         var selected = value[mapping_type+'Value'].toUpperCase() == opvalue[mapping_type].toUpperCase() ? 'selected' : '';
                                         html += '<option ' +
                                                 'value="' + opvalue[mapping_type] + '" ' +
