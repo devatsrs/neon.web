@@ -2419,7 +2419,7 @@ class RateUploadController extends \BaseController {
 
             $CityTariffFromFile     = $this->getCityTariffMapping($data);
 
-            $CityTariffForMapping   = array('' => 'Skip loading') + ServiceTemplate::distinct()->select([$data['mapping_type'], "prefixName", "country", "accessType", "countryCode"])
+            $CityTariffForMapping   = ServiceTemplate::distinct()->select([$data['mapping_type'], "prefixName", "country", "accessType", "countryCode"])
                     ->where("CompanyID", $CompanyID)->where($data['mapping_type'], '!=', '')->whereNotNull($data['mapping_type'])
                     ->orderBy($data['mapping_type'])->get()->toArray();
 
