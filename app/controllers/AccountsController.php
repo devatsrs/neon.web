@@ -2883,6 +2883,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
         if (!empty($data['AccountServicePackageIDs'])) {
             $CLIRateTableIDs = explode(',', $data['AccountServicePackageIDs']);
+            $checkClis = CLIRateTable::whereIn('AccountServicePackageID', $CLIRateTableIDs)->get();
+            if(count($checkClis) > 0){
+                return Response::json(array("status" => "failed", "message" => "Package are Assigned to CLI"));
+            }
             AccountServicePackage::whereIn('AccountServicePackageID', $CLIRateTableIDs)->delete();
         }
 
