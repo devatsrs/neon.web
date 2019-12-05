@@ -36,7 +36,11 @@
 
                 <div class="form-group">
                     <label class="control-label">Origination Code</label>
-                    <input type="text" name="OriginationCode" class="form-control" placeholder="" />
+                    <!--<input type="text" name="OriginationCode" class="form-control" placeholder="" />-->
+                    <input list="OriginationCode" name="OriginationCode" class="form-control" />
+                    <datalist id="OriginationCode">
+                        <option value="blank">
+                    </datalist>
                 </div>
                 <div class="form-group">
                     <label class="control-label">Origination Description</label>
