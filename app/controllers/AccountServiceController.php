@@ -843,4 +843,9 @@ class AccountServiceController extends \BaseController {
         return Datatables::of($AccountServiceHistory)->make();
     }
 
+    public function get_packages($id){
+        $Packages = AccountService::getAccountServicePackage($id);
+        return $Packages;
+    }
+
 }

@@ -1614,6 +1614,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/cancel_contract', 'AccountServiceController@cancelContract');
 	Route::any('accountservices/contract_status/{serviceid}', 'AccountServiceController@contract_status');
 	Route::any('accountservices/history/{serviceid}', 'AccountServiceController@contract_history');
+	Route::any('accountservices/get_packages/{serviceid}', 'AccountServiceController@get_packages');
 
 
 	// packages
