@@ -846,6 +846,7 @@
 
         $('#add-clitable').click(function (ev) {
             ev.preventDefault();
+            var accountserviceid = '{{ $AccountServiceID }}';
             $('#clitable-form').trigger("reset");
             $('#modal-clitable h4').html('Add Number');
             $("#clitable-form .edit_show [name=CLI]").val("");
@@ -871,13 +872,31 @@
             $('#clitable-form').attr("action", clitable_add_url);
             $('#clitable-form .edit_hide').show().find(".cli-field").attr("name", "CLI");
             $('#clitable-form .edit_show').hide().find(".cli-field").attr("name", "");
-            $('#modal-clitable').modal('show');
+            $.ajax({
+                url: baseurl + '/accountservices/get_packages/' + accountserviceid,
+                type:'POST',
+                datatype:'json',
+                success: function(response) {
+                    var options = $("#PackageService");
+                    options.empty();
+                    options.append("<option value=''>Select</option>")
+                    $.map(response, function( val, i ) { 
+                        options.append("<option value='"+i+"'>"+val+"</option>");                                                      
+                    });
+                    options.select2();
+                    $('#modal-clitable').modal('show'); 
+                   console.log(response);
+                }
+
+            });
+           
         });
 
         $('table tbody').on('click', '.edit-clitable', function (ev) {
             ev.preventDefault();
 
             var fields = $(this).prev(".hiddenRowData");
+            var accountserviceid = '{{ $AccountServiceID }}';
             $('#clitable-form').trigger("reset");
             $('#modal-clitable h4').html('Edit Number RateTable');
 
@@ -929,13 +948,37 @@
             $("#clitable-form [name=SpecialTerminationRateTableID]").select2().select2('val', SpecialTerminationRateTableID);
             $("#clitable-form [name=AccessDiscountPlanID]").select2().select2('val', AccessDiscountPlanID);
             $("#clitable-form [name=TerminationDiscountPlanID]").select2().select2('val', TerminationDiscountPlanID);
-            $("#clitable-form [name=AccountServicePackageID]").select2().select2('val', AccountServicePackageID);
             $("#clitable-form [name=CountryID]").select2().select2('val', CountryID);
             $('#clitable-form input[name=CLIRateTableID]').val(CLIRateTableID);
             $('#clitable-form input[name=CLIRateTableIDs]').val("");
             $('#clitable-form input[name=criteria]').val("");
             $('#clitable-form').attr("action", clitable_update_url);
-            $('#modal-clitable').modal('show');
+            $.ajax({
+                url: baseurl + '/accountservices/get_packages/' + accountserviceid,
+                type:'POST',
+                datatype:'json',
+                success: function(response) {
+                    var options = $("#PackageService");
+                    var selected = false;
+                    options.empty();
+                    options.append("<option value=''>Select</option>")
+                    $.map(response, function( val, i ) {
+                        if(AccountServicePackageID == i){
+                            selected = true;
+                        } 
+                        options.append("<option value='"+i+"'>"+val+"</option>");                                                      
+                    });
+                    options.select2();
+                    if(selected){
+                        $("#clitable-form [name=AccountServicePackageID]").select2().select2('val', AccountServicePackageID);
+                    }else{
+                        $("#clitable-form [name=AccountServicePackageID]").select2().select2('val', '');
+                    }
+                    console.log(AccountServicePackageID);
+                    $('#modal-clitable').modal('show'); 
+                }
+
+            });
         });
 
         $('table tbody').on('click', '.delete-clitable', function (ev) {
@@ -1129,7 +1172,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-225" class="control-label">Package</label>
-                                    {{ Form::select('AccountServicePackageID', AccountService::getAccountServicePackage($AccountServiceID) , '' , array("class"=>"select2")) }}
+                                    {{ Form::select('AccountServicePackageID', AccountService::getAccountServicePackage($AccountServiceID) , '' , array("class"=>"select2" , "id" => "PackageService")) }}
                                 </div>
                             </div>
                         </div>
