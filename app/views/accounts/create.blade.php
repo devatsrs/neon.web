@@ -123,27 +123,6 @@
                                 <input type="text" name="Employee" class="form-control" placeholder="" value="{{Input::old('Employee')}}" />
                             </div>
                         </div>
-                        <div class="form-group hidden" id="AffiliateDiv">
-                            <label class="col-md-2 control-label hidden">Affiliate</label>
-                            <div class="col-md-4">
-                                <div class="make-switch switch-small" id="desablecustomer">
-                                    <input type="checkbox"  name="IsAffiliateAccount" @if(Input::old('IsAffiliateAccount') == 1 )checked=""@endif value="1">
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="form-group @if(!Input::old('IsAffiliateAccount') == 1 ) hidden @endif" id="AffiliateDetailDiv">
-
-
-                            <label class="col-md-2 control-label">Commission Percentage</label>
-                            <div class="col-md-4">
-                                <input type="text" name="CommissionPercentage" class="form-control" id="field-1" placeholder="" value="5" />
-                            </div>
-                            <label class="col-md-2 control-label">Duration Months</label>
-                            <div class="col-md-4">
-                                <input type="text" name="DurationMonths" class="form-control" id="field-1" placeholder="" value="" />
-                            </div>
-                        </div>
 
                         @if(!is_reseller())
                             <div class="form-group">
@@ -156,11 +135,40 @@
 
                                 <label class="col-md-2 control-label">Account Partner</label>
                                 <div class="col-md-4" id="disableresellerowner">
-                                    {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2"))}}
+                                    {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2 ResellerOwner"))}}
                                 </div>
 
                             </div>
                         @endif
+                        <div class="form-group" id="AffiliateDiv">
+                            <label class="col-md-2 control-label">Affiliate</label>
+                            <div class="col-md-4">
+                                <div class="make-switch switch-small" id="desableaffiliate">
+                                    <input type="checkbox"  name="IsAffiliateAccount" @if(Input::old('IsAffiliateAccount') == 1 )checked=""@endif value="1">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group AffiliateDetailDiv @if(!Input::old('IsAffiliateAccount') == 1 ) hidden @endif">
+
+
+                            <label class="col-md-2 control-label">Commission Percentage</label>
+                            <div class="col-md-4">
+                                <input type="text" name="CommissionPercentage" class="form-control" id="field-1" placeholder="" value="5" />
+                            </div>
+                            <label class="col-md-2 control-label">Duration Months</label>
+                            <div class="col-md-4">
+                                <input type="text" name="DurationMonths" class="form-control" id="field-1" placeholder="" value="" />
+                            </div>
+                        </div>
+                        <div class="form-group AffiliateDetailDiv @if(!Input::old('IsAffiliateAccount') == 1 ) hidden @endif">
+
+
+                            <label class="col-md-2 control-label">Affiliate Accounts</label>
+                            <div class="col-md-10">
+                                    {{Form::select('AffiliateAccounts[]', $CustomerAccountsByReseller , '' ,array("class"=>"form-control select2", "id" => "affiliateaccounts" ,"multiple"))}}
+                            </div>
+                        </div>
 
                         @if(is_reseller())
                             <input type="hidden" name="ResellerOwner" value="{{ @$reseller->ResellerID }}">
@@ -585,7 +593,25 @@
     <script type="text/javascript">
 
         jQuery(document).ready(function ($) {
-
+            function getCustomerAccouts(ele){
+            var that = $(ele);
+            var resellerid = $(ele).val() == '' ? 0 : $(ele).val(); 
+            $.ajax({
+                url : baseurl + '/reseller/accounts/' + resellerid,
+                type: 'get',
+                success:function(response){
+                    var options = $('#affiliateaccounts');
+                    options.empty();
+                    $.map(response, function( val, i ) {      
+                        options.append("<option value='"+ i +"'>"+val+"</option>");                                                 
+                    });
+                    options.select2();
+                }
+            })
+         }
+            $('.ResellerOwner').on('change',function(){
+                getCustomerAccouts(this);
+            })
             $("#save_account").click(function (ev) {
                 $('#save_account').button('loading');
                 $("#account-from").submit();
@@ -594,9 +620,9 @@
             $('[name="IsAffiliateAccount"]').on("change",function(e){
                 if($('[name="IsAffiliateAccount"]').prop("checked") == true) {
 
-                    $("#AffiliateDetailDiv").removeClass('hidden');
+                    $(".AffiliateDetailDiv").removeClass('hidden');
                 }else {
-                    $("#AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
+                    $(".AffiliateDetailDiv").addClass('hidden');//AffiliateDiv
                 }
             });
 
@@ -697,10 +723,13 @@
                 if($('[name="IsReseller"]').prop("checked") == true){
                     $('[name="IsCustomer"]').prop("checked", false).trigger('change');
                     $('[name="IsVendor"]').prop("checked", false).trigger('change');
+                    $('[name="IsAffiliateAccount"]').prop("checked", false).trigger('change');
+                    $('#desableaffiliate').addClass('deactivate')
                     $("#desablecustomer").addClass('deactivate');
                     $("#desablevendor").addClass('deactivate');
                     $('#disableresellerowner select').attr("disabled", "disabled");
                 }else{
+                    $('#desableaffiliate').removeClass('deactivate');
                     $("#desablecustomer").removeClass('deactivate');
                     $("#desablevendor").removeClass('deactivate');
                     $("#desablereseller").removeClass('deactivate');

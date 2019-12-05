@@ -193,7 +193,7 @@ protected $server;
 				$amazonPath 	= 	AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT'],'');
 				
 				if(!is_dir(CompanyConfiguration::get('UPLOAD_PATH').'/'.$amazonPath)){
-					 mkdir(CompanyConfiguration::get('UPLOAD_PATH').'/'.$amazonPath, 0777, true);
+					 mkdir(CompanyConfiguration::get('UPLOAD_PATH').'/'.$amazonPath, 0775, true);
 				}
 				
 				$filepath   =  CompanyConfiguration::get('UPLOAD_PATH').'/'.$amazonPath . $email_number . "-" . $file_name;

@@ -25,6 +25,7 @@ class AccountsController extends \BaseController {
         $data['vendor_on_off'] = $data['vendor_on_off']== 'true'?1:0;
         $data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
         $data['reseller_on_off'] = $data['reseller_on_off']== 'true'?1:0;
+        $data['affliate_on_off'] = $data['affliate_on_off']== 'true'?1:0;
         $data['account_active'] = $data['account_active']== 'true'?1:0;
         $data['low_balance'] = $data['low_balance']== 'true'?1:0;
         //$data['account_name'] = $data['account_name']!= ''?$data['account_name']:'';
@@ -33,7 +34,7 @@ class AccountsController extends \BaseController {
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
         $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','UnbilledAmount','PermanentCredit','AccountExposure','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['ResellerOwner'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['affliate_on_off'].",".$data['ResellerOwner'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             \Illuminate\Support\Facades\Log::info("Account query ".$query.',2)');
@@ -209,12 +210,18 @@ class AccountsController extends \BaseController {
         //As per new question call the routing profile model for fetch the routing profile list.
         $routingprofile = RoutingProfiles::orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
         $TaxRates = TaxRate::getTaxRateDropdownIDList($company_id);
+        if(is_reseller()){
+            $CustomerAccountsByReseller =  Account::getAccountByReseller(Reseller::getResellerID());
+        }else{
+            $CustomerAccountsByReseller =  [];
+        }
+        
         //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
         $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$CompanyID)->first():[];
 
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
-        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID','TaxRates','reseller'));
+        return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE', 'DiscountPlan','DiscountPlanPACKAGE','DiscountPlanDID','DiscountPlanVOICECALL','CompanyID','TaxRates','reseller','CustomerAccountsByReseller'));
     }
 
     /**
@@ -264,8 +271,8 @@ class AccountsController extends \BaseController {
             $AccountGateway = '';
         }
 
-        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
-            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
+        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0 && $data['IsAffiliateAccount'] == 0)
+            return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor, AffiliateAccount or Partner."));
 
         if(is_reseller() && $data['IsCustomer'] == 0)
             return Response::json(array("status" => "failed", "message" => "Customer option should be checked."));
@@ -325,8 +332,18 @@ class AccountsController extends \BaseController {
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
         if ($data['IsAffiliateAccount'] == 1) {
             Account::$rules['CommissionPercentage'] = 'required';
+            //Account::$rules['AffiliateAccounts'] = 'required';
         }
 
+        if ($data['IsAffiliateAccount'] == 1) {
+            if(empty($data['AffiliateAccounts'])){
+                return Response::json(array("status" => "failed", "message" => "Please Select Atleast One Affiliate Account."));
+            }
+            $AffiliateAccount = array();
+            $AffiliateAccount['AffiliateAccounts'] = implode(",",$data['AffiliateAccounts']);
+            unset($data['AffiliateAccounts']);
+        }
+        
         if(DynamicFields::where(['CompanyID' => getParentCompanyIdIfReseller($companyID), 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
             Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
@@ -592,24 +609,40 @@ class AccountsController extends \BaseController {
                 }
 
                 $AccountPeriod = AccountBilling::getCurrentPeriod($account->AccountID, date('Y-m-d'),$ServiceID);
-                $OutboundDiscountPlan = empty($data['DiscountPlanID']) ? '' : $data['DiscountPlanID'];
-                $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
-                $PackageDiscountPlan = empty($data['PackageDiscountPlanID']) ? '' : $data['PackageDiscountPlanID'];
-
                 if(!empty($AccountPeriod)) {
-                    $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
-                    $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
-                    $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                    $ServiceID=0;
-                    $AccountSubscriptionID = 0;
-                    $AccountName='';
-                    $AccountCLI='';
-                    $SubscriptionDiscountPlanID=0;
-                    $AccountServiceID=0;
-
-                    AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
-                    AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
-                    AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    if(!empty($data['DiscountPlanID'])){
+                        $Outbound = array();
+                        $Outbound['AccountID'] = $account->AccountID;
+                        $Outbound['DiscountPlanID'] = $data['DiscountPlanID'];
+                        $Outbound['Type'] = AccountDiscountPlan::OUTBOUND;
+                        $Outbound['ServiceID'] = 0;
+                        $Outbound['AccountServiceID'] = 0;
+                        $Outbound['CreatedBy'] = User::get_user_full_name();
+                        AccountDiscountPlan::create($Outbound);
+                    }
+                    if(!empty($data['InboundDiscountPlanID'])){
+                        $Inbound = array();
+                        $Inbound['AccountID'] = $account->AccountID;
+                        $Inbound['DiscountPlanID'] = $data['InboundDiscountPlanID'];
+                        $Inbound['Type'] = AccountDiscountPlan::INBOUND;
+                        $Inbound['ServiceID'] = 0;
+                        $Inbound['AccountServiceID'] = 0;
+                        $Inbound['CreatedBy'] = User::get_user_full_name();
+                        AccountDiscountPlan::create($Inbound);
+                    }    
+                    if(!empty($data['PackageDiscountPlanID'])){
+                        $Package = array();
+                        $Package['AccountID'] = $account->AccountID;
+                        $Package['DiscountPlanID'] = $data['PackageDiscountPlanID'];
+                        $Package['Type'] = AccountDiscountPlan::PACKAGE;
+                        $Package['ServiceID'] = 0;
+                        $Package['AccountServiceID'] = 0;
+                        $Package['CreatedBy'] = User::get_user_full_name();
+                        AccountDiscountPlan::create($Package);
+                    }
+                    // AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    // AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    // AccountDiscountPlan::addUpdateDiscountPlan($account->AccountID, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                 }
             }
 
@@ -622,6 +655,10 @@ class AccountsController extends \BaseController {
             $AccountDetails['AccountID'] = $account->AccountID;
             AccountDetails::create($AccountDetails);
 
+            if ($data['IsAffiliateAccount'] == 1) {
+                $AffiliateAccount['AccountID'] = $account->AccountID;
+                AffiliateAccount::create($AffiliateAccount);
+            }
 
             $account->update($data);
 
@@ -701,6 +738,7 @@ class AccountsController extends \BaseController {
         $vendor   = $account->IsVendor?1:0;
         $Customer = $account->IsCustomer?1:0;
         $Reseller = $account->IsReseller?1:0;
+        $Affiliate = $account->IsAffiliateAccount?1:0;
         $ResellerOwner=0;
         $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         if(is_reseller()){
@@ -708,7 +746,7 @@ class AccountsController extends \BaseController {
         }
 
         //get account card data
-        $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$ResellerOwner."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
+        $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$Affiliate."','".$ResellerOwner."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
         Log::info("Show My Sql Query:" . $sql);
         $Account_card  				= 	 DB::select($sql);
         $Account_card  				=	 array_shift($Account_card);
@@ -891,10 +929,10 @@ class AccountsController extends \BaseController {
         $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
-
-        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
-        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
-        $PackageDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::PACKAGE,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
+        $CustomerAccountsByReseller =  Account::getAccountByReseller($accountreseller);
+        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0))->pluck('DiscountPlanID');
+        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0))->pluck('DiscountPlanID');
+        $PackageDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::PACKAGE,'ServiceID'=>0))->pluck('DiscountPlanID');
 
         //As per new question call the routing profile model for fetch the routing profile list.
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
@@ -906,7 +944,12 @@ class AccountsController extends \BaseController {
                 $customers = array('' => 'Select') + Account::where('CompanyID',$resellers->ChildCompanyID)->lists('AccountName','AccountID');
             }
         }
-
+        $Affiliate = AffiliateAccount::where('AccountID',$account->AccountID)->first();
+        if($Affiliate){
+            $AffiliateAccounts = $Affiliate->AffiliateAccounts;
+        }else{
+            $AffiliateAccounts = '';
+        }
         $CustomerRatetable = AccountCustomerRatetable::where('AccountID',$id)->get();
         $CustomerServiceRatetable = AccountCustomerServiceRatetable::where('AccountID',$id)->get();
 
@@ -940,7 +983,7 @@ class AccountsController extends \BaseController {
         ]);
         $reseller = is_reseller() ? Reseller::where('ChildCompanyID',$companyID)->first():[];
         return View::make('accounts.edit', compact('account','AffiliateAccount', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags',
-            'CustomerServiceRatetable','CustomerRatetable','CustomerServices','customers','frequency','Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table'));
+            'CustomerServiceRatetable','CustomerRatetable','CustomerServices','customers','frequency','Packages','DiscountPlanVOICECALL','DiscountPlanDID','DiscountPlanPACKAGE','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','PackageDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','reseller','AccountAccessRateTableID','AccountPackageRateTableID','AccountTerminationRateTableID','termination_rate_table','package_rate_table','AffiliateAccounts','CustomerAccountsByReseller'));
     }
 
     /**
@@ -953,7 +996,6 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $ServiceID = 0;
         $data = Input::all();
-        // dd($data);
         $account = Account::find($id);
         //$companyID = User::get_companyID();
         $companyID = $account->CompanyId;
@@ -1030,7 +1072,7 @@ class AccountsController extends \BaseController {
             $data['IsVendor']=0;
         }*/
 
-        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0)
+        if(!is_reseller() && $data['IsVendor'] == 0 && $data['IsCustomer'] == 0 && $data['IsReseller'] == 0 && $data['IsAffiliateAccount'] == 0)
             return Response::json(array("status" => "failed", "message" => "One of the option should be checked either Customer, Vendor or Partner."));
 
         if(is_reseller() && $data['IsCustomer'] == 0)
@@ -1096,6 +1138,16 @@ class AccountsController extends \BaseController {
         if ($data['IsAffiliateAccount'] == 1) {
             Account::$rules['CommissionPercentage'] = 'required';
         }
+
+        if ($data['IsAffiliateAccount'] == 1) {
+            if(empty($data['AffiliateAccounts'])){
+                return Response::json(array("status" => "failed", "message" => "Please Select Atleast One Affiliate Account."));
+            }
+            $AffiliateAccount = array();
+            $AffiliateAccount['AffiliateAccounts'] = implode(",",$data['AffiliateAccounts']);
+            unset($data['AffiliateAccounts']);
+        }
+
         if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
             Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
@@ -1376,9 +1428,9 @@ class AccountsController extends \BaseController {
             $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
         }
 
-        /* if ($data['IsAffiliateAccount'] == 0) {
+         if ($data['IsAffiliateAccount'] == 0) {
              unset($data['CommissionPercentage']);
-         }*/
+         }
         if ($account->update($data)) {
 
             $DynamicData = array();
@@ -1458,24 +1510,70 @@ class AccountsController extends \BaseController {
 
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
 
-                $OutboundDiscountPlan = empty($data['DiscountPlanID']) ? '' : $data['DiscountPlanID'];
-                $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
-                $PackageDiscountPlan = empty($data['PackageDiscountPlanID']) ? '' : $data['PackageDiscountPlanID'];
-
                 if(!empty($AccountPeriod)) {
-                    $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
-                    $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
-                    $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                    $ServiceID=0;
-                    $AccountSubscriptionID = 0;
-                    $AccountName='';
-                    $AccountCLI='';
-                    $SubscriptionDiscountPlanID=0;
-                    $AccountServiceID=0;
-
-                    AccountDiscountPlan::addUpdateDiscountPlan($id, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
-                    AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
-                    AccountDiscountPlan::addUpdateDiscountPlan($id, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    if(!empty($data['DiscountPlanID'])){
+                        $Outbound = array();
+                        $Outbound['AccountID'] = $account->AccountID;
+                        $Outbound['DiscountPlanID'] = $data['DiscountPlanID'];
+                        $Outbound['Type'] = AccountDiscountPlan::OUTBOUND;
+                        $Outbound['ServiceID'] = 0;
+                        $Outbound['AccountServiceID'] = 0;
+                        $OutboundDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'Type' =>  AccountDiscountPlan::OUTBOUND])->first();
+                        if($OutboundDiscountPlan){
+                            $Outbound['ModifiedBy'] = User::get_user_full_name();
+                            $OutboundDiscountPlan->update($Outbound);
+                        }else{
+                            $Outbound['CreatedBy'] = User::get_user_full_name();
+                            AccountDiscountPlan::create($Outbound);
+                        }
+                    }else{
+                        $OutboundDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'Type' =>  AccountDiscountPlan::OUTBOUND])->first();
+                        if($OutboundDiscountPlan)
+                            $OutboundDiscountPlan->delete();
+                    }
+                    if(!empty($data['InboundDiscountPlanID'])){    
+                        $Inbound = array();
+                        $Inbound['AccountID'] = $account->AccountID;
+                        $Inbound['DiscountPlanID'] = $data['InboundDiscountPlanID'];
+                        $Inbound['Type'] = AccountDiscountPlan::INBOUND;
+                        $Inbound['ServiceID'] = 0;
+                        $Inbound['AccountServiceID'] = 0;
+                        $InboundDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'Type' =>  AccountDiscountPlan::INBOUND])->first();
+                        if($InboundDiscountPlan){
+                            $Inbound['ModifiedBy'] = User::get_user_full_name();
+                            $InboundDiscountPlan->update($Inbound);
+                        }else{
+                            $Inbound['CreatedBy'] = User::get_user_full_name();
+                            AccountDiscountPlan::create($Inbound);
+                        }
+                    }else{
+                        $InboundDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'Type' =>  AccountDiscountPlan::INBOUND])->first();
+                        if($InboundDiscountPlan)
+                            $InboundDiscountPlan->delete();
+                    }
+                    if(!empty($data['PackageDiscountPlanID'])){
+                        $Package = array();
+                        $Package['AccountID'] = $account->AccountID;
+                        $Package['DiscountPlanID'] = $data['PackageDiscountPlanID'];
+                        $Package['Type'] = AccountDiscountPlan::PACKAGE;
+                        $Package['ServiceID'] = 0;
+                        $Package['AccountServiceID'] = 0;
+                        $PackageDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'Type' =>  AccountDiscountPlan::PACKAGE])->first();
+                        if($PackageDiscountPlan){
+                            $Package['ModifiedBy'] = User::get_user_full_name();
+                            $PackageDiscountPlan->update($Package);
+                        }else{
+                            $Package['CreatedBy'] = User::get_user_full_name();
+                            AccountDiscountPlan::create($Package);
+                        }
+                    }else{
+                        $PackageDiscountPlan = AccountDiscountPlan::where(['AccountID' => $id , 'Type' =>  AccountDiscountPlan::PACKAGE])->first();
+                        if($PackageDiscountPlan)
+                            $PackageDiscountPlan->delete();
+                    }    
+                    // AccountDiscountPlan::addUpdateDiscountPlan($id, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    // AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    // AccountDiscountPlan::addUpdateDiscountPlan($id, $PackageDiscountPlan, AccountDiscountPlan::PACKAGE, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                 }
             }
 
@@ -1491,6 +1589,18 @@ class AccountsController extends \BaseController {
                 AccountDetails::find($AccountDetailsID)->update($AccountDetails);
             }else{
                 AccountDetails::create($AccountDetails);
+            }
+
+            if ($data['IsAffiliateAccount'] == 1) {
+                $Affiliate = AffiliateAccount::where('AccountID',$id);
+                if($Affiliate){
+                    $Affiliate->update($AffiliateAccount);
+                }else{
+                    $AffiliateAccount['AccountID'] = $id;
+                    AffiliateAccount::create($AffiliateAccount);
+                }
+                
+                
             }
 
             if(!empty($data['PaymentMethod'])) {
@@ -2331,9 +2441,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         $destination_dir = CompanyConfiguration::get('TEMP_PATH') . '/';
         if (!file_exists($destination_dir)) {
-            mkdir($destination_dir, 0777, true);
+            mkdir($destination_dir, 0775, true);
         }
-        RemoteSSH::run("chmod -R 777 " . $destination_dir);
+        RemoteSSH::run("chmod -R 775 " . $destination_dir);
         $file_name = $account->AccountName.' Account Activity Chart '. date('d-m-Y') . '.pdf';
         $htmlfile_name = $account->AccountName. ' Account Activity Chart ' . date('d-m-Y') . '.html';
 
@@ -2773,6 +2883,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
         if (!empty($data['AccountServicePackageIDs'])) {
             $CLIRateTableIDs = explode(',', $data['AccountServicePackageIDs']);
+            $checkClis = CLIRateTable::whereIn('AccountServicePackageID', $CLIRateTableIDs)->get();
+            if(count($checkClis) > 0){
+                return Response::json(array("status" => "failed", "message" => "Package are Assigned to CLI"));
+            }
             AccountServicePackage::whereIn('AccountServicePackageID', $CLIRateTableIDs)->delete();
         }
 
@@ -3416,6 +3530,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $Country = $data['Country'];
         $CustomerAccount = $data['Customer'] == "true" ? 1 : 0;
         $PartnerAccount =  $data['Partner'] == "true" ? 1 : 0;
+        if(is_reseller()){
+            $data['PartnerID'] = Reseller::getResellerID();
+            $PartnerAccount = 0;
+        }
         $RegisterDutchFoundation = 0;
         $DutchProvider = 0;
         if($PartnerAccount == 1){

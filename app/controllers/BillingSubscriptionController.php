@@ -74,7 +74,7 @@ class BillingSubscriptionController extends \BaseController {
                         $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$companyID)."/";
                         $fileUrl=$companyID."/dynamicfields/";
                         if (!file_exists($upload_path.$fileUrl)) {
-                            mkdir($upload_path.$fileUrl, 0777, true);
+                            mkdir($upload_path.$fileUrl, 0775, true);
                         }
                         $dynamicImage=time().$dynamicImage;
                         $success=move_uploaded_file($_FILES["DynamicFields"]["tmp_name"][$key],$upload_path.$fileUrl.$dynamicImage);

@@ -797,7 +797,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_upload/ajaxfilegrid', 'RateUploadController@ajaxfilegrid');
 	Route::any('/rate_upload/checkUpload', 'RateUploadController@checkUpload');
 	Route::any('/rate_upload/getTrunk/{type}', 'RateUploadController@getTrunk');
-        
+
+	Route::any('/rate_upload/refreshCityTariffMapping', 'RateUploadController@refreshCityTariffMapping');
+	Route::any('/rate_upload/city_tariff_mapping/export', 'RateUploadController@export_city_tariff_mapping');
+	Route::any('/rate_upload/city_tariff_mapping/download/{column}/{type}', 'RateUploadController@download_mapping_exported_file');
+	Route::any('/rate_upload/refreshPackageMapping', 'RateUploadController@refreshPackageMapping');
+	Route::any('/rate_upload/package_mapping/export', 'RateUploadController@export_package_mapping');
+	Route::any('/rate_upload/package_mapping/download/{column}/{type}', 'RateUploadController@download_mapping_exported_file');
 	Route::any('/rate_upload/getUploadTemplates/{type}', 'RateUploadController@getUploadTemplates');
 	Route::any('/rate_upload/{id}/getRateTableDetails', 'RateUploadController@getRateTableDetails');
 	Route::any('/rate_upload/{id}/{type}', 'RateUploadController@index');
@@ -1352,6 +1358,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_dashboard/paymentreminders', 'BillingDashboard@PaymentReminders');
 	Route::any('/billing_dashboard/paymentreminders_ajax_datagrid', 'BillingDashboard@paymentreminders_ajax_datagrid');
 	Route::any('/billing_dashboard/outpayment_ajax_datagrid', 'BillingDashboard@outpayment_ajax_datagrid');
+	Route::any('/billing_dashboard/exports/{type}', 'BillingDashboard@paymentreminders_export');
+	
 
 
 	//AccountPaymentProfile
@@ -1606,6 +1614,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/cancel_contract', 'AccountServiceController@cancelContract');
 	Route::any('accountservices/contract_status/{serviceid}', 'AccountServiceController@contract_status');
 	Route::any('accountservices/history/{serviceid}', 'AccountServiceController@contract_history');
+	Route::any('accountservices/get_packages/{serviceid}', 'AccountServiceController@get_packages');
 
 
 	// packages
@@ -1661,6 +1670,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('reseller/bulkcopydata', 'ResellerController@bulkcopydata');
 	Route::any('reseller/getdomainurl/{id}', 'ResellerController@getdomainurl');
 	Route::any('/reseller/getdata/{id}','ResellerController@getdataofreseller');
+	Route::any('/reseller/accounts/{id}','ResellerController@getreselleraccount');
+	
+
+	
 
 	//Reseller
 	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));

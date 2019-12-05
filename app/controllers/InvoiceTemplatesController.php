@@ -219,7 +219,7 @@ class InvoiceTemplatesController extends \BaseController {
 
                 //Create profile company_logo dir if not exists
                 if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0777, true);
+                    mkdir($destinationPath, 0775, true);
                 }
 
                 $fileName = strtolower(filter_var($data['Name'],FILTER_SANITIZE_URL)) .'_'. GUID::generate() .$extension;
@@ -311,7 +311,7 @@ class InvoiceTemplatesController extends \BaseController {
 
             //Create profile company_logo dir if not exists
             if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0777, true);
+                mkdir($destinationPath, 0775, true);
             }
 
             $fileName = strtolower(filter_var($data['Name'],FILTER_SANITIZE_URL)) .'_'. GUID::generate() .$extension;
@@ -418,8 +418,8 @@ class InvoiceTemplatesController extends \BaseController {
             
             if(!empty($InvoiceTemplate->CompanyLogoAS3Key)){
                 $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . User::get_companyID();
-                @mkdir($logo_path, 0777, true);
-                RemoteSSH::run("chmod -R 777 " . $logo_path);
+                @mkdir($logo_path, 0775, true);
+                RemoteSSH::run("chmod -R 775 " . $logo_path);
                 $logo = $logo_path  . '/'  . basename($as3url);
                 @file_put_contents($logo, file_get_contents($as3url));
             }else{
@@ -452,9 +452,9 @@ class InvoiceTemplatesController extends \BaseController {
             $destination_dir = CompanyConfiguration::get('TEMP_PATH') . '/' . AmazonS3::generate_path( AmazonS3::$dir['INVOICE_UPLOAD'], $InvoiceTemplate->CompanyID);
             Log::info('invoicetemplate '.$destination_dir);
             if (!file_exists($destination_dir)) {
-                mkdir($destination_dir, 0777, true);
+                mkdir($destination_dir, 0775, true);
             }
-            RemoteSSH::run("chmod -R 777 " . $destination_dir);
+            RemoteSSH::run("chmod -R 775 " . $destination_dir);
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
             $local_file = $destination_dir .  $file_name;

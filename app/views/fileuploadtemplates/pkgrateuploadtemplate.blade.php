@@ -130,3 +130,36 @@
 
 <input type="hidden" name="occupied_fields" id="occupied_fields" value="" />
 <input type="hidden" name="occupied_timezone_fields" id="occupied_timezone_fields" value="" />
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <div class="panel-title">
+            Package Mapping (Not Mapped)
+        </div>
+        <div class="panel-options">
+            <div class="btn-group">
+                <button type="button" id="btnCodeMappingExportExcel" class="btn btn-default btn-sm" style="border: 1px solid #C0C0C0">Excel</button>
+                <button type="button" id="btnCodeMappingExportCSV" class="btn btn-default btn-sm" style="border: 1px solid #C0C0C0">CSV</button>
+            </div>
+            <button type="button" id="btnCodeMapping" class="btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-arrows-ccw"></i>Refresh Mapping</button>
+            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+        </div>
+    </div>
+
+    <div class="panel-body" id="CodeMappingPanel" style="max-height: 500px; overflow-y: auto">
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <div class="panel-title">
+            Package Mapping (Mapped)
+        </div>
+        <div class="panel-options">
+            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+        </div>
+    </div>
+
+    <div class="panel-body" id="CodeMappingPanelMapped" style="max-height: 500px; overflow-y: auto">
+    </div>
+</div>

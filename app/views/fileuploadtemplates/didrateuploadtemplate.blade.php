@@ -329,3 +329,69 @@
 
 <input type="hidden" name="occupied_fields" id="occupied_fields" value="" />
 <input type="hidden" name="occupied_timezone_fields" id="occupied_timezone_fields" value="" />
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <div class="panel-title">
+            City Mapping (Not Mapped)
+        </div>
+        <div class="panel-options">
+            <div class="btn-group">
+                <button type="button" id="btnCityMappingExportExcel" class="btn btn-default btn-sm" style="border: 1px solid #C0C0C0">Excel</button>
+                <button type="button" id="btnCityMappingExportCSV" class="btn btn-default btn-sm" style="border: 1px solid #C0C0C0">CSV</button>
+            </div>
+            <button type="button" id="btnCityMapping" class="btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-arrows-ccw"></i>Refresh Mapping</button>
+            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+        </div>
+    </div>
+
+    <div class="panel-body" id="CityMappingPanel" style="max-height: 500px; overflow-y: auto">
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <div class="panel-title">
+            City Mapping (Mapped)
+        </div>
+        <div class="panel-options">
+            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+        </div>
+    </div>
+
+    <div class="panel-body" id="CityMappingPanelMapped" style="max-height: 500px; overflow-y: auto">
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <div class="panel-title">
+            Tariff Mapping (Not Mapped)
+        </div>
+        <div class="panel-options">
+            <div class="btn-group">
+                <button type="button" id="btnTariffMappingExportExcel" class="btn btn-default btn-sm" style="border: 1px solid #C0C0C0">Excel</button>
+                <button type="button" id="btnTariffMappingExportCSV" class="btn btn-default btn-sm" style="border: 1px solid #C0C0C0">CSV</button>
+            </div>
+            <button type="button" id="btnTariffMapping" class="btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-arrows-ccw"></i>Refresh Mapping</button>
+            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+        </div>
+    </div>
+
+    <div class="panel-body" id="TariffMappingPanel" style="max-height: 500px; overflow-y: auto">
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <div class="panel-title">
+            Tariff Mapping (Mapped)
+        </div>
+        <div class="panel-options">
+            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+        </div>
+    </div>
+
+    <div class="panel-body" id="TariffMappingPanelMapped" style="max-height: 500px; overflow-y: auto">
+    </div>
+</div>

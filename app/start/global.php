@@ -30,8 +30,11 @@ ClassLoader::addDirectories(array(
 | build a basic log file setup which creates a single file for logs.
 |
 */
-
-Log::useDailyFiles(storage_path().'/logs/laravel.log');
+if(getenv('APP_DEBUG') == 0){
+	Log::useDailyFiles(storage_path().'/logs/laravel.log' ,0, 'error');
+}else{
+	Log::useDailyFiles(storage_path().'/logs/laravel.log');
+}
 
 /*
 |--------------------------------------------------------------------------

@@ -163,7 +163,7 @@ class ResellerController extends BaseController {
 
                         //Create profile company_logo dir if not exists
                         if (!file_exists($destinationPath)) {
-                            mkdir($destinationPath, 0777, true);
+                            mkdir($destinationPath, 0775, true);
                         }
 
                         $fileName = strtolower(filter_var(str_replace(' ', '', $FirstName),FILTER_SANITIZE_URL)) .'_'. GUID::generate() .$extension;
@@ -278,7 +278,7 @@ class ResellerController extends BaseController {
 
             //Create profile company_logo dir if not exists
             if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0777, true);
+                mkdir($destinationPath, 0775, true);
             }
 
             $fileName = strtolower(filter_var(str_replace(' ', '', $FirstName),FILTER_SANITIZE_URL)) .'_'. GUID::generate() .$extension;
@@ -539,5 +539,10 @@ class ResellerController extends BaseController {
         }else{
             return Response::json(array("status" => "failed", "message" => "Partner Not Found!"));
         }
+    }
+
+    public function getreselleraccount($id){
+        $Accounts = Account::getAccountByReseller($id);
+        return $Accounts;
     }
 }

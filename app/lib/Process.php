@@ -26,7 +26,7 @@ class Process
     }
     private function runCom(){
         //@TODO: need to fix for Window
-        $command = 'sudo nohup '.$this->command.'  >/dev/null 2>/dev/null & printf "%u" $!';
+        $command = 'nohup '.$this->command.'  >/dev/null 2>/dev/null & printf "%u" $!';
         $op = RemoteSSH::run([$command]);
         //exec($command ,$op);
         $this->pid = (int)$op;
@@ -100,7 +100,7 @@ class Process
     }
 
     public function check_crontab_status(){
-        $command = 'sudo service crond status';
+        $command = 'service crond status';
         $output = RemoteSSH::run([$command]);
         if(isset($output[0]) && strstr($output[0],"is running...") != FALSE ){
             return true;
@@ -111,9 +111,9 @@ class Process
     public function change_crontab_status($Status = 1){
 
         if($Status == 0 ){
-            $command = 'sudo service crond stop';
+            $command = 'service crond stop';
         }else {
-            $command = 'sudo service crond start';
+            $command = 'service crond start';
         }
 
         $output = RemoteSSH::run([$command]);

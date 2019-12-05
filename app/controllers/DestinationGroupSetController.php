@@ -147,15 +147,15 @@ class DestinationGroupSetController extends \BaseController {
         }
     }
     public function show($id) {
-    	$countries  = DestinationGroupSet::getCountriesNames();
+    	$countries  = Country::getCountryByID();
         $DestinationGroupSetID = $id;
         $CompanyID = User::get_companyID();
         $name = DestinationGroupSet::getName($id);
         $terminationtype = DestinationGroupSet::getTerminationTypes();
         $typename  = DestinationGroupSet::getTypeNameByID($id);
         $AccessTypes = DestinationGroupSet::getAccessTypes();
-        $City               = ServiceTemplate::getCityDD($CompanyID);
-        $Tariff             =ServiceTemplate::getTariffDD($CompanyID);
+        $City        = ServiceTemplate::getCityDD($CompanyID);
+        $Tariff      =ServiceTemplate::getTariffDD($CompanyID);
         $Packages = DestinationGroupSet::getPackages();
         $Prefix = DestinationGroupSet::getAccessPrefixNames();
         $CityTariffFilter  = ServiceTemplate::getTariffDD($CompanyID);
