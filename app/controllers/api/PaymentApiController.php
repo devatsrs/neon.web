@@ -77,8 +77,8 @@ class PaymentApiController extends ApiController {
 						$startDate = new DateTime($startDate);
 						$endDate   = new DateTime($endDate);
 
-						$query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?)";
-						$UnBilledResult = DB::select($query, array($CompanyID, $AccountID, $CustomerLastInvoiceDate, $today, 1));
+						$query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?,?,?)";
+						$UnBilledResult = DB::select($query, array($CompanyID, $AccountID, $CustomerLastInvoiceDate, $today, 1, "", ""));
 						if($UnBilledResult != false){
 							foreach($UnBilledResult as $item){
 								if($item->Type == "Usage" && 0 != (float)$item->Amount) {
