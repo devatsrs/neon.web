@@ -20,7 +20,6 @@ class WireTransfer {
             'BankAccount'       => 'required',
             'BIC'               => 'required',
             'AccountHolderName' => 'required',
-            'MandateCode'       => 'required'
             //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
         );
 

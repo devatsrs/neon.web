@@ -1560,6 +1560,14 @@
 
                 return true;
             }
+            $('[name="IsCustomer"]').on( "change",function(e){
+                changeTaxes();
+            });
+
+            $('[name="IsReseller"]').on( "change",function(e){
+                changeTaxes();
+            });
+            
             $('[name="Country"]').on( "change",function(e){
                 changeTaxes();
             });
