@@ -244,6 +244,7 @@ var dropdown_text =  {
     },
     ratetemplateoptions:{
         AccountName:"AccountName",
+        AccountTag : "AccountTag",
         FirstName:"FirstName",
         LastName:"LastName",
         Email:"Email",
@@ -295,6 +296,7 @@ var neon_summernote_dropdown_tpl = {
     "leadoptions": function () {
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.leadoptions.AccountName + "</a></li>" +
+            "<li><a data-value='{{AccountTag}}'>" + dropdown_text.ratetemplateoptions.AccountTag + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.leadoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.leadoptions.LastName + "</a></li>" +
             "<li><a data-value='{{Email}}'>" + dropdown_text.leadoptions.Email + "</a></li>" +
@@ -338,6 +340,7 @@ var neon_summernote_dropdown_tpl = {
     "ratetemplateoptions": function () {
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.ratetemplateoptions.AccountName + "</a></li>" +
+            "<li><a data-value='{{AccountTag}}'>" + dropdown_text.ratetemplateoptions.AccountTag + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.ratetemplateoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.ratetemplateoptions.LastName + "</a></li>" +
             "<li><a data-value='{{Email}}'>" + dropdown_text.ratetemplateoptions.Email + "</a></li>" +
@@ -376,6 +379,7 @@ var neon_summernote_dropdown_tpl = {
 
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.invoiceoptions.AccountName + "</a></li>" +
+            "<li><a data-value='{{AccountTag}}'>" + dropdown_text.ratetemplateoptions.AccountTag + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.invoiceoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.invoiceoptions.LastName + "</a></li>" +
             "<li><a data-value='{{Email}}'>" + dropdown_text.invoiceoptions.Email + "</a></li>" +
@@ -417,6 +421,7 @@ var neon_summernote_dropdown_tpl = {
 
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.autopaymentoptions.AccountName + "</a></li>" +
+            "<li><a data-value='{{AccountTag}}'>" + dropdown_text.ratetemplateoptions.AccountTag + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.autopaymentoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.autopaymentoptions.LastName + "</a></li>" +
             "<li><a data-value='{{Email}}'>" + dropdown_text.autopaymentoptions.Email + "</a></li>" +
@@ -520,6 +525,7 @@ var neon_summernote_dropdown_tpl = {
     "estimateoptions": function () {
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
             "<li><a data-value='{{AccountName}}'>" + dropdown_text.estimateoptions.AccountName + "</a></li>" +
+            "<li><a data-value='{{AccountTag}}'>" + dropdown_text.ratetemplateoptions.AccountTag + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.estimateoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.estimateoptions.LastName + "</a></li>" +
             "<li><a data-value='{{Email}}'>" + dropdown_text.estimateoptions.Email + "</a></li>" +
@@ -556,6 +562,7 @@ var neon_summernote_dropdown_tpl = {
     },
     "Crm": function () {
         return "<li><a data-value='{{AccountName}}'>" + dropdown_text.Crm.AccountName + "</a></li>" +
+            "<li><a data-value='{{AccountTag}}'>" + dropdown_text.ratetemplateoptions.AccountTag + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.Crm.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.Crm.LastName + "</a></li>" +
             "<li><a data-value='{{Email}}'>" + dropdown_text.Crm.Email + "</a></li>" +

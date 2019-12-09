@@ -9,6 +9,7 @@ class EmailsTemplates{
 	//@Todo:Place all replaceable variables to one array and remove unnecessary code and functions.
 	static $fields = array(
 		"{{AccountName}}",
+		"{{AccountTag}}",
 		'{{FirstName}}',
 		'{{LastName}}',
 		'{{Email}}',
@@ -423,6 +424,7 @@ class EmailsTemplates{
 		$AccoutData 					= 	 Account::find($AccountID);
 		$RoundChargesAmount				=	 get_round_decimal_places($AccountID);
 		$array['AccountName']			=	 $AccoutData->AccountName;
+		$array['AccountTag']			=	 $AccoutData->tags;
 		$array['FirstName']				=	 $AccoutData->FirstName;
 		$array['LastName']				=	 $AccoutData->LastName;
 		$array['Email']					=	 $AccoutData->Email;

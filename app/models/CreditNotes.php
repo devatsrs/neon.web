@@ -90,6 +90,14 @@ class CreditNotes extends \Eloquent {
         if($CreditNotesID>0)
         {
             $CreditNotes 				= 	CreditNotes::find($CreditNotesID);
+            $language=Account::where("AccountID", $CreditNotes->AccountID)
+            ->join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblAccount.LanguageID')
+            ->join('tblTranslation', 'tblTranslation.LanguageID', '=', 'tblAccount.LanguageID')
+            ->select('tblLanguage.ISOCode', 'tblTranslation.Language', 'tblLanguage.is_rtl')
+            ->first();
+			
+            App::setLocale($language->ISOCode);
+            
             $CreditNotesDetail 		= 	CreditNotesDetail::where(["CreditNotesID" => $CreditNotesID])->get();
             $CreditNotesDetailItems 	= 	CreditNotesDetail::where(["CreditNotesID" => $CreditNotesID,"ProductType"=>Product::ITEM])->get();
             $CreditNotesDetailISubscription 	= 	CreditNotesDetail::where(["CreditNotesID" => $CreditNotesID,"ProductType"=>Product::SUBSCRIPTION])->get();
@@ -140,7 +148,7 @@ class CreditNotes extends \Eloquent {
                 $MultiCurrencies = Invoice::getTotalAmountInOtherCurrency($Account->CompanyId,$Account->CurrencyId,$CreditNotes->GrandTotal,$RoundChargesAmount);
             }
             $print_type = 'CreditNotes';
-            $body 	= 	View::make('creditnotes.pdf', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','CreditNotesItemTaxRates','CreditNotesSubscriptionTaxRates','CreditNotesAllTaxRates','taxes',"CreditNotesDetailItems","CreditNotesDetailISubscription","MultiCurrencies"))->render();
+            $body 	= 	View::make('creditnotes.pdf', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'language' ,'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','CreditNotesItemTaxRates','CreditNotesSubscriptionTaxRates','CreditNotesAllTaxRates','taxes',"CreditNotesDetailItems","CreditNotesDetailISubscription","MultiCurrencies"))->render();
             $body 	= 	htmlspecialchars_decode($body);
             $footer = 	View::make('creditnotes.pdffooter', compact('CreditNotes','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
