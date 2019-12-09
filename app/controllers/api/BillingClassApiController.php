@@ -81,7 +81,7 @@ class BillingClassApiController extends ApiController {
                 if(!empty($data['NotificationId'])) {
                     $NotificationId=$data['NotificationId'];
                 }else{
-                   return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code402[0]);
+                   return Response::json(["ErrorMessage"=>"NotificationId Required"],Codes::$Code402[0]);
                 }
                 $AccountBalanceThreshhold =  AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'AccountBalanceThresholdID'=>$NotificationId))->first();
                 if(count($AccountBalanceThreshhold) > 0){
@@ -156,7 +156,11 @@ class BillingClassApiController extends ApiController {
                     }else{
                             return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
                     }
-                    
+
+                    if(empty($data['BalanceThreshold'])) {
+                        return Response::json(["ErrorMessage"=>"BalanceThreshold Required"],Codes::$Code402[0]);
+                    }
+
               //      foreach($val['BalanceThreshold'] as $keys=>$value){
                     $ThresholdReferenceArr=json_decode(json_encode($data['BalanceThreshold']),true);
                         if(!empty($ThresholdReferenceArr['Threshold'])) {
