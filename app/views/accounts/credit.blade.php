@@ -398,7 +398,7 @@
                         {"name":"AccountID","value":'{{$account->AccountID}}'}
                 );
             },
-            "aaSorting": [[0, 'asc']],
+            "aaSorting": [[2, 'desc']],
             "aoColumns":
                     [
                         {  "bSortable": true },
