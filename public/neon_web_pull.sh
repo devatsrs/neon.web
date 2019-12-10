@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sudo git --git-dir /var/www/html/speakintelligent.neon/.git  pull
+sudo git --git-dir /vol/data/speakintelligent.neon/.git  pull
 
 sudo chown -R neon_sys:apache /vol/data/speakintelligent.neon
 
