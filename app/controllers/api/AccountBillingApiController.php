@@ -198,6 +198,12 @@ class AccountBillingApiController extends ApiController {
 		} else{
 			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code402[0]);
 		}
+
+		$Account = Account::find($AccountID);
+		if(empty($Account)){
+			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+		}
+		
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoOutpayment','OutPaymentThreshold','OutPaymentAmount']);
 
 		return Response::json($Result,Codes::$Code200[0]);
