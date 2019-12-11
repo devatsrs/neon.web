@@ -203,9 +203,10 @@ class AccountBillingApiController extends ApiController {
 		if(empty($Account)){
 			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
 		}
-		
+
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoOutpayment','OutPaymentThreshold','OutPaymentAmount']);
 
+		$Result = $Result != false ? $Result->first() : $Result;
 		return Response::json($Result,Codes::$Code200[0]);
 	}
 
