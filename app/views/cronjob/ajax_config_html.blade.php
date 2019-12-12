@@ -84,6 +84,12 @@
                     {{Form::select('Setting[ServiceId][]', $services, (isset($commandconfigval->ServiceId)?$commandconfigval->ServiceId:'') ,array("id"=>"services" ,"class"=>"select2","data-placeholder"=>"Select services"))}}
                 </div>
             </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">API Key</label>
+                    <input type="text" name="Setting[ProductAPIKey]" class="form-control" value="{{ isset($commandconfigval->ProductAPIKey) ? $commandconfigval->ProductAPIKey :'' }}">
+                </div>
+            </div>
         @endif
         @if (isset($vendors) && count($vendors) > 0)
             <div class="col-md-6">

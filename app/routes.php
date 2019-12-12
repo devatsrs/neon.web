@@ -1894,7 +1894,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('serviceTemplate/createServiceTemplate', 'ServicesTemplateApiController@storeServiceTempalteData');
 
 	Route::post('account/checkBalance/', 'AccountsApiController@checkBalance');
-	Route::post('account/Payments/list', 'PaymentApiController@getPaymentHistory');
+	Route::post('Payments/list', 'PaymentApiController@getPaymentHistory');
 	Route::post('AutoDepositSettings/list', 'AccountBillingApiController@getAutoDepositSettings');
 	Route::post('setAutoDepositSettings/', 'AccountBillingApiController@setAutoDepositSettings');
 	Route::post('AutoOutPaymentSettings/list', 'AccountBillingApiController@getAutoOutPaymentSettings');
@@ -1902,8 +1902,8 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('setLowBalanceNotification/', 'BillingClassApiController@setLowBalanceNotification');
 	Route::post('LowBalanceNotification/list', 'BillingClassApiController@getLowBalanceNotification');
 	Route::post('LowBalanceNotification/delete', 'BillingClassApiController@delLowBalanceNotification');
-	Route::post('account/requestFund/', 'PaymentApiController@requestFund');
-	Route::post('account/depositFund/', 'PaymentApiController@depositFund');
+	Route::post('requestFund', 'PaymentApiController@requestFund');
+	Route::post('depositFund', 'PaymentApiController@depositFund');
 
 	Route::post('startRecording', 'ActiveCallApiController@startRecording');
 	Route::post('startCall', 'ActiveCallApiController@startCall');

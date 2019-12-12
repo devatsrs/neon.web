@@ -355,7 +355,7 @@ Return
 
 ### POST requestFund
 
-http://speakintelligence.neon-soft.com/api/account/requestFund
+http://speakintelligence.neon-soft.com/api/requestFund
 
 Params:
 

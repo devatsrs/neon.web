@@ -182,7 +182,7 @@ class BillingClassApiController extends ApiController {
                  //   }
              //   }
                 //return Response::json(["status"=>"success"],Codes::$Code200[0]);
-                return Response::json(json_decode('{}'),Codes::$Code200[0]);
+                return Response::json((object)['status' => "success"],Codes::$Code200[0]);
                 exit();
                 //Below are the old code and logic----------------
 //		$PostData=array();

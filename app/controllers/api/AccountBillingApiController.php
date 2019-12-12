@@ -41,8 +41,15 @@ class AccountBillingApiController extends ApiController {
 		} else{
 			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code402[0]);
 		}
+
+		$Account = Account::find($AccountID);
+		if(empty($Account)){
+			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+		}
+
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoTopup','MinThreshold','TopupAmount']);
 
+		$Result = $Result != false ? $Result->first() : $Result;
 		return Response::json($Result,Codes::$Code200[0]);
 	}
 
@@ -120,7 +127,7 @@ class AccountBillingApiController extends ApiController {
 		$data['updated_at']=date('Y-m-d H:i:s');
 
 		if ($AccountPaymentAutomationObj->update($data)) {
-			return Response::json([],Codes::$Code200[0]);
+			return Response::json((object)['status' => "success"],Codes::$Code200[0]);
 		} else {
 			return Response::json(array("ErrorMessage" => "Problem Updating Auto Deposit Settings."),Codes::$Code402[0]);
 		}
@@ -154,7 +161,7 @@ class AccountBillingApiController extends ApiController {
 
 		$data['created_at']=date('Y-m-d H:i:s');
 		if (AccountPaymentAutomation::create($data)) {
-			return Response::json([],Codes::$Code200[0]);
+			return Response::json((object)['status' => "success"],Codes::$Code200[0]);
 		} else {
 			return Response::json(array("ErrorMessage" => "Problem Creating Auto Deposit Settings."),Codes::$Code500[0]);
 		}
@@ -191,8 +198,15 @@ class AccountBillingApiController extends ApiController {
 		} else{
 			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code402[0]);
 		}
+
+		$Account = Account::find($AccountID);
+		if(empty($Account)){
+			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+		}
+
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoOutpayment','OutPaymentThreshold','OutPaymentAmount']);
 
+		$Result = $Result != false ? $Result->first() : $Result;
 		return Response::json($Result,Codes::$Code200[0]);
 	}
 
@@ -272,7 +286,7 @@ class AccountBillingApiController extends ApiController {
 
 		$data['updated_at']=date('Y-m-d H:i:s');
 		if ($AccountPaymentAutomation->update($data)) {
-			return Response::json([],Codes::$Code200[0]);
+			return Response::json((object)['status' => "success"],Codes::$Code200[0]);
 		} else {
 			return Response::json(array("ErrorMessage" => "Problem Updating Auto Out Deposit Settings."),Codes::$Code500[0]);
 		}
@@ -307,7 +321,7 @@ class AccountBillingApiController extends ApiController {
 
 		$data['created_at']=date('Y-m-d H:i:s');
 		if (AccountPaymentAutomation::create($data)) {
-			return Response::json(array("ErrorMessage" => "Auto Out Deposit Settings created Successfully."),Codes::$Code200[0]);
+			return Response::json((object)['status' => "success"],Codes::$Code200[0]);
 		} else {
 			return Response::json(array("ErrorMessage" => "Problem Creating Auto Out Deposit Settings."),Codes::$Code500[0]);
 		}
