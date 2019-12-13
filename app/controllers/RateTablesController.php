@@ -942,6 +942,7 @@ class RateTablesController extends \BaseController {
     public function rate_exports($id,$type) {
         $companyID = User::get_companyID();
         $data = Input::all();
+        $username = User::get_user_full_name();
 
         $ApprovedStatus = $data['ApprovedStatus'];
 
@@ -957,8 +958,9 @@ class RateTablesController extends \BaseController {
         $data['Preference']             = !empty($data['Preference']) ? "'".$data['Preference']."'" : 'NULL';
         $data['Blocked']                = isset($data['Blocked']) && $data['Blocked'] != '' ? "'".$data['Blocked']."'" : 'NULL';
         $data['ApprovedStatus']         = isset($data['ApprovedStatus']) && $data['ApprovedStatus'] != '' ? "'".$data['ApprovedStatus']."'" : 'NULL';
-        $data['Timezones']              = !empty($data['Timezones']) && $data['Timezones'] != '' ?  $data['Timezones']  : 'NULL';
+        $data['TimezonesID']            = !empty($data['Timezones']) && $data['Timezones'] != '' ?  $data['Timezones']  : 'NULL';
         $data['AccessType']             = !empty($data['AccessType']) ? "'".$data['AccessType']."'" : 'NULL';
+        unset($data['Timezones']);
 
         $data['City']                   = !empty($data['City']) ? "'".$data['City']."'" : 'NULL';
         $data['Tariff']                 = !empty($data['Tariff']) ? "'".$data['Tariff']."'" : 'NULL';
@@ -979,35 +981,35 @@ class RateTablesController extends \BaseController {
         if($ApprovedStatus == RateTable::RATE_STATUS_APPROVED) { //approved rates
             if($rateTable->Type == $TypeVoiceCall) { // voice call
                 if(!empty($data['DiscontinuedRates'])) {
-                    $query = " call prc_getDiscontinuedRateTableRateGrid (".$companyID.",".$id.",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$data['ApprovedStatus'].",".$view.",NULL,NULL,NULL,NULL,".$data['isExport'].")";
+                    $query = " call prc_getDiscontinuedRateTableRateGrid (".$companyID.",".$id.",".$data['TimezonesID'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$data['ApprovedStatus'].",".$view.",NULL,NULL,NULL,NULL,".$data['isExport'].")";
                 } else {
-                    $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$data['ApprovedStatus'].",".$view.",NULL,NULL,NULL,NULL,".$data['isExport'].")";
+                    $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['TimezonesID'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$data['ApprovedStatus'].",".$view.",NULL,NULL,NULL,NULL,".$data['isExport'].")";
                 }
             } else if($rateTable->Type == $TypeDID) { // did
                 if(!empty($data['DiscontinuedRates'])) {
-                    $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode']."," . $data['Code'] . "," . $data['City'] . "," . $data['Tariff'] . "," . $data['AccessType'] . "," . $data['ApprovedStatus'] . ",NULL,NULL,NULL,NULL,".$data['isExport'].")";
+                    $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['TimezonesID']."," . $data['Country'] . ",".$data['OriginationCode']."," . $data['Code'] . "," . $data['City'] . "," . $data['Tariff'] . "," . $data['AccessType'] . "," . $data['ApprovedStatus'] . ",NULL,NULL,NULL,NULL,".$data['isExport'].")";
                 } else {
-                    $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code']."," . $data['City'] . "," . $data['Tariff'] . ",".$data['AccessType'].",'".$data['Effective']."',".$data['ApprovedStatus'].",NULL,NULL,NULL,NULL,".$data['isExport'].")";
+                    $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['TimezonesID'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code']."," . $data['City'] . "," . $data['Tariff'] . ",".$data['AccessType'].",'".$data['Effective']."',".$data['ApprovedStatus'].",NULL,NULL,NULL,NULL,".$data['isExport'].")";
                 }
             } else { // package
                 if(!empty($data['DiscontinuedRates'])) {
-                    $query = "call prc_getDiscontinuedRateTablePKGRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Code'] . ",".$data['ApprovedStatus'].",NULL,NULL,NULL,NULL,1)";
+                    $query = "call prc_getDiscontinuedRateTablePKGRateGrid (" . $companyID . "," . $id . ",".$data['TimezonesID']."," . $data['Code'] . ",".$data['ApprovedStatus'].",NULL,NULL,NULL,NULL,1)";
                 } else {
-                    $query = "call prc_GetRateTablePKGRate (".$companyID.",".$id.",".$data['Timezones'].",".$data['Code'].",'".$data['Effective']."',".$data['ApprovedStatus'].",NULL,NULL,NULL,NULL,1)";
+                    $query = "call prc_GetRateTablePKGRate (".$companyID.",".$id.",".$data['TimezonesID'].",".$data['Code'].",'".$data['Effective']."',".$data['ApprovedStatus'].",NULL,NULL,NULL,NULL,1)";
                 }
             }
         } else { //awaiting approval/rejected
             if($rateTable->Type == $TypeVoiceCall) { // voice call
-                $query = "call prc_GetRateTableRateAA (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".$data['Percentage'].",NULL,NULL,NULL,NULL,".$data['isExport'].")";
+                $query = "call prc_GetRateTableRateAA (".$companyID.",".$id.",".$data['TrunkID'].",".$data['TimezonesID'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".$data['Percentage'].",NULL,NULL,NULL,NULL,".$data['isExport'].")";
             } else if($rateTable->Type == $TypeDID) { // did
-                $query = "call prc_GetRateTableDIDRateAA (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code'].",".$data['City'].",".$data['Tariff'].",".$data['AccessType'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".$data['Percentage'].",NULL,NULL,NULL,NULL,".$data['isExport'].")";
+                $query = "call prc_GetRateTableDIDRateAA (".$companyID.",".$id.",".$data['TrunkID'].",".$data['TimezonesID'].",".$data['Country'].",".$data['OriginationCode'].",".$data['Code'].",".$data['City'].",".$data['Tariff'].",".$data['AccessType'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".$data['Percentage'].",NULL,NULL,NULL,NULL,".$data['isExport'].")";
             } else { // package
-                $query = "call prc_GetRateTablePKGRateAA (".$companyID.",".$id.",".$data['Timezones'].",".$data['Code'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".$data['Percentage'].",NULL,NULL,NULL,NULL,1)";
+                $query = "call prc_GetRateTablePKGRateAA (".$companyID.",".$id.",".$data['TimezonesID'].",".$data['Code'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".$data['Percentage'].",NULL,NULL,NULL,NULL,1)";
             }
         }
 
         //Log::info($query);
-        DB::setFetchMode( PDO::FETCH_ASSOC );
+        /*DB::setFetchMode( PDO::FETCH_ASSOC );
         $rate_table_rates  = DB::select($query);
         DB::setFetchMode( Config::get('database.fetch'));
 
@@ -1037,12 +1039,36 @@ class RateTablesController extends \BaseController {
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rate Table Rates.xls';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($rate_table_rates);
+        }*/
+
+        $RateTableName2 = str_replace( '\/','-',$RateTableName);
+        $RateTableName2 = str_replace( '/','-',$RateTableName2);
+        $RateTableName2 = str_replace( '&','-',$RateTableName2);
+        $RateTableName2 = str_replace( ' ','_',$RateTableName2);
+
+        $time = time();
+        $file_name = '';
+        if($type=='csv') {
+            $file_name = $RateTableName2 . '_' . $time . '_Rate Table Rates.csv';
+        } else if($type=='xlsx') {
+            $file_name = $RateTableName2 . '_' . $time . '_Rate Table Rates.xls';
         }
-        /*Excel::create($RateTableName . ' - Rates Table', function ($excel) use ($rate_table_rates) {
-            $excel->sheet('Rates Table', function ($sheet) use ($rate_table_rates) {
-                $sheet->fromArray($rate_table_rates);
-            });
-        })->download('xls');*/
+
+        $params                 = $data;
+        $params['RateTableID']  = $id;
+        $params['username']     = $username;
+        $params['type']         = $type;
+        $params['FileName']     = $file_name;
+
+        $options['GridType']        = 'Termination Rate Table';
+        $options['RateTableName']   = $RateTableName;
+        $options['query']           = $query;
+        $options['params']          = $params;
+
+        $results = Job::logJob('GE', $options);
+
+        return Response::json($results);
+
     }
     public static function add_newrate($id){
         $data = Input::all();
