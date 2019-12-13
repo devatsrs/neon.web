@@ -3528,8 +3528,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $CompanyID = $data['CompanyID'];
         $CompanyID = getParentCompanyIdIfReseller($CompanyID);
         $Country = $data['Country'];
-        $CustomerAccount = $data['Customer'] == "true" ? 1 : 0;
-        $PartnerAccount =  $data['Partner'] == "true" ? 1 : 0;
+        $CustomerAccount = isset($data['Customer']) && $data['Customer'] == "true" ? 1 : 0;
+        $PartnerAccount =  isset($data['Partner']) && $data['Partner'] == "true" ? 1 : 0;
         if(is_reseller()){
             $data['PartnerID'] = Reseller::getResellerID();
             $PartnerAccount = 0;

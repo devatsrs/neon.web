@@ -445,16 +445,18 @@ public function edit_inv_in($id){
 				
 				//Invoice tax
 				if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
-					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
-                        if(!empty($InvoiceTaxes)) {
-                            $InvoiceAllTaxRates[$p]['TaxRateID']    = $InvoiceTaxes;
-                            $InvoiceAllTaxRates[$p]['Title']        = TaxRate::getTaxName($InvoiceTaxes);
-                            $InvoiceAllTaxRates[$p]["created_at"]   = date("Y-m-d H:i:s");
-                            $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
-                            $InvoiceAllTaxRates[$p]["InvoiceID"]    = $Invoice->InvoiceID;
-                            $InvoiceAllTaxRates[$p]["TaxAmount"]    = $data['InvoiceTaxes']['value'][$p];
+                    if(isset($data['InvoiceTaxes']['field']) && count($data['InvoiceTaxes']['field']) > 0){
+                        foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
+                            if(!empty($InvoiceTaxes)) {
+                                $InvoiceAllTaxRates[$p]['TaxRateID']    = $InvoiceTaxes;
+                                $InvoiceAllTaxRates[$p]['Title']        = TaxRate::getTaxName($InvoiceTaxes);
+                                $InvoiceAllTaxRates[$p]["created_at"]   = date("Y-m-d H:i:s");
+                                $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
+                                $InvoiceAllTaxRates[$p]["InvoiceID"]    = $Invoice->InvoiceID;
+                                $InvoiceAllTaxRates[$p]["TaxAmount"]    = $data['InvoiceTaxes']['value'][$p];
+                            }
                         }
-					}
+                    }    
 				}
 				
                 /*$InvoiceTaxRates 	 = 	merge_tax($InvoiceTaxRates);

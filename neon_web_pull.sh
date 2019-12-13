@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sudo git --git-dir /var/www/html/speakintelligent.neon/.git  pull
+sudo git --git-dir /vol/data/speakintelligent.neon/.git  pull
 
 sudo chown -R neon_sys:apache /vol/data/speakintelligent.neon
 
@@ -11,7 +11,7 @@ sudo chmod -R 770 /vol/data/speakintelligent.neon/app/storage
 sudo chmod -R 770 /vol/data/speakintelligent.neon/public/neon.api/storage
 
 sudo chmod -R 575 /vol/data/speakintelligent.neon/wkhtmltox/bin/wkhtmltopdf
-
+sudo chmod -R 575 /vol/data/speakintelligent.neon/neon_web_pull.sh
 
 #sudo chown -R neon_sys:apache /vol/data/tmp
 #sudo find /vol/data/tmp -type d -exec chmod 775 {} +

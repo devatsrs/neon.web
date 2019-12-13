@@ -1047,16 +1047,102 @@
             {
                 "aButtons": [
                     {
-                        "sExtends": "download",
+                        "sExtends": "text",
                         "sButtonText": "EXCEL",
-                        "sUrl": baseurl + "/rate_tables/{{$id}}/rate_exports/xlsx",
-                        sButtonClass: "save-collection btn-sm"
+                        sButtonClass: "save-collection btn-sm",
+                        "fnClick": function ( nButton, oConfig, oFlash ) {
+                            if ( data_table.data().any() ) {
+                                $(nButton).attr('disabled','disabled');
+                                var formData = new FormData();
+                                formData.append("OriginationCode", $searchFilter.OriginationCode);
+                                formData.append("OriginationDescription", $searchFilter.OriginationDescription);
+                                formData.append("Code", $searchFilter.Code);
+                                formData.append("Description", $searchFilter.Description);
+                                formData.append("Country", $searchFilter.Country);
+                                formData.append("TrunkID", $searchFilter.TrunkID);
+                                formData.append("Effective", $searchFilter.Effective);
+                                formData.append("DiscontinuedRates", $searchFilter.DiscontinuedRates);
+                                formData.append("view", $searchFilter.view);
+                                formData.append("Timezones", $searchFilter.Timezones);
+                                formData.append("RoutingCategoryID", $searchFilter.RoutingCategoryID);
+                                formData.append("Preference", $searchFilter.Preference);
+                                formData.append("Blocked", $searchFilter.Blocked);
+                                formData.append("ApprovedStatus", $searchFilter.ApprovedStatus);
+                                formData.append("ratetablepageview", $searchFilter.ratetablepageview);
+                                formData.append("ResellerPage", $searchFilter.ResellerPage);
+                                formData.append("Percentage", $searchFilter.Percentage);
+                                formData.append("PercentageCondition", $searchFilter.PercentageCondition);
+                                $.ajax({
+                                    url: baseurl + "/rate_tables/{{$id}}/rate_exports/xlsx",
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    success: function (response) {
+                                        if (response.status == 'success') {
+                                            toastr.success(response.message, "Success", toastr_opts);
+                                        } else {
+                                            toastr.error(response.message, "Error", toastr_opts);
+                                        }
+                                        $(nButton).removeAttr('disabled');
+                                    },
+                                    // Form data
+                                    data: formData,
+                                    cache: false,
+                                    contentType: false,
+                                    processData: false
+                                });
+                            } else {
+                                toastr.warning('No Data to Export.', "Error", toastr_opts);
+                            }
+                        }
                     },
                     {
-                        "sExtends": "download",
+                        "sExtends": "text",
                         "sButtonText": "CSV",
-                        "sUrl": baseurl + "/rate_tables/{{$id}}/rate_exports/csv",
-                        sButtonClass: "save-collection btn-sm"
+                        sButtonClass: "save-collection btn-sm",
+                        "fnClick": function ( nButton, oConfig, oFlash ) {
+                            if ( data_table.data().any() ) {
+                                $(nButton).attr('disabled','disabled');
+                                var formData = new FormData();
+                                formData.append("OriginationCode",$searchFilter.OriginationCode);
+                                formData.append("OriginationDescription",$searchFilter.OriginationDescription);
+                                formData.append("Code",$searchFilter.Code);
+                                formData.append("Description",$searchFilter.Description);
+                                formData.append("Country",$searchFilter.Country);
+                                formData.append("TrunkID",$searchFilter.TrunkID);
+                                formData.append("Effective",$searchFilter.Effective);
+                                formData.append("DiscontinuedRates",$searchFilter.DiscontinuedRates);
+                                formData.append("view",$searchFilter.view);
+                                formData.append("Timezones",$searchFilter.Timezones);
+                                formData.append("RoutingCategoryID",$searchFilter.RoutingCategoryID);
+                                formData.append("Preference",$searchFilter.Preference);
+                                formData.append("Blocked",$searchFilter.Blocked);
+                                formData.append("ApprovedStatus",$searchFilter.ApprovedStatus);
+                                formData.append("ratetablepageview",$searchFilter.ratetablepageview);
+                                formData.append("ResellerPage",$searchFilter.ResellerPage);
+                                formData.append("Percentage",$searchFilter.Percentage);
+                                formData.append("PercentageCondition",$searchFilter.PercentageCondition);
+                                $.ajax({
+                                    url: baseurl + "/rate_tables/{{$id}}/rate_exports/csv",
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    success: function(response) {
+                                        if(response.status == 'success') {
+                                            toastr.success(response.message, "Success", toastr_opts);
+                                        } else {
+                                            toastr.error(response.message, "Error", toastr_opts);
+                                        }
+                                        $(nButton).removeAttr('disabled');
+                                    },
+                                    // Form data
+                                    data: formData,
+                                    cache: false,
+                                    contentType: false,
+                                    processData: false
+                                });
+                            } else {
+                                toastr.warning('No Data to Export.', "Error", toastr_opts);
+                            }
+                        }
                     }
                 ]
             },

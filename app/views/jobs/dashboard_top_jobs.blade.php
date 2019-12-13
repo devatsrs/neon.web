@@ -35,7 +35,7 @@
             <li>
                 <a href="Javascript:;" onclick="return showJobAjaxModal('{{$job->JobID}}');">
                                             <span class="task <?php echo $HasReadClass;?>">
-                                                <span class="desc">{{substr($job->Title,0,50)}}</span>
+                                                <span class="desc">{{substr($job->Title,0,47)}}</span>
                                                 <span class="percent">{{$job->Status}}</span>
                                             </span>
 
