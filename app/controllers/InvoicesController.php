@@ -184,7 +184,7 @@ class InvoicesController extends \BaseController {
      */
     public function create()
     {
-        $companyID  =   User::get_companyID();
+        $companyID  =   1;
         $accounts 	= 	Account::getAccountIDList();
         $products 	= 	Product::getProductDropdownList($companyID);
         $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
