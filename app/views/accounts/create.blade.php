@@ -825,6 +825,15 @@
                 return true;
             }
             $('[name="Country"]').trigger('change');
+
+            $('[name="IsCustomer"]').on( "change",function(e){
+                changeTaxes();
+            });
+
+            $('[name="IsReseller"]').on( "change",function(e){
+                changeTaxes();
+            });
+
             $('[name="Country"]').on( "change",function(e){
                 changeTaxes();
             });

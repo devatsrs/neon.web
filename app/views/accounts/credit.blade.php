@@ -209,7 +209,6 @@
     <thead>
     <tr>
         <th width="10%" >Credit Limit</th>
-        <th width="10%" >Balance Threshold</th>
         <th width="10%" >Created By</th>
         <th width="10%" >Created at</th>
     </tr>
@@ -399,10 +398,9 @@
                         {"name":"AccountID","value":'{{$account->AccountID}}'}
                 );
             },
-            "aaSorting": [[0, 'asc']],
+            "aaSorting": [[2, 'desc']],
             "aoColumns":
                     [
-                        {  "bSortable": true },
                         {  "bSortable": true },
                         {  "bSortable": true },
                         {  "bSortable": true }

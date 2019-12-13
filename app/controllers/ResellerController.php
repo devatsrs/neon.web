@@ -43,8 +43,8 @@ class ResellerController extends BaseController {
     public function store() {
         $data = Input::all();
         //dd($data);
-        $items = empty($data['reseller-item']) ? '' : array_filter($data['reseller-item']);
-        $subscriptions = empty($data['reseller-subscription']) ? '' : array_filter($data['reseller-subscription']);
+        $items = Product::where('CompanyID' , '1')->lists('ProductID');
+        $subscriptions = BillingSubscription::where('CompanyID' , '1')->lists('SubscriptionID');
         //$trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
         $trunks='';
         $is_product = 0;
@@ -55,11 +55,12 @@ class ResellerController extends BaseController {
         $trunkids = '';
         $LogoAS3Key = '';
         $LogoUrl = '';
-        if(!empty($items)){
+        if(count($items) > 0 && !empty($items)){
             $is_product  = 1;
             $productids=implode(',',$items);
+           
         }
-        if(!empty($subscriptions)){
+        if(count($subscriptions) > 0 && !empty($subscriptions)){
             $is_subscription = 1;
             $subscriptionids=implode(',',$subscriptions);
         }
@@ -533,6 +534,7 @@ class ResellerController extends BaseController {
         $reseller = json_decode($data,true);
         if(!empty($reseller)){
             $reseller['Password'] = Crypt::decrypt($reseller['Password']);
+            $reseller['SMTPPassword'] = Crypt::decrypt($reseller['SMTPPassword']);
             Log::info("Amazon" . AmazonS3::$isAmazonS3);
             $reseller['Logo']  = !empty($reseller['LogoAS3Key']) ? AmazonS3::unSignedImageUrl($reseller['LogoAS3Key'], $reseller['ChildCompanyID']):'';
             return Response::json($reseller);

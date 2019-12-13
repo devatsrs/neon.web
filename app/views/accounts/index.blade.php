@@ -1427,6 +1427,7 @@
                             DomainUrl = response.DomainUrl;
                             Password = response.Password;
                             PartnerLogo = response.Logo;
+                            SMTPPassword = response.SMTPPassword
 
 
                             //AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
@@ -1454,7 +1455,10 @@
                             $("#SMTP-SERVER [name='SMTPServer']").val(SMTPServer);
                             $("#SMTP-SERVER [name='EmailFrom']").val(EmailFrom);
                             $("#SMTP-SERVER [name='SMTPUsername']").val(SMTPUsername);
+                            $("#SMTP-SERVER [name='SMTPPassword']").val(SMTPPassword);
                             $("#SMTP-SERVER [name='Port']").val(Port);
+
+                            
                             //$("#SMTP-SERVER [name='IsSSL']").val(IsSSL);
                            
 

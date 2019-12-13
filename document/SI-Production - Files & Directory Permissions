@@ -1,0 +1,39 @@
+Permission we applied to system is as follows:
+
+#web
+sudo chown -R neon_sys:apache /vol/data/speakintelligent.neon
+
+sudo find /vol/data/speakintelligent.neon -type d -exec chmod 575 {} +
+sudo find /vol/data/speakintelligent.neon -type f -exec chmod 464 {} +
+
+sudo chmod -R 770 /vol/data/speakintelligent.neon/app/storage
+sudo chmod -R 770 /vol/data/speakintelligent.neon/public/neon.api/storage
+
+sudo chmod -R 575 /vol/data/speakintelligent.neon/wkhtmltox/bin/wkhtmltopdf
+
+#service
+sudo chown -R neon_sys:apache /vol/data/speakintelligent.neon.service
+
+sudo find /vol/data/speakintelligent.neon.service -type d -exec chmod 575 {} +
+sudo find /vol/data/speakintelligent.neon.service -type f -exec chmod 464 {} +
+
+touch /vol/data/cron_job_speakintelligent
+sudo chmod -R 770 /vol/data/speakintelligent.neon.service/storage
+sudo chown -R neon_sys:apache /vol/data/cron_job_speakintelligent
+
+sudo chmod -R 575 /vol/data/speakintelligent.neon.service/wkhtmltox/bin/wkhtmltopdf
+
+
+#Tmp
+sudo chown -R neon_sys:apache /vol/data/tmp
+
+sudo find /vol/data/tmp -type d -exec chmod 775 {} +
+sudo find /vol/data/tmp -type f -exec chmod 775 {} +
+
+#app - nodejs
+sudo chown -R neon_sys:apache /vol/data/neon_nodejs_api
+
+sudo find /vol/data/neon_nodejs_api -type d -exec chmod 770 {} +
+sudo find /vol/data/neon_nodejs_api -type f -exec chmod 464 {} +
+
+sudo chmod -R 575 /vol/data/speakintelligent.neon.service/wkhtmltox/bin/wkhtmltopdf

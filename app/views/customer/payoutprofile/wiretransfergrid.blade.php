@@ -286,12 +286,16 @@
                     AccountHolderName       = $(this).prev("div.hiddenRowData").find("input[name='AccountHolderName']").val();
                     MandateCode             = $(this).prev("div.hiddenRowData").find("input[name='MandateCode']").val();
 
+                    var pgid = '{{PaymentGateway::getPayoutGatewayIDBYAccount($account->AccountID)}}';
                     $("#add-payout-form").find('[name="AccountPayoutID"]').val(AccountPayoutID);
                     $("#add-payout-form").find('[name="Title"]').val(Title);
                     $("#add-payout-form").find('[name="BankAccount"]').val(BankAccount);
                     $("#add-payout-form").find('[name="BIC"]').val(BIC);
                     $("#add-payout-form").find('[name="AccountHolderName"]').val(AccountHolderName);
                     $("#add-payout-form").find('[name="MandateCode"]').val(MandateCode);
+					$("#add-payout-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
+                    $("#add-payout-form").find('input[name="CompanyID"]').val('{{$account->CompanyId}}');
+					$("#add-payout-form").find('input[name="PaymentGatewayID"]').val(pgid);
                     $('#add-modal-payout').modal('show');
                 })
 
