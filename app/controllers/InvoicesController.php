@@ -187,7 +187,7 @@ class InvoicesController extends \BaseController {
         $companyID  =   User::get_companyID();
         $accounts 	= 	Account::getAccountIDList();
         $products 	= 	Product::getProductDropdownList($companyID);
-        $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
+        $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice(0,1);
 		$BillingClass = BillingClass::getBillingClassListByCompanyID($companyID);
 
         $Type =  Product::DYNAMIC_TYPE;
