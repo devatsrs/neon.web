@@ -1060,7 +1060,8 @@ class RateTablesController extends \BaseController {
         $params['type']         = $type;
         $params['FileName']     = $file_name;
 
-        $options['GridType']        = 'Termination Rate Table';
+        $options['GridTypeText']    = 'Termination Rate Table ('.$RateTableName.')';
+        $options['GridType']        = 'GT-TRT';// (GridType-TerminationRateTable) //don't change this, defined in GridExport command, used at multiple places
         $options['RateTableName']   = $RateTableName;
         $options['query']           = $query;
         $options['params']          = $params;

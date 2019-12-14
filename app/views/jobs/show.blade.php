@@ -17,40 +17,65 @@
 </div>
 
 <?php
-    if ($job->Type == 'Termination Rate Operation' || $job->Type == 'Grid Export') {
-        $visible_keys = array('OriginationCode','OriginationDescription','Code','Description','Country','Effective','TimezonesID');
-        $visible_keys_vendor = array('RoutingCategoryID','Preference','Blocked');
-        $visible_keys_export = array('type');
-        $T_Options = json_decode($job->Options);
+    if ($job->Type == 'Grid Export') {
+        $visible_keys_lcr       = array('OriginationCode','OriginationDescription','Code','Description','LCRPosition','Accounts','Currency','Trunk','CodeDeck','Use_Preference','vendor_block','SelectedEffectiveDate','Policy'); //,'GroupBy','show_all_vendor_codes','TimezonesMerged','TakePrice'
+        $visible_keys_rt        = array('OriginationCode','OriginationDescription','Code','Description','Country','Effective','TimezonesID');
+        $visible_keys_rt_vendor = array('RoutingCategoryID','Preference','Blocked');
+        $visible_keys_export    = array('type');
+        $GE_Options              = json_decode($job->Options);
 ?>
 
 <div class="row">
     <div class="col-md-12">
         <div class="form-group">
             <label class="control-label bold">Options</label>
-            @foreach($T_Options->params as $option_key => $option_value)
+            @foreach($GE_Options->params as $option_key => $option_value)
                 <?php $option_value = trim($option_value,"'"); $option_value = $option_value == 'NULL' ? '' : $option_value; ?>
-                @if(in_array($option_key,$visible_keys))
-                    @if($option_key == 'TimezonesID')
-                        <?php $T_Timezone = Timezones::find($option_value); ?>
-                        <div>Time Of Day : {{!empty($T_Timezone->Title) ? $T_Timezone->Title : 'ALL'}}</div>
-                    @elseif($option_key == 'Country')
-                        <?php $T_Country = Country::find($option_value); ?>
-                        <div>{{$option_key}} : {{!empty($T_Country->Country) ? $T_Country->Country : ''}}</div>
-                    @else
-                        <div>{{$option_key}} : {{$option_value}}</div>
-                    @endif
-                @endif
-                @if(in_array($option_key,$visible_keys_vendor))
-                    @if($option_value != '')
-                        @if($option_key == 'RoutingCategoryID')
-                            <?php $T_RoutingCategory = RoutingCategory::find($option_value); ?>
-                            <div>Routing Category : {{!empty($T_RoutingCategory->Name) ? $T_RoutingCategory->Name : ''}}</div>
-                        @elseif($option_key == 'Blocked')
-                            <?php $T_Blocked = $option_value == 0 ? 'Unblocked' : 'Blocked'; ?>
-                            <div>Blocked : {{$T_Blocked}}</div>
+                @if($GE_Options->GridType == "GT-LCR") {{-- Grid Type LCR --}}
+                    @if(in_array($option_key,$visible_keys_lcr))
+                        @if($option_key == 'Trunk')
+                            <?php $GE_Trunk = Trunk::find($option_value); ?>
+                            <div>{{$option_key}} : {{!empty($GE_Trunk->Trunk) ? $GE_Trunk->Trunk : ''}}</div>
+                        @elseif($option_key == 'CodeDeck')
+                            <?php $GE_CodeDeck = BaseCodeDeck::find($option_value); ?>
+                            <div>{{$option_key}} : {{!empty($GE_CodeDeck->CodeDeckName) ? $GE_CodeDeck->CodeDeckName : ''}}</div>
+                        @elseif($option_key == 'Currency')
+                            <?php $GE_Currency = Currency::find($option_value); ?>
+                            <div>{{$option_key}} : {{!empty($GE_Currency->Code) ? $GE_Currency->Code : ''}}</div>
+                        @elseif($option_key == 'Accounts')
+                            <?php $GE_Accounts = Account::whereRaw("find_in_set(AccountID,'".$option_value."')")->selectRaw("group_concat(AccountName) AS AccountName")->first(); ?>
+                            <div>Vendors : {{!empty($GE_Accounts->AccountName) ? $GE_Accounts->AccountName : ''}}</div>
+                        @elseif($option_key == 'Use_Preference' || $option_key == 'vendor_block')
+                            <?php $key_text = $option_key=='Use_Preference' ? 'Use Preference' : 'Show Blocked Vendors' ?>
+                            <?php $val_text = $option_value==true ? 'ON' : 'OFF'; ?>
+                            <div>{{$key_text}} : {{$val_text}}</div>
                         @else
                             <div>{{$option_key}} : {{$option_value}}</div>
+                        @endif
+                    @endif
+                @elseif($GE_Options->GridType == "GT-TRT") {{-- Grid Type Termination Rate Table --}}
+                    @if(in_array($option_key,$visible_keys_rt))
+                        @if($option_key == 'TimezonesID')
+                            <?php $GE_Timezone = Timezones::find($option_value); ?>
+                            <div>Time Of Day : {{!empty($GE_Timezone->Title) ? $GE_Timezone->Title : 'ALL'}}</div>
+                        @elseif($option_key == 'Country')
+                            <?php $GE_Country = Country::find($option_value); ?>
+                            <div>{{$option_key}} : {{!empty($GE_Country->Country) ? $GE_Country->Country : ''}}</div>
+                        @else
+                            <div>{{$option_key}} : {{$option_value}}</div>
+                        @endif
+                    @endif
+                    @if(in_array($option_key,$visible_keys_rt_vendor))
+                        @if($option_value != '')
+                            @if($option_key == 'RoutingCategoryID')
+                                <?php $GE_RoutingCategory = RoutingCategory::find($option_value); ?>
+                                <div>Routing Category : {{!empty($GE_RoutingCategory->Name) ? $GE_RoutingCategory->Name : ''}}</div>
+                            @elseif($option_key == 'Blocked')
+                                <?php $GE_Blocked = $option_value == 0 ? 'Unblocked' : 'Blocked'; ?>
+                                <div>Blocked : {{$GE_Blocked}}</div>
+                            @else
+                                <div>{{$option_key}} : {{$option_value}}</div>
+                            @endif
                         @endif
                     @endif
                 @endif
@@ -64,24 +89,65 @@
     </div>
 </div>
 
+<?php } ?>
+
 <?php
-        if($job->Type == 'Termination Rate Operation' && $T_Options->OperationType == 'Update') {
+    if ($job->Type == 'Termination Rate Operation') {
+        $visible_keys = array('OriginationCode','OriginationDescription','Code','Description','Country','Effective','TimezonesID');
+        $visible_keys_vendor = array('RoutingCategoryID','Preference','Blocked');
+        $TRO_Options = json_decode($job->Options);
+?>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label class="control-label bold">Options</label>
+            @foreach($TRO_Options->params as $option_key => $option_value)
+                <?php $option_value = trim($option_value,"'"); $option_value = $option_value == 'NULL' ? '' : $option_value; ?>
+                @if(in_array($option_key,$visible_keys))
+                    @if($option_key == 'TimezonesID')
+                        <?php $TRO_Timezone = Timezones::find($option_value); ?>
+                        <div>Time Of Day : {{!empty($TRO_Timezone->Title) ? $TRO_Timezone->Title : 'ALL'}}</div>
+                    @elseif($option_key == 'Country')
+                        <?php $TRO_Country = Country::find($option_value); ?>
+                        <div>{{$option_key}} : {{!empty($TRO_Country->Country) ? $TRO_Country->Country : ''}}</div>
+                    @else
+                        <div>{{$option_key}} : {{$option_value}}</div>
+                    @endif
+                @endif
+                @if(in_array($option_key,$visible_keys_vendor))
+                    @if($option_value != '')
+                        @if($option_key == 'RoutingCategoryID')
+                            <?php $TRO_RoutingCategory = RoutingCategory::find($option_value); ?>
+                            <div>Routing Category : {{!empty($TRO_RoutingCategory->Name) ? $TRO_RoutingCategory->Name : ''}}</div>
+                        @else
+                            <div>{{$option_key}} : {{$option_value}}</div>
+                        @endif
+                    @endif
+                @endif
+            @endforeach
+        </div>
+    </div>
+</div>
+
+<?php
+        if($TRO_Options->OperationType == 'Update') {
 ?>
 
 <div class="row">
     <div class="col-md-12">
         <div class="form-group">
             <label class="control-label bold">Update Data</label>
-            @foreach($T_Options->update_data as $data_key => $data_value)
+            @foreach($TRO_Options->update_data as $data_key => $data_value)
                 <?php $data_value = trim($data_value,"'"); ?>
                 @if($data_value != 'NULL')
                     <?php $data_value = $data_value == 'NULL' ? '' : $data_value; ?>
                     @if($data_key == 'RateCurrency'|| $data_key == 'ConnectionFeeCurrency')
-                        <?php $T_Currency = Currency::find($data_value); ?>
-                        <div>{{$data_key}} : {{!empty($T_Currency->Code) ? $T_Currency->Code : ''}}</div>
+                        <?php $TRO_Currency = Currency::find($data_value); ?>
+                        <div>{{$data_key}} : {{!empty($TRO_Currency->Code) ? $TRO_Currency->Code : ''}}</div>
                     @elseif($data_key == 'RoutingCategoryID')
-                        <?php $T_RoutingCategory = RoutingCategory::find($data_value); ?>
-                        <div>Routing Category : {{!empty($T_RoutingCategory->Name) ? $T_RoutingCategory->Name : ''}}</div>
+                        <?php $TRO_RoutingCategory = RoutingCategory::find($data_value); ?>
+                        <div>Routing Category : {{!empty($TRO_RoutingCategory->Name) ? $TRO_RoutingCategory->Name : ''}}</div>
                     @else
                         <div>{{$data_key}} : {{$data_value}}</div>
                     @endif
