@@ -187,7 +187,7 @@ class InvoicesController extends \BaseController {
         $companyID  =   User::get_companyID();
         $accounts 	= 	Account::getAccountIDList();
         $products 	= 	Product::getProductDropdownList($companyID);
-        $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
+        $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice(0,1);
 		$BillingClass = BillingClass::getBillingClassListByCompanyID($companyID);
 
         $Type =  Product::DYNAMIC_TYPE;
@@ -445,16 +445,18 @@ public function edit_inv_in($id){
 				
 				//Invoice tax
 				if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
-					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
-                        if(!empty($InvoiceTaxes)) {
-                            $InvoiceAllTaxRates[$p]['TaxRateID']    = $InvoiceTaxes;
-                            $InvoiceAllTaxRates[$p]['Title']        = TaxRate::getTaxName($InvoiceTaxes);
-                            $InvoiceAllTaxRates[$p]["created_at"]   = date("Y-m-d H:i:s");
-                            $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
-                            $InvoiceAllTaxRates[$p]["InvoiceID"]    = $Invoice->InvoiceID;
-                            $InvoiceAllTaxRates[$p]["TaxAmount"]    = $data['InvoiceTaxes']['value'][$p];
+                    if(isset($data['InvoiceTaxes']['field']) && count($data['InvoiceTaxes']['field']) > 0){
+                        foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
+                            if(!empty($InvoiceTaxes)) {
+                                $InvoiceAllTaxRates[$p]['TaxRateID']    = $InvoiceTaxes;
+                                $InvoiceAllTaxRates[$p]['Title']        = TaxRate::getTaxName($InvoiceTaxes);
+                                $InvoiceAllTaxRates[$p]["created_at"]   = date("Y-m-d H:i:s");
+                                $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
+                                $InvoiceAllTaxRates[$p]["InvoiceID"]    = $Invoice->InvoiceID;
+                                $InvoiceAllTaxRates[$p]["TaxAmount"]    = $data['InvoiceTaxes']['value'][$p];
+                            }
                         }
-					}
+                    }    
 				}
 				
                 /*$InvoiceTaxRates 	 = 	merge_tax($InvoiceTaxRates);

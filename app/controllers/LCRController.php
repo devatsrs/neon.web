@@ -35,7 +35,31 @@ class LCRController extends \BaseController {
 
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::select($query.',1)');
+            $query = $query.',1)';
+            $time = time();
+            $file_name = '';
+            if($type=='csv') {
+                $file_name = 'LCR_' . $time . '.csv';
+            } else if($type=='xlsx') {
+                $file_name = 'LCR_' . $time . '.xls';
+            }
+
+            $username = User::get_user_full_name();
+            $params                 = $data;
+            $params['username']     = $username;
+            $params['type']         = $type;
+            $params['FileName']     = $file_name;
+
+            $options['GridTypeText']    = 'LCR';
+            $options['GridType']        = 'GT-LCR';// (GridType-LCR) //don't change this, defined in GridExport command, used at multiple places
+            $options['query']           = $query;
+            $options['params']          = $params;
+
+            $results = Job::logJob('GE', $options);
+
+            return Response::json($results);
+
+            /*$excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             foreach($excel_data as $rowno => $rows){
                 foreach($rows as $colno => $colval){
@@ -51,7 +75,7 @@ class LCRController extends \BaseController {
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/LCR.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
-            }
+            }*/
 
             /*Excel::create('LCR', function ($excel) use ($excel_data) {
                 $excel->sheet('LCR', function ($sheet) use ($excel_data) {

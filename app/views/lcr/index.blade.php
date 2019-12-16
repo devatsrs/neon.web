@@ -133,6 +133,10 @@
                         <i class="entypo-search"></i>
                         Search
                     </button>
+                    <div class="btn-group">
+                        <button type="button" id="btn-xls" class="btn-export btn btn-default btn-xs">Excel</button>
+                        <button type="button" id="btn-csv" class="btn-export btn btn-default btn-xs">CSV</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -984,18 +988,7 @@
                     "oTableTools":
                     {
                         "aButtons": [
-                            {
-                                "sExtends": "download",
-                                "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/lcr/search_ajax_datagrid/xlsx",
-                                sButtonClass: "save-collection btn-sm"
-                            },
-                            {
-                                "sExtends": "download",
-                                "sButtonText": "CSV",
-                                "sUrl": baseurl + "/lcr/search_ajax_datagrid/csv",
-                                sButtonClass: "save-collection btn-sm"
-                            }
+
                         ]
                     },
                     "fnDrawCallback": function(results) {
@@ -1341,6 +1334,81 @@
                     $('#TimezonesBox').show();
                     $('.TimezonesMergedBox').hide();
                 }
+            });
+
+            $('.btn-export').on('click', function() {
+                var this_btn = $(this);
+                var id = this_btn.attr('id');
+                var type = 'csv';
+                if(id=='btn-xls') {
+                    type = 'xlsx';
+                } else if(id=='btn-csv') {
+                    type = 'csv';
+                }
+                var formData        = new FormData($("#lcr-search-form")[0]);
+                var CodeDeck        = $("#lcr-search-form select[name='CodeDeckId']").val();
+                var Use_Preference  = $("#lcr-search-form [name='Use_Preference']").prop("checked");
+                var vendor_block    = $("#lcr-search-form [name='vendor_block']").prop("checked");
+                var Code            = $("#lcr-search-form input[name='Code']").val();
+                var Description     = $("#lcr-search-form input[name='Description']").val();
+                var Currency        = $("#lcr-search-form select[name='Currency']").val();
+                var Trunk           = $("#lcr-search-form select[name='Trunk']").val();
+                formData.append("CodeDeck", CodeDeck);
+                formData.append("Use_Preference", Use_Preference);
+                formData.append("vendor_block", vendor_block);
+                formData.append("Export", 1);
+                formData.append("iDisplayStart", 0);
+                formData.append("iDisplayLength", 10);
+                formData.append("sSortDir_0", 'asc');
+
+                if(typeof Trunk  == 'undefined' || Trunk == '' ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select a Trunk", "Error", toastr_opts);
+                    return false;
+                }
+                if(typeof CodeDeck  == 'undefined' || CodeDeck == '' ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select a CodeDeck", "Error", toastr_opts);
+                    return false;
+                }
+                if((typeof Code  == 'undefined' || Code == '' ) && (typeof Description  == 'undefined' || Description == '' )){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Enter a Code Or Description", "Error", toastr_opts);
+                    return false;
+                }
+                if(typeof Currency  == 'undefined' || Currency == '' ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select a Currency", "Error", toastr_opts);
+                    return false;
+                }
+
+                this_btn.attr('disabled','disabled');
+                $.ajax({
+                    url: baseurl + "/lcr/search_ajax_datagrid/"+type,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        this_btn.removeAttr('disabled');
+                    },
+                    // Form data
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
             });
 
         });
