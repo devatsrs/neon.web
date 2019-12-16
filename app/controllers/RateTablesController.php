@@ -1009,64 +1009,62 @@ class RateTablesController extends \BaseController {
         }
 
         //Log::info($query);
-        /*DB::setFetchMode( PDO::FETCH_ASSOC );
-        $rate_table_rates  = DB::select($query);
-        DB::setFetchMode( Config::get('database.fetch'));
-
-        if(!empty($data['ResellerPage'])) {
-            foreach ($rate_table_rates as $key => $value) {
-                if (isset($value['Approved By/Date'])) {
-                    unset($value['Approved By/Date']);
-                    $rate_table_rates[$key] = $value;
-                }
-                if (isset($value['ApprovedStatus'])) {
-                    unset($value['ApprovedStatus']);
-                    $rate_table_rates[$key] = $value;
-                }
-            }
-        }
-
-        $RateTableName = str_replace( '\/','-',$RateTableName);
-        $RateTableName = str_replace( '/','-',$RateTableName);
-        $RateTableName = str_replace( '&','-',$RateTableName);
-        $RateTableName = str_replace( ' ','_',$RateTableName);
-
-        if($type=='csv'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rate Table Rates.csv';
-            $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_csv($rate_table_rates);
-        }elseif($type=='xlsx'){
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rate Table Rates.xls';
-            $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_excel($rate_table_rates);
-        }*/
 
         $RateTableName2 = str_replace( '\/','-',$RateTableName);
         $RateTableName2 = str_replace( '/','-',$RateTableName2);
         $RateTableName2 = str_replace( '&','-',$RateTableName2);
         $RateTableName2 = str_replace( ' ','_',$RateTableName2);
 
-        $time = time();
-        $file_name = '';
-        if($type=='csv') {
-            $file_name = $RateTableName2 . '_' . $time . '_Rate Table Rates.csv';
-        } else if($type=='xlsx') {
-            $file_name = $RateTableName2 . '_' . $time . '_Rate Table Rates.xls';
+        if($rateTable->Type == $TypeVoiceCall) { // voice call
+            $time = time();
+            $file_name = '';
+            if ($type == 'csv') {
+                $file_name = $RateTableName2 . '_' . $time . '_Rate Table Rates.csv';
+            } else if ($type == 'xlsx') {
+                $file_name = $RateTableName2 . '_' . $time . '_Rate Table Rates.xls';
+            }
+
+            $params = $data;
+            $params['RateTableID'] = $id;
+            $params['username'] = $username;
+            $params['type'] = $type;
+            $params['FileName'] = $file_name;
+
+            $options['GridTypeText'] = 'Termination Rate Table (' . $RateTableName . ')';
+            $options['GridType'] = 'GT-TRT';// (GridType-TerminationRateTable) //don't change this, defined in GridExport command, used at multiple places
+            $options['RateTableName'] = $RateTableName;
+            $options['query'] = $query;
+            $options['params'] = $params;
+
+            $results = Job::logJob('GE', $options);
+        } else {
+            DB::setFetchMode( PDO::FETCH_ASSOC );
+            $rate_table_rates  = DB::select($query);
+            DB::setFetchMode( Config::get('database.fetch'));
+
+            if(!empty($data['ResellerPage'])) {
+                foreach ($rate_table_rates as $key => $value) {
+                    if (isset($value['Approved By/Date'])) {
+                        unset($value['Approved By/Date']);
+                        $rate_table_rates[$key] = $value;
+                    }
+                    if (isset($value['ApprovedStatus'])) {
+                        unset($value['ApprovedStatus']);
+                        $rate_table_rates[$key] = $value;
+                    }
+                }
+            }
+
+            if($type=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName2 . ' - Rate Table Rates.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($rate_table_rates);
+            }elseif($type=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName2 . ' - Rate Table Rates.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($rate_table_rates);
+            }
         }
-
-        $params                 = $data;
-        $params['RateTableID']  = $id;
-        $params['username']     = $username;
-        $params['type']         = $type;
-        $params['FileName']     = $file_name;
-
-        $options['GridTypeText']    = 'Termination Rate Table ('.$RateTableName.')';
-        $options['GridType']        = 'GT-TRT';// (GridType-TerminationRateTable) //don't change this, defined in GridExport command, used at multiple places
-        $options['RateTableName']   = $RateTableName;
-        $options['query']           = $query;
-        $options['params']          = $params;
-
-        $results = Job::logJob('GE', $options);
 
         return Response::json($results);
 
