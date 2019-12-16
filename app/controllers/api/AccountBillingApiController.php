@@ -129,7 +129,7 @@ class AccountBillingApiController extends ApiController {
 		if ($AccountPaymentAutomationObj->update($data)) {
 			return Response::json((object)['status' => "success"],Codes::$Code200[0]);
 		} else {
-			return Response::json(array("ErrorMessage" => "Problem Updating Auto Deposit Settings."),Codes::$Code402[0]);
+			return Response::json(array("ErrorMessage" => "Problem Updating Auto Deposit Settings."),Codes::$Code500[0]);
 		}
 
 	}
@@ -288,7 +288,7 @@ class AccountBillingApiController extends ApiController {
 		if ($AccountPaymentAutomation->update($data)) {
 			return Response::json((object)['status' => "success"],Codes::$Code200[0]);
 		} else {
-			return Response::json(array("ErrorMessage" => "Problem Updating Auto Out Deposit Settings."),Codes::$Code500[0]);
+			return Response::json(array("ErrorMessage" => "Problem Updating Auto Out Payment Settings."),Codes::$Code500[0]);
 		}
 
 	}
@@ -323,7 +323,7 @@ class AccountBillingApiController extends ApiController {
 		if (AccountPaymentAutomation::create($data)) {
 			return Response::json((object)['status' => "success"],Codes::$Code200[0]);
 		} else {
-			return Response::json(array("ErrorMessage" => "Problem Creating Auto Out Deposit Settings."),Codes::$Code500[0]);
+			return Response::json(array("ErrorMessage" => "Problem Creating Auto Out Payment Settings."),Codes::$Code500[0]);
 		}
 
 	}
