@@ -438,7 +438,7 @@
     
     
     function validateEmail(value) {
-        var regex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+        var regex = /^\w+([-+.'][^\s]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
         return (regex.test(value)) ? true : false;
     }
     function validateEmails() {

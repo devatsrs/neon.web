@@ -284,7 +284,7 @@ class PaymentApiController extends ApiController {
 				}
 
 			} else
-				return Response::json(array("ErrorMessage" => "Approved payment is less then requested amount."));
+				return Response::json(array("ErrorMessage" => "Approved payment is less then requested amount."), Codes::$Code402[0]);
 
 		} else {
 			return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code402[0]);
@@ -466,7 +466,7 @@ class PaymentApiController extends ApiController {
 
 
 			}else{
-				$errors[]= 'Payment Method Not set OR Payment Method is not Stripe:' . $Account->AccountName;
+				$errors[]= 'Payment Method Not set:' . $Account->AccountName;
 
 			}
 		}else{

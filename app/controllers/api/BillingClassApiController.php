@@ -87,7 +87,7 @@ class BillingClassApiController extends ApiController {
                 if(count($AccountBalanceThreshhold) > 0){
                 AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'AccountBalanceThresholdID'=>$NotificationId))->delete();
                 }else{
-                    return Response::json(["ErrorMessage"=>"NotificationID Not Found"],Codes::$Code402[0]);
+                    return Response::json(["ErrorMessage"=>"NotificationId Not Found"],Codes::$Code402[0]);
                 }
                 return Response::json(json_decode('{}'),Codes::$Code200[0]);
             }catch (\Exception $e) {
