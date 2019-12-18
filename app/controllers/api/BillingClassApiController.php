@@ -89,7 +89,7 @@ class BillingClassApiController extends ApiController {
                 }else{
                     return Response::json(["ErrorMessage"=>"NotificationId Not Found"],Codes::$Code402[0]);
                 }
-                return Response::json(json_decode('{}'),Codes::$Code200[0]);
+                return Response::json((object)["status"=>"success"],Codes::$Code200[0]);
             }catch (\Exception $e) {
                     Log::info($e);
                     return Response::json(["ErrorMessage"=>"Something Went Wrong. Exception Generated."],Codes::$Code500[0]);
