@@ -2611,8 +2611,8 @@ public function store_inv_in(){
     public function generate(){
         $CompanyID = User::get_companyID();
         $UserID = User::get_userID();
-        $CronJobCommandID = CronJobCommand::where(array('Command'=>'invoicegenerator','CompanyID'=>$CompanyID))->pluck('CronJobCommandID');
-        $CronJobID = CronJob::where(array('CronJobCommandID'=>(int)$CronJobCommandID,'CompanyID'=>$CompanyID))->pluck('CronJobID');
+        $CronJobCommandID = CronJobCommand::where(array('Command'=>'invoicegenerator'))->pluck('CronJobCommandID');
+        $CronJobID = CronJob::where(array('CronJobCommandID'=>(int)$CronJobCommandID))->pluck('CronJobID');
         if($CronJobID > 0) {
 
             $jobType = JobType::where(["Code" => 'BI'])->get(["JobTypeID", "Title"]);

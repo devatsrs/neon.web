@@ -330,6 +330,8 @@ class AccountsController extends \BaseController {
 
         Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
+        Account::$rules['CustomerID'] = 'required';
+
         if ($data['IsAffiliateAccount'] == 1) {
             Account::$rules['CommissionPercentage'] = 'required';
             //Account::$rules['AffiliateAccounts'] = 'required';
@@ -380,6 +382,12 @@ class AccountsController extends \BaseController {
 
         if (isset($data['CustomerID'])) {
             $CustomerID = $data['CustomerID'];
+            $CompanyID =  getParentCompanyIdIfReseller($companyID);
+            $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>$CompanyID,'FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
+            $check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $data['CustomerID']])->count();
+            if($check > 0){
+                return Response::json(array("status" => "failed", "message" => "Customer ID Already Exist!"));
+            }
             unset($data['CustomerID']);
         }else{
             $CustomerID = '';
@@ -1134,6 +1142,7 @@ class AccountsController extends \BaseController {
         }
         Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID';
+        Account::$rules['CustomerID'] = 'required';
 
         if ($data['IsAffiliateAccount'] == 1) {
             Account::$rules['CommissionPercentage'] = 'required';
@@ -1211,6 +1220,12 @@ class AccountsController extends \BaseController {
 
         if (isset($data['CustomerID'])) {
             $CustomerID = $data['CustomerID'];
+            $CompanyID =  getParentCompanyIdIfReseller($companyID);
+            $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>$CompanyID,'FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
+            $check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $data['CustomerID']])->where('ParentID', '!=' ,$id)->count();
+            if($check > 0){
+                return Response::json(array("status" => "failed", "message" => "Customer ID Already Exist!"));
+            }
             unset($data['CustomerID']);
         }else{
             $CustomerID = '';
