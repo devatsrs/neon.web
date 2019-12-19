@@ -49,6 +49,7 @@
                   @endif
                 {{-- <li> <a href="{{URL::to('/estimates')}}">  <span>Estimates</span> </a> </li> --}}
                 <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
+                <li class="{{ active_url_class("creditnotes") }}"> <a href="{{URL::to('/creditnotes')}}">  <span>Credit Notes</span> </a> </li>
                 <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
                 {{-- <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li> --}}
                 <li> <a href="{{URL::to('/servicesTemplate')}}">  <span>Products</span> </a> </li>
