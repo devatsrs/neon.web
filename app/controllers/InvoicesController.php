@@ -2788,8 +2788,10 @@ public function store_inv_in(){
             if($invoices->accdetail->PaymentMethod == 'Ingenico' && $invoices->InvoiceType == 1){
                 $Account = Account::where('AccountID', $invoices->AccountID)->first();
                 $AccountNumber = $Account != false ? $Account->Number . "/" : "";
+                $RoundChargesAmount = get_round_decimal_places($invoices->AccountID);
+
                 fwrite($file, 
-                $invoices->GrandTotal.';'.
+                number_format($invoices->GrandTotal,$RoundChargesAmount).';'.
                 $invoices->currency->Code.';;;;'.
                 $AccountNumber . $invoices->FullInvoiceNumber.';;;;;;;;;;;'.
                 $this->get_GUID($invoices->AccountID).';;;;;;;;;;;;;;;;;;'.'9'."\r\n"
