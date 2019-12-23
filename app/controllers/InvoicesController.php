@@ -2791,7 +2791,7 @@ public function store_inv_in(){
                 $RoundChargesAmount = get_round_decimal_places($invoices->AccountID);
 
                 fwrite($file, 
-                number_format($invoices->GrandTotal,$RoundChargesAmount).';'.
+                number_format($invoices->GrandTotal,$RoundChargesAmount, '.', '').';'.
                 $invoices->currency->Code.';;;;'.
                 $AccountNumber . $invoices->FullInvoiceNumber.';;;;;;;;;;;'.
                 $this->get_GUID($invoices->AccountID).';;;;;;;;;;;;;;;;;;'.'9'."\r\n"
