@@ -2786,10 +2786,12 @@ public function store_inv_in(){
         foreach($ids as $invid) {
             $invoices = Invoice::where(['InvoiceID' => $invid])->first();
             if($invoices->accdetail->PaymentMethod == 'Ingenico' && $invoices->InvoiceType == 1){
+                $Account = Account::where('AccountID', $invoices->AccountID)->first();
+                $AccountNumber = $Account != false ? $Account->Number . "/" : "";
                 fwrite($file, 
                 $invoices->GrandTotal.';'.
                 $invoices->currency->Code.';;;;'.
-                $invoices->FullInvoiceNumber.';;;;;;;;;;;'.
+                $AccountNumber . $invoices->FullInvoiceNumber.';;;;;;;;;;;'.
                 $this->get_GUID($invoices->AccountID).';;;;;;;;;;;;;;;;;;'.'9'."\r\n"
                 //date('d/m/Y', strtotime($invoices->IssueDate.'+'.$invoices->BillingClass->PaymentDueInDays.' days'))
             );
