@@ -61,12 +61,12 @@ class BillingClassApiController extends ApiController {
                         $AccountID=$Account->AccountID;
                         $CompanyID=$Account->CompanyId;
                     }else{
-                        return Response::json(["ErrorMessage"=>"Account Number Found."],Codes::$Code402[0]);
+                        return Response::json(["ErrorMessage"=>"Account Number Found."],Codes::$Code400[0]);
                     }
 		}else if(!empty($data['AccountDynamicField'])){
                     $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
                     if(empty($AccountID)){
-                        return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+                        return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
                     }
                     $Account = Account::where(["AccountID" => $AccountID])->first();
                     if(!empty($Account)){
@@ -75,19 +75,19 @@ class BillingClassApiController extends ApiController {
                     }
 
 		}else{
-                    return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
+                    return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code400[0]);
 		}
                 
                 if(!empty($data['NotificationId'])) {
                     $NotificationId=$data['NotificationId'];
                 }else{
-                   return Response::json(["ErrorMessage"=>"NotificationId Required"],Codes::$Code402[0]);
+                   return Response::json(["ErrorMessage"=>"NotificationId Required"],Codes::$Code400[0]);
                 }
                 $AccountBalanceThreshhold =  AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'AccountBalanceThresholdID'=>$NotificationId))->first();
                 if(count($AccountBalanceThreshhold) > 0){
                 AccountBalanceThreshold::where(array('AccountID'=>$AccountID,'AccountBalanceThresholdID'=>$NotificationId))->delete();
                 }else{
-                    return Response::json(["ErrorMessage"=>"NotificationId Not Found"],Codes::$Code402[0]);
+                    return Response::json(["ErrorMessage"=>"NotificationId Not Found"],Codes::$Code400[0]);
                 }
                 return Response::json((object)["status"=>"success"],Codes::$Code200[0]);
             }catch (\Exception $e) {
@@ -133,7 +133,7 @@ class BillingClassApiController extends ApiController {
                             $AccountID=$Account->AccountID;
                             $CompanyID=$Account->CompanyId;
                         }else{
-                            return Response::json(["ErrorMessage"=>"AccountID Not Found"],Codes::$Code402[0]);
+                            return Response::json(["ErrorMessage"=>"AccountID Not Found"],Codes::$Code400[0]);
                         }
                     }else if(!empty($data['AccountNo'])){
                         $Account = Account::where(["Number" => $data['AccountNo']])->select('AccountID','CompanyId')->first();
@@ -141,12 +141,12 @@ class BillingClassApiController extends ApiController {
                                 $AccountID=$Account->AccountID;
                                 $CompanyID=$Account->CompanyId;
                         }else{
-                            return Response::json(["ErrorMessage"=>"Account Number Not Found"],Codes::$Code402[0]);
+                            return Response::json(["ErrorMessage"=>"Account Number Not Found"],Codes::$Code400[0]);
                         }
                     }else if(!empty($data['AccountDynamicField'])){
                         $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
                         if(empty($AccountID)){
-                            return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
+                            return Response::json(["data"=>"Account Not Found."],Codes::$Code400[0]);
                         }
                         $Account = Account::where(["AccountID" => $AccountID])->first();
                         if(!empty($Account)){
@@ -154,11 +154,11 @@ class BillingClassApiController extends ApiController {
                                 $CompanyID=$Account->CompanyId;
                         }
                     }else{
-                            return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
+                            return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code400[0]);
                     }
 
                     if(empty($data['BalanceThreshold'])) {
-                        return Response::json(["ErrorMessage"=>"BalanceThreshold Required"],Codes::$Code402[0]);
+                        return Response::json(["ErrorMessage"=>"BalanceThreshold Required"],Codes::$Code400[0]);
                     }
 
               //      foreach($val['BalanceThreshold'] as $keys=>$value){
@@ -166,7 +166,7 @@ class BillingClassApiController extends ApiController {
                         if(!empty($ThresholdReferenceArr['Threshold'])) {
                             $Threshold=$ThresholdReferenceArr['Threshold'];
                         }else{
-                           return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code402[0]);
+                           return Response::json(["ErrorMessage"=>"Threshold Required"],Codes::$Code400[0]);
                         }
                         try{
                             $PostData=array();
@@ -206,7 +206,7 @@ class BillingClassApiController extends ApiController {
 //		}else if(!empty($data['AccountDynamicField'])){
 //			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 //			if(empty($AccountID)){
-//				return Response::json(["data"=>"Account Not Found."],Codes::$Code402[0]);
+//				return Response::json(["data"=>"Account Not Found."],Codes::$Code400[0]);
 //			}
 //			$Account = Account::where(["AccountID" => $AccountID])->first();
 //			if(!empty($Account)){
@@ -215,7 +215,7 @@ class BillingClassApiController extends ApiController {
 //			}
 //
 //		}else{
-//			return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
+//			return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code400[0]);
 //		}
 //
 //		if(!empty($AccountID) && !empty($CompanyID)){
@@ -267,7 +267,7 @@ class BillingClassApiController extends ApiController {
 //					}
 //					return Response::json([],Codes::$Code200[0]);
 //				}else{
-//					return Response::json(["ErrorMessage"=>"Billing Class Not Set For This Account."],Codes::$Code402[0]);
+//					return Response::json(["ErrorMessage"=>"Billing Class Not Set For This Account."],Codes::$Code400[0]);
 //				}
 //
 //			}catch (\Exception $e) {
@@ -276,7 +276,7 @@ class BillingClassApiController extends ApiController {
 //			}
 //
 //		}else{
-//			return Response::json(["ErrorMessage"=>"Account or Company Not Found."],Codes::$Code402[0]);
+//			return Response::json(["ErrorMessage"=>"Account or Company Not Found."],Codes::$Code400[0]);
 //		}
 
 	}
@@ -305,7 +305,7 @@ class BillingClassApiController extends ApiController {
 
 		if(empty($AccountID)){
 
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo is Required"],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo is Required"],Codes::$Code400[0]);
 		}
 
 		$Account = Account::where(["AccountID" => $AccountID])->select('AccountID','CompanyId')->first();
@@ -324,7 +324,7 @@ class BillingClassApiController extends ApiController {
 			return Response::json($result,Codes::$Code200[0]);
 
 		}else{
-			return Response::json(["ErrorMessage"=>"AccountID Not Found"],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"AccountID Not Found"],Codes::$Code400[0]);
 		}
 
 
