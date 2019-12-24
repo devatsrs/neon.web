@@ -2063,7 +2063,6 @@ class AccountsApiController extends ApiController {
 
 				$data['CompanyID'] = $Reseller->ChildCompanyID;
 				$data['Owner']     = $Reseller->ResellerID;
-				$CompanyID         = $data['CompanyID'];
 			}
 
 			// If Reseller on backend customer is on
