@@ -2417,9 +2417,37 @@ class AccountsApiController extends ApiController {
 							'AccountID' =>  $account->AccountID,
 							'PaymentGatewayID' => $PaymentGatewayID);
 						AccountPaymentProfile::create($CardDetail);
-					} else if ($data['PaymentMethod'] == "DirectDebit" || $data['PaymentMethod'] == "BankTransfer") {
+					} else if ($data['PaymentMethod'] == "DirectDebit") {
 						$isDefault = 1;
 						$PaymentGatewayID = 12;
+						$count = AccountPaymentProfile::where(['AccountID' => $account->AccountID])
+							->where(['CompanyID' => $CompanyID])
+							->where(['PaymentGatewayID' => $PaymentGatewayID])
+							->where(['isDefault' => 1])
+							->count();
+
+						if($count>0){
+							$isDefault = 0;
+						}
+
+						$option = array(
+							'BankAccount'       => $PaymentProfile['BankAccount'],
+							'BIC'               => $PaymentProfile['BIC'],
+							'AccountHolderName' => $PaymentProfile['AccountHolderName'],
+							'MandateCode'       => $PaymentProfile['MandateCode'],
+						);
+						$CardDetail = array('Title' => $PaymentProfile['Title'],
+							'Options' => json_encode($option),
+							'Status' => 1,
+							'isDefault' => $isDefault,
+							'created_by' => $CreatedBy,
+							'CompanyID' => $CompanyID,
+							'AccountID' => $account->AccountID,
+							'PaymentGatewayID' => $PaymentGatewayID);
+						AccountPaymentProfile::create($CardDetail);
+					}else if ($data['PaymentMethod'] == "BankTransfer") {
+						$isDefault = 1;
+						$PaymentGatewayID = 11;
 						$count = AccountPaymentProfile::where(['AccountID' => $account->AccountID])
 							->where(['CompanyID' => $CompanyID])
 							->where(['PaymentGatewayID' => $PaymentGatewayID])
