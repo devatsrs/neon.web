@@ -2109,11 +2109,6 @@ class AccountsApiController extends ApiController {
 				Account::$APIrules['PartnerID'] = 'required';
 			}
 
-			
-			if ($data['IsAffiliateAccount'] == 1) {
-				Account::$APIrules['CommissionPercentage'] = 'required';
-			}
-
 			$validator = Validator::make($data, Account::$APIrules, Account::$messages);
 
 			if ($validator->fails()) {
