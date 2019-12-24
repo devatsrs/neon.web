@@ -2061,7 +2061,8 @@ class AccountsApiController extends ApiController {
 				$Account = Account::where('AccountID',$ResellerID->ParentID)->first();
 				$Reseller = Reseller::where('ChildCompanyID',$Account->CompanyId)->first();
 
-				$data['Owner'] = $Reseller->ResellerID;
+				$data['CompanyID'] = $Reseller->ChildCompanyID;
+				$data['Owner']     = $Reseller->ResellerID;
 			}
 
 			// If Reseller on backend customer is on
