@@ -367,7 +367,7 @@ class ActiveCallApiController extends ApiController {
         $data      = json_decode(json_encode($post_vars),true);
 
         $rules = array(
-            'StartDate' => 'required|date|date_format:Y-m-d|before:EndDate',
+            'StartDate' => 'required|date|date_format:Y-m-d',
             'EndDate' => 'required|date|date_format:Y-m-d',
         );
 

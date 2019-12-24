@@ -3717,7 +3717,7 @@ class AccountsApiController extends ApiController {
 		);
 
 		if(isset($data['ChargeType']) && intval($data['ChargeType']) != 0){
-			$rules['StartDate'] = 'required|date|date_format:Y-m-d|before:EndDate';
+			$rules['StartDate'] = 'required|date|date_format:Y-m-d';
 			$rules['EndDate'] 	= 'required|date|date_format:Y-m-d';
 			$rules['Frequency'] = 'required';
 		} else {
