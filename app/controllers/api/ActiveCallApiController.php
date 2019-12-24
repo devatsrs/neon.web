@@ -385,7 +385,7 @@ class ActiveCallApiController extends ApiController {
         try {
             $query = "CALL prc_getBlockCall(" . $AccountID . ",'" . $StartDate . "','" . $EndDate . "')";
             //echo $query;die;
-            $Result = DB::connection('speakIntelligentRoutingEngine')->select($query);
+            $Result = DB::connection('sqlsrvroutingengine')->select($query);
             $Response = json_decode(json_encode($Result), true);
             return Response::json($Response,Codes::$Code200[0]);
         }catch(Exception $e){
