@@ -383,6 +383,10 @@ class ActiveCallApiController extends ApiController {
             ],Codes::$Code400[0]);
         }
 
+        if (strtotime($data['EndDate']) < strtotime($data['StartDate'])) {
+            return  Response::json(["ErrorMessage" => "End date should be greater then or equal to start date."], Codes::$Code400[0]);
+        }
+
         $StartDate 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
         $EndDate 	 = 		!empty($data['EndDate'])?$data['EndDate']:'0000-00-00';
         $AccountID = 0;

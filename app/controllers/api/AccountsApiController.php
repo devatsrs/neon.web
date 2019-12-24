@@ -3803,6 +3803,9 @@ class AccountsApiController extends ApiController {
 							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
 						}
 					} else {
+						if (strtotime($data['EndDate']) < strtotime($data['StartDate'])) {
+							return  Response::json(["ErrorMessage" => "End date should be greater then or equal to start date."], Codes::$Code400[0]);
+						}
 						if(!in_array($data['Frequency'], ['Daily','Monthly','Weekly','Yearly'])){
 							return Response::json(array("ErrorMessage" => "Please enter valid Frequency."), Codes::$Code400[0]);
 						}
