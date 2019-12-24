@@ -1747,7 +1747,6 @@ class AccountsApiController extends ApiController {
 			$data['Owner'] = isset($accountData['OwnerID']) ? $accountData['OwnerID'] : '';
 			$data['CurrencyId'] = isset($accountData['Currency']) ? $accountData['Currency'] : '';
 			$data['Country'] = isset($accountData['CountryIso2']) ? $accountData['CountryIso2'] : '';
-			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
 			$data['Language']= isset($accountData['LanguageIso2']) ? $accountData['LanguageIso2'] : '';
 			$data['tags']= isset($accountData['tags']) ? $accountData['tags'] : '';
