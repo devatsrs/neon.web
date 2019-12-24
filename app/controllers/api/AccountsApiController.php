@@ -1726,12 +1726,11 @@ class AccountsApiController extends ApiController {
 			//$data['Owner'] = $post_vars->Owner;
 
 			$data['Number'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
-			$data['FirstName'] = isset($accountData['FirstName']) ? $accountData['FirstName'] : '';
-			$data['LastName'] = isset($accountData['LastName']) ? $accountData['LastName'] : '';
 			$data['Phone'] = isset($accountData['Phone']) ? $accountData['Phone'] : '';
 			$data['Address1'] = isset($accountData['Address1']) ? $accountData['Address1'] : '';
 			$data['Address2'] = isset($accountData['Address2']) ? $accountData['Address2'] : '';
 			$data['Address3'] = isset($accountData['Address3']) ? $accountData['Address3'] : '';
+			$data['Status'] = isset($accountData['Active']) ? $accountData['Active'] : 0;
 			//$data['PostCode'] = isset($accountData['PostCode']) ? $accountData['PostCode'] : '';
 
 			$data['City'] = isset($accountData['City']) ? $accountData['City'] : '';
@@ -2070,7 +2069,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => Codes::$Code1018[1]],Codes::$Code1018[0]);
 
 			}
-			$data['Status'] = 1;
+			// $data['Status'] = 1;
 
 			if (empty($data['Number'])) {
 				$data['Number'] = Account::getLastAccountNo();
@@ -2146,12 +2145,12 @@ class AccountsApiController extends ApiController {
 				Reseller::$rules['AccountID'] = 'required|unique:tblReseller,AccountID';
 				Reseller::$rules['Email'] = 'required|email';
 				Reseller::$rules['Password'] ='required|min:3';
-				$ResellerData['Email'] = isset($accountData['ResellerEmail']) ? $accountData['ResellerEmail'] : '';
-				$ResellerData['Password'] = isset($accountData['ResellerPassword']) ? $accountData['ResellerPassword'] : '';
+				$ResellerData['Email'] = isset($accountData['PartnerEmail']) ? $accountData['PartnerEmail'] : '';
+				$ResellerData['Password'] = isset($accountData['PartnerPanelPassword']) ? $accountData['PartnerPanelPassword'] : '';
 				$ResellerData['AllowWhiteLabel'] = isset($accountData['ResellerAllowWhiteLabel']) ? 1 : 0;
 				$ResellerData['DomainUrl'] = isset($accountData['ResellerDomainUrl']) ? $accountData['ResellerDomainUrl'] : '' ;
-				Reseller::$messages['Email.required'] = 'The Reseller Email is Required.';
-				Reseller::$messages['Password.required'] = 'The Reseller Password is Required.';
+				Reseller::$messages['Email.required'] = 'The Partner Email is Required.';
+				Reseller::$messages['Password.required'] = 'The Partner Password is Required.';
 				if($data['IsReseller']==1) {
 					$validator = Validator::make($ResellerData, Reseller::$rules, Reseller::$messages);
 					if ($validator->fails()) {
@@ -2656,7 +2655,7 @@ class AccountsApiController extends ApiController {
 
 						//$accountData['ReSellerEmail'] $accountData['ReSellerPassword']
 						//$data['Password'] = Hash::make($data['Password']);
-						$ResellerData['Password'] = Crypt::encrypt($accountData['ResellerPassword']);
+						$ResellerData['Password'] = Crypt::encrypt($accountData['PartnerPanelPassword']);
 
 						$Account = $account;
 						$ResellerData['AllowWhiteLabel'] = isset($accountData['ResellerAllowWhiteLabel']) ? 1 : 0;
