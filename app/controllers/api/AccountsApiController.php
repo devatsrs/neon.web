@@ -1745,7 +1745,7 @@ class AccountsApiController extends ApiController {
 			$data['DifferentBillingAddress'] = isset($accountData['DifferentBillingAddress']) ? $accountData['DifferentBillingAddress'] : '';
 			$data['BillingEmail'] = isset($accountData['BillingEmail']) ? $accountData['BillingEmail'] : '';
 			$data['Owner'] = isset($accountData['OwnerID']) ? $accountData['OwnerID'] : '';
-			$data['CurrencyId'] = isset($accountData['CurrencySymbol']) ? $accountData['CurrencySymbol'] : '';
+			$data['CurrencyId'] = isset($accountData['Currency']) ? $accountData['Currency'] : '';
 			$data['Country'] = isset($accountData['CountryIso2']) ? $accountData['CountryIso2'] : '';
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
@@ -1771,7 +1771,6 @@ class AccountsApiController extends ApiController {
 			}else {
 				$data['DifferentBillingAddress'] = 1;
 			}
-
 			$ResellerOwner = '';
 			if (!empty($accountData['AccountResellerDynamicField'])) {
 				$AccountIDRef = '';
@@ -2172,7 +2171,7 @@ class AccountsApiController extends ApiController {
 				}
 
 			}
-			$data['CurrencyId'] = Currency::where('Symbol',$data['CurrencyId'])->pluck('CurrencyId');
+			$data['CurrencyId'] = Currency::where('Code',$data['CurrencyId'])->pluck('CurrencyId');
 			if (!isset($data['CurrencyId'])) {
 				return Response::json(["ErrorMessage" => Codes::$Code1012[1],Codes::$Code1012[0]]);
 			}
