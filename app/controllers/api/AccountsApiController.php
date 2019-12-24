@@ -3668,7 +3668,7 @@ class AccountsApiController extends ApiController {
 			DB::connection('sqlsrv2')->beginTransaction();
 
 			if (!empty($AccountID) && !empty($CompanyID)) {
-				$CurrencyID = Currency::where(["CompanyId" => $CompanyID, "Code" => $data['Currency']])->pluck('CurrencyID');
+				$CurrencyID = Currency::where(["Code" => $data['Currency']])->pluck('CurrencyID');
 				if (!empty($CurrencyID)) {
 					// if One-Off Cost
 					if($data['ChargeType'] == 0) {
