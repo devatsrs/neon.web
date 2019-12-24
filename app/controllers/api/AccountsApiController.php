@@ -2129,12 +2129,18 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage"=>Codes::$Code1030[1]],Codes::$Code410[0]);
 			}
 
-				
-			if (isset($accountData['AccountDynamicField'])) {
+			$CustomerVal = false;
+			$CustomerDynamicID = '';	
+			if (isset($accountData['AccountDynamicField']) && count($accountData['AccountDynamicField']) > 0) {
 				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicField']),true);
+				
 				for ($i =0; $i <count($AccountReferenceArr);$i++) {
 					$AccountReference = $AccountReferenceArr[$i];
+					if($AccountReference['Name'] == 'CustomerID' && !empty($AccountReference['Value'])){
+						$CustomerVal = true;
+						$CustomerDynamicID = $AccountReference['Value'];
+					}
 					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
 						'Type'=>'account','Status'=>1])
 						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
@@ -2143,7 +2149,20 @@ class AccountsApiController extends ApiController {
 						return Response::json(["ErrorMessage" => Codes::$Code1006[1]],Codes::$Code1006[0]);
 					}
 				}
+				if(!$CustomerVal){
+					return Response::json(["ErrorMessage" => Codes::$Code1062[1]],Codes::$Code1062[0]);
+				}
+
+				$CustomerID = $CustomerDynamicID;
+				$FieldsID = DB::table('tblDynamicFields')->where(['FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
+				$check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $CustomerID])->count();
+				if($check > 0){
+					return Response::json(["ErrorMessage" => Codes::$Code1063[1]],Codes::$Code1063[0]);
+				}
+			}else{
+				return Response::json(["ErrorMessage" => Codes::$Code1064[1]],Codes::$Code1064[0]);
 			}
+
 			//dd($data['IsReseller']);
 			//Log::info('createAccount:Create new Account Reseller.' . $data['IsReseller']);
 			if($data['IsReseller']==1){
@@ -2754,7 +2773,6 @@ class AccountsApiController extends ApiController {
 				}
 
 				$AccountSuccessMessage['AccountID'] = $account->AccountID;
-				$AccountSuccessMessage['redirect'] = URL::to('/accounts/' . $account->AccountID . '/edit');
 
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
 				DB::commit();
@@ -3076,20 +3094,18 @@ class AccountsApiController extends ApiController {
 			$data['AffiliateAccounts'] = isset($accountData['AffiliateAccounts']) ? $accountData['AffiliateAccounts'] : '';
 			
 			if ($accountInfo->IsAffiliateAccount == 1) {
-				if(empty($data['AffiliateAccounts'])){
-					return Response::json(array("ErrorMessage" => Codes::$Code1057[1]),Codes::$Code1057[0]);
+				if(!empty($data['AffiliateAccounts'])){
+					$AffiliateAccount = array();
+					$AffiliateAccount['AffiliateAccounts'] = $data['AffiliateAccounts'];
+					
+					$Affiliate = AffiliateAccount::where('AccountID',$accountInfo->AccountID)->first();
+					if($Affiliate){
+						$Affiliate->update($AffiliateAccount);
+					}else{
+						$AffiliateAccount['AccountID'] = $accountInfo->AccountID;
+						AffiliateAccount::create($AffiliateAccount);
+					}
 				}
-				$AffiliateAccount = array();
-				$AffiliateAccount['AffiliateAccounts'] = $data['AffiliateAccounts'];
-				
-				$Affiliate = AffiliateAccount::where('AccountID',$accountInfo->AccountID)->first();
-				if($Affiliate){
-					$Affiliate->update($AffiliateAccount);
-				}else{
-					$AffiliateAccount['AccountID'] = $accountInfo->AccountID;
-					AffiliateAccount::create($AffiliateAccount);
-				}
-
 			}
 
 			$BillingSetting['billing_class']= isset($accountData['BillingClassID']) ? $accountData['BillingClassID'] : '';
@@ -3104,7 +3120,7 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if (isset($accountData['CurrencySymbol']) && !empty($accountData['CurrencySymbol'])) {
+			if (isset($accountData['Currency']) && !empty($accountData['Currency'])) {
 				$data['CurrencyId'] = isset($accountData['Currency']) ? $accountData['Currency'] : '';
 			}
 			if (isset($accountData['CountryIso2']) && !empty($accountData['CountryIso2'])) {
