@@ -366,6 +366,23 @@ class ActiveCallApiController extends ApiController {
         $post_vars = json_decode(file_get_contents("php://input"));
         $data      = json_decode(json_encode($post_vars),true);
 
+        $rules = array(
+            'StartDate' => 'required|date|date_format:Y-m-d',
+            'EndDate' => 'required|date|date_format:Y-m-d',
+        );
+
+        $verifier = App::make('validation.presence');
+        $verifier->setConnection('sqlsrv');
+
+        $validator = Validator::make($data, $rules);
+        $validator->setPresenceVerifier($verifier);
+
+        if ($validator->fails()) {
+            return Response::json([
+                "ErrorMessage" => $validator->messages()->first()
+            ],Codes::$Code400[0]);
+        }
+
         $StartDate 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
         $EndDate 	 = 		!empty($data['EndDate'])?$data['EndDate']:'0000-00-00';
         $AccountID = 0;
