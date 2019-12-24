@@ -34,7 +34,7 @@ class Codes
     public static $Code1009 =["409","More then one Inbound Tariff found against the Category"];
     public static $Code1010 =["402","Please provide correct owner id when creating reseller"];
     public static $Code1011 =["402","please setup different domain for your reseller"];
-    public static $Code1012 =["402","Please provide the valid currency"];
+    public static $Code1012 =["402","Please provide the valid currency code"];
     public static $Code1013 =["402","Please provide the valid country"];
     public static $Code1014 =["402","Please provide the valid Language"];
     public static $Code1015 =["402","NextInvoiceDate Should be greater than BillingStartDate"];
@@ -81,4 +81,9 @@ class Codes
     public static $Code1054 =["402","Please provide the valid Tariff"];
     public static $Code1055 =["402","Please specified the Package Subscription End Date"];
     public static $Code1056 =["402","Valid Package exists between the dates"];
+
+    public static $Code1057 =["402","Atleast One Account required for affiliate"];
+    public static $Code1058 =["402","Please enter the valid payout method"];
+
+
 }
