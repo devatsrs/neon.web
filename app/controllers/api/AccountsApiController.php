@@ -2819,8 +2819,6 @@ class AccountsApiController extends ApiController {
 		$Country = $data['Country'];
 		$CustomerAccount = isset($data['IsCustomer']) && $data['IsCustomer'] == 1 ? 1 : 0;
 		$PartnerAccount =  isset($data['IsReseller']) && $data['IsReseller'] == 1 ? 1 : 0;
-		$ResellerID = DynamicFieldsValue::where(['DynamicFieldsID' => 93 , 'FieldValue' => $data['PartnerID']])->first();
-		$Account = Account::where('AccountID',$ResellerID->ParentID)->first();
 		$RegisterDutchFoundation = 0;
 		$DutchProvider = 0;
 		if($PartnerAccount == 1){
@@ -2828,6 +2826,14 @@ class AccountsApiController extends ApiController {
 				return false;
 			}
 		}else if($CustomerAccount == 1){
+			$ResellerID = DynamicFieldsValue::where(['DynamicFieldsID' => 93 , 'FieldValue' => $data['PartnerID']])->first();
+			if(!$ResellerID){
+				return false;
+			}
+			$Account = Account::where('AccountID',$ResellerID->ParentID)->first();
+			if(!$Account){
+				return false;
+			}
 			$Reseller = Reseller::where('ChildCompanyID',$Account->CompanyId)->first();
 			$AccountCountry = Account::where('AccountID',$Reseller->AccountID)->pluck('Country');
 			
