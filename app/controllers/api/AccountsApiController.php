@@ -3716,7 +3716,7 @@ class AccountsApiController extends ApiController {
 			'Amount' 		=> 'required'
 		);
 
-		if(isset($_POST['ChargeType']) && $_POST['ChargeType'] != 0){
+		if(isset($_POST['ChargeType']) && intval($_POST['ChargeType']) != 0){
 			$rules['StartDate'] = 'required|date|date_format:Y-m-d|before:EndDate';
 			$rules['EndDate'] 	= 'required|date|date_format:Y-m-d';
 			$rules['Frequency'] = 'required';
