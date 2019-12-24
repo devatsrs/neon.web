@@ -3639,10 +3639,10 @@ class AccountsApiController extends ApiController {
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 		}else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage" => "AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
 		}
 
-		$Account=Account::where(["AccountID" => $AccountID]);
+		$Account = Account::where(["AccountID" => $AccountID]);
 		if($Account->count() > 0){
 			$Account = $Account->first();
 			$CompanyID = $Account->CompanyId;
@@ -3668,11 +3668,11 @@ class AccountsApiController extends ApiController {
 			DB::connection('sqlsrv2')->beginTransaction();
 
 			if (!empty($AccountID) && !empty($CompanyID)) {
-				$CurrencyID = Currency::where(["CompanyId" => $CompanyID, "Symbol" => $data['Currency']])->pluck('CurrencyID');
+				$CurrencyID = Currency::where(["CompanyId" => $CompanyID, "Code" => $data['Currency']])->pluck('CurrencyID');
 				if (!empty($CurrencyID)) {
 					// if One-Off Cost
 					if($data['ChargeType'] == 0) {
-						$product = Product::whereRaw('lower(Code) = '. "'". $data['ChargeCode'] . "'")->where("CompanyId", $CompanyID);
+						$product = Product::whereRaw('lower(Code) = '. "'". strtolower($data['ChargeCode']) . "'")->where("CompanyId", $CompanyID);
 						if ($product->count() > 0) {
 							$product = $product->first();
 							if ($product->Active != 1) {
@@ -3692,9 +3692,8 @@ class AccountsApiController extends ApiController {
 							$product_data['created_at'] 	= $CurrentDate;
 
 							$product = Product::create($product_data);
-
-
 						}
+
 						$ProductID = $product->ProductID;
 
 						$ChargeData['AccountID'] 	= $AccountID;
@@ -3706,13 +3705,12 @@ class AccountsApiController extends ApiController {
 						$ChargeData['CreatedBy'] 	= $CreatedBy;
 						$ChargeData['created_at'] 	= $CurrentDate;
 						$ChargeData['CurrencyID'] 	= $CurrencyID;
-						$ChargeData['AccountServiceID'] 	= 0;
+						$ChargeData['AccountServiceID'] = 0;
 						$ChargeData['ServiceID'] 	= 0;
-
 
 						if (AccountOneOffCharge::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
-							return Response::json(Codes::$Code200[0]);
+							return Response::json((object)['status' => 'success'], Codes::$Code200[0]);
 						} else {
 							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
 						}
@@ -3743,6 +3741,7 @@ class AccountsApiController extends ApiController {
 							$recurring = BillingSubscription::create($recurring_data);
 							Log::info("Account One Off Charge created." );
 						}
+
 						$AccountRecurringID = $recurring->SubscriptionID;
 						Log::info("Account One Off Charge created." . $AccountRecurringID);
 
@@ -3761,22 +3760,22 @@ class AccountsApiController extends ApiController {
 						$ChargeData['MonthlyFee'] 		= $recurring->MonthlyFee;
 						$ChargeData['QuarterlyFee'] 	= $recurring->QuarterlyFee;
 						$ChargeData['AnnuallyFee'] 		= $recurring->AnnuallyFee;
-						$ChargeData['ActivationFee'] 		= 1;
-						$ChargeData['AccountServiceID'] 		= 0;
+						$ChargeData['ActivationFee'] 	= 1;
+						$ChargeData['AccountServiceID'] = 0;
 
 						Log::info("Account One Off Charge created." . print_r($ChargeData,true));
 						if (AccountSubscription::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
-							return Response::json([],Codes::$Code200[0]);
+							return Response::json((object)['status' => 'success'],Codes::$Code200[0]);
 						} else {
 							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
 						}
 					}
 				} else {
-					return Response::json(["ErrorMessage" => "Currency Not Found"], Codes::$Code402[0]);
+					return Response::json(["ErrorMessage" => "Currency Not Found"], Codes::$Code400[0]);
 				}
 			} else {
-				return Response::json(["ErrorMessage" => "Account or Company Not Found"], Codes::$Code402[0]);
+				return Response::json(["ErrorMessage" => "Account or Company Not Found"], Codes::$Code400[0]);
 			}
 		} catch (Exception $e) {
 			DB::connection('sqlsrv2')->rollback();
