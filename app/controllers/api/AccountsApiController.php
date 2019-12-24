@@ -2419,7 +2419,7 @@ class AccountsApiController extends ApiController {
 						$isDefault = 1;
 						$PaymentGatewayID = 10;
 						$count = AccountPaymentProfile::where(['AccountID' =>  $account->AccountID])
-							->where(['CompanyID' => $CompanyID])
+							->where(['CompanyID' => $account->CompanyID])
 							->where(['PaymentGatewayID' => $PaymentGatewayID])
 							->where(['isDefault' => 1])
 							->count();
@@ -2442,7 +2442,7 @@ class AccountsApiController extends ApiController {
 							'Status' => 1,
 							'isDefault' => $isDefault,
 							'created_by' => $CreatedBy,
-							'CompanyID' => $CompanyID,
+							'CompanyID' => $account->CompanyID,
 							'AccountID' =>  $account->AccountID,
 							'PaymentGatewayID' => $PaymentGatewayID);
 						AccountPaymentProfile::create($CardDetail);
@@ -2450,7 +2450,7 @@ class AccountsApiController extends ApiController {
 						$isDefault = 1;
 						$PaymentGatewayID = 12;
 						$count = AccountPaymentProfile::where(['AccountID' => $account->AccountID])
-							->where(['CompanyID' => $CompanyID])
+							->where(['CompanyID' => $account->CompanyID])
 							->where(['PaymentGatewayID' => $PaymentGatewayID])
 							->where(['isDefault' => 1])
 							->count();
@@ -2470,7 +2470,7 @@ class AccountsApiController extends ApiController {
 							'Status' => 1,
 							'isDefault' => $isDefault,
 							'created_by' => $CreatedBy,
-							'CompanyID' => $CompanyID,
+							'CompanyID' => $account->CompanyID,
 							'AccountID' => $account->AccountID,
 							'PaymentGatewayID' => $PaymentGatewayID);
 						AccountPaymentProfile::create($CardDetail);
@@ -2478,7 +2478,7 @@ class AccountsApiController extends ApiController {
 						$isDefault = 1;
 						$PaymentGatewayID = 11;
 						$count = AccountPaymentProfile::where(['AccountID' => $account->AccountID])
-							->where(['CompanyID' => $CompanyID])
+							->where(['CompanyID' => $account->CompanyID])
 							->where(['PaymentGatewayID' => $PaymentGatewayID])
 							->where(['isDefault' => 1])
 							->count();
@@ -2498,7 +2498,7 @@ class AccountsApiController extends ApiController {
 							'Status' => 1,
 							'isDefault' => $isDefault,
 							'created_by' => $CreatedBy,
-							'CompanyID' => $CompanyID,
+							'CompanyID' => $account->CompanyID,
 							'AccountID' => $account->AccountID,
 							'PaymentGatewayID' => $PaymentGatewayID);
 						AccountPaymentProfile::create($CardDetail);
@@ -2510,7 +2510,7 @@ class AccountsApiController extends ApiController {
 						$isDefault = 1;
 						$PaymentGatewayID = 11;
 						$count = AccountPayout::where(['AccountID' => $account->AccountID])
-							->where(['CompanyID' => $CompanyID])
+							->where(['CompanyID' => $account->CompanyID])
 							->where(['PaymentGatewayID' => $PaymentGatewayID])
 							->where(['isDefault' => 1])
 							->count();
@@ -2530,7 +2530,7 @@ class AccountsApiController extends ApiController {
 							'Status' => 1,
 							'isDefault' => $isDefault,
 							'created_by' => $CreatedBy,
-							'CompanyID' => $CompanyID,
+							'CompanyID' => $account->CompanyID,
 							'AccountID' => $account->AccountID,
 							'PaymentGatewayID' => $PaymentGatewayID);
 							AccountPayout::create($CardDetail);
@@ -2548,7 +2548,7 @@ class AccountsApiController extends ApiController {
 							->pluck('DynamicFieldsID');
 						$DynamicFields['ParentID'] = $account->AccountID;
 						$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
-						$DynamicFields['CompanyID'] = $CompanyID;
+						$DynamicFields['CompanyID'] =  $account->CompanyID;
 						$DynamicFields['created_at'] = $date;
 						$DynamicFields['created_by'] = $CreatedBy;
 						$DynamicFields['FieldValue'] = $AccountReference["Value"];
