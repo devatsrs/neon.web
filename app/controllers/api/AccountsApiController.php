@@ -3715,10 +3715,23 @@ class AccountsApiController extends ApiController {
 			'Currency' 		=> 'required',
 			'Amount' 		=> 'required'
 		);
+
+		if(isset($_POST['ChargeType']) && $_POST['ChargeType'] != 0){
+			$rules['StartDate'] = 'required|date|date_format:Y-m-d|before:EndDate';
+			$rules['EndDate'] 	= 'required|date|date_format:Y-m-d';
+			$rules['Frequency'] = 'required';
+		} else {
+			$rules['Date'] = 'required|date|date_format:Y-m-d';
+		}
+
 		$validator = Validator::make($data, $rules);
 		if ($validator->fails()) {
-			return json_validator_response($validator);
+			return Response::json([
+				"ErrorMessage" => $validator->messages()->first()
+			],Codes::$Code400[0]);
 		}
+
+
 		$CurrentDate = date('Y-m-d H:i:s');
 		$CreatedBy 	 = 'API';
 
@@ -3756,10 +3769,12 @@ class AccountsApiController extends ApiController {
 
 						$ChargeData['AccountID'] 	= $AccountID;
 						$ChargeData['ProductID'] 	= $ProductID;
-						$ChargeData['Price'] 		= $product->Amount;
+						$ChargeData['Price'] 		= $data['Amount'];
 						$ChargeData['Description']	= $data['Description'];
+						$ChargeData['DiscountType']	= 'Flat';
+						$ChargeData['TaxAmount']	= 0;
 						$ChargeData['Qty'] 			= 1;
-						$ChargeData['Date'] 		= $CurrentDate;
+						$ChargeData['Date'] 		= !empty($data['Date']) ? date('Y-m-d', strtotime($data['Date'])) : $ChargeData;
 						$ChargeData['CreatedBy'] 	= $CreatedBy;
 						$ChargeData['created_at'] 	= $CurrentDate;
 						$ChargeData['CurrencyID'] 	= $CurrencyID;
@@ -3773,6 +3788,9 @@ class AccountsApiController extends ApiController {
 							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
 						}
 					} else {
+						if(!in_array($data['Frequency'], ['Daily','Monthly','Weekly','Yearly'])){
+							return Response::json(array("ErrorMessage" => "Please enter valid Frequency."), Codes::$Code400[0]);
+						}
 						// add subscription/recurring
 						$recurring = BillingSubscription::where(["CompanyId" => $CompanyID, "Name" => $recurringName]);
 						Log::info("Account One Off Charge ." . $recurring->count());
@@ -3787,6 +3805,8 @@ class AccountsApiController extends ApiController {
 							$recurring_data['CreatedBy'] 				= $CreatedBy;
 							$recurring_data['created_at'] 				= $CurrentDate;
 							$recurring_data['Advance'] 					= 1;
+							$ChargeData['OneOffCurrencyID'] 			= $CurrencyID;
+							$ChargeData['RecurringCurrencyID'] 			= $CurrencyID;
 
 							$Costs = AccountSubscription::calculateCost('MonthlyFee', $data['Amount']);
 
@@ -3805,8 +3825,8 @@ class AccountsApiController extends ApiController {
 
 						$ChargeData['AccountID'] 		= $AccountID;
 						$ChargeData['SubscriptionID'] 	= $AccountRecurringID;
-						$ChargeData['StartDate'] 		= $CurrentDate;
-						$ChargeData['EndDate'] 			= !empty($data['EndDate']) ? date('Y-m-d', strtotime($data['EndDate'])) : NULL;
+						$ChargeData['StartDate'] 		= !empty($data['StartDate']) ? date('Y-m-d', strtotime($data['StartDate'])) : $CurrentDate;
+						$ChargeData['EndDate'] 			= !empty($data['EndDate']) ? date('Y-m-d', strtotime($data['EndDate'])) : $ChargeData;
 						$ChargeData['Qty'] 				= 1;
 						$ChargeData['CreatedBy'] 		= $CreatedBy;
 						$ChargeData['created_at'] 		= $CurrentDate;
@@ -3819,6 +3839,8 @@ class AccountsApiController extends ApiController {
 						$ChargeData['QuarterlyFee'] 	= $recurring->QuarterlyFee;
 						$ChargeData['AnnuallyFee'] 		= $recurring->AnnuallyFee;
 						$ChargeData['ActivationFee'] 	= 1;
+						$ChargeData['DiscountType'] 	= 'Flat';
+						$ChargeData['Frequency'] 		= $data['Frequency'];
 						$ChargeData['AccountServiceID'] = 0;
 
 						Log::info("Account One Off Charge created." . print_r($ChargeData,true));
