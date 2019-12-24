@@ -3784,7 +3784,7 @@ class AccountsApiController extends ApiController {
 							$recurring = $recurring->first();
 						} else {
 							$recurring_data['CompanyId'] 				= $CompanyID;
-							$recurring_data['CurrencyID'] 				= $CurrencyID;
+							//$recurring_data['CurrencyID'] 				= $CurrencyID;
 							$recurring_data['Name'] 					= $recurringName;
 							$recurring_data['Description'] 				= $recurringName;
 							$recurring_data['InvoiceLineDescription'] 	= $data['Description'];
