@@ -81,4 +81,9 @@ class Codes
     public static $Code1054 =["402","Please provide the valid Tariff"];
     public static $Code1055 =["402","Please specified the Package Subscription End Date"];
     public static $Code1056 =["402","Valid Package exists between the dates"];
+
+    public static $Code1057 =["402","Atleast One Account required for affiliate"];
+    public static $Code1058 =["402","Please enter the valid payout method"];
+
+
 }
