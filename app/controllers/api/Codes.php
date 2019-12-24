@@ -41,7 +41,7 @@ class Codes
     public static $Code1016 =["402","Please select the valid billing type"];
     public static $Code1017 =["402","Please select the valid billing class"];
     public static $Code1018 =["402","Account Name contains illegal character"];
-    public static $Code1019 =["402","Please provide the valid owner ID"];
+    public static $Code1019 =["402","Resller does not exist"];
     public static $Code1020 =["402","Please enter the valid payment method"];
     public static $Code1021 =["402","Please provide the valid product reference"];
     public static $Code1022 =["402","Provided date is not in correct format"];
@@ -84,6 +84,12 @@ class Codes
 
     public static $Code1057 =["402","Atleast One Account required for affiliate"];
     public static $Code1058 =["402","Please enter the valid payout method"];
+    public static $Code1059 =["402","Please enter the valid partnerid"];
+    public static $Code1060 =["402","One of the option should be checked either Customer ,Affiliate ,Vendor or Partner."];
+    public static $Code1061 =["402","You can only choose Partner or Affiliate ,Vendor and Customer at a time."];
+
+
+    
 
 
 }
