@@ -176,43 +176,43 @@ class ActiveCallApiController extends ApiController {
 
         if(!empty($AccountID)) {
             try{
-            $ActiveCall = ActiveCall::where(['UUID' => $data['UUID'], 'AccountID' => $AccountID])->first();
-            if(!empty($ActiveCall) && count($ActiveCall) > 0) {
-                $ActiveCallID = $ActiveCall->ActiveCallID;
-                $UpdateData = array();
-                $duration = strtotime($data['DisconnectTime']) - strtotime($ActiveCall->ConnectTime);
-                $UpdateData['DisconnectTime'] = $data['DisconnectTime'];
-                $UpdateData['Duration'] = $duration;
-                $UpdateData['updated_by'] = "API";
+                $ActiveCall = ActiveCall::where(['UUID' => $data['UUID'], 'AccountID' => $AccountID])->first();
+                if(!empty($ActiveCall) && count($ActiveCall) > 0) {
+                    $ActiveCallID = $ActiveCall->ActiveCallID;
+                    $UpdateData = array();
+                    $duration = strtotime($data['DisconnectTime']) - strtotime($ActiveCall->ConnectTime);
+                    $UpdateData['DisconnectTime'] = $data['DisconnectTime'];
+                    $UpdateData['Duration'] = $duration;
+                    $UpdateData['updated_by'] = "API";
 
-                if ($ActiveCall->CallRecording == 1) {
-                    //End Call Recording
-                    $CallRecordingDuration = strtotime($data['DisconnectTime']) - strtotime($ActiveCall->CallRecordingStartTime);
-                    $UpdateData['CallRecordingEndTime'] = $data['DisconnectTime'];
-                    $UpdateData['CallRecordingDuration'] = $CallRecordingDuration;
+                    if ($ActiveCall->CallRecording == 1) {
+                        //End Call Recording
+                        $CallRecordingDuration = strtotime($data['DisconnectTime']) - strtotime($ActiveCall->CallRecordingStartTime);
+                        $UpdateData['CallRecordingEndTime'] = $data['DisconnectTime'];
+                        $UpdateData['CallRecordingDuration'] = $CallRecordingDuration;
+                    }
+                    DB::connection('sqlsrvcdr')->beginTransaction();
+                    DB::connection('sqlsrvroutingengine')->beginTransaction();
+
+                    if ($Result = $ActiveCall->update($UpdateData)) {
+                        /**
+                         * update cost
+                         */
+
+                        ActiveCall::getActiveCallCost($ActiveCallID);
+                        ActiveCall::insertActiveCallCDR($ActiveCallID);
+                        ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
+
+
+                        DB::connection('sqlsrvcdr')->commit();
+                        DB::connection('sqlsrvroutingengine')->commit();
+
+                        return Response::json(['duration' => $duration],Codes::$Code200[0]);
+                    }
+
+                } else {
+                    return Response::json(["ErrorMessage" => "Record Not Found"],Codes::$Code402[0]);
                 }
-                DB::connection('sqlsrvcdr')->beginTransaction();
-                DB::connection('sqlsrvroutingengine')->beginTransaction();
-
-                if ($Result = $ActiveCall->update($UpdateData)) {
-                    /**
-                     * update cost
-                    */
-
-                    ActiveCall::getActiveCallCost($ActiveCallID);
-                    ActiveCall::insertActiveCallCDR($ActiveCallID);
-                    ActiveCall::where(['ActiveCallID'=>$ActiveCallID])->delete();
-
-
-                    DB::connection('sqlsrvcdr')->commit();
-                    DB::connection('sqlsrvroutingengine')->commit();
-
-                    return Response::json(['duration' => $duration],Codes::$Code200[0]);
-                }
-
-            } else {
-                return Response::json(["ErrorMessage" => "Record Not Found"],Codes::$Code402[0]);
-            }
 
             }catch(Exception $e){
                 DB::connection('sqlsrvcdr')->rollback();
@@ -364,19 +364,18 @@ class ActiveCallApiController extends ApiController {
 
     public function getBlockCalls(){
         $post_vars = json_decode(file_get_contents("php://input"));
-        $data=json_decode(json_encode($post_vars),true);
+        $data      = json_decode(json_encode($post_vars),true);
 
         $StartDate 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
         $EndDate 	 = 		!empty($data['EndDate'])?$data['EndDate']:'0000-00-00';
-        $AccountID=0;
+        $AccountID = 0;
 
         if(!empty($data['AccountID'])) {
             $AccountID = $data['AccountID'];
         }else if(!empty($data['AccountNo'])){
             $AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
         }else if(!empty($data['AccountDynamicField'])){
-            $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-
+            $AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
         }
 
         if(empty($AccountID)){
@@ -391,8 +390,8 @@ class ActiveCallApiController extends ApiController {
             return Response::json($Response,Codes::$Code200[0]);
         }catch(Exception $e){
             Log::info($e);
-            $reseponse = array("ErrorMessage" => "Something Went Wrong.",Codes::$Code402[0]);
-            return $reseponse;
+            $reseponse = array("ErrorMessage" => "Something Went Wrong.");
+            return Response::json($reseponse,Codes::$Code500[0]);
         }
 
     }
