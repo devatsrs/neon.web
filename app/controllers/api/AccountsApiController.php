@@ -5,14 +5,14 @@ use app\controllers\api\Codes;
 class AccountsApiController extends ApiController {
 
 	public static $API_PaymentMethod = array(
-		'1' => 'BankTransfer',
+		'1' => 'WireTransfer',
 		'2'=>'DirectDebit',
 		'3'=>'Ingenico',
 		'4'=>'Other',
 	);
 
 	public static $API_PayoutMethod = array(
-		'1' => 'BankTransfer',	
+		'1' => 'WireTransfer',	
 	);
 
 	
@@ -1730,7 +1730,7 @@ class AccountsApiController extends ApiController {
 			$data['Address1'] = isset($accountData['Address1']) ? $accountData['Address1'] : '';
 			$data['Address2'] = isset($accountData['Address2']) ? $accountData['Address2'] : '';
 			$data['Address3'] = isset($accountData['Address3']) ? $accountData['Address3'] : '';
-			$data['Status'] = isset($accountData['Active']) ? $accountData['Active'] : 0;
+			$data['Status'] = isset($accountData['Active']) ? $accountData['Active'] : 1;
 			//$data['PostCode'] = isset($accountData['PostCode']) ? $accountData['PostCode'] : '';
 
 			$data['City'] = isset($accountData['City']) ? $accountData['City'] : '';
@@ -1747,7 +1747,6 @@ class AccountsApiController extends ApiController {
 			$data['Owner'] = isset($accountData['OwnerID']) ? $accountData['OwnerID'] : '';
 			$data['CurrencyId'] = isset($accountData['Currency']) ? $accountData['Currency'] : '';
 			$data['Country'] = isset($accountData['CountryIso2']) ? $accountData['CountryIso2'] : '';
-			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
 			$data['Language']= isset($accountData['LanguageIso2']) ? $accountData['LanguageIso2'] : '';
 			$data['tags']= isset($accountData['tags']) ? $accountData['tags'] : '';
@@ -1827,11 +1826,11 @@ class AccountsApiController extends ApiController {
 				$data['IsReseller'] = 0;
 			}
 			
-			if (!empty($accountData['IsReseller']) && ($accountData['IsReseller'] != 0 && $accountData['IsReseller'] != 1)) {
+			if (!empty($accountData['IsPartner']) && ($accountData['IsPartner'] != 0 && $accountData['IsPartner'] != 1)) {
 				return Response::json(["ErrorMessage" => Codes::$Code1023[1]],Codes::$Code1023[0]);
 
 			}else {
-				$data['IsReseller'] = isset($accountData['IsReseller']) ? $accountData['IsReseller'] : 0;
+				$data['IsReseller'] = isset($accountData['IsPartner']) ? $accountData['IsPartner'] : 0;
 			}
 
 			if (isset($accountData['IsAffiliateAccount']) && !empty($accountData['IsAffiliateAccount']) && ($accountData['IsAffiliateAccount'] != 0 && $accountData['IsAffiliateAccount'] != 1)) {
@@ -1973,13 +1972,16 @@ class AccountsApiController extends ApiController {
 						return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 
 					}
-				}else if ($data['PaymentMethod'] == "DirectDebit" || $data['PaymentMethod'] == "BankTransfer") {
+				}else if ($data['PaymentMethod'] == "DirectDebit" || $data['PaymentMethod'] == "WireTransfer") {
 					$rules = array(
 						'BankAccount'       => 'required',
 						'BIC'               => 'required',
 						'AccountHolderName' => 'required',
-						'MandateCode'       => 'required'
+						'Title'             => 'required'
 
+					);
+					$messages = array(
+						'Title.required' =>'The Title Field Is Required For Payment',
 					);
 					$PaymentProfile['BankAccount'] = isset($accountData['BankAccount']) ? $accountData['BankAccount'] : '' ;
 					$PaymentProfile['BIC'] = isset($accountData['BIC']) ? $accountData['BIC'] : '' ;
@@ -1987,7 +1989,7 @@ class AccountsApiController extends ApiController {
 					$PaymentProfile['MandateCode'] = isset($accountData['MandateCode']) ? $accountData['MandateCode'] : '' ;
 					$PaymentProfile['Title'] = isset($accountData['Title']) ? $accountData['Title'] : '' ;
 
-					$validator = Validator::make($PaymentProfile, $rules);
+					$validator = Validator::make($PaymentProfile, $rules , $messages);
 					if ($validator->fails()) {
 						$errors = "";
 						foreach ($validator->messages()->all() as $error){
@@ -2001,13 +2003,16 @@ class AccountsApiController extends ApiController {
 
 
 			if (isset($data['PayoutMethod'])) {
-				if ($data['PayoutMethod'] == "BankTransfer") {
+				if ($data['PayoutMethod'] == "WireTransfer") {
 					$rules = array(
 						'BankAccount'       => 'required',
 						'BIC'               => 'required',
 						'AccountHolderName' => 'required',
-						'MandateCode'       => 'required'
+						'Title'             => 'required'
 
+					);
+					$messages = array(
+						'Title.required' =>'The Title Field Is Required For Payout',
 					);
 					$PayoutProfile['BankAccount'] = isset($accountData['PayoutBankAccount']) ? $accountData['PayoutBankAccount'] : '' ;
 					$PayoutProfile['BIC'] = isset($accountData['PayoutBIC']) ? $accountData['PayoutBIC'] : '' ;
@@ -2047,8 +2052,27 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			// If Reseller on backend customer is on
+			if($data['IsCustomer'] == 1 || $data['AffiliateAccounts'] == 1){
+				$ResellerID = DynamicFieldsValue::where(['DynamicFieldsID' => 93 , 'FieldValue' => $data['PartnerID']])->first();
+				if(!$ResellerID){
+					return Response::json(["ErrorMessage" => Codes::$Code1059[1]],Codes::$Code1059[0]);
+				}
+				$Account = Account::where('AccountID',$ResellerID->ParentID)->first();
+				$Reseller = Reseller::where('ChildCompanyID',$Account->CompanyId)->first();
 
+				$data['CompanyID'] = $Reseller->ChildCompanyID;
+				$data['Owner']     = $Reseller->ResellerID;
+			}
+
+			// If Reseller on backend customer is on
+			
+			if($data['IsReseller'] == 0 && $data['IsCustomer'] == 0 && $data['IsVendor'] == 0 && $data['IsAffiliateAccount'] == 0){
+				return Response::json(["ErrorMessage" => Codes::$Code1060[1]],Codes::$Code1060[0]);
+			}
+
+			if($data['IsReseller'] == 1 && ($data['IsCustomer'] == 1 || $data['IsVendor'] == 1 || $data['IsAffiliateAccount'] == 1)){
+				return Response::json(["ErrorMessage" => Codes::$Code1061[1]],Codes::$Code1061[0]);
+			}
 			if($data['IsReseller']==1){
 				$data['IsCustomer']         = 0;
 				$data['IsVendor']           = 0;
@@ -2078,11 +2102,10 @@ class AccountsApiController extends ApiController {
 
 			Account::$APIrules['AccountName'] = 'required';
 			Account::$APIrules['Number'] = 'required';
-			if($data['IsCustomer'] == 1){
+			Account::$APIrules['BillingEmail'] = 'required';
+			
+			if($data['IsCustomer'] == 1 || $data['AffiliateAccounts'] == 1){
 				Account::$APIrules['PartnerID'] = 'required';
-			}
-			if ($data['IsAffiliateAccount'] == 1) {
-				Account::$APIrules['CommissionPercentage'] = 'required';
 			}
 
 			$validator = Validator::make($data, Account::$APIrules, Account::$messages);
@@ -2105,12 +2128,18 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage"=>Codes::$Code1030[1]],Codes::$Code410[0]);
 			}
 
-				
-			if (isset($accountData['AccountDynamicField'])) {
+			$CustomerVal = false;
+			$CustomerDynamicID = '';	
+			if (isset($accountData['AccountDynamicField']) && count($accountData['AccountDynamicField']) > 0) {
 				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicField']),true);
+				
 				for ($i =0; $i <count($AccountReferenceArr);$i++) {
 					$AccountReference = $AccountReferenceArr[$i];
+					if($AccountReference['Name'] == 'CustomerID' && !empty($AccountReference['Value'])){
+						$CustomerVal = true;
+						$CustomerDynamicID = $AccountReference['Value'];
+					}
 					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
 						'Type'=>'account','Status'=>1])
 						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
@@ -2119,7 +2148,20 @@ class AccountsApiController extends ApiController {
 						return Response::json(["ErrorMessage" => Codes::$Code1006[1]],Codes::$Code1006[0]);
 					}
 				}
+				if(!$CustomerVal){
+					return Response::json(["ErrorMessage" => Codes::$Code1062[1]],Codes::$Code1062[0]);
+				}
+
+				$CustomerID = $CustomerDynamicID;
+				$FieldsID = DB::table('tblDynamicFields')->where(['FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
+				$check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $CustomerID])->count();
+				if($check > 0){
+					return Response::json(["ErrorMessage" => Codes::$Code1063[1]],Codes::$Code1063[0]);
+				}
+			}else{
+				return Response::json(["ErrorMessage" => Codes::$Code1064[1]],Codes::$Code1064[0]);
 			}
+
 			//dd($data['IsReseller']);
 			//Log::info('createAccount:Create new Account Reseller.' . $data['IsReseller']);
 			if($data['IsReseller']==1){
@@ -2191,13 +2233,12 @@ class AccountsApiController extends ApiController {
 			}
 
 			if (isset($data['Owner']) && !empty($data['Owner'])) {
-				$data['Owner'] = User::where('UserID', $data['Owner'])->pluck('UserID');
+				$data['Owner'] = Reseller::where('ResellerID', $data['Owner'])->pluck('ResellerID');
 				if (!isset($data['Owner'])) {
 					return Response::json(["ErrorMessage" => Codes::$Code1019[1]], Codes::$Code1019[0]);
 				}
 			}
 
-			AccountBilling::$rulesAPI['billing_type'] = 'required';
 			// AccountBilling::$rulesAPI['billing_cycle'] = 'required';
 			//AccountBilling::$rulesAPI['billing_cycle_options'] = 'required';
 			$BillingCycleTypeID[0] = "daily";
@@ -2231,6 +2272,8 @@ class AccountsApiController extends ApiController {
 				) {
 					return Response::json(["ErrorMessage" => Codes::$Code1015[1],Codes::$Code1015[0]]);
 				}
+				AccountBilling::$rulesAPI['billing_type'] = 'required';
+				AccountBilling::$rulesAPI['billing_start_date'] = 'required';
 				$validator = Validator::make($BillingSetting, AccountBilling::$rulesAPI);
 				if ($validator->fails()) {
 					$errors = "";
@@ -2249,7 +2292,7 @@ class AccountsApiController extends ApiController {
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
 					if (isset($data['PaymentMethod'])) {
 						$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
-						//$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $data['PaymentMethod']);
+						$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $data['PaymentMethod']);
 						Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $CompanyID);
 						$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])
 							->where('CompanyID', '=', $CompanyID);
@@ -2388,7 +2431,7 @@ class AccountsApiController extends ApiController {
 						$isDefault = 1;
 						$PaymentGatewayID = 10;
 						$count = AccountPaymentProfile::where(['AccountID' =>  $account->AccountID])
-							->where(['CompanyID' => $CompanyID])
+							->where(['CompanyID' => $account->CompanyID])
 							->where(['PaymentGatewayID' => $PaymentGatewayID])
 							->where(['isDefault' => 1])
 							->count();
@@ -2411,7 +2454,7 @@ class AccountsApiController extends ApiController {
 							'Status' => 1,
 							'isDefault' => $isDefault,
 							'created_by' => $CreatedBy,
-							'CompanyID' => $CompanyID,
+							'CompanyID' => $account->CompanyID,
 							'AccountID' =>  $account->AccountID,
 							'PaymentGatewayID' => $PaymentGatewayID);
 						AccountPaymentProfile::create($CardDetail);
@@ -2419,7 +2462,7 @@ class AccountsApiController extends ApiController {
 						$isDefault = 1;
 						$PaymentGatewayID = 12;
 						$count = AccountPaymentProfile::where(['AccountID' => $account->AccountID])
-							->where(['CompanyID' => $CompanyID])
+							->where(['CompanyID' => $account->CompanyID])
 							->where(['PaymentGatewayID' => $PaymentGatewayID])
 							->where(['isDefault' => 1])
 							->count();
@@ -2439,15 +2482,15 @@ class AccountsApiController extends ApiController {
 							'Status' => 1,
 							'isDefault' => $isDefault,
 							'created_by' => $CreatedBy,
-							'CompanyID' => $CompanyID,
+							'CompanyID' => $account->CompanyID,
 							'AccountID' => $account->AccountID,
 							'PaymentGatewayID' => $PaymentGatewayID);
 						AccountPaymentProfile::create($CardDetail);
-					}else if ($data['PaymentMethod'] == "BankTransfer") {
+					}else if ($data['PaymentMethod'] == "WireTransfer") {
 						$isDefault = 1;
 						$PaymentGatewayID = 11;
 						$count = AccountPaymentProfile::where(['AccountID' => $account->AccountID])
-							->where(['CompanyID' => $CompanyID])
+							->where(['CompanyID' => $account->CompanyID])
 							->where(['PaymentGatewayID' => $PaymentGatewayID])
 							->where(['isDefault' => 1])
 							->count();
@@ -2467,7 +2510,7 @@ class AccountsApiController extends ApiController {
 							'Status' => 1,
 							'isDefault' => $isDefault,
 							'created_by' => $CreatedBy,
-							'CompanyID' => $CompanyID,
+							'CompanyID' => $account->CompanyID,
 							'AccountID' => $account->AccountID,
 							'PaymentGatewayID' => $PaymentGatewayID);
 						AccountPaymentProfile::create($CardDetail);
@@ -2475,11 +2518,11 @@ class AccountsApiController extends ApiController {
 				}
 
 				if (isset($data['PayoutMethod'])) {
-					if ($data['PayoutMethod'] == "BankTransfer") {
+					if ($data['PayoutMethod'] == "WireTransfer") {
 						$isDefault = 1;
 						$PaymentGatewayID = 11;
 						$count = AccountPayout::where(['AccountID' => $account->AccountID])
-							->where(['CompanyID' => $CompanyID])
+							->where(['CompanyID' => $account->CompanyID])
 							->where(['PaymentGatewayID' => $PaymentGatewayID])
 							->where(['isDefault' => 1])
 							->count();
@@ -2494,12 +2537,12 @@ class AccountsApiController extends ApiController {
 							'AccountHolderName' => $PayoutProfile['AccountHolderName'],
 							'MandateCode'       => $PayoutProfile['MandateCode'],
 						);
-						$CardDetail = array('Title' => $PaymentProfile['Title'],
+						$CardDetail = array('Title' => $PayoutProfile['Title'],
 							'Options' => json_encode($option),
 							'Status' => 1,
 							'isDefault' => $isDefault,
 							'created_by' => $CreatedBy,
-							'CompanyID' => $CompanyID,
+							'CompanyID' => $account->CompanyID,
 							'AccountID' => $account->AccountID,
 							'PaymentGatewayID' => $PaymentGatewayID);
 							AccountPayout::create($CardDetail);
@@ -2517,7 +2560,7 @@ class AccountsApiController extends ApiController {
 							->pluck('DynamicFieldsID');
 						$DynamicFields['ParentID'] = $account->AccountID;
 						$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
-						$DynamicFields['CompanyID'] = $CompanyID;
+						$DynamicFields['CompanyID'] =  $account->CompanyID;
 						$DynamicFields['created_at'] = $date;
 						$DynamicFields['created_by'] = $CreatedBy;
 						$DynamicFields['FieldValue'] = $AccountReference["Value"];
@@ -2592,7 +2635,7 @@ class AccountsApiController extends ApiController {
 					$NextBillingDate = next_billing_date($BillingCycleTypeID[4], $BillingCycleValue, strtotime($BillingStartDate));
 					$NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
 
-					$dataAccountBilling['BillingStartDate'] = $BillingStartDate;
+					$dataAccountBilling['BillingStartDate'] = $accountData['BillingStartDate'];
 					$dataAccountBilling['LastInvoiceDate'] = $BillingStartDate;
 					$dataAccountBilling['LastChargeDate'] = $BillingStartDate;
 					if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '') {
@@ -2729,7 +2772,6 @@ class AccountsApiController extends ApiController {
 				}
 
 				$AccountSuccessMessage['AccountID'] = $account->AccountID;
-				$AccountSuccessMessage['redirect'] = URL::to('/accounts/' . $account->AccountID . '/edit');
 
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
 				DB::commit();
@@ -3051,20 +3093,18 @@ class AccountsApiController extends ApiController {
 			$data['AffiliateAccounts'] = isset($accountData['AffiliateAccounts']) ? $accountData['AffiliateAccounts'] : '';
 			
 			if ($accountInfo->IsAffiliateAccount == 1) {
-				if(empty($data['AffiliateAccounts'])){
-					return Response::json(array("ErrorMessage" => Codes::$Code1057[1]),Codes::$Code1057[0]);
+				if(!empty($data['AffiliateAccounts'])){
+					$AffiliateAccount = array();
+					$AffiliateAccount['AffiliateAccounts'] = $data['AffiliateAccounts'];
+					
+					$Affiliate = AffiliateAccount::where('AccountID',$accountInfo->AccountID)->first();
+					if($Affiliate){
+						$Affiliate->update($AffiliateAccount);
+					}else{
+						$AffiliateAccount['AccountID'] = $accountInfo->AccountID;
+						AffiliateAccount::create($AffiliateAccount);
+					}
 				}
-				$AffiliateAccount = array();
-				$AffiliateAccount['AffiliateAccounts'] = $data['AffiliateAccounts'];
-				
-				$Affiliate = AffiliateAccount::where('AccountID',$accountInfo->AccountID)->first();
-				if($Affiliate){
-					$Affiliate->update($AffiliateAccount);
-				}else{
-					$AffiliateAccount['AccountID'] = $accountInfo->AccountID;
-					AffiliateAccount::create($AffiliateAccount);
-				}
-
 			}
 
 			$BillingSetting['billing_class']= isset($accountData['BillingClassID']) ? $accountData['BillingClassID'] : '';
@@ -3079,8 +3119,8 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if (isset($accountData['CurrencySymbol']) && !empty($accountData['CurrencySymbol'])) {
-				$data['CurrencyId'] = isset($accountData['CurrencySymbol']) ? $accountData['CurrencySymbol'] : '';
+			if (isset($accountData['Currency']) && !empty($accountData['Currency'])) {
+				$data['CurrencyId'] = isset($accountData['Currency']) ? $accountData['Currency'] : '';
 			}
 			if (isset($accountData['CountryIso2']) && !empty($accountData['CountryIso2'])) {
 				$data['Country'] = isset($accountData['CountryIso2']) ? $accountData['CountryIso2'] : '';
@@ -3113,7 +3153,7 @@ class AccountsApiController extends ApiController {
 			}
 
 			if (!empty($data['CurrencyId'])) {
-				$data['CurrencyId'] = Currency::where('Symbol', $data['CurrencyId'])->pluck('CurrencyId');
+				$data['CurrencyId'] = Currency::where('Code', $data['CurrencyId'])->pluck('CurrencyId');
 				if (!isset($data['CurrencyId'])) {
 					return Response::json(["ErrorMessage" => Codes::$Code1012[1], Codes::$Code1012[0]]);
 				}
@@ -3250,7 +3290,7 @@ class AccountsApiController extends ApiController {
 							'BankAccount'       => 'required',
 							'BIC'               => 'required',
 							'AccountHolderName' => 'required',
-							'MandateCode'       => 'required'
+							'Title'             => 'required'
 
 						);
 						$PaymentProfile['BankAccount'] = isset($accountData['BankAccount']) ? $accountData['BankAccount'] : '' ;
@@ -3295,7 +3335,7 @@ class AccountsApiController extends ApiController {
 							'BankAccount'       => 'required',
 							'BIC'               => 'required',
 							'AccountHolderName' => 'required',
-							'MandateCode'       => 'required'
+							'Title'             => 'required'
 						);
 						$PayoutProfile['BankAccount'] = isset($accountData['PayoutBankAccount']) ? $accountData['PayoutBankAccount'] : '' ;
 						$PayoutProfile['BIC'] = isset($accountData['PayoutBIC']) ? $accountData['PayoutBIC'] : '' ;
@@ -3462,7 +3502,40 @@ class AccountsApiController extends ApiController {
 						'AccountID' =>  $accountInfo->AccountID,
 						'PaymentGatewayID' => $PaymentGatewayID);
 					AccountPaymentProfile::create($CardDetail);
-				}else if ($data['PaymentMethod'] == "DirectDebit" || $data['PaymentMethod'] == "BankTransfer") {
+				}else if ($data['PaymentMethod'] == "DirectDebit") {
+					$isDefault = 1;
+					$PaymentGatewayID = 12;
+					$count = AccountPaymentProfile::where(['AccountID' => $accountInfo->AccountID])
+						->where(['CompanyID' => $CompanyID])
+						->where(['PaymentGatewayID' => $PaymentGatewayID])
+						->where(['isDefault' => 1])
+						->count();
+
+					if($count>0){
+						$isDefault = 0;
+					}
+
+					AccountPaymentProfile::where(['AccountID' =>  $accountInfo->AccountID])
+						->where(['CompanyID' => $CompanyID])
+						->where(['PaymentGatewayID' => $PaymentGatewayID])
+						->delete();
+
+					$option = array(
+						'BankAccount'       => $PaymentProfile['BankAccount'],
+						'BIC'               => $PaymentProfile['BIC'],
+						'AccountHolderName' => $PaymentProfile['AccountHolderName'],
+						'MandateCode'       => $PaymentProfile['MandateCode'],
+					);
+					$CardDetail = array('Title' => $PaymentProfile['Title'],
+						'Options' => json_encode($option),
+						'Status' => 1,
+						'isDefault' => $isDefault,
+						'created_by' => $CreatedBy,
+						'CompanyID' => $CompanyID,
+						'AccountID' => $accountInfo->AccountID,
+						'PaymentGatewayID' => $PaymentGatewayID);
+					AccountPaymentProfile::create($CardDetail);
+				}else if ($data['PaymentMethod'] == "WireTransfer") {
 					$isDefault = 1;
 					$PaymentGatewayID = 12;
 					$count = AccountPaymentProfile::where(['AccountID' => $accountInfo->AccountID])
@@ -3639,10 +3712,10 @@ class AccountsApiController extends ApiController {
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 		}else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage" => "AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
 		}
 
-		$Account=Account::where(["AccountID" => $AccountID]);
+		$Account = Account::where(["AccountID" => $AccountID]);
 		if($Account->count() > 0){
 			$Account = $Account->first();
 			$CompanyID = $Account->CompanyId;
@@ -3657,10 +3730,23 @@ class AccountsApiController extends ApiController {
 			'Currency' 		=> 'required',
 			'Amount' 		=> 'required'
 		);
+
+		if(isset($data['ChargeType']) && intval($data['ChargeType']) != 0){
+			$rules['StartDate'] = 'required|date|date_format:Y-m-d';
+			$rules['EndDate'] 	= 'required|date|date_format:Y-m-d';
+			$rules['Frequency'] = 'required';
+		} else {
+			$rules['Date'] = 'required|date|date_format:Y-m-d';
+		}
+
 		$validator = Validator::make($data, $rules);
 		if ($validator->fails()) {
-			return json_validator_response($validator);
+			return Response::json([
+				"ErrorMessage" => $validator->messages()->first()
+			],Codes::$Code400[0]);
 		}
+
+
 		$CurrentDate = date('Y-m-d H:i:s');
 		$CreatedBy 	 = 'API';
 
@@ -3668,11 +3754,11 @@ class AccountsApiController extends ApiController {
 			DB::connection('sqlsrv2')->beginTransaction();
 
 			if (!empty($AccountID) && !empty($CompanyID)) {
-				$CurrencyID = Currency::where(["CompanyId" => $CompanyID, "Symbol" => $data['Currency']])->pluck('CurrencyID');
+				$CurrencyID = Currency::where(["Code" => $data['Currency']])->pluck('CurrencyID');
 				if (!empty($CurrencyID)) {
 					// if One-Off Cost
 					if($data['ChargeType'] == 0) {
-						$product = Product::whereRaw('lower(Code) = '. "'". $data['ChargeCode'] . "'")->where("CompanyId", $CompanyID);
+						$product = Product::whereRaw('lower(Code) = '. "'". strtolower($data['ChargeCode']) . "'")->where("CompanyId", $CompanyID);
 						if ($product->count() > 0) {
 							$product = $product->first();
 							if ($product->Active != 1) {
@@ -3692,31 +3778,37 @@ class AccountsApiController extends ApiController {
 							$product_data['created_at'] 	= $CurrentDate;
 
 							$product = Product::create($product_data);
-
-
 						}
+
 						$ProductID = $product->ProductID;
 
 						$ChargeData['AccountID'] 	= $AccountID;
 						$ChargeData['ProductID'] 	= $ProductID;
-						$ChargeData['Price'] 		= $product->Amount;
+						$ChargeData['Price'] 		= $data['Amount'];
 						$ChargeData['Description']	= $data['Description'];
+						$ChargeData['DiscountType']	= 'Flat';
+						$ChargeData['TaxAmount']	= 0;
 						$ChargeData['Qty'] 			= 1;
-						$ChargeData['Date'] 		= $CurrentDate;
+						$ChargeData['Date'] 		= !empty($data['Date']) ? date('Y-m-d', strtotime($data['Date'])) : $ChargeData;
 						$ChargeData['CreatedBy'] 	= $CreatedBy;
 						$ChargeData['created_at'] 	= $CurrentDate;
 						$ChargeData['CurrencyID'] 	= $CurrencyID;
-						$ChargeData['AccountServiceID'] 	= 0;
+						$ChargeData['AccountServiceID'] = 0;
 						$ChargeData['ServiceID'] 	= 0;
-
 
 						if (AccountOneOffCharge::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
-							return Response::json(Codes::$Code200[0]);
+							return Response::json((object)['status' => 'success'], Codes::$Code200[0]);
 						} else {
 							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
 						}
 					} else {
+						if (strtotime($data['EndDate']) < strtotime($data['StartDate'])) {
+							return  Response::json(["ErrorMessage" => "End date should be greater then or equal to start date."], Codes::$Code400[0]);
+						}
+						if(!in_array($data['Frequency'], ['Daily','Monthly','Weekly','Yearly'])){
+							return Response::json(array("ErrorMessage" => "Please enter valid Frequency."), Codes::$Code400[0]);
+						}
 						// add subscription/recurring
 						$recurring = BillingSubscription::where(["CompanyId" => $CompanyID, "Name" => $recurringName]);
 						Log::info("Account One Off Charge ." . $recurring->count());
@@ -3724,13 +3816,15 @@ class AccountsApiController extends ApiController {
 							$recurring = $recurring->first();
 						} else {
 							$recurring_data['CompanyId'] 				= $CompanyID;
-							$recurring_data['CurrencyID'] 				= $CurrencyID;
+							//$recurring_data['CurrencyID'] 				= $CurrencyID;
 							$recurring_data['Name'] 					= $recurringName;
 							$recurring_data['Description'] 				= $recurringName;
 							$recurring_data['InvoiceLineDescription'] 	= $data['Description'];
 							$recurring_data['CreatedBy'] 				= $CreatedBy;
 							$recurring_data['created_at'] 				= $CurrentDate;
 							$recurring_data['Advance'] 					= 1;
+							$ChargeData['OneOffCurrencyID'] 			= $CurrencyID;
+							$ChargeData['RecurringCurrencyID'] 			= $CurrencyID;
 
 							$Costs = AccountSubscription::calculateCost('MonthlyFee', $data['Amount']);
 
@@ -3743,13 +3837,14 @@ class AccountsApiController extends ApiController {
 							$recurring = BillingSubscription::create($recurring_data);
 							Log::info("Account One Off Charge created." );
 						}
+
 						$AccountRecurringID = $recurring->SubscriptionID;
 						Log::info("Account One Off Charge created." . $AccountRecurringID);
 
 						$ChargeData['AccountID'] 		= $AccountID;
 						$ChargeData['SubscriptionID'] 	= $AccountRecurringID;
-						$ChargeData['StartDate'] 		= $CurrentDate;
-						$ChargeData['EndDate'] 			= !empty($data['EndDate']) ? date('Y-m-d', strtotime($data['EndDate'])) : NULL;
+						$ChargeData['StartDate'] 		= !empty($data['StartDate']) ? date('Y-m-d', strtotime($data['StartDate'])) : $CurrentDate;
+						$ChargeData['EndDate'] 			= !empty($data['EndDate']) ? date('Y-m-d', strtotime($data['EndDate'])) : $ChargeData;
 						$ChargeData['Qty'] 				= 1;
 						$ChargeData['CreatedBy'] 		= $CreatedBy;
 						$ChargeData['created_at'] 		= $CurrentDate;
@@ -3761,22 +3856,24 @@ class AccountsApiController extends ApiController {
 						$ChargeData['MonthlyFee'] 		= $recurring->MonthlyFee;
 						$ChargeData['QuarterlyFee'] 	= $recurring->QuarterlyFee;
 						$ChargeData['AnnuallyFee'] 		= $recurring->AnnuallyFee;
-						$ChargeData['ActivationFee'] 		= 1;
-						$ChargeData['AccountServiceID'] 		= 0;
+						$ChargeData['ActivationFee'] 	= 1;
+						$ChargeData['DiscountType'] 	= 'Flat';
+						$ChargeData['Frequency'] 		= $data['Frequency'];
+						$ChargeData['AccountServiceID'] = 0;
 
 						Log::info("Account One Off Charge created." . print_r($ChargeData,true));
 						if (AccountSubscription::create($ChargeData)) {
 							DB::connection('sqlsrv2')->commit();
-							return Response::json([],Codes::$Code200[0]);
+							return Response::json((object)['status' => 'success'],Codes::$Code200[0]);
 						} else {
 							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
 						}
 					}
 				} else {
-					return Response::json(["ErrorMessage" => "Currency Not Found"], Codes::$Code402[0]);
+					return Response::json(["ErrorMessage" => "Currency Not Found"], Codes::$Code400[0]);
 				}
 			} else {
-				return Response::json(["ErrorMessage" => "Account or Company Not Found"], Codes::$Code402[0]);
+				return Response::json(["ErrorMessage" => "Account or Company Not Found"], Codes::$Code400[0]);
 			}
 		} catch (Exception $e) {
 			DB::connection('sqlsrv2')->rollback();
