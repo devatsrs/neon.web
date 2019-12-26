@@ -3808,7 +3808,7 @@ class AccountsApiController extends ApiController {
 						if (strtotime($data['EndDate']) < strtotime($data['StartDate'])) {
 							return  Response::json(["ErrorMessage" => "End date should be greater then or equal to start date."], Codes::$Code400[0]);
 						}
-						
+
 						$frequency = (int)$data['Frequency'];
 						$frequencyArr = ['Daily', 'Weekly', 'Monthly', 'Yearly'];
 						$feeArr = ['DailyFee', 'WeeklyFee', 'MonthlyFee', 'AnnuallyFee'];
@@ -3817,6 +3817,8 @@ class AccountsApiController extends ApiController {
 
 						// add subscription/recurring
 						$recurring = BillingSubscription::where(["CompanyId" => $CompanyID, "Name" => $recurringName]);
+						$Costs = AccountSubscription::calculateCost($feeType, $data['Amount']);
+
 						Log::info("Account One Off Charge ." . $recurring->count());
 						if ($recurring->count() > 0) {
 							$recurring = $recurring->first();
@@ -3831,8 +3833,6 @@ class AccountsApiController extends ApiController {
 							$ChargeData['OneOffCurrencyID'] 			= $CurrencyID;
 							$ChargeData['RecurringCurrencyID'] 			= $CurrencyID;
 
-
-							$Costs = AccountSubscription::calculateCost($feeType, $data['Amount']);
 
 							$recurring_data['DailyFee'] 				= $Costs['DailyFee'];
 							$recurring_data['WeeklyFee'] 				= $Costs['WeeklyFee'];
@@ -3856,12 +3856,12 @@ class AccountsApiController extends ApiController {
 						$ChargeData['created_at'] 		= $CurrentDate;
 						$ChargeData['OneOffCurrencyID'] = $CurrencyID;
 						$ChargeData['RecurringCurrencyID'] = $CurrencyID;
-						$ChargeData['InvoiceDescription']  = $recurring->InvoiceLineDescription;
-						$ChargeData['DailyFee'] 		= $recurring->DailyFee;
-						$ChargeData['WeeklyFee'] 		= $recurring->WeeklyFee;
-						$ChargeData['MonthlyFee'] 		= $recurring->MonthlyFee;
-						$ChargeData['QuarterlyFee'] 	= $recurring->QuarterlyFee;
-						$ChargeData['AnnuallyFee'] 		= $recurring->AnnuallyFee;
+						$ChargeData['InvoiceDescription']  = $data['Description'];
+						$ChargeData['DailyFee'] 		= $Costs['DailyFee'];
+						$ChargeData['WeeklyFee'] 		= $Costs['WeeklyFee'];
+						$ChargeData['MonthlyFee'] 		= $Costs['MonthlyFee'];
+						$ChargeData['QuarterlyFee'] 	= $Costs['QuarterlyFee'];
+						$ChargeData['AnnuallyFee'] 		= $Costs['AnnuallyFee'];
 						$ChargeData['ActivationFee'] 	= 1;
 						$ChargeData['DiscountType'] 	= 'Flat';
 						$ChargeData['Frequency'] 		= $frequencyType;
