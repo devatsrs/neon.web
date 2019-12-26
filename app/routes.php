@@ -1911,6 +1911,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('ImportCDR', 'ActiveCallApiController@ImportCDR');
 	Route::post('blockCall', 'ActiveCallApiController@blockCall');
 	Route::post('BlockCalls/list', 'ActiveCallApiController@getBlockCalls');
+	Route::post('CDR/list', 'ActiveCallApiController@getCDR');
 	Route::get('emailTemplate/list', 'EmailTemplateApiController@getList');
 	Route::get('users/list', 'UsersApiController@getList');
 	Route::get('country/list', 'CountryApiController@getList');
