@@ -1919,7 +1919,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 
 	Route::post('account/getPaymentToken', 'AccountsApiController@getPaymentToken');
 	Route::post('createAccount', 'AccountsApiController@createAccount');
-	Route::post('account/updateAccount', 'AccountsApiController@updateAccount');
+	Route::post('updateAccount', 'AccountsApiController@updateAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
 	Route::post('account/UpdateNumberStatus', 'AccountsApiController@UpdateNumberStatus');
