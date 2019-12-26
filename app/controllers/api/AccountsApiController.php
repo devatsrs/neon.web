@@ -3724,7 +3724,6 @@ class AccountsApiController extends ApiController {
 
 		//Validation
 		$rules = array(
-			'ChargeCode' 	=> 'required',
 			'Description' 	=> 'required',
 			'ChargeType' 	=> 'required|in:0,1',
 			'Currency' 		=> 'required',
@@ -3734,7 +3733,7 @@ class AccountsApiController extends ApiController {
 		if(isset($data['ChargeType']) && intval($data['ChargeType']) != 0){
 			$rules['StartDate'] = 'required|date|date_format:Y-m-d';
 			$rules['EndDate'] 	= 'required|date|date_format:Y-m-d';
-			$rules['Frequency'] = 'required';
+			$rules['Frequency'] = 'required|in:0,1,2,3';
 		} else {
 			$rules['Date'] = 'required|date|date_format:Y-m-d';
 		}
@@ -3758,7 +3757,9 @@ class AccountsApiController extends ApiController {
 				if (!empty($CurrencyID)) {
 					// if One-Off Cost
 					if($data['ChargeType'] == 0) {
-						$product = Product::whereRaw('lower(Code) = '. "'". strtolower($data['ChargeCode']) . "'")->where("CompanyId", $CompanyID);
+						$product = Product::where('Code', Product::ONEOFFCHARGECODE)
+							->where("CompanyId", $CompanyID);
+
 						if ($product->count() > 0) {
 							$product = $product->first();
 							if ($product->Active != 1) {
@@ -3769,8 +3770,8 @@ class AccountsApiController extends ApiController {
 							// add product
 							$product_data['CompanyId'] 		= $CompanyID;
 							//$product_data['CurrencyID'] 	= $CurrencyID;
-							$product_data['Name'] 			= $data['ChargeCode'];
-							$product_data['Code'] 			= $data['ChargeCode'];
+							$product_data['Name'] 			= Product::$AllProductTypes[Product::ONEOFFCHARGE];
+							$product_data['Code'] 			= Product::ONEOFFCHARGECODE;
 							$product_data['Description'] 	= $data['Description'];
 							$product_data['Amount'] 		= $data['Amount'];
 							$product_data['Active'] 		= 1;
@@ -3803,12 +3804,17 @@ class AccountsApiController extends ApiController {
 							return Response::json(array("ErrorMessage" => "Problem Inserting Additional Charge."), Codes::$Code500[0]);
 						}
 					} else {
+
 						if (strtotime($data['EndDate']) < strtotime($data['StartDate'])) {
 							return  Response::json(["ErrorMessage" => "End date should be greater then or equal to start date."], Codes::$Code400[0]);
 						}
-						if(!in_array($data['Frequency'], ['Daily','Monthly','Weekly','Yearly'])){
-							return Response::json(array("ErrorMessage" => "Please enter valid Frequency."), Codes::$Code400[0]);
-						}
+						
+						$frequency = (int)$data['Frequency'];
+						$frequencyArr = ['Daily', 'Weekly', 'Monthly', 'Yearly'];
+						$feeArr = ['DailyFee', 'WeeklyFee', 'MonthlyFee', 'AnnuallyFee'];
+						$frequencyType = $frequencyArr[$frequency];
+						$feeType = $feeArr[$frequency];
+
 						// add subscription/recurring
 						$recurring = BillingSubscription::where(["CompanyId" => $CompanyID, "Name" => $recurringName]);
 						Log::info("Account One Off Charge ." . $recurring->count());
@@ -3816,7 +3822,6 @@ class AccountsApiController extends ApiController {
 							$recurring = $recurring->first();
 						} else {
 							$recurring_data['CompanyId'] 				= $CompanyID;
-							//$recurring_data['CurrencyID'] 				= $CurrencyID;
 							$recurring_data['Name'] 					= $recurringName;
 							$recurring_data['Description'] 				= $recurringName;
 							$recurring_data['InvoiceLineDescription'] 	= $data['Description'];
@@ -3826,7 +3831,8 @@ class AccountsApiController extends ApiController {
 							$ChargeData['OneOffCurrencyID'] 			= $CurrencyID;
 							$ChargeData['RecurringCurrencyID'] 			= $CurrencyID;
 
-							$Costs = AccountSubscription::calculateCost('MonthlyFee', $data['Amount']);
+
+							$Costs = AccountSubscription::calculateCost($feeType, $data['Amount']);
 
 							$recurring_data['DailyFee'] 				= $Costs['DailyFee'];
 							$recurring_data['WeeklyFee'] 				= $Costs['WeeklyFee'];
@@ -3858,7 +3864,7 @@ class AccountsApiController extends ApiController {
 						$ChargeData['AnnuallyFee'] 		= $recurring->AnnuallyFee;
 						$ChargeData['ActivationFee'] 	= 1;
 						$ChargeData['DiscountType'] 	= 'Flat';
-						$ChargeData['Frequency'] 		= $data['Frequency'];
+						$ChargeData['Frequency'] 		= $frequencyType;
 						$ChargeData['AccountServiceID'] = 0;
 
 						Log::info("Account One Off Charge created." . print_r($ChargeData,true));
