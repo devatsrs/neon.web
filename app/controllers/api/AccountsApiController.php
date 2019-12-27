@@ -3174,7 +3174,7 @@ class AccountsApiController extends ApiController {
 				if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
 					return Response::json(["ErrorMessage" => Codes::$Code1018[1]], Codes::$Code1018[0]);
 				}
-				$AccountName = Account::where(['AccountName' => $data["AccountName"], 'CompanyID' => $CompanyID, 'AccountType' => 1])->count();
+				$AccountName = Account::where(['AccountName' => $data["AccountName"], 'CompanyID' => $CompanyID, 'AccountType' => 1])->where('AccountID' ,'!=', $accountInfo->AccountID)->count();
 				if ($AccountName > 0) {
 					return Response::json(["ErrorMessage" => Codes::$Code1029[1]], Codes::$Code410[0]);
 				}
