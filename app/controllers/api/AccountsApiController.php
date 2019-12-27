@@ -1900,6 +1900,13 @@ class AccountsApiController extends ApiController {
 				$data['PayoutMethod'] = AccountsApiController::$API_PayoutMethod[$data['PayoutMethod']];
 			}
 
+			if(isset($accountData['AutoTopup']) && $accountData['AutoTopup'] > 1){
+				return Response::json(["ErrorMessage" => 'Auto Top Up Value Should Be 0 Or 1'],400);
+			}
+			if(isset($accountData['AutoOutpayment']) && $accountData['AutoOutpayment'] > 1){
+				return Response::json(["ErrorMessage" => 'Auto Out payment Value Should Be 0 Or 1'],400);
+			}
+
 			$AccountPaymentAutomation['AutoTopup']= isset($accountData['AutoTopup']) ? $accountData['AutoTopup'] :'';
 			$AccountPaymentAutomation['MinThreshold']= isset($accountData['MinThreshold']) ? $accountData['MinThreshold'] : '';
 			$AccountPaymentAutomation['TopupAmount']= isset($accountData['TopupAmount']) ? $accountData['TopupAmount'] : '';
@@ -1913,8 +1920,8 @@ class AccountsApiController extends ApiController {
 
 			if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1) {
 				$rules = [];
-				$rules['MinThreshold'] = 'required';
-				$rules['TopupAmount'] = 'required';
+				$rules['MinThreshold'] = 'required|numeric';
+				$rules['TopupAmount'] = 'required|numeric';
 				$messages = array(
 					'MinThreshold.required' =>'MinThreshold field is required if AutoTopup is ON',
 					'TopupAmount.required' =>'TopupAmount field is required if AutoTopup is ON',
@@ -2049,8 +2056,8 @@ class AccountsApiController extends ApiController {
 
 			if (!empty($AccountPaymentAutomation['AutoOutpayment']) && $AccountPaymentAutomation['AutoOutpayment'] == 1) {
 				$rules = [];
-				$rules['OutPaymentThreshold'] = 'required';
-				$rules['OutPaymentAmount'] = 'required';
+				$rules['OutPaymentThreshold'] = 'required|numeric';
+				$rules['OutPaymentAmount'] = 'required|numeric';
 				$messages = array(
 					'OutPaymentThreshold.required' =>'OutPaymentThreshold field is required if AutoOutpayment is ON',
 					'OutPaymentAmount.required' =>'OutPaymentAmount field is required if AutoOutpayment is ON',
@@ -3445,6 +3452,91 @@ class AccountsApiController extends ApiController {
 							return Response::json(["ErrorMessage" => $errors],400);
 						}
 					}
+				}
+			}
+
+			if(isset($accountData['AutoTopup']) && $accountData['AutoTopup'] > 1){
+				return Response::json(["ErrorMessage" => 'Auto Top Up Value Should Be 0 Or 1'],400);
+			}
+			if(isset($accountData['AutoOutpayment']) && $accountData['AutoOutpayment'] > 1){
+				return Response::json(["ErrorMessage" => 'Auto Out Payment Value Should Be 0 Or 1'],400);
+			}
+
+			if (isset($accountData['AutoTopup']) || isset($accountData['MinThreshold']) && !empty($accountData['MinThreshold']) ||
+				isset($accountData['TopupAmount']) && !empty($accountData['TopupAmount']) ||
+				isset($accountData['OutPaymentThreshold']) && !empty($accountData['OutPaymentThreshold']) ||
+				isset($accountData['OutPaymentAmount']) && !empty($accountData['OutPaymentAmount']) ||
+				isset($accountData['AutoOutpayment']) ) 
+			{
+
+				$AccountPaymentAutomation['AccountID'] = $accountInfo->AccountID;
+				if(isset($accountData['AutoTopup'])){
+					$AccountPaymentAutomation['AutoTopup']= isset($accountData['AutoTopup']) ? $accountData['AutoTopup'] :'';
+				}
+				if(isset($accountData['MinThreshold'])){
+					$AccountPaymentAutomation['MinThreshold']= isset($accountData['MinThreshold']) ? $accountData['MinThreshold'] : '';
+
+				}
+				if(isset($accountData['TopupAmount'])){
+					$AccountPaymentAutomation['TopupAmount']= isset($accountData['TopupAmount']) ? $accountData['TopupAmount'] : '';
+
+				}
+				if(isset($accountData['AutoOutpayment'])){
+					$AccountPaymentAutomation['AutoOutpayment']= isset($accountData['AutoOutpayment']) ? $accountData['AutoOutpayment'] : '';
+
+				}
+				if(isset($accountData['OutPaymentThreshold'])){
+					$AccountPaymentAutomation['OutPaymentThreshold']= isset($accountData['OutPaymentThreshold']) ? $accountData['OutPaymentThreshold'] : '';
+
+				}
+				if(isset($accountData['OutPaymentAmount'])){
+					$AccountPaymentAutomation['OutPaymentAmount']= isset($accountData['OutPaymentAmount']) ? $accountData['OutPaymentAmount'] : '';
+
+				}
+																						
+				$automation = AccountPaymentAutomation::where('AccountID' , $accountInfo->AccountID)->first();
+				if($automation){
+					$automation->update($AccountPaymentAutomation);
+				}else{
+					if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1) {
+						$rules = [];
+						$rules['MinThreshold'] = 'required|numeric';
+						$rules['TopupAmount'] = 'required|numeric';
+						$messages = array(
+							'MinThreshold.required' =>'MinThreshold field is required if AutoTopup is ON',
+							'TopupAmount.required' =>'TopupAmount field is required if AutoTopup is ON',
+		
+						);
+						$validator = Validator::make($AccountPaymentAutomation, $rules, $messages);
+						if ($validator->fails()) {
+							$errors = "";
+							foreach ($validator->messages()->all() as $error) {
+								$errors .= $error . "<br>";
+							}
+							return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+		
+						}
+					}
+					if (!empty($AccountPaymentAutomation['AutoOutpayment']) && $AccountPaymentAutomation['AutoOutpayment'] == 1) {
+						$rules = [];
+						$rules['OutPaymentThreshold'] = 'required|numeric';
+						$rules['OutPaymentAmount'] = 'required|numeric';
+						$messages = array(
+							'OutPaymentThreshold.required' =>'OutPaymentThreshold field is required if AutoOutpayment is ON',
+							'OutPaymentAmount.required' =>'OutPaymentAmount field is required if AutoOutpayment is ON',
+		
+						);
+						$validator = Validator::make($AccountPaymentAutomation, $rules, $messages);
+						if ($validator->fails()) {
+							$errors = "";
+							foreach ($validator->messages()->all() as $error) {
+								$errors .= $error . "<br>";
+							}
+							return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+		
+						}
+					}
+					AccountPaymentAutomation::create($AccountPaymentAutomation);
 				}
 			}
 
