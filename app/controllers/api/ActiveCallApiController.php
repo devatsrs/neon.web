@@ -417,6 +417,60 @@ class ActiveCallApiController extends ApiController {
 
     }
 
+    public function getCDR(){
+        $post_vars = json_decode(file_get_contents("php://input"));
+        $data      = json_decode(json_encode($post_vars),true);
+
+        $rules = array(
+            'StartDate' => 'required|date|date_format:Y-m-d',
+            'EndDate' => 'required|date|date_format:Y-m-d',
+        );
+
+        $verifier = App::make('validation.presence');
+        $verifier->setConnection('sqlsrv');
+
+        $validator = Validator::make($data, $rules);
+        $validator->setPresenceVerifier($verifier);
+
+        if ($validator->fails()) {
+            return Response::json([
+                "ErrorMessage" => $validator->messages()->first()
+            ],Codes::$Code400[0]);
+        }
+
+        if (strtotime($data['EndDate']) < strtotime($data['StartDate'])) {
+            return  Response::json(["ErrorMessage" => "End date should be greater then or equal to start date."], Codes::$Code400[0]);
+        }
+
+        $StartDate 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
+        $EndDate 	 = 		!empty($data['EndDate'])?$data['EndDate']:'0000-00-00';
+        $AccountID = 0;
+
+        if(!empty($data['AccountID'])) {
+            $AccountID = $data['AccountID'];
+        }else if(!empty($data['AccountNo'])){
+            $AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+        }else if(!empty($data['AccountDynamicField'])){
+            $AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+        }
+
+        if(empty($AccountID)){
+            $AccountID=0;
+        }
+
+        try {
+            $query = "CALL prc_getCallData(" . $AccountID . ",'" . $StartDate . "','" . $EndDate . "')";
+            //echo $query;die;
+            $Result = DB::connection('sqlsrvroutingengine')->select($query);
+            $Response = json_decode(json_encode($Result), true);
+            return Response::json($Response,Codes::$Code200[0]);
+        }catch(Exception $e){
+            Log::info($e);
+            $reseponse = array("ErrorMessage" => "Something Went Wrong.");
+            return Response::json($reseponse,Codes::$Code500[0]);
+        }
+    }
+
 
     /**
      * @Param mixed

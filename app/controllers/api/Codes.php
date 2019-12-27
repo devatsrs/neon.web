@@ -41,12 +41,12 @@ class Codes
     public static $Code1016 =["400","Please select the valid billing type"];
     public static $Code1017 =["400","Please select the valid billing class"];
     public static $Code1018 =["400","Account Name contains illegal character"];
-    public static $Code1019 =["400","Reseller does not exist"];
+    public static $Code1019 =["400","Partner does not exist"];
     public static $Code1020 =["400","Please enter the valid payment method"];
     public static $Code1021 =["400","Please provide the valid product reference"];
     public static $Code1022 =["400","Provided date is not in correct format"];
 
-    public static $Code1023 =["400","The value of isReseller must be between 0 or 1"];
+    public static $Code1023 =["400","The value of isPartner must be between 0 or 1"];
     public static $Code1024 =["400","The value of isCustomer must be between 0 or 1"];
     public static $Code1025 =["400","The value of IsVendor must be between 0 or 1"];
 
@@ -90,6 +90,7 @@ class Codes
     public static $Code1062 =["400","The CustomerID is required."];
     public static $Code1063 =["400","The CustomerID is already exist."];
     public static $Code1064 =["400","Account dynamic field is required."];
+    public static $Code1065 =["400","The value of IsAffiliateAccount must be between 0 or 1"];
 
 
     
