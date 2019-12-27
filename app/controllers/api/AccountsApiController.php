@@ -3291,6 +3291,14 @@ class AccountsApiController extends ApiController {
 
 				$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
 
+				if (isset($accountData['BillingTypeID']) && empty($accountData['BillingTypeID'])) {
+					return Response::json(["ErrorMessage" => 'The Billing Type ID Field Is Required'], Codes::$Code1017[0]);
+				}
+
+				if (isset($accountData['BillingTypeID']) && ($accountData['BillingTypeID'] > 2 || $accountData['BillingTypeID'] < 1)) {
+					return Response::json(["ErrorMessage" => 'The Billing Type ID Should Be 1 Or 2'], Codes::$Code1017[0]);
+				}
+
 				if (isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])) {
 					$data['PaymentMethod'] = isset($accountData['PaymentMethodID']) && !empty($accountData['PaymentMethodID']) ? $data['PaymentMethod'] : $accountInfo->PaymentMethod;
 					$BillingSetting['billing_class'] = $accountData['BillingTypeID']  == 1 ? "Prepaid" : "Postpaid";
