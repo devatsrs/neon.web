@@ -2124,7 +2124,7 @@ class AccountsApiController extends ApiController {
 
 			Account::$APIrules['AccountName'] = 'required';
 			Account::$APIrules['Number'] = 'required';
-			Account::$APIrules['BillingEmail'] = 'required|email';
+			Account::$APIrules['BillingEmail'] = 'required';
 			
 			if($data['IsCustomer'] == 1 || $data['AffiliateAccounts'] == 1){
 				Account::$APIrules['PartnerID'] = 'required';
@@ -3086,7 +3086,7 @@ class AccountsApiController extends ApiController {
 			}
 			if (isset($accountData['BillingEmail'])) {
 				$rules = array(
-					'BillingEmail'       => 'required|email',
+					'BillingEmail'       => 'required',
 				);
 				$data['BillingEmail'] = $accountData['BillingEmail'];
 				
@@ -3168,7 +3168,7 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			$BillingSetting['billing_class']= isset($accountData['BillingTypeID']) ? $accountData['BillingTypeID'] : '';
+			// $BillingSetting['billing_class']= isset($accountData['BillingTypeID']) ? $accountData['BillingTypeID'] : '';
 			if (isset($accountData['AccountName']) && !empty($accountData['AccountName'])) {
 				$data['AccountName'] = $accountData['AccountName'];
 				if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
@@ -3291,36 +3291,36 @@ class AccountsApiController extends ApiController {
 
 				$data['PaymentMethod'] = AccountsApiController::$API_PaymentMethod[$data['PaymentMethod']];
 
-				if (isset($accountData['BillingTypeID']) && empty($accountData['BillingTypeID'])) {
-					return Response::json(["ErrorMessage" => 'The Billing Type ID Field Is Required'], Codes::$Code1017[0]);
-				}
+				// if (isset($accountData['BillingTypeID']) && empty($accountData['BillingTypeID'])) {
+				// 	return Response::json(["ErrorMessage" => 'The Billing Type ID Field Is Required'], Codes::$Code1017[0]);
+				// }
 
-				if (isset($accountData['BillingTypeID']) && ($accountData['BillingTypeID'] > 2 || $accountData['BillingTypeID'] < 1)) {
-					return Response::json(["ErrorMessage" => 'The Billing Type ID Should Be 1 Or 2'], Codes::$Code1017[0]);
-				}
+				// if (isset($accountData['BillingTypeID']) && ($accountData['BillingTypeID'] > 2 || $accountData['BillingTypeID'] < 1)) {
+				// 	return Response::json(["ErrorMessage" => 'The Billing Type ID Should Be 1 Or 2'], Codes::$Code1017[0]);
+				// }
 
-				if (isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])) {
-					$data['PaymentMethod'] = isset($accountData['PaymentMethodID']) && !empty($accountData['PaymentMethodID']) ? $data['PaymentMethod'] : $accountInfo->PaymentMethod;
-					$BillingSetting['billing_class'] = $accountData['BillingTypeID']  == 1 ? "Prepaid" : "Postpaid";
-					$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $data['PaymentMethod']);
-					Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $CompanyID);
-					$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])
-						->where('CompanyID', '=', $CompanyID);
-					$BillingClass = $BillingClassSql->first();
-					if (!isset($BillingClass)) {
-						return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
-					}
-					if(isset($accountData['BillingStartDate']) && !empty($accountData['BillingStartDate'])){
-						$dataAccountBilling['BillingStartDate'] = $accountData['BillingStartDate'];
-					}else if(isset($accountData['BillingStartDate']) && empty($accountData['BillingStartDate'])){
-						return Response::json(["ErrorMessage" => 'The Billing Start Date Field Is Required'],Codes::$Code1020[0]);
-					}
+				// if (isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])) {
+				// 	$data['PaymentMethod'] = isset($accountData['PaymentMethodID']) && !empty($accountData['PaymentMethodID']) ? $data['PaymentMethod'] : $accountInfo->PaymentMethod;
+				// 	$BillingSetting['billing_class'] = $accountData['BillingTypeID']  == 1 ? "Prepaid" : "Postpaid";
+				// 	$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $data['PaymentMethod']);
+				// 	Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $CompanyID);
+				// 	$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])
+				// 		->where('CompanyID', '=', $CompanyID);
+				// 	$BillingClass = $BillingClassSql->first();
+				// 	if (!isset($BillingClass)) {
+				// 		return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
+				// 	}
+				// 	if(isset($accountData['BillingStartDate']) && !empty($accountData['BillingStartDate'])){
+				// 		$dataAccountBilling['BillingStartDate'] = $accountData['BillingStartDate'];
+				// 	}else if(isset($accountData['BillingStartDate']) && empty($accountData['BillingStartDate'])){
+				// 		return Response::json(["ErrorMessage" => 'The Billing Start Date Field Is Required'],Codes::$Code1020[0]);
+				// 	}
 					
-					$dataAccountBilling['BillingClassID'] = $BillingClass->BillingClassID;
-					$dataAccountBilling['BillingCycleType'] = 'monthly';
+				// 	$dataAccountBilling['BillingClassID'] = $BillingClass->BillingClassID;
+				// 	$dataAccountBilling['BillingCycleType'] = 'monthly';
 
-					AccountBilling::insertUpdateBilling($accountInfo->AccountID, $dataAccountBilling, 0);
-				}
+				// 	AccountBilling::insertUpdateBilling($accountInfo->AccountID, $dataAccountBilling, 0);
+				// }
 
 				if (isset($data['PaymentMethod']) ) {
 					$BankPaymentDetails['CardToken'] = isset($accountData['CardToken']) ? $accountData['CardToken'] : '' ;
@@ -3470,13 +3470,13 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => 'Auto Out Payment Value Should Be 0 Or 1'],400);
 			}
 
-			if (isset($accountData['AutoTopup']) || isset($accountData['MinThreshold']) && !empty($accountData['MinThreshold']) ||
+			if (isset($accountData['AutoTopup']) || 
+				isset($accountData['MinThreshold']) && !empty($accountData['MinThreshold']) ||
 				isset($accountData['TopupAmount']) && !empty($accountData['TopupAmount']) ||
 				isset($accountData['OutPaymentThreshold']) && !empty($accountData['OutPaymentThreshold']) ||
 				isset($accountData['OutPaymentAmount']) && !empty($accountData['OutPaymentAmount']) ||
 				isset($accountData['AutoOutpayment']) ) 
 			{
-
 				$AccountPaymentAutomation['AccountID'] = $accountInfo->AccountID;
 				if(isset($accountData['AutoTopup'])){
 					$AccountPaymentAutomation['AutoTopup']= isset($accountData['AutoTopup']) ? $accountData['AutoTopup'] :'';
@@ -3504,6 +3504,23 @@ class AccountsApiController extends ApiController {
 																						
 				$automation = AccountPaymentAutomation::where('AccountID' , $accountInfo->AccountID)->first();
 				if($automation){
+					
+					$rules = [];
+					$rules['MinThreshold'] = 'numeric';
+					$rules['TopupAmount'] = 'numeric';
+					$rules['OutPaymentThreshold'] = 'numeric';
+					$rules['OutPaymentAmount'] = 'numeric';
+					
+					$validator = Validator::make($AccountPaymentAutomation, $rules);
+					if ($validator->fails()) {
+						$errors = "";
+						foreach ($validator->messages()->all() as $error) {
+							$errors .= $error . "<br>";
+						}
+						return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+	
+					}
+					
 					$automation->update($AccountPaymentAutomation);
 				}else{
 					if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1) {
