@@ -1930,6 +1930,9 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('routing/list', 'RoutingApiController@routingList');
     Route::post('destinationgroupset/datagrid', 'DestinationGroupSetController@DataGrid');
 
+	// New API by Vasim Seta at 2019-12-31
+	Route::post('addNewAccountService', 'AccountsApiController@addNewAccountService');
+
 
 
 });
