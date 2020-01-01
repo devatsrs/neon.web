@@ -4113,7 +4113,7 @@ class AccountsApiController extends ApiController {
 				$rules_numbers = array(
 					'Numbers.'.$key.'.NumberPurchased'			=> 'required',
 					'Numbers.'.$key.'.ProductID'				=> 'required',
-					'Numbers.'.$key.'.PackageId'				=> 'required',
+					'Numbers.'.$key.'.PackageProductID'				=> 'required',
 					'Numbers.'.$key.'.InboundTariffCategoryID'	=> 'required',
 					'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d',
 					'Numbers.'.$key.'.ContractEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.ContractStartDate',
@@ -4124,7 +4124,7 @@ class AccountsApiController extends ApiController {
 				$msg__numbers =  [
 					'Numbers.'.$key.'.NumberPurchased.required'  		=> "The Numbers.".$key.".NumberPurchased field is required.",
 					'Numbers.'.$key.'.ProductID.required'				=> "The Numbers.".$key.".ProductID field is required.",
-					'Numbers.'.$key.'.PackageId.required'				=> "The Numbers.".$key.".PackageId field is required.",
+					'Numbers.'.$key.'.PackageProductID.required'				=> "The Numbers.".$key.".PackageProductID field is required.",
 					'Numbers.'.$key.'.InboundTariffCategoryID.required'	=> "The Numbers.".$key.".InboundTariffCategoryID field is required.",
 					'Numbers.'.$key.'.ContractStartDate.required'		=> "The Numbers.".$key.".ContractStartDate field is required.",
 					'Numbers.'.$key.'.ContractEndDate.required'			=> "The Numbers.".$key.".ContractEndDate field is required.",
@@ -4179,19 +4179,20 @@ class AccountsApiController extends ApiController {
 			// find package and access, termination ratetable for numbers and return error if not found.
 			foreach ($data['Numbers'] as $key => $number_data) {
 				//$Package_q = "SELECT RateTableId FROM tblPackage WHERE CompanyID=" . $CompanyID . " AND PackageId=" . $number_data['PackageId'];
-				$Package_q = "SELECT p.RateTableId
+				$Package_q = "SELECT p.RateTableId,p.PackageId
 							  FROM tblDynamicFields df
 							  INNER JOIN tblDynamicFieldsValue dfv ON dfv.DynamicFieldsID = df.DynamicFieldsID
 							  INNER JOIN tblPackage p ON p.PackageId = dfv.ParentID
-							  WHERE df.CompanyID = " . $CompanyID . " AND df.Type = 'package' AND df.FieldName = 'PackageProductID' AND dfv.FieldValue = '" . $number_data['PackageId'] . "'";
+							  WHERE df.CompanyID = " . $CompanyID . " AND df.Type = 'package' AND df.FieldName = 'PackageProductID' AND dfv.FieldValue = '" . $number_data['PackageProductID'] . "'";
 
 				$Package = DB::select($Package_q);
 
 				$PackageRateTableId = 0;
 				if (!empty($Package[0]->RateTableId)) {
 					$PackageRateTableId = $Package[0]->RateTableId;
+					$PackageId = $Package[0]->PackageId;
 				} else {
-					return Response::json(["ErrorMessage" => "Package RateTable Not Found. PackageId: " . $number_data['PackageId']], Codes::$Code400[0]);
+					return Response::json(["ErrorMessage" => "Package RateTable Not Found. PackageProductID: " . $number_data['PackageProductID']], Codes::$Code400[0]);
 				}
 
 				$ServiceTemplate_q = "SELECT it.RateTableId,st.OutboundRateTableId,st.City,st.Tariff,st.prefixName,st.country,st.countryCode,st.accessType
@@ -4276,7 +4277,7 @@ class AccountsApiController extends ApiController {
 							$data_pkg['AccountID'] 			= $AccountID;
 							$data_pkg['ServiceID'] 			= $ServiceID;
 							$data_pkg['ContractID'] 		= !empty($number_data['PackageContractID']) ? $number_data['PackageContractID'] : '';
-							$data_pkg['PackageId'] 			= $number_data['PackageId'];
+							$data_pkg['PackageId'] 			= $PackageId;
 							$data_pkg['PackageStartDate'] 	= $number_data['PackageStartDate'];
 							$data_pkg['PackageEndDate'] 	= $number_data['PackageEndDate'];
 							$data_pkg['AccountServiceID'] 	= $AccountService->AccountServiceID;
