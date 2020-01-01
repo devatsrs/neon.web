@@ -4101,10 +4101,10 @@ class AccountsApiController extends ApiController {
 		);
 
 		$msg = array(
-			'AccountID.required_without_all'  			=> "Any one field Account Number, AccountID or AccountDynamicField is required.",
-			'OrderID.required'  						=> "The OrderID field is required.",
-			'Numbers.required'  						=> "The Numbers field is required.",
-			'Numbers.array'  							=> "The Numbers field must be an array.",
+			'AccountID.required_without_all'  	=> "Any one field Account Number, AccountID or AccountDynamicField is required.",
+			'OrderID.required'  				=> "The OrderID field is required.",
+			'Numbers.required'  				=> "The Numbers field is required.",
+			'Numbers.array'  					=> "The Numbers field must be an array.",
 		);
 
 		if(isset($data['Numbers']) && is_array($data['Numbers']) && count($data['Numbers']) > 0) {
@@ -4178,7 +4178,13 @@ class AccountsApiController extends ApiController {
 
 			// find package and access, termination ratetable for numbers and return error if not found.
 			foreach ($data['Numbers'] as $key => $number_data) {
-				$Package_q = "SELECT RateTableId FROM tblPackage WHERE CompanyID=" . $CompanyID . " AND PackageId=" . $number_data['PackageId'];
+				//$Package_q = "SELECT RateTableId FROM tblPackage WHERE CompanyID=" . $CompanyID . " AND PackageId=" . $number_data['PackageId'];
+				$Package_q = "SELECT p.RateTableId
+							  FROM tblDynamicFields df
+							  INNER JOIN tblDynamicFieldsValue dfv ON dfv.DynamicFieldsID = df.DynamicFieldsID
+							  INNER JOIN tblPackage p ON p.PackageId = dfv.ParentID
+							  WHERE df.CompanyID = " . $CompanyID . " AND df.Type = 'package' AND df.FieldName = 'PackageProductID' AND dfv.FieldValue = '" . $number_data['PackageId'] . "'";
+
 				$Package = DB::select($Package_q);
 
 				$PackageRateTableId = 0;
@@ -4192,7 +4198,7 @@ class AccountsApiController extends ApiController {
 									  FROM tblDynamicFields df
 									  INNER JOIN tblDynamicFieldsValue dfv ON dfv.DynamicFieldsID = df.DynamicFieldsID
 									  INNER JOIN tblServiceTemplate st ON st.ServiceTemplateID = dfv.ParentID
-									  LEFT JOIN tblServiceTemapleInboundTariff it ON it.ServiceTemplateID = st.ServiceTemplateID AND DIDCategoryId = " . $number_data['InboundTariffCategoryID'] . "
+									  LEFT JOIN tblServiceTemapleInboundTariff it ON it.ServiceTemplateID = st.ServiceTemplateID AND it.DIDCategoryId = " . $number_data['InboundTariffCategoryID'] . "
 									  WHERE df.CompanyID = " . $CompanyID . " AND df.Type = 'serviceTemplate' AND df.FieldName = 'ProductID' AND dfv.FieldValue = '" . $number_data['ProductID'] . "'";
 
 				$ServiceTemplate = DB::select($ServiceTemplate_q);
@@ -4348,7 +4354,6 @@ class AccountsApiController extends ApiController {
 			// Account Not Found Error
 			return Response::json(["ErrorMessage" => "Account Not Found"], Codes::$Code400[0]);
 		}
-
 	}
 
 }
