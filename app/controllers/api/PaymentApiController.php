@@ -33,18 +33,18 @@ class PaymentApiController extends ApiController {
 				$CompanyID = $Account->CompanyId;
 				$AccountID = $Account->AccountID;
 			}else{
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 			$Account = Account::where(["AccountID" => $AccountID])->first();
 			$CompanyID = $Account->CompanyId;
 			$AccountID = $Account->AccountID;
 		}else{
-			return Response::json(["ErrorMessage"=>"AccountID Required"],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"AccountID Required"],Codes::$Code400[0]);
 		}
 
 		$data['StartDate'] 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
@@ -132,7 +132,7 @@ class PaymentApiController extends ApiController {
 				return $reseponse;
 			}
 		}else{
-			return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code400[0]);
 		}
 
 	}
@@ -178,7 +178,7 @@ class PaymentApiController extends ApiController {
 		$validator->setPresenceVerifier($verifier);
 
 		if ($validator->fails()) {
-			return Response::json([ "ErrorMessage" => $validator->messages()->first()],Codes::$Code402[0]);
+			return Response::json([ "ErrorMessage" => $validator->messages()->first()],Codes::$Code400[0]);
 		}
 
 		$CompanyID=0;
@@ -193,12 +193,12 @@ class PaymentApiController extends ApiController {
 				$CompanyID = $Account->CompanyId;
 				$AccountID = $Account->AccountID;
 			}else{
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 			$Account = Account::where(["AccountID" => $AccountID])->first();
 			if(!empty($Account)) {
@@ -208,7 +208,7 @@ class PaymentApiController extends ApiController {
 
 		}else{
 
-			return Response::json(["ErrorMessage"=>"AccountID Required."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"AccountID Required."],Codes::$Code400[0]);
 		}
 
 		if(!empty($AccountID) && !empty($CompanyID)){
@@ -284,10 +284,10 @@ class PaymentApiController extends ApiController {
 				}
 
 			} else
-				return Response::json(array("ErrorMessage" => "Approved payment is less then requested amount."));
+				return Response::json(array("ErrorMessage" => "Approved payment is less then requested amount."), Codes::$Code400[0]);
 
 		} else {
-			return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code400[0]);
 		}
 
 	}
@@ -317,11 +317,11 @@ class PaymentApiController extends ApiController {
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 
 		}else{
-			return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code400[0]);
 		}
 
 		$rules = array(
@@ -336,7 +336,7 @@ class PaymentApiController extends ApiController {
 
 		if ($validator->fails()) {
 			//return json_validator_response($validator);
-			return Response::json([ "ErrorMessage" => $validator->messages()->first()],Codes::$Code402[0]);
+			return Response::json([ "ErrorMessage" => $validator->messages()->first()],Codes::$Code400[0]);
 		}
 
 		$Account=Account::where('AccountID',$AccountID)->first();
@@ -347,12 +347,12 @@ class PaymentApiController extends ApiController {
 					$BillingClassID=$data['BillingClassID'];
 				}else{
 					$errormsg="BillingClassID ".$data['BillingClassID']." Not set on this Account.";
-					return Response::json(["ErrorMessage"=>$errormsg],Codes::$Code402[0]);
+					return Response::json(["ErrorMessage"=>$errormsg],Codes::$Code400[0]);
 				}
 			}else{
 				$BillingClassID=AccountBilling::getBillingClassID($AccountID);
 				if(empty($BillingClassID)){
-					return Response::json(["ErrorMessage"=>"BillingClassID Not set on this Account."],Codes::$Code402[0]);
+					return Response::json(["ErrorMessage"=>"BillingClassID Not set on this Account."],Codes::$Code400[0]);
 				}
 			}
 
@@ -457,7 +457,7 @@ class PaymentApiController extends ApiController {
 
 					}else{
 						//Failed Payment
-						return Response::json(["ErrorMessage"=>"Payment Failed.","PaymentResponse"=>$PaymentResponse],Codes::$Code402[0]);
+						return Response::json(["ErrorMessage"=>"Payment Failed.","PaymentResponse"=>$PaymentResponse],Codes::$Code400[0]);
 					}
 
 				}else{
@@ -466,15 +466,15 @@ class PaymentApiController extends ApiController {
 
 
 			}else{
-				$errors[]= 'Payment Method Not set OR Payment Method is not Stripe:' . $Account->AccountName;
+				$errors[]= 'Payment Method Not set:' . $Account->AccountName;
 
 			}
 		}else{
-			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 		}
 
 		if(!empty($errors)){
-			return Response::json(["ErrorMessage"=>$errors],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>$errors],Codes::$Code400[0]);
 		}
 	}
 

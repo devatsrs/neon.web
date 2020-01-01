@@ -35,16 +35,16 @@ class AccountBillingApiController extends ApiController {
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 
 		} else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code400[0]);
 		}
 
 		$Account = Account::find($AccountID);
 		if(empty($Account)){
-			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 		}
 
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoTopup','MinThreshold','TopupAmount']);
@@ -70,16 +70,16 @@ class AccountBillingApiController extends ApiController {
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
 			}else{
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 
 		}else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code400[0]);
 		}
 		$AccountCount=Account::where('AccountID',$AccountID)->count();
 		if($AccountCount > 0) {
@@ -96,7 +96,7 @@ class AccountBillingApiController extends ApiController {
 				return $this->createAutoDepositSetting($data, $AccountID);
 			}
 		}else{
-			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 		}
 	}
 
@@ -119,7 +119,7 @@ class AccountBillingApiController extends ApiController {
 			foreach ($validator->messages()->all() as $error) {
 				$errors .= $error . "<br>";
 			}
-			return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
 		unset($data['AccountID']);
 		unset($data['AccountNo']);
@@ -129,7 +129,7 @@ class AccountBillingApiController extends ApiController {
 		if ($AccountPaymentAutomationObj->update($data)) {
 			return Response::json((object)['status' => "success"],Codes::$Code200[0]);
 		} else {
-			return Response::json(array("ErrorMessage" => "Problem Updating Auto Deposit Settings."),Codes::$Code402[0]);
+			return Response::json(array("ErrorMessage" => "Problem Updating Auto Deposit Settings."),Codes::$Code500[0]);
 		}
 
 	}
@@ -153,7 +153,7 @@ class AccountBillingApiController extends ApiController {
 			foreach ($validator->messages()->all() as $error) {
 				$errors .= $error . "<br>";
 			}
-			return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
 		$data['AccountID']=$AccountID;
 		unset($data['AccountNo']);
@@ -187,21 +187,21 @@ class AccountBillingApiController extends ApiController {
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
 			}else{
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 
 		} else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code400[0]);
 		}
 
 		$Account = Account::find($AccountID);
 		if(empty($Account)){
-			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 		}
 
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoOutpayment','OutPaymentThreshold','OutPaymentAmount']);
@@ -227,16 +227,16 @@ class AccountBillingApiController extends ApiController {
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
 			}else{
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 
 		}else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code400[0]);
 		}
 		$AccountCount=Account::where('AccountID',$AccountID)->count();
 		if($AccountCount > 0) {
@@ -253,7 +253,7 @@ class AccountBillingApiController extends ApiController {
 				return $this->createAutoOutPaymentSetting($data, $AccountID);
 			}
 		}else{
-			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 		}
 
 	}
@@ -278,7 +278,7 @@ class AccountBillingApiController extends ApiController {
 			foreach ($validator->messages()->all() as $error) {
 				$errors .= $error . "<br>";
 			}
-			return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
 		unset($data['AccountID']);
 		unset($data['AccountNo']);
@@ -288,7 +288,7 @@ class AccountBillingApiController extends ApiController {
 		if ($AccountPaymentAutomation->update($data)) {
 			return Response::json((object)['status' => "success"],Codes::$Code200[0]);
 		} else {
-			return Response::json(array("ErrorMessage" => "Problem Updating Auto Out Deposit Settings."),Codes::$Code500[0]);
+			return Response::json(array("ErrorMessage" => "Problem Updating Auto Out Payment Settings."),Codes::$Code500[0]);
 		}
 
 	}
@@ -313,7 +313,7 @@ class AccountBillingApiController extends ApiController {
 			foreach ($validator->messages()->all() as $error) {
 				$errors .= $error . "<br>";
 			}
-			return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
 		$data['AccountID']=$AccountID;
 		unset($data['AccountNo']);
@@ -323,7 +323,7 @@ class AccountBillingApiController extends ApiController {
 		if (AccountPaymentAutomation::create($data)) {
 			return Response::json((object)['status' => "success"],Codes::$Code200[0]);
 		} else {
-			return Response::json(array("ErrorMessage" => "Problem Creating Auto Out Deposit Settings."),Codes::$Code500[0]);
+			return Response::json(array("ErrorMessage" => "Problem Creating Auto Out Payment Settings."),Codes::$Code500[0]);
 		}
 
 	}

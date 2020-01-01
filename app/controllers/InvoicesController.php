@@ -2611,8 +2611,8 @@ public function store_inv_in(){
     public function generate(){
         $CompanyID = User::get_companyID();
         $UserID = User::get_userID();
-        $CronJobCommandID = CronJobCommand::where(array('Command'=>'invoicegenerator','CompanyID'=>$CompanyID))->pluck('CronJobCommandID');
-        $CronJobID = CronJob::where(array('CronJobCommandID'=>(int)$CronJobCommandID,'CompanyID'=>$CompanyID))->pluck('CronJobID');
+        $CronJobCommandID = CronJobCommand::where(array('Command'=>'invoicegenerator'))->pluck('CronJobCommandID');
+        $CronJobID = CronJob::where(array('CronJobCommandID'=>(int)$CronJobCommandID))->pluck('CronJobID');
         if($CronJobID > 0) {
 
             $jobType = JobType::where(["Code" => 'BI'])->get(["JobTypeID", "Title"]);
@@ -2786,10 +2786,14 @@ public function store_inv_in(){
         foreach($ids as $invid) {
             $invoices = Invoice::where(['InvoiceID' => $invid])->first();
             if($invoices->accdetail->PaymentMethod == 'Ingenico' && $invoices->InvoiceType == 1){
+                $Account = Account::where('AccountID', $invoices->AccountID)->first();
+                $AccountNumber = $Account != false ? $Account->Number . "/" : "";
+                $RoundChargesAmount = get_round_decimal_places($invoices->AccountID);
+
                 fwrite($file, 
-                $invoices->GrandTotal.';'.
+                number_format($invoices->GrandTotal,$RoundChargesAmount, '.', '').';'.
                 $invoices->currency->Code.';;;;'.
-                $invoices->FullInvoiceNumber.';;;;;;;;;;;'.
+                $AccountNumber . $invoices->FullInvoiceNumber.';;;;;;;;;;;'.
                 $this->get_GUID($invoices->AccountID).';;;;;;;;;;;;;;;;;;'.'9'."\r\n"
                 //date('d/m/Y', strtotime($invoices->IssueDate.'+'.$invoices->BillingClass->PaymentDueInDays.' days'))
             );
