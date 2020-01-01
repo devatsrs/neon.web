@@ -4087,4 +4087,268 @@ class AccountsApiController extends ApiController {
 		}
 	}
 
+	// New API to create account service and add number by vasim seta @2019-12-30
+	public function addNewAccountService() {
+		$post_vars 	= json_decode(file_get_contents("php://input"));
+		$data		= json_decode(json_encode($post_vars),true);
+
+		$rules = array(
+			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo',
+			/*'AccountNo' 						=> 'required_without_all:AccountDynamicField,AccountID',
+			'AccountDynamicField' 				=> 'required_without_all:AccountNo,AccountID',*/
+			'OrderID'							=> 'required',
+			'Numbers'							=> 'required|array',
+		);
+
+		$msg = array(
+			'AccountID.required_without_all'  			=> "Any one field Account Number, AccountID or AccountDynamicField is required.",
+			'OrderID.required'  						=> "The OrderID field is required.",
+			'Numbers.required'  						=> "The Numbers field is required.",
+			'Numbers.array'  							=> "The Numbers field must be an array.",
+		);
+
+		if(isset($data['Numbers']) && is_array($data['Numbers']) && count($data['Numbers']) > 0) {
+			$rules_numbers = $msg__numbers = [];
+			foreach ($data['Numbers'] as $key => $value) {
+				$rules_numbers = array(
+					'Numbers.'.$key.'.NumberPurchased'			=> 'required',
+					'Numbers.'.$key.'.ProductID'				=> 'required',
+					'Numbers.'.$key.'.PackageId'				=> 'required',
+					'Numbers.'.$key.'.InboundTariffCategoryID'	=> 'required',
+					'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d',
+					'Numbers.'.$key.'.ContractEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.ContractStartDate',
+					'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d',
+					'Numbers.'.$key.'.PackageEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.PackageStartDate',
+				);
+
+				$msg__numbers =  [
+					'Numbers.'.$key.'.NumberPurchased.required'  		=> "The Numbers.".$key.".NumberPurchased field is required.",
+					'Numbers.'.$key.'.ProductID.required'				=> "The Numbers.".$key.".ProductID field is required.",
+					'Numbers.'.$key.'.PackageId.required'				=> "The Numbers.".$key.".PackageId field is required.",
+					'Numbers.'.$key.'.InboundTariffCategoryID.required'	=> "The Numbers.".$key.".InboundTariffCategoryID field is required.",
+					'Numbers.'.$key.'.ContractStartDate.required'		=> "The Numbers.".$key.".ContractStartDate field is required.",
+					'Numbers.'.$key.'.ContractEndDate.required'			=> "The Numbers.".$key.".ContractEndDate field is required.",
+					'Numbers.'.$key.'.PackageStartDate.required'		=> "The Numbers.".$key.".PackageStartDate field is required.",
+					'Numbers.'.$key.'.PackageEndDate.required'			=> "The Numbers.".$key.".PackageEndDate field is required.",
+					'Numbers.'.$key.'.ContractEndDate.after'			=> "ContractEndDate must be a date after ContractStartDate.",
+					'Numbers.'.$key.'.PackageEndDate.after'				=> "PackageEndDate must be a date after PackageStartDate.",
+				];
+				$rules 	+= $rules_numbers;
+				$msg 	+= $msg__numbers;
+			}
+		}
+
+		$validator = Validator::make($data, $rules, $msg);
+
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+		}
+
+		/*if (strtotime($data['ContractEndDate']) <= strtotime($data['ContractStartDate'])) {
+			$response = array("ErrorMessage" => "Contract End Date should be greater then Contract start date");
+			return Response::json($response, Codes::$Code402[0]);
+		}
+
+		if (strtotime($data['PackageEndDate']) <= strtotime($data['PackageStartDate'])) {
+			$response = array("ErrorMessage" => "Package End Date should be greater then Package start date");
+			return Response::json($response, Codes::$Code402[0]);
+		}*/
+
+		$CompanyID=0;
+		$AccountID=0;
+
+		if(!empty($data['AccountID'])) {
+			$AccountID = $data['AccountID'];
+		}else if(!empty($data['AccountNo'])){
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
+
+		$Account = Account::find($AccountID);
+		if($Account){
+			$CompanyID 	= $Account->CompanyId;
+			$AccountID 	= $Account->AccountID;
+
+			// find package and access, termination ratetable for numbers and return error if not found.
+			foreach ($data['Numbers'] as $key => $number_data) {
+				$Package_q = "SELECT RateTableId FROM tblPackage WHERE CompanyID=" . $CompanyID . " AND PackageId=" . $number_data['PackageId'];
+				$Package = DB::select($Package_q);
+
+				$PackageRateTableId = 0;
+				if (!empty($Package[0]->RateTableId)) {
+					$PackageRateTableId = $Package[0]->RateTableId;
+				} else {
+					return Response::json(["ErrorMessage" => "Package RateTable Not Found. PackageId: " . $number_data['PackageId']], Codes::$Code400[0]);
+				}
+
+				$ServiceTemplate_q = "SELECT it.RateTableId,st.OutboundRateTableId,st.City,st.Tariff,st.prefixName,st.country,st.countryCode,st.accessType
+									  FROM tblDynamicFields df
+									  INNER JOIN tblDynamicFieldsValue dfv ON dfv.DynamicFieldsID = df.DynamicFieldsID
+									  INNER JOIN tblServiceTemplate st ON st.ServiceTemplateID = dfv.ParentID
+									  LEFT JOIN tblServiceTemapleInboundTariff it ON it.ServiceTemplateID = st.ServiceTemplateID AND DIDCategoryId = " . $number_data['InboundTariffCategoryID'] . "
+									  WHERE df.CompanyID = " . $CompanyID . " AND df.Type = 'serviceTemplate' AND df.FieldName = 'ProductID' AND dfv.FieldValue = '" . $number_data['ProductID'] . "'";
+
+				$ServiceTemplate = DB::select($ServiceTemplate_q);
+
+				$TerminationRateTableID = $AccessRateTableID = 0;
+				if (!empty($ServiceTemplate[0]->OutboundRateTableId) && !empty($ServiceTemplate[0]->RateTableId)) {
+					$TerminationRateTableID = $ServiceTemplate[0]->OutboundRateTableId;
+					$AccessRateTableID = $ServiceTemplate[0]->RateTableId;
+				} else {
+					if (empty($ServiceTemplate[0]->OutboundRateTableId)) {
+						return Response::json(["ErrorMessage" => "Termination RateTable Not Found. ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
+					} else {
+						return Response::json(["ErrorMessage" => "Access RateTable Not Found. ProductID: " . $number_data['ProductID'].", InboundTariffCategoryID: " . $number_data['InboundTariffCategoryID']], Codes::$Code400[0]);
+					}
+				}
+
+				$AccountService = AccountService::where(['AccountID'=>$AccountID,'ServiceOrderID'=>$data['OrderID'],'Status'=>1,'CancelContractStatus'=>0]);
+
+				// if AccountService exist then check below conditions
+				// Date Period must not conflict for the same number, same account and same account service.
+				if($AccountService->count() > 0) {
+					$AccountService = $AccountService->first();
+
+					// same condition as in front-end
+					$checkCLIRateTable = CLIRateTable::where([
+						'CompanyID' 		=> $CompanyID,
+						'AccountID' 		=> $AccountID,
+						'AccountServiceID' 	=> $AccountService->AccountServiceID,
+						'CLI' 				=> $number_data['NumberPurchased'],
+						'Status' 			=> 1
+					])->where(function($q) use ($number_data) {
+						$q->whereBetween('NumberStartDate', array($number_data['ContractStartDate'], $number_data['ContractEndDate']));
+						$q->orWhereBetween('NumberEndDate', array($number_data['ContractStartDate'], $number_data['ContractEndDate']));
+						$q->orWhereRaw("'".$number_data['ContractStartDate']."' between NumberStartDate and NumberEndDate");
+					});
+
+					// if number exist between given date
+					if($checkCLIRateTable->count() > 0) {
+						$date_error = 'Number '. $number_data['NumberPurchased'] . ' already exist between contract start date '.$number_data['ContractStartDate'] . ' and contract end date ' .$number_data['ContractEndDate'];
+						return Response::json(["ErrorMessage" => $date_error],Codes::$Code400[0]);
+					}
+				}
+			}
+
+			$AllServices = Service::where('Status', 1);
+			if($AllServices->count() > 0) {
+				$ServiceID = $AllServices->first()->ServiceID;
+
+				try {
+					DB::beginTransaction();
+
+					$AccountService = AccountService::where(['AccountID'=>$AccountID,'ServiceOrderID'=>$data['OrderID'],'Status'=>1,'CancelContractStatus'=>0]);
+
+					$AccountServiceData = [];
+					$AccountServiceData['CompanyID'] 			= $CompanyID;
+					$AccountServiceData['AccountID'] 			= $AccountID;
+					$AccountServiceData['ServiceID'] 			= $ServiceID;
+					$AccountServiceData['ServiceOrderID'] 		= $data['OrderID'];
+					$AccountServiceData['ServiceTitle'] 		= !empty($data['ServiceTitle']) ? trim($data['ServiceTitle']) : '';
+					$AccountServiceData['ServiceDescription'] 	= !empty($data['ServiceDescription']) ? trim($data['ServiceDescription']) : '';
+					$AccountServiceData['ServiceTitleShow'] 	= isset($data['ServiceTitleShow']) && $data['ServiceTitleShow'] == 1 ? 1 : 0;
+					$AccountServiceData['Status'] 				= 1;
+
+					if($AccountService->count() > 0) { // update if exist
+						$AccountService = $AccountService->first();
+						$AccountService->update($AccountServiceData);
+					} else { // create if not exist
+						$AccountService = AccountService::create($AccountServiceData);
+					}
+
+					if($AccountService) {
+						foreach ($data['Numbers'] as $key => $number_data) {
+							$data_pkg = [];
+							$data_pkg['CompanyID'] 			= $CompanyID;
+							$data_pkg['AccountID'] 			= $AccountID;
+							$data_pkg['ServiceID'] 			= $ServiceID;
+							$data_pkg['ContractID'] 		= !empty($number_data['PackageContractID']) ? $number_data['PackageContractID'] : '';
+							$data_pkg['PackageId'] 			= $number_data['PackageId'];
+							$data_pkg['PackageStartDate'] 	= $number_data['PackageStartDate'];
+							$data_pkg['PackageEndDate'] 	= $number_data['PackageEndDate'];
+							$data_pkg['AccountServiceID'] 	= $AccountService->AccountServiceID;
+							$data_pkg['RateTableID'] 		= $PackageRateTableId;
+							$data_pkg['Status'] 			= 1;
+
+							$AccountServicePackage = AccountServicePackage::create($data_pkg);
+
+							if ($AccountServicePackage) {
+								$ProductCountry = Country::where(array('Country' => $ServiceTemplate[0]->country))->first();
+
+								$City 		= !empty($ServiceTemplate[0]->City) ? $ServiceTemplate[0]->City : '';
+								$Tariff 	= !empty($ServiceTemplate[0]->Tariff) ? $ServiceTemplate[0]->Tariff : '';
+								$accessType = !empty($ServiceTemplate[0]->accessType) ? $ServiceTemplate[0]->accessType : '';
+								$prefixName = !empty($ServiceTemplate[0]->prefixName) ? $ServiceTemplate[0]->prefixName : '';
+								$AreaPrefix = !empty($ServiceTemplate[0]->countryCode) ? $ServiceTemplate[0]->countryCode  : ''. ltrim($ServiceTemplate[0]->prefixName, '0');
+
+								$VendorID = RateTableDIDRate::Join('tblRate', 'tblRateTableDIDRate.RateID', '=', 'tblRate.RateID')
+									->select(['tblRateTableDIDRate.VendorID'])
+									->where([
+										"tblRateTableDIDRate.RateTableId" 	=> $AccessRateTableID,
+										"tblRateTableDIDRate.City" 			=> $City,
+										"tblRateTableDIDRate.Tariff" 		=> $Tariff,
+										"tblRateTableDIDRate.AccessType" 	=> $accessType,
+										"tblRate.Code" 						=> $AreaPrefix
+									])
+									->where("tblRateTableDIDRate.EffectiveDate", '<=', date('Y-m-d'))
+									->whereNotNull('tblRateTableDIDRate.MonthlyCost')
+									->max('VendorID');
+								$VendorID = !empty($VendorID) ? $VendorID : 0;
+
+								$data_cli = [];
+								$data_cli['CompanyID'] 				= $CompanyID;
+								$data_cli['AccountID'] 				= $AccountID;
+								$data_cli['ServiceID'] 				= $ServiceID;
+								$data_cli['AccountServiceID'] 		= $AccountService->AccountServiceID;
+								$data_cli['CLI'] 					= $number_data['NumberPurchased'];
+								$data_cli['NumberStartDate'] 		= $number_data['ContractStartDate'];
+								$data_cli['NumberEndDate'] 			= $number_data['ContractEndDate'];
+								$data_cli['ContractID'] 			= $number_data['NumberContractID'];
+								$data_cli['RateTableID'] 			= $AccessRateTableID; // Default Access Rate Table
+								$data_cli['TerminationRateTableID'] = $TerminationRateTableID; // Default Termination Rate Table
+								$data_cli['CountryID'] 				= $ProductCountry->CountryID;
+								$data_cli['City'] 					= $City;
+								$data_cli['Tariff'] 				= $Tariff;
+								$data_cli['NoType'] 				= $accessType;
+								$data_cli['PrefixWithoutCountry'] 	= $prefixName;
+								$data_cli['Prefix'] 				= $AreaPrefix;
+								$data_cli['VendorID'] 				= $VendorID;
+								$data_cli['AccountServicePackageID']= $AccountServicePackage->AccountServicePackageID;
+
+								CLIRateTable::create($data_cli);
+							} else {
+								return Response::json(["ErrorMessage" => "Error while creating Service Package."], Codes::$Code500[0]);
+							}
+						}
+
+						DB::commit();
+						return Response::json(["SuccessMessage" => "Account Service created successfully."],Codes::$Code200[0]);
+
+					} else {
+						return Response::json(["ErrorMessage"=>"Error while creating Account Service."],Codes::$Code500[0]);
+					}
+				} catch (Exception $e) {
+					DB::rollback();
+					Log::info($e->getTraceAsString());
+					$response = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+					return Response::json($response, Codes::$Code500[0]);
+				}
+			} else {
+				// No service exist error
+				return Response::json(["ErrorMessage" => "Service Not Found"], Codes::$Code400[0]);
+			}
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "Account Not Found"], Codes::$Code400[0]);
+		}
+
+	}
+
 }

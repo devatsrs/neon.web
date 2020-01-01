@@ -650,7 +650,7 @@
                                     edit_ = edit_.replace( '{id}', id );
                                     show_ = show_.replace( '{id}', id );
                                     delete_  = delete_ .replace( '{id}', id );
-                                    action = '<div id="subject_'+full[7]+'" style="display:none" >'+full[5]+'</div><div id="msg_'+full[7]+'" style="display:none" >'+full[7]+'</div>';
+                                    action = '<div id="subject_'+full[7]+'" style="display:none" >'+full[5]+'</div><div id="msg_'+full[7]+'" style="display:none" >'+full[6]+'</div>';
 
                                     action += ' <a data-name = "' + full[7] + '" data-id="' + full[7] + '" Title="View" class="view-email-body btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
 
