@@ -1932,6 +1932,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 
 	// New API by Vasim Seta at 2019-12-31
 	Route::post('addNewAccountService', 'AccountsApiController@addNewAccountService');
+	Route::post('updateTariff', 'AccountsApiController@updateTariff');
 
 
 
