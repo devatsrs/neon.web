@@ -600,6 +600,8 @@
                                         action='Auto Out Payment';
                                     } else if(id==14){
                                         action='Customer Contract Expire';
+                                    }else if(id==16){
+                                        action='Zero Balance Reminder';
                                     }else{
                                         action='Payment Reminders';
                                     }

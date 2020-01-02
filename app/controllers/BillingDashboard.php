@@ -333,7 +333,7 @@ class BillingDashboard extends \BaseController {
             $emailType = $data['emailType'];
             $AccountEmaillog = $AccountEmaillog->where('AccountEmailLog.EmailType',$emailType);
         }else{
-            $AccountEmaillog = $AccountEmaillog->whereIn('AccountEmailLog.EmailType',[1,2]);
+            $AccountEmaillog = $AccountEmaillog->whereIn('AccountEmailLog.EmailType',[1,2,16]);
         }
         if(is_reseller()){
             $AccountEmaillog = $AccountEmaillog->where('AccountEmailLog.CompanyID' , User::get_companyID());
