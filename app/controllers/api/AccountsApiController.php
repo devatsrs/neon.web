@@ -1973,8 +1973,8 @@ class AccountsApiController extends ApiController {
 					$rules = array(
 						'CardToken'         => 'required',
 						'CardHolderName'    => 'required',
-						'ExpirationMonth'   => 'required',
-						'ExpirationYear'    => 'required',
+						'ExpirationMonth'   => 'required|numeric',
+						'ExpirationYear'    => 'required|numeric',
 						'LastDigit'         => 'required|digits:4',
 						//'CVC'               => 'required',
 					);
@@ -2127,7 +2127,7 @@ class AccountsApiController extends ApiController {
 			Account::$APIrules['BillingEmail'] = 'required';
 			
 			if($data['IsCustomer'] == 1 || $data['AffiliateAccounts'] == 1){
-				Account::$APIrules['PartnerID'] = 'required';
+				Account::$APIrules['PartnerID'] = 'required|numeric';
 			}
 
 			$validator = Validator::make($data, Account::$APIrules, Account::$messages);
@@ -3364,8 +3364,8 @@ class AccountsApiController extends ApiController {
 						$rules = array(
 							'CardToken'         => 'required',
 							'CardHolderName'    => 'required',
-							'ExpirationMonth'   => 'required',
-							'ExpirationYear'    => 'required',
+							'ExpirationMonth'   => 'required|numeric',
+							'ExpirationYear'    => 'required|numeric',
 							'LastDigit'         => 'required|digits:4',
 							//'CVC'               => 'required',
 						);
