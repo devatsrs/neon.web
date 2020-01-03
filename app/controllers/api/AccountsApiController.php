@@ -4545,7 +4545,7 @@ class AccountsApiController extends ApiController {
 					return Response::json($response, Codes::$Code500[0]);
 				}
 			} else {
-				$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.$data[$AccountFindType].', OrderID: '. $data['OrderID'];
+				$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
 				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
 			}
 		} else {
@@ -4659,7 +4659,7 @@ class AccountsApiController extends ApiController {
 					return Response::json($response, Codes::$Code500[0]);
 				}
 			} else {
-				$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.$data[$AccountFindType].', OrderID: '. $data['OrderID'];
+				$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
 				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
 			}
 		} else {
@@ -4805,9 +4805,9 @@ class AccountsApiController extends ApiController {
 			} else {
 				$number_error = '';
 				if($CLIRateTable->count() == 0)
-					$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.$data[$AccountFindType].', OrderID: '. $data['OrderID'];
+					$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
 				if($TestCLIRateTable->count() == 0)
-					$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.$data[$AccountFindType].', OrderID: '. $data['OrderID'];
+					$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
 				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
 			}
 		} else {
