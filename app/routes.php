@@ -1925,13 +1925,14 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/UpdateNumberStatus', 'AccountsApiController@UpdateNumberStatus');
 	Route::post('account/UpdateNumberPackage', 'AccountsApiController@UpdateNumberPackage');
 	Route::post('account/UpdateNumber', 'AccountsApiController@UpdateNumber');
-	Route::post('CreateCharge', 'AccountsApiController@CreateCharge');
+	Route::post('createCharge', 'AccountsApiController@CreateCharge');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
     Route::post('destinationgroupset/datagrid', 'DestinationGroupSetController@DataGrid');
 
 	// New API by Vasim Seta at 2019-12-31
 	Route::post('addNewAccountService', 'AccountsApiController@addNewAccountService');
+	Route::post('updateTariff', 'AccountsApiController@updateTariff');
 
 
 

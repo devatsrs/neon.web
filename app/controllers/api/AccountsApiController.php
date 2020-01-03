@@ -1973,8 +1973,8 @@ class AccountsApiController extends ApiController {
 					$rules = array(
 						'CardToken'         => 'required',
 						'CardHolderName'    => 'required',
-						'ExpirationMonth'   => 'required',
-						'ExpirationYear'    => 'required',
+						'ExpirationMonth'   => 'required|numeric',
+						'ExpirationYear'    => 'required|numeric',
 						'LastDigit'         => 'required|digits:4',
 						//'CVC'               => 'required',
 					);
@@ -2127,7 +2127,7 @@ class AccountsApiController extends ApiController {
 			Account::$APIrules['BillingEmail'] = 'required';
 			
 			if($data['IsCustomer'] == 1 || $data['AffiliateAccounts'] == 1){
-				Account::$APIrules['PartnerID'] = 'required';
+				Account::$APIrules['PartnerID'] = 'required|numeric';
 			}
 
 			$validator = Validator::make($data, Account::$APIrules, Account::$messages);
@@ -3364,8 +3364,8 @@ class AccountsApiController extends ApiController {
 						$rules = array(
 							'CardToken'         => 'required',
 							'CardHolderName'    => 'required',
-							'ExpirationMonth'   => 'required',
-							'ExpirationYear'    => 'required',
+							'ExpirationMonth'   => 'required|numeric',
+							'ExpirationYear'    => 'required|numeric',
 							'LastDigit'         => 'required|digits:4',
 							//'CVC'               => 'required',
 						);
@@ -4093,43 +4093,57 @@ class AccountsApiController extends ApiController {
 		$data		= json_decode(json_encode($post_vars),true);
 
 		$rules = array(
-			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo',
+			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo|numeric',
 			/*'AccountNo' 						=> 'required_without_all:AccountDynamicField,AccountID',
 			'AccountDynamicField' 				=> 'required_without_all:AccountNo,AccountID',*/
-			'OrderID'							=> 'required',
+			'OrderID'							=> 'required|numeric',
 			'Numbers'							=> 'required|array',
 		);
 
 		$msg = array(
 			'AccountID.required_without_all'  	=> "Any one field Account Number, AccountID or AccountDynamicField is required.",
+			'AccountID.numeric'  				=> "The AccountID must be a number.",
 			'OrderID.required'  				=> "The OrderID field is required.",
+			'OrderID.numeric'  					=> "The OrderID must be a number.",
 			'Numbers.required'  				=> "The Numbers field is required.",
-			'Numbers.array'  					=> "The Numbers field must be an array.",
+			'Numbers.array'  					=> "The Numbers must be an array.",
 		);
 
 		if(isset($data['Numbers']) && is_array($data['Numbers']) && count($data['Numbers']) > 0) {
 			$rules_numbers = $msg__numbers = [];
 			foreach ($data['Numbers'] as $key => $value) {
 				$rules_numbers = array(
-					'Numbers.'.$key.'.NumberPurchased'			=> 'required',
-					'Numbers.'.$key.'.ProductID'				=> 'required',
-					'Numbers.'.$key.'.PackageProductID'				=> 'required',
-					'Numbers.'.$key.'.InboundTariffCategoryID'	=> 'required',
-					'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d',
+					'Numbers.'.$key.'.NumberPurchased'			=> 'required|numeric',
+					'Numbers.'.$key.'.ProductID'				=> 'required|numeric',
+					'Numbers.'.$key.'.PackageProductID'			=> 'required|numeric',
+					'Numbers.'.$key.'.InboundTariffCategoryID'	=> 'required|numeric',
+					'Numbers.'.$key.'.PackageContractID'		=> 'required|numeric',
+					'Numbers.'.$key.'.NumberContractID'			=> 'required|numeric',
+					'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 					'Numbers.'.$key.'.ContractEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.ContractStartDate',
-					'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d',
+					'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 					'Numbers.'.$key.'.PackageEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.PackageStartDate',
 				);
 
 				$msg__numbers =  [
-					'Numbers.'.$key.'.NumberPurchased.required'  		=> "The Numbers.".$key.".NumberPurchased field is required.",
-					'Numbers.'.$key.'.ProductID.required'				=> "The Numbers.".$key.".ProductID field is required.",
-					'Numbers.'.$key.'.PackageProductID.required'				=> "The Numbers.".$key.".PackageProductID field is required.",
-					'Numbers.'.$key.'.InboundTariffCategoryID.required'	=> "The Numbers.".$key.".InboundTariffCategoryID field is required.",
-					'Numbers.'.$key.'.ContractStartDate.required'		=> "The Numbers.".$key.".ContractStartDate field is required.",
-					'Numbers.'.$key.'.ContractEndDate.required'			=> "The Numbers.".$key.".ContractEndDate field is required.",
-					'Numbers.'.$key.'.PackageStartDate.required'		=> "The Numbers.".$key.".PackageStartDate field is required.",
-					'Numbers.'.$key.'.PackageEndDate.required'			=> "The Numbers.".$key.".PackageEndDate field is required.",
+					'Numbers.'.$key.'.NumberPurchased.required'  		=> "The Numbers[".$key."][NumberPurchased] field is required.",
+					'Numbers.'.$key.'.NumberPurchased.numeric'  		=> "The Numbers[".$key."][NumberPurchased] must be a number.",
+					'Numbers.'.$key.'.ProductID.required'				=> "The Numbers[".$key."][ProductID] field is required.",
+					'Numbers.'.$key.'.ProductID.numeric'  				=> "The Numbers[".$key."][ProductID] must be a number.",
+					'Numbers.'.$key.'.PackageProductID.required'		=> "The Numbers[".$key."][PackageProductID] field is required.",
+					'Numbers.'.$key.'.PackageProductID.numeric'  		=> "The Numbers[".$key."][PackageProductID] must be a number.",
+					'Numbers.'.$key.'.InboundTariffCategoryID.required'	=> "The Numbers[".$key."][InboundTariffCategoryID] field is required.",
+					'Numbers.'.$key.'.InboundTariffCategoryID.numeric'  => "The Numbers[".$key."][InboundTariffCategoryID] must be a number.",
+					'Numbers.'.$key.'.PackageContractID.required'		=> "The Numbers[".$key."][PackageContractID] field is required.",
+					'Numbers.'.$key.'.PackageContractID.numeric'  		=> "The Numbers[".$key."][PackageContractID] must be a number.",
+					'Numbers.'.$key.'.NumberContractID.required'		=> "The Numbers[".$key."][NumberContractID] field is required.",
+					'Numbers.'.$key.'.NumberContractID.numeric'  		=> "The Numbers[".$key."][NumberContractID] must be a number.",
+					'Numbers.'.$key.'.ContractStartDate.required'		=> "The Numbers[".$key."][ContractStartDate] field is required.",
+					'Numbers.'.$key.'.ContractStartDate.after'			=> "Past dates not allowed for Numbers[".$key."][ContractStartDate]",
+					'Numbers.'.$key.'.ContractEndDate.required'			=> "The Numbers[".$key."][ContractEndDate] field is required.",
+					'Numbers.'.$key.'.PackageStartDate.required'		=> "The Numbers[".$key."][PackageStartDate] field is required.",
+					'Numbers.'.$key.'.PackageStartDate.after'			=> "Past dates not allowed for Numbers[".$key."][PackageStartDate]",
+					'Numbers.'.$key.'.PackageEndDate.required'			=> "The Numbers[".$key."][PackageEndDate] field is required.",
 					'Numbers.'.$key.'.ContractEndDate.after'			=> "ContractEndDate must be a date after ContractStartDate.",
 					'Numbers.'.$key.'.PackageEndDate.after'				=> "PackageEndDate must be a date after PackageStartDate.",
 				];
@@ -4187,7 +4201,7 @@ class AccountsApiController extends ApiController {
 
 				$Package = DB::select($Package_q);
 
-				$PackageRateTableId = 0;
+				$PackageRateTableId = $PackageId = 0;
 				if (!empty($Package[0]->RateTableId)) {
 					$PackageRateTableId = $Package[0]->RateTableId;
 					$PackageId = $Package[0]->PackageId;
@@ -4276,7 +4290,7 @@ class AccountsApiController extends ApiController {
 							$data_pkg['CompanyID'] 			= $CompanyID;
 							$data_pkg['AccountID'] 			= $AccountID;
 							$data_pkg['ServiceID'] 			= $ServiceID;
-							$data_pkg['ContractID'] 		= !empty($number_data['PackageContractID']) ? $number_data['PackageContractID'] : '';
+							$data_pkg['ContractID'] 		= $number_data['PackageContractID'];
 							$data_pkg['PackageId'] 			= $PackageId;
 							$data_pkg['PackageStartDate'] 	= $number_data['PackageStartDate'];
 							$data_pkg['PackageEndDate'] 	= $number_data['PackageEndDate'];
@@ -4354,6 +4368,203 @@ class AccountsApiController extends ApiController {
 		} else {
 			// Account Not Found Error
 			return Response::json(["ErrorMessage" => "Account Not Found"], Codes::$Code400[0]);
+		}
+	}
+
+	// New API to update account service tariff by vasim seta @2020-01-01
+	public function updateTariff() {
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data = json_decode(json_encode($post_vars), true);
+
+		$rules = array(
+			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo|numeric',
+			'OrderID'							=> 'required|numeric',
+			'NumberPurchased'					=> 'required|numeric',
+			'ProductID'							=> 'required|numeric',
+			'InboundTariffCategoryID'			=> 'required|numeric',
+			'NumberContractID'					=> 'required|numeric',
+			'NewNumberContractID'				=> 'required|numeric',
+			'ContractStartDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
+			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:ContractStartDate',
+		);
+
+		$msg = array(
+			'AccountID.required_without_all'  	=> "Any one field Account Number, AccountID or AccountDynamicField is required.",
+			'AccountID.numeric'  				=> "The AccountID must be a number.",
+			'OrderID.required'  				=> "The OrderID field is required.",
+			'OrderID.numeric'  					=> "The OrderID must be a number.",
+			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
+			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			'ProductID.required'				=> "The ProductID field is required.",
+			'ProductID.numeric'  				=> "The ProductID must be a number.",
+			'InboundTariffCategoryID.required'	=> "The InboundTariffCategoryID field is required.",
+			'InboundTariffCategoryID.numeric'  	=> "The InboundTariffCategoryID must be a number.",
+			'NumberContractID.required'  		=> "The NumberContractID field is required.",
+			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
+			'NewNumberContractID.required'  	=> "The NewNumberContractID field is required.",
+			'NewNumberContractID.numeric'  		=> "The NewNumberContractID must be a number.",
+			'ContractStartDate.required'		=> "The ContractStartDate field is required.",
+			'ContractStartDate.after'			=> "Past dates not allowed for ContractStartDate.",
+			'ContractEndDate.required'			=> "The ContractEndDate field is required.",
+			'ContractEndDate.after'				=> "ContractEndDate must be a date after ContractStartDate.",
+		);
+
+		$validator = Validator::make($data, $rules, $msg);
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+		}
+
+		$CompanyID=0;
+		$AccountID=0;
+
+		$AccountFindType = '';
+		if(!empty($data['AccountID'])) {
+			$AccountID = $data['AccountID'];
+			$AccountFindType = 'AccountID';
+		}else if(!empty($data['AccountNo'])){
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+			$AccountFindType = 'AccountNo';
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			$AccountFindType = 'AccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
+
+		$Account = Account::find($AccountID);
+		if($Account) {
+			$CompanyID = $Account->CompanyId;
+			$AccountID = $Account->AccountID;
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "Account Not Found."], Codes::$Code400[0]);
+		}
+
+		$AccountService = AccountService::where(['AccountID'=>$AccountID,'ServiceOrderID'=>$data['OrderID'],'Status'=>1,'CancelContractStatus'=>0]);
+
+		// if AccountService exist then check below conditions
+		// Date Period must not conflict for the same number, same account and same account service.
+		if($AccountService->count() > 0) {
+			$AccountService = $AccountService->first();
+			$ServiceID = $AccountService->ServiceID;
+
+			// same condition as in front-end
+			$checkCLIRateTable = CLIRateTable::where([
+				'CompanyID' 		=> $CompanyID,
+				'AccountID' 		=> $AccountID,
+				'AccountServiceID' 	=> $AccountService->AccountServiceID,
+				'ContractID' 		=> $data['NumberContractID'],
+				'CLI' 				=> $data['NumberPurchased'],
+				'Status' 			=> 1
+			]);
+
+			// if number exist between given date
+			if($checkCLIRateTable->count() > 0) {
+
+				$ServiceTemplate_q = "SELECT it.RateTableId,st.OutboundRateTableId,st.City,st.Tariff,st.prefixName,st.country,st.countryCode,st.accessType
+									  FROM tblDynamicFields df
+									  INNER JOIN tblDynamicFieldsValue dfv ON dfv.DynamicFieldsID = df.DynamicFieldsID
+									  INNER JOIN tblServiceTemplate st ON st.ServiceTemplateID = dfv.ParentID
+									  LEFT JOIN tblServiceTemapleInboundTariff it ON it.ServiceTemplateID = st.ServiceTemplateID AND it.DIDCategoryId = " . $data['InboundTariffCategoryID'] . "
+									  WHERE df.CompanyID = " . $CompanyID . " AND df.Type = 'serviceTemplate' AND df.FieldName = 'ProductID' AND dfv.FieldValue = '" . $data['ProductID'] . "'";
+
+				$ServiceTemplate = DB::select($ServiceTemplate_q);
+
+				$TerminationRateTableID = $AccessRateTableID = 0;
+				if (!empty($ServiceTemplate[0]->OutboundRateTableId) && !empty($ServiceTemplate[0]->RateTableId)) {
+					$TerminationRateTableID = $ServiceTemplate[0]->OutboundRateTableId;
+					$AccessRateTableID = $ServiceTemplate[0]->RateTableId;
+				} else {
+					if (empty($ServiceTemplate[0]->OutboundRateTableId)) {
+						return Response::json(["ErrorMessage" => "Termination RateTable Not Found. ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+					} else {
+						return Response::json(["ErrorMessage" => "Access RateTable Not Found. ProductID: " . $data['ProductID'].", InboundTariffCategoryID: " . $data['InboundTariffCategoryID']], Codes::$Code400[0]);
+					}
+				}
+
+				try {
+					DB::beginTransaction();
+
+					$checkCLIRateTable = $checkCLIRateTable->first();
+					$AccountServicePackageID = $checkCLIRateTable->AccountServicePackageID;
+
+					if(strtotime($checkCLIRateTable->NumberStartDate) > strtotime(date('Y-m-d'))) {
+						// if old NumberStartDate is future date then end it same day
+						$checkCLIRateTable->update(['NumberEndDate'=>$checkCLIRateTable->NumberStartDate,'Status'=>0]);
+					}
+					else if(strtotime($checkCLIRateTable->NumberEndDate) > strtotime($data['ContractStartDate'])) {
+						// if old NumberStartDate is current or past date then check if it's old NumberEndDate is > new NumberStartDate
+						// if yes then update old NumberEndDate = New NumberStartDate
+						$update_data = [];
+						if($data['ContractStartDate'] == date('Y-m-d')) {
+							$update_data['Status'] = 0;
+						}
+						$update_data['NumberEndDate'] = $data['ContractStartDate'];
+						$checkCLIRateTable->update($update_data);
+					}
+
+					$ProductCountry = Country::where(array('Country' => $ServiceTemplate[0]->country))->first();
+
+					$City 		= !empty($ServiceTemplate[0]->City) ? $ServiceTemplate[0]->City : '';
+					$Tariff 	= !empty($ServiceTemplate[0]->Tariff) ? $ServiceTemplate[0]->Tariff : '';
+					$accessType = !empty($ServiceTemplate[0]->accessType) ? $ServiceTemplate[0]->accessType : '';
+					$prefixName = !empty($ServiceTemplate[0]->prefixName) ? $ServiceTemplate[0]->prefixName : '';
+					$AreaPrefix = !empty($ServiceTemplate[0]->countryCode) ? $ServiceTemplate[0]->countryCode  : ''. ltrim($ServiceTemplate[0]->prefixName, '0');
+
+					$VendorID = RateTableDIDRate::Join('tblRate', 'tblRateTableDIDRate.RateID', '=', 'tblRate.RateID')
+						->select(['tblRateTableDIDRate.VendorID'])
+						->where([
+							"tblRateTableDIDRate.RateTableId" 	=> $AccessRateTableID,
+							"tblRateTableDIDRate.City" 			=> $City,
+							"tblRateTableDIDRate.Tariff" 		=> $Tariff,
+							"tblRateTableDIDRate.AccessType" 	=> $accessType,
+							"tblRate.Code" 						=> $AreaPrefix
+						])
+						->where("tblRateTableDIDRate.EffectiveDate", '<=', date('Y-m-d'))
+						->whereNotNull('tblRateTableDIDRate.MonthlyCost')
+						->max('VendorID');
+					$VendorID = !empty($VendorID) ? $VendorID : 0;
+
+					$data_cli = [];
+					$data_cli['CompanyID'] 				= $CompanyID;
+					$data_cli['AccountID'] 				= $AccountID;
+					$data_cli['ServiceID'] 				= $ServiceID;
+					$data_cli['AccountServiceID'] 		= $AccountService->AccountServiceID;
+					$data_cli['CLI'] 					= $data['NumberPurchased'];
+					$data_cli['NumberStartDate'] 		= $data['ContractStartDate'];
+					$data_cli['NumberEndDate'] 			= $data['ContractEndDate'];
+					$data_cli['ContractID'] 			= $data['NewNumberContractID'];
+					$data_cli['RateTableID'] 			= $AccessRateTableID; // Default Access Rate Table
+					$data_cli['TerminationRateTableID'] = $TerminationRateTableID; // Default Termination Rate Table
+					$data_cli['CountryID'] 				= $ProductCountry->CountryID;
+					$data_cli['City'] 					= $City;
+					$data_cli['Tariff'] 				= $Tariff;
+					$data_cli['NoType'] 				= $accessType;
+					$data_cli['PrefixWithoutCountry'] 	= $prefixName;
+					$data_cli['Prefix'] 				= $AreaPrefix;
+					$data_cli['VendorID'] 				= $VendorID;
+					$data_cli['AccountServicePackageID']= $AccountServicePackageID;
+
+					CLIRateTable::create($data_cli);
+					DB::commit();
+					return Response::json(["SuccessMessage" => "Number Tariff updated successfully."],Codes::$Code200[0]);
+				} catch(Exception $e) {
+					DB::rollback();
+					Log::info($e->getTraceAsString());
+					$response = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+					return Response::json($response, Codes::$Code500[0]);
+				}
+			} else {
+				$date_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.$data[$AccountFindType].', OrderID'. $data['OrderID'];
+				return Response::json(["ErrorMessage" => $date_error],Codes::$Code400[0]);
+			}
+		} else {
+			$date_error = 'Account Service not found for OrderID'. $data['OrderID'];
+			return Response::json(["ErrorMessage" => $date_error],Codes::$Code400[0]);
 		}
 	}
 
