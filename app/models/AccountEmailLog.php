@@ -21,7 +21,7 @@ class AccountEmailLog extends \Eloquent {
     const AccountBalanceEmailReminder = 13;
     const ContractExpire = 14;
     const ContractManage = 15;
-    const LowBalanceZeroReminder = 16;
+    const ZeroBalanceReminder = 16;
 
 
     public static $type = [ AccountEmailLog::InvoicePaymentReminder=>'Invoice Payment Reminder',
@@ -44,7 +44,7 @@ class AccountEmailLog extends \Eloquent {
     public static $type2 = [
         AccountEmailLog::LowBalanceReminder=>'Low Balance',
         AccountEmailLog::InvoicePaymentReminder=>'Payment Reminders',
-        AccountEmailLog::LowBalanceZeroReminder=>'Low Balance Zero Reminder',
+        AccountEmailLog::ZeroBalanceReminder=>'Zero Balance Reminder',
         //AccountEmailLog::InvoicePaymentReminder=>'Payment Reminders',
 
         
