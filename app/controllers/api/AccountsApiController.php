@@ -4141,10 +4141,10 @@ class AccountsApiController extends ApiController {
 					'Numbers.'.$key.'.ContractStartDate.required'		=> "The Numbers[".$key."][ContractStartDate] field is required.",
 					'Numbers.'.$key.'.ContractStartDate.after'			=> "Past dates not allowed for Numbers[".$key."][ContractStartDate]",
 					'Numbers.'.$key.'.ContractEndDate.required'			=> "The Numbers[".$key."][ContractEndDate] field is required.",
+					'Numbers.'.$key.'.ContractEndDate.after'			=> "ContractEndDate must be a date after ContractStartDate.",
 					'Numbers.'.$key.'.PackageStartDate.required'		=> "The Numbers[".$key."][PackageStartDate] field is required.",
 					'Numbers.'.$key.'.PackageStartDate.after'			=> "Past dates not allowed for Numbers[".$key."][PackageStartDate]",
 					'Numbers.'.$key.'.PackageEndDate.required'			=> "The Numbers[".$key."][PackageEndDate] field is required.",
-					'Numbers.'.$key.'.ContractEndDate.after'			=> "ContractEndDate must be a date after ContractStartDate.",
 					'Numbers.'.$key.'.PackageEndDate.after'				=> "PackageEndDate must be a date after PackageStartDate.",
 				];
 				$rules 	+= $rules_numbers;
@@ -4162,19 +4162,8 @@ class AccountsApiController extends ApiController {
 			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
 
-		/*if (strtotime($data['ContractEndDate']) <= strtotime($data['ContractStartDate'])) {
-			$response = array("ErrorMessage" => "Contract End Date should be greater then Contract start date");
-			return Response::json($response, Codes::$Code402[0]);
-		}
-
-		if (strtotime($data['PackageEndDate']) <= strtotime($data['PackageStartDate'])) {
-			$response = array("ErrorMessage" => "Package End Date should be greater then Package start date");
-			return Response::json($response, Codes::$Code402[0]);
-		}*/
-
 		$CompanyID=0;
 		$AccountID=0;
-
 		if(!empty($data['AccountID'])) {
 			$AccountID = $data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
@@ -4189,6 +4178,7 @@ class AccountsApiController extends ApiController {
 		if($Account){
 			$CompanyID 	= $Account->CompanyId;
 			$AccountID 	= $Account->AccountID;
+			$ProductData = [];
 
 			// find package and access, termination ratetable for numbers and return error if not found.
 			foreach ($data['Numbers'] as $key => $number_data) {
@@ -4201,10 +4191,9 @@ class AccountsApiController extends ApiController {
 
 				$Package = DB::select($Package_q);
 
-				$PackageRateTableId = $PackageId = 0;
 				if (!empty($Package[0]->RateTableId)) {
-					$PackageRateTableId = $Package[0]->RateTableId;
-					$PackageId = $Package[0]->PackageId;
+					$ProductData[$key]['PackageRateTableId'] = $Package[0]->RateTableId;
+					$ProductData[$key]['PackageId'] = $Package[0]->PackageId;
 				} else {
 					return Response::json(["ErrorMessage" => "Package RateTable Not Found. PackageProductID: " . $number_data['PackageProductID']], Codes::$Code400[0]);
 				}
@@ -4217,13 +4206,16 @@ class AccountsApiController extends ApiController {
 									  WHERE df.CompanyID = " . $CompanyID . " AND df.Type = 'serviceTemplate' AND df.FieldName = 'ProductID' AND dfv.FieldValue = '" . $number_data['ProductID'] . "'";
 
 				$ServiceTemplate = DB::select($ServiceTemplate_q);
+				if(empty($ServiceTemplate[0])) {
+					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+				}
+				$ProductData[$key]['ServiceTemplate'] = $ServiceTemplate = $ServiceTemplate[0];
 
-				$TerminationRateTableID = $AccessRateTableID = 0;
-				if (!empty($ServiceTemplate[0]->OutboundRateTableId) && !empty($ServiceTemplate[0]->RateTableId)) {
-					$TerminationRateTableID = $ServiceTemplate[0]->OutboundRateTableId;
-					$AccessRateTableID = $ServiceTemplate[0]->RateTableId;
+				if (!empty($ServiceTemplate->OutboundRateTableId) && !empty($ServiceTemplate->RateTableId)) {
+					$ProductData[$key]['TerminationRateTableID'] = $ServiceTemplate->OutboundRateTableId;
+					$ProductData[$key]['AccessRateTableID'] 		= $ServiceTemplate->RateTableId;
 				} else {
-					if (empty($ServiceTemplate[0]->OutboundRateTableId)) {
+					if (empty($ServiceTemplate->OutboundRateTableId)) {
 						return Response::json(["ErrorMessage" => "Termination RateTable Not Found. ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
 					} else {
 						return Response::json(["ErrorMessage" => "Access RateTable Not Found. ProductID: " . $number_data['ProductID'].", InboundTariffCategoryID: " . $number_data['InboundTariffCategoryID']], Codes::$Code400[0]);
@@ -4256,7 +4248,7 @@ class AccountsApiController extends ApiController {
 						return Response::json(["ErrorMessage" => $date_error],Codes::$Code400[0]);
 					}
 				}
-			}
+			} // foreach
 
 			$AllServices = Service::where('Status', 1);
 			if($AllServices->count() > 0) {
@@ -4291,28 +4283,28 @@ class AccountsApiController extends ApiController {
 							$data_pkg['AccountID'] 			= $AccountID;
 							$data_pkg['ServiceID'] 			= $ServiceID;
 							$data_pkg['ContractID'] 		= $number_data['PackageContractID'];
-							$data_pkg['PackageId'] 			= $PackageId;
+							$data_pkg['PackageId'] 			= $ProductData[$key]['PackageId'];
 							$data_pkg['PackageStartDate'] 	= $number_data['PackageStartDate'];
 							$data_pkg['PackageEndDate'] 	= $number_data['PackageEndDate'];
 							$data_pkg['AccountServiceID'] 	= $AccountService->AccountServiceID;
-							$data_pkg['RateTableID'] 		= $PackageRateTableId;
+							$data_pkg['RateTableID'] 		= $ProductData[$key]['PackageRateTableId'];
 							$data_pkg['Status'] 			= 1;
 
 							$AccountServicePackage = AccountServicePackage::create($data_pkg);
 
 							if ($AccountServicePackage) {
-								$ProductCountry = Country::where(array('Country' => $ServiceTemplate[0]->country))->first();
+								$ProductCountry = Country::where(array('Country' => $ProductData[$key]['ServiceTemplate']->country))->first();
 
-								$City 		= !empty($ServiceTemplate[0]->City) ? $ServiceTemplate[0]->City : '';
-								$Tariff 	= !empty($ServiceTemplate[0]->Tariff) ? $ServiceTemplate[0]->Tariff : '';
-								$accessType = !empty($ServiceTemplate[0]->accessType) ? $ServiceTemplate[0]->accessType : '';
-								$prefixName = !empty($ServiceTemplate[0]->prefixName) ? $ServiceTemplate[0]->prefixName : '';
-								$AreaPrefix = !empty($ServiceTemplate[0]->countryCode) ? $ServiceTemplate[0]->countryCode  : ''. ltrim($ServiceTemplate[0]->prefixName, '0');
+								$City 		= !empty($ProductData[$key]['ServiceTemplate']->City) ? $ProductData[$key]['ServiceTemplate']->City : '';
+								$Tariff 	= !empty($ProductData[$key]['ServiceTemplate']->Tariff) ? $ProductData[$key]['ServiceTemplate']->Tariff : '';
+								$accessType = !empty($ProductData[$key]['ServiceTemplate']->accessType) ? $ProductData[$key]['ServiceTemplate']->accessType : '';
+								$prefixName = !empty($ProductData[$key]['ServiceTemplate']->prefixName) ? $ProductData[$key]['ServiceTemplate']->prefixName : '';
+								$AreaPrefix = !empty($ProductData[$key]['ServiceTemplate']->countryCode) ? $ProductData[$key]['ServiceTemplate']->countryCode  : ''. ltrim($ProductData[$key]['ServiceTemplate']->prefixName, '0');
 
 								$VendorID = RateTableDIDRate::Join('tblRate', 'tblRateTableDIDRate.RateID', '=', 'tblRate.RateID')
 									->select(['tblRateTableDIDRate.VendorID'])
 									->where([
-										"tblRateTableDIDRate.RateTableId" 	=> $AccessRateTableID,
+										"tblRateTableDIDRate.RateTableId" 	=> $ProductData[$key]['AccessRateTableID'],
 										"tblRateTableDIDRate.City" 			=> $City,
 										"tblRateTableDIDRate.Tariff" 		=> $Tariff,
 										"tblRateTableDIDRate.AccessType" 	=> $accessType,
@@ -4332,8 +4324,8 @@ class AccountsApiController extends ApiController {
 								$data_cli['NumberStartDate'] 		= $number_data['ContractStartDate'];
 								$data_cli['NumberEndDate'] 			= $number_data['ContractEndDate'];
 								$data_cli['ContractID'] 			= $number_data['NumberContractID'];
-								$data_cli['RateTableID'] 			= $AccessRateTableID; // Default Access Rate Table
-								$data_cli['TerminationRateTableID'] = $TerminationRateTableID; // Default Termination Rate Table
+								$data_cli['RateTableID'] 			= $ProductData[$key]['AccessRateTableID']; // Default Access Rate Table
+								$data_cli['TerminationRateTableID'] = $ProductData[$key]['TerminationRateTableID']; // Default Termination Rate Table
 								$data_cli['CountryID'] 				= $ProductCountry->CountryID;
 								$data_cli['City'] 					= $City;
 								$data_cli['Tariff'] 				= $Tariff;
@@ -4420,7 +4412,6 @@ class AccountsApiController extends ApiController {
 
 		$CompanyID=0;
 		$AccountID=0;
-
 		$AccountFindType = '';
 		if(!empty($data['AccountID'])) {
 			$AccountID = $data['AccountID'];
@@ -4446,13 +4437,11 @@ class AccountsApiController extends ApiController {
 
 		$AccountService = AccountService::where(['AccountID'=>$AccountID,'ServiceOrderID'=>$data['OrderID'],'Status'=>1,'CancelContractStatus'=>0]);
 
-		// if AccountService exist then check below conditions
-		// Date Period must not conflict for the same number, same account and same account service.
+		// if AccountService exist
 		if($AccountService->count() > 0) {
 			$AccountService = $AccountService->first();
 			$ServiceID = $AccountService->ServiceID;
 
-			// same condition as in front-end
 			$checkCLIRateTable = CLIRateTable::where([
 				'CompanyID' 		=> $CompanyID,
 				'AccountID' 		=> $AccountID,
@@ -4462,7 +4451,7 @@ class AccountsApiController extends ApiController {
 				'Status' 			=> 1
 			]);
 
-			// if number exist between given date
+			// if number exist
 			if($checkCLIRateTable->count() > 0) {
 
 				$ServiceTemplate_q = "SELECT it.RateTableId,st.OutboundRateTableId,st.City,st.Tariff,st.prefixName,st.country,st.countryCode,st.accessType
@@ -4473,13 +4462,16 @@ class AccountsApiController extends ApiController {
 									  WHERE df.CompanyID = " . $CompanyID . " AND df.Type = 'serviceTemplate' AND df.FieldName = 'ProductID' AND dfv.FieldValue = '" . $data['ProductID'] . "'";
 
 				$ServiceTemplate = DB::select($ServiceTemplate_q);
-
+				if(empty($ServiceTemplate[0])) {
+					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+				}
+				$ServiceTemplate = $ServiceTemplate[0];
 				$TerminationRateTableID = $AccessRateTableID = 0;
-				if (!empty($ServiceTemplate[0]->OutboundRateTableId) && !empty($ServiceTemplate[0]->RateTableId)) {
-					$TerminationRateTableID = $ServiceTemplate[0]->OutboundRateTableId;
-					$AccessRateTableID = $ServiceTemplate[0]->RateTableId;
+				if (!empty($ServiceTemplate->OutboundRateTableId) && !empty($ServiceTemplate->RateTableId)) {
+					$TerminationRateTableID = $ServiceTemplate->OutboundRateTableId;
+					$AccessRateTableID = $ServiceTemplate->RateTableId;
 				} else {
-					if (empty($ServiceTemplate[0]->OutboundRateTableId)) {
+					if (empty($ServiceTemplate->OutboundRateTableId)) {
 						return Response::json(["ErrorMessage" => "Termination RateTable Not Found. ProductID: " . $data['ProductID']], Codes::$Code400[0]);
 					} else {
 						return Response::json(["ErrorMessage" => "Access RateTable Not Found. ProductID: " . $data['ProductID'].", InboundTariffCategoryID: " . $data['InboundTariffCategoryID']], Codes::$Code400[0]);
@@ -4507,13 +4499,13 @@ class AccountsApiController extends ApiController {
 						$checkCLIRateTable->update($update_data);
 					}
 
-					$ProductCountry = Country::where(array('Country' => $ServiceTemplate[0]->country))->first();
+					$ProductCountry = Country::where(array('Country' => $ServiceTemplate->country))->first();
 
-					$City 		= !empty($ServiceTemplate[0]->City) ? $ServiceTemplate[0]->City : '';
-					$Tariff 	= !empty($ServiceTemplate[0]->Tariff) ? $ServiceTemplate[0]->Tariff : '';
-					$accessType = !empty($ServiceTemplate[0]->accessType) ? $ServiceTemplate[0]->accessType : '';
-					$prefixName = !empty($ServiceTemplate[0]->prefixName) ? $ServiceTemplate[0]->prefixName : '';
-					$AreaPrefix = !empty($ServiceTemplate[0]->countryCode) ? $ServiceTemplate[0]->countryCode  : ''. ltrim($ServiceTemplate[0]->prefixName, '0');
+					$City 		= !empty($ServiceTemplate->City) ? $ServiceTemplate->City : '';
+					$Tariff 	= !empty($ServiceTemplate->Tariff) ? $ServiceTemplate->Tariff : '';
+					$accessType = !empty($ServiceTemplate->accessType) ? $ServiceTemplate->accessType : '';
+					$prefixName = !empty($ServiceTemplate->prefixName) ? $ServiceTemplate->prefixName : '';
+					$AreaPrefix = !empty($ServiceTemplate->countryCode) ? $ServiceTemplate->countryCode  : ''. ltrim($ServiceTemplate->prefixName, '0');
 
 					$VendorID = RateTableDIDRate::Join('tblRate', 'tblRateTableDIDRate.RateID', '=', 'tblRate.RateID')
 						->select(['tblRateTableDIDRate.VendorID'])
@@ -4559,12 +4551,490 @@ class AccountsApiController extends ApiController {
 					return Response::json($response, Codes::$Code500[0]);
 				}
 			} else {
-				$date_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.$data[$AccountFindType].', OrderID'. $data['OrderID'];
-				return Response::json(["ErrorMessage" => $date_error],Codes::$Code400[0]);
+				$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
+				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
 			}
 		} else {
-			$date_error = 'Account Service not found for OrderID'. $data['OrderID'];
-			return Response::json(["ErrorMessage" => $date_error],Codes::$Code400[0]);
+			$error = 'Account Service not found for OrderID'. $data['OrderID'];
+			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
+		}
+	}
+
+	// New API to update account service by vasim seta @2020-01-02
+	public function updateAccountService() {
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data = json_decode(json_encode($post_vars), true);
+		$today = date('Y-m-d');
+
+		$rules = array(
+			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo|numeric',
+			'OrderID'							=> 'required|numeric',
+			'NumberContractID'					=> 'required|numeric',
+			'NumberPurchased'					=> 'required|numeric',
+			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
+		);
+
+		$msg = array(
+			'AccountID.required_without_all'  	=> "Any one field AccountNumber, AccountID or AccountDynamicField is required.",
+			'AccountID.numeric'  				=> "The AccountID must be a number.",
+			'OrderID.required'  				=> "The OrderID field is required.",
+			'OrderID.numeric'  					=> "The OrderID must be a number.",
+			'NumberContractID.required'  		=> "The NumberContractID field is required.",
+			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
+			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
+			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			'ContractEndDate.required'			=> "The ContractEndDate field is required.",
+			'ContractEndDate.after'				=> "Past dates not allowed for ContractEndDate.",
+		);
+
+		$validator = Validator::make($data, $rules, $msg);
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+		}
+
+		$CompanyID=0;
+		$AccountID=0;
+		$AccountFindType = '';
+		if(!empty($data['AccountID'])) {
+			$AccountID = $data['AccountID'];
+			$AccountFindType = 'AccountID';
+		}else if(!empty($data['AccountNo'])){
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+			$AccountFindType = 'AccountNo';
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			$AccountFindType = 'AccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
+
+		$Account = Account::find($AccountID);
+		if($Account) {
+			$CompanyID = $Account->CompanyId;
+			$AccountID = $Account->AccountID;
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "Account Not Found."], Codes::$Code400[0]);
+		}
+
+		$AccountService = AccountService::where(['AccountID'=>$AccountID,'ServiceOrderID'=>$data['OrderID'],'Status'=>1,'CancelContractStatus'=>0]);
+
+		// if AccountService exist
+		if($AccountService->count() > 0) {
+			$AccountService = $AccountService->first();
+
+			$CLIRateTable = CLIRateTable::where([
+				'CompanyID' 		=> $CompanyID,
+				'AccountID' 		=> $AccountID,
+				'AccountServiceID' 	=> $AccountService->AccountServiceID,
+				'ContractID' 		=> $data['NumberContractID'],
+				'CLI' 				=> $data['NumberPurchased'],
+				'Status' 			=> 1
+			]);
+
+			// if number exist
+			if($CLIRateTable->count() > 0) {
+
+				try {
+					DB::beginTransaction();
+
+					$CLIRateTable = $CLIRateTable->first();
+
+					if(strtotime($data['ContractEndDate']) < strtotime($CLIRateTable->NumberStartDate)) {
+						// if given EndDate is < existing NumberStartDate then end it same day
+						$data['ContractEndDate'] = $CLIRateTable->NumberStartDate;
+					}
+					$update_data = [];
+					// if EndDate is today or if EndDate is future and ends on same day as StartDate
+					if($data['ContractEndDate'] == $today || (strtotime($data['ContractEndDate']) > strtotime($today) && $data['ContractEndDate'] == $CLIRateTable->NumberStartDate)) {
+						$update_data['Status'] = 0;
+					}
+					$update_data['NumberEndDate'] = $data['ContractEndDate'];
+					$CLIRateTable->update($update_data);
+
+					DB::commit();
+					return Response::json(["SuccessMessage" => "Number updated successfully."],Codes::$Code200[0]);
+				} catch(Exception $e) {
+					DB::rollback();
+					Log::info($e->getTraceAsString());
+					$response = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+					return Response::json($response, Codes::$Code500[0]);
+				}
+			} else {
+				$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
+				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
+			}
+		} else {
+			$error = 'Account Service not found for OrderID'. $data['OrderID'];
+			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
+		}
+	}
+
+	// New API to update account service package by vasim seta @2020-01-02
+	public function updateServicePackage() {
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data = json_decode(json_encode($post_vars), true);
+
+		$rules = array(
+			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo|numeric',
+			'OrderID'							=> 'required|numeric',
+			'NumberContractID'					=> 'required|numeric',
+			'NumberPurchased'					=> 'required|numeric',
+			'TestNumberContractID'				=> 'required|numeric',
+			'TestNumberPurchased'				=> 'required|numeric',
+			'UpdatePackageDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
+		);
+
+		$msg = array(
+			'AccountID.required_without_all'  	=> "Any one field AccountNumber, AccountID or AccountDynamicField is required.",
+			'AccountID.numeric'  				=> "The AccountID must be a number.",
+			'OrderID.required'  				=> "The OrderID field is required.",
+			'OrderID.numeric'  					=> "The OrderID must be a number.",
+			'NumberContractID.required'  		=> "The NumberContractID field is required.",
+			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
+			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
+			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			'TestNumberContractID.required'  	=> "The TestNumberContractID field is required.",
+			'TestNumberContractID.numeric'  	=> "The TestNumberContractID must be a number.",
+			'TestNumberPurchased.required'  	=> "The TestNumberPurchased field is required.",
+			'TestNumberPurchased.numeric'  		=> "The TestNumberPurchased must be a number.",
+			'UpdatePackageDate.required'		=> "The UpdatePackageDate field is required.",
+			'UpdatePackageDate.after'			=> "Past dates not allowed for UpdatePackageDate.",
+		);
+
+		$validator = Validator::make($data, $rules, $msg);
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+		}
+
+		$CompanyID=0;
+		$AccountID=0;
+		$AccountFindType = '';
+		if(!empty($data['AccountID'])) {
+			$AccountID = $data['AccountID'];
+			$AccountFindType = 'AccountID';
+		}else if(!empty($data['AccountNo'])){
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+			$AccountFindType = 'AccountNo';
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			$AccountFindType = 'AccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
+
+		$Account = Account::find($AccountID);
+		if($Account) {
+			$CompanyID = $Account->CompanyId;
+			$AccountID = $Account->AccountID;
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "Account Not Found."], Codes::$Code400[0]);
+		}
+
+		$AccountService = AccountService::where(['AccountID'=>$AccountID,'ServiceOrderID'=>$data['OrderID'],'Status'=>1,'CancelContractStatus'=>0]);
+
+		// if AccountService exist then check below conditions
+		if($AccountService->count() > 0) {
+			$AccountService = $AccountService->first();
+
+			$CLIRateTable = CLIRateTable::where([
+				'CompanyID' 		=> $CompanyID,
+				'AccountID' 		=> $AccountID,
+				'AccountServiceID' 	=> $AccountService->AccountServiceID,
+				'ContractID' 		=> $data['NumberContractID'],
+				'CLI' 				=> $data['NumberPurchased'],
+				'Status' 			=> 1
+			]);
+
+			$TestCLIRateTable = CLIRateTable::where([
+				'CompanyID' 		=> $CompanyID,
+				'AccountID' 		=> $AccountID,
+				'AccountServiceID' 	=> $AccountService->AccountServiceID,
+				'ContractID' 		=> $data['TestNumberContractID'],
+				'CLI' 				=> $data['TestNumberPurchased'],
+				'Status' 			=> 1
+			]);
+
+			// if number and test number exist
+			if($CLIRateTable->count() > 0 && $TestCLIRateTable->count() > 0) {
+
+				try {
+					DB::beginTransaction();
+
+					$CLIRateTable 		= $CLIRateTable->first();
+					$TestCLIRateTable 	= $TestCLIRateTable->first();
+
+					$data_cli = [];
+					$data_cli['CompanyID'] 				= $CLIRateTable->CompanyID;
+					$data_cli['AccountID'] 				= $CLIRateTable->AccountID;
+					$data_cli['ServiceID'] 				= $CLIRateTable->ServiceID;
+					$data_cli['AccountServiceID'] 		= $CLIRateTable->AccountServiceID;
+					$data_cli['CLI'] 					= $CLIRateTable->CLI;
+					$data_cli['NumberStartDate'] 		= $CLIRateTable->NumberStartDate;
+					$data_cli['NumberEndDate'] 			= $CLIRateTable->NumberEndDate;
+					$data_cli['ContractID'] 			= $CLIRateTable->ContractID;
+					$data_cli['RateTableID'] 			= $CLIRateTable->RateTableID;
+					$data_cli['TerminationRateTableID'] = $CLIRateTable->TerminationRateTableID;
+					$data_cli['CountryID'] 				= $CLIRateTable->CountryID;
+					$data_cli['City'] 					= $CLIRateTable->City;
+					$data_cli['Tariff'] 				= $CLIRateTable->Tariff;
+					$data_cli['NoType'] 				= $CLIRateTable->NoType;
+					$data_cli['PrefixWithoutCountry'] 	= $CLIRateTable->PrefixWithoutCountry;
+					$data_cli['Prefix'] 				= $CLIRateTable->Prefix;
+					$data_cli['VendorID'] 				= $CLIRateTable->VendorID;
+					$data_cli['AccountServicePackageID']= $TestCLIRateTable->AccountServicePackageID;
+
+					$update_data['Status'] 			= 0;
+					$update_data['NumberEndDate'] 	= $data['UpdatePackageDate'];
+					$CLIRateTable->update($update_data);
+					$TestCLIRateTable->update($update_data);
+
+					CLIRateTable::create($data_cli);
+
+					DB::commit();
+					return Response::json(["SuccessMessage" => "Package updated successfully."],Codes::$Code200[0]);
+				} catch(Exception $e) {
+					DB::rollback();
+					Log::info($e->getTraceAsString());
+					$response = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+					return Response::json($response, Codes::$Code500[0]);
+				}
+			} else {
+				$number_error = '';
+				if($CLIRateTable->count() == 0)
+					$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
+				if($TestCLIRateTable->count() == 0)
+					$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
+				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
+			}
+		} else {
+			$error = 'Account Service not found for OrderID'. $data['OrderID'];
+			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
+		}
+	}
+
+	// New API to transfer number from one account to another by vasim seta @2020-01-03
+	public function transferServiceNumber() {
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data = json_decode(json_encode($post_vars), true);
+
+		$rules = array(
+			'FromAccountID' 					=> 'required_without_all:FromAccountDynamicField,FromAccountNo|numeric',
+			'ToAccountID' 						=> 'required_without_all:ToAccountDynamicField,ToAccountNo|numeric',
+			'FromOrderID'						=> 'required|numeric',
+			'ToOrderID'							=> 'required|numeric',
+			'NumberContractID'					=> 'required|numeric',
+			'NumberPurchased'					=> 'required|numeric',
+			'ContractStartDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
+			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:ContractStartDate',
+		);
+
+		$msg = array(
+			'FromAccountID.required_without_all'=> "Any one field FromAccountNumber, FromAccountID or FromAccountDynamicField is required.",
+			'FromAccountID.numeric'  			=> "The FromAccountID must be a number.",
+			'ToAccountID.required_without_all'  => "Any one field ToAccountNumber, ToAccountID or ToAccountDynamicField is required.",
+			'ToAccountID.numeric'  				=> "The ToAccountID must be a number.",
+			'FromOrderID.required'  			=> "The FromOrderID field is required.",
+			'FromOrderID.numeric'  				=> "The FromOrderID must be a number.",
+			'ToOrderID.required'  				=> "The ToOrderID field is required.",
+			'ToOrderID.numeric'  				=> "The ToOrderID must be a number.",
+			'NumberContractID.required'  		=> "The NumberContractID field is required.",
+			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
+			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
+			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			'ContractStartDate.required'		=> "The ContractStartDate field is required.",
+			'ContractStartDate.after'			=> "Past dates not allowed for ContractStartDate.",
+			'ContractEndDate.required'			=> "The ContractEndDate field is required.",
+			'ContractEndDate.after'				=> "ContractEndDate must be a date after ContractStartDate.",
+		);
+
+		$validator = Validator::make($data, $rules, $msg);
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+		}
+
+		$FromCompanyID=$ToCompanyID=0;
+		$FromAccountID=$ToAccountID=0;
+		$FromAccountFindType=$ToAccountFindType='';
+
+		if(!empty($data['FromAccountID'])) {
+			$FromAccountID = $data['FromAccountID'];
+			$FromAccountFindType = 'FromAccountID';
+		}else if(!empty($data['FromAccountNo'])){
+			$FromAccountID = Account::where(["Number" => $data['FromAccountNo']])->pluck('AccountID');
+			$FromAccountFindType = 'FromAccountNo';
+		}else if(!empty($data['FromAccountDynamicField'])){
+			$FromAccountID = Account::findAccountBySIAccountRef($data['FromAccountDynamicField']);
+			$FromAccountFindType = 'FromAccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"FromAccountID or FromAccountNo or FromAccountDynamicField Required."],Codes::$Code400[0]);
+		}
+		$FromAccount = Account::find($FromAccountID);
+		if($FromAccount) {
+			$FromCompanyID = $FromAccount->CompanyId;
+			$FromAccountID = $FromAccount->AccountID;
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "From Account Not Found."], Codes::$Code400[0]);
+		}
+
+		if(!empty($data['ToAccountID'])) {
+			$ToAccountID = $data['ToAccountID'];
+			$ToAccountFindType = 'ToAccountID';
+		}else if(!empty($data['ToAccountNo'])){
+			$ToAccountID = Account::where(["Number" => $data['ToAccountNo']])->pluck('AccountID');
+			$ToAccountFindType = 'ToAccountNo';
+		}else if(!empty($data['ToAccountDynamicField'])){
+			$ToAccountID = Account::findAccountBySIAccountRef($data['ToAccountDynamicField']);
+			$ToAccountFindType = 'ToAccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"ToAccountID or ToAccountNo or ToAccountDynamicField Required."],Codes::$Code400[0]);
+		}
+		$ToAccount = Account::find($ToAccountID);
+		if($ToAccount) {
+			$ToCompanyID = $ToAccount->CompanyId;
+			$ToAccountID = $ToAccount->AccountID;
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "To Account Not Found."], Codes::$Code400[0]);
+		}
+
+		$OldAccountService = AccountService::where(['AccountID'=>$FromAccountID,'ServiceOrderID'=>$data['FromOrderID'],'Status'=>1,'CancelContractStatus'=>0]);
+
+		// if AccountService exist
+		if($OldAccountService->count() > 0) {
+			$OldAccountService = $OldAccountService->first();
+
+			$OldCLIRateTable = CLIRateTable::where([
+				'CompanyID' 		=> $FromCompanyID,
+				'AccountID' 		=> $FromAccountID,
+				'AccountServiceID' 	=> $OldAccountService->AccountServiceID,
+				'ContractID' 		=> $data['NumberContractID'],
+				'CLI' 				=> $data['NumberPurchased'],
+				'Status' 			=> 1
+			]);
+
+			// if number exist
+			if($OldCLIRateTable->count() > 0) {
+				$OldCLIRateTable = $OldCLIRateTable->first();
+
+				try {
+					DB::beginTransaction();
+
+					$AccountServiceData = [];
+					$AccountServiceData['CompanyID'] 			= $ToCompanyID;
+					$AccountServiceData['AccountID'] 			= $ToAccountID;
+					$AccountServiceData['ServiceID'] 			= $OldAccountService->ServiceID;
+					$AccountServiceData['ServiceOrderID'] 		= $data['ToOrderID'];
+					$AccountServiceData['ServiceTitle'] 		= !empty($data['ServiceTitle']) ? trim($data['ServiceTitle']) : '';
+					$AccountServiceData['ServiceDescription'] 	= !empty($data['ServiceDescription']) ? trim($data['ServiceDescription']) : '';
+					$AccountServiceData['ServiceTitleShow'] 	= isset($data['ServiceTitleShow']) && $data['ServiceTitleShow'] == 1 ? 1 : 0;
+					$AccountServiceData['Status'] 				= 1;
+
+					$NewAccountService = AccountService::where(['AccountID'=>$ToAccountID,'ServiceOrderID'=>$data['ToOrderID'],'Status'=>1,'CancelContractStatus'=>0]);
+					if($NewAccountService->count() > 0) {
+						$NewAccountService = $NewAccountService->first();
+						$checkNewCLIRateTable = CLIRateTable::where([
+							'CompanyID' 		=> $ToCompanyID,
+							'AccountID' 		=> $ToAccountID,
+							'AccountServiceID' 	=> $NewAccountService->AccountServiceID,
+							'ContractID' 		=> $data['NumberContractID'],
+							'CLI' 				=> $data['NumberPurchased'],
+							'Status' 			=> 1
+						])->where(function($q) use ($data) {
+							$q->whereBetween('NumberStartDate', array($data['ContractStartDate'], $data['ContractEndDate']));
+							$q->orWhereBetween('NumberEndDate', array($data['ContractStartDate'], $data['ContractEndDate']));
+							$q->orWhereRaw("'".$data['ContractStartDate']."' between NumberStartDate and NumberEndDate");
+						});
+						// check if number already exist which is being transfer to ToAccount then fail the request.
+						if($checkNewCLIRateTable->count() > 0) {
+							$date_error = 'Number '. $data['NumberPurchased'] . ' already exist between contract start date '.$data['ContractStartDate'] . ' and contract end date ' .$data['ContractEndDate'] . ' against ToAccount:'.$data[$ToAccountFindType];
+							return Response::json(["ErrorMessage" => $date_error],Codes::$Code400[0]);
+						}
+
+						$NewAccountService->update($AccountServiceData);
+					} else { // create if not exist
+						$NewAccountService = AccountService::create($AccountServiceData);
+					}
+
+					$OldAccountServicePackage = AccountServicePackage::find($OldCLIRateTable->AccountServicePackageID);
+					$PackageName = Package::find($OldAccountServicePackage->PackageId)->Name;
+					$ToPackage = Package::where(['CompanyID'=>$ToCompanyID,'Name'=>$PackageName]);
+
+					if($ToPackage->count() == 0) {
+						$pkg_error = 'Package '.$PackageName.' not found for ToAccount:'.$data[$ToAccountFindType];
+						return Response::json(["ErrorMessage" => $pkg_error],Codes::$Code400[0]);
+					}
+					$data_pkg = [];
+					$data_pkg['CompanyID'] 			= $ToCompanyID;
+					$data_pkg['AccountID'] 			= $ToAccountID;
+					$data_pkg['AccountServiceID'] 	= $NewAccountService->AccountServiceID;
+					$data_pkg['ServiceID'] 			= $OldAccountServicePackage->ServiceID;
+					$data_pkg['ContractID'] 		= $OldAccountServicePackage->ContractID;
+					$data_pkg['PackageId'] 			= $ToPackage->first()->PackageId;
+					$data_pkg['PackageStartDate'] 	= $OldAccountServicePackage->PackageStartDate;
+					$data_pkg['PackageEndDate'] 	= $OldAccountServicePackage->PackageEndDate;
+					$data_pkg['RateTableID'] 		= $OldAccountServicePackage->RateTableID;
+					$data_pkg['Status'] 			= 1;
+
+					$AccountServicePackage = AccountServicePackage::create($data_pkg);
+
+					$data_cli = [];
+					$data_cli['CompanyID'] 				= $ToCompanyID;
+					$data_cli['AccountID'] 				= $ToAccountID;
+					$data_cli['AccountServiceID'] 		= $NewAccountService->AccountServiceID;
+					$data_cli['NumberStartDate'] 		= $data['ContractStartDate'];
+					$data_cli['NumberEndDate'] 			= $data['ContractEndDate'];
+					$data_cli['ServiceID'] 				= $OldCLIRateTable->ServiceID;
+					$data_cli['CLI'] 					= $OldCLIRateTable->CLI;
+					$data_cli['ContractID'] 			= $OldCLIRateTable->ContractID;
+					$data_cli['RateTableID'] 			= $OldCLIRateTable->RateTableID;
+					$data_cli['TerminationRateTableID'] = $OldCLIRateTable->TerminationRateTableID;
+					$data_cli['CountryID'] 				= $OldCLIRateTable->CountryID;
+					$data_cli['City'] 					= $OldCLIRateTable->City;
+					$data_cli['Tariff'] 				= $OldCLIRateTable->Tariff;
+					$data_cli['NoType'] 				= $OldCLIRateTable->NoType;
+					$data_cli['PrefixWithoutCountry'] 	= $OldCLIRateTable->PrefixWithoutCountry;
+					$data_cli['Prefix'] 				= $OldCLIRateTable->Prefix;
+					$data_cli['VendorID'] 				= $OldCLIRateTable->VendorID;
+					$data_cli['AccountServicePackageID']= $AccountServicePackage->AccountServicePackageID;
+
+					if($data['ContractStartDate'] == date('Y-m-d')) {
+						$update_data['Status'] = 0;
+					}
+					$update_data['NumberEndDate'] 	= $data['ContractStartDate'];
+					$OldCLIRateTable->update($update_data);
+
+					CLIRateTable::create($data_cli);
+
+					DB::commit();
+					return Response::json(["SuccessMessage" => "Service Number transferred successfully."],Codes::$Code200[0]);
+				} catch(Exception $e) {
+					DB::rollback();
+					Log::info($e->getTraceAsString());
+					$response = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+					return Response::json($response, Codes::$Code500[0]);
+				}
+			} else {
+				$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$FromAccountFindType.': '.$data[$FromAccountFindType].', FromOrderID: '. $data['FromOrderID'];
+				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
+			}
+		} else {
+			$error = 'Account Service not found for FromOrderID'. $data['FromOrderID'];
+			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
 		}
 	}
 
