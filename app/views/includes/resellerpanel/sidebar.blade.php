@@ -58,6 +58,7 @@
                 {{-- <li> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li> --}}
 <!--                <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>-->
                 {{-- <li> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li> --}}
+                <li class="{{ active_url_class("discount_plan") }}"><a href="{{URL::to('/discount_plan')}}"><span>Discount Plan</span></a></li>
                 <li> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
                 <li> <a href="{{URL::to('/cdr_upload')}}">  <span>CDR Upload</span> </a> </li>
                 <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>

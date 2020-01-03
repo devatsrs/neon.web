@@ -20,14 +20,14 @@ class DestinationGroup extends \Eloquent
         }
     }
 
-public static function getCountryName($id)
-{
-    return $countryname = Country::where('CountryID',$id)->pluck('Country');
-    
-}
+    public static function getCountryName($id)
+    {
+        return $countryname = Country::where('CountryID',$id)->pluck('Country');
+        
+    }
     public static function getDropdownIDList($DestinationGroupSetID){
         $CompanyId = User::get_companyID();
-        $DropdownIDList = DestinationGroup::where(array("CompanyID"=> $CompanyId,'DestinationGroupSetID'=>$DestinationGroupSetID))->lists('Name', 'DestinationGroupID');
+        $DropdownIDList = DestinationGroup::where(array('DestinationGroupSetID'=>$DestinationGroupSetID))->lists('Name', 'DestinationGroupID');
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
 
 

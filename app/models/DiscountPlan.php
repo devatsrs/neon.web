@@ -61,7 +61,7 @@ class DiscountPlan extends \Eloquent
     public static $Unlimited = array(''=>'Select',"1"=>"YES", "0" => "No");
 
     public static function exludedCompnents($DestinationGroupSetID) {
-        $company_id = User::get_companyID();
+        $company_id = 1;
         $company = Company::find($company_id);
         $ExcludedComponent = array();
         $DiscountPlanComponents = [];
