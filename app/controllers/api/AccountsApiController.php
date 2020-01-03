@@ -4211,9 +4211,19 @@ class AccountsApiController extends ApiController {
 				}
 				$ProductData[$key]['ServiceTemplate'] = $ServiceTemplate = $ServiceTemplate[0];
 
+				if(empty($ServiceTemplate->country)) {
+					return Response::json(["ErrorMessage" => "Country Not Found against ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
+				}
+				if(empty($ServiceTemplate->accessType)) {
+					return Response::json(["ErrorMessage" => "AccessType Not Found against ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
+				}
+				if(empty($ServiceTemplate->prefixName)) {
+					return Response::json(["ErrorMessage" => "Prefix Not Found against ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
+				}
+
 				if (!empty($ServiceTemplate->OutboundRateTableId) && !empty($ServiceTemplate->RateTableId)) {
 					$ProductData[$key]['TerminationRateTableID'] = $ServiceTemplate->OutboundRateTableId;
-					$ProductData[$key]['AccessRateTableID'] 		= $ServiceTemplate->RateTableId;
+					$ProductData[$key]['AccessRateTableID'] 	 = $ServiceTemplate->RateTableId;
 				} else {
 					if (empty($ServiceTemplate->OutboundRateTableId)) {
 						return Response::json(["ErrorMessage" => "Termination RateTable Not Found. ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
@@ -4293,7 +4303,12 @@ class AccountsApiController extends ApiController {
 							$AccountServicePackage = AccountServicePackage::create($data_pkg);
 
 							if ($AccountServicePackage) {
-								$ProductCountry = Country::where(array('Country' => $ProductData[$key]['ServiceTemplate']->country))->first();
+								$ProductCountry = Country::where(array('Country' => $ProductData[$key]['ServiceTemplate']->country));
+
+								if($ProductCountry->count() == 0) {
+									return Response::json(["ErrorMessage" => "Country Not Found against ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
+								}
+								$ProductCountry = $ProductCountry->first();
 
 								$City 		= !empty($ProductData[$key]['ServiceTemplate']->City) ? $ProductData[$key]['ServiceTemplate']->City : '';
 								$Tariff 	= !empty($ProductData[$key]['ServiceTemplate']->Tariff) ? $ProductData[$key]['ServiceTemplate']->Tariff : '';
@@ -4466,6 +4481,17 @@ class AccountsApiController extends ApiController {
 					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $data['ProductID']], Codes::$Code400[0]);
 				}
 				$ServiceTemplate = $ServiceTemplate[0];
+
+				if(empty($ServiceTemplate->country)) {
+					return Response::json(["ErrorMessage" => "Country Not Found against ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+				}
+				if(empty($ServiceTemplate->accessType)) {
+					return Response::json(["ErrorMessage" => "AccessType Not Found against ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+				}
+				if(empty($ServiceTemplate->prefixName)) {
+					return Response::json(["ErrorMessage" => "Prefix Not Found against ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+				}
+
 				$TerminationRateTableID = $AccessRateTableID = 0;
 				if (!empty($ServiceTemplate->OutboundRateTableId) && !empty($ServiceTemplate->RateTableId)) {
 					$TerminationRateTableID = $ServiceTemplate->OutboundRateTableId;
@@ -4499,7 +4525,11 @@ class AccountsApiController extends ApiController {
 						$checkCLIRateTable->update($update_data);
 					}
 
-					$ProductCountry = Country::where(array('Country' => $ServiceTemplate->country))->first();
+					$ProductCountry = Country::where(array('Country' => $ServiceTemplate->country));
+					if($ProductCountry->count() == 0) {
+						return Response::json(["ErrorMessage" => "Country Not Found against ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+					}
+					$ProductCountry = $ProductCountry->first();
 
 					$City 		= !empty($ServiceTemplate->City) ? $ServiceTemplate->City : '';
 					$Tariff 	= !empty($ServiceTemplate->Tariff) ? $ServiceTemplate->Tariff : '';
@@ -4555,7 +4585,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
 			}
 		} else {
-			$error = 'Account Service not found for OrderID'. $data['OrderID'];
+			$error = 'Account Service not found for OrderID: '. $data['OrderID'];
 			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
 		}
 	}
@@ -4669,7 +4699,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
 			}
 		} else {
-			$error = 'Account Service not found for OrderID'. $data['OrderID'];
+			$error = 'Account Service not found for OrderID: '. $data['OrderID'];
 			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
 		}
 	}
@@ -4817,7 +4847,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
 			}
 		} else {
-			$error = 'Account Service not found for OrderID'. $data['OrderID'];
+			$error = 'Account Service not found for OrderID: '. $data['OrderID'];
 			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
 		}
 	}
@@ -5033,7 +5063,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
 			}
 		} else {
-			$error = 'Account Service not found for FromOrderID'. $data['FromOrderID'];
+			$error = 'Account Service not found for FromOrderID: '. $data['FromOrderID'];
 			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
 		}
 	}
