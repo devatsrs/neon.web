@@ -4206,6 +4206,9 @@ class AccountsApiController extends ApiController {
 									  WHERE df.CompanyID = " . $CompanyID . " AND df.Type = 'serviceTemplate' AND df.FieldName = 'ProductID' AND dfv.FieldValue = '" . $number_data['ProductID'] . "'";
 
 				$ServiceTemplate = DB::select($ServiceTemplate_q);
+				if(empty($ServiceTemplate[0])) {
+					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+				}
 				$ProductData[$key]['ServiceTemplate'] = $ServiceTemplate = $ServiceTemplate[0];
 
 				if (!empty($ServiceTemplate->OutboundRateTableId) && !empty($ServiceTemplate->RateTableId)) {
@@ -4459,6 +4462,9 @@ class AccountsApiController extends ApiController {
 									  WHERE df.CompanyID = " . $CompanyID . " AND df.Type = 'serviceTemplate' AND df.FieldName = 'ProductID' AND dfv.FieldValue = '" . $data['ProductID'] . "'";
 
 				$ServiceTemplate = DB::select($ServiceTemplate_q);
+				if(empty($ServiceTemplate[0])) {
+					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+				}
 				$ServiceTemplate = $ServiceTemplate[0];
 				$TerminationRateTableID = $AccessRateTableID = 0;
 				if (!empty($ServiceTemplate->OutboundRateTableId) && !empty($ServiceTemplate->RateTableId)) {
