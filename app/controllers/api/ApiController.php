@@ -34,14 +34,19 @@ class ApiController extends Controller {
         $validator = Validator::make($Request, $rules);
 
         if ($validator->fails()) {
-            return Response::json(["status"=>Codes::$Code401[0], "ErrorMessage"=>Codes::$Code401[1]]);
+            return Response::json(["ErrorMessage"=>Codes::$Code401[1]], Codes::$Code401[0]);
         }
 
         $validate=NeonAPI::RegisterApiLogin($Request);
         if (! $validate ) {
-            return Response::json(["status"=>Codes::$Code401[0], "ErrorMessage"=>Codes::$Code401[1]]);
+            return Response::json(["ErrorMessage"=>Codes::$Code401[1]], Codes::$Code401[0]);
         }
-        return Response::json(["status"=>"Success", "message"=>"Login Success","data"=>$validate]);
+
+        return Response::json([
+            "status"  => "Success",
+            "message" => "Login Success",
+            "data"    => $validate
+        ], Codes::$Code200[0]);
     }
 
     public function logout(){
