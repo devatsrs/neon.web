@@ -1808,6 +1808,7 @@ class AccountsApiController extends ApiController {
 				if (!isset($Reseller)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1035[1]],Codes::$Code1035[0]);
 				}
+
 				$ResellerCompanyID = $Reseller->ChildCompanyID;
 				$ResellerUser = User::where('CompanyID',$ResellerCompanyID)->first();
 				if (isset($ResellerUser)) {
@@ -1841,7 +1842,6 @@ class AccountsApiController extends ApiController {
 
 			if (!empty($accountData['IsPartner']) && ($accountData['IsPartner'] != 0 && $accountData['IsPartner'] != 1)) {
 				return Response::json(["ErrorMessage" => Codes::$Code1023[1]],Codes::$Code1023[0]);
-
 			} else {
 				$data['IsReseller'] = isset($accountData['IsPartner']) ? $accountData['IsPartner'] : 0;
 			}
@@ -2071,8 +2071,8 @@ class AccountsApiController extends ApiController {
 				if(!$ResellerID){
 					return Response::json(["ErrorMessage" => Codes::$Code1059[1]],Codes::$Code1059[0]);
 				}
-				$Account = Account::where('AccountID',$ResellerID->ParentID)->first();
-				$Reseller = Reseller::where('ChildCompanyID',$Account->CompanyId)->first();
+
+				$Reseller = Reseller::where('AccountID',$ResellerID->ParentID)->first();
 
 				$data['CompanyID'] = $Reseller->ChildCompanyID;
 				$data['Owner']     = $Reseller->ResellerID;
@@ -2870,7 +2870,7 @@ class AccountsApiController extends ApiController {
 		$Taxes = '';
 		$CompanyID = User::get_companyID();
 		$Country = $data['Country'];
-		
+
 		$CustomerAccount = isset($data['IsCustomer']) && $data['IsCustomer'] == 1 ? 1 : 0;
 		$PartnerAccount =  isset($data['IsReseller']) && $data['IsReseller'] == 1 ? 1 : 0;
 		$RegisterDutchFoundation = 0;
@@ -2880,26 +2880,32 @@ class AccountsApiController extends ApiController {
 				return false;
 			}
 		}else if($CustomerAccount == 1){
+
 			if(isset($data['PartnerID']) && !empty($data['PartnerID'])){
 				$ResellerID = DynamicFieldsValue::where(['DynamicFieldsID' => 93 , 'FieldValue' => $data['PartnerID']])->first();
 				if(!$ResellerID){
 					return false;
 				}
-			
-				$Account = Account::where('AccountID',$ResellerID->ParentID)->first();
-				if(!$Account){
+
+
+			}
+			if(isset($ResellerID) && $ResellerID){
+				$Reseller = Reseller::where('AccountID',$ResellerID->ParentID)->first();
+			}
+			if(!empty($Account)){
+				$Reseller = Reseller::where('ChildCompanyID',$Account->CompanyId)->first();
+			}
+
+			if(isset($Reseller) && $Reseller){
+				$AccountCountry = Account::where('AccountID',$Reseller->AccountID)->pluck('Country');
+
+				if($Country != $AccountCountry){
 					return false;
 				}
 			}
-			$Reseller = Reseller::where('ChildCompanyID',$Account->CompanyId)->first();
-			$AccountCountry = Account::where('AccountID',$Reseller->AccountID)->pluck('Country');
-			
-			if($Country != $AccountCountry){
-				return false;
-			}
 		}else{
 			return false;
-		}    
+		}
 
 
 		if(isset($data['RegisterDutchFoundation']) && $data['RegisterDutchFoundation'] == 1){
@@ -2908,16 +2914,16 @@ class AccountsApiController extends ApiController {
 		if(isset($data['DutchProvider']) && $data['DutchProvider'] == 1){
 			$DutchProvider=1;
 		}
-		
-		
-		
+
+
+
 		// if($Country=='NETHERLANDS'){
 		//     $EUCountry = 'NL';
 		// }else{
-			$EUCountry = Country::where('Country',$data['Country'])->pluck('ISO2');
-			//dd($EUCountry);
-			//$EUCountry = $EUCountry;
-			// $EUCountry = empty($EUCountry) ? 'NEU' : 'EU';
+		$EUCountry = Country::where('Country',$data['Country'])->pluck('ISO2');
+		//dd($EUCountry);
+		//$EUCountry = $EUCountry;
+		// $EUCountry = empty($EUCountry) ? 'NEU' : 'EU';
 		//}
 		$Results = TaxRate::where(['DutchProvider'=>$DutchProvider,'DutchFoundation'=>$RegisterDutchFoundation,'Country'=>$EUCountry,'CompanyId'=>$CompanyID,'Status'=>1])->get();
 		//log::info(print_r($Results,true));
