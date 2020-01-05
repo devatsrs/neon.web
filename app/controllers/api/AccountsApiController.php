@@ -2611,10 +2611,10 @@ class AccountsApiController extends ApiController {
 					$dataAccountBilling['BillingTimezone'] = $BillingClass->BillingTimezone;
 					$dataAccountBilling['SendInvoiceSetting'] = empty($BillingClass->SendInvoiceSetting) ? 'after_admin_review' : $BillingClass->SendInvoiceSetting;
 
-					if(isset($data['AutoPay'])) {
+					if(isset($accountData['AutoPay'])) {
 
 						// Auto Pay Value must be in (0,1,2)
-						$AutoPayIndex = $data['AutoPay'];
+						$AutoPayIndex = $accountData['AutoPay'];
 						$AutoPayArr = [0=>'never',1=>'invoiceday',2=>'duedate'];
 
 						if(in_array($AutoPayIndex,[0,1,2])){
@@ -3095,9 +3095,9 @@ class AccountsApiController extends ApiController {
 				$data['DifferentBillingAddress'] = 1;
 			}
 
-			if(isset($data['AutoPay'])) {
+			if(isset($accountData['AutoPay'])) {
 				// Auto Pay Value must be in (0,1,2)
-				$AutoPayIndex = $data['AutoPay'];
+				$AutoPayIndex = $accountData['AutoPay'];
 				$AutoPayArr = [0=>'never',1=>'invoiceday',2=>'duedate'];
 
 				if(in_array($AutoPayIndex,[0,1,2])){
@@ -3105,6 +3105,8 @@ class AccountsApiController extends ApiController {
 
 					if($AutoPayIndex != 0)
 						$dataAccountBilling['AutoPayMethod'] = 2;
+					else
+						$dataAccountBilling['AutoPayMethod'] = 0;
 
 					AccountBilling::insertUpdateBilling($accountInfo->AccountID, $dataAccountBilling, 0);
 				} else {
