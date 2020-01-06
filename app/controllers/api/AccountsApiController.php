@@ -3237,14 +3237,12 @@ class AccountsApiController extends ApiController {
 				}
 
 				$CustomerID = $CustomerDynamicID;
-				if(empty($CustomerID)){
-					return Response::json(["ErrorMessage" => Codes::$Code1062[1]],Codes::$Code1062[0]);
-				}
-
-				$FieldsID = DB::table('tblDynamicFields')->where(['FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
-				$check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $CustomerID])->where('ParentID', '!=' ,$accountInfo->AccountID)->count();
-				if($check > 0){
-					return Response::json(["ErrorMessage" => Codes::$Code1063[1]],Codes::$Code1063[0]);
+				if(!empty($CustomerID)){
+					$FieldsID = DB::table('tblDynamicFields')->where(['FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
+					$check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $CustomerID])->where('ParentID', '!=' ,$accountInfo->AccountID)->count();
+					if($check > 0){
+						return Response::json(["ErrorMessage" => Codes::$Code1063[1]],Codes::$Code1063[0]);
+					}
 				}
 			}
 
