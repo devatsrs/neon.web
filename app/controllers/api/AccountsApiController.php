@@ -2073,6 +2073,9 @@ class AccountsApiController extends ApiController {
 				}
 
 				$Reseller = Reseller::where('AccountID',$ResellerID->ParentID)->first();
+				if(!$Reseller){
+					return Response::json(["ErrorMessage" => 'Please enter the valid Partner ID'],Codes::$Code1059[0]);
+				}
 
 				$data['CompanyID'] = $Reseller->ChildCompanyID;
 				$data['Owner']     = $Reseller->ResellerID;
