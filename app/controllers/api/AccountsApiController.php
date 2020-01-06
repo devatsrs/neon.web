@@ -3001,7 +3001,7 @@ class AccountsApiController extends ApiController {
 				$accountInfo = Account::where(["AccountID" => $accountData["AccountID"]])->first();
 			} elseif (isset($accountData["AccountDynamicField"]) && $accountData["AccountDynamicField"] != ''){
 				$AccountID = Account::findAccountBySIAccountRef($accountData['AccountDynamicField']);
-				if (!empty($AccountIDRef)) {
+				if (!empty($AccountID)) {
 					$accountInfo = Account::where(["AccountID" => $AccountID])->first();
 				}
 			}
