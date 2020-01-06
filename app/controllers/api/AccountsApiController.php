@@ -3513,10 +3513,10 @@ class AccountsApiController extends ApiController {
 			if (isset($accountData['AccountDynamicFieldUpdate'])) {
 
 				$AccountReferenceArr = json_decode(json_encode($accountData['AccountDynamicFieldUpdate']),true);
-				for ($i =0; $i <count($AccountReferenceArr);$i++) {
+				for ($i =0; $i < count($AccountReferenceArr);$i++) {
 					$AccountReference = $AccountReferenceArr[$i];
 					$DynamicFieldsID = DynamicFields::where([
-						'CompanyID'=>$CompanyID,
+						'CompanyID'=>User::get_companyID(),
 						'Type'=>'account',
 						'Status'=>1
 					])
