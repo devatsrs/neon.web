@@ -54,7 +54,7 @@ class RateTablesMultiAccController extends \BaseController {
         $codedecks = array(""=>"Select Codedeck")+$codedecks;
         $rate_tables = RateTable::getRateTables();
         $allservice = Service::getDropdownIDList($companyID);
-        $currencies = Currency::getCurrencyDropdownIDList();
+        $currencies = Currency::getCurrencyDropdownIDList(1);
         $CurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         return View::make('ratetables.rates_multi_account', compact('all_customers','trunks','codedecks','currencies','CurrencyID','rate_tables','allservice'));
     }
