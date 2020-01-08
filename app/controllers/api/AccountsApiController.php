@@ -3112,7 +3112,7 @@ class AccountsApiController extends ApiController {
 					else
 						$dataAccountBilling['AutoPayMethod'] = 0;
 
-					AccountBilling::insertUpdateBilling($accountInfo->AccountID, $dataAccountBilling, 0);
+					AccountBilling::where('AccountID',$accountInfo->AccountID)->update($dataAccountBilling);
 				} else {
 					return Response::json(["ErrorMessage" => "Please enter valid Auto Pay value."],Codes::$Code400[0]);
 				}
