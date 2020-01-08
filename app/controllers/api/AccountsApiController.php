@@ -1876,6 +1876,19 @@ class AccountsApiController extends ApiController {
 
 			//stripe = credit stipeAch = bank
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
+				$rules = [];
+				$rules = array(	
+					'PaymentMethod'   => 'numeric',
+				);
+				$validator = Validator::make($data, $rules);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+
+				}
 				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$API_PaymentMethod)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
 
@@ -1883,6 +1896,19 @@ class AccountsApiController extends ApiController {
 			}
 
 			if (isset($data['PayoutMethod']) && $data['PayoutMethod'] != '') {
+				$rules = [];
+				$rules = array(	
+					'PayoutMethod'   => 'numeric',
+				);
+				$validator = Validator::make($data, $rules);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+
+				}
 				if ($data['PayoutMethod'] <0 || $data['PayoutMethod'] > count(AccountsApiController::$API_PayoutMethod)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1058[1]],Codes::$Code1058[0]);
 
@@ -3253,6 +3279,19 @@ class AccountsApiController extends ApiController {
 
 			if (isset($accountData['PaymentMethodID']) && !empty($accountData['PaymentMethodID'])) {
 				$data['PaymentMethod'] = $accountData['PaymentMethodID'];
+				$rules = [];
+				$rules = array(	
+					'PaymentMethod'   => 'numeric',
+				);
+				$validator = Validator::make($data, $rules);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+
+				}
 
 				if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
 					if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$API_PaymentMethod)) {
@@ -3364,6 +3403,19 @@ class AccountsApiController extends ApiController {
 
 			if (isset($accountData['PayoutMethodID']) && !empty($accountData['PayoutMethodID'])) {
 				$data['PayoutMethod'] = $accountData['PayoutMethodID'];
+				$rules = [];
+				$rules = array(	
+					'PayoutMethod'   => 'numeric',
+				);
+				$validator = Validator::make($data, $rules);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+
+				}
 
 				if (isset($data['PayoutMethod']) && $data['PayoutMethod'] != '') {
 					if ($data['PayoutMethod'] <0 || $data['PayoutMethod'] > count(AccountsApiController::$API_PayoutMethod)) {
