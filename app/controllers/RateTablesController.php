@@ -1389,7 +1389,7 @@ class RateTablesController extends \BaseController {
         $rate = $data['q'].'%';
         $ratetableid = $data['page'];
         $CodeDeckId = RateTable::getCodeDeckId($ratetableid);
-        $codes = CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])
+        $codes = CodeDeck::where(["CompanyID" => 1,'CodeDeckId'=>$CodeDeckId])
             ->where('Code','like',$rate)->take(100)->lists('Code', 'RateID');
 
         if(count($codes) > 0){
