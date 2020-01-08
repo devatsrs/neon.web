@@ -1746,6 +1746,7 @@ class AccountsApiController extends ApiController {
 			$data['BillingCountry'] = isset($accountData['BillingCountryIso2']) ? $accountData['BillingCountryIso2'] : '';
 			$data['DifferentBillingAddress'] = isset($accountData['DifferentBillingAddress']) ? $accountData['DifferentBillingAddress'] : '';
 			$data['BillingEmail'] = isset($accountData['BillingEmail']) ? $accountData['BillingEmail'] : '';
+			$data['PostCode'] = isset($accountData['PostCode']) ? $accountData['PostCode'] : '';
 			$data['Owner'] = isset($accountData['OwnerID']) ? $accountData['OwnerID'] : '';
 			$data['CurrencyId'] = isset($accountData['Currency']) ? $accountData['Currency'] : '';
 			$data['Country'] = isset($accountData['CountryIso2']) ? $accountData['CountryIso2'] : '';
