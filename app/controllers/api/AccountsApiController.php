@@ -1977,7 +1977,7 @@ class AccountsApiController extends ApiController {
 					$PaymentProfile['ExpirationMonth'] = isset($accountData['ExpirationMonth']) ? $accountData['ExpirationMonth'] : '' ;
 					$PaymentProfile['ExpirationYear'] = isset($accountData['ExpirationYear']) ? $accountData['ExpirationYear'] : '' ;
 					$PaymentProfile['LastDigit'] = isset($accountData['LastDigit']) ? $accountData['LastDigit'] : '' ;
-					$PaymentProfile['Title'] = isset($accountData['Title']) ? $accountData['Title'] : '' ;
+					$PaymentProfile['Title'] = isset($accountData['CardTitle']) ? $accountData['CardTitle'] : '' ;
 					$validator = Validator::make($PaymentProfile, $rules);
 					if ($validator->fails()) {
 						$errors = "";
