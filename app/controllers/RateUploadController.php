@@ -36,7 +36,7 @@ class RateUploadController extends \BaseController {
 
         $includePrefix      = 1;
         $dialstring         = DialString::getDialStringIDList();
-        $currencies         = Currency::getCurrencyDropdownIDList();
+        $currencies         = Currency::getCurrencyDropdownIDList(1);
         $uploadtypes        = RateUpload::$uploadtypes;
         $Timezones          = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
         $AllTimezones       = Timezones::getTimezonesIDList();//all timezones
@@ -60,7 +60,7 @@ class RateUploadController extends \BaseController {
 
         $IntervalIndexes = [""=>"Select","0"=>"One","1"=>"Two","2"=>"Three"];
 
-        $component_currencies = Currency::getCurrencyDropdownIDList($CompanyID,$includePrefix);
+        $component_currencies = Currency::getCurrencyDropdownIDList(1,$includePrefix);
         $component_currencies = array('Currency'=>$component_currencies);
 
         if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) { // voice call
@@ -1138,8 +1138,8 @@ class RateUploadController extends \BaseController {
 
             $prefixKeyword          = 'DBDATA-';
             $includePrefix          = 1;
-            $component_currencies   = Currency::getCurrencyDropdownIDList($CompanyID,$includePrefix); // to check when currency mapped from DB
-            $component_currencies2  = Currency::getCurrencyDropdownIDList($CompanyID);  // to check when currency mapped from File
+            $component_currencies   = Currency::getCurrencyDropdownIDList(1,$includePrefix); // to check when currency mapped from DB
+            $component_currencies2  = Currency::getCurrencyDropdownIDList(1);  // to check when currency mapped from File
             $component_currencies2  = array_map('strtolower', $component_currencies2);
             $CountryPrefix          = ServiceTemplate::getCountryPrefixDD($includePrefix);
             $AccessTypes            = ServiceTemplate::getAccessTypeDD($CompanyID,$includePrefix);
