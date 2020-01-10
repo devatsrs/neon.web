@@ -50,7 +50,7 @@ class ActiveCallController extends \BaseController {
         }
         $query .=',0)';
 
-        return DataTableSql::of($query,'sqlsrvroutingengine')->make();
+        return DataTableSql::of($query,'sqlapproutingengine')->make();
     }
 
 
