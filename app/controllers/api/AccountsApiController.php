@@ -2197,6 +2197,7 @@ class AccountsApiController extends ApiController {
 				}
 
 				$CustomerID = $CustomerDynamicID;
+				$data['CustomerID'] = $CustomerID;
 				$FieldsID = DB::table('tblDynamicFields')->where(['FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
 				$check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $CustomerID])->count();
 				if($check > 0){
@@ -3257,6 +3258,9 @@ class AccountsApiController extends ApiController {
 						$CustomerVal = true;
 						$CustomerDynamicID = $AccountReference['Value'];
 					}
+					if($AccountReference['Name'] == 'CustomerID' && empty($AccountReference['Value'])){
+						return Response::json(["ErrorMessage" => Codes::$Code1062[1]],Codes::$Code1062[0]);
+					}
 					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
 						'Type'=>'account','Status'=>1])
 						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
@@ -3266,8 +3270,9 @@ class AccountsApiController extends ApiController {
 					}
 				}
 
-				$CustomerID = $CustomerDynamicID;
+				$CustomerID = $CustomerDynamicID;	
 				if(!empty($CustomerID)){
+					$data['CustomerID'] = $CustomerID;
 					$FieldsID = DB::table('tblDynamicFields')->where(['FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
 					$check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $CustomerID])->where('ParentID', '!=' ,$accountInfo->AccountID)->count();
 					if($check > 0){

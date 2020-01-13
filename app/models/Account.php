@@ -56,7 +56,7 @@ class Account extends \Eloquent {
         'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing','ShowAllPaymentMethod',
         'DisplayRates',
         'DifferentBillingAddress','BillingAddress1','BillingAddress2','BillingAddress3','BillingCity','BillingPostCode','BillingCountry','TaxRateID','PayoutMethod',
-        'IsAffiliateAccount','CommissionPercentage','DurationMonths'
+        'IsAffiliateAccount','CommissionPercentage','DurationMonths','CustomerID'
     );
 
     public static $messages = array(
