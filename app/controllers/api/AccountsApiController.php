@@ -2266,11 +2266,19 @@ class AccountsApiController extends ApiController {
 			if (!isset($data['Country'])) {
 				return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
 			}
+			
+			// $data['BillingCountry']= Country::where(['ISO2' => $data['BillingCountry']])->pluck('Country');
+			// if (!isset($data['BillingCountry'])) {
+			// 	return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
+			// }
 
-			$data['BillingCountry']= Country::where(['ISO2' => $data['BillingCountry']])->pluck('Country');
-			if (!isset($data['BillingCountry'])) {
-				return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
+			if (isset($accountData['BillingCountryIso2']) && !empty($accountData['BillingCountryIso2'])) {
+				$data['BillingCountry'] = Country::where(['ISO2' => $accountData['BillingCountryIso2']])->pluck('Country');
+				if (!isset($data['BillingCountry'])) {
+					return Response::json(["ErrorMessage" => Codes::$Code1013[1]], Codes::$Code1013[0]);
+				}
 			}
+			
 			$data['LanguageID'] = Language::where('ISOCode',$data['Language'])->pluck('LanguageID');
 			unset($data['Language']);
 			if (!isset($data['LanguageID'])) {
@@ -3234,9 +3242,9 @@ class AccountsApiController extends ApiController {
 					return Response::json(["ErrorMessage" => Codes::$Code1013[1]], Codes::$Code1013[0]);
 				}
 			}
-
-			if (!empty($data['BillingCountry'])) {
-				$data['BillingCountry'] = Country::where(['ISO2' => $data['BillingCountry']])->pluck('Country');
+			
+			if (isset($accountData['BillingCountryIso2']) && !empty($accountData['BillingCountryIso2'])) {
+				$data['BillingCountry'] = Country::where(['ISO2' => $accountData['BillingCountryIso2']])->pluck('Country');
 				if (!isset($data['BillingCountry'])) {
 					return Response::json(["ErrorMessage" => Codes::$Code1013[1]], Codes::$Code1013[0]);
 				}
