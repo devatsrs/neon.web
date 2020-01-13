@@ -778,13 +778,13 @@ class AccountsController extends \BaseController {
         $users						=	 json_encode(array_merge(array(""),$users));
 
         //Account oppertunity data
-        // $boards 					= 	 CRMBoard::getTaskBoard(); //opperturnity variables start
-        // if(count($boards)<1){
+        $boards 					= 	 CRMBoard::getTaskBoard(); //opperturnity variables start
+        if(count($boards)<1){
 
-        //     $message 				= 	 "No Task Board Found. PLease create task board first";
-        // }else{
-        //     $boards					=	  $boards[0];
-        // }
+            $message 				= 	 "No Task Board Found. PLease create task board first";
+        }else{
+            $boards					=	  $boards[0];
+        }
         $accounts 					= 	 Account::getAccountIDList();
         $leadOrAccountID 			= 	 '';
         $leadOrAccount 				= 	 $accounts;
