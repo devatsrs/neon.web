@@ -3109,27 +3109,27 @@ class AccountsApiController extends ApiController {
 
 			}
 
-			if (isset($accountData['BillingAddress1']) && !empty($accountData['BillingAddress1'])) {
+			if (isset($accountData['BillingAddress1'])) {
 				$data['BillingAddress1'] = $accountData['BillingAddress1'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingAddress2']) && !empty($accountData['BillingAddress2'])) {
+			if (isset($accountData['BillingAddress2'])) {
 				$data['BillingAddress2'] = $accountData['BillingAddress2'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingAddress3']) && !empty($accountData['BillingAddress3'])) {
+			if (isset($accountData['BillingAddress3'])) {
 				$data['BillingAddress3'] = $accountData['BillingAddress3'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingPostCode']) && !empty($accountData['BillingPostCode'])) {
+			if (isset($accountData['BillingPostCode'])) {
 				$data['BillingPostCode'] = $accountData['BillingPostCode'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingCity']) && !empty($accountData['BillingCity'])) {
+			if (isset($accountData['BillingCity'])) {
 				$data['BillingCity'] = $accountData['BillingCity'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingCountryIso2']) && !empty($accountData['BillingCountryIso2'])) {
+			if (isset($accountData['BillingCountryIso2'])) {
 				$data['BillingCountry'] = $accountData['BillingCountryIso2'];
 				$data['DifferentBillingAddress'] = 1;
 			}
@@ -3631,6 +3631,10 @@ class AccountsApiController extends ApiController {
 
 			$data['TaxRateID'] = $this->getAccountTaxes($TaxRateCalculation , $accountInfo);
 			$accountInfo->update($data);
+
+			if(empty($accountInfo->BillingAddress1) && empty($accountInfo->BillingAddress2) && empty($accountInfo->BillingAddress3) && empty($accountInfo->BillingCity) && empty($accountInfo->BillingPostCode) && empty($accountInfo->BillingCountry)){
+				$accountInfo->update(['DifferentBillingAddress' => 0]);
+			}
 
 
 			if (isset($data['PaymentMethod'])) {

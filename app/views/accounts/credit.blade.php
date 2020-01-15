@@ -52,7 +52,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Account Balance</label>
                         <div class="desc col-sm-2 ">
-                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{$SOA_Amount}}">
+                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{AccountBalance::getAccountBalanceWithActiveCallRM($account->AccountID)}}">
                         </div>
                         @if($BillingType==AccountApproval::BILLINGTYPE_PREPAID)
                             <div  class="col-sm-1">
