@@ -1783,8 +1783,8 @@ class AccountsApiController extends ApiController {
 				$data['BillingAddress3'] = $data['Address3'];
 				$data['BillingCity']     = $data['City'];
 				$data['BillingPostCode'] = '';
-				$data['BillingCountry']  = $data['Country'];
-			}else {
+				$data['BillingCountry']  = $data['Country'];	
+			}else if(!empty($data['BillingAddress1']) || !empty($data['BillingAddress2']) || !empty($data['BillingAddress3']) || !empty($data['BillingCity']) || !empty($data['BillingPostCode']) || !empty($accountData['BillingCountryIso2'])) {
 				$data['DifferentBillingAddress'] = 1;
 			}
 			$ResellerOwner = '';
