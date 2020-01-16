@@ -166,6 +166,17 @@ return array(
 			'prefix'    => '',
 			'strict'    => false,
 		],
+		'sqlapproutingengine' => [
+			'driver'    => 'mysql',
+			'host'      => getenv('DB_HOST_APPRoutingEngine'),
+			'database'  => getenv('DB_APPRoutingEngine'),
+			'username'  => getenv('DB_APPUSERNAMERoutingEngine'),
+			'password'  => substr(getenv('DB_APP_PASSWORDRoutingEngine'),5),
+			'charset'   => 'utf8',
+			'collation' => 'utf8_unicode_ci',
+			'prefix'    => '',
+			'strict'    => false,
+		],
 
 	),
 

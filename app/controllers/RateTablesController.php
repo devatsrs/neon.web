@@ -178,7 +178,7 @@ class RateTablesController extends \BaseController {
         $codedecks = BaseCodeDeck::lists("CodeDeckName", "CodeDeckId");
         $codedecks = array(""=>"Select Codedeck")+$codedecks;
         $RateGenerators = array(""=>"Select rate generator")+$RateGenerators;
-        $currencylist = Currency::getCurrencyDropdownIDList();
+        $currencylist = Currency::getCurrencyDropdownIDList(1);
         $DIDCategory = DIDCategory::getCategoryDropdownIDList($companyID);
         $RateTypes   = RateType::getRateTypeDropDownList();
         $ResellerDD  = RateTable::getResellerDropdownIDList();
@@ -275,7 +275,7 @@ class RateTablesController extends \BaseController {
         $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
         $TypeDID = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $CompanyID);
-        $CurrencyDropDown = Currency::getCurrencyDropdownIDList();
+        $CurrencyDropDown = Currency::getCurrencyDropdownIDList(1);
         $AccessType         = ServiceTemplate::getAccessTypeDD($CompanyID);
         $City               = ServiceTemplate::getCityDD($CompanyID);
         $Tariff             = ServiceTemplate::getTariffDD($CompanyID);
@@ -1389,7 +1389,7 @@ class RateTablesController extends \BaseController {
         $rate = $data['q'].'%';
         $ratetableid = $data['page'];
         $CodeDeckId = RateTable::getCodeDeckId($ratetableid);
-        $codes = CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])
+        $codes = CodeDeck::where(["CompanyID" => 1,'CodeDeckId'=>$CodeDeckId])
             ->where('Code','like',$rate)->take(100)->lists('Code', 'RateID');
 
         if(count($codes) > 0){

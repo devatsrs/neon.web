@@ -56,7 +56,7 @@ class Account extends \Eloquent {
         'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing','ShowAllPaymentMethod',
         'DisplayRates',
         'DifferentBillingAddress','BillingAddress1','BillingAddress2','BillingAddress3','BillingCity','BillingPostCode','BillingCountry','TaxRateID','PayoutMethod',
-        'IsAffiliateAccount','CommissionPercentage','DurationMonths'
+        'IsAffiliateAccount','CommissionPercentage','DurationMonths','CustomerID'
     );
 
     public static $messages = array(
@@ -1098,4 +1098,31 @@ class Account extends \Eloquent {
         return $final;
     }
 
+
+    public static function isCustomerIDExist($CompanyID,$CustomerID,$AccountID = 0){
+
+        $resp = false;
+        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>$CompanyID,'FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
+
+        if($AccountID != 0)
+            $check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $CustomerID])->count();
+        else
+            $check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $CustomerID])->where("AccountID","<>",$AccountID)->count();
+
+        if($check > 0) $resp = true;
+
+        return $resp;
+    }
+
+    public static function isAccountNumberExist($Number,$AccountID = 0){
+        $resp = false;
+        if($AccountID)
+            $check = Account::where(['Number'=>$Number])->count();
+        else
+            $check = Account::where(['Number'=>$Number])->where("AccountID","<>",$AccountID)->count();
+
+        if($check > 0) $resp = true;
+
+        return $resp;
+    }
 }

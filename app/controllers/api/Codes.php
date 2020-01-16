@@ -59,7 +59,7 @@ class Codes
     public static $Code1032 =["400","Please provide the valid Service"];
     public static $Code1033 =["400","Error while creating the payment account"];
     public static $Code1034 =["400","Please provide either Bank or Card Details"];
-    public static $Code1035 =["400","Please provide the valid Reseller ID"];
+    public static $Code1035 =["400","Please provide the valid Partner ID"];
     public static $Code1036 =["400","Please provide the valid card type"];
     public static $Code1037 =["400","Please provide the valid Account Holder type"];
     public static $Code1038 =["400","Please specified the Number Subscription Start Date"];

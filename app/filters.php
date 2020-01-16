@@ -201,12 +201,12 @@ Route::filter('auth.api', function(){
         $validator = Validator::make($Request, $rules);
 
         if ($validator->fails()) {
-            return Response::json(["status"=>Codes::$Code401[0], "ErrorMessage"=>Codes::$Code401[1]]);
+            return Response::json(["ErrorMessage"=>Codes::$Code401[1]],Codes::$Code401[0]);
         }
 
         $validate=NeonAPI::RegisterApiLogin($Request);
         if (! $validate ) {
-            return Response::json(["status"=>Codes::$Code401[0], "ErrorMessage"=>Codes::$Code401[1]]);
+            return Response::json(["ErrorMessage"=>Codes::$Code401[1]],Codes::$Code401[0]);
         }
         return;
         //return Response::json(["status"=>"failed", "message"=>"Not authorized. Please Login"]);
