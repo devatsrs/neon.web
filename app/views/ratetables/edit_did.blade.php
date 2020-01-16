@@ -1097,12 +1097,19 @@
                             "bSortable" : false,
                             mRender: function(col, type, full) {
                                 var html = '';
+                                /*if(bVisibleComparisonView) {
+                                 html = (full[65] != null && full[65] != '') ? full[78] + full[65] : '-';
+                                 html += '<br/>';
+                                 html += (full[17] != null && full[17] != '') ? full[52] + full[17] : '-';
+                                 } else {
+                                 html = (full[17] != null && full[17] != '') ? full[52] + full[17] : '';  //ChargebackCurrency+Chargeback
+                                 }*/
                                 if(bVisibleComparisonView) {
-                                    html = (full[65] != null && full[65] != '') ? full[78] + full[65] : '-';
+                                    html = (full[65] != null && full[65] != '') ? full[65] : '-';
                                     html += '<br/>';
-                                    html += (full[17] != null && full[17] != '') ? full[52] + full[17] : '-';
+                                    html += (full[17] != null && full[17] != '') ? full[17] : '-';
                                 } else {
-                                    html = (full[17] != null && full[17] != '') ? full[52] + full[17] : '';  //ChargebackCurrency+Chargeback
+                                    html = (full[17] != null && full[17] != '') ? full[17] : '';  //ChargebackCurrency+Chargeback
                                 }
                                 return html;
                             }
