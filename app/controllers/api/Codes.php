@@ -81,7 +81,6 @@ class Codes
     public static $Code1054 =["400","Please provide the valid Tariff"];
     public static $Code1055 =["400","Please specified the Package Subscription End Date"];
     public static $Code1056 =["400","Valid Package exists between the dates"];
-
     public static $Code1057 =["400","Atleast One Account required for affiliate"];
     public static $Code1058 =["400","Please enter the valid payout method"];
     public static $Code1059 =["400","Please enter the valid PartnerID"];
@@ -91,6 +90,7 @@ class Codes
     public static $Code1063 =["400","The CustomerID is already exist."];
     public static $Code1064 =["400","Account dynamic field is required."];
     public static $Code1065 =["400","The value of IsAffiliateAccount must be between 0 or 1"];
+    public static $Code1066 =["400","The affiliate accounts value must be comma separated"];
 
 
     
