@@ -1722,15 +1722,6 @@ class AccountsApiController extends ApiController {
 			$data['Address1'] = isset($accountData['Address1']) ? $accountData['Address1'] : '';
 			$data['Address2'] = isset($accountData['Address2']) ? $accountData['Address2'] : '';
 			$data['Address3'] = isset($accountData['Address3']) ? $accountData['Address3'] : '';
-
-			if(isset($accountData['Active'])) {
-				if (in_array($accountData['Active'], [0, 1])) {
-					$data['Status'] = $accountData['Active'];
-				} else {
-					return Response::json(["ErrorMessage" => "Please enter valid Active value."],Codes::$Code400[0]);
-				}
-			}
-
 			$data['City'] 	  = isset($accountData['City']) ? $accountData['City'] : '';
 			$data['Email']    = isset($accountData['Email']) ? $accountData['Email'] : '';
 			$data['BillingAddress1'] = isset($accountData['BillingAddress1']) ? $accountData['BillingAddress1'] : '';
@@ -1758,7 +1749,10 @@ class AccountsApiController extends ApiController {
 			$rules = array(
 				'CommissionPercentage' => 'numeric',
 				'DurationMonths'       => 'numeric',
-				'Email'                => 'email'
+				'Email'                => 'email',
+				'AutoTopup'            => 'numeric',
+				'AutoOutpayment'       => 'numeric',
+				'Active'               => 'numeric'
 			);
 
 			$validator = Validator::make($accountData, $rules);
@@ -1768,6 +1762,14 @@ class AccountsApiController extends ApiController {
 					$errors .= $error."<br>";
 				}
 				return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+			}
+
+			if (isset($accountData['Active'])) {
+				if(in_array($accountData['Active'],[0,1])) {
+					$data['Status'] = $accountData['Active'];
+				} else {
+					return Response::json(["ErrorMessage" => "Active value must be 0 or 1"],Codes::$Code1063[0]);
+				}
 			}
 
 			if($data['DifferentBillingAddress'] === 0) {
@@ -1935,20 +1937,7 @@ class AccountsApiController extends ApiController {
 			if (!empty($data['PayoutMethod'])) {
 				$data['PayoutMethod'] = AccountsApiController::$API_PayoutMethod[$data['PayoutMethod']];
 			}
-			if(isset($accountData['AutoTopup']) || isset($accountData['AutoOutpayment'])){
 
-				$rules = [];
-				$rules['AutoTopup'] = 'numeric';
-				$rules['AutoOutpayment'] = 'numeric';
-				$validator = Validator::make($accountData, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
-					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-				}
-			}
 			if(isset($accountData['AutoTopup']) && $accountData['AutoTopup'] > 1){
 				return Response::json(["ErrorMessage" => 'Auto Top Up Value Should Be 0 Or 1'],Codes::$Code400[0]);
 			}
@@ -2997,9 +2986,7 @@ class AccountsApiController extends ApiController {
 		return implode(',',$Taxes);
 	}
 
-	//uacc
 	public function updateAccount() {
-		//Log::info('createAccount:Create new Account.');
 		$post_vars = '';
 		$accountData = [];
 		$BillingClass = [];
@@ -3177,7 +3164,16 @@ class AccountsApiController extends ApiController {
 			$rules = array(
 				'CommissionPercentage' => 'numeric',
 				'DurationMonths'       => 'numeric',
-				'Email'                => 'email'
+				'Email'                => 'email',
+				'MinThreshold'         => 'numeric',
+				'TopupAmount'          => 'numeric',
+				'OutPaymentThreshold'  => 'numeric',
+				'OutPaymentAmount'     => 'numeric',
+				'AutoTopup'            => 'numeric',
+				'AutoOutpayment'       => 'numeric',
+				'PaymentMethod'        => 'numeric',
+				'PayoutMethod'         => 'numeric',
+				'Active'               => 'numeric'
 			);
 
 			$validator = Validator::make($accountData, $rules);
@@ -3193,11 +3189,11 @@ class AccountsApiController extends ApiController {
 			$data['AffiliateAccounts'] = isset($accountData['AffiliateAccounts']) ? $accountData['AffiliateAccounts'] : '';
 			
 			if ($accountInfo->IsAffiliateAccount == 1) {		
-				
-				if(!preg_match('/^[0-9,]+$/', $data['AffiliateAccounts'])){
-					return Response::json(array("ErrorMessage" => Codes::$Code1066[1]),Codes::$Code1066[0]);
+				if(isset($accountData['AffiliateAccounts'])){
+					if(!preg_match('/^[0-9,]+$/', $data['AffiliateAccounts'])){
+						return Response::json(array("ErrorMessage" => Codes::$Code1066[1]),Codes::$Code1066[0]);
+					}
 				}
-				
 				if(isset($accountData['AffiliateAccounts']) && !empty($accountData['AffiliateAccounts'])){
 					$AffiliateAccount = array();
 					$AffiliateAccount['AffiliateAccounts'] = $data['AffiliateAccounts'];
@@ -3240,7 +3236,7 @@ class AccountsApiController extends ApiController {
 				if(in_array($accountData['Active'],[0,1])) {
 					$data['Status'] = $accountData['Active'];
 				} else {
-					return Response::json(["ErrorMessage" => "Please enter valid Active value."],Codes::$Code1063[0]);
+					return Response::json(["ErrorMessage" => "Active value must be 0 or 1"],Codes::$Code1063[0]);
 				}
 			}
 			if (isset($accountData['AccountTimeZones']) && !empty($accountData['AccountTimeZones'])) {
@@ -3312,19 +3308,6 @@ class AccountsApiController extends ApiController {
 
 			if (isset($accountData['PaymentMethodID']) && !empty($accountData['PaymentMethodID'])) {
 				$data['PaymentMethod'] = $accountData['PaymentMethodID'];
-				$rules = [];
-				$rules = array(	
-					'PaymentMethod'   => 'numeric',
-				);
-				$validator = Validator::make($data, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
-					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-				}
 
 				if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
 					if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$API_PaymentMethod)) {
@@ -3434,20 +3417,6 @@ class AccountsApiController extends ApiController {
 
 			if (isset($accountData['PayoutMethodID']) && !empty($accountData['PayoutMethodID'])) {
 				$data['PayoutMethod'] = $accountData['PayoutMethodID'];
-				$rules = [];
-				$rules = array(	
-					'PayoutMethod'   => 'numeric',
-				);
-				$validator = Validator::make($data, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
-					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-				}
-
 				if (isset($data['PayoutMethod']) && $data['PayoutMethod'] != '') {
 					if ($data['PayoutMethod'] <0 || $data['PayoutMethod'] > count(AccountsApiController::$API_PayoutMethod)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1058[1]],Codes::$Code1058[0]);
@@ -3493,22 +3462,6 @@ class AccountsApiController extends ApiController {
 				}
 			}
 			
-			if(isset($accountData['AutoTopup']) || isset($accountData['AutoOutpayment'])){
-
-				$rules = [];
-				$rules['AutoTopup'] = 'numeric';
-				$rules['AutoOutpayment'] = 'numeric';
-				$validator = Validator::make($accountData, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
-					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-				}
-			}
-
 			if(isset($accountData['AutoTopup']) && $accountData['AutoTopup'] > 1){
 				return Response::json(["ErrorMessage" => 'Auto Top Up Value Should Be 0 Or 1'], Codes::$Code400[0]);
 			}
@@ -3550,23 +3503,6 @@ class AccountsApiController extends ApiController {
 
 				$automation = AccountPaymentAutomation::where('AccountID' , $accountInfo->AccountID)->first();
 				if($automation){
-
-					$rules = [];
-					$rules['MinThreshold'] = 'numeric';
-					$rules['TopupAmount'] = 'numeric';
-					$rules['OutPaymentThreshold'] = 'numeric';
-					$rules['OutPaymentAmount'] = 'numeric';
-
-					$validator = Validator::make($AccountPaymentAutomation, $rules);
-					if ($validator->fails()) {
-						$errors = "";
-						foreach ($validator->messages()->all() as $error) {
-							$errors .= $error . "<br>";
-						}
-						return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-					}
-
 					$automation->update($AccountPaymentAutomation);
 				}else{
 					if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1) {
