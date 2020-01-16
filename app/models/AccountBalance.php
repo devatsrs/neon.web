@@ -120,4 +120,17 @@ class AccountBalance extends \Eloquent {
         $AccountBalance = number_format($AccountBalance, get_round_decimal_places($AccountID));
         return $AccountBalance;
     }
+
+    public static function getAccountBalanceWithActiveCallRM($AccountID){
+
+        $AccountBalance = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
+        $ActiveBalance = ActiveCall::where(['AccountID'=>$AccountID])->sum('Cost');
+
+        $AccountBalance = empty($AccountBalance)?0:$AccountBalance;
+        $ActiveBalance = empty($ActiveBalance)?0:$ActiveBalance;
+
+        $TotalAmount = $AccountBalance - $ActiveBalance;
+
+        return $TotalAmount;
+    }
 }

@@ -163,15 +163,16 @@ class PaymentApiController extends ApiController {
 
 		$data=array();
 		$post_vars = json_decode(file_get_contents("php://input"));
+		
 		if(!empty($post_vars)){
 			$data=json_decode(json_encode($post_vars),true);
 		}
-
 		$verifier = App::make('validation.presence');
 		$verifier->setConnection('sqlsrv2');
 
 		$rules = array(
-			'Amount' => 'required',
+			'Amount' => 'required|numeric',
+			'AccountID' => 'numeric'
 		);
 
 		$validator = Validator::make($data, $rules);
@@ -183,10 +184,10 @@ class PaymentApiController extends ApiController {
 
 		$CompanyID=0;
 		$AccountID=0;
-		if(!empty($data['AccountID'])) {
+		if(!empty(trim($data['AccountID']))) {
 			$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
 			$AccountID = $data['AccountID'];
-		}else if(!empty($data['AccountNo'])){
+		}else if(!empty(trim($data['AccountNo']))){
 			$Account = Account::where(["Number" => $data['AccountNo']])->select('CompanyId','AccountID')->first();
 
 			if(!empty($Account)) {
@@ -195,7 +196,7 @@ class PaymentApiController extends ApiController {
 			}else{
 				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
-		}else if(!empty($data['AccountDynamicField'])){
+		}else if(!empty(trim($data['AccountDynamicField']))){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
 				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);

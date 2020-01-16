@@ -1783,8 +1783,8 @@ class AccountsApiController extends ApiController {
 				$data['BillingAddress3'] = $data['Address3'];
 				$data['BillingCity']     = $data['City'];
 				$data['BillingPostCode'] = '';
-				$data['BillingCountry']  = $data['Country'];
-			}else {
+				$data['BillingCountry']  = $data['Country'];	
+			}else if(!empty($data['BillingAddress1']) || !empty($data['BillingAddress2']) || !empty($data['BillingAddress3']) || !empty($data['BillingCity']) || !empty($data['BillingPostCode']) || !empty($accountData['BillingCountryIso2'])) {
 				$data['DifferentBillingAddress'] = 1;
 			}
 			$ResellerOwner = '';
@@ -2197,6 +2197,7 @@ class AccountsApiController extends ApiController {
 				}
 
 				$CustomerID = $CustomerDynamicID;
+				$data['CustomerID'] = $CustomerID;
 				$FieldsID = DB::table('tblDynamicFields')->where(['FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
 				$check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $CustomerID])->count();
 				if($check > 0){
@@ -2265,11 +2266,19 @@ class AccountsApiController extends ApiController {
 			if (!isset($data['Country'])) {
 				return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
 			}
+			
+			// $data['BillingCountry']= Country::where(['ISO2' => $data['BillingCountry']])->pluck('Country');
+			// if (!isset($data['BillingCountry'])) {
+			// 	return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
+			// }
 
-			$data['BillingCountry']= Country::where(['ISO2' => $data['BillingCountry']])->pluck('Country');
-			if (!isset($data['BillingCountry'])) {
-				return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
+			if (isset($accountData['BillingCountryIso2']) && !empty($accountData['BillingCountryIso2'])) {
+				$data['BillingCountry'] = Country::where(['ISO2' => $accountData['BillingCountryIso2']])->pluck('Country');
+				if (!isset($data['BillingCountry'])) {
+					return Response::json(["ErrorMessage" => Codes::$Code1013[1]], Codes::$Code1013[0]);
+				}
 			}
+			
 			$data['LanguageID'] = Language::where('ISOCode',$data['Language'])->pluck('LanguageID');
 			unset($data['Language']);
 			if (!isset($data['LanguageID'])) {
@@ -3100,27 +3109,27 @@ class AccountsApiController extends ApiController {
 
 			}
 
-			if (isset($accountData['BillingAddress1']) && !empty($accountData['BillingAddress1'])) {
+			if (isset($accountData['BillingAddress1'])) {
 				$data['BillingAddress1'] = $accountData['BillingAddress1'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingAddress2']) && !empty($accountData['BillingAddress2'])) {
+			if (isset($accountData['BillingAddress2'])) {
 				$data['BillingAddress2'] = $accountData['BillingAddress2'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingAddress3']) && !empty($accountData['BillingAddress3'])) {
+			if (isset($accountData['BillingAddress3'])) {
 				$data['BillingAddress3'] = $accountData['BillingAddress3'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingPostCode']) && !empty($accountData['BillingPostCode'])) {
+			if (isset($accountData['BillingPostCode'])) {
 				$data['BillingPostCode'] = $accountData['BillingPostCode'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingCity']) && !empty($accountData['BillingCity'])) {
+			if (isset($accountData['BillingCity'])) {
 				$data['BillingCity'] = $accountData['BillingCity'];
 				$data['DifferentBillingAddress'] = 1;
 			}
-			if (isset($accountData['BillingCountryIso2']) && !empty($accountData['BillingCountryIso2'])) {
+			if (isset($accountData['BillingCountryIso2'])) {
 				$data['BillingCountry'] = $accountData['BillingCountryIso2'];
 				$data['DifferentBillingAddress'] = 1;
 			}
@@ -3233,9 +3242,9 @@ class AccountsApiController extends ApiController {
 					return Response::json(["ErrorMessage" => Codes::$Code1013[1]], Codes::$Code1013[0]);
 				}
 			}
-
-			if (!empty($data['BillingCountry'])) {
-				$data['BillingCountry'] = Country::where(['ISO2' => $data['BillingCountry']])->pluck('Country');
+			
+			if (isset($accountData['BillingCountryIso2']) && !empty($accountData['BillingCountryIso2'])) {
+				$data['BillingCountry'] = Country::where(['ISO2' => $accountData['BillingCountryIso2']])->pluck('Country');
 				if (!isset($data['BillingCountry'])) {
 					return Response::json(["ErrorMessage" => Codes::$Code1013[1]], Codes::$Code1013[0]);
 				}
@@ -3257,6 +3266,9 @@ class AccountsApiController extends ApiController {
 						$CustomerVal = true;
 						$CustomerDynamicID = $AccountReference['Value'];
 					}
+					if($AccountReference['Name'] == 'CustomerID' && empty($AccountReference['Value'])){
+						return Response::json(["ErrorMessage" => Codes::$Code1062[1]],Codes::$Code1062[0]);
+					}
 					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),
 						'Type'=>'account','Status'=>1])
 						->whereRaw('REPLACE(FieldName," ","") = '. "'". str_replace(" ", "", $AccountReference['Name']) . "'")
@@ -3266,8 +3278,9 @@ class AccountsApiController extends ApiController {
 					}
 				}
 
-				$CustomerID = $CustomerDynamicID;
+				$CustomerID = $CustomerDynamicID;	
 				if(!empty($CustomerID)){
+					$data['CustomerID'] = $CustomerID;
 					$FieldsID = DB::table('tblDynamicFields')->where(['FieldSlug'=>'CustomerID'])->pluck('DynamicFieldsID');
 					$check = DynamicFieldsValue::where(['DynamicFieldsID'=>$FieldsID , 'FieldValue' => $CustomerID])->where('ParentID', '!=' ,$accountInfo->AccountID)->count();
 					if($check > 0){
@@ -3618,6 +3631,10 @@ class AccountsApiController extends ApiController {
 
 			$data['TaxRateID'] = $this->getAccountTaxes($TaxRateCalculation , $accountInfo);
 			$accountInfo->update($data);
+
+			if(empty($accountInfo->BillingAddress1) && empty($accountInfo->BillingAddress2) && empty($accountInfo->BillingAddress3) && empty($accountInfo->BillingCity) && empty($accountInfo->BillingPostCode) && empty($accountInfo->BillingCountry)){
+				$accountInfo->update(['DifferentBillingAddress' => 0]);
+			}
 
 
 			if (isset($data['PaymentMethod'])) {

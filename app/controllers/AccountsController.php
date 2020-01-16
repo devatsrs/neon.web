@@ -388,7 +388,6 @@ class AccountsController extends \BaseController {
             if($check > 0){
                 return Response::json(array("status" => "failed", "message" => "Customer ID Already Exist!"));
             }
-            unset($data['CustomerID']);
         }else{
             $CustomerID = '';
         }
@@ -513,7 +512,7 @@ class AccountsController extends \BaseController {
             $data['BillingCountry']  = $data['Country'];
         }
         $data['TaxRateID'] = implode(',', array_unique($data['TaxRateID']));
-
+        
         if ($account = Account::create($data)) {
 
             $DynamicData = array();
@@ -1226,7 +1225,6 @@ class AccountsController extends \BaseController {
             if($check > 0){
                 return Response::json(array("status" => "failed", "message" => "Customer ID Already Exist!"));
             }
-            unset($data['CustomerID']);
         }else{
             $CustomerID = '';
         }
