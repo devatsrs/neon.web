@@ -1752,7 +1752,10 @@ class AccountsApiController extends ApiController {
 				'Email'                => 'email',
 				'AutoTopup'            => 'numeric',
 				'AutoOutpayment'       => 'numeric',
-				'Active'               => 'numeric'
+				'Active'               => 'numeric',
+				'PayoutMethodID'       => 'numeric',
+				'PaymentMethodID'      => 'numeric',
+				'BillingTypeID'        => 'numeric'
 			);
 
 			$validator = Validator::make($accountData, $rules);
@@ -1891,19 +1894,6 @@ class AccountsApiController extends ApiController {
 
 			//stripe = credit stipeAch = bank
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
-				$rules = [];
-				$rules = array(	
-					'PaymentMethod'   => 'numeric',
-				);
-				$validator = Validator::make($data, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
-					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-				}
 				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$API_PaymentMethod)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
 
@@ -1911,19 +1901,6 @@ class AccountsApiController extends ApiController {
 			}
 
 			if (isset($data['PayoutMethod']) && $data['PayoutMethod'] != '') {
-				$rules = [];
-				$rules = array(	
-					'PayoutMethod'   => 'numeric',
-				);
-				$validator = Validator::make($data, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
-					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-				}
 				if ($data['PayoutMethod'] <0 || $data['PayoutMethod'] > count(AccountsApiController::$API_PayoutMethod)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1058[1]],Codes::$Code1058[0]);
 
@@ -3171,8 +3148,8 @@ class AccountsApiController extends ApiController {
 				'OutPaymentAmount'     => 'numeric',
 				'AutoTopup'            => 'numeric',
 				'AutoOutpayment'       => 'numeric',
-				'PaymentMethod'        => 'numeric',
-				'PayoutMethod'         => 'numeric',
+				'PaymentMethodID'      => 'numeric',
+				'PayoutMethodID'       => 'numeric',
 				'Active'               => 'numeric'
 			);
 
