@@ -1687,20 +1687,16 @@ class AccountsApiController extends ApiController {
 
 	//cacc
 	public function createAccount() {
-		//Log::info('createAccount:Create new Account.');
 		$post_vars = '';
 		$accountData = [];
 		$PaymentProfile = [];
 		try {
 
-
 			try {
 				$post_vars = json_decode(file_get_contents("php://input"));
-				//$post_vars = Input::all();
 				$accountData=json_decode(json_encode($post_vars),true);
 				$countValues = count($accountData);
 				if ($countValues == 0) {
-					//Log::info('Exception in Routing API.Invalid JSON');
 					return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
 				}
 			}catch(Exception $ex) {
@@ -1726,18 +1722,8 @@ class AccountsApiController extends ApiController {
 			$data['Address1'] = isset($accountData['Address1']) ? $accountData['Address1'] : '';
 			$data['Address2'] = isset($accountData['Address2']) ? $accountData['Address2'] : '';
 			$data['Address3'] = isset($accountData['Address3']) ? $accountData['Address3'] : '';
-
-			if(isset($accountData['Active'])) {
-				if (in_array($accountData['Active'], [0, 1])) {
-					$data['Status'] = $accountData['Active'];
-				} else {
-					return Response::json(["ErrorMessage" => "Please enter valid Active value."],Codes::$Code400[0]);
-				}
-			}
-
 			$data['City'] 	  = isset($accountData['City']) ? $accountData['City'] : '';
 			$data['Email']    = isset($accountData['Email']) ? $accountData['Email'] : '';
-
 			$data['BillingAddress1'] = isset($accountData['BillingAddress1']) ? $accountData['BillingAddress1'] : '';
 			$data['BillingAddress2'] = isset($accountData['BillingAddress2']) ? $accountData['BillingAddress2'] : '';
 			$data['BillingAddress3'] = isset($accountData['BillingAddress3']) ? $accountData['BillingAddress3'] : '';
@@ -1757,14 +1743,19 @@ class AccountsApiController extends ApiController {
 			$data['AffiliateAccounts'] = isset($accountData['AffiliateAccounts']) ? $accountData['AffiliateAccounts'] : '';
 			$data['DurationMonths'] = isset($accountData['DurationMonths']) ? $accountData['DurationMonths'] : '';
 			$data['CommissionPercentage'] = isset($accountData['CommissionPercentage']) ? $accountData['CommissionPercentage'] : '';
-
 			$data['AccountType'] = 1;
 			$data['IsVendor'] = isset($accountData['IsVendor']);
 
 			$rules = array(
 				'CommissionPercentage' => 'numeric',
 				'DurationMonths'       => 'numeric',
-				'Email'                => 'email'
+				'Email'                => 'email',
+				'AutoTopup'            => 'numeric',
+				'AutoOutpayment'       => 'numeric',
+				'Active'               => 'numeric',
+				'PayoutMethodID'       => 'numeric',
+				'PaymentMethodID'      => 'numeric',
+				'BillingTypeID'        => 'numeric'
 			);
 
 			$validator = Validator::make($accountData, $rules);
@@ -1773,8 +1764,15 @@ class AccountsApiController extends ApiController {
 				foreach ($validator->messages()->all() as $error){
 					$errors .= $error."<br>";
 				}
-
 				return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+			}
+
+			if (isset($accountData['Active'])) {
+				if(in_array($accountData['Active'],[0,1])) {
+					$data['Status'] = $accountData['Active'];
+				} else {
+					return Response::json(["ErrorMessage" => "Active value must be 0 or 1"],Codes::$Code1063[0]);
+				}
 			}
 
 			if($data['DifferentBillingAddress'] === 0) {
@@ -1854,6 +1852,26 @@ class AccountsApiController extends ApiController {
 				$data['IsAffiliateAccount'] = isset($accountData['IsAffiliateAccount']) ? $accountData['IsAffiliateAccount'] : 0;
 			}
 
+			if ($data['IsAffiliateAccount'] == 1) {
+				$rules = [];
+				$rules['AffiliateAccounts'] = 'required';
+				
+
+				$validator = Validator::make($data, $rules);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+				}
+
+
+				if(!preg_match('/^[0-9,]+$/', $data['AffiliateAccounts'])){
+					return Response::json(array("ErrorMessage" => Codes::$Code1066[1]),Codes::$Code1066[0]);
+				}
+			}
+
 			$data['Billing'] = isset($data['Billing']) && $data['Billing'] == 1 ? 1 : 0;
 			$data['created_by'] = $CreatedBy;
 			$data['AccountType'] = 1;
@@ -1876,19 +1894,6 @@ class AccountsApiController extends ApiController {
 
 			//stripe = credit stipeAch = bank
 			if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
-				$rules = [];
-				$rules = array(	
-					'PaymentMethod'   => 'numeric',
-				);
-				$validator = Validator::make($data, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
-					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-				}
 				if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$API_PaymentMethod)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1020[1]],Codes::$Code1020[0]);
 
@@ -1896,19 +1901,6 @@ class AccountsApiController extends ApiController {
 			}
 
 			if (isset($data['PayoutMethod']) && $data['PayoutMethod'] != '') {
-				$rules = [];
-				$rules = array(	
-					'PayoutMethod'   => 'numeric',
-				);
-				$validator = Validator::make($data, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
-					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-				}
 				if ($data['PayoutMethod'] <0 || $data['PayoutMethod'] > count(AccountsApiController::$API_PayoutMethod)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1058[1]],Codes::$Code1058[0]);
 
@@ -1995,7 +1987,6 @@ class AccountsApiController extends ApiController {
 						'ExpirationMonth'   => 'required|numeric',
 						'ExpirationYear'    => 'required|numeric',
 						'LastDigit'         => 'required|digits:4',
-						//'CVC'               => 'required',
 					);
 
 					$PaymentProfile['CardToken'] = isset($accountData['CardToken']) ? $accountData['CardToken'] : '' ;
@@ -2136,7 +2127,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => Codes::$Code1018[1]],Codes::$Code1018[0]);
 
 			}
-			// $data['Status'] = 1;
+
 
 			if (empty($data['Number'])) {
 				$data['Number'] = Account::getLastAccountNo();
@@ -2207,8 +2198,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => Codes::$Code1064[1]],Codes::$Code1064[0]);
 			}
 
-			//dd($data['IsReseller']);
-			//Log::info('createAccount:Create new Account Reseller.' . $data['IsReseller']);
+			
 			if($data['IsReseller']==1){
 
 				$ResellerCount = Reseller::where('ChildCompanyID',$CompanyID)->count();
@@ -2216,11 +2206,11 @@ class AccountsApiController extends ApiController {
 					return Response::json(["ErrorMessage" => Codes::$Code1010[1]],Codes::$Code1010[0]);
 				}
 
-				//Log::info("Read the reseller fields1");
+				
 				Reseller::$rules['Email'] = 'required|email';
 				Reseller::$rules['Password'] ='required|min:3';
 
-				//Log::info("Read the reseller fields2");
+				
 				$ResellerData['CompanyID'] = $CompanyID;
 				$CurrentTime = date('Y-m-d H:i:s');
 
@@ -2292,8 +2282,7 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			// AccountBilling::$rulesAPI['billing_cycle'] = 'required';
-			//AccountBilling::$rulesAPI['billing_cycle_options'] = 'required';
+			
 			$BillingCycleTypeID[0] = "daily";
 			$BillingCycleTypeID[1] = "fortnightly";
 			$BillingCycleTypeID[2] = "in_specific_days";
@@ -2326,7 +2315,7 @@ class AccountsApiController extends ApiController {
 					return Response::json(["ErrorMessage" => Codes::$Code1015[1],Codes::$Code1015[0]]);
 				}
 				AccountBilling::$rulesAPI['billing_type'] = 'required';
-				AccountBilling::$rulesAPI['billing_start_date'] = 'required';
+				AccountBilling::$rulesAPI['billing_start_date'] = 'required|date_format:Y-m-d';
 				$validator = Validator::make($BillingSetting, AccountBilling::$rulesAPI);
 				if ($validator->fails()) {
 					$errors = "";
@@ -2421,9 +2410,7 @@ class AccountsApiController extends ApiController {
 				$account->update($data);
 
 				if ($data['IsAffiliateAccount'] == 1) {
-					if(empty($data['AffiliateAccounts'])){
-						return Response::json(array("ErrorMessage" => Codes::$Code1057[1]),Codes::$Code1057[0]);
-					}
+					
 					$AffiliateAccount = array();
 					$AffiliateAccount['AffiliateAccounts'] = $data['AffiliateAccounts'];
 
@@ -2976,9 +2963,7 @@ class AccountsApiController extends ApiController {
 		return implode(',',$Taxes);
 	}
 
-	//uacc
 	public function updateAccount() {
-		//Log::info('createAccount:Create new Account.');
 		$post_vars = '';
 		$accountData = [];
 		$BillingClass = [];
@@ -2988,11 +2973,9 @@ class AccountsApiController extends ApiController {
 
 			try {
 				$post_vars = json_decode(file_get_contents("php://input"));
-				//$post_vars = Input::all();
 				$accountData=json_decode(json_encode($post_vars),true);
 				$countValues = count($accountData);
-				if ($countValues == 0) {
-					//Log::info('Exception in updateAccount API.Invalid JSON');
+				if ($countValues == 0) {					
 					return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
 				}
 			}catch(Exception $ex) {
@@ -3004,7 +2987,6 @@ class AccountsApiController extends ApiController {
 			$ServiceID = 0;
 			$LogonUser = User::getUserInfo();
 			$CompanyID = $LogonUser["CompanyID"];
-			//Log::info('createAccount:User:.CompanyID' . $CompanyID);
 			$CreatedBy = User::get_user_full_name();
 			$ResellerData = [];
 			$AccountPaymentAutomation = [];
@@ -3159,7 +3141,16 @@ class AccountsApiController extends ApiController {
 			$rules = array(
 				'CommissionPercentage' => 'numeric',
 				'DurationMonths'       => 'numeric',
-				'Email'                => 'email'
+				'Email'                => 'email',
+				'MinThreshold'         => 'numeric',
+				'TopupAmount'          => 'numeric',
+				'OutPaymentThreshold'  => 'numeric',
+				'OutPaymentAmount'     => 'numeric',
+				'AutoTopup'            => 'numeric',
+				'AutoOutpayment'       => 'numeric',
+				'PaymentMethodID'      => 'numeric',
+				'PayoutMethodID'       => 'numeric',
+				'Active'               => 'numeric'
 			);
 
 			$validator = Validator::make($accountData, $rules);
@@ -3174,9 +3165,11 @@ class AccountsApiController extends ApiController {
 				
 			$data['AffiliateAccounts'] = isset($accountData['AffiliateAccounts']) ? $accountData['AffiliateAccounts'] : '';
 			
-			if ($accountInfo->IsAffiliateAccount == 1) {
-				if(isset($accountData['AffiliateAccounts']) && empty($accountData['AffiliateAccounts'])){
-					return Response::json(array("ErrorMessage" => Codes::$Code1057[1]),Codes::$Code1057[0]);
+			if ($accountInfo->IsAffiliateAccount == 1) {		
+				if(isset($accountData['AffiliateAccounts'])){
+					if(!preg_match('/^[0-9,]+$/', $data['AffiliateAccounts'])){
+						return Response::json(array("ErrorMessage" => Codes::$Code1066[1]),Codes::$Code1066[0]);
+					}
 				}
 				if(isset($accountData['AffiliateAccounts']) && !empty($accountData['AffiliateAccounts'])){
 					$AffiliateAccount = array();
@@ -3220,7 +3213,7 @@ class AccountsApiController extends ApiController {
 				if(in_array($accountData['Active'],[0,1])) {
 					$data['Status'] = $accountData['Active'];
 				} else {
-					return Response::json(["ErrorMessage" => "Please enter valid Active value."],Codes::$Code1063[0]);
+					return Response::json(["ErrorMessage" => "Active value must be 0 or 1"],Codes::$Code1063[0]);
 				}
 			}
 			if (isset($accountData['AccountTimeZones']) && !empty($accountData['AccountTimeZones'])) {
@@ -3292,19 +3285,6 @@ class AccountsApiController extends ApiController {
 
 			if (isset($accountData['PaymentMethodID']) && !empty($accountData['PaymentMethodID'])) {
 				$data['PaymentMethod'] = $accountData['PaymentMethodID'];
-				$rules = [];
-				$rules = array(	
-					'PaymentMethod'   => 'numeric',
-				);
-				$validator = Validator::make($data, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
-					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-				}
 
 				if (isset($data['PaymentMethod']) && $data['PaymentMethod'] != '') {
 					if ($data['PaymentMethod'] <0 || $data['PaymentMethod'] > count(AccountsApiController::$API_PaymentMethod)) {
@@ -3366,7 +3346,6 @@ class AccountsApiController extends ApiController {
 							'ExpirationMonth'   => 'required|numeric',
 							'ExpirationYear'    => 'required|numeric',
 							'LastDigit'         => 'required|digits:4',
-							//'CVC'               => 'required',
 						);
 
 						$PaymentProfile['CardToken'] = isset($accountData['CardToken']) ? $accountData['CardToken'] : '' ;
@@ -3390,7 +3369,6 @@ class AccountsApiController extends ApiController {
 							'BIC'               => 'required',
 							'AccountHolderName' => 'required',
 							'Title'             => 'required'
-
 						);
 						$messages = array(
 							"Title.required" => "The Payment Title Field Is Required"
@@ -3416,20 +3394,6 @@ class AccountsApiController extends ApiController {
 
 			if (isset($accountData['PayoutMethodID']) && !empty($accountData['PayoutMethodID'])) {
 				$data['PayoutMethod'] = $accountData['PayoutMethodID'];
-				$rules = [];
-				$rules = array(	
-					'PayoutMethod'   => 'numeric',
-				);
-				$validator = Validator::make($data, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
-					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-				}
-
 				if (isset($data['PayoutMethod']) && $data['PayoutMethod'] != '') {
 					if ($data['PayoutMethod'] <0 || $data['PayoutMethod'] > count(AccountsApiController::$API_PayoutMethod)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1058[1]],Codes::$Code1058[0]);
@@ -3474,7 +3438,7 @@ class AccountsApiController extends ApiController {
 					}
 				}
 			}
-
+			
 			if(isset($accountData['AutoTopup']) && $accountData['AutoTopup'] > 1){
 				return Response::json(["ErrorMessage" => 'Auto Top Up Value Should Be 0 Or 1'], Codes::$Code400[0]);
 			}
@@ -3516,23 +3480,6 @@ class AccountsApiController extends ApiController {
 
 				$automation = AccountPaymentAutomation::where('AccountID' , $accountInfo->AccountID)->first();
 				if($automation){
-
-					$rules = [];
-					$rules['MinThreshold'] = 'numeric';
-					$rules['TopupAmount'] = 'numeric';
-					$rules['OutPaymentThreshold'] = 'numeric';
-					$rules['OutPaymentAmount'] = 'numeric';
-
-					$validator = Validator::make($AccountPaymentAutomation, $rules);
-					if ($validator->fails()) {
-						$errors = "";
-						foreach ($validator->messages()->all() as $error) {
-							$errors .= $error . "<br>";
-						}
-						return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-					}
-
 					$automation->update($AccountPaymentAutomation);
 				}else{
 					if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1) {
