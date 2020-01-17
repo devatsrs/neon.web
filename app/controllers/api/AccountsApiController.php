@@ -3446,35 +3446,69 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => 'Auto Out Payment Value Should Be 0 Or 1'], Codes::$Code400[0]);
 			}
 
-			if (isset($accountData['AutoTopup']) ||
-				isset($accountData['MinThreshold']) && !empty($accountData['MinThreshold']) ||
-				isset($accountData['TopupAmount']) && !empty($accountData['TopupAmount']) ||
-				isset($accountData['OutPaymentThreshold']) && !empty($accountData['OutPaymentThreshold']) ||
-				isset($accountData['OutPaymentAmount']) && !empty($accountData['OutPaymentAmount']) ||
-				isset($accountData['AutoOutpayment']) )
+			if (!empty($accountData['AutoTopup']) && $accountData['AutoTopup'] == 1) {
+				$rules = [];
+				$rules['MinThreshold'] = 'required|numeric';
+				$rules['TopupAmount'] = 'required|numeric';
+				$messages = array(
+					'MinThreshold.required' =>'MinThreshold field is required if AutoTopup is ON',
+					'TopupAmount.required' =>'TopupAmount field is required if AutoTopup is ON',
+
+				);
+				$validator = Validator::make($accountData, $rules, $messages);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+
+				}
+			}
+			if (!empty($accountData['AutoOutpayment']) && $accountData['AutoOutpayment'] == 1) {
+				$rules = [];
+				$rules['OutPaymentThreshold'] = 'required|numeric';
+				$rules['OutPaymentAmount'] = 'required|numeric';
+				$messages = array(
+					'OutPaymentThreshold.required' =>'OutPaymentThreshold field is required if AutoOutpayment is ON',
+					'OutPaymentAmount.required' =>'OutPaymentAmount field is required if AutoOutpayment is ON',
+
+				);
+				$validator = Validator::make($accountData, $rules, $messages);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+
+				}
+			}
+
+			if (isset($accountData['AutoTopup']) && $accountData['AutoTopup'] == 1 || isset($accountData['AutoOutpayment']) && $accountData['AutoOutpayment'] == 1)
 			{
 				$AccountPaymentAutomation['AccountID'] = $accountInfo->AccountID;
 				if(isset($accountData['AutoTopup'])){
 					$AccountPaymentAutomation['AutoTopup']= isset($accountData['AutoTopup']) ? $accountData['AutoTopup'] :'';
 				}
-				if(isset($accountData['MinThreshold'])){
-					$AccountPaymentAutomation['MinThreshold']= isset($accountData['MinThreshold']) ? $accountData['MinThreshold'] : '';
+				if(isset($accountData['MinThreshold']) && $accountData['AutoTopup'] == 1){
+					$AccountPaymentAutomation['MinThreshold']= $accountData['MinThreshold'];
 
 				}
-				if(isset($accountData['TopupAmount'])){
-					$AccountPaymentAutomation['TopupAmount']= isset($accountData['TopupAmount']) ? $accountData['TopupAmount'] : '';
+				if(isset($accountData['TopupAmount']) && $accountData['AutoTopup'] == 1){
+					$AccountPaymentAutomation['TopupAmount'] = $accountData['TopupAmount'];
 
 				}
 				if(isset($accountData['AutoOutpayment'])){
-					$AccountPaymentAutomation['AutoOutpayment']= isset($accountData['AutoOutpayment']) ? $accountData['AutoOutpayment'] : '';
+					$AccountPaymentAutomation['AutoOutpayment']= isset($accountData['AutoOutpayment']) ? $accountData['AutoOutpayment'] : 0;
 
 				}
-				if(isset($accountData['OutPaymentThreshold'])){
-					$AccountPaymentAutomation['OutPaymentThreshold']= isset($accountData['OutPaymentThreshold']) ? $accountData['OutPaymentThreshold'] : '';
+				if(isset($accountData['OutPaymentThreshold']) && $accountData['AutoOutpayment'] == 1){
+					$AccountPaymentAutomation['OutPaymentThreshold'] = $accountData['OutPaymentThreshold'];
 
 				}
-				if(isset($accountData['OutPaymentAmount'])){
-					$AccountPaymentAutomation['OutPaymentAmount']= isset($accountData['OutPaymentAmount']) ? $accountData['OutPaymentAmount'] : '';
+				if(isset($accountData['OutPaymentAmount']) && $accountData['AutoOutpayment'] == 1){
+					$AccountPaymentAutomation['OutPaymentAmount'] = $accountData['OutPaymentAmount'];
 
 				}
 
@@ -3482,44 +3516,6 @@ class AccountsApiController extends ApiController {
 				if($automation){
 					$automation->update($AccountPaymentAutomation);
 				}else{
-					if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1) {
-						$rules = [];
-						$rules['MinThreshold'] = 'required|numeric';
-						$rules['TopupAmount'] = 'required|numeric';
-						$messages = array(
-							'MinThreshold.required' =>'MinThreshold field is required if AutoTopup is ON',
-							'TopupAmount.required' =>'TopupAmount field is required if AutoTopup is ON',
-		
-						);
-						$validator = Validator::make($AccountPaymentAutomation, $rules, $messages);
-						if ($validator->fails()) {
-							$errors = "";
-							foreach ($validator->messages()->all() as $error) {
-								$errors .= $error . "<br>";
-							}
-							return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-						}
-					}
-					if (!empty($AccountPaymentAutomation['AutoOutpayment']) && $AccountPaymentAutomation['AutoOutpayment'] == 1) {
-						$rules = [];
-						$rules['OutPaymentThreshold'] = 'required|numeric';
-						$rules['OutPaymentAmount'] = 'required|numeric';
-						$messages = array(
-							'OutPaymentThreshold.required' =>'OutPaymentThreshold field is required if AutoOutpayment is ON',
-							'OutPaymentAmount.required' =>'OutPaymentAmount field is required if AutoOutpayment is ON',
-		
-						);
-						$validator = Validator::make($AccountPaymentAutomation, $rules, $messages);
-						if ($validator->fails()) {
-							$errors = "";
-							foreach ($validator->messages()->all() as $error) {
-								$errors .= $error . "<br>";
-							}
-							return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-						}
-					}
 					AccountPaymentAutomation::create($AccountPaymentAutomation);
 				}
 			}
