@@ -196,7 +196,7 @@
                         $clickedButton.find('i').addClass('entypo-plus-squared entypo-minus-squared');
                         //tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 0.1%;width: 50% !important;"></table>');
-                        var header = "<thead><tr><th>PackageName</th><th>Service</th><th>Components</th><th>Discount</th>";
+                        var header = "<thead><tr><th>PackageName</th><th>Service</th><th>Components</th><th>Discount</th><th>From</th><th>To</th>";
                         header += "</tr></thead>";
                         table.append(header);
                         var tbody = $("<tbody></tbody>");
@@ -211,6 +211,8 @@
                             html += "<td>" + (data['Service'] != null ? getServiceName(data['Service'])  : '') + "</td>";
                             html += "<td>" + (data['Components'] != null ? data['Components'] : '') + "</td>";
                             html += "<td>" + (data['Discount'] != null ? data['Discount'] : '') + "</td>";
+                            html += "<td>" + (data['FromMin'] != null ? data['FromMin'] : '') + "</td>";
+                            html += "<td>" + (data['ToMin'] != null ? data['ToMin'] : '') + "</td>";
                             html += "</tr>";
                             table.append(html);
 
