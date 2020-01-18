@@ -3,6 +3,7 @@
 use app\controllers\api\Codes;
 
 class ApiController extends Controller {
+
     protected function setupLayout()
     {
         //Set Company Timezone
@@ -53,6 +54,14 @@ class ApiController extends Controller {
         Session::flush();
         Auth::logout();
         return Response::json(["status"=>"Success", "message"=>"Logout Success"]);
+    }
+
+    public function checkJson() {
+
+        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+        if(strcasecmp($contentType, 'application/json') != 0){
+            return false;
+        }
     }
 
 }

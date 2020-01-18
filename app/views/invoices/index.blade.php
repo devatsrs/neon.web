@@ -143,6 +143,7 @@
 
             <li> <a class="quickbookpost create" id="print_invoice" href="javascript:;"> Download Invoice </a> </li>
             <li> <a class="quickbookpost create" id="print_ubl_invoice" href="javascript:;"> Download UBL </a> </li>
+            <li> <a class="" id="print_cdr" href="javascript:;"> Download CDR </a> </li>
 
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;"> Change Status </a> </li>
@@ -1198,6 +1199,59 @@
                 }
 
             });
+
+            $("#print_cdr").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    //console.log($(this).val());
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+
+                if (InvoiceIDs.length) {
+                    if (!confirm('Are you sure you want to download selected invoices?')) {
+                        return;
+                    }
+                    var cdr_url =  baseurl + '/invoice/bulk_print_cdr';
+
+                    $.ajax({
+                        url: cdr_url,
+                        data: 'InvoiceIDs=' + InvoiceIDs + '&criteria=' + criteria,
+                        error: function () {
+                            toastr.error("error", "Error", toastr_opts);
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.status == 'success') {
+                                if(response.filePath!=""){
+                                    document.location =baseurl + "/download_file?file="+response.filePath;
+                                }else if(response.invoiceId){
+                                    document.location =baseurl + "/invoice/download_invoice/"+response.invoiceId;
+                                }else{
+                                    toastr.error("Something Wrong Please try again.", "Error", toastr_opts);
+                                }
+
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        type: 'POST'
+                    });
+                }
+                else
+                {
+                    toastr.error("Please Select One", "Error", toastr_opts);
+                }
+
+            });
+
             $("#bulk-invoice-send").click(function (ev) {
                 var criteria = '';
                 if ($('#selectallbutton').is(':checked')) {

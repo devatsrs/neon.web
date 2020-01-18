@@ -3446,35 +3446,69 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => 'Auto Out Payment Value Should Be 0 Or 1'], Codes::$Code400[0]);
 			}
 
-			if (isset($accountData['AutoTopup']) ||
-				isset($accountData['MinThreshold']) && !empty($accountData['MinThreshold']) ||
-				isset($accountData['TopupAmount']) && !empty($accountData['TopupAmount']) ||
-				isset($accountData['OutPaymentThreshold']) && !empty($accountData['OutPaymentThreshold']) ||
-				isset($accountData['OutPaymentAmount']) && !empty($accountData['OutPaymentAmount']) ||
-				isset($accountData['AutoOutpayment']) )
+			if (!empty($accountData['AutoTopup']) && $accountData['AutoTopup'] == 1) {
+				$rules = [];
+				$rules['MinThreshold'] = 'required|numeric';
+				$rules['TopupAmount'] = 'required|numeric';
+				$messages = array(
+					'MinThreshold.required' =>'MinThreshold field is required if AutoTopup is ON',
+					'TopupAmount.required' =>'TopupAmount field is required if AutoTopup is ON',
+
+				);
+				$validator = Validator::make($accountData, $rules, $messages);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+
+				}
+			}
+			if (!empty($accountData['AutoOutpayment']) && $accountData['AutoOutpayment'] == 1) {
+				$rules = [];
+				$rules['OutPaymentThreshold'] = 'required|numeric';
+				$rules['OutPaymentAmount'] = 'required|numeric';
+				$messages = array(
+					'OutPaymentThreshold.required' =>'OutPaymentThreshold field is required if AutoOutpayment is ON',
+					'OutPaymentAmount.required' =>'OutPaymentAmount field is required if AutoOutpayment is ON',
+
+				);
+				$validator = Validator::make($accountData, $rules, $messages);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+
+				}
+			}
+
+			if (isset($accountData['AutoTopup']) && $accountData['AutoTopup'] == 1 || isset($accountData['AutoOutpayment']) && $accountData['AutoOutpayment'] == 1)
 			{
 				$AccountPaymentAutomation['AccountID'] = $accountInfo->AccountID;
 				if(isset($accountData['AutoTopup'])){
 					$AccountPaymentAutomation['AutoTopup']= isset($accountData['AutoTopup']) ? $accountData['AutoTopup'] :'';
 				}
-				if(isset($accountData['MinThreshold'])){
-					$AccountPaymentAutomation['MinThreshold']= isset($accountData['MinThreshold']) ? $accountData['MinThreshold'] : '';
+				if(isset($accountData['MinThreshold']) && $accountData['AutoTopup'] == 1){
+					$AccountPaymentAutomation['MinThreshold']= $accountData['MinThreshold'];
 
 				}
-				if(isset($accountData['TopupAmount'])){
-					$AccountPaymentAutomation['TopupAmount']= isset($accountData['TopupAmount']) ? $accountData['TopupAmount'] : '';
+				if(isset($accountData['TopupAmount']) && $accountData['AutoTopup'] == 1){
+					$AccountPaymentAutomation['TopupAmount'] = $accountData['TopupAmount'];
 
 				}
 				if(isset($accountData['AutoOutpayment'])){
-					$AccountPaymentAutomation['AutoOutpayment']= isset($accountData['AutoOutpayment']) ? $accountData['AutoOutpayment'] : '';
+					$AccountPaymentAutomation['AutoOutpayment']= isset($accountData['AutoOutpayment']) ? $accountData['AutoOutpayment'] : 0;
 
 				}
-				if(isset($accountData['OutPaymentThreshold'])){
-					$AccountPaymentAutomation['OutPaymentThreshold']= isset($accountData['OutPaymentThreshold']) ? $accountData['OutPaymentThreshold'] : '';
+				if(isset($accountData['OutPaymentThreshold']) && $accountData['AutoOutpayment'] == 1){
+					$AccountPaymentAutomation['OutPaymentThreshold'] = $accountData['OutPaymentThreshold'];
 
 				}
-				if(isset($accountData['OutPaymentAmount'])){
-					$AccountPaymentAutomation['OutPaymentAmount']= isset($accountData['OutPaymentAmount']) ? $accountData['OutPaymentAmount'] : '';
+				if(isset($accountData['OutPaymentAmount']) && $accountData['AutoOutpayment'] == 1){
+					$AccountPaymentAutomation['OutPaymentAmount'] = $accountData['OutPaymentAmount'];
 
 				}
 
@@ -3482,44 +3516,6 @@ class AccountsApiController extends ApiController {
 				if($automation){
 					$automation->update($AccountPaymentAutomation);
 				}else{
-					if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1) {
-						$rules = [];
-						$rules['MinThreshold'] = 'required|numeric';
-						$rules['TopupAmount'] = 'required|numeric';
-						$messages = array(
-							'MinThreshold.required' =>'MinThreshold field is required if AutoTopup is ON',
-							'TopupAmount.required' =>'TopupAmount field is required if AutoTopup is ON',
-		
-						);
-						$validator = Validator::make($AccountPaymentAutomation, $rules, $messages);
-						if ($validator->fails()) {
-							$errors = "";
-							foreach ($validator->messages()->all() as $error) {
-								$errors .= $error . "<br>";
-							}
-							return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-						}
-					}
-					if (!empty($AccountPaymentAutomation['AutoOutpayment']) && $AccountPaymentAutomation['AutoOutpayment'] == 1) {
-						$rules = [];
-						$rules['OutPaymentThreshold'] = 'required|numeric';
-						$rules['OutPaymentAmount'] = 'required|numeric';
-						$messages = array(
-							'OutPaymentThreshold.required' =>'OutPaymentThreshold field is required if AutoOutpayment is ON',
-							'OutPaymentAmount.required' =>'OutPaymentAmount field is required if AutoOutpayment is ON',
-		
-						);
-						$validator = Validator::make($AccountPaymentAutomation, $rules, $messages);
-						if ($validator->fails()) {
-							$errors = "";
-							foreach ($validator->messages()->all() as $error) {
-								$errors .= $error . "<br>";
-							}
-							return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-
-						}
-					}
 					AccountPaymentAutomation::create($AccountPaymentAutomation);
 				}
 			}
@@ -3843,21 +3839,41 @@ class AccountsApiController extends ApiController {
 
 	// add Additional charges
 	public function CreateCharge(){
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data=json_decode(json_encode($post_vars),true);
-		//strtolower
-		$data['ChargeCode'] = strtolower('One-Off');
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
 		$recurringName = 'Recurring';
-
 		$CompanyID=0;
 		$AccountID=0;
 
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+		}
+		//strtolower
+		$data['ChargeCode'] = strtolower('One-Off');
+		
 		if(!empty($data['AccountID'])) {
-			$AccountID = $data['AccountID'];
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+			}else {
+				return Response::json(["ErrorMessage" => "AccountID must be a mumber."],Codes::$Code400[0]);
+			}	
 		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty."],Codes::$Code400[0]);
+			}
 			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
 		}else if(!empty($data['AccountDynamicField'])){
-			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 		}else{
 			return Response::json(["ErrorMessage" => "AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
 		}
@@ -3874,7 +3890,7 @@ class AccountsApiController extends ApiController {
 			'Description' 	=> 'required',
 			'ChargeType' 	=> 'required|in:0,1',
 			'Currency' 		=> 'required',
-			'Amount' 		=> 'required'
+			'Amount' 		=> 'required|numeric|min:0'
 		);
 
 		if(isset($data['ChargeType']) && intval($data['ChargeType']) != 0){
@@ -3891,14 +3907,17 @@ class AccountsApiController extends ApiController {
 				"ErrorMessage" => $validator->messages()->first()
 			],Codes::$Code400[0]);
 		}
-
-
+		if(!empty($data['StartDate']) && !empty($data['EndDate'])) {
+			$startDate = strtotime($data['StartDate']);
+			$endDate = strtotime($data['EndDate']);
+			if($startDate > $endDate) {
+				return Response::json(["ErrorMessage"=>"Start Date must be less than Current Date."],Codes::$Code400[0]);
+			}
+		}
 		$CurrentDate = date('Y-m-d H:i:s');
 		$CreatedBy 	 = 'API';
-
 		try {
 			DB::connection('sqlsrv2')->beginTransaction();
-
 			if (!empty($AccountID) && !empty($CompanyID)) {
 				$CurrencyID = Currency::where(["Code" => $data['Currency']])->pluck('CurrencyID');
 				if (!empty($CurrencyID)) {
@@ -4329,24 +4348,56 @@ class AccountsApiController extends ApiController {
 
 	// New API to update account service tariff by vasim seta @2020-01-01
 	public function updateTariff() {
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data = json_decode(json_encode($post_vars), true);
-
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
+		$CompanyID=0;
+		$AccountID=0;
+		$AccountFindType = '';
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+		}
+		
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+				$AccountFindType = 'AccountID';
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty"],Codes::$Code400[0]);
+			}
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+			$AccountFindType = 'AccountNo';
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			$AccountFindType = 'AccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
 		$rules = array(
-			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo|numeric',
 			'OrderID'							=> 'required|numeric',
 			'NumberPurchased'					=> 'required|numeric',
 			'ProductID'							=> 'required|numeric',
 			'InboundTariffCategoryID'			=> 'required|numeric',
 			'NumberContractID'					=> 'required|numeric',
-			'NewNumberContractID'				=> 'required|numeric',
+			'NewNumberContractID'				=> 'required|numeric|in:1,4,7',
 			'ContractStartDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:ContractStartDate',
 		);
 
 		$msg = array(
-			'AccountID.required_without_all'  	=> "Any one field Account Number, AccountID or AccountDynamicField is required.",
-			'AccountID.numeric'  				=> "The AccountID must be a number.",
 			'OrderID.required'  				=> "The OrderID field is required.",
 			'OrderID.numeric'  					=> "The OrderID must be a number.",
 			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
@@ -4372,22 +4423,6 @@ class AccountsApiController extends ApiController {
 				$errors .= $error . "<br>";
 			}
 			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-		}
-
-		$CompanyID=0;
-		$AccountID=0;
-		$AccountFindType = '';
-		if(!empty($data['AccountID'])) {
-			$AccountID = $data['AccountID'];
-			$AccountFindType = 'AccountID';
-		}else if(!empty($data['AccountNo'])){
-			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
-			$AccountFindType = 'AccountNo';
-		}else if(!empty($data['AccountDynamicField'])){
-			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-			$AccountFindType = 'AccountDynamicField';
-		}else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
 		}
 
 		$Account = Account::find($AccountID);
@@ -4541,12 +4576,50 @@ class AccountsApiController extends ApiController {
 
 	// New API to update account service by vasim seta @2020-01-02
 	public function updateAccountService() {
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data = json_decode(json_encode($post_vars), true);
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
+		$CompanyID=0;
+		$AccountID=0;
+		$AccountFindType = '';
 		$today = date('Y-m-d');
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+		}
+		
+		
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+				$AccountFindType = 'AccountID';
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+			}
+			
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty"],Codes::$Code400[0]);
+			}
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+			$AccountFindType = 'AccountNo';
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			$AccountFindType = 'AccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
+		
 
 		$rules = array(
-			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo|numeric',
 			'OrderID'							=> 'required|numeric',
 			'NumberContractID'					=> 'required|numeric',
 			'NumberPurchased'					=> 'required|numeric',
@@ -4554,8 +4627,6 @@ class AccountsApiController extends ApiController {
 		);
 
 		$msg = array(
-			'AccountID.required_without_all'  	=> "Any one field AccountNumber, AccountID or AccountDynamicField is required.",
-			'AccountID.numeric'  				=> "The AccountID must be a number.",
 			'OrderID.required'  				=> "The OrderID field is required.",
 			'OrderID.numeric'  					=> "The OrderID must be a number.",
 			'NumberContractID.required'  		=> "The NumberContractID field is required.",
@@ -4575,22 +4646,6 @@ class AccountsApiController extends ApiController {
 			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
 
-		$CompanyID=0;
-		$AccountID=0;
-		$AccountFindType = '';
-		if(!empty($data['AccountID'])) {
-			$AccountID = $data['AccountID'];
-			$AccountFindType = 'AccountID';
-		}else if(!empty($data['AccountNo'])){
-			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
-			$AccountFindType = 'AccountNo';
-		}else if(!empty($data['AccountDynamicField'])){
-			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-			$AccountFindType = 'AccountDynamicField';
-		}else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
-		}
-
 		$Account = Account::find($AccountID);
 		if($Account) {
 			$CompanyID = $Account->CompanyId;
@@ -4601,7 +4656,6 @@ class AccountsApiController extends ApiController {
 		}
 
 		$AccountService = AccountService::where(['AccountID'=>$AccountID,'ServiceOrderID'=>$data['OrderID'],'Status'=>1,'CancelContractStatus'=>0]);
-
 		// if AccountService exist
 		if($AccountService->count() > 0) {
 			$AccountService = $AccountService->first();
@@ -4617,7 +4671,6 @@ class AccountsApiController extends ApiController {
 
 			// if number exist
 			if($CLIRateTable->count() > 0) {
-
 				try {
 					DB::beginTransaction();
 
@@ -4655,11 +4708,47 @@ class AccountsApiController extends ApiController {
 
 	// New API to update account service package by vasim seta @2020-01-02
 	public function updateServicePackage() {
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data = json_decode(json_encode($post_vars), true);
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
+		$CompanyID=0;
+		$AccountID=0;
+		$AccountFindType = '';
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+		}
+
+		
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+				$AccountFindType = 'AccountID';
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty"],Codes::$Code400[0]);
+			}
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+			$AccountFindType = 'AccountNo';
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			$AccountFindType = 'AccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
 
 		$rules = array(
-			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo|numeric',
 			'OrderID'							=> 'required|numeric',
 			'NumberContractID'					=> 'required|numeric',
 			'NumberPurchased'					=> 'required|numeric',
@@ -4669,8 +4758,6 @@ class AccountsApiController extends ApiController {
 		);
 
 		$msg = array(
-			'AccountID.required_without_all'  	=> "Any one field AccountNumber, AccountID or AccountDynamicField is required.",
-			'AccountID.numeric'  				=> "The AccountID must be a number.",
 			'OrderID.required'  				=> "The OrderID field is required.",
 			'OrderID.numeric'  					=> "The OrderID must be a number.",
 			'NumberContractID.required'  		=> "The NumberContractID field is required.",
@@ -4693,23 +4780,6 @@ class AccountsApiController extends ApiController {
 			}
 			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
-
-		$CompanyID=0;
-		$AccountID=0;
-		$AccountFindType = '';
-		if(!empty($data['AccountID'])) {
-			$AccountID = $data['AccountID'];
-			$AccountFindType = 'AccountID';
-		}else if(!empty($data['AccountNo'])){
-			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
-			$AccountFindType = 'AccountNo';
-		}else if(!empty($data['AccountDynamicField'])){
-			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-			$AccountFindType = 'AccountDynamicField';
-		}else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
-		}
-
 		$Account = Account::find($AccountID);
 		if($Account) {
 			$CompanyID = $Account->CompanyId;
@@ -4803,12 +4873,85 @@ class AccountsApiController extends ApiController {
 
 	// New API to transfer number from one account to another by vasim seta @2020-01-03
 	public function transferServiceNumber() {
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data = json_decode(json_encode($post_vars), true);
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
+		$FromCompanyID=$ToCompanyID=0;
+		$FromAccountID=$ToAccountID=0;
+		$FromAccountFindType=$ToAccountFindType='';
+
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+		}
+
+		if(!empty($data['FromAccountID'])) {
+			if(is_numeric(trim($data['FromAccountID']))) {
+				$FromAccountID = $data['FromAccountID'];
+				$FromAccountFindType = 'FromAccountID';
+			}else {
+				return Response::json(["ErrorMessage"=>"FromAccountID must be a mumber."],Codes::$Code400[0]);
+			}
+			
+		}else if(!empty($data['FromAccountNo'])){
+			$accountNo = trim($data['FromAccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"FromAccountNo can not be empty"],Codes::$Code400[0]);
+			}
+			$FromAccountID = Account::where(["Number" => $data['FromAccountNo']])->pluck('AccountID');
+			$FromAccountFindType = 'FromAccountNo';
+		}else if(!empty($data['FromAccountDynamicField'])){
+			$FromAccountID = Account::findAccountBySIAccountRef($data['FromAccountDynamicField']);
+			$FromAccountFindType = 'FromAccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"FromAccountID or FromAccountNo or FromAccountDynamicField Required."],Codes::$Code400[0]);
+		}
+		$FromAccount = Account::find($FromAccountID);
+		if($FromAccount) {
+			$FromCompanyID = $FromAccount->CompanyId;
+			$FromAccountID = $FromAccount->AccountID;
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "From Account Not Found."], Codes::$Code400[0]);
+		}
+
+		if(!empty($data['ToAccountID'])) {
+			if(is_numeric(trim($data['ToAccountID']))) {
+				$ToAccountID = $data['ToAccountID'];
+				$ToAccountFindType = 'ToAccountID';
+			}else {
+				return Response::json(["ErrorMessage"=>"ToAccountID must be a mumber."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['ToAccountNo'])){
+			$accountNo = trim($data['ToAccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"ToAccountNo can not be empty"],Codes::$Code400[0]);
+			}
+			$ToAccountID = Account::where(["Number" => $data['ToAccountNo']])->pluck('AccountID');
+			$ToAccountFindType = 'ToAccountNo';
+		}else if(!empty($data['ToAccountDynamicField'])){
+			$ToAccountID = Account::findAccountBySIAccountRef($data['ToAccountDynamicField']);
+			$ToAccountFindType = 'ToAccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"ToAccountID or ToAccountNo or ToAccountDynamicField Required."],Codes::$Code400[0]);
+		}
+		$ToAccount = Account::find($ToAccountID);
+		if($ToAccount) {
+			$ToCompanyID = $ToAccount->CompanyId;
+			$ToAccountID = $ToAccount->AccountID;
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "To Account Not Found."], Codes::$Code400[0]);
+		}
 
 		$rules = array(
-			'FromAccountID' 					=> 'required_without_all:FromAccountDynamicField,FromAccountNo|numeric',
-			'ToAccountID' 						=> 'required_without_all:ToAccountDynamicField,ToAccountNo|numeric',
 			'FromOrderID'						=> 'required|numeric',
 			'ToOrderID'							=> 'required|numeric',
 			'NumberContractID'					=> 'required|numeric',
@@ -4818,10 +4961,6 @@ class AccountsApiController extends ApiController {
 		);
 
 		$msg = array(
-			'FromAccountID.required_without_all'=> "Any one field FromAccountNumber, FromAccountID or FromAccountDynamicField is required.",
-			'FromAccountID.numeric'  			=> "The FromAccountID must be a number.",
-			'ToAccountID.required_without_all'  => "Any one field ToAccountNumber, ToAccountID or ToAccountDynamicField is required.",
-			'ToAccountID.numeric'  				=> "The ToAccountID must be a number.",
 			'FromOrderID.required'  			=> "The FromOrderID field is required.",
 			'FromOrderID.numeric'  				=> "The FromOrderID must be a number.",
 			'ToOrderID.required'  				=> "The ToOrderID field is required.",
@@ -4845,52 +4984,7 @@ class AccountsApiController extends ApiController {
 			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
 
-		$FromCompanyID=$ToCompanyID=0;
-		$FromAccountID=$ToAccountID=0;
-		$FromAccountFindType=$ToAccountFindType='';
-
-		if(!empty($data['FromAccountID'])) {
-			$FromAccountID = $data['FromAccountID'];
-			$FromAccountFindType = 'FromAccountID';
-		}else if(!empty($data['FromAccountNo'])){
-			$FromAccountID = Account::where(["Number" => $data['FromAccountNo']])->pluck('AccountID');
-			$FromAccountFindType = 'FromAccountNo';
-		}else if(!empty($data['FromAccountDynamicField'])){
-			$FromAccountID = Account::findAccountBySIAccountRef($data['FromAccountDynamicField']);
-			$FromAccountFindType = 'FromAccountDynamicField';
-		}else{
-			return Response::json(["ErrorMessage"=>"FromAccountID or FromAccountNo or FromAccountDynamicField Required."],Codes::$Code400[0]);
-		}
-		$FromAccount = Account::find($FromAccountID);
-		if($FromAccount) {
-			$FromCompanyID = $FromAccount->CompanyId;
-			$FromAccountID = $FromAccount->AccountID;
-		} else {
-			// Account Not Found Error
-			return Response::json(["ErrorMessage" => "From Account Not Found."], Codes::$Code400[0]);
-		}
-
-		if(!empty($data['ToAccountID'])) {
-			$ToAccountID = $data['ToAccountID'];
-			$ToAccountFindType = 'ToAccountID';
-		}else if(!empty($data['ToAccountNo'])){
-			$ToAccountID = Account::where(["Number" => $data['ToAccountNo']])->pluck('AccountID');
-			$ToAccountFindType = 'ToAccountNo';
-		}else if(!empty($data['ToAccountDynamicField'])){
-			$ToAccountID = Account::findAccountBySIAccountRef($data['ToAccountDynamicField']);
-			$ToAccountFindType = 'ToAccountDynamicField';
-		}else{
-			return Response::json(["ErrorMessage"=>"ToAccountID or ToAccountNo or ToAccountDynamicField Required."],Codes::$Code400[0]);
-		}
-		$ToAccount = Account::find($ToAccountID);
-		if($ToAccount) {
-			$ToCompanyID = $ToAccount->CompanyId;
-			$ToAccountID = $ToAccount->AccountID;
-		} else {
-			// Account Not Found Error
-			return Response::json(["ErrorMessage" => "To Account Not Found."], Codes::$Code400[0]);
-		}
-
+		
 		$OldAccountService = AccountService::where(['AccountID'=>$FromAccountID,'ServiceOrderID'=>$data['FromOrderID'],'Status'=>1,'CancelContractStatus'=>0]);
 
 		// if AccountService exist
