@@ -404,7 +404,7 @@
 						{ "bSortable": true,
                             mRender:function(id, type, full){
                                 if(id !== null) {
-                                    return full[28];
+                                    return full[29];
                                 }else{
                                     return '';
                                 }
@@ -540,7 +540,7 @@
                                 action +='<input type="hidden" name="country" value="'+full[17]+'"/>';
 								action +='<input type="hidden" name="PostCode" value="'+full[18]+'"/>';
                                 action +='<input type="hidden" name="picture" value="'+full[19]+'"/>';
-                                action +='<input type="hidden" name="DueAmount" value="'+full[28]+'"/>';
+                                action +='<input type="hidden" name="DueAmount" value="'+full[29]+'"/>';
                                 action +='<input type="hidden" name="PermanentCredit" value="'+full[7]+'"/>';
                                 action +='<input type="hidden" name="LowBalance" value="'+full[20]+'"/>';
                                 action +='<input type="hidden" name="CUA" value="'+full[21]+'"/>';
@@ -548,7 +548,7 @@
                                 action +='<input type="hidden" name="AE" value="'+full[23]+'"/>';
                                 action +='<input type="hidden" name="ACL" value="'+full[24]+'"/>';
                                 action +='<input type="hidden" name="BalanceThreshold" value="'+full[25]+'"/>';
-                                action +='<input type="hidden" name="Blocked" value="'+full[25]+'"/>';
+                                action +='<input type="hidden" name="Blocked" value="'+full[26]+'"/>';
                                 return action;
                             }
                         },
@@ -702,9 +702,9 @@
                 html += '     <div class="meta">Phone</div>';
                 html += '     <div><a href="tel:' + childrens.eq(4).text() + '">' + childrens.eq(4).text() + '</a></div>';
                 html += '  </div>';
-                html += '  <div class="block"><div class="meta clear pull-left tooltip-primary" data-original-title="Invoice Outstanding" title="" data-placement="right" data-toggle="tooltip">AB : </div> <div class="pull-left" data-toggle="popover"  data-trigger="hover" data-original-title=""> ' + childrens.eq(5).text() + ' </div>';
-                html += '  <div class="meta clear pull-left tooltip-primary" data-original-title="(Unbilled Amount). Click on amount to view breakdown" title="" data-placement="right" data-toggle="tooltip">DA : </div> <div class="pull-left"> <a class="unbilled_report" data-id="'+accountid+'">' + DueAmount + '</a> </div>';
-                html += '  <div class="meta clear pull-left tooltip-primary" data-original-title="Credit Limit" title="" data-placement="right" data-toggle="tooltip">CL : </div> <div class="pull-left"> ' + PermanentCredit + ' </div></div>';
+                html += '  <div class="block"><div class="meta clear pull-left tooltip-primary">AB : </div> <div class="pull-left" data-toggle="popover"  data-trigger="hover" data-original-title=""> ' + childrens.eq(5).text() + ' </div>';
+                html += '  <div class="meta clear pull-left tooltip-primary">DA : </div> <div class="pull-left"> <a class="unbilled_report" data-id="'+accountid+'">' + DueAmount + '</a> </div>';
+                html += '  <div class="meta clear pull-left >CL : </div> <div class="pull-left"> ' + PermanentCredit + ' </div></div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
