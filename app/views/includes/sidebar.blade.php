@@ -203,7 +203,7 @@
         <li class="{{ active_url_class("payments") }}"> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
       @endif
         @if(User::checkCategoryPermission('Disputes','View'))
-        <li class="{{ active_url_class("disputes") }}"> <a href="{{URL::to('/disputes')}}">  <span>Disputes</span> </a> </li>
+        {{--<li class="{{ active_url_class("disputes") }}"> <a href="{{URL::to('/disputes')}}">  <span>Disputes</span> </a> </li>--}}
         @endif
           {{--@if(User::checkCategoryPermission('AccountStatement','All'))--}}
             {{--<li class="{{ active_url_class("account_statement") }}"> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>--}}
@@ -236,7 +236,7 @@
             <li class="{{ active_url_class("billing_class") }}"> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
           @endif
         @if(User::checkCategoryPermission('CDR','Upload'))
-        <li class="{{ active_url_class("cdr_upload") }}"> <a href="{{URL::to('/cdr_upload')}}">  <span>CDR Upload</span> </a> </li>
+        {{--<li class="{{ active_url_class("cdr_upload") }}"> <a href="{{URL::to('/cdr_upload')}}">  <span>CDR Upload</span> </a> </li>--}}
         @endif
         @if(User::checkCategoryPermission('CDR','View'))
         <li class="{{ active_url_class("cdr_show") }}"> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
