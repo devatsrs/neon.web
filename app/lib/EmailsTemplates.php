@@ -58,7 +58,7 @@ class EmailsTemplates{
 		$InvoiceDetailPeriod 					= 	InvoiceDetail::where(["InvoiceID" => $InvoiceID,'ProductType'=>Product::INVOICE_PERIOD])->first();
 
 		$Account 								= 	Account::find($InvoiceData->AccountID);
-		$EmailTemplate 							= 	EmailTemplate::getSystemEmailTemplate($companyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
+		$EmailTemplate 							= 	EmailTemplate::getSystemEmailTemplate($InvoiceData->CompanyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
 
 		$replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$InvoiceData->CompanyID);
 		$replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$InvoiceData->AccountID);
@@ -412,7 +412,11 @@ class EmailsTemplates{
 		$array['CompanyCity']					=   $CompanyData->City;
 		$array['CompanyPostCode']				=   $CompanyData->PostCode;
 		$array['CompanyCountry']				=   $CompanyData->Country;
-		$array['Logo']							=   "<img src='".Session::get('user_site_configrations.Logo')."' />";
+		//$array['Logo']							=   "<img src='".Session::get('user_site_configrations.Logo')."' />";
+
+		$result 								= 	DB::table('tblCompanyThemes')->where(["CompanyID" => $Companyd,'ThemeStatus'=>Themes::ACTIVE])->get();
+		$logo 									= 	empty($result[0]->Logo)?URL::to('/').'/assets/images/logo@2x.png':AmazonS3::unSignedImageUrl($result[0]->Logo);
+		$array['Logo']							=   "<img src='".$logo."' />";
 
 		//$array['CompanyAddress']				=   Company::getCompanyFullAddress(User::get_companyID());
 		return $array;
