@@ -6,7 +6,7 @@ class TaxRatesController extends \BaseController {
     public function ajax_datagrid() {
        $data = Input::all();
         $CompanyID = User::get_companyID();
-        $taxrates = TaxRate::select('tblTaxRate.Title','tblTaxRate.Amount','tblTaxRate.Country as ISO2','tblTaxRate.DutchProvider','tblTaxRate.DutchFoundation','tblTaxRate.TaxRateId','tblCountry.Country as Country')
+        $taxrates = TaxRate::select('tblTaxRate.Title','tblTaxRate.Amount','tblTaxRate.Country as ISO2','tblTaxRate.DutchProvider','tblTaxRate.DutchFoundation','tblTaxRate.VATCode','tblTaxRate.TaxRateId','tblCountry.Country as Country')
         ->leftjoin('tblCountry','tblTaxRate.Country', '=' , 'tblCountry.ISO2')
         ->where("CompanyID", $CompanyID);
         if(isset($data['Title']) and !empty($data['Title']))
@@ -33,6 +33,9 @@ class TaxRatesController extends \BaseController {
         if(isset($data['ftDutchFoundation']) and $data['ftDutchFoundation']!=0)
         {
              $taxrates = $taxrates->where('tblTaxRate.DutchFoundation', 1);
+        }
+        if(!empty($data['VATCode'])) {
+            $taxrates = $taxrates->where('tblTaxRate.VATCode', 'like', '%'.$data['VATCode'].'%');
         }
         Log::info($taxrates->toSql());
         return Datatables::of($taxrates)->make();
@@ -190,7 +193,7 @@ class TaxRatesController extends \BaseController {
         
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $taxrates = TaxRate::select(DB::Raw("tblTaxRate.Title,tblTaxRate.Amount as 'VAT %',tblCountry.Country,tblTaxRate.DutchProvider as 'Dutch Provider',tblTaxRate.DutchFoundation as 'Dutch Foundation'"))
+        $taxrates = TaxRate::select(DB::Raw("tblTaxRate.Title,tblTaxRate.Amount as 'VAT %',tblCountry.Country,tblTaxRate.DutchProvider as 'Dutch Provider',tblTaxRate.DutchFoundation as 'Dutch Foundation',tblTaxRate.VATCode"))
         ->leftjoin('tblCountry','tblCountry.ISO2','=','tblTaxRate.Country')
         ->where("CompanyID", $CompanyID);
 
@@ -219,6 +222,9 @@ class TaxRatesController extends \BaseController {
         if(isset($data['ftDutchFoundation']) and $data['ftDutchFoundation']!=0)
         {
              $taxrates = $taxrates->where('tblTaxRate.DutchFoundation', 1);
+        }
+        if(!empty($data['VATCode'])) {
+            $taxrates = $taxrates->where('tblTaxRate.VATCode', 'like', '%'.$data['VATCode'].'%');
         }
         $taxrates = $taxrates->get();
 		$ExcelFile = json_decode(json_encode($taxrates),true);

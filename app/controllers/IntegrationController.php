@@ -26,7 +26,7 @@ class IntegrationController extends \BaseController
 			$categories 			= 	Integration::where(["ParentID"=>0])->orderBy('Title', 'asc')->get();
 		}
 		$TaxLists =  TaxRate::where(["CompanyId" => $companyID, "Status" => 1])->get();
-		$AllMappingElements =  ExactAuthentication::getAllMappingElements($companyID);
+		$AllMappingElements =  ExactAuthentication::getAllMappingElements();
 		//$companyID = 1;
 		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists","AllMappingElements"));
     }
@@ -967,8 +967,6 @@ class IntegrationController extends \BaseController
 				}
 
 				$data['Status'] 			= 	isset($data['Status']) ? 1 : 0;
-				$data['InvoiceAccount'] 	= 	isset($data['InvoiceAccount'])?$data['InvoiceAccount']:'';
-				$data['PaymentAccount'] 	= 	isset($data['PaymentAccount'])?$data['PaymentAccount']:'';
 
 				$ExactData = array();
 				$ExactData = $data;
