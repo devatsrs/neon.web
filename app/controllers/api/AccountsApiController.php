@@ -2007,7 +2007,6 @@ class AccountsApiController extends ApiController {
 				}else if ($data['PaymentMethod'] == "DirectDebit" || $data['PaymentMethod'] == "WireTransfer") {
 					$rules = array(
 						'BankAccount'       => 'required',
-						'BIC'               => 'required',
 						'AccountHolderName' => 'required',
 						'Title'             => 'required'
 
@@ -2038,7 +2037,6 @@ class AccountsApiController extends ApiController {
 				if ($data['PayoutMethod'] == "WireTransfer") {
 					$rules = array(
 						'BankAccount'       => 'required',
-						'BIC'               => 'required',
 						'AccountHolderName' => 'required',
 						'Title'             => 'required'
 
@@ -3366,7 +3364,6 @@ class AccountsApiController extends ApiController {
 					}else if ($data['PaymentMethod'] == "DirectDebit" || $data['PaymentMethod'] == "WireTransfer") {
 						$rules = array(
 							'BankAccount'       => 'required',
-							'BIC'               => 'required',
 							'AccountHolderName' => 'required',
 							'Title'             => 'required'
 						);
@@ -3412,7 +3409,6 @@ class AccountsApiController extends ApiController {
 					if ($data['PayoutMethod'] == "WireTransfer") {
 						$rules = array(
 							'BankAccount'       => 'required',
-							'BIC'               => 'required',
 							'AccountHolderName' => 'required',
 							'Title'             => 'required'
 						);
