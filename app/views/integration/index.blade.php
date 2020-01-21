@@ -923,17 +923,17 @@
                     <div class="row">
                         <div class="col-md-6  margin-top">
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-4 control-label">* Login ID/Email:</label>
+                                <label for="field-1" class="col-sm-4 control-label">* Client ID:</label>
                                 <div class="col-sm-8">
-                                    <input type="text"  class="form-control" name="ExactLoginID" value="{{isset($ExactData['ExactLoginID'])?$ExactData['ExactLoginID']:''}}" />
+                                    <input type="text"  class="form-control" name="ExactClientID" value="{{isset($ExactData['ExactClientID'])?$ExactData['ExactClientID']:''}}" />
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6 margin-top">
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-4 control-label">* Password:</label>
+                                <label for="field-1" class="col-sm-4 control-label">* Client Secret:</label>
                                 <div class="col-sm-8">
-                                    <input type="password"  class="form-control" name="ExactPassword" value="{{isset($ExactData['ExactPassword'])?$ExactData['ExactPassword']:''}}" />
+                                    <input type="password"  class="form-control" name="ExactClientSecret" value="{{isset($ExactData['ExactClientSecret'])?$ExactData['ExactClientSecret']:''}}" />
                                 </div>
                             </div>
                         </div>
@@ -951,102 +951,35 @@
             </div>
 
             @foreach(ExactAuthentication::$MappingTypes as $MappingKey => $MappingText)
-                @if($MappingKey == ExactAuthentication::KEY_VAT)
-                    <div class="panel panel-primary" data-collapsed="0" id="Calculated-Rate">
-                        <div class="panel-heading">
-                            <div class="panel-title">
-                                G/L Code Mapping - {{$MappingText}} (For Invoice Posting)
-                            </div>
-                            <div class="panel-options">
-                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                            </div>
+                <div class="panel panel-primary" data-collapsed="0">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            G/L Code Mapping - {{$MappingText}} (For Invoice Posting)
                         </div>
-                        <div class="panel-body">
-                            <div class="col-md-12">
-                                <br/>
-                                <input type="hidden" id="getRateIDs" name="getRateIDs" value=""/>
-                                <table id="tblVatMapping" class="table table-bordered datatable">
-                                    <thead>
-                                    <tr>
-                                        <th width="25%">Country</th>
-                                        <th width="15%">Registered Dutch Foundation</th>
-                                        <th width="15%">Dutch Provider</th>
-                                        <th width="17.5%">VAT Code</th>
-                                        <th width="10%">Add</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="tblVatMappingBody">
-                                    <?php
-                                        $row_number = 0;
-                                        $hiddenClass='';
-                                        $row_number++;
-                                        $hiddenClass = $row_number == 1 ? 'hidden' : '';
-                                    ?>
-                                        <tr id="selectedRow-{{$row_number}}">
-                                            <td>
-                                                {{ Form::select('Country-'.$row_number, ExactAuthentication::$VATCountry, '', array("class"=>"form-control")) }}
-                                            </td>
-                                            <td>
-                                                <div id="RegisterDutchFoundation-switch-{{$row_number}}">
-                                                    <input name="RegisterDutchFoundation-{{$row_number}}" Divid="RegisterDutchFoundation-switch-{{$row_number}}" type="checkbox" value="1" class="custom-switch">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div id="DutchProvider-switch-{{$row_number}}">
-                                                    <input name="DutchProvider-{{$row_number}}" Divid="DutchProvider-switch-{{$row_number}}" type="checkbox" value="1" class="custom-switch">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <input name="VATCode-{{$row_number}}" type="text" class="form-control" value=""/>
-                                            </td>
-                                            <td>
-                                                <button type="button" onclick="createCloneRow('tblVatMapping')" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
-                                                    <i></i>
-                                                    +
-                                                </button>
-                                                <a onclick="deleteRow(this.id,'tblVatMapping')" id="deleteRow-{{$row_number}}" class="btn btn-danger btn-sm {{$hiddenClass}}" data-loading-text="Loading..." >
-                                                    <i></i>
-                                                    -
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </div>
+                        <div class="panel-options">
+                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
-                @else
-                    <div class="panel panel-primary" data-collapsed="0">
-                        <div class="panel-heading">
-                            <div class="panel-title">
-                                G/L Code Mapping - {{$MappingText}} (For Invoice Posting)
-                            </div>
-                            <div class="panel-options">
-                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <?php $count=0; ?>
-                            @if(!empty($AllMappingElements[$MappingKey])&& count($AllMappingElements[$MappingKey])>0)
-                                @foreach($AllMappingElements[$MappingKey] as $key=>$Prod)
-                                    <div class="col-md-6  margin-top">
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">{{$Prod}}:</label>
-                                            <div class="col-sm-8">
-                                                <input type="text"  class="form-control" name="{{$MappingKey}}[{{$key}}]" value="{{isset($ExactData[$MappingKey][$key])?$ExactData[$MappingKey][$key]:""}}" />
-                                            </div>
+                    <div class="panel-body">
+                        <?php $count=0; ?>
+                        @if(!empty($AllMappingElements[$MappingKey])&& count($AllMappingElements[$MappingKey])>0)
+                            @foreach($AllMappingElements[$MappingKey] as $key=>$Prod)
+                                <div class="col-md-6  margin-top">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">{{$Prod}}:</label>
+                                        <div class="col-sm-8">
+                                            <input type="text"  class="form-control" name="{{$MappingKey}}[{{$key}}]" value="{{isset($ExactData[$MappingKey][$key])?$ExactData[$MappingKey][$key]:""}}" />
                                         </div>
                                     </div>
-                                    <?php $count++; ?>
-                                    @if($count%2 == 0)
-                                        <div class="clear"></div>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </div>
+                                </div>
+                                <?php $count++; ?>
+                                @if($count%2 == 0)
+                                    <div class="clear"></div>
+                                @endif
+                            @endforeach
+                        @endif
                     </div>
-                @endif
+                </div>
             @endforeach
 
             <!-- Exact form end-->

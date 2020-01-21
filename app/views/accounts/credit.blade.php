@@ -54,15 +54,15 @@
                         <div class="desc col-sm-2 ">
                             <input type="text" class="form-control" readonly name="AccountBalance" value="{{AccountBalance::getAccountBalanceWithActiveCallRM($account->AccountID)}}">
                         </div>
-                        @if($BillingType==AccountApproval::BILLINGTYPE_PREPAID)
+                        {{--@if($BillingType==AccountApproval::BILLINGTYPE_PREPAID)--}}
                             <div  class="col-sm-1">
                                 <button id="prepaid_billed_report" class="btn btn-primary btn-sm btn-icon icon-left prepaid_billed_report" data-id="{{$account->AccountID}}" data-loading-text="Loading...">
                                     <i class="fa fa-eye"></i>View Report
                                 </button>
                             </div>
-                        @endif
+                        {{--@endif--}}
                     </div>
-                    @if($BillingType==AccountApproval::BILLINGTYPE_POSTPAID)
+                    {{--@if($BillingType==AccountApproval::BILLINGTYPE_POSTPAID)
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Customer Unbilled Amount</label>
                         <div class="desc col-sm-2">
@@ -91,7 +91,7 @@
                             <input type="text" class="form-control" readonly name="AccountBalance" value="{{($PermanentCredit - $BalanceAmount)<0?0:($PermanentCredit - $BalanceAmount)}}">
                         </div>
                     </div>
-                    @endif
+                    @endif--}}
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Credit Limit</label>
                         <div class="desc col-sm-4 ">

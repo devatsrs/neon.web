@@ -1156,6 +1156,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/bulk_send_invoice_mail', 'InvoicesController@bulk_send_invoice_mail');
 	Route::any('/invoice/bulk_print_invoice', 'InvoicesController@bulk_print_invoice');
 	Route::any('/invoice/bulk_print_ubl_invoice', 'InvoicesController@bulk_print_ubl_invoice');
+	Route::any('/invoice/bulk_print_cdr', 'InvoicesController@bulk_print_cdr');
 	Route::any('/invoice/invoice_regen', 'InvoicesController@invoice_regen');
 	Route::any('/invoice/{id}/edit', 'InvoicesController@edit');
 	Route::any('/invoice/{id}/delete', 'InvoicesController@delete');

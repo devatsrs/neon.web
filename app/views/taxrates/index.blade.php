@@ -45,8 +45,11 @@
                                         <input type="checkbox"  name="ftFlatStatus" value="0">
                                     </p>   
                         </div>
-                        
-                            
+
+                <div class="form-group">
+                    <label class="control-label">VAT Code</label>
+                    <input type="text" name="VATCode" class="form-control" value="" />
+                </div>
                        
                         
 
@@ -102,6 +105,7 @@
         <th width="10%">Country</th>
         <th width="10%">Dutch Provider</th>
         <th width="10%">Dutch Foundation</th>
+        <th width="10%">VAT Code</th>
         <th width="20%">Action</th>
     </tr>
     </thead>
@@ -126,6 +130,7 @@ var postdata;
         $searchFilter.FlatStatus = $("#table_filter").find('[name="ftFlatStatus"]').val();
         $searchFilter.ftDutchProvider = $("#table_filter").find('[name="ftDutchProvider"]').val();
         $searchFilter.ftDutchFoundation = $("#table_filter").find('[name="ftDutchFoundation"]').val();
+        $searchFilter.VATCode = $("#table_filter").find('[name="VATCode"]').val();
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -143,7 +148,8 @@ var postdata;
                                 {"name": "Country", "value": $searchFilter.ftCountry},
                                 {"name": "FlatStatus", "value": $searchFilter.FlatStatus},
                                 {"name": "ftDutchProvider", "value": $searchFilter.ftDutchProvider},
-                                {"name": "ftDutchFoundation", "value": $searchFilter.ftDutchFoundation}
+                                {"name": "ftDutchFoundation", "value": $searchFilter.ftDutchFoundation},
+                                {"name": "VATCode", "value": $searchFilter.VATCode}
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
@@ -153,6 +159,7 @@ var postdata;
                             {"name": "FlatStatus", "value": $searchFilter.FlatStatus},
                             {"name": "ftDutchProvider", "value": $searchFilter.ftDutchProvider},
                             {"name": "ftDutchFoundation", "value": $searchFilter.ftDutchFoundation},
+                            {"name": "VATCode", "value": $searchFilter.VATCode},
                             {"name": "Export", "value": 1}
                         );
                     },
@@ -182,6 +189,7 @@ var postdata;
                     if(data == 1) {return "<i class='fa fa-check-circle checkicon'></i>";} else {return "<i class='fa fa-times-circle timesicon'></i>";}
                     }  
                 },
+                {  "bSortable": true },//VATCode
                 {  "bSortable": true,
                     mRender: function ( id, type, full ) {
                         var action , edit_ , show_ , delete_;
@@ -193,6 +201,7 @@ var postdata;
                          action += '<input type = "hidden"  name = "Country" value = "' + full[2] + '" / >';
                          action += '<input type = "hidden"  name = "DutchProvider" value = "' + full[3] + '" / >';
                          action += '<input type = "hidden"  name = "DutchFoundation" value = "' + full[4] + '" / >';
+                         action += '<input type = "hidden"  name = "VATCode" value = "' + full[5] + '" / >';
                          action += '</div>';
                          <?php if(User::checkCategoryPermission('TaxRates','Edit')){ ?>
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-taxrate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
@@ -274,9 +283,11 @@ $('#filter_submit').trigger('click');
 
         Title = prevrow.find("input[name='Title']").val();
         Amount = prevrow.find("input[name='Amount']").val();
+        VATCode = prevrow.find("input[name='VATCode']").val();
 
         $("#add-new-taxrate-form [name='Title']").val(Title);
         $("#add-new-taxrate-form [name='Amount']").val(Amount);
+        $("#add-new-taxrate-form [name='VATCode']").val(VATCode);
         $("#add-new-taxrate-form [name='FlatStatus']").val(prevrow.find("input[name='FlatStatus']").val() );
         $("#add-new-taxrate-form [name='TaxType']").select2().select2('val',prevrow.find("input[name='TaxType']").val());
         if(prevrow.find("input[name='FlatStatus']").val() == 1 ){
@@ -444,6 +455,12 @@ function ajax_update(fullurl,data){
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Country</label>
                                 {{ Form::select('Country',Country::getCountryByNameAndCode(),'', array("class"=>"select2",'id'=>'Country')) }}
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="control-label">VAT Code</label>
+                                <input type="text" name="VATCode" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="clearfix"></div>

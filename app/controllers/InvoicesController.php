@@ -2787,14 +2787,14 @@ public function store_inv_in(){
             $invoices = Invoice::where(['InvoiceID' => $invid])->first();
             if($invoices->accdetail->PaymentMethod == 'Ingenico' && $invoices->InvoiceType == 1){
                 $Account = Account::where('AccountID', $invoices->AccountID)->first();
-                $AccountNumber = $Account != false ? $Account->Number . "/" : "";
+                $CustomerID = $Account != false ? $Account->CustomerID . "/" : "";
                 $RoundChargesAmount = get_round_decimal_places($invoices->AccountID);
 
                 fwrite($file, 
                 //number_format($invoices->GrandTotal,$RoundChargesAmount, '.', '').';'.
                 ($invoices->GrandTotal*100).';'.
                 $invoices->currency->Code.';;;;'.
-                $AccountNumber . $invoices->FullInvoiceNumber.';;;;;;;;;;;'.
+                $CustomerID . $invoices->FullInvoiceNumber.';;;;;;;;;;;'.
                 $this->get_GUID($invoices->AccountID).';;;;;;;;;;;;;;;;;;'.'9'."\r\n"
                 //date('d/m/Y', strtotime($invoices->IssueDate.'+'.$invoices->BillingClass->PaymentDueInDays.' days'))
             );
@@ -3861,6 +3861,67 @@ public function store_inv_in(){
 
             if (!empty($zipfiles)) {
                     $filename='ubl-invoice' . date("dmYHis") . '.zip';
+                    $local_zip_file = $UPLOAD_PATH . $filename;
+
+                    Zipper::make($local_zip_file)->add($zipfiles)->close();
+
+                    if (file_exists($local_zip_file)) {
+                        return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => "", "filePath" => base64_encode($filename)));
+                    }
+                    else {
+                        return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
+                    }
+                }
+            else {
+                return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
+            }
+        }
+        else {
+            return Response::json(array("status" => "error", "message" => "Please Select Invoice"));
+        }
+        exit;
+    }
+
+    public function bulk_print_cdr(){
+        $zipfiles = array();
+        $data = Input::all();
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+
+        $invoiceIds=array_map('intval', explode(',', $data['InvoiceIDs']));
+        if(!empty($invoiceIds)) {
+
+            $Invoices = Invoice::find($invoiceIds);
+            $CompanyID = User::get_companyID();
+            $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID). "/";
+            $isAmazon = is_amazon($CompanyID);
+            foreach ($Invoices as $invoice) {
+               
+                if (!empty($invoice->CDR)) {
+                    $path = AmazonS3::preSignedUrl($invoice->CDR, $CompanyID);
+                    if (file_exists($path)) {
+                        $zipfiles[$invoice->InvoiceID] = $path;
+                    } else if ($isAmazon == true) {
+
+                        $filepath = $UPLOAD_PATH . basename($invoice->CDR);
+                        $content = @file_get_contents($path);
+                        if ($content != false) {
+                            file_put_contents($filepath, $content);
+                            $zipfiles[$invoice->InvoiceID] = $filepath;
+                        }
+                    }
+                }
+            }
+
+            if (!empty($zipfiles)) {
+                    $filename='cdr-invoice' . date("dmYHis") . '.zip';
                     $local_zip_file = $UPLOAD_PATH . $filename;
 
                     Zipper::make($local_zip_file)->add($zipfiles)->close();

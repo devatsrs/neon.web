@@ -8,13 +8,15 @@ class ExactController extends \BaseController {
         $TOKEN_URL  = ExactAuthentication::TOKEN_URL;
         $AUTH_URL   = ExactAuthentication::AUTH_URL;
 
-        $EXACT_CONFIGURATION    = json_decode(CompanyConfiguration::get(ExactAuthentication::ExactConfigKey, $CompanyID), true);
+        $ExactIntegration       = Integration::where(['CompanyID'=>$CompanyID,'Slug'=>'exact'])->first();
+        $EXACT_CONFIGURATION    = IntegrationConfiguration::where(array('CompanyId'=>$CompanyID,"IntegrationID"=>$ExactIntegration->IntegrationID))->first();
+        $EXACT_CONFIGURATION    = json_decode($EXACT_CONFIGURATION->Settings, true);
         $REDIRECT_URL           = CompanyConfiguration::get('WEB_URL', $CompanyID) . "/exact";
 
-        if (!empty($EXACT_CONFIGURATION['client_id']) && !empty($EXACT_CONFIGURATION['client_secret'])) {
+        if (!empty($EXACT_CONFIGURATION['ExactClientID']) && !empty($EXACT_CONFIGURATION['ExactClientSecret'])) {
             if (!isset($data['code'])) {
                 $params = array(
-                    'client_id' => $EXACT_CONFIGURATION['client_id'],
+                    'client_id' => $EXACT_CONFIGURATION['ExactClientID'],
                     'redirect_uri' => $REDIRECT_URL,
                     'response_type' => ExactAuthentication::RESPONSE_TYPE_AUTH
                 );
@@ -27,8 +29,8 @@ class ExactController extends \BaseController {
                 $post_data['code'] = $data['code'];
                 $post_data['grant_type'] = ExactAuthentication::RESPONSE_TYPE_TOKEN;
                 $post_data['redirect_uri'] = $REDIRECT_URL;
-                $post_data['client_id'] = $EXACT_CONFIGURATION['client_id'];//'eb6fff47-449a-4197-9325-d23e2723e996';
-                $post_data['client_secret'] = $EXACT_CONFIGURATION['client_secret'];//'ngM1XePBx8kG';
+                $post_data['client_id'] = $EXACT_CONFIGURATION['ExactClientID'];//'eb6fff47-449a-4197-9325-d23e2723e996';
+                $post_data['client_secret'] = $EXACT_CONFIGURATION['ExactClientSecret'];//'ngM1XePBx8kG';
 
                 $ch = curl_init($TOKEN_URL);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
