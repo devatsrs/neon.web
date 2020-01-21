@@ -18,7 +18,7 @@ class DirectDebit {
         $ValidationResponse = array();
         $rules = array(
             'BankAccount'       => 'required',
-            'BIC'               => 'required',
+            // 'BIC'               => 'required',
             'AccountHolderName' => 'required',
             //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
         );
