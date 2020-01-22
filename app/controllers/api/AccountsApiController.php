@@ -2543,7 +2543,7 @@ class AccountsApiController extends ApiController {
 				}
 
 				if (isset($data['PayoutMethod'])) {
-					if ($data['PayoutMethod'] == "WireTransfer") {
+					if ($data['PayoutMethod'] === "WireTransfer") {
 						$isDefault = 1;
 						$PaymentGatewayID = 11;
 						$count = AccountPayout::where(['AccountID' => $account->AccountID])
@@ -3726,7 +3726,7 @@ class AccountsApiController extends ApiController {
 
 
 			if (isset($data['PayoutMethod'])) {
-				if ($data['PayoutMethod'] == "WireTransfer") {
+				if ($data['PayoutMethod'] === "WireTransfer") {
 					$isDefault = 1;
 					$PaymentGatewayID = 11;
 					$count = AccountPayout::where(['AccountID' => $accountInfo->AccountID])
