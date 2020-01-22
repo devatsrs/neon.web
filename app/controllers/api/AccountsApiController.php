@@ -3687,7 +3687,7 @@ class AccountsApiController extends ApiController {
 					AccountPaymentProfile::create($CardDetail);
 				}else if ($data['PaymentMethod'] == "WireTransfer") {
 					$isDefault = 1;
-					$PaymentGatewayID = 12;
+					$PaymentGatewayID = 11;
 					$count = AccountPaymentProfile::where(['AccountID' => $accountInfo->AccountID])
 						->where(['CompanyID' => $CompanyID])
 						->where(['PaymentGatewayID' => $PaymentGatewayID])
