@@ -1914,7 +1914,6 @@ class AccountsApiController extends ApiController {
 			if (!empty($data['PayoutMethod'])) {
 				$data['PayoutMethod'] = AccountsApiController::$API_PayoutMethod[$data['PayoutMethod']];
 			}
-
 			if(isset($accountData['AutoTopup']) && $accountData['AutoTopup'] > 1){
 				return Response::json(["ErrorMessage" => 'Auto Top Up Value Should Be 0 Or 1'],Codes::$Code400[0]);
 			}
@@ -1979,7 +1978,7 @@ class AccountsApiController extends ApiController {
 
 				} elseif ($data['PaymentMethod'] == "Ingenico") {
 
-
+					
 					$rules = [];
 					$rules = array(
 						'CardToken'         => 'required',
@@ -2032,9 +2031,9 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-
 			if (isset($data['PayoutMethod'])) {
-				if ($data['PayoutMethod'] == "WireTransfer") {
+				
+				if ($data['PayoutMethod'] === "WireTransfer") {
 					$rules = array(
 						'BankAccount'       => 'required',
 						'AccountHolderName' => 'required',
@@ -2042,7 +2041,9 @@ class AccountsApiController extends ApiController {
 
 					);
 					$messages = array(
-						'Title.required' =>'The Title Field Is Required For Payout',
+						'Title.required'               => 'The Title Field Is Required For Payout',
+						'BankAccount.required'         => 'The Bank Account Field Is Required For Payout',
+						'AccountHolderName.required'   => 'The Account Holder Name Field Is Required For Payout'
 					);
 					$PayoutProfile['BankAccount'] = isset($accountData['PayoutBankAccount']) ? $accountData['PayoutBankAccount'] : '' ;
 					$PayoutProfile['BIC'] = isset($accountData['PayoutBIC']) ? $accountData['PayoutBIC'] : '' ;
@@ -2050,7 +2051,7 @@ class AccountsApiController extends ApiController {
 					$PayoutProfile['MandateCode'] = isset($accountData['PayoutMandateCode']) ? $accountData['PayoutMandateCode'] : '' ;
 					$PayoutProfile['Title'] = isset($accountData['PayoutTitle']) ? $accountData['PayoutTitle'] : '' ;
 
-					$validator = Validator::make($PayoutProfile, $rules);
+					$validator = Validator::make($PayoutProfile, $rules , $messages);
 					if ($validator->fails()) {
 						$errors = "";
 						foreach ($validator->messages()->all() as $error){
@@ -3406,7 +3407,7 @@ class AccountsApiController extends ApiController {
 
 				$data['PayoutMethod'] = AccountsApiController::$API_PayoutMethod[$data['PayoutMethod']];
 				if (isset($data['PayoutMethod']) ) {
-					if ($data['PayoutMethod'] == "WireTransfer") {
+					if ($data['PayoutMethod'] === "WireTransfer") {
 						$rules = array(
 							'BankAccount'       => 'required',
 							'AccountHolderName' => 'required',
@@ -3414,7 +3415,9 @@ class AccountsApiController extends ApiController {
 						);
 
 						$messages = array(
-							"Title.required" => "The Payout Title Field Is Required"
+							'Title.required'               => 'The Title Field Is Required For Payout',
+							'BankAccount.required'         => 'The Bank Account Field Is Required For Payout',
+							'AccountHolderName.required'   => 'The Account Holder Name Field Is Required For Payout'
 						);
 						$PayoutProfile['BankAccount'] = isset($accountData['PayoutBankAccount']) ? $accountData['PayoutBankAccount'] : '' ;
 						$PayoutProfile['BIC'] = isset($accountData['PayoutBIC']) ? $accountData['PayoutBIC'] : '' ;
