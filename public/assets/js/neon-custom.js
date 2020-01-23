@@ -3298,7 +3298,7 @@ function openInNewTab(url) {
 try{
     if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 && $(".notifications.cron_jobs.dropdown").has("#failing_placeholder").length > 0 ) {
         setInterval(function () {
-            checkFailingCronJob();
+            //checkFailingCronJob();
         }, 1000 ); // where X is your every X minutes
     }
 }catch(er){
