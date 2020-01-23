@@ -122,15 +122,20 @@ class AccountBalance extends \Eloquent {
     }
 
     public static function getAccountBalanceWithActiveCallRM($AccountID){
+        $account = Account::find($AccountID);
+        $CompanyID = $account->CompanyId;
+        $checkBillingType = AccountBilling::where('AccountID' , $AccountID)->first();
+        if($checkBillingType->BillingType == 1){
+            $AccountBalance = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
+            $ActiveBalance = ActiveCall::where(['AccountID'=>$AccountID])->sum('Cost');
 
-        $AccountBalance = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
-        $ActiveBalance = ActiveCall::where(['AccountID'=>$AccountID])->sum('Cost');
+            $AccountBalance = empty($AccountBalance)?0:$AccountBalance;
+            $ActiveBalance = empty($ActiveBalance)?0:$ActiveBalance;
 
-        $AccountBalance = empty($AccountBalance)?0:$AccountBalance;
-        $ActiveBalance = empty($ActiveBalance)?0:$ActiveBalance;
-
-        $TotalAmount = $AccountBalance - $ActiveBalance;
-
+            $TotalAmount = $AccountBalance - $ActiveBalance;
+        }else{
+            $TotalAmount = AccountBalance::getNewAccountBalance($CompanyID, $AccountID);
+        }
         return $TotalAmount;
     }
 }

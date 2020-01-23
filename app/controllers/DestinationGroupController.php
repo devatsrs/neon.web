@@ -259,7 +259,7 @@ class DestinationGroupController extends \BaseController {
             $insertdata['Name'] = $postdata['Name'];
             $insertdata['DestinationGroupSetID'] = $postdata['DestinationGroupSetID'];
             $insertdata['CompanyID'] = $CompanyID;
-            if(isset($postdata['CountryID'])){$insertdata['CountryName'] = $postdata['CountryID'];}
+            if(isset($postdata['CountryID'])){$insertdata['CountryID'] = $postdata['CountryID'];}
             if(isset($postdata['Type'])){$insertdata['Type'] = $postdata['Type'];}
             if(isset($postdata['Prefix'])){$insertdata['Prefix'] = $postdata['Prefix'];}
             if(isset($postdata['City'])){$insertdata['City'] = $postdata['City'];}
