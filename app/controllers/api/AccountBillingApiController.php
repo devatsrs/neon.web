@@ -17,17 +17,34 @@ class AccountBillingApiController extends ApiController {
 	 * 	AutoTopup,MinThreshold,TopupAmount
 	 */
 	public function getAutoDepositSettings(){
-		$data=array();
-		$post_vars = json_decode(file_get_contents("php://input"));
-		if(!empty($post_vars)){
-			$data=json_decode(json_encode($post_vars),true);
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
 		}
-
+		$data=array();
 		$AccountID=0;
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+		}
+		
 		if(!empty($data['AccountID'])){
-			$AccountID=$data['AccountID'];
-
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+			}else {
+				return Response::json(["ErrorMessage" => "AccountID must be a mumber."],Codes::$Code400[0]);
+			}
 		}else if(!empty($data['AccountNo'])) {
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty."],Codes::$Code400[0]);
+			}
 			$Account = Account::where(["Number" => $data['AccountNo']])->first();
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
@@ -37,7 +54,6 @@ class AccountBillingApiController extends ApiController {
 			if(empty($AccountID)){
 				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
-
 		} else{
 			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code400[0]);
 		}
@@ -46,9 +62,7 @@ class AccountBillingApiController extends ApiController {
 		if(empty($Account)){
 			return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 		}
-
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoTopup','MinThreshold','TopupAmount']);
-
 		$Result = $Result != false ? $Result->first() : $Result;
 		return Response::json($Result,Codes::$Code200[0]);
 	}
@@ -59,28 +73,43 @@ class AccountBillingApiController extends ApiController {
 	 * AutoTopup,MinThreshold,TopupAmount
 	 */
 	public function setAutoDepositSettings(){
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data=json_decode(json_encode($post_vars),true);
-
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
 		$AccountID=0;
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+		}
+
 		if(!empty($data['AccountID'])){
-			$AccountID=$data['AccountID'];
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+			}else {
+				return Response::json(["ErrorMessage" => "AccountID must be a mumber."],Codes::$Code400[0]);
+			}
 		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty."],Codes::$Code400[0]);
+			}
 			$Account = Account::where(["Number" => $data['AccountNo']])->first();
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
-			}else{
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-			if(empty($AccountID)){
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
-			}
-
 		}else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code400[0]);
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField is Required."],Codes::$Code400[0]);
 		}
+		
 		$AccountCount=Account::where('AccountID',$AccountID)->count();
 		if($AccountCount > 0) {
 			$AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID', $AccountID);
@@ -102,10 +131,13 @@ class AccountBillingApiController extends ApiController {
 
 	public function updateAutoDepositSetting($data,$AccountPaymentAutomationObj){
 		$rules = array(
-			'AutoTopup' => 'required',
-			'MinThreshold' => 'required',
-			'TopupAmount' => 'required',
+			'AutoTopup' 	=> 'required|in:0,1'
 		);
+
+		if(isset($data['AutoTopup']) && intval($data['AutoTopup']) === 1){
+			$rules['MinThreshold'] = 'required|numeric';
+			$rules['TopupAmount'] 	= 'required|numeric';
+		}
 
 		$verifier = App::make('validation.presence');
 		$verifier->setConnection('sqlsrv');
@@ -136,10 +168,13 @@ class AccountBillingApiController extends ApiController {
 
 	public function createAutoDepositSetting($data,$AccountID){
 		$rules = array(
-			'AutoTopup' => 'required',
-			'MinThreshold' => 'required',
-			'TopupAmount' => 'required',
+			'AutoTopup' 	=> 'required|in:0,1'
 		);
+
+		if(isset($data['AutoTopup']) && intval($data['AutoTopup']) === 1){
+			$rules['MinThreshold'] = 'required|numeric';
+			$rules['TopupAmount'] 	= 'required|numeric';
+		}
 
 		$verifier = App::make('validation.presence');
 		$verifier->setConnection('sqlsrv');
@@ -175,28 +210,45 @@ class AccountBillingApiController extends ApiController {
 	 * AutoOutpayment,OutPaymentThreshold,OutPaymentAmount
 	 */
 	public function getAutoOutPaymentSettings(){
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data=json_decode(json_encode($post_vars),true);
-
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
 		$AccountID=0;
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+		}
+
 		if(!empty($data['AccountID'])){
-			$AccountID=$data['AccountID'];
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+			}else {
+				return Response::json(["ErrorMessage" => "AccountID must be a mumber."],Codes::$Code400[0]);
+			}
 
 		}else if(!empty($data['AccountNo'])) {
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty."],Codes::$Code400[0]);
+			}
 			$Account = Account::where(["Number" => $data['AccountNo']])->first();
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
-			}else{
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
 				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
-
 		} else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code400[0]);
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo AccountDynamicField is Required."],Codes::$Code400[0]);
 		}
 
 		$Account = Account::find($AccountID);
@@ -216,25 +268,42 @@ class AccountBillingApiController extends ApiController {
 	 *AutoOutpayment,OutPaymentThreshold,OutPaymentAmount
 	 */
 	public function setAutoOutPaymentSettings(){
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data=json_decode(json_encode($post_vars),true);
-
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
 		$AccountID=0;
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+		}
+
 		if(!empty($data['AccountID'])){
-			$AccountID=$data['AccountID'];
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+			}else {
+				return Response::json(["ErrorMessage" => "AccountID must be a mumber."],Codes::$Code400[0]);
+			}
 		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty."],Codes::$Code400[0]);
+			}
 			$Account = Account::where(["Number" => $data['AccountNo']])->first();
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
-			}else{
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
 				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
-
 		}else{
 			return Response::json(["ErrorMessage"=>"AccountID or AccountNo Field is Required."],Codes::$Code400[0]);
 		}
@@ -246,7 +315,6 @@ class AccountBillingApiController extends ApiController {
 				//update
 				$AccountPaymentAutomationObj = $AccountPaymentAutomation->first();
 				return $this->updateAutoOutPaymentSetting($data, $AccountPaymentAutomationObj);
-
 			} else {
 				//return Response::json(array("status" => "failed", "message" => "Account Not Found."));
 				//Create Record
@@ -259,13 +327,15 @@ class AccountBillingApiController extends ApiController {
 	}
 
 	public function updateAutoOutPaymentSetting($data,$AccountPaymentAutomation){
-
 		$rules = array(
-			'AutoOutpayment' => 'required',
-			'OutPaymentThreshold' => 'required',
-			'OutPaymentAmount' => 'required',
+			'AutoOutpayment' 	=> 'required|in:0,1'
 		);
 
+		if(isset($data['AutoOutpayment']) && intval($data['AutoOutpayment']) === 1){
+			$rules['OutPaymentThreshold'] = 'required|numeric';
+			$rules['OutPaymentAmount'] 	= 'required|numeric';
+		}
+		
 		$verifier = App::make('validation.presence');
 		$verifier->setConnection('sqlsrv');
 
@@ -296,10 +366,13 @@ class AccountBillingApiController extends ApiController {
 	public function createAutoOutPaymentSetting($data,$AccountID){
 
 		$rules = array(
-			'AutoOutpayment' => 'required',
-			'OutPaymentThreshold' => 'required',
-			'OutPaymentAmount' => 'required',
+			'AutoOutpayment' 	=> 'required|in:0,1'
 		);
+
+		if(isset($data['AutoOutpayment']) && intval($data['AutoOutpayment']) === 1){
+			$rules['OutPaymentThreshold'] = 'required|numeric';
+			$rules['OutPaymentAmount'] 	= 'required|numeric';
+		}
 
 		$verifier = App::make('validation.presence');
 		$verifier->setConnection('sqlsrv');
