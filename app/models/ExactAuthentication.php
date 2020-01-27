@@ -65,7 +65,7 @@ class ExactAuthentication extends \Eloquent {
     public static $OneOffInvoiceComponent = array(
         "One-Off"       => "One-Off",
         "Outpayment"    => "Outpayment",
-        "TopUp"         => "TopUp",
+        "topup"         => "TopUp",
     );
 
     public static function getAllMappingElements(){
