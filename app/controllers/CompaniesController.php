@@ -110,15 +110,21 @@ class CompaniesController extends \BaseController {
             'CurrencyId' => 'required'
         );
         if (isset($data['Components']) ){
+            DiscountPlan::ReplaceAndDeleteComponents($data['Components'] , 1);
             $data['Components'] = implode(",", $data['Components']);
+            
         }
 
         if (isset($data['AccessComponents']) ){
+            DiscountPlan::ReplaceAndDeleteComponents($data['AccessComponents'] , 2);
             $data['AccessComponents'] = implode(",", $data['AccessComponents']);
+            
         }
 
         if (isset($data['PackageComponents']) ){
+            DiscountPlan::ReplaceAndDeleteComponents($data['PackageComponents'] , 3);
             $data['PackageComponents'] = implode(",", $data['PackageComponents']);
+            
         }
 
 

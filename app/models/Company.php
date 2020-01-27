@@ -250,4 +250,14 @@ class Company extends \Eloquent {
         $Address .= !empty($companyData->Address3) ? $companyData->Address3 . ',' . PHP_EOL : '';
         return $Address;
     }
+
+    public static function removeItemString($str, $item) {
+        $parts = explode(',', $str);
+        while(($i = array_search($item, $parts)) !== false) {
+            unset($parts[$i]);
+        }
+        return implode(',', $parts);
+    }
 }
+
+ 
