@@ -187,7 +187,7 @@ class BillingClassApiController extends ApiController {
                         return Response::json(["ErrorMessage"=>"AccountID OR AccountNo or AccountDynamicField is Required"],Codes::$Code400[0]);
                     }
 
-                    if(empty(trim($data['BalanceThreshold']))) {
+                    if(empty($data['BalanceThreshold'])) {
                         return Response::json(["ErrorMessage"=>"BalanceThreshold Required"],Codes::$Code400[0]);
                     }
 
