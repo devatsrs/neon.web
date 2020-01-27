@@ -593,7 +593,8 @@ class PaymentApiController extends ApiController {
 			$Terms = isset($Reseller->TermsAndCondition) ? $Reseller->TermsAndCondition : '';
 			$FooterTerm = isset($Reseller->FooterTerm) ? $Reseller->FooterTerm : '';
 
-			$LastInvoiceNumber = Invoice::getNextInvoiceNumber($CompanyID);
+			$MainCompanyID = getParentCompanyIdIfReseller($CompanyID);
+			$LastInvoiceNumber = Invoice::getNextInvoiceNumber($MainCompanyID);
 			$FullInvoiceNumber = Company::getCompanyField($CompanyID, "InvoiceNumberPrefix") . $LastInvoiceNumber;
 
 			//For Tax Rate
@@ -654,7 +655,7 @@ class PaymentApiController extends ApiController {
 			}
 
 			//Store Last Invoice Number.
-			Company::find($CompanyID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber));
+			Company::find($MainCompanyID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber));
 			$InvoiceID = $Invoice->InvoiceID;
 			log::info('InvoiceID ' . $InvoiceID);
 

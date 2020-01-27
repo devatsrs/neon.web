@@ -79,7 +79,8 @@ class AccountPayout extends \Eloquent
 
         $AmountWithoutTax = (float)$Amount - (float)$TotalTax;
 
-        $InvoiceData["InvoiceNumber"] = Invoice::getNextInvoiceNumber($CompanyID);
+        $MainCompanyID = getParentCompanyIdIfReseller($CompanyID);
+        $InvoiceData["InvoiceNumber"] = Invoice::getNextInvoiceNumber($MainCompanyID);
         $InvoiceData["FullInvoiceNumber"] = $prefix . $InvoiceData["InvoiceNumber"];
         $InvoiceData["Address"]       = $InvoiceToAddress;
         $InvoiceData["Description"]   = "Out Payment";
@@ -161,7 +162,7 @@ class AccountPayout extends \Eloquent
             }
 
             //Store Last Invoice Number.
-            Company::find($CompanyID)->update(array(
+            Company::find($MainCompanyID)->update(array(
                 "LastInvoiceNumber" => $InvoiceData["InvoiceNumber"]
             ));
 
