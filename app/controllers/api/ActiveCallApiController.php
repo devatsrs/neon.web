@@ -363,9 +363,40 @@ class ActiveCallApiController extends ApiController {
     }
 
     public function getBlockCalls(){
-        $post_vars = json_decode(file_get_contents("php://input"));
-        $data      = json_decode(json_encode($post_vars),true);
-
+        if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
+        $AccountID = 0;
+        try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+        }
+        
+        if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo is required"],Codes::$Code400[0]);
+			}
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField is required."],Codes::$Code400[0]);
+        }
+        
         $rules = array(
             'StartDate' => 'required|date|date_format:Y-m-d',
             'EndDate' => 'required|date|date_format:Y-m-d',
@@ -384,25 +415,12 @@ class ActiveCallApiController extends ApiController {
         }
 
         if (strtotime($data['EndDate']) < strtotime($data['StartDate'])) {
-            return  Response::json(["ErrorMessage" => "End date should be greater then or equal to start date."], Codes::$Code400[0]);
+            return  Response::json(["ErrorMessage" => "End date should be greater than or equal to start date."], Codes::$Code400[0]);
         }
 
         $StartDate 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
         $EndDate 	 = 		!empty($data['EndDate'])?$data['EndDate']:'0000-00-00';
-        $AccountID = 0;
-
-        if(!empty($data['AccountID'])) {
-            $AccountID = $data['AccountID'];
-        }else if(!empty($data['AccountNo'])){
-            $AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
-        }else if(!empty($data['AccountDynamicField'])){
-            $AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-        }
-
-        if(empty($AccountID)){
-            $AccountID=0;
-        }
-
+       
         try {
             $query = "CALL prc_getBlockCall(" . $AccountID . ",'" . $StartDate . "','" . $EndDate . "')";
             //echo $query;die;
@@ -418,8 +436,39 @@ class ActiveCallApiController extends ApiController {
     }
 
     public function getCDR(){
-        $post_vars = json_decode(file_get_contents("php://input"));
-        $data      = json_decode(json_encode($post_vars),true);
+        if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
+        $AccountID = 0;
+        try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+        }
+
+        if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo is required"],Codes::$Code400[0]);
+			}
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField is required."],Codes::$Code400[0]);
+        }
 
         $rules = array(
             'StartDate' => 'required|date|date_format:Y-m-d',
@@ -444,20 +493,7 @@ class ActiveCallApiController extends ApiController {
 
         $StartDate 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
         $EndDate 	 = 		!empty($data['EndDate'])?$data['EndDate']:'0000-00-00';
-        $AccountID = 0;
-
-        if(!empty($data['AccountID'])) {
-            $AccountID = $data['AccountID'];
-        }else if(!empty($data['AccountNo'])){
-            $AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
-        }else if(!empty($data['AccountDynamicField'])){
-            $AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-        }
-
-        if(empty($AccountID)){
-            $AccountID=0;
-        }
-
+        
         try {
             $query = "CALL prc_getCallData(" . $AccountID . ",'" . $StartDate . "','" . $EndDate . "')";
             //echo $query;die;

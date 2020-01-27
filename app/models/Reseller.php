@@ -26,7 +26,9 @@ class Reseller extends \Eloquent
         if($CompanyID==0){
             $CompanyID = User::get_companyID();
         }
-        $DropdownIDList = Reseller::where(array("CompanyID"=>$CompanyID,"Status"=>1))->lists('ResellerName', 'ResellerID');
+        $DropdownIDList = Reseller::where(array("tblReseller.CompanyID"=>$CompanyID,"tblAccount.Status"=>1))
+        ->join('tblAccount' , 'tblAccount.AccountID' , '=' , 'tblReseller.AccountID')
+        ->lists('ResellerName', 'ResellerID');
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
         return $DropdownIDList;
     }
