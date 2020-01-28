@@ -163,4 +163,27 @@ class DiscountPlan extends \Eloquent
         return $DropdownIDList;
     }
 
+    public static function ReplaceAndDeleteComponents($Components , $Type){
+        foreach($Components as $component){
+            $discounts = DiscountScheme::join('tblDiscount','tblDiscount.DiscountID' , '=' , 'tblDiscountScheme.DiscountID')
+            ->join('tblDestinationGroup','tblDestinationGroup.DestinationGroupID' , '=' , 'tblDiscount.DestinationGroupID')
+            ->join('tblDestinationGroupSet','tblDestinationGroupSet.DestinationGroupSetID' , '=' , 'tblDiscount.DestinationGroupID')
+            ->where('tblDestinationGroupSet.RateTypeID', $Type)->where('tblDiscountScheme.Components' , 'like' , '%' . $component .'%')->get();
+            foreach($discounts as $discount){
+                if($discount->Components === $component){
+                    DiscountScheme::where('DiscountSchemeID', $discount->DiscountSchemeID)->delete();
+                }else{
+                    $allcomponents = $discount->Components;
+                    $result_string = Company::removeItemString($allcomponents, $component);
+                    if($result_string != $allcomponents){
+                        if(empty($result_string)){
+                            DiscountScheme::where('DiscountSchemeID', $discount->DiscountSchemeID)->delete();
+                        } else {
+                            DiscountScheme::where('DiscountSchemeID', $discount->DiscountSchemeID)->update(['Components' => $result_string]);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
