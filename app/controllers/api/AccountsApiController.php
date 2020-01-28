@@ -4056,9 +4056,41 @@ class AccountsApiController extends ApiController {
 
 	// New API to create account service and add number by vasim seta @2019-12-30
 	public function addNewAccountService() {
-		$post_vars 	= json_decode(file_get_contents("php://input"));
-		$data		= json_decode(json_encode($post_vars),true);
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+		}
 
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+		}
+		$CompanyID=0;
+		$AccountID=0;
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+			}else {
+				return Response::json(["ErrorMessage" => "AccountID must be a mumber."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty."],Codes::$Code400[0]);
+			}
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
+		
 		$rules = array(
 			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo|numeric',
 			/*'AccountNo' 						=> 'required_without_all:AccountDynamicField,AccountID',
@@ -4128,19 +4160,6 @@ class AccountsApiController extends ApiController {
 			}
 			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
-
-		$CompanyID=0;
-		$AccountID=0;
-		if(!empty($data['AccountID'])) {
-			$AccountID = $data['AccountID'];
-		}else if(!empty($data['AccountNo'])){
-			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
-		}else if(!empty($data['AccountDynamicField'])){
-			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-		}else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
-		}
-
 		$Account = Account::find($AccountID);
 		if($Account){
 			$CompanyID 	= $Account->CompanyId;
