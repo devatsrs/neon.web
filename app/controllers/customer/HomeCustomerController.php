@@ -63,6 +63,22 @@ class HomeCustomerController extends BaseController {
         }
     }
 
+    public function quickLogin() {
+            $data = Input::all();
+            if ( User::user_login($data) && NeonAPI::login("customer") ) {
+                $redirect_to = URL::to("/customer/monitor");
+                if (CompanyConfiguration::get('CUSTOMER_DASHBOARD_DISPLAY') == 0 && CompanyConfiguration::get('CUSTOMER_NOTICEBOARD_DISPLAY') == 1){
+                    $redirect_to =  URL::to('customer/noticeboard');
+                }else if(isset($data['redirect_to'])){
+                    $redirect_to = $data['redirect_to'];
+                }
+                $UserActilead = UserActivity::UserActivitySaved($data,'Login','Login');
+                return Redirect::to($redirect_to);
+            } else {
+                return Redirect::to('customer/login');
+            }
+    }
+
     public function dologout() {
         $Request=array();
         $UserActilead = UserActivity::UserActivitySaved($Request,'Logout','Logout');

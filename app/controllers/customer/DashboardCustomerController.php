@@ -128,6 +128,7 @@ class DashboardCustomerController extends BaseController {
 
     public function monitor_dashboard(){
 
+        $data = [];
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
