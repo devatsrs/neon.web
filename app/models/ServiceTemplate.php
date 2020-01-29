@@ -113,11 +113,8 @@ class ServiceTemplate extends \Eloquent
         else
             return $country = Country::select('Country AS country','Prefix')->orderBy('country')->lists("country", "Prefix");
     }
-    public static function getCountryDD($CompanyID){
-        $country = ServiceTemplate::Join('tblCountry', function($join) {
-                $join->on('tblServiceTemplate.country','=','tblCountry.country');
-                })->select('tblCountry.country AS country','tblCountry.countryID As CountryID')->where("tblServiceTemplate.CompanyID",$CompanyID)
-                ->orderBy('tblServiceTemplate.country')->lists("country", "CountryID");
+    public static function getCountryDD($CompanyID = 1){
+        $country = Country::lists("country", "CountryID");
         return $country;        
     }
     public static function getCountryDDForProduct($CompanyID){

@@ -1029,8 +1029,7 @@ class Invoice extends \Eloquent {
         $Company = Company::find($CompanyID);
         $NewInvoiceNumber =  ($Company->LastInvoiceNumber > 0)?($Company->LastInvoiceNumber + 1):1;
         while(Invoice::where([
-                "InvoiceNumber" => $NewInvoiceNumber,
-                'CompanyID'     => $CompanyID
+                "InvoiceNumber" => $NewInvoiceNumber
             ])->count()>0){
             $NewInvoiceNumber++;
         }
