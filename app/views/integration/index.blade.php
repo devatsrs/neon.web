@@ -1083,10 +1083,18 @@
                     ?>
                     <div class="subcategorycontent" id="subcategorycontent{{$masavDBData->Slug}}">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">* KEY:</label>
                                     <input type="text"  class="form-control" name="KEY" value="{{isset($masavData->KEY)?$masavData->KEY:''}}" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Active:</label>
+                                    <div id="gocardlessStatusDiv">
+                                        <input id="GoCardLessStatus" class="subcatstatus" Divid="gocardlessStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($masavData->Status) && $masavData->Status==1){ ?>   checked="checked"<?php } ?> >
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -36,5 +36,16 @@ class IntegrationConfiguration extends \Eloquent {
 		
 		$result = $Gateway->count();
 		return $result;
-   }     
+   } 
+   static function get_status($GatewayID = 0){
+ 	 	$CompanyID 		= 	User::get_companyID();
+		
+       	$Gateway =  CompanyGateway::select('Status')->where("CompanyID", $CompanyID);
+		if($GatewayID>0){
+			$Gateway->where("GatewayID", $GatewayID);
+		} 
+		
+		$result = $Gateway->first();
+		return $result['Status'];
+   }    
 }
