@@ -1738,6 +1738,9 @@ function is_Xero($CompanyID){
 function is_merchantwarrior($CompanyID){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$MerchantWarriorSlug,$CompanyID);
 }
+function is_masav($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$MASAVSlug,$CompanyID);
+}
 function is_FastPay($CompanyID){
     return	SiteIntegration::CheckIntegrationConfigurationFastPay(false,SiteIntegration::$FastPaySlug,$CompanyID);
 }

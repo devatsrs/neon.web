@@ -21,3 +21,8 @@
 		@include('customer.paymentprofile.sagepaydirectdebitGrid')
 	@endif
 @endif
+@if( $account->PaymentMethod == 'MASAV')
+	@if(is_masav($account->CompanyId))
+		@include('customer.paymentprofile.masavGrid')
+	@endif
+@endif

@@ -128,7 +128,22 @@ class PaymentProfileCustomerController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
         }
     }
-
+    public function updateProfile(){
+        $data                       = Input::all();
+        $CompanyID                  = Customer::get_companyID();
+        $isMasav                    = SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$MASAVSlug,$CompanyID);
+        if(!$isMasav){
+            return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PAYMENT_METHOD_NOT_INTEGRATED')));
+        }
+        $masav = new MASAV();
+        $result = $masav->updateProfile($data);
+        if ($result) {
+            return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_UPDATED')));
+        } else {
+            return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PROBLEM_UPDATING_PAYMENT_METHOD_PROFILE')));
+        }
+        
+    }
     public function delete($id){
         $data = Input::all();
         $ProfileID = "";

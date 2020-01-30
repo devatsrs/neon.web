@@ -1076,6 +1076,22 @@
                         <!-- quickbook form end-->
                     </div>
                     <!-- Quick Book Desktop End-->
+                    <!-- MASAV Start -->
+                    <?php
+                    $masavDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$MASAVSlug);
+                    $masavData   = isset($masavDBData->Settings)?json_decode($masavDBData->Settings):"";
+                    ?>
+                    <div class="subcategorycontent" id="subcategorycontent{{$masavDBData->Slug}}">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label">* KEY:</label>
+                                    <input type="text"  class="form-control" name="KEY" value="{{isset($masavData->KEY)?$masavData->KEY:''}}" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- MASAV End -->
 
                     <!-- Xero -->
                     <?php
