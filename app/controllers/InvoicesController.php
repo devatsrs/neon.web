@@ -141,7 +141,6 @@ class InvoicesController extends \BaseController {
         $accounts = Account::getAccountIDList();
 		$DefaultCurrencyID    	=   Company::where("CompanyID",$CompanyID)->pluck("CurrencyId");
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
-        $ExportStatus = IntegrationConfiguration::get_status();
         //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
 		$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
         $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
@@ -155,7 +154,7 @@ class InvoicesController extends \BaseController {
         $view_data = array();
         $InvoiceActilead = UserActivity::UserActivitySaved($view_data,'View','Invoice');
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID', 'ExportStatus'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID'));
 
     }
 
