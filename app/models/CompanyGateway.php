@@ -684,7 +684,7 @@ class CompanyGateway extends \Eloquent {
         log::info('-- System Alert END--');*/
 
 
-        log::info('-- ActiveCall Balance Alert --');
+        /*log::info('-- ActiveCall Balance Alert --');
         $SystemAlertCommandID = CronJobCommand::getCronJobCommandIDByCommand('activecallbalancealert',$CompanyID);
         $Alert_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$SystemAlertCommandID])->count();
         if($Alert_Count == 0) {
@@ -708,7 +708,7 @@ class CompanyGateway extends \Eloquent {
             log::info($SystemAlertLivedata);
             CronJob::create($SystemAlertLivedata);
         }
-        log::info('-- ActiveCall Balance Alert END--');
+        log::info('-- ActiveCall Balance Alert END--');*/
 
     }
 
