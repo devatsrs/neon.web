@@ -1093,7 +1093,7 @@
                                 <div class="form-group">
                                     <label class="control-label">Active:</label>
                                     <div id="masavStatusDiv">
-                                        <input id="masavStatus" class="subcatstatus" Divid="masavStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($masavData->Status) && $masavData->Status==1){ ?>   checked="checked"<?php } ?> >
+                                        <input id="masavStatus" class="subcatstatus" Divid="masavStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($masavDBData->Status) && $masavDBData->Status==1){ ?>   checked="checked"<?php } ?> >
                                     </div>
                                 </div>
                             </div>
