@@ -173,7 +173,7 @@ var postdata;
                 }  }, //1   TaxRateAmount*/
                 {  "bSortable": true},
                 {  "bSortable": true ,mRender: function ( data, type, full ) {
-                    return full[6];
+                    return full[7];
                 }
                 /*, "sClass":"aligncenter",mRender: function ( data, type, full ) {
                      
