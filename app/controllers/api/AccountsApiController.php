@@ -25,9 +25,9 @@ class AccountsApiController extends ApiController {
 							->where('Email',$data['email'])
 							->orWhere('BillingEmail', $data['email'])->pluck('AccountID');
 		if($AccountID){
-			return Response::json(["status"=>"failed", "data"=>"Account already Exists"]);
+			return Response::json(["status"=>"failed", "data"=>"Account already Exists"],Codes::$Code400[0]);
 		}
-		return Response::json(["status"=>"success", "data"=>"Account Not Found"]);
+		return Response::json(["status"=>"success", "data"=>"Account Not Found"],Codes::$Code400[0]);
 	}
 
 	/**
@@ -3807,14 +3807,14 @@ class AccountsApiController extends ApiController {
 				$AccountIDRef = '';
 					$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 					if (empty($AccountIDRef)) {
-						return Response::json(["status" => "failed", "message" => "Please provide the correct Account ID"]);
+						return Response::json(["status" => "failed", "message" => "Please provide the correct Account ID"],Codes::$Code400[0]);
 					}
 
 
 				$data['AccountID'] = $AccountIDRef;
 
 				if (empty($data['AccountID'])) {
-					return Response::json(["status" => "failed", "message" => "No Account Found for the Reference"]);
+					return Response::json(["status" => "failed", "message" => "No Account Found for the Reference"],Codes::$Code400[0]);
 				}
 			}
 
@@ -3827,7 +3827,7 @@ class AccountsApiController extends ApiController {
 			if (count($Account) > 0) {
 				return Response::json(["status"=>"success", "AccountID"=>$Account->AccountID,"AccountNo"=>$Account->Number]);
 			} else {
-				return Response::json(["status" => "failed", "message" => "Account not found against the reference"]);
+				return Response::json(["status" => "failed", "message" => "Account not found against the reference"],Codes::$Code400[0]);
 			}
 		}catch (Exception $ex) {
 			Log::info('GetAccount:Exception.' . $ex->getTraceAsString());
@@ -3839,7 +3839,7 @@ class AccountsApiController extends ApiController {
 	// add Additional charges
 	public function CreateCharge(){
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$recurringName = 'Recurring';
 		$CompanyID=0;
@@ -3850,11 +3850,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
 			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 		//strtolower
 		$data['ChargeCode'] = strtolower('One-Off');
@@ -4057,7 +4057,7 @@ class AccountsApiController extends ApiController {
 	// New API to create account service and add number by vasim seta @2019-12-30
 	public function addNewAccountService() {
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 
 		try {
@@ -4065,11 +4065,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
 			Log::info('Exception in addNewAccountService API. Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 		$CompanyID=0;
 		$AccountID=0;
@@ -4367,7 +4367,7 @@ class AccountsApiController extends ApiController {
 	// New API to update account service tariff by vasim seta @2020-01-01
 	public function updateTariff() {
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$CompanyID=0;
 		$AccountID=0;
@@ -4377,11 +4377,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
 			Log::info('Exception in updateTariff API. Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 		
 		if(!empty($data['AccountID'])) {
@@ -4595,7 +4595,7 @@ class AccountsApiController extends ApiController {
 	// New API to update account service by vasim seta @2020-01-02
 	public function updateAccountService() {
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$CompanyID=0;
 		$AccountID=0;
@@ -4606,11 +4606,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
 			Log::info('Exception in updateAccountService API. Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 		
 		
@@ -4727,7 +4727,7 @@ class AccountsApiController extends ApiController {
 	// New API to update account service package by vasim seta @2020-01-02
 	public function updateServicePackage() {
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$CompanyID=0;
 		$AccountID=0;
@@ -4737,11 +4737,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
 			Log::info('Exception in updateServicePackage API. Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 
 		
@@ -4892,7 +4892,7 @@ class AccountsApiController extends ApiController {
 	// New API to transfer number from one account to another by vasim seta @2020-01-03
 	public function transferServiceNumber() {
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$FromCompanyID=$ToCompanyID=0;
 		$FromAccountID=$ToAccountID=0;
@@ -4903,11 +4903,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
 			Log::info('Exception in transferServiceNumber API. Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 
 		if(!empty($data['FromAccountID'])) {
@@ -5132,7 +5132,7 @@ class AccountsApiController extends ApiController {
 	// New API to update final number (replace test number with final number) by vasim seta @2020-02-10
 	public function updateFinalNumber() {
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$CompanyID=0;
 		$AccountID=0;
@@ -5144,11 +5144,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}
 		}catch(Exception $ex) {
 			Log::info('Exception in updateFinalNumber API. Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 
 		if(!empty($data['AccountID'])) {
