@@ -119,7 +119,7 @@ class Invoice extends \Eloquent {
                 $PaymentDueInDays = BillingClass::getPaymentDueInDays($BillingClassID);
             }
 
-            $AccountBilling = AccountBilling::where('AccountID',$Invoice->AccountID)->first();
+            //$AccountBilling = AccountBilling::where('AccountID',$Invoice->AccountID)->first();
             $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
             //Log::info("Pdf Reseller");
             //Log::info(print_r($Reseller, true));
@@ -160,8 +160,8 @@ class Invoice extends \Eloquent {
             }
             $print_type = 'Invoice';
 
-            if($AccountBilling->BillingType == AccountBilling::BILLINGTYPE_PREPAID)
-                $print_type = "Proforma";
+            /*if($AccountBilling->BillingType == AccountBilling::BILLINGTYPE_PREPAID)
+                $print_type = "Proforma";*/
 
             $creditNote = Product::where('Code',Product::CreditNote)->first();
             if($creditNote != false && !empty($InvoiceDetail)){
