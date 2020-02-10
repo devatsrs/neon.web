@@ -2351,10 +2351,11 @@ class InvoicesController extends \BaseController {
         }
 
     }
-    public function masavExport(){
-        $result                 = [];
+    public function masavExport() {
+		$invoiceIds 			= $paymentData = $result = [];
         $providerKey            = '';
         $data                   = Input::all();
+		
         // Account Manager Condition
         $userID                 = 0; 
         if(User::is('AccountManager')) { // Account Manager
@@ -2379,29 +2380,57 @@ class InvoicesController extends \BaseController {
             $invoiceIds         = explode(',', $data['InvoiceIDs']);
             $query->whereIn('tblInvoice.InvoiceID', $invoiceIds);
         }
-        $query->select('Ratemanagement3.tblAccount.AccountID', 'Ratemanagement3.tblAccount.PaymentMethod', 'Ratemanagement3.tblAccount.AccountName', 'Ratemanagement3.tblAccountPaymentProfile.Options', 'tblInvoice.FullInvoiceNumber', 'tblInvoice.GrandTotal', 'tblInvoice.IssueDate');
+        $query->select('Ratemanagement3.tblAccount.AccountID', 'Ratemanagement3.tblAccount.PaymentMethod', 'Ratemanagement3.tblAccount.AccountName', 'Ratemanagement3.tblAccountPaymentProfile.Options', 'tblInvoice.InvoiceID', 'tblInvoice.FullInvoiceNumber', 'tblInvoice.GrandTotal', 'tblInvoice.IssueDate');
         $excel_data = $query->get()->toArray();
+		
         foreach($excel_data as $key=>$value) {
-            $result[$key]['CustomerName']       = $value['AccountName'];
+			$paymentData['PaymentStatus'] = '';
+			if($data['MarkPaid'] == 1) {
+				$paymentData['PaymentStatus'] 	= Invoice::PAID;
+			}
+			$paymentData['AccountID'] 			= $value['AccountID'];
+			$paymentData['PaymentMethod'] 		= $value['PaymentMethod'];
+			$invoiceIds[$key] = $paymentData['InvoiceID'] = $value['InvoiceID'];
+			$result[$key]['Amount']             = $paymentData['Amount'] = $value['GrandTotal'];
+            $result[$key]['CustomerName']       = $paymentData['CreatedBy'] = $paymentData['ModifyBy'] = $value['AccountName'];
+			$paymentData['Transaction'] 		= '';
+			$paymentData['transaction_notes'] 	= '';
+			$paymentData['Response'] 	= '';
+			
+			
             if(!empty($value['Options'])) {
                 $optionsData = json_decode($value['Options'],true);
-                if(!empty($optionsData['BankCode']) && !empty($optionsData['BranchNo'])&& $optionsData['BankAccount']) {
-                    $result[$key]['BankInfo']   = $optionsData['BankCode'].'-'.$optionsData['BranchNo'].'-'.$optionsData['BankAccount'];
-                }else {
-                    $result[$key]['BankInfo']   = '';
-                }
-            }else {
-                $result[$key]['BankInfo']       = '';
+                $result[$key]['BankCode']       = $optionsData['BankCode'];
+                $result[$key]['BranchNo']       = $optionsData['BranchNo'];
+                $result[$key]['BankAccount']    = $optionsData['BankAccount'];  
             }
             $result[$key]['InvoiceNumber']      = $value['FullInvoiceNumber'];
             $result[$key]['ProviderKey']        = $providerKey;
-            $result[$key]['Amount']             = $value['GrandTotal'];
             $orgDate = $value['IssueDate'];  
             $result[$key]['DueDate']            = date("Y-m-d", strtotime($orgDate));
+			$result[$key]['Type'] 			= 504;
+			if(!empty($paymentData)){
+				Payment::paymentSuccess($paymentData);
+			}
+			
         }
-        $file_path              = CompanyConfiguration::get('UPLOAD_PATH') .'/InvoiceMasavExport.csv';
-        $NeonExcel              = new NeonExcelIO($file_path);
-        $NeonExcel->download_csv($result);
+		
+		if(!empty($result)) {
+				if(!empty($invoiceIds) && count($invoiceIds) > 0) {
+					if($data['MarkPaid'] == 1) {
+						if (Invoice::whereIn('InvoiceID', $invoiceIds)->update(['InvoiceStatus'=>Invoice::PAID])) {
+							$file_path              = CompanyConfiguration::get('UPLOAD_PATH') .'/InvoiceMasavExport.csv';
+							$NeonExcel              = new NeonExcelIO($file_path);
+							$NeonExcel->download_csv($result);
+						}
+					}else {
+						$file_path              = CompanyConfiguration::get('UPLOAD_PATH') .'/InvoiceMasavExport.csv';
+						$NeonExcel              = new NeonExcelIO($file_path);
+						$NeonExcel->download_csv($result);
+					} 
+				}	
+		}
+        
     }
     public function invoice_fastpayexport(){
         $data = Input::all();

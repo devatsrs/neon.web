@@ -3,7 +3,7 @@
     <div class="panel-heading">
         <div class="panel-title">
             <?php
-            $title = 'Bank Transfer';
+            $title = 'MASAV';
             ?>
             {{$title}} @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TITLE')
         </div>
@@ -348,13 +348,13 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_ACCOUNT_NO')</label>
+                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_BRANCH_NO')</label>
                                     <input type="text" name="BranchNo" class="form-control" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_BRANCH_NO')</label>
+                                    <label class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_ACCOUNT_NO')</label>
                                     <input type="text" name="BankAccount" autocomplete="off" class="form-control" placeholder="">
                                 </div>
                             </div>
