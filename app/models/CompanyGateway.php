@@ -546,7 +546,7 @@ class CompanyGateway extends \Eloquent {
     }
 
     public static function createDefaultCronJobs($CompanyID){
-        log::info('-- Active CronJob --');
+        /*log::info('-- Active CronJob --');
         $today = date('Y-m-d');
         $ActiveCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('activecronjobemail',$CompanyID);
         $ActiveCronJob_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$ActiveCronJobCommandID])->count();
@@ -564,7 +564,7 @@ class CompanyGateway extends \Eloquent {
             log::info($ActiveCronJobdata);
             CronJob::create($ActiveCronJobdata);
         }
-        log::info('-- Active CronJob END--');
+        log::info('-- Active CronJob END--');*/
 
         /*log::info('-- Activity Reminder --');
         $ActivityReminderJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('accountactivityreminder',$CompanyID);
@@ -603,8 +603,8 @@ class CompanyGateway extends \Eloquent {
             CronJob::create($AutoInvoiceGeneratordata);
         }
         log::info('-- Auto Invoice Generator END--');*/
-        log::info('-- Create Summary --');
-        /*
+        /*log::info('-- Create Summary --');
+
         $CreateSummaryCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummary',$CompanyID);
         $CreateSummary_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CreateSummaryCommandID])->count();
         if($CreateSummary_Count == 0) {
@@ -621,10 +621,10 @@ class CompanyGateway extends \Eloquent {
             log::info($CreateSummarydata);
             CronJob::create($CreateSummarydata);
         }
-        */
-        log::info('-- Create Summary END--');
-        log::info('-- Create Summary Live --');
-        /*
+
+        log::info('-- Create Summary END--');*/
+        /*log::info('-- Create Summary Live --');
+
         $CreateSummaryLiveCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummarylive',$CompanyID);
         $CreateSummaryLive_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CreateSummaryLiveCommandID])->count();
         if($CreateSummaryLive_Count == 0) {
@@ -640,8 +640,8 @@ class CompanyGateway extends \Eloquent {
             $CreateSummaryLivedata['JobTitle'] = $CreateSummaryLiveJobTitle;
             log::info($CreateSummaryLivedata);
             CronJob::create($CreateSummaryLivedata);
-        }*/
-        log::info('-- Create Summary Live END--');
+        }
+        log::info('-- Create Summary Live END--');*/
 
         /*
         log::info('-- Account Balance Generator --');
@@ -682,6 +682,33 @@ class CompanyGateway extends \Eloquent {
             CronJob::create($SystemAlertLivedata);
         }
         log::info('-- System Alert END--');*/
+
+
+        /*log::info('-- ActiveCall Balance Alert --');
+        $SystemAlertCommandID = CronJobCommand::getCronJobCommandIDByCommand('activecallbalancealert',$CompanyID);
+        $Alert_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$SystemAlertCommandID])->count();
+        if($Alert_Count == 0) {
+            $SystemAlertJobTitle = 'ActiveCall Balance Alert';
+            $SystemAlertSetting = '{"ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"5","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","APIURL":"","BlockCallAPI":""}';
+
+            $ParentCompanyID = getParentCompanyIdIfReseller($CompanyID);
+            $ParentAlertJob = CronJob::where(['CompanyID'=>$ParentCompanyID,'CronJobCommandID'=>$SystemAlertCommandID])->first();
+            if($ParentAlertJob != false){
+                $SystemAlertJobTitle = $ParentAlertJob->JobTitle;
+                $SystemAlertSetting = $ParentAlertJob->Settings;
+            }
+            $SystemAlertLivedata = array();
+            $SystemAlertLivedata['CompanyID'] = $CompanyID;
+            $SystemAlertLivedata['CronJobCommandID'] = $SystemAlertCommandID;
+            $SystemAlertLivedata['Settings'] = $SystemAlertSetting;
+            $SystemAlertLivedata['Status'] = 1;
+            $SystemAlertLivedata['created_by'] = 'system';
+            $SystemAlertLivedata['created_at'] = $today;
+            $SystemAlertLivedata['JobTitle'] = $SystemAlertJobTitle;
+            log::info($SystemAlertLivedata);
+            CronJob::create($SystemAlertLivedata);
+        }
+        log::info('-- ActiveCall Balance Alert END--');*/
 
     }
 

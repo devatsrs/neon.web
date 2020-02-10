@@ -703,7 +703,7 @@
                 html += '     <div><a href="tel:' + childrens.eq(4).text() + '">' + childrens.eq(4).text() + '</a></div>';
                 html += '  </div>';
                 html += '  <div class="block"><div class="meta clear pull-left tooltip-primary">AB : </div> <div class="pull-left" data-toggle="popover"  data-trigger="hover" data-original-title=""> ' + childrens.eq(5).text() + ' </div>';
-                html += '  <div class="meta clear pull-left tooltip-primary">DA : </div> <div class="pull-left"> <a class="unbilled_report" data-id="'+accountid+'">' + DueAmount + '</a> </div>';
+                html += '  <div class="meta clear pull-left tooltip-primary">DA : </div> <div class="pull-left" data-toggle="popover"  data-trigger="hover" data-original-title=""> ' + DueAmount + ' </div>';
                 html += '  <div class="meta clear pull-left">CL : </div> <div class="pull-left"> ' + PermanentCredit + ' </div></div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-6 padding-0">';

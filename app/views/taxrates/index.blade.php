@@ -173,7 +173,7 @@ var postdata;
                 }  }, //1   TaxRateAmount*/
                 {  "bSortable": true},
                 {  "bSortable": true ,mRender: function ( data, type, full ) {
-                    return full[6];
+                    return full[7];
                 }
                 /*, "sClass":"aligncenter",mRender: function ( data, type, full ) {
                      
@@ -446,7 +446,7 @@ function ajax_update(fullurl,data){
                         <div class="col-md-12 ">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">VAT %</label>
-                                <input type="number" step="0.01" min="0.01" max="1000" name="Amount" class="form-control" id="field-5" placeholder="">
+                                <input type="number" step="0.01" min="0.00" max="1000" name="Amount" class="form-control" id="field-5" placeholder="">
                                 <input type="hidden" name="TaxRateID" >
                             </div>
                         </div>
