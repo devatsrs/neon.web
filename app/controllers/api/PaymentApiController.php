@@ -260,12 +260,12 @@ class PaymentApiController extends ApiController {
 
 			$AccountBalance = AccountBalance::where('AccountID', $AccountID)->first();
 
-			$BillingType=AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
+			/*$BillingType=AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
 			$BalanceAmount = AccountBalance::getNewAccountBalance($CompanyID, $AccountID);
 			if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
 				$BalanceAmount = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
-			}
-			if($AccountBalance != false && $BalanceAmount >= $data['Amount']){
+			}*/
+			if($AccountBalance != false && (float)$AccountBalance->OutPaymentAvailable >= $data['Amount']){
 
 				//$newBalance = $AccountBalance->BalanceAmount - (float)$data['Amount'];
 				$newAvailable = $AccountBalance->OutPaymentAvailable - (float)$data['Amount'];
