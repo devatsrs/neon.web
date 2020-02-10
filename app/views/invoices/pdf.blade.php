@@ -97,9 +97,9 @@ tfoot {
         </div>
         <div id="invoice" class="pull-right flip">
           @if($print_type == "Proforma")
-            <h1 class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_PROFORMA_NO') {{$Invoice->FullInvoiceNumber}}</h1>
+            <h3 class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_PROFORMA_NO') {{$Invoice->FullInvoiceNumber}}</h3>
           @elseif($print_type == "Credit Note")
-            <h1 class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_CREDIT_NOTE_NO') {{$Invoice->FullInvoiceNumber}}</h1>
+            <h3 class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_CREDIT_NOTE_NO') {{$Invoice->FullInvoiceNumber}}</h3>
           @else
             <h1 class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_NO') {{$Invoice->FullInvoiceNumber}}</h1>
           @endif
