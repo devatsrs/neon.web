@@ -27,6 +27,7 @@ class Product extends \Eloquent {
     const Reseller = 1;
 
     const OutPaymentCode = 'outpayment';
+    const CreditNote = 'Credit-Note';
     public static $AppliedTo = array(self::Customer=>"Customer",self::Reseller=>"Reseller");
     public static $ALLAppliedTo = array(''=>'Select',self::Customer=>"Customer",self::Reseller=>"Reseller");
 
