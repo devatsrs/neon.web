@@ -63,19 +63,19 @@ class CronJobApp extends \Eloquent {
         if($CronJobCommand->Command == 'rategenerator'){
             $tag = '"rateTableID":"'.$data["rateTables"].'"';
 
-            if(DB::table('tblCronJob')->where('Settings','LIKE', '%'.$tag.'%')->where('CronJobID','<>',$id)->count() > 0){
+            if(DB::connection('sqlapprm')->table('tblCronJob')->where('Settings','LIKE', '%'.$tag.'%')->where('CronJobID','<>',$id)->count() > 0){
                 $valid['message'] = Response::json(array("status" => "failed", "message" => "Rate table already taken."));
                 return $valid;
             }
         }elseif(isset($data["CompanyGatewayID"]) && $data["CompanyGatewayID"] >0 && isset($data["CronJobCommandID"]) && $data['CronJobCommandID'] > 0){
             $tag = '"CompanyGatewayID":"'.$data["CompanyGatewayID"].'"';
-            if(DB::table('tblCronJob')->where('Settings','LIKE', '%'.$tag.'%')->where('CronJobCommandID', $data['CronJobCommandID'] )->where('CronJobID','<>',$id)->count() > 0){
+            if(DB::connection('sqlapprm')->table('tblCronJob')->where('Settings','LIKE', '%'.$tag.'%')->where('CronJobCommandID', $data['CronJobCommandID'] )->where('CronJobID','<>',$id)->count() > 0){
                 $valid['message'] = Response::json(array("status" => "failed", "message" => "Gateway already taken."));
                 return $valid;
             }
 
         }else{
-            if(DB::table('tblCronJob')->where('CronJobCommandID','=',$data['CronJobCommandID'])->where('CronJobID','<>',$id)->count() > 0){
+            if(DB::connection('sqlapprm')->table('tblCronJob')->where('CronJobCommandID','=',$data['CronJobCommandID'])->where('CronJobID','<>',$id)->count() > 0){
                 $valid['message'] = Response::json(array("status" => "failed", "message" => "Cron Job is Already Setup."));
                 return $valid;
             }
