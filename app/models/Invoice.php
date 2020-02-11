@@ -376,16 +376,16 @@ class Invoice extends \Eloquent {
         $tax = $BillingClass->TaxRateID != "" ? explode(",",$BillingClass->TaxRateID) : "";
         $tax = !empty($tax) ? TaxRate::find($tax[0]) : false;
         $tax = $tax != false ? $tax->Title : "";
-        $taxPercentage = number_format(((float)$InvoiceData->TotalTax / (float)$InvoiceData->GrandTotal) * 100, 2);
+        $taxPercentage = (float)$InvoiceData->GrandTotal > 0 ? number_format(((float)$InvoiceData->TotalTax / (float)$InvoiceData->GrandTotal) * 100, 2) : 0;
         $taxCategory->setId($BillingClass->TaxRateID);
         $taxCategory->setName($tax);
-        $taxCategory->setPercent($taxPercentage);
+        $taxCategory->setPercent((float)$taxPercentage);
         $taxCategory->setTaxScheme($TaxScheme);
 // taxes
         $taxTotal    = new \App\UblInvoice\TaxTotal();
         $taxSubTotal = new \App\UblInvoice\TaxSubTotal();
-        $taxSubTotal->setTaxableAmount($InvoiceData->SubTotal);
-        $taxSubTotal->setTaxAmount($InvoiceData->TotalTax);
+        $taxSubTotal->setTaxableAmount((float)$InvoiceData->SubTotal);
+        $taxSubTotal->setTaxAmount((float)$InvoiceData->TotalTax);
         $taxSubTotal->setTaxCategory($taxCategory);
         $taxTotal->addTaxSubTotal($taxSubTotal);
         $taxTotal->setTaxAmount($taxSubTotal->getTaxAmount());
