@@ -52,7 +52,7 @@ class CronJobAppController extends \BaseController {
 	{
         $isvalid = CronJobApp::validate();
         if($isvalid['valid']==1){
-            if ($CronJobID = CronJob::insertGetId($isvalid['data'])) {
+            if ($CronJobID = CronJobApp::insertGetId($isvalid['data'])) {
                 CronJobApp::upadteNextTimeRun($CronJobID);
                 return Response::json(array("status" => "success", "message" => "Cron Job Successfully Created"));
             } else {
