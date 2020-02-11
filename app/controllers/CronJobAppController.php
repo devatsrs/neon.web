@@ -207,7 +207,7 @@ class CronJobAppController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_GetCronJobHistory (".$id.",'".$data['StartDate']."','".$data['EndDate']."','".$data['Search']."','".$data['Status']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::select($query.',1)');
+            $excel_data  = DB::connection('sqlapprm')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
