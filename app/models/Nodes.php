@@ -25,7 +25,7 @@ class Nodes extends \Eloquent {
     }
 
     public static function getServersFromCronJob($CronJobID,$CompanyID){
-        if(Nodes::$type == 'APP'){
+        if(Nodes::$type === 'APP'){
             $Cron = CronJobApp::where(['CronJobID' => $CronJobID , 'CompanyID' => $CompanyID])->first();
         }else{
             $Cron = CronJob::where(['CronJobID' => $CronJobID , 'CompanyID' => $CompanyID])->first();
