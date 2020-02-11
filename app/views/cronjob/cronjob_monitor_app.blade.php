@@ -80,12 +80,13 @@
     </p>
 
     <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-        <li class="active">
+        <li>
             <a href="{{ URL::to('/cronjob_monitor') }}" >
                 <span class="hidden-xs">Web</span>
             </a>
         </li>
-        <li>
+
+        <li class="active">
             <a href="{{ URL::to('cronjob_monitor/app') }}" >
                 <span class="hidden-xs">App</span>
             </a>
@@ -134,7 +135,7 @@
                 "bProcessing":true,
                 "bServerSide":true,
                 "bPaginate": true,
-                "sAjaxSource": baseurl + "/cronjobs/activecronjob_ajax_datagrid",
+                "sAjaxSource": baseurl + "/cronjobs/activecronjob_ajax_datagrid/app",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left  'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -418,7 +419,7 @@
 
 @section('footer_ext')
     @parent
-    @include('cronjob.cronjob_edit_popup')
+    @include('cronjob.cronjob_app_edit_popup')
 @stop
 
 @stop
