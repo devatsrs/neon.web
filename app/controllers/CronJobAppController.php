@@ -135,7 +135,7 @@ class CronJobAppController extends \BaseController {
             $CronJobCommand = CronJobCommandApp::find($data['CronJobCommandID']);
             if(isset($data['CronJobID']) && intval($data['CronJobID']) > 0) {
                 $query = "call prc_GetCronJobSetting (".$data['CronJobID'].")";
-                $cron = DataTableSql::of($query)->getProcResult(array('cron'));
+                $cron = DataTableSql::of($query,'sqlapprm')->getProcResult(array('cron'));
                 if($cron['data']['cron']>0){
                     $commandconfigval = json_decode($cron['data']['cron'][0]->Settings);
                 }
@@ -223,7 +223,7 @@ class CronJobAppController extends \BaseController {
         }
         $query .=',0)';
 
-        return DataTableSql::of($query)->make();
+        return DataTableSql::of($query,'sqlapprm')->make();
     }
 
 
@@ -300,7 +300,7 @@ class CronJobAppController extends \BaseController {
         $CompanyID = User::get_companyID();
         $pr_name = 'call prc_getActiveCronJobCommand (';
         $query = $pr_name . $CompanyID . "," . $CronJobID . ")";
-        $CronJob = DB::connection('sqlsrv')->select($query);
+        $CronJob = DB::connection('sqlapprm')->select($query);
         $CronJob = json_decode(json_encode($CronJob), true);
         $CronJob = array_pop($CronJob);
         $Success = false;
