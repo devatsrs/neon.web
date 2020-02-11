@@ -26,7 +26,7 @@ class CronJobApp extends \Eloquent {
     public static $cron_type = array(self::MINUTE=>'Minute',self::HOUR=>'Hourly',self::DAILY=>'Daily');
 
     public static function checkForeignKeyById($id){
-        $hasInCronLog = CronJobLog::where("CronJobID",$id)->count();
+        $hasInCronLog = CronJobLogApp::where("CronJobID",$id)->count();
         if( intval($hasInCronLog) > 0 ){
             return true;
         }else{
@@ -45,20 +45,20 @@ class CronJobApp extends \Eloquent {
             return $valid;
         }else{
             if($id>0){
-                $result = CronJob::select('JobTitle')->where('JobTitle','=',$data['JobTitle'])->where('CompanyID','=',$companyID)->where('CronJobID','<>',$id)->first();
+                $result = CronJobApp::select('JobTitle')->where('JobTitle','=',$data['JobTitle'])->where('CompanyID','=',$companyID)->where('CronJobID','<>',$id)->first();
                 if (!empty($result)) {
                     $valid['message'] = Response::json(array("status" => "failed", "message" => "Job title already exist in Cron Jobs."));
                     return $valid;
                 }
             }else{
-                $result = CronJob::select('JobTitle')->where('JobTitle','=',$data['JobTitle'])->where('CompanyID','=',$companyID)->first();
+                $result = CronJobApp::select('JobTitle')->where('JobTitle','=',$data['JobTitle'])->where('CompanyID','=',$companyID)->first();
                 if(!empty($result)){
                     $valid['message'] = Response::json(array("status" => "failed", "message" => "Job title already exist in Cron Jobs."));
                     return $valid;
                 }
             }
         }
-        $CronJobCommand = CronJobCommand::find($data['CronJobCommandID']);
+        $CronJobCommand = CronJobCommandApp::find($data['CronJobCommandID']);
 
         if($CronJobCommand->Command == 'rategenerator'){
             $tag = '"rateTableID":"'.$data["rateTables"].'"';
@@ -177,7 +177,7 @@ class CronJobApp extends \Eloquent {
             return NULL;
         }
 
-        $CronJob = CronJob::find($CronJobID);
+        $CronJob = CronJobApp::find($CronJobID);
         $JobTitle = $CronJob->JobTitle;
         $CompanyID = $CronJob->CompanyID;
         $LastRunTime = $CronJob->LastRunTime;
@@ -185,7 +185,7 @@ class CronJobApp extends \Eloquent {
         $PID = $CronJob->PID;
         $MysqlPID=$CronJob->MysqlPID;
 
-        $minute = CronJob::calcTimeDiff($LastRunTime);
+        $minute = CronJobApp::calcTimeDiff($LastRunTime);
 
         $cronsetting = json_decode($CronJob->Settings,true);
         $ActiveCronJobEmailTo = isset($cronsetting['ErrorEmail']) ? $cronsetting['ErrorEmail'] : '';
@@ -206,7 +206,7 @@ class CronJobApp extends \Eloquent {
         //Kill the process.
         $CronJob->update([ "PID"=>"", "Active"=>0,"LastRunTime" => date('Y-m-d H:i:00'),"MysqlPID"=>"","ProcessID"=>""]);
 
-        CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_FAIL, "Message"=> "Terminated by " . User::get_user_full_name()]);
+        CronJobLogApp::createLog($CronJobID,["CronJobStatus"=>CronJobApp::CRON_FAIL, "Message"=> "Terminated by " . User::get_user_full_name()]);
 
         $emaildata['KillCommand'] = "";
         $emaildata['ReturnStatus'] = $ReturnStatus;
@@ -243,7 +243,7 @@ class CronJobApp extends \Eloquent {
     public static function checkCDRDownloadFiles(){
         $CompanyID = User::get_companyID();
         $CronJonCommandsIds = array();
-        $rows = CronJobCommand::where(["Status"=> 1,'CompanyID'=>$CompanyID])->whereIn('Command',array('sippydownloadcdr','vosdownloadcdr'))->get()->toArray();
+        $rows = CronJobCommandApp::where(["Status"=> 1,'CompanyID'=>$CompanyID])->whereIn('Command',array('sippydownloadcdr','vosdownloadcdr'))->get()->toArray();
         if(count($rows)>0){
             foreach($rows as $row){
                 if(!empty($row['CronJobCommandID'])){
@@ -251,7 +251,7 @@ class CronJobApp extends \Eloquent {
                 }
             }
 
-           $count = CronJob::where(["Status"=> 1,'CompanyID'=>$CompanyID])->whereIn('CronJobCommandID',$CronJonCommandsIds)->count();
+           $count = CronJobApp::where(["Status"=> 1,'CompanyID'=>$CompanyID])->whereIn('CronJobCommandID',$CronJonCommandsIds)->count();
            if($count>0){
                return true;
            }
@@ -261,7 +261,7 @@ class CronJobApp extends \Eloquent {
 
     public static function killactivejobs($data){
         $CronJobID = $data['JobID'];
-        $CronJob = CronJob::find($CronJobID);
+        $CronJob = CronJobApp::find($CronJobID);
 
         $PID = $data['PID'];
         $CronJobData = array();
@@ -283,13 +283,13 @@ class CronJobApp extends \Eloquent {
     }
 
     public static function upadteNextTimeRun($CronJobID,$skipLastRunTime=false){
-        $CronJob =  CronJob::find($CronJobID);
-        $data['NextRunTime'] = CronJob::calcNextTimeRun($CronJob->CronJobID,$skipLastRunTime);
+        $CronJob =  CronJobApp::find($CronJobID);
+        $data['NextRunTime'] = CronJobApp::calcNextTimeRun($CronJob->CronJobID,$skipLastRunTime);
         $CronJob->update($data);
     }
 
     public static function calcNextTimeRun($CronJobID,$skipLastRunTime = false){
-        $CronJob =  CronJob::find($CronJobID);
+        $CronJob =  CronJobApp::find($CronJobID);
         $cronsetting = json_decode($CronJob->Settings);
         if(!empty($CronJob) && isset($cronsetting->JobTime)){
             switch($cronsetting->JobTime) {
@@ -345,7 +345,7 @@ class CronJobApp extends \Eloquent {
      * @param $CompanyID
      */
     public static function updateAllCronJobNextRunTime($CompanyID) {
-        $AllActiveCronJobs = CronJob::where(['CompanyID' => $CompanyID, "Status" => 1])->get()->toArray();
+        $AllActiveCronJobs = CronJobApp::where(['CompanyID' => $CompanyID, "Status" => 1])->get()->toArray();
         if (count($AllActiveCronJobs) > 0) {
             foreach ($AllActiveCronJobs as $CronJob) {
                 if (!empty($CronJob['CronJobID']) && $CronJob['CronJobID'] > 0) {
@@ -374,7 +374,7 @@ class CronJobApp extends \Eloquent {
         $result  =  \Illuminate\Support\Facades\DB::select($query);
         $resultArray = json_decode(json_encode($result), true);
         foreach($resultArray as $row){
-            if($row["CronJobStatus"]== CronJob::CRON_FAIL){
+            if($row["CronJobStatus"]== CronJobApp::CRON_FAIL){
                 return true;
             }
         }
@@ -383,11 +383,11 @@ class CronJobApp extends \Eloquent {
     }
 
     public static function create_system_report_alert_job($CompanyID,$active){
-        $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('neonalerts',$CompanyID);
+        $CronJobCommandID = CronJobCommandApp::getCronJobCommandIDByCommand('neonalerts',$CompanyID);
         $settings = CompanyConfiguration::get('NEON_ALERTS');
         $JobTitle = 'Neon System Alerts';
         $today = date('Y-m-d');
-        $cronJobs_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CronJobCommandID])->count();
+        $cronJobs_count = CronJobApp::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CronJobCommandID])->count();
         log::info('count - '.$cronJobs_count.'========='.$active);
         if($cronJobs_count == 0 && !empty($settings)){
             $cronjobdata = array();
@@ -398,9 +398,9 @@ class CronJobApp extends \Eloquent {
             $cronjobdata['created_by'] = User::get_user_full_name();
             $cronjobdata['created_at'] =  $today;
             $cronjobdata['JobTitle'] = $JobTitle;
-            CronJob::create($cronjobdata);
+            CronJobApp::create($cronjobdata);
         } else if($cronJobs_count == 1 && $active == 1){
-            CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CronJobCommandID])->update(['Status'=>1]);
+            CronJobApp::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CronJobCommandID])->update(['Status'=>1]);
         }
     }
 }

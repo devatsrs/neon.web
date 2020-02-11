@@ -16,9 +16,9 @@ class CronJobLogApp extends \Eloquent {
         $joblogdata['created_by'] = User::get_user_full_name();
         $joblogdatafinal = $moredata+$joblogdata;
         if(empty($joblogdatafinal['CronJobStatus'])){
-            $joblogdatafinal['CronJobStatus'] = CronJob::CRON_SUCCESS;
+            $joblogdatafinal['CronJobStatus'] = CronJobApp::CRON_SUCCESS;
         }
-        CronJobLog::insert($joblogdatafinal);
+        CronJobLogApp::insert($joblogdatafinal);
     }
 
 }
