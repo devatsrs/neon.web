@@ -22,16 +22,16 @@ class ExactAuthentication extends \Eloquent {
     const RESPONSE_TYPE_TOKEN   = "authorization_code"; // for token request
     const RESPONSE_TYPE_GRANT   = 'refresh_token'; // for refresh token request
 
-    const KEY_ITEM                      = 'Item';
-    const KEY_COST_COMPONENT_VoiceCall  = "CostComponentsVoiceCall";
-    const KEY_COST_COMPONENT_DID        = "CostComponentsAccess";
-    const KEY_COST_COMPONENT_PKG        = "CostComponentsPackage";
-    const KEY_VAT                       = "VAT";
-    const TEXT_ITEM                     = 'Item';
-    const TEXT_COST_COMPONENT_VoiceCall = "Cost Components - Termination";
-    const TEXT_COST_COMPONENT_DID       = "Cost Components - Access";
-    const TEXT_COST_COMPONENT_PKG       = "Cost Components - Package";
-    const TEXT_VAT                      = "VAT";
+    const KEY_COST_COMPONENT_TERMINATION    = "CostComponentsTermination";
+    const KEY_COST_COMPONENT_DID            = "CostComponentsAccess";
+    const KEY_COST_COMPONENT_PKG            = "CostComponentsPackage";
+    const KEY_PAYMENT_CONDITION             = "PaymentCondition";
+    const KEY_ONE_OFF_INVOICE_COMPONENT     = "OneOffInvoiceComponent";
+    const TEXT_COST_COMPONENT_TERMINATION   = "Cost Components - Termination";
+    const TEXT_COST_COMPONENT_DID           = "Cost Components - Access";
+    const TEXT_COST_COMPONENT_PKG           = "Cost Components - Package";
+    const TEXT_PAYMENT_CONDITION            = "Payment Condition";
+    const TEXT_ONE_OFF_INVOICE_COMPONENT    = "One-Off Invoice Component";
 
     const KEY_VAT_COUNTRY_NL            = "NL";
     const KEY_VAT_COUNTRY_EU            = "EU";
@@ -41,11 +41,11 @@ class ExactAuthentication extends \Eloquent {
     const TEXT_VAT_COUNTRY_NEU          = "Non EU Countries";
 
     public static $MappingTypes = [
-        ExactAuthentication::KEY_ITEM                       => ExactAuthentication::TEXT_ITEM,
-        ExactAuthentication::KEY_COST_COMPONENT_VoiceCall   => ExactAuthentication::TEXT_COST_COMPONENT_VoiceCall,
+        ExactAuthentication::KEY_COST_COMPONENT_TERMINATION => ExactAuthentication::TEXT_COST_COMPONENT_TERMINATION,
         ExactAuthentication::KEY_COST_COMPONENT_DID         => ExactAuthentication::TEXT_COST_COMPONENT_DID,
         ExactAuthentication::KEY_COST_COMPONENT_PKG         => ExactAuthentication::TEXT_COST_COMPONENT_PKG,
-        ExactAuthentication::KEY_VAT                        => ExactAuthentication::TEXT_VAT,
+        ExactAuthentication::KEY_PAYMENT_CONDITION          => ExactAuthentication::TEXT_PAYMENT_CONDITION,
+        ExactAuthentication::KEY_ONE_OFF_INVOICE_COMPONENT  => ExactAuthentication::TEXT_ONE_OFF_INVOICE_COMPONENT,
     ];
 
     public static $VATCountry = [
@@ -54,13 +54,27 @@ class ExactAuthentication extends \Eloquent {
         ExactAuthentication::KEY_VAT_COUNTRY_NEU    => ExactAuthentication::TEXT_VAT_COUNTRY_NEU,
     ];
 
-    public static function getAllMappingElements($CompanyID){
+    public static $PaymentConditionComponents = array(
+        "Prepaid"       => "Prepaid",
+        "Postpaid"      => "Postpaid",
+        "OnCredit"      => "OnCredit",
+        "Creditcard"    => "Creditcard",
+        "DirectDebit"   => "DirectDebit",
+    );
+
+    public static $OneOffInvoiceComponent = array(
+        "One-Off"       => "One-Off",
+        "Outpayment"    => "Outpayment",
+        "topup"         => "TopUp",
+    );
+
+    public static function getAllMappingElements(){
         $products = [];
-        $items = Product::select(['ProductID','Name'])->where(['CompanyId'=>$CompanyID,'Active'=>1])->lists('Name','ProductID');
-        $products[ExactAuthentication::KEY_ITEM]                        = $items;
-        $products[ExactAuthentication::KEY_COST_COMPONENT_VoiceCall]    = RateTableRate::$Components;
+        $products[ExactAuthentication::KEY_COST_COMPONENT_TERMINATION]  = RateTableRate::$Components;
         $products[ExactAuthentication::KEY_COST_COMPONENT_DID]          = RateTableDIDRate::$Components;
         $products[ExactAuthentication::KEY_COST_COMPONENT_PKG]          = RateTablePKGRate::$Components;
+        $products[ExactAuthentication::KEY_PAYMENT_CONDITION]           = ExactAuthentication::$PaymentConditionComponents;
+        $products[ExactAuthentication::KEY_ONE_OFF_INVOICE_COMPONENT]   = ExactAuthentication::$OneOffInvoiceComponent;
         return $products;
     }
 

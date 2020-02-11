@@ -328,7 +328,7 @@ class AccountsController extends \BaseController {
 
         }
 
-        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
+        Account::$rules['AccountName'] = 'required';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
         Account::$rules['CustomerID'] = 'required';
 
@@ -1139,7 +1139,7 @@ class AccountsController extends \BaseController {
                 Account::$rules['BillingStartDate'] = 'required';
             }
         }
-        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,AccountType,1';
+        Account::$rules['AccountName'] = 'required';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID';
         Account::$rules['CustomerID'] = 'required';
 

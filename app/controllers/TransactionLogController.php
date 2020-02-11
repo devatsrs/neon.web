@@ -99,11 +99,11 @@ class TransactionLogController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_getPayments (".$companyID.",0,'','".$invoice->FullInvoiceNumber."',null,null,null,-1,".$invoice->CurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,null,null";
+        $query = "call prc_getPayments (".$companyID.",0,'',null,'".$invoice->FullInvoiceNumber."',null,null,null,-1,".$invoice->CurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,null,null";
 
         //echo $query;exit;
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,"","")');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,"")');
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
@@ -116,7 +116,7 @@ class TransactionLogController extends \BaseController {
                 $NeonExcel->download_excel($excel_data);
             }
         }
-        $query .=',0,0,"","")';
+        $query .=',0,0,"")';
 
         return DataTableSql::of($query,'sqlsrv2')->make();
     }

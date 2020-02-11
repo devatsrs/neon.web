@@ -37,3 +37,8 @@ $info_message = Session::get('info_message');
 });
 </script>
 @endif
+
+<?php
+    Session::forget('success_message');
+    Session::forget('error_message');
+?>

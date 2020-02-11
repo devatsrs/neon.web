@@ -259,9 +259,17 @@ function sendMail($view,$data,$ViewType=1){
 	
 	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug,$companyID)){
 		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body); 
-	}
-	else{ 
+	} else {
 		$config = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $companyID)->first();
+
+        if($config != false){
+
+            if(empty($config->SMTPUsername) && Reseller::IsResellerByCompanyID($companyID) > 0) {
+                $ParentCompanyID = Reseller::getCompanyIDByChildCompanyID($companyID);
+                $config = Company::select('SMTPServer', 'SMTPUsername', 'CompanyName', 'SMTPPassword', 'Port', 'IsSSL', 'EmailFrom')->where("CompanyID", '=', $ParentCompanyID)->first();
+            }
+        }
+
         if($config != false) $config->SMTPPassword = Crypt::decrypt($config->SMTPPassword);
 		$status = 	PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID,$body);
 	}

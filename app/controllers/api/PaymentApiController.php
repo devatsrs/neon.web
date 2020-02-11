@@ -2,8 +2,6 @@
 use app\controllers\api\Codes;
 
 class PaymentApiController extends ApiController {
-
-
 	public function getList()
 	{
 		return Response::json(["status"=>"success", "data"=>Payment::paymentList()]);
@@ -18,38 +16,78 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function getPaymentHistory(){
-		$post_vars = json_decode(file_get_contents("php://input"));
-		$data=json_decode(json_encode($post_vars),true);
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
+		}
 		$Result=[];
 		$CompanyID=0;
 		$AccountID=0;
-		if(!empty($data['AccountID'])) {
-			$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
-			$AccountID = $data['AccountID'];
-		}else if(!empty($data['AccountNo'])){
-			$Account = Account::where(["Number" => $data['AccountNo']])->select('CompanyId','AccountID')->first();
+		$rules = [];
+		
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+		}
 
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+				$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty"],Codes::$Code400[0]);
+			}
+			$Account = Account::where(["Number" => $accountNo])->select('CompanyId','AccountID')->first();
 			if(!empty($Account)) {
 				$CompanyID = $Account->CompanyId;
 				$AccountID = $Account->AccountID;
-			}else{
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-			if(empty($AccountID)){
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
+			if(!empty($AccountID)){
+				$Account = Account::where(["AccountID" => $AccountID])->first();
+				$CompanyID = $Account->CompanyId;
+				$AccountID = $Account->AccountID;
 			}
-			$Account = Account::where(["AccountID" => $AccountID])->first();
-			$CompanyID = $Account->CompanyId;
-			$AccountID = $Account->AccountID;
 		}else{
-			return Response::json(["ErrorMessage"=>"AccountID Required"],Codes::$Code400[0]);
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField is required."],Codes::$Code400[0]);
+		}
+		if(!empty($data['StartDate'])){
+			$rules['StartDate'] = 'date|date_format:Y-m-d';
+		}
+		if(!empty($data['EndDate'])){
+			$rules['EndDate'] = 'date|date_format:Y-m-d';
+		}
+		$validator = Validator::make($data, $rules);
+		if ($validator->fails()) {
+			return Response::json([
+				"ErrorMessage" => $validator->messages()->first()
+			],Codes::$Code400[0]);
+		}
+		if(!empty($data['StartDate']) && !empty($data['EndDate'])) {
+			$data['StartDate'] = $start_Date = $data['StartDate'];
+			$data['EndDate'] = $end_Date = $data['EndDate'];
+			$startDate = strtotime($start_Date);
+			$endDate = strtotime($end_Date);
+			if($startDate > $endDate) {
+				return Response::json(["ErrorMessage"=>"End date should be greater than or equal to start date."],Codes::$Code400[0]);
+			}
 		}
 
-		$data['StartDate'] 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
-		$data['EndDate'] 	 = 		!empty($data['EndDate'])?$data['EndDate']:'0000-00-00';
-
+		$data['StartDate'] 	 = 	!empty($data['StartDate'])? $data['StartDate'] : '0000-00-00';
+		$data['EndDate'] 	 = 	!empty($data['EndDate'])? $data['EndDate'] : '0000-00-00';
+		
 		if(!empty($AccountID) && !empty($CompanyID)){
 			try {
 				$query = "CALL prc_getTransactionHistory(" . $CompanyID . "," . $AccountID . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "')";
@@ -160,70 +198,74 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function requestFund(){
-
-		$data=array();
-		$post_vars = json_decode(file_get_contents("php://input"));
 		
-		if(!empty($post_vars)){
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
+		}
+		$data=array();
+		$CompanyID=0;
+		$AccountID=0;
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
 			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+		}
+		
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+				$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo is required"],Codes::$Code400[0]);
+			}
+			$Account = Account::where(["Number" => $accountNo])->select('CompanyId','AccountID')->first();
+			if(!empty($Account)) {
+				$CompanyID = $Account->CompanyId;
+				$AccountID = $Account->AccountID;
+			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(!empty($AccountID)){
+				$Account = Account::where(["AccountID" => $AccountID])->first();
+				$CompanyID = $Account->CompanyId;
+				$AccountID = $Account->AccountID;
+			}
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField is required."],Codes::$Code400[0]);
 		}
 		$verifier = App::make('validation.presence');
 		$verifier->setConnection('sqlsrv2');
 
 		$rules = array(
-			'Amount' => 'required|numeric',
-			'AccountID' => 'numeric'
+			'Amount' => 'required|numeric|min:0',
 		);
-
 		$validator = Validator::make($data, $rules);
-		$validator->setPresenceVerifier($verifier);
-
 		if ($validator->fails()) {
 			return Response::json([ "ErrorMessage" => $validator->messages()->first()],Codes::$Code400[0]);
 		}
-
-		$CompanyID=0;
-		$AccountID=0;
-		if(!empty(trim($data['AccountID']))) {
-			$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
-			$AccountID = $data['AccountID'];
-		}else if(!empty(trim($data['AccountNo']))){
-			$Account = Account::where(["Number" => $data['AccountNo']])->select('CompanyId','AccountID')->first();
-
-			if(!empty($Account)) {
-				$CompanyID = $Account->CompanyId;
-				$AccountID = $Account->AccountID;
-			}else{
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
-			}
-		}else if(!empty(trim($data['AccountDynamicField']))){
-			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-			if(empty($AccountID)){
-				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
-			}
-			$Account = Account::where(["AccountID" => $AccountID])->first();
-			if(!empty($Account)) {
-				$CompanyID = $Account->CompanyId;
-				$AccountID = $Account->AccountID;
-			}
-
-		}else{
-
-			return Response::json(["ErrorMessage"=>"AccountID Required."],Codes::$Code400[0]);
-		}
-
 		if(!empty($AccountID) && !empty($CompanyID)){
 			$data['CompanyID']=$CompanyID;
 			$data['AccountID']=$AccountID;
 
 			$AccountBalance = AccountBalance::where('AccountID', $AccountID)->first();
 
-			$BillingType=AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
+			/*$BillingType=AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
 			$BalanceAmount = AccountBalance::getNewAccountBalance($CompanyID, $AccountID);
 			if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
 				$BalanceAmount = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
-			}
-			if($AccountBalance != false && $BalanceAmount >= $data['Amount']){
+			}*/
+			if($AccountBalance != false && (float)$AccountBalance->OutPaymentAvailable >= $data['Amount']){
 
 				//$newBalance = $AccountBalance->BalanceAmount - (float)$data['Amount'];
 				$newAvailable = $AccountBalance->OutPaymentAvailable - (float)$data['Amount'];
@@ -302,15 +344,35 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function depositFund(){
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
+		}
 		Log::useFiles(storage_path() . '/logs/deposit-fund-' . date('Y-m-d') . '.log');
-		$post_vars 	= json_decode(file_get_contents("php://input"));
-		$data		= json_decode(json_encode($post_vars),true);
-
 		$AccountID	= 0;
 		$errors		= [];
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+		}
+
 		if(!empty($data['AccountID'])) {
-			$AccountID = $data['AccountID'];
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+			}
 		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty"],Codes::$Code400[0]);
+			}
 			$Account = Account::where(["Number" => $data['AccountNo']])->first();
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
@@ -320,23 +382,18 @@ class PaymentApiController extends ApiController {
 			if(empty($AccountID)){
 				return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code400[0]);
 			}
-
 		}else{
-			return Response::json(["ErrorMessage"=>"AccountID OR AccountNo Required"],Codes::$Code400[0]);
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField is Required"],Codes::$Code400[0]);
 		}
 
 		$rules = array(
-			'Amount' => 'required|numeric|min:1',
+			'Amount' => 'required|numeric|min:0',
 		);
 
 		$verifier = App::make('validation.presence');
 		$verifier->setConnection('sqlsrv');
-
 		$validator = Validator::make($data, $rules);
-		$validator->setPresenceVerifier($verifier);
-
 		if ($validator->fails()) {
-			//return json_validator_response($validator);
 			return Response::json([ "ErrorMessage" => $validator->messages()->first()],Codes::$Code400[0]);
 		}
 
@@ -536,7 +593,8 @@ class PaymentApiController extends ApiController {
 			$Terms = isset($Reseller->TermsAndCondition) ? $Reseller->TermsAndCondition : '';
 			$FooterTerm = isset($Reseller->FooterTerm) ? $Reseller->FooterTerm : '';
 
-			$LastInvoiceNumber = Invoice::getNextInvoiceNumber($CompanyID);
+			$MainCompanyID = getParentCompanyIdIfReseller($CompanyID);
+			$LastInvoiceNumber = Invoice::getNextInvoiceNumber($MainCompanyID);
 			$FullInvoiceNumber = Company::getCompanyField($CompanyID, "InvoiceNumberPrefix") . $LastInvoiceNumber;
 
 			//For Tax Rate
@@ -597,7 +655,7 @@ class PaymentApiController extends ApiController {
 			}
 
 			//Store Last Invoice Number.
-			Company::find($CompanyID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber));
+			Company::find($MainCompanyID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber));
 			$InvoiceID = $Invoice->InvoiceID;
 			log::info('InvoiceID ' . $InvoiceID);
 
@@ -737,5 +795,12 @@ class PaymentApiController extends ApiController {
 			}
 		}
 		return $TotalTax;
+	}
+
+	public function checkJson() {
+		$this->status = parent::__construct();
+		if($this->status === false) {
+			echo "Content Type Should Be application/json";
+		}
 	}
 }

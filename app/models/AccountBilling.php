@@ -14,6 +14,9 @@ class AccountBilling extends \Eloquent {
 
     );
 
+    const BILLINGTYPE_PREPAID = 1;
+    const BILLINGTYPE_POSTPAID = 2;
+
     static  $defaultAccountAuditFields = [
         'BillingType'=>'BillingType',
         'BillingTimezone'=>'BillingTimezone',

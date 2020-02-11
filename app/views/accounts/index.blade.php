@@ -200,13 +200,12 @@
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
         <th width="10%" >No.</th>
-        <th width="15%" >Account Name</th>
-        <th width="10%" >Name</th>
+        <th width="15%">Account Name</th>
+        <th width="10%">Name</th>
         <th width="10%">Phone</th>
-        <th width="8%">OS</th>
-        <th width="5%">UA</th>
+        <th width="13%">Account Balance</th>
+        <th width="9%">Due Amount</th>
         <th width="5%">CL</th>
-        <th width="5%">AE</th>
         <th width="7%">Email</th>
         <th width="25%">Actions</th>
     </tr>
@@ -389,13 +388,14 @@
                             mRender:function(id, type, full){
                                 if(id !== null) {
                                     popup_html = "<label class='col-sm-6' >Invoice Outstanding:</label><div class='col-sm-6' >" + id + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + (full[21] !== null ? full[21] : '')  + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + (full[22] !== null ? full[22] : '') + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + (full[23] !== null ? full[23] : '') + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + (full[24] !== null ? full[24] : '') + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + (full[25] !== null ? full[25] : '') + "</div>";
+                                    // popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + (full[21] !== null ? full[21] : '')  + "</div>";
+                                    // popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + (full[22] !== null ? full[22] : '') + "</div>";
+                                    // popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + (full[23] !== null ? full[23] : '') + "</div>";
+                                    // popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + (full[24] !== null ? full[24] : '') + "</div>";
+                                    // popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + (full[25] !== null ? full[25] : '') + "</div>";
 
-                                    return '<div class="pull-left" data-toggle="popover" data-trigger="hover" data-original-title="aaa" data-content="'+popup_html+'">' +id+ '</div>';
+                                    // return '<div class="pull-left" data-toggle="popover" data-trigger="hover" data-original-title="aaa" data-content="'+popup_html+'">' +id+ '</div>';
+                                    return id;
                                 }else{
                                     return '';
                                 }
@@ -404,7 +404,7 @@
 						{ "bSortable": true,
                             mRender:function(id, type, full){
                                 if(id !== null) {
-                                    return '<a class="unbilled_report" data-id="' + full[0] + '">' + id + '</a>';
+                                    return full[29];
                                 }else{
                                     return '';
                                 }
@@ -412,8 +412,16 @@
                             }
                         },
 						{ "bSortable": true},
-                        { "bSortable": true},//Account exposure
-                        { "bSortable": true},
+                        { "bSortable": true,
+                            mRender:function(id, type, full){
+                                if(id !== null) {
+                                    return full[9];
+                                }else{
+                                    return '';
+                                }
+
+                            }
+                        },
                         {
                             "bSortable": false,
                             mRender: function ( id, type, full ) {
@@ -532,7 +540,7 @@
                                 action +='<input type="hidden" name="country" value="'+full[17]+'"/>';
 								action +='<input type="hidden" name="PostCode" value="'+full[18]+'"/>';
                                 action +='<input type="hidden" name="picture" value="'+full[19]+'"/>';
-                                action +='<input type="hidden" name="UnbilledAmount" value="'+full[6]+'"/>';
+                                action +='<input type="hidden" name="DueAmount" value="'+full[29]+'"/>';
                                 action +='<input type="hidden" name="PermanentCredit" value="'+full[7]+'"/>';
                                 action +='<input type="hidden" name="LowBalance" value="'+full[20]+'"/>';
                                 action +='<input type="hidden" name="CUA" value="'+full[21]+'"/>';
@@ -592,7 +600,7 @@
                 if(childrens.eq(0).hasClass('dataTables_empty')){
                     return true;
                 }
-                var temp = childrens.eq(10).clone();
+                var temp = childrens.eq(9).clone();
                 /*$(temp).find('a').each(function () {
                    // $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
@@ -609,7 +617,7 @@
 				var PostCode = $(temp).find('input[name="PostCode"]').val();
 
                 var PermanentCredit = $(temp).find('input[name="PermanentCredit"]').val();
-                var UnbilledAmount = $(temp).find('input[name="UnbilledAmount"]').val();
+                var DueAmount = $(temp).find('input[name="DueAmount"]').val();
                 var accountid =  $(temp).find('input[name="accountid"]').val();
                 var LowBalance =  $(temp).find('input[name="LowBalance"]').val();
                 var CUA =  $(temp).find('input[name="CUA"]').val();
@@ -627,7 +635,7 @@
 				PostCode = (PostCode=='null'||PostCode==''?'':PostCode+'<br>');
                 country  = (country=='null'||country==''?'':country);
                 PermanentCredit = PermanentCredit=='null'||PermanentCredit==''?'':''+PermanentCredit;
-                UnbilledAmount = UnbilledAmount=='null'||UnbilledAmount==''?'':''+UnbilledAmount;
+                DueAmount = DueAmount=='null'||DueAmount==''?'':''+DueAmount;
                 CUA = CUA=='null'||CUA==''?'':''+CUA;
                 VUA = VUA=='null'||VUA==''?'':''+VUA;
                 AE = AE=='null'||AE==''?'':''+AE;
@@ -694,9 +702,9 @@
                 html += '     <div class="meta">Phone</div>';
                 html += '     <div><a href="tel:' + childrens.eq(4).text() + '">' + childrens.eq(4).text() + '</a></div>';
                 html += '  </div>';
-                html += '  <div class="block"><div class="meta clear pull-left tooltip-primary" data-original-title="Invoice Outstanding" title="" data-placement="right" data-toggle="tooltip">OS : </div> <div class="pull-left" data-toggle="popover"  data-trigger="hover" data-original-title="" data-content="'+popup_html+'"> ' + childrens.eq(5).text() + ' </div>';
-                html += '  <div class="meta clear pull-left tooltip-primary" data-original-title="(Unbilled Amount). Click on amount to view breakdown" title="" data-placement="right" data-toggle="tooltip">UA : </div> <div class="pull-left"> <a class="unbilled_report" data-id="'+accountid+'">' + UnbilledAmount + '</a> </div>';
-                html += '  <div class="meta clear pull-left tooltip-primary" data-original-title="Credit Limit" title="" data-placement="right" data-toggle="tooltip">CL : </div> <div class="pull-left"> ' + PermanentCredit + ' </div></div>';
+                html += '  <div class="block"><div class="meta clear pull-left tooltip-primary">AB : </div> <div class="pull-left" data-toggle="popover"  data-trigger="hover" data-original-title=""> ' + childrens.eq(5).text() + ' </div>';
+                html += '  <div class="meta clear pull-left tooltip-primary">DA : </div> <div class="pull-left" data-toggle="popover"  data-trigger="hover" data-original-title=""> ' + DueAmount + ' </div>';
+                html += '  <div class="meta clear pull-left">CL : </div> <div class="pull-left"> ' + PermanentCredit + ' </div></div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';

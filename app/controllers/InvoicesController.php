@@ -3904,13 +3904,13 @@ public function store_inv_in(){
             $isAmazon = is_amazon($CompanyID);
             foreach ($Invoices as $invoice) {
                
-                if (!empty($invoice->CDR)) {
-                    $path = AmazonS3::preSignedUrl($invoice->CDR, $CompanyID);
+                if (!empty($invoice->UsagePath)) {
+                    $path = AmazonS3::preSignedUrl($invoice->UsagePath, $CompanyID);
                     if (file_exists($path)) {
                         $zipfiles[$invoice->InvoiceID] = $path;
                     } else if ($isAmazon == true) {
 
-                        $filepath = $UPLOAD_PATH . basename($invoice->CDR);
+                        $filepath = $UPLOAD_PATH . basename($invoice->UsagePath);
                         $content = @file_get_contents($path);
                         if ($content != false) {
                             file_put_contents($filepath, $content);

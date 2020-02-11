@@ -198,7 +198,7 @@
         @if(User::checkCategoryPermission('Invoice','View'))
         <li class="{{ active_url_class("invoice") }}"> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
         @endif
-        <li class="{{ active_url_class("creditnotes") }}"> <a href="{{URL::to('/creditnotes')}}">  <span>Credit Notes</span> </a> </li>
+        {{--<li class="{{ active_url_class("creditnotes") }} hide"> <a href="{{URL::to('/creditnotes')}}">  <span>Credit Notes</span> </a> </li>--}}
       @if(User::checkCategoryPermission('Payments','View'))
         <li class="{{ active_url_class("payments") }}"> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
       @endif

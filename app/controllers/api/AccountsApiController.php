@@ -25,9 +25,9 @@ class AccountsApiController extends ApiController {
 							->where('Email',$data['email'])
 							->orWhere('BillingEmail', $data['email'])->pluck('AccountID');
 		if($AccountID){
-			return Response::json(["status"=>"failed", "data"=>"Account already Exists"]);
+			return Response::json(["status"=>"failed", "data"=>"Account already Exists"],Codes::$Code400[0]);
 		}
-		return Response::json(["status"=>"success", "data"=>"Account Not Found"]);
+		return Response::json(["status"=>"success", "data"=>"Account Not Found"],Codes::$Code400[0]);
 	}
 
 	/**
@@ -1914,7 +1914,6 @@ class AccountsApiController extends ApiController {
 			if (!empty($data['PayoutMethod'])) {
 				$data['PayoutMethod'] = AccountsApiController::$API_PayoutMethod[$data['PayoutMethod']];
 			}
-
 			if(isset($accountData['AutoTopup']) && $accountData['AutoTopup'] > 1){
 				return Response::json(["ErrorMessage" => 'Auto Top Up Value Should Be 0 Or 1'],Codes::$Code400[0]);
 			}
@@ -1979,7 +1978,7 @@ class AccountsApiController extends ApiController {
 
 				} elseif ($data['PaymentMethod'] == "Ingenico") {
 
-
+					
 					$rules = [];
 					$rules = array(
 						'CardToken'         => 'required',
@@ -2007,7 +2006,6 @@ class AccountsApiController extends ApiController {
 				}else if ($data['PaymentMethod'] == "DirectDebit" || $data['PaymentMethod'] == "WireTransfer") {
 					$rules = array(
 						'BankAccount'       => 'required',
-						'BIC'               => 'required',
 						'AccountHolderName' => 'required',
 						'Title'             => 'required'
 
@@ -2033,18 +2031,19 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-
 			if (isset($data['PayoutMethod'])) {
-				if ($data['PayoutMethod'] == "WireTransfer") {
+				
+				if ($data['PayoutMethod'] === "WireTransfer") {
 					$rules = array(
 						'BankAccount'       => 'required',
-						'BIC'               => 'required',
 						'AccountHolderName' => 'required',
 						'Title'             => 'required'
 
 					);
 					$messages = array(
-						'Title.required' =>'The Title Field Is Required For Payout',
+						'Title.required'               => 'The Title Field Is Required For Payout',
+						'BankAccount.required'         => 'The Bank Account Field Is Required For Payout',
+						'AccountHolderName.required'   => 'The Account Holder Name Field Is Required For Payout'
 					);
 					$PayoutProfile['BankAccount'] = isset($accountData['PayoutBankAccount']) ? $accountData['PayoutBankAccount'] : '' ;
 					$PayoutProfile['BIC'] = isset($accountData['PayoutBIC']) ? $accountData['PayoutBIC'] : '' ;
@@ -2052,7 +2051,7 @@ class AccountsApiController extends ApiController {
 					$PayoutProfile['MandateCode'] = isset($accountData['PayoutMandateCode']) ? $accountData['PayoutMandateCode'] : '' ;
 					$PayoutProfile['Title'] = isset($accountData['PayoutTitle']) ? $accountData['PayoutTitle'] : '' ;
 
-					$validator = Validator::make($PayoutProfile, $rules);
+					$validator = Validator::make($PayoutProfile, $rules , $messages);
 					if ($validator->fails()) {
 						$errors = "";
 						foreach ($validator->messages()->all() as $error){
@@ -2544,7 +2543,7 @@ class AccountsApiController extends ApiController {
 				}
 
 				if (isset($data['PayoutMethod'])) {
-					if ($data['PayoutMethod'] == "WireTransfer") {
+					if ($data['PayoutMethod'] === "WireTransfer") {
 						$isDefault = 1;
 						$PaymentGatewayID = 11;
 						$count = AccountPayout::where(['AccountID' => $account->AccountID])
@@ -3366,7 +3365,6 @@ class AccountsApiController extends ApiController {
 					}else if ($data['PaymentMethod'] == "DirectDebit" || $data['PaymentMethod'] == "WireTransfer") {
 						$rules = array(
 							'BankAccount'       => 'required',
-							'BIC'               => 'required',
 							'AccountHolderName' => 'required',
 							'Title'             => 'required'
 						);
@@ -3409,16 +3407,17 @@ class AccountsApiController extends ApiController {
 
 				$data['PayoutMethod'] = AccountsApiController::$API_PayoutMethod[$data['PayoutMethod']];
 				if (isset($data['PayoutMethod']) ) {
-					if ($data['PayoutMethod'] == "WireTransfer") {
+					if ($data['PayoutMethod'] === "WireTransfer") {
 						$rules = array(
 							'BankAccount'       => 'required',
-							'BIC'               => 'required',
 							'AccountHolderName' => 'required',
 							'Title'             => 'required'
 						);
 
 						$messages = array(
-							"Title.required" => "The Payout Title Field Is Required"
+							'Title.required'               => 'The Title Field Is Required For Payout',
+							'BankAccount.required'         => 'The Bank Account Field Is Required For Payout',
+							'AccountHolderName.required'   => 'The Account Holder Name Field Is Required For Payout'
 						);
 						$PayoutProfile['BankAccount'] = isset($accountData['PayoutBankAccount']) ? $accountData['PayoutBankAccount'] : '' ;
 						$PayoutProfile['BIC'] = isset($accountData['PayoutBIC']) ? $accountData['PayoutBIC'] : '' ;
@@ -3691,7 +3690,7 @@ class AccountsApiController extends ApiController {
 					AccountPaymentProfile::create($CardDetail);
 				}else if ($data['PaymentMethod'] == "WireTransfer") {
 					$isDefault = 1;
-					$PaymentGatewayID = 12;
+					$PaymentGatewayID = 11;
 					$count = AccountPaymentProfile::where(['AccountID' => $accountInfo->AccountID])
 						->where(['CompanyID' => $CompanyID])
 						->where(['PaymentGatewayID' => $PaymentGatewayID])
@@ -3727,7 +3726,7 @@ class AccountsApiController extends ApiController {
 
 
 			if (isset($data['PayoutMethod'])) {
-				if ($data['PayoutMethod'] == "WireTransfer") {
+				if ($data['PayoutMethod'] === "WireTransfer") {
 					$isDefault = 1;
 					$PaymentGatewayID = 11;
 					$count = AccountPayout::where(['AccountID' => $accountInfo->AccountID])
@@ -3808,14 +3807,14 @@ class AccountsApiController extends ApiController {
 				$AccountIDRef = '';
 					$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 					if (empty($AccountIDRef)) {
-						return Response::json(["status" => "failed", "message" => "Please provide the correct Account ID"]);
+						return Response::json(["status" => "failed", "message" => "Please provide the correct Account ID"],Codes::$Code400[0]);
 					}
 
 
 				$data['AccountID'] = $AccountIDRef;
 
 				if (empty($data['AccountID'])) {
-					return Response::json(["status" => "failed", "message" => "No Account Found for the Reference"]);
+					return Response::json(["status" => "failed", "message" => "No Account Found for the Reference"],Codes::$Code400[0]);
 				}
 			}
 
@@ -3828,7 +3827,7 @@ class AccountsApiController extends ApiController {
 			if (count($Account) > 0) {
 				return Response::json(["status"=>"success", "AccountID"=>$Account->AccountID,"AccountNo"=>$Account->Number]);
 			} else {
-				return Response::json(["status" => "failed", "message" => "Account not found against the reference"]);
+				return Response::json(["status" => "failed", "message" => "Account not found against the reference"],Codes::$Code400[0]);
 			}
 		}catch (Exception $ex) {
 			Log::info('GetAccount:Exception.' . $ex->getTraceAsString());
@@ -3840,7 +3839,7 @@ class AccountsApiController extends ApiController {
 	// add Additional charges
 	public function CreateCharge(){
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$recurringName = 'Recurring';
 		$CompanyID=0;
@@ -3851,11 +3850,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
 			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 		//strtolower
 		$data['ChargeCode'] = strtolower('One-Off');
@@ -3864,7 +3863,7 @@ class AccountsApiController extends ApiController {
 			if(is_numeric(trim($data['AccountID']))) {
 				$AccountID = $data['AccountID'];
 			}else {
-				return Response::json(["ErrorMessage" => "AccountID must be a mumber."],Codes::$Code400[0]);
+				return Response::json(["ErrorMessage" => "AccountID must be a Number."],Codes::$Code400[0]);
 			}	
 		}else if(!empty($data['AccountNo'])){
 			$accountNo = trim($data['AccountNo']);
@@ -4057,9 +4056,41 @@ class AccountsApiController extends ApiController {
 
 	// New API to create account service and add number by vasim seta @2019-12-30
 	public function addNewAccountService() {
-		$post_vars 	= json_decode(file_get_contents("php://input"));
-		$data		= json_decode(json_encode($post_vars),true);
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
+		}
 
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in addNewAccountService API. Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+		}
+		$CompanyID=0;
+		$AccountID=0;
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+			}else {
+				return Response::json(["ErrorMessage" => "AccountID must be a Number."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty."],Codes::$Code400[0]);
+			}
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
+		
 		$rules = array(
 			'AccountID' 						=> 'required_without_all:AccountDynamicField,AccountNo|numeric',
 			/*'AccountNo' 						=> 'required_without_all:AccountDynamicField,AccountID',
@@ -4129,19 +4160,6 @@ class AccountsApiController extends ApiController {
 			}
 			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
-
-		$CompanyID=0;
-		$AccountID=0;
-		if(!empty($data['AccountID'])) {
-			$AccountID = $data['AccountID'];
-		}else if(!empty($data['AccountNo'])){
-			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
-		}else if(!empty($data['AccountDynamicField'])){
-			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-		}else{
-			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
-		}
-
 		$Account = Account::find($AccountID);
 		if($Account){
 			$CompanyID 	= $Account->CompanyId;
@@ -4349,7 +4367,7 @@ class AccountsApiController extends ApiController {
 	// New API to update account service tariff by vasim seta @2020-01-01
 	public function updateTariff() {
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$CompanyID=0;
 		$AccountID=0;
@@ -4359,11 +4377,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
-			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			Log::info('Exception in updateTariff API. Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 		
 		if(!empty($data['AccountID'])) {
@@ -4371,7 +4389,7 @@ class AccountsApiController extends ApiController {
 				$AccountID = $data['AccountID'];
 				$AccountFindType = 'AccountID';
 			}else {
-				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+				return Response::json(["ErrorMessage"=>"AccountID must be a Number."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountNo'])){
 			$accountNo = trim($data['AccountNo']);
@@ -4577,7 +4595,7 @@ class AccountsApiController extends ApiController {
 	// New API to update account service by vasim seta @2020-01-02
 	public function updateAccountService() {
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$CompanyID=0;
 		$AccountID=0;
@@ -4588,11 +4606,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
-			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			Log::info('Exception in updateAccountService API. Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 		
 		
@@ -4601,7 +4619,7 @@ class AccountsApiController extends ApiController {
 				$AccountID = $data['AccountID'];
 				$AccountFindType = 'AccountID';
 			}else {
-				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+				return Response::json(["ErrorMessage"=>"AccountID must be a Number."],Codes::$Code400[0]);
 			}
 			
 		}else if(!empty($data['AccountNo'])){
@@ -4709,7 +4727,7 @@ class AccountsApiController extends ApiController {
 	// New API to update account service package by vasim seta @2020-01-02
 	public function updateServicePackage() {
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$CompanyID=0;
 		$AccountID=0;
@@ -4719,11 +4737,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
-			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			Log::info('Exception in updateServicePackage API. Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 
 		
@@ -4732,7 +4750,7 @@ class AccountsApiController extends ApiController {
 				$AccountID = $data['AccountID'];
 				$AccountFindType = 'AccountID';
 			}else {
-				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+				return Response::json(["ErrorMessage"=>"AccountID must be a Number."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['AccountNo'])){
 			$accountNo = trim($data['AccountNo']);
@@ -4874,7 +4892,7 @@ class AccountsApiController extends ApiController {
 	// New API to transfer number from one account to another by vasim seta @2020-01-03
 	public function transferServiceNumber() {
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$FromCompanyID=$ToCompanyID=0;
 		$FromAccountID=$ToAccountID=0;
@@ -4885,11 +4903,11 @@ class AccountsApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
-			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			Log::info('Exception in transferServiceNumber API. Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 
 		if(!empty($data['FromAccountID'])) {
@@ -4897,7 +4915,7 @@ class AccountsApiController extends ApiController {
 				$FromAccountID = $data['FromAccountID'];
 				$FromAccountFindType = 'FromAccountID';
 			}else {
-				return Response::json(["ErrorMessage"=>"FromAccountID must be a mumber."],Codes::$Code400[0]);
+				return Response::json(["ErrorMessage"=>"FromAccountID must be a Number."],Codes::$Code400[0]);
 			}
 			
 		}else if(!empty($data['FromAccountNo'])){
@@ -4927,7 +4945,7 @@ class AccountsApiController extends ApiController {
 				$ToAccountID = $data['ToAccountID'];
 				$ToAccountFindType = 'ToAccountID';
 			}else {
-				return Response::json(["ErrorMessage"=>"ToAccountID must be a mumber."],Codes::$Code400[0]);
+				return Response::json(["ErrorMessage"=>"ToAccountID must be a Number."],Codes::$Code400[0]);
 			}
 		}else if(!empty($data['ToAccountNo'])){
 			$accountNo = trim($data['ToAccountNo']);
@@ -5107,6 +5125,170 @@ class AccountsApiController extends ApiController {
 			}
 		} else {
 			$error = 'Account Service not found for FromOrderID: '. $data['FromOrderID'];
+			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
+		}
+	}
+
+	// New API to update final number (replace test number with final number) by vasim seta @2020-02-10
+	public function updateFinalNumber() {
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
+		}
+		$CompanyID=0;
+		$AccountID=0;
+		$AccountFindType='';
+		$today = date('Y-m-d');
+
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+			}
+		}catch(Exception $ex) {
+			Log::info('Exception in updateFinalNumber API. Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+		}
+
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+				$AccountFindType = 'AccountID';
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a Number."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty"],Codes::$Code400[0]);
+			}
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+			$AccountFindType = 'AccountNo';
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			$AccountFindType = 'AccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
+		$Account = Account::find($AccountID);
+		if($Account) {
+			$CompanyID = $Account->CompanyId;
+			$AccountID = $Account->AccountID;
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "Account Not Found."], Codes::$Code400[0]);
+		}
+
+		$rules = array(
+			'OrderID'							=> 'required|numeric',
+			'NumberContractID'					=> 'required|numeric',
+			'TestNumberPurchased'				=> 'required|numeric',
+			'FinalNumberPurchased'				=> 'required|numeric',
+		);
+
+		$msg = array(
+			'OrderID.required'  				=> "The OrderID field is required.",
+			'OrderID.numeric'  					=> "The OrderID must be a number.",
+			'NumberContractID.required'  		=> "The NumberContractID field is required.",
+			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
+			'TestNumberPurchased.required'  	=> "The TestNumberPurchased field is required.",
+			'TestNumberPurchased.numeric'  		=> "The TestNumberPurchased must be a number.",
+			'FinalNumberPurchased.required'  	=> "The FinalNumberPurchased field is required.",
+			'FinalNumberPurchased.numeric'  	=> "The FinalNumberPurchased must be a number.",
+		);
+
+		$validator = Validator::make($data, $rules, $msg);
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+		}
+
+		$AccountService = AccountService::where(['AccountID'=>$AccountID,'ServiceOrderID'=>$data['OrderID'],'Status'=>1,'CancelContractStatus'=>0]);
+
+		// if AccountService exist
+		if($AccountService->count() > 0) {
+			$AccountService = $AccountService->first();
+
+			$CLIRateTable = CLIRateTable::where([
+				'CompanyID' 		=> $CompanyID,
+				'AccountID' 		=> $AccountID,
+				'AccountServiceID' 	=> $AccountService->AccountServiceID,
+				'ContractID' 		=> $data['NumberContractID'],
+				'CLI' 				=> $data['TestNumberPurchased'],
+				'Status' 			=> 1
+			]);
+
+			// if number exist
+			if($CLIRateTable->count() > 0) {
+				$CLIRateTable = $CLIRateTable->first();
+
+				// same condition as in front-end
+				$checkCLIRateTable = CLIRateTable::where([
+					'CompanyID' 		=> $CompanyID,
+					'AccountID' 		=> $AccountID,
+					'AccountServiceID' 	=> $AccountService->AccountServiceID,
+					'CLI' 				=> $data['FinalNumberPurchased'],
+					'Status' 			=> 1
+				])->where(function($q) use ($CLIRateTable) {
+					$q->whereBetween('NumberStartDate', array($CLIRateTable->NumberStartDate, $CLIRateTable->NumberEndDate));
+					$q->orWhereBetween('NumberEndDate', array($CLIRateTable->NumberStartDate, $CLIRateTable->NumberEndDate));
+					$q->orWhereRaw("'".$CLIRateTable->NumberStartDate."' between NumberStartDate and NumberEndDate");
+				});
+
+				// if final number exist between given date
+				if($checkCLIRateTable->count() > 0) {
+					$date_error = 'Number '. $data['FinalNumberPurchased'] . ' already exist between contract start date '.$CLIRateTable->NumberStartDate . ' and contract end date ' .$CLIRateTable->NumberEndDate;
+					return Response::json(["ErrorMessage" => $date_error],Codes::$Code400[0]);
+				}
+
+				try {
+					DB::beginTransaction();
+
+					$data_cli = [];
+					$data_cli['CompanyID'] 				= $CLIRateTable->CompanyID;
+					$data_cli['AccountID'] 				= $CLIRateTable->AccountID;
+					$data_cli['AccountServiceID'] 		= $CLIRateTable->AccountServiceID;
+					$data_cli['NumberStartDate'] 		= $today;
+					$data_cli['NumberEndDate'] 			= $CLIRateTable->NumberEndDate;
+					$data_cli['ServiceID'] 				= $CLIRateTable->ServiceID;
+					$data_cli['CLI'] 					= $data['FinalNumberPurchased'];
+					$data_cli['ContractID'] 			= $CLIRateTable->ContractID;
+					$data_cli['RateTableID'] 			= $CLIRateTable->RateTableID;
+					$data_cli['TerminationRateTableID'] = $CLIRateTable->TerminationRateTableID;
+					$data_cli['CountryID'] 				= $CLIRateTable->CountryID;
+					$data_cli['City'] 					= $CLIRateTable->City;
+					$data_cli['Tariff'] 				= $CLIRateTable->Tariff;
+					$data_cli['NoType'] 				= $CLIRateTable->NoType;
+					$data_cli['PrefixWithoutCountry'] 	= $CLIRateTable->PrefixWithoutCountry;
+					$data_cli['Prefix'] 				= $CLIRateTable->Prefix;
+					$data_cli['VendorID'] 				= $CLIRateTable->VendorID;
+					$data_cli['AccountServicePackageID']= $CLIRateTable->AccountServicePackageID;
+
+					$update_data['Status'] 			= 0;
+					$update_data['NumberEndDate'] 	= $today;
+					$CLIRateTable->update($update_data);
+
+					CLIRateTable::create($data_cli);
+
+					DB::commit();
+					return Response::json(["SuccessMessage" => "Final Number updated successfully."],Codes::$Code200[0]);
+
+				} catch(Exception $e) {
+					DB::rollback();
+					Log::info($e->getTraceAsString());
+					$response = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+					return Response::json($response, Codes::$Code500[0]);
+				}
+			} else {
+				$number_error = 'Test Number '. $data['TestNumberPurchased'] . ' not found against '.$AccountFindType.': '.$data[$AccountFindType].', OrderID: '. $data['OrderID'];
+				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
+			}
+		} else {
+			$error = 'Account Service not found for OrderID: '. $data['OrderID'];
 			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
 		}
 	}
