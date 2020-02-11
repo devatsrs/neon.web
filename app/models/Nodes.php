@@ -10,6 +10,8 @@ class Nodes extends \Eloquent {
 
     protected  $primaryKey = "ServerID";
 
+    public static $type = 'WEB';
+
     public static $rules = array(
         'ServerName' =>      'required|unique:tblNode',
         'ServerIP'   =>      'required|unique:tblNode',
@@ -23,6 +25,11 @@ class Nodes extends \Eloquent {
     }
 
     public static function getServersFromCronJob($CronJobID,$CompanyID){
+        if(Nodes::$type == 'APP'){
+            $Cron = CronJobApp::where(['CronJobID' => $CronJobID , 'CompanyID' => $CompanyID])->first();
+        }else{
+            $Cron = CronJob::where(['CronJobID' => $CronJobID , 'CompanyID' => $CompanyID])->first();
+        }
         $Cron = CronJob::where(['CronJobID' => $CronJobID , 'CompanyID' => $CompanyID])->first();
 		$Nodes = json_decode($Cron->Settings,true);
 		$CheckServerStatus = [];
