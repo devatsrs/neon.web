@@ -37,7 +37,7 @@ class CronJobAppController extends \BaseController {
 	public function index()
 	{
 		//
-        $commands = CronJobCommand::getCommands();
+        $commands = CronJobCommandApp::getCommands();
         $cron_settings = array();
         return View::make('cronjob.index',compact('commands','cron_settings'));
 	}
@@ -83,7 +83,7 @@ class CronJobAppController extends \BaseController {
                     $this->terminate($id);
                 }
                 if ($CronJob->update($isvalid['data'])) {
-                    CronJob::upadteNextTimeRun($id);
+                    CronJobApp::upadteNextTimeRun($id);
                     return Response::json(array("status" => "success", "message" => "Cron Job Successfully Updated"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));
@@ -192,7 +192,7 @@ class CronJobAppController extends \BaseController {
     }
 
     public function history($id){
-        $JobTitle = CronJob::where("CronJobID",$id)->pluck("JobTitle");
+        $JobTitle = CronJobApp::where("CronJobID",$id)->pluck("JobTitle");
         $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
         $data['EndDateDefault']  	= 	date('Y-m-d');
         return View::make('cronjob.history', compact('id','JobTitle','data'));
@@ -255,7 +255,7 @@ class CronJobAppController extends \BaseController {
     public function activeprocessdelete(){
 
         $data = Input::all();
-        $output = CronJob::killactivejobs($data);
+        $output = CronJobApp::killactivejobs($data);
 
         if(isset($output) && $output == !''){
             return Response::json(array("status" => "success", "message" => ".$output."));
@@ -329,7 +329,7 @@ class CronJobAppController extends \BaseController {
 		}
        
         if($Success){
-            CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => "Triggered by " . User::get_user_full_name()]);
+            CronJobLogApp::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => "Triggered by " . User::get_user_full_name()]);
             return Response::json(array("status" => "success", "message" => "Cron Job is triggered." ));
         }else{
             return Response::json(array("status" => "failed", "message" => "Failed to trigger Cron Job"));
@@ -343,7 +343,7 @@ class CronJobAppController extends \BaseController {
      */
     public function terminate($CronJobID) {
 
-        $status = CronJob::ActiveCronJobEmailSend($CronJobID);
+        $status = CronJobApp::ActiveCronJobEmailSend($CronJobID);
 
         if(is_null($status)) {
             return Response::json(array("status" => "failed", "message" => "Invalid CronJobID." ));
@@ -368,8 +368,8 @@ class CronJobAppController extends \BaseController {
         }
         if(empty($CronJobID)){
             return Response::json(array("status" => "failed", "message" => "Invalid CronJobID." ));
-        } else if(CronJob::find($CronJobID)->update(["Status"=>$Status])){
-            CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => $Status_to . " by " . User::get_user_full_name()]);
+        } else if(CronJobApp::find($CronJobID)->update(["Status"=>$Status])){
+            CronJobLogApp::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => $Status_to . " by " . User::get_user_full_name()]);
             return Response::json(array("status" => "success", "message" => $Status_to ));
         }else {
             return Response::json(array("status" => "failed", "message" => "Failed to Stop the Cron Job." ));
@@ -403,7 +403,7 @@ class CronJobAppController extends \BaseController {
     public function check_failing(){
 
         $CompanyID = User::get_companyID();
-        $is_cronjob_failing = CronJob::is_cronjob_failing($CompanyID);
+        $is_cronjob_failing = CronJobApp::is_cronjob_failing($CompanyID);
         if($is_cronjob_failing){
             return Response::json(array("status" => "success", "message" => "Cron Job is Failing." ));
         }else {
