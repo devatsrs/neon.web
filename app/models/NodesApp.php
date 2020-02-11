@@ -1,6 +1,6 @@
 <?php
 
-class Nodes extends \Eloquent {
+class NodesApp extends \Eloquent {
 
 	//protected $fillable = ["NoteID","CompanyID","AccountID","Title","Note","created_at","updated_at","created_by","updated_by" ];
 
@@ -23,7 +23,7 @@ class Nodes extends \Eloquent {
     }
 
     public static function getServersFromCronJob($CronJobID,$CompanyID){
-        $Cron = CronJob::where(['CronJobID' => $CronJobID , 'CompanyID' => $CompanyID])->first();
+        $Cron = CronJobApp::where(['CronJobID' => $CronJobID , 'CompanyID' => $CompanyID])->first();
 		$Nodes = json_decode($Cron->Settings,true);
 		$CheckServerStatus = [];
 		if(!empty($Nodes['Nodes'])){
@@ -41,7 +41,7 @@ class Nodes extends \Eloquent {
     }
 
     public static function FindNodesInCronJob($ServerID){
-        $Crons = CronJob::where('CompanyID',1)->get();
+        $Crons = CronJobApp::where('CompanyID',1)->get();
 		foreach($Crons as $Cron){
 			$Settings = json_decode($Cron->Settings,true);
 			if(isset($Settings['Nodes'])){
