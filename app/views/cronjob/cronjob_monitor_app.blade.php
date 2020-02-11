@@ -324,7 +324,7 @@
                 result = confirm("Are you Sure?");
                 if(result){
                     status = ($(this).attr('data-status')==0)?1:0;
-                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/change_status/' +  status );
+                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/change_status/' +  status + '/app' );
                 }
             });
 
@@ -332,7 +332,7 @@
                 result = confirm("Are you Sure?");
                 if(result){
                     status = ($(this).attr('data-status')==0)?1:0;
-                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/terminate'  );
+                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/terminate/app'  );
                 }
             });
 
@@ -340,7 +340,7 @@
                 result = confirm("Are you Sure?");
                 if(result){
                     status = ($(this).attr('data-status')==0)?1:0;
-                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/trigger'  );
+                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/trigger/app'  );
                 }
             });
 
@@ -348,7 +348,7 @@
                 result = confirm("Are you Sure to Start Cron Tab?");
                 if(result){
 
-                    ajax_json(baseurl+'/cronjob/change_crontab_status/1','',function(response){
+                    ajax_json(baseurl+'/cronjob/change_crontab_status/1/app','',function(response){
                         $(".btn").button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
@@ -365,7 +365,7 @@
             $('.stop_crontab').click(function(ev){
                 result = confirm("Are you Sure to Stop Cron Tab?");
                 if(result){
-                    ajax_json(baseurl+'/cronjob/change_crontab_status/0','',function(response){
+                    ajax_json(baseurl+'/cronjob/change_crontab_status/0/app','',function(response){
                         $(".btn").button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
